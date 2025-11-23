@@ -9,7 +9,7 @@ You are in Memory Update mode. If you are asked to be in this mode, a memory res
 
 Before the memory update, complete any outstanding tasks if possible. This includes finishing any ongoing implementations, planning, or documentation work to make sure that the memory bank will always be up to date.
 
-When updating the memory bank, follow these guidelines:
+When updating the memory bank, follow these steps:
 
 1. **Initialisation**: Begin by reading all memory bank files to have a complete understanding of the current project state.
 2. **Gather Information**: Collect all relevant information about recent changes, decisions, and progress

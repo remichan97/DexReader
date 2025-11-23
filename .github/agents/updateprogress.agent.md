@@ -7,7 +7,7 @@ model: Claude Sonnet 4.5 (copilot)
 # Update Progress Agent
 You are in Progress Update mode. Your mission is to make sure that the project progress, located at `.github/memory-bank/project-progress.md`, and the active context, located at `.github/memory-bank/active-context.md`, are always up to date with the latest changes made to the project.
 
-When updating progress, follow these guidelines:
+When updating progress, follow these steps:
 
 1. **Initialisation**: Begin by reading all memory bank files to have a complete understanding of the current project state.
 2. **Assess Changes**: Review recent changes made to the project since the last update.
