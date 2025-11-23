@@ -1,8 +1,8 @@
 # DexReader Project Progress & Timeline
 
 **Project Start**: 23 November 2025
-**Current Phase**: Foundation - Project Initialization
-**Last Updated**: 23 November 2025
+**Current Phase**: Phase 1 - Core Architecture (Planning)
+**Last Updated**: 24 November 2025
 
 ---
 
@@ -71,10 +71,10 @@
 
 ---
 
-### Phase 1: Core Architecture (Planned) ⚪
+### Phase 1: Core Architecture (Planning) 🔵
 
 **Duration**: 3-4 weeks
-**Status**: Not Started
+**Status**: Planning - P1-T01 in progress
 **Target Start**: December 2025
 **Target Completion**: January 2026
 
@@ -99,7 +99,7 @@
 
 **Key Technical Tasks**:
 
-- [ ] **P1-T01**: Design main application layout
+- [🔵] **P1-T01**: Design main application layout (loading states strategy defined)
 - [ ] **P1-T02**: Implement menu bar and navigation
 - [ ] **P1-T03**: Create base UI component library
 - [ ] **P1-T04**: Set up state management (Zustand/Redux)
@@ -541,6 +541,30 @@
 ---
 
 ## Notes & Decisions
+
+### 24 November 2025
+
+- **P1-T01 Planning Session**: Refined main application layout design with comprehensive loading states
+- **Loading State Strategy Defined**:
+  - Skeleton screens for content grids (Browse, Library, Manga Detail views)
+  - Two-phase reader loading: Online mode (indeterminate spinner for at-home query → deterministic progress ring for image streaming), Offline mode (instant loading from downloads directory)
+  - Linear progress bars for download operations (Downloads view)
+  - Indeterminate spinners for modal operations (app load, import/export)
+  - No indicators for instant local operations (favorites, collections, settings)
+- **Progress Indicators Specified**:
+  - Circular progress ring for online reader (no percentage text, clean design)
+  - Horizontal progress bars for downloads (with speed, ETA, size, support for multiple simultaneous downloads)
+  - Windows 11 design language (accent colors, smooth transitions, subtle effects)
+- **Reader Loading Refined**:
+  - Online: Phase 1 query at-home endpoint (indeterminate) → Phase 2 stream images (deterministic 0-100%)
+  - Offline: Instant loading from local filesystem (100ms threshold for rare slow reads)
+- **Download Progress Enhanced**:
+  - Linear progress bars in dedicated Downloads view
+  - Display: Chapter title, progress %, download speed, ETA, total size
+  - Support chapter and manga-level downloads with stacked list UI
+- Updated P1-T01 plan with 12 tasks, new deliverables, and acceptance criteria
+- Estimated effort updated: 5-6 days (was 4-5 days)
+- All loading patterns follow Windows 11 conventions
 
 ### 23 November 2025
 

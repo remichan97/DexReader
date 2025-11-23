@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 23 November 2025
-**Current Phase**: Phase 0 - Foundation
-**Session**: Initial Project Setup
+**Last Updated**: 24 November 2025
+**Current Phase**: Phase 1 - Core Architecture (Planning)
+**Session**: P1-T01 Loading States Design
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -10,42 +10,75 @@
 
 ## Current Status Summary
 
-**Phase**: Phase 0 - Foundation ✅
-**Progress**: 100% Complete
-**Completed**: 23 November 2025
+**Phase**: Phase 1 - Core Architecture 🔵
+**Progress**: P1-T01 Planning (loading states defined)
+**Current Date**: 24 November 2025
 
-### ✅ Completed This Session
+### ✅ Completed This Session (24 Nov 2025) (24 Nov 2025)
 
-1. Project scaffolded with electron-vite template
-2. Development environment configured (Node 22.21.1, npm 11.3.0)
-3. Dependencies installed successfully
-4. Memory bank documentation structure created:
-   - `system-pattern.md` - Complete architecture patterns
-   - `tech-context.md` - Full technology stack documentation
-   - `project-progress.md` - Complete timeline with task codes
-   - `active-context.md` - Session dashboard
-   - `project-brief.md` - Project vision and requirements
-5. Task coding system implemented (P1-T01 through P7-T08)
-6. Core application features and requirements defined
-7. Project scope established (MangaDex integration details)
-8. Coding standards verified (Prettier + ESLint already configured)
-9. Git repository initialized with first commit
-10. Repository pushed to GitHub (remichan97/DexReader)
+1. **P1-T01 Loading States Strategy**: Comprehensive loading pattern system designed
+2. **Skeleton Screens**: Defined for Browse, Library, and Manga Detail views (8px radius, shimmer animation)
+3. **Reader Loading States**:
+   - Online mode: Two-phase loading (indeterminate → deterministic)
+   - Offline mode: Instant loading from downloads directory (100ms threshold)
+4. **Progress Indicators**:
+   - Circular progress ring for reader (no percentage text, Windows 11 accent color)
+   - Linear progress bars for Downloads view (horizontal, with speed/ETA/size)
+5. **Download Progress UI**: Specified horizontal bars with chapter title, %, speed, ETA, total size
+6. **Indeterminate Spinners**: Defined for modal operations (app load, import/export)
+7. **Loading Decision Matrix**: Documented when to use each pattern (skeleton vs ring vs bar vs spinner vs none)
+8. **Error States**: Designed for network, API, and file system failures
+9. **Empty States**: Designed with clear CTAs for empty library, no search results, no downloads
+10. **TypeScript Interfaces**: Specified LoadingSpinner, ProgressRing, DownloadProgress props
+11. **Windows 11 Design**: All patterns follow Fluent Design language (accent colors, smooth transitions)
+12. Updated P1-T01 plan: 12 tasks, updated deliverables and acceptance criteria, 5-6 days effort
 
 ### 🔄 Active Work
 
-- Ready to begin Phase 1
+- **P1-T01**: Main application layout design (loading states defined, ready for wireframes execution)
 
 ### ⏳ Next Actions
 
-1. **P1-T01**: Design main application layout
-2. **P1-T02**: Implement menu bar and navigation
-3. Plan Phase 1 detailed milestones and subtasks
-4. Set up project dependencies for MangaDex API integration
+1. Execute **P1-T01**: Create wireframes for Browse, Library, Reader, Settings views
+2. **P1-T01**: Design component hierarchy and routing plan
+3. **P1-T01**: Document Windows 11 design tokens (complete CSS variables)
+4. **P1-T01**: Write component specifications for all layout components
+5. **P1-T02**: Implement menu bar and navigation (after P1-T01 design complete)
 
 ---
 
-## Recent Decisions (23 Nov 2025)
+## Recent Decisions
+
+### 24 November 2025
+
+**Loading States Strategy**:
+
+- ✅ Skeleton screens for content-heavy grids (Browse, Library, Manga Detail)
+- ✅ Two-phase reader loading: Online (indeterminate → deterministic), Offline (instant)
+- ✅ Linear progress bars for download operations (Downloads view)
+- ✅ No percentage text in circular progress rings (clean design)
+- ✅ Horizontal progress bars show: title, %, speed, ETA, total size
+- ✅ Support multiple simultaneous downloads (stacked list UI)
+- ✅ No indicators for instant local operations (favorites, collections, settings, navigation)
+- ✅ Indeterminate spinners only for modal operations (app load, import/export)
+- ✅ 100ms threshold for offline reader (fallback spinner for rare slow filesystem reads)
+
+**Progress Indicator Patterns**:
+
+- ✅ Circular rings: Reader view (online image streaming)
+- ✅ Linear bars: Downloads view (file operations)
+- ✅ Skeleton screens: Content grids (perceived performance)
+- ✅ Spinners: Modal/blocking operations (unknown duration)
+- ✅ None: Local instant operations (immediate feedback)
+
+**Windows 11 Design**:
+
+- ✅ All loading patterns use accent colors (light: #0078d4, dark: #60cdff)
+- ✅ Smooth transitions (150ms quick, 300ms smooth)
+- ✅ Subtle effects (4-6px progress bars, 8px skeleton radius, shimmer animation)
+- ✅ Native feel (follows Windows file operation conventions)
+
+### 23 November 2025
 
 **Content & API**:
 
@@ -97,12 +130,13 @@
 
 ## Current Work Focus
 
-### Today's Goals
+### Today's Goals (24 Nov 2025)
 
-- [ ] Document core feature requirements
-- [ ] Define target user experience
-- [ ] Create project brief document
-- [ ] **P1-T01**: Plan Phase 1 architecture
+- [✅] Define comprehensive loading state strategy for all views
+- [✅] Specify reader loading states (online two-phase, offline instant)
+- [✅] Design download progress indicators (linear bars with detailed info)
+- [✅] Document loading pattern decision matrix
+- [✅] Update P1-T01 plan with complete loading specifications
 
 ### Current Blockers
 
@@ -125,6 +159,70 @@ npm run typecheck   # Validate types only
 ---
 
 ## Session Notes
+
+### 24 November 2025 - P1-T01 Loading States Design
+
+**Accomplished**:
+
+- Refined P1-T01 plan with comprehensive loading state strategy
+- Defined five loading pattern categories:
+  1. Skeleton screens (Browse, Library, Manga Detail grids)
+  2. Reader loading (online: two-phase, offline: instant)
+  3. Linear progress bars (Downloads view with detailed info)
+  4. Indeterminate spinners (modal operations)
+  5. No indicators (instant local operations)
+- Specified circular progress ring for online reader:
+  - Phase 1: Indeterminate spinner (querying at-home endpoint)
+  - Phase 2: Deterministic ring 0-100% (streaming images)
+  - Clean design: No percentage text in center
+- Designed linear progress bars for Downloads view:
+  - Horizontal bars (4-6px height, 2px rounded ends)
+  - Display: Chapter title, progress %, download speed, ETA, total size
+  - Support multiple simultaneous downloads (stacked list)
+  - Status states: downloading, paused, completed, error
+- Specified offline reader instant loading:
+  - No indicator when loading from downloads directory
+  - Fallback spinner only if filesystem read >100ms (rare)
+- Created TypeScript interfaces:
+  - `LoadingSpinnerProps` (indeterminate, with optional message)
+  - `ProgressRingProps` (deterministic 0-100%, size variants)
+  - `DownloadProgressProps` (title, progress, speed, ETA, size, status)
+- Documented when NOT to show loading indicators:
+  - Favorites (instant icon change)
+  - Collections (local-only)
+  - Settings (instant)
+  - Navigation (instant route change)
+- Updated P1-T01 deliverables and acceptance criteria
+- Increased estimated effort to 5-6 days (from 4-5 days)
+- All patterns follow Windows 11 design language
+
+**Key Decisions**:
+
+- Skeleton screens provide better UX than spinners for content grids
+- Two-phase loading needed for MangaDex API flow (at-home query → image URLs)
+- Offline reading should feel instant (no loading indicators unless filesystem slow)
+- Linear progress bars superior to circular spinners for file downloads
+- Detailed download info (speed, ETA, size) improves user experience
+- Progress rings without percentage text maintain clean visual design
+- Local operations don't need loading indicators (instant feedback preferred)
+
+**Design Specifications Created**:
+
+- Skeleton card CSS with shimmer animation
+- Circular progress ring (48-64px, accent color, smooth transitions)
+- Linear progress bar (4-6px height, rounded ends, stacked layout)
+- Indeterminate spinner (Windows 11 style, modal overlays)
+- Error states (network banner/toast, API details, filesystem dialog)
+- Empty states (clear CTAs for empty library, no results, no downloads)
+
+**Next Session**:
+
+1. Execute **P1-T01 Step 1**: Create wireframes for all 4 primary views
+2. **P1-T01 Step 2**: Design React component hierarchy
+3. **P1-T01 Step 3**: Evaluate and select routing library (React Router v6 recommended)
+4. **P1-T01 Step 4**: Design dual navigation (menu bar + sidebar)
+5. **P1-T01 Step 5**: Design reader layout (single/double/vertical modes)
+6. **P1-T01 Step 6-9**: Responsive behavior, Windows 11 tokens, component specs, loading/error/empty states
 
 ### 23 November 2025 - Initial Setup & Planning
 
@@ -201,4 +299,4 @@ npm run typecheck   # Validate types only
 
 ---
 
-*Last session: 23 Nov 2025 | Next session: TBD*
+*Last session: 24 Nov 2025 | Next session: TBD*
