@@ -169,6 +169,124 @@ if (process.contextIsolated) {
 
 ---
 
+## Filesystem & Security Model
+
+### Restricted Filesystem Access
+
+**Principle**: DexReader restricts itself to specific, user-controlled directories only.
+
+**Allowed Directories**:
+
+1. **AppData Directory** (Automatic, no user config needed)
+
+   ```typescript
+   app.getPath('userData')
+   // Windows: C:\Users\<username>\AppData\Roaming\dexreader
+   ```
+
+   **Contains**:
+   - Application database (bookmarks, reading progress, collections)
+   - Cover image cache
+   - Application settings/preferences
+   - Logs
+
+2. **Downloads Directory** (User-configurable)
+
+   ```typescript
+   // Default location
+   app.getPath('downloads') + '/DexReader'
+   // User can change via Settings
+   ```
+
+   **Contains**:
+   - Downloaded manga chapters (images)
+   - Downloaded manga metadata
+   - User-initiated explicit downloads only
+
+**Filesystem Rules**:
+
+```typescript
+// Example: Path validation in main process
+import path from 'path'
+import { app } from 'electron'
+
+const ALLOWED_BASE_PATHS = {
+  appData: app.getPath('userData'),
+  downloads: null as string | null  // Set by user preference
+}
+
+function isPathAllowed(requestedPath: string): boolean {
+  const normalized = path.normalize(path.resolve(requestedPath))
+
+  // Always allow app data
+  if (normalized.startsWith(ALLOWED_BASE_PATHS.appData)) {
+    return true
+  }
+
+  // Allow configured downloads directory
+  if (ALLOWED_BASE_PATHS.downloads &&
+      normalized.startsWith(ALLOWED_BASE_PATHS.downloads)) {
+    return true
+  }
+
+  return false
+}
+
+// All file operations MUST validate paths
+ipcMain.handle('read-file', async (event, filePath) => {
+  if (!isPathAllowed(filePath)) {
+    throw new Error('Access denied: Path outside allowed directories')
+  }
+  // Safe to proceed
+  return fs.promises.readFile(filePath)
+})
+```
+
+**Network Access Restrictions**:
+
+- Only connect to whitelisted domains:
+  - `api.mangadex.org` (API)
+  - `uploads.mangadex.org` (CDN)
+  - MangaDex at-home servers (for chapter images)
+- No arbitrary URL access
+- All API calls go through validated client
+
+**What DexReader CANNOT Access**:
+
+- System directories (System32, Program Files, etc.)
+- User's Documents, Pictures, Videos (unless explicitly selected via file dialog)
+- Other applications' data
+- Registry (except for theme detection via Electron APIs)
+- Running processes
+- Webcam, microphone, location (not needed)
+
+**User Controls**:
+
+```typescript
+// Settings interface for downloads directory
+interface AppSettings {
+  downloadsPath: string  // User can change via native folder picker
+  // When changed, validate and update ALLOWED_BASE_PATHS.downloads
+}
+
+// Native folder picker for security
+async function selectDownloadsFolder() {
+  const result = await dialog.showOpenDialog({
+    properties: ['openDirectory', 'createDirectory'],
+    title: 'Select Downloads Folder',
+    defaultPath: ALLOWED_BASE_PATHS.downloads || app.getPath('downloads')
+  })
+
+  if (!result.canceled && result.filePaths.length > 0) {
+    // User explicitly selected this path
+    ALLOWED_BASE_PATHS.downloads = result.filePaths[0]
+    // Save to settings
+  }
+}
+```
+
+---
+
 ## Code Conventions
 
 ### Formatting (Prettier)

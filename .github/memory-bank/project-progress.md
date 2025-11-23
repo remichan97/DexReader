@@ -85,15 +85,17 @@
 - Set up state management
 - Create base UI components
 - Establish IPC communication patterns
-- Implement file system integration
+- Implement restricted filesystem access (AppData + user-configurable downloads)
+- Set up path validation and security model
 
 **Deliverables**:
 
 - Main application window with menu system
-- Basic file operations (open, close, navigate)
+- Restricted filesystem access implementation
+- Path validation system (AppData + downloads only)
 - Component library foundation
 - IPC communication layer
-- File type detection system
+- Secure file operations handlers
 
 **Key Technical Tasks**:
 
@@ -101,10 +103,11 @@
 - [ ] **P1-T02**: Implement menu bar and navigation
 - [ ] **P1-T03**: Create base UI component library
 - [ ] **P1-T04**: Set up state management (Zustand/Redux)
-- [ ] **P1-T05**: Implement file system handlers
-- [ ] **P1-T06**: Create IPC messaging architecture
-- [ ] **P1-T07**: Add file type detection
-- [ ] **P1-T08**: Implement basic error handling
+- [ ] **P1-T05**: Implement restricted filesystem access model
+- [ ] **P1-T06**: Create path validation for AppData and downloads directories
+- [ ] **P1-T07**: Implement file system handlers (with path restrictions)
+- [ ] **P1-T08**: Create IPC messaging architecture
+- [ ] **P1-T09**: Implement basic error handling
 
 ---
 
@@ -164,6 +167,7 @@
 - Enhance UI/UX design
 - Add theming support (light/dark mode)
 - Implement keyboard shortcuts and user preferences
+- Add downloads directory configuration
 - Add library import/export (Tachiyomi compatibility)
 
 **Deliverables**:
@@ -173,7 +177,7 @@
 - Manga discovery and browsing UI
 - Polished UI with theme support (light/dark mode)
 - Comprehensive keyboard shortcuts
-- Settings/preferences panel
+- Settings/preferences panel with downloads directory configuration
 - Library import/export functionality (native DexReader + Tachiyomi formats)
 
 **Key Technical Tasks**:
@@ -187,13 +191,14 @@
 - [ ] **P3-T07**: Add popular/trending manga discovery
 - [ ] **P3-T08**: Design and implement theme system (light/dark)
 - [ ] **P3-T09**: Create settings/preferences UI
-- [ ] **P3-T10**: Implement keyboard shortcut system
-- [ ] **P3-T11**: Implement library import from Tachiyomi backup
-- [ ] **P3-T12**: Implement library export to native DexReader format (JSON)
-- [ ] **P3-T13**: Implement library export to Tachiyomi format (cross-compatibility)
-- [ ] **P3-T14**: Add native DexReader backup restore functionality
-- [ ] **P3-T15**: Add backup/restore for app settings
-- [ ] **P3-T14**: Improve accessibility (ARIA labels, etc.)
+- [ ] **P3-T10**: Implement downloads directory configuration (native folder picker)
+- [ ] **P3-T11**: Implement keyboard shortcut system
+- [ ] **P3-T12**: Implement library import from Tachiyomi backup
+- [ ] **P3-T13**: Implement library export to native DexReader format (JSON)
+- [ ] **P3-T14**: Implement library export to Tachiyomi format (cross-compatibility)
+- [ ] **P3-T15**: Add native DexReader backup restore functionality
+- [ ] **P3-T16**: Add backup/restore for app settings
+- [ ] **P3-T17**: Improve accessibility (ARIA labels, etc.)
 
 ---
 
@@ -207,34 +212,37 @@
 **Objectives**:
 
 - Implement explicit chapter downloads (user-initiated only)
-- Create local chapter storage system
+- Create local chapter storage system (user-configured downloads directory)
 - Add offline reading mode for downloaded content
 - Implement download management UI
 - Add reading statistics and history
 - Support downloading individual chapters or entire manga
+- Respect filesystem restrictions (downloads directory only)
 
 **Deliverables**:
 
 - Explicit chapter download manager with queue system
-- Local storage for user-downloaded chapters only
+- Local storage for user-downloaded chapters (user-configured downloads directory)
 - Offline reading mode for downloaded content
 - Download progress and management UI (per-chapter and bulk)
-- Local library database (SQLite/IndexedDB)
+- Local library database in AppData (SQLite/IndexedDB)
 - Reading statistics and history tracking
+- Download directory management with path validation
 
 **Key Technical Tasks**:
 
 - [ ] **P4-T01**: Implement explicit download system (user-initiated only)
 - [ ] **P4-T02**: Create download queue manager for chapters
-- [ ] **P4-T03**: Add local image storage system (file system)
-- [ ] **P4-T04**: Implement library database for downloaded content (SQLite/IndexedDB)
+- [ ] **P4-T03**: Add local image storage system (user-configured downloads directory)
+- [ ] **P4-T04**: Implement library database in AppData (SQLite/IndexedDB)
 - [ ] **P4-T05**: Create download progress tracking (per-chapter and bulk)
 - [ ] **P4-T06**: Build download management UI (download chapter/manga buttons)
 - [ ] **P4-T07**: Add batch downloads (entire manga or selected chapters)
 - [ ] **P4-T08**: Implement offline mode detection and switching
 - [ ] **P4-T09**: Create storage management for downloaded chapters and covers
-- [ ] **P4-T10**: Add reading statistics database
+- [ ] **P4-T10**: Add reading statistics database (AppData)
 - [ ] **P4-T11**: Implement storage quota management and cleanup
+- [ ] **P4-T12**: Validate all file operations respect path restrictions
 
 ---
 

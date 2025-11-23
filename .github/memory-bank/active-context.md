@@ -24,7 +24,7 @@
    - `tech-context.md` - Full technology stack documentation
    - `project-progress.md` - Complete timeline with task codes
    - `active-context.md` - Session dashboard
-   - `project-brief.md` - Project vision and requirements ✅ NEW
+   - `project-brief.md` - Project vision and requirements
 5. Task coding system implemented (P1-T01 through P7-T08)
 6. Core application features and requirements defined
 7. Project scope established (MangaDex integration details)
@@ -69,6 +69,29 @@
 - ✅ Electron 38 + React 19 + TypeScript 5.9
 - ✅ electron-vite for build system
 - ✅ Three-process architecture (main/preload/renderer)
+
+**UI/UX Design**:
+
+- ✅ Windows 11 native design system (Mica, Acrylic effects)
+- ✅ System theme detection (auto light/dark based on Windows)
+- ✅ Native OS title bar with menu bar (File, View, Library, Tools, Help)
+- ✅ Collapsible sidebar navigation (secondary to menu bar)
+- ✅ Custom components (no UI library for performance)
+- ✅ Segoe UI Variable font
+
+**Security Model**:
+
+- ✅ Restricted filesystem access (2 directories only)
+- ✅ AppData: Database, cache, settings (automatic)
+- ✅ Downloads: User-configurable via native folder picker
+- ✅ Path validation enforced on all file operations
+- ✅ Network restricted to MangaDex domains only
+
+**Features**:
+
+- ✅ Library import/export (native DexReader + Tachiyomi formats)
+- ✅ Downloads directory configuration in Settings
+- ✅ Backup/restore for app data
 
 ---
 
@@ -116,12 +139,23 @@ npm run typecheck   # Validate types only
   - Explicit downloads only (no auto-caching)
   - Online functionality first, offline later
   - Public API endpoints only (no authentication)
-- Implemented task coding system (P1-T01 through P7-T08)
+- Implemented task coding system (P1-T01 through P7-T12)
 - Documented complete 7-month timeline with 8 phases
 - Established architecture patterns and tech context
 - Set up Git repository with initial commit
 - Pushed to GitHub (remichan97/DexReader)
 - Verified coding standards already configured (Prettier + ESLint)
+- Designed Windows 11 native UI system:
+  - System theme detection (light/dark auto-switching)
+  - Native menu bar + collapsible sidebar navigation
+  - Mica/Acrylic effects for modern Windows look
+  - Custom components (no UI library)
+- Established security model:
+  - Restricted filesystem (AppData + user-configured downloads only)
+  - Path validation on all file operations
+  - Network restricted to MangaDex domains
+- Added library import/export feature (native + Tachiyomi formats)
+- Created detailed P1-T01 plan (main application layout)
 
 **Key Insights**:
 
@@ -138,15 +172,21 @@ npm run typecheck   # Validate types only
 - Personal library with collections
 - Explicit chapter/manga downloads
 - Check for updates on demand or startup
+- Library import from Tachiyomi backups
+- Library export (native DexReader + Tachiyomi formats)
+- User-configurable downloads directory
+- Windows 11 native design with system theme sync
 
 **Next Session**:
 
-1. **P1-T01**: Design main application layout
-2. Plan Phase 1 tasks in detail with subtasks
-3. **P1-T02**: Implement menu bar and navigation
-4. **P1-T03** to **P1-T08**: Continue Phase 1 implementation
+1. Execute **P1-T01**: Design main application layout (wireframes, component hierarchy, Windows 11 design tokens)
+2. **P1-T02**: Implement menu bar and navigation
+3. **P1-T05**: Implement restricted filesystem access model
+4. **P1-T06**: Create path validation system
+5. Continue Phase 1 implementation (**P1-T03** to **P1-T09**)
 
-> **Task Reference**: See `project-progress.md` for technical task codes (P1-T01 through P7-T08)
+> **Task Reference**: See `project-progress.md` for technical task codes (P1-T01 through P7-T12)
+> **Design Plan**: See `.github/copilot-plans/P1-T01-main-application-layout-plan.md` for layout design details
 
 ---
 
