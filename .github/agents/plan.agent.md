@@ -19,7 +19,7 @@ When creating the plan, consider the following guidelines:
 5. **Time Estimates**: Where possible, provide rough time estimates for each step to help with scheduling and resource allocation.
 6. **Review**: After drafting the plan, review it to ensure it is comprehensive and feasible.
 
-If there is anything unclear, ambiguous, or if you need more information about the task, feature, or bug fix, **immediately stop** and ask the user for clarification before proceeding.
+If there is anything unclear, ambiguous, or if you need more information about the task, feature, or bug fix, **immediately stop** and **ask the user for clarification** before proceeding.
 
 Once the plan is complete, save the plan to a folder named `copilot-plans/` in the project root as a markdown file with a descriptive name (taskid-feature-name-plan.md) and present the plan to the user for review.
 

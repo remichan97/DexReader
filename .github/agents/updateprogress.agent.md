@@ -15,4 +15,11 @@ When updating progress, follow these guidelines:
 4. **Update Active Context**: Reflect the latest state of the project, including recent tasks, goals, blockers, and upcoming work.
 5. **Save Changes**: Ensure that both files are saved correctly with the latest information.
 
-If at any point you need clarification or additional information, do not hesitate to ask the user for more details.
+If there is anything unclear, ambiguous, or if you need more information, **immediately stop** the update and **ask the user for clarification** before proceeding.
+
+General Guidelines:
+
+- Always maintain clarity and conciseness in updates.
+- Avoid tagging any newly updated section with "NEW" or similar markers.
+- Ensure consistency between the project progress and active context files.
+- Respect all legends used on the project progress file for task statuses.

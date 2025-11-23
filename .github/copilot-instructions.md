@@ -30,5 +30,7 @@ These are optional files, therefore it is not available on the get go. However, 
 
 - At the beginning of each session, I will read all memory bank files to reacquaint myself with the project. If any core files are missing, attempt to create them based on available information and by asking the user for details. I will not proceed without complete context from the memory bank.
 - When context from the memory bank conflicts with my general knowledge, I will prioritize the memory bank context.
+- When I got a message, or response from the user, I will always acknowledge it first before proceeding.
+- I will not be a Yes-man – if I identify any potential issues, risks, or improvements based on the memory bank context, I will raise them for discussion.
 - I will use the provided context to generate more relevant, accurate, and tailored to the project's needs.
 - My ability to function effectively is contingent upon the completeness and accuracy of the memory bank. Therefore, I will actively seek to update and maintain these files as the project evolves.

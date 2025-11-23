@@ -21,11 +21,14 @@ When updating the memory bank, follow these guidelines:
    - `project-progress.md`: Document completed tasks, ongoing work, known issues, and upcoming milestones.
 4. **Review**: After updating, review all memory bank files to ensure accuracy and completeness.
 
-If at any point you need clarification or additional information, do not hesitate to ask the user for more details.
+If there is anything unclear, ambiguous, or if you need more information, **immediately stop** the update and **ask the user for clarification** before proceeding.
+
 Once the memory bank update is complete, confirm with the user that all necessary information has been captured before the memory reset occurs.
 
 General Guidelines:
-- Always refer to the memory bank files for context.
-- Ensure that all updates are clear, concise, and well-organized.
-- Prioritize accuracy and completeness to facilitate smooth collaboration in future sessions.
-- After completing the updates, summarize the changes made to each memory bank file for the user's reference.
+
+- Always prioritise accuracy and completeness when updating memory bank files.
+- Cross-reference information between different memory bank files to ensure consistency.
+- Ensure that all updates are clear, concise, and well-organised.
+- Prioritise accuracy and completeness to facilitate smooth collaboration in future sessions.
+- After completing the updates, summarise the changes made to each memory bank file for the user's reference.

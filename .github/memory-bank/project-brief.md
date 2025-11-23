@@ -21,3 +21,7 @@ MangaDex is a great manga resource, powered by the community, that provide the m
 - Allow user to organise their personal library by sorting bookmarked manga titles into different collection
 - Allow user to download a manga chapter, or the whole manga title or offline reading
 - Allow user to quickly get up-to-date with their bookmarked titles by checking for new chapter by demand, and/or on app startup
+- Allow user to import their manga library from Tachiyomi, a popular Android app for reading manga
+- Allow user to export their manga library to:
+  - Native DexReader backup format (for app restoration)
+  - Tachiyomi compatible backup file (for cross-platform use)
