@@ -564,6 +564,7 @@ Created 11 comprehensive design documents in `docs/` folder:
 **Total**: ~110KB of implementation-ready documentation covering all aspects of main application layout
 
 **Design Decisions Finalized**:
+
 - React Router v6 for routing (vs TanStack Router, Wouter, custom)
 - Three reading modes: Single page (centered), Double page (R-L), Vertical scroll (webtoon)
 - Dual navigation: Native menu bar (primary) + collapsible sidebar (secondary, 240px/48px)

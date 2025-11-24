@@ -31,6 +31,7 @@
 11. **loading-feedback-states.md**: Skeleton screens (shimmer animation), progress rings (reader 0-100%), progress bars (downloads with speed/ETA), spinners (modal ops), error states (network/API/filesystem), empty states (library/search/downloads), modal strategy (native vs custom), TypeScript interfaces
 
 **All 9 P1-T01 Steps Executed**:
+
 - ✅ Step 1: Layout Wireframes (wireframes.md, navigation-flow.md, layout-specification.md, windows11-design-tokens.md, menu-bar-structure.md)
 - ✅ Step 2: Component Hierarchy (component-hierarchy.md)
 - ✅ Step 3: Routing Solution (routing-decision.md - React Router v6 selected)
@@ -44,6 +45,7 @@
 **Documents Saved**: All 11 markdown files organised in `docs/` folder (design/, architecture/, components/) for git tracking
 
 **P1-T02 PLANNING COMPLETE** - Implementation plan created:
+
 - **Plan Document**: `.github/copilot-plans/P1-T02-implement-menu-bar-and-navigation.md`
 - **Estimated Duration**: 2-3 days (16-24 hours)
 - **10 Implementation Steps**: Dependencies → Menu bar → Theme detection → Design tokens → AppShell → Sidebar → Router → IPC handlers → Keyboard shortcuts → Integration
