@@ -7,6 +7,10 @@ handoffs:
     agent: "Implementing"
     prompt: "The implementation plan looks good and is ready to be executed. Please proceed with the implementation following the outlined steps."
     send: false
+  - label: "Update Progress"
+    agent: "UpdateProgress"
+    prompt: "The implementation plan looks great and is ready for implementation. Please update the project progress for now and we will implement it later."
+    send: true
 ---
 
 # Planning Agent
