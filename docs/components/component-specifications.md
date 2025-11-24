@@ -31,6 +31,7 @@ interface AppShellState {
 ```
 
 **CSS Classes**:
+
 ```css
 .app-shell {
   display: flex;
@@ -53,6 +54,7 @@ interface AppShellState {
 ```
 
 **Accessibility**:
+
 - Skip link to main content: `<a href="#main-content">Skip to main content</a>`
 - Landmark regions: `<nav>`, `<main role="main" id="main-content">`
 
@@ -79,6 +81,7 @@ interface SidebarItem {
 ```
 
 **CSS Classes**:
+
 ```css
 .sidebar {
   width: 240px;
@@ -128,11 +131,13 @@ interface SidebarItem {
 ```
 
 **Keyboard Navigation**:
+
 - Arrow keys to navigate items
 - Enter/Space to activate item
 - Ctrl+B to toggle collapse
 
 **ARIA Attributes**:
+
 ```tsx
 <nav
   className="sidebar"
@@ -165,6 +170,7 @@ interface ViewContainerProps {
 ```
 
 **CSS Classes**:
+
 ```css
 .view-container {
   flex: 1;
@@ -180,6 +186,7 @@ interface ViewContainerProps {
 ```
 
 **Scroll Restoration**:
+
 - Save scroll position on unmount
 - Restore on mount if returning to view
 - Use `sessionStorage` key: `scroll-${routeName}`
@@ -205,6 +212,7 @@ interface MangaCardProps {
 ```
 
 **CSS Classes**:
+
 ```css
 .manga-card {
   display: flex;
@@ -250,6 +258,7 @@ interface MangaCardProps {
 ```
 
 **Accessibility**:
+
 ```tsx
 <article
   className="manga-card"
@@ -288,6 +297,7 @@ interface SearchBarProps {
 ```
 
 **CSS Classes**:
+
 ```css
 .search-bar {
   position: relative;
@@ -348,6 +358,7 @@ interface SearchBarProps {
 ```
 
 **Keyboard Navigation**:
+
 - Arrow Up/Down to navigate suggestions
 - Enter to select highlighted suggestion
 - Escape to close suggestions
@@ -368,6 +379,7 @@ interface ToastProps {
 ```
 
 **CSS Classes**:
+
 ```css
 .toast {
   position: fixed;
@@ -425,6 +437,7 @@ interface ToastProps {
 ```
 
 **Accessibility**:
+
 ```tsx
 <div
   className="toast"

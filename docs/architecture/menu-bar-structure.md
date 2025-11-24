@@ -16,7 +16,7 @@ This document specifies the complete native menu bar structure for DexReader. Th
 
 ### File Menu
 
-```
+```ui
 File
 ├─ Check for Updates...            Ctrl+U
 ├─ ──────────────────────          (separator)
@@ -46,7 +46,7 @@ File
 
 ### View Menu
 
-```
+```ui
 View
 ├─ Browse Manga                     Ctrl+1
 ├─ My Library                       Ctrl+2
@@ -104,7 +104,7 @@ View
 
 ### Library Menu
 
-```
+```ui
 Library
 ├─ Add to Favorites                 Ctrl+D
 ├─ Create Collection...             Ctrl+Shift+N
@@ -162,7 +162,7 @@ Library
 
 ### Tools Menu
 
-```
+```ui
 Tools
 ├─ Download Chapter                 Ctrl+Shift+D    [context-aware]
 ├─ Download Manga                                   [context-aware]
@@ -203,7 +203,7 @@ Tools
 
 ### Help Menu
 
-```
+```ui
 Help
 ├─ Documentation                    F1
 ├─ Keyboard Shortcuts...            Ctrl+/
@@ -244,6 +244,7 @@ Help
 ### Dynamic Enable/Disable
 
 **Download Chapter** (`Ctrl+Shift+D`):
+
 ```typescript
 // Enabled when:
 - In Reader view (current chapter available)
@@ -257,6 +258,7 @@ Help
 ```
 
 **Download Manga**:
+
 ```typescript
 // Enabled when:
 - In Manga Detail view (manga ID available)
@@ -270,6 +272,7 @@ Help
 ```
 
 **Add to Favorites** (`Ctrl+D`):
+
 ```typescript
 // Enabled when:
 - In Manga Detail view
@@ -651,6 +654,7 @@ ipcMain.on('update-menu-state', (event, state) => {
 ### Screen Reader Support
 
 All menu items have:
+
 - Clear, descriptive labels
 - Accelerator hints announced
 - Enabled/disabled state announced

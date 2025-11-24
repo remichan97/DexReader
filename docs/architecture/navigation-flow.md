@@ -16,7 +16,7 @@ This document defines how users navigate between different views in DexReader, i
 
 ### Route Hierarchy
 
-```
+```ui
 /                       → Browse View (default)
 /browse                 → Browse View (explicit)
 /browse/:mangaId        → Manga Detail View
@@ -30,7 +30,7 @@ This document defines how users navigate between different views in DexReader, i
 
 ### Navigation Graph
 
-```
+```ui
                     ┌──────────────┐
                     │ Browse View  │ ← Default landing page
                     └──────┬───────┘
@@ -62,12 +62,14 @@ This document defines how users navigate between different views in DexReader, i
 ### 1. Sidebar Navigation
 
 **Primary Views**:
+
 - Browse (Ctrl+1)
 - Library (Ctrl+2)
 - Downloads (Ctrl+3)
 - Settings (Ctrl+,)
 
 **Behavior**:
+
 - Single click navigates to view
 - Active view highlighted with accent color background
 - State preserved when switching views (scroll position, filters, etc.)
@@ -83,25 +85,30 @@ This document defines how users navigate between different views in DexReader, i
 - **Help**: Documentation, About
 
 **Behavior**:
+
 - Keyboard accessible (Alt+F, Alt+V, etc.)
 - Context-aware items enabled/disabled based on current view
 
 ### 3. In-Content Navigation
 
 **Browse View**:
+
 - Click manga card → Manga Detail View
 - Search input → Updates Browse View (same route, query param)
 
 **Library View**:
+
 - Click collection → Filtered Library View
 - Click manga card → Manga Detail View
 
 **Manga Detail View**:
+
 - Click chapter → Reader View
 - "Add to Library" button → Adds to favorites, stays on detail
 - "Download" button → Opens Downloads view (or shows modal)
 
 **Reader View**:
+
 - Previous/Next buttons → Navigate chapters (same manga)
 - Back button (top-left) → Returns to previous view
 - Chapter dropdown → Jumps to different chapter (same manga)
@@ -113,24 +120,28 @@ This document defines how users navigate between different views in DexReader, i
 ### Preserved State
 
 **Browse View**:
+
 - Search query
 - Active filters
 - Scroll position
 - Grid layout mode
 
 **Library View**:
+
 - Selected collection
 - Sort order
 - View mode (grid/list)
 - Scroll position
 
 **Reader View**:
+
 - Current page within chapter
 - Zoom level
 - Reading mode (single/double/vertical)
 - Control bar visibility state
 
 **Settings View**:
+
 - Active settings section
 
 ### Cleared State
@@ -147,12 +158,13 @@ This document defines how users navigate between different views in DexReader, i
 
 DexReader maintains navigation history similar to web browsers:
 
-```
+```ui
 User Flow Example:
 Browse → Manga Detail (A) → Reader (A, Ch.1) → [Back] → Manga Detail (A) → [Back] → Browse
 ```
 
 **Implementation**:
+
 - React Router's `useNavigate()` with `navigate(-1)` for back
 - Electron's window back button (optional)
 - Keyboard shortcut: Alt+Left (back), Alt+Right (forward)
@@ -160,15 +172,18 @@ Browse → Manga Detail (A) → Reader (A, Ch.1) → [Back] → Manga Detail (A)
 ### Context-Specific Back Behavior
 
 **From Reader View**:
+
 - Back button → Returns to the view that opened the reader
   - If opened from Browse → Returns to Manga Detail
   - If opened from Library → Returns to Library
   - If opened from "Continue Reading" → Returns to Library
 
 **From Manga Detail**:
+
 - Back button → Returns to previous view (Browse or Library)
 
 **From Settings**:
+
 - Back navigation not applicable (use sidebar/menu to leave)
 
 ---
@@ -178,12 +193,14 @@ Browse → Manga Detail (A) → Reader (A, Ch.1) → [Back] → Manga Detail (A)
 ### URL Structure
 
 All views are URL-addressable for:
+
 - Bookmarking
 - Sharing (future)
 - Direct navigation
 
 **Examples**:
-```
+
+```ui
 dexreader://browse
 dexreader://browse?q=one+piece&tags=action,adventure
 dexreader://browse/abc123-manga-id
@@ -222,6 +239,7 @@ dexreader://settings/reading
 ### View-Specific Shortcuts
 
 **Reader View**:
+
 | Shortcut | Action |
 |----------|--------|
 | Left Arrow / A | Previous page/chapter |
@@ -233,6 +251,7 @@ dexreader://settings/reading
 | M | Show chapter menu overlay |
 
 **Browse/Library Views**:
+
 | Shortcut | Action |
 |----------|--------|
 | Ctrl+F | Focus search input |
@@ -246,6 +265,7 @@ dexreader://settings/reading
 ### Route Change Animations
 
 **Standard View Transitions**:
+
 - **Fade**: 150ms for view switches (Browse ↔ Library ↔ Downloads ↔ Settings)
 - **Slide**: Reader enters from right, exits to left (300ms)
 - **Instant**: No animation for same-view updates (filter changes, collection switches)
@@ -253,11 +273,13 @@ dexreader://settings/reading
 ### Loading States During Navigation
 
 **Immediate Navigation**:
+
 - Browse → Library: Instant (all local data)
 - Library → Settings: Instant (all local data)
 - Settings → Downloads: Instant (all local data)
 
 **Network-Dependent Navigation**:
+
 - Browse → Manga Detail: Show skeleton screen while loading details
 - Manga Detail → Reader: Show progress ring while loading chapter images
 - Browse with search: Show skeleton cards while API responds
@@ -269,6 +291,7 @@ dexreader://settings/reading
 ### Session Persistence (In-Memory)
 
 **Preserved During App Session**:
+
 - Navigation history stack
 - View-specific scroll positions
 - Active filters and search queries
@@ -277,12 +300,14 @@ dexreader://settings/reading
 ### Disk Persistence (Across App Restarts)
 
 **Saved to Database**:
+
 - Last viewed route (restore on app launch)
 - Reading progress (reader position, chapter)
 - User preferences (settings)
 - Library state (bookmarks, collections)
 
 **Not Saved**:
+
 - Browse view search queries
 - Temporary filter states
 - Download progress (resets on restart)
@@ -295,12 +320,14 @@ dexreader://settings/reading
 
 **Scenario**: User navigates to non-existent manga ID
 **Behavior**:
+
 - Show error page with "Manga not found"
 - Provide "Back to Browse" button
 - Log error for debugging
 
 **Example**:
-```
+
+```ui
 /browse/invalid-id-12345  → Error View
                             "This manga could not be found."
                             [Back to Browse]
@@ -310,6 +337,7 @@ dexreader://settings/reading
 
 **Scenario**: Manga detail page fails to load
 **Behavior**:
+
 - Show error banner with retry button
 - Keep user on current view (don't navigate away)
 - Allow offline navigation if data cached
@@ -318,6 +346,7 @@ dexreader://settings/reading
 
 **Scenario**: User exits reader before page loads
 **Behavior**:
+
 - Save last known page position
 - No warning dialog (auto-save)
 
@@ -327,7 +356,7 @@ dexreader://settings/reading
 
 ### Discovery Flow (New User)
 
-```
+```ui
 Launch App → Browse View → Search/Filter → Manga Detail → Reader
                                               ↓
                                          [Add to Library]
@@ -337,7 +366,7 @@ Launch App → Browse View → Search/Filter → Manga Detail → Reader
 
 ### Reading Flow (Returning User)
 
-```
+```ui
 Launch App → Library View → "Continue Reading" → Reader
                  ↓
             Collection View → Manga Detail → Reader
@@ -345,7 +374,7 @@ Launch App → Library View → "Continue Reading" → Reader
 
 ### Download Flow
 
-```
+```ui
 Browse/Library → Manga Detail → [Download Button] → Downloads View
                                                          ↓
                                                     [Monitor Progress]
@@ -357,7 +386,7 @@ Browse/Library → Manga Detail → [Download Button] → Downloads View
 
 ### Settings Flow
 
-```
+```ui
 Any View → Settings (Ctrl+,) → Adjust preferences → [Auto-save] → Back to original view
 ```
 
@@ -369,6 +398,7 @@ Any View → Settings (Ctrl+,) → Adjust preferences → [Auto-save] → Back t
 **Future**: Multiple reader windows for comparing chapters
 
 **Proposed Behavior**:
+
 - Ctrl+N: Open new window (Browse view)
 - Each window has independent navigation history
 - Shared state: Library, settings, downloads
@@ -387,12 +417,14 @@ Any View → Settings (Ctrl+,) → Adjust preferences → [Auto-save] → Back t
 ### Keyboard Focus Management
 
 **On Navigation**:
+
 1. Focus moves to first interactive element in new view
 2. Or, focus moves to main heading (H1)
 3. User can Tab through content naturally
 
 **Example**:
-```
+
+```ui
 Browse → Library:
   Focus moves to "Sort by" dropdown (first interactive element)
 
@@ -405,12 +437,14 @@ Library → Reader:
 ## Navigation Analytics (Future)
 
 **Metrics to Track** (when analytics added):
+
 - Most common navigation paths
 - Average time in each view
 - Back button usage frequency
 - Dead ends (routes user abandons)
 
 **Use Cases**:
+
 - Optimize default view based on usage
 - Identify confusing navigation patterns
 - Improve UX based on data
@@ -422,6 +456,7 @@ Library → Reader:
 ### React Router Configuration
 
 **Recommended Router Setup**:
+
 ```typescript
 <BrowserRouter>
   <Routes>
@@ -442,16 +477,19 @@ Library → Reader:
 ### State Management for Navigation
 
 **Local Component State**:
+
 - View-specific UI state (scroll, filters)
 - Managed via `useState` or `useReducer`
 
 **Global Application State** (when state library added):
+
 - User library (bookmarks, collections)
 - Reading progress
 - Application settings
 - Download queue
 
 **URL State**:
+
 - Search queries (query params)
 - Selected collections (route params)
 - Current manga/chapter (route params)

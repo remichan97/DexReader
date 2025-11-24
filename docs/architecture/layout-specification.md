@@ -18,7 +18,7 @@ This document specifies the structural layout of DexReader, defining persistent 
 
 Every view in DexReader (except fullscreen Reader) shares these persistent elements:
 
-```
+```ui
 ┌─────────────────────────────────────────────────────────────┐
 │ Native Title Bar with Menu Bar        (always present)      │
 ├──────────┬──────────────────────────────────────────────────┤
@@ -32,18 +32,21 @@ Every view in DexReader (except fullscreen Reader) shares these persistent eleme
 ### Layout Zones
 
 **Zone 1: Native Title Bar + Menu Bar**
+
 - **Height**: System-defined (Windows 11: ~32px title bar + ~25px menu bar)
 - **Content**: Window controls, menu bar (File, View, Library, Tools, Help)
 - **Behavior**: Always visible, native OS rendering
 - **Electron Implementation**: `Menu.setApplicationMenu()`
 
 **Zone 2: Navigation Sidebar**
+
 - **Width**: 240px (expanded), 48px (collapsed)
 - **Content**: Primary navigation icons + labels
 - **Behavior**: Collapsible, persists across views, uses Acrylic blur
 - **Toggle**: Ctrl+B or menu item
 
 **Zone 3: Main Content Area**
+
 - **Dimensions**: Fills remaining space (dynamic)
 - **Content**: View-specific content (Browse, Library, Reader, Downloads, Settings)
 - **Behavior**: Scrollable, contains view-specific layouts
@@ -55,6 +58,7 @@ Every view in DexReader (except fullscreen Reader) shares these persistent eleme
 ### Default Window Size
 
 **Initial Window**:
+
 - Width: 900px
 - Height: 670px
 - Minimum: 400px × 300px
@@ -64,14 +68,16 @@ Every view in DexReader (except fullscreen Reader) shares these persistent eleme
 ### Layout Calculations
 
 **With Expanded Sidebar**:
-```
+
+```ui
 Main Content Width = Window Width - Sidebar Width
                    = 900px - 240px
                    = 660px
 ```
 
 **With Collapsed Sidebar**:
-```
+
+```ui
 Main Content Width = Window Width - Sidebar Width
                    = 900px - 48px
                    = 852px
@@ -91,7 +97,7 @@ Main Content Width = Window Width - Sidebar Width
 
 ### Browse View Layout
 
-```
+```ui
 ┌─────────────────────────────────────────────────────────────┐
 │ Title Bar + Menu Bar                                         │
 ├──────────┬───────────────────────────────────────────────────┤
@@ -117,6 +123,7 @@ Main Content Width = Window Width - Sidebar Width
 ```
 
 **Layout Properties**:
+
 - **Search Bar**: Sticky at top (position: sticky)
 - **Filters**: Collapsible accordion (closed by default after first use)
 - **Grid**: CSS Grid with auto-fill
@@ -126,7 +133,7 @@ Main Content Width = Window Width - Sidebar Width
 
 ### Library View Layout
 
-```
+```ui
 ┌─────────────────────────────────────────────────────────────┐
 │ Title Bar + Menu Bar                                         │
 ├──────────┬────────┬──────────────────────────────────────────┤
@@ -147,6 +154,7 @@ Main Content Width = Window Width - Sidebar Width
 ```
 
 **Layout Properties**:
+
 - **Collections Sidebar**: 200px width, nested within main sidebar area
 - **Grid Mode**: Same as Browse view (5 columns)
 - **List Mode**: Single column, each item ~80px height
@@ -156,7 +164,7 @@ Main Content Width = Window Width - Sidebar Width
 
 ### Reader View Layout (Fullscreen)
 
-```
+```ui
 ┌─────────────────────────────────────────────────────────────┐
 │ Top Bar (auto-hide, Acrylic blur, 64px height)              │
 │ ← Back | Manga Title - Chapter Name | Ch. Dropdown | Menu   │
@@ -174,6 +182,7 @@ Main Content Width = Window Width - Sidebar Width
 ```
 
 **Layout Properties**:
+
 - **Background**: Pure black (#000000) for maximum contrast
 - **Bars**: Semi-transparent with Acrylic blur
 - **Page Area**: Fills entire space between bars
@@ -202,7 +211,7 @@ Main Content Width = Window Width - Sidebar Width
 
 ### Settings View Layout
 
-```
+```ui
 ┌─────────────────────────────────────────────────────────────┐
 │ Title Bar + Menu Bar                                         │
 ├──────────┬───────────────────────────────────────────────────┤
@@ -230,6 +239,7 @@ Main Content Width = Window Width - Sidebar Width
 ```
 
 **Layout Properties**:
+
 - **Settings Sidebar**: Integrated with main sidebar (left side)
 - **Panels**: Stacked vertically with 24px gap
 - **Panel Width**: Fills available space (max 800px for readability)
@@ -239,7 +249,7 @@ Main Content Width = Window Width - Sidebar Width
 
 ### Downloads View Layout
 
-```
+```ui
 ┌─────────────────────────────────────────────────────────────┐
 │ Title Bar + Menu Bar                                         │
 ├──────────┬───────────────────────────────────────────────────┤
@@ -273,6 +283,7 @@ Main Content Width = Window Width - Sidebar Width
 ```
 
 **Layout Properties**:
+
 - **Download Items**: Full-width cards, stacked vertically
 - **Item Height**: 80px each (compact), expands for errors
 - **Progress Bars**: Horizontal, 6px height, full width within card
@@ -285,7 +296,8 @@ Main Content Width = Window Width - Sidebar Width
 ### Navigation Sidebar (All Views Except Reader)
 
 **Expanded State (240px)**:
-```
+
+```ui
 ┌────────────────┐
 │ [🔍] Browse    │  ← 48px height per item
 │                │
@@ -302,7 +314,8 @@ Main Content Width = Window Width - Sidebar Width
 ```
 
 **Collapsed State (48px)**:
-```
+
+```ui
 ┌────┐
 │ 🔍 │  ← 48px × 48px per item
 │    │
@@ -316,6 +329,7 @@ Main Content Width = Window Width - Sidebar Width
 ```
 
 **Properties**:
+
 - **Background**: Acrylic blur (Windows 11 effect)
 - **Item Height**: 48px (minimum touch target)
 - **Icon Size**: 20px
@@ -344,16 +358,19 @@ Based on 4px base unit:
 ### Applied Spacing
 
 **Browse/Library Grids**:
+
 - Card gap: 16px horizontal, 24px vertical
 - Container padding: 24px all sides
 - Section margin: 32px between major sections
 
 **Settings Panels**:
+
 - Panel padding: 16px
 - Panel gap: 24px
 - Input spacing: 12px between form fields
 
 **Reader Controls**:
+
 - Button padding: 12px horizontal, 8px vertical
 - Button gap: 8px
 - Bar padding: 16px horizontal
@@ -380,23 +397,27 @@ Layering order from bottom to top:
 ### Minimum Dimensions
 
 **Window Minimum**:
+
 - Min Width: 400px
 - Min Height: 300px
 - Rationale: Ensures UI remains usable on small screens
 
 **Content Minimum**:
+
 - Manga Card Min Width: 100px
 - Reader Page Min Width: 200px (zoomed out)
 
 ### Maximum Dimensions
 
 **Content Maximum**:
+
 - Settings Panel Max Width: 800px (centered for readability)
 - Text Column Max Width: 600px (for descriptions)
 
 ### Aspect Ratios
 
 **Manga Covers**:
+
 - Target Aspect Ratio: 2:3 (standard manga cover)
 - Fallback: 3:4 (if cover dimensions vary)
 - Object Fit: Cover (fills card, crops if needed)
@@ -408,26 +429,31 @@ Layering order from bottom to top:
 ### View Scroll Containers
 
 **Browse/Library Views**:
+
 - **Scroll Container**: Main content area (excluding sidebar)
 - **Overflow**: Auto (shows scrollbar when needed)
 - **Scroll Behavior**: Smooth (`scroll-behavior: smooth`)
 
 **Settings View**:
+
 - **Scroll Container**: Settings panels area
 - **Scroll Snap**: Optional snap to panel tops
 
 **Reader View**:
+
 - **Single/Double Page**: No scroll (page navigation only)
 - **Vertical Scroll**: Natural scroll, smooth snapping to page tops
 
 ### Scroll Position Preservation
 
 **On View Change**:
+
 - Browse → Library: Reset scroll to top
 - Library → Browse: Restore previous scroll position
 - Settings sections: Maintain scroll within Settings view
 
 **On Return from Reader**:
+
 - Restore scroll position to manga card that opened reader
 
 ---
@@ -437,33 +463,39 @@ Layering order from bottom to top:
 ### Large Screens (>720px)
 
 **Browse/Library**:
+
 - 5-column grid (default)
 - Full sidebar with labels
 - All UI elements visible
 
 **Reader**:
+
 - Double page mode available
 - Large control buttons
 
 ### Medium Screens (620px-720px)
 
 **Browse/Library**:
+
 - 3-column grid
 - Sidebar still expanded (can collapse for more space)
 - Filters slightly compressed
 
 **Reader**:
+
 - Single page mode recommended
 - Compact controls
 
 ### Small Screens (<620px)
 
 **Browse/Library**:
+
 - 2-column grid
 - Icon-only sidebar or bottom navigation bar
 - Filters in drawer/modal
 
 **Reader**:
+
 - Single page mode only
 - Touch-optimized controls (larger tap targets)
 - Vertical scroll mode recommended for webtoons
@@ -482,6 +514,7 @@ Invisible links at top of page for keyboard users:
 ```
 
 **Behavior**:
+
 - Hidden by default
 - Becomes visible on focus (keyboard Tab)
 - Allows jumping directly to content
@@ -501,6 +534,7 @@ Semantic HTML for screen readers:
 ### Focus Indicators
 
 **Visible Focus**:
+
 - 2px solid accent color outline
 - 2px offset from element
 - High contrast in both light/dark modes
@@ -521,6 +555,7 @@ Semantic HTML for screen readers:
 ```
 
 **Benefits**:
+
 - Automatically responsive
 - Even spacing
 - Fills available width
@@ -555,10 +590,12 @@ Semantic HTML for screen readers:
 ### Virtualization
 
 **Not Needed Initially**:
+
 - Start with simple scroll (browsers handle ~1000 DOM nodes well)
 - Add virtualization later if performance issues arise
 
 **When to Add**:
+
 - Library exceeds 500+ manga
 - Browse results exceed 1000+ items
 - Scroll performance degrades
@@ -568,6 +605,7 @@ Semantic HTML for screen readers:
 ### Layout Shift Prevention
 
 **Strategies**:
+
 - Reserve space for images with aspect-ratio CSS
 - Show skeleton screens during load
 - Avoid content jumping when images load

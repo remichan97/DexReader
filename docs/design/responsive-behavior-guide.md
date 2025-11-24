@@ -19,17 +19,20 @@ DexReader is a desktop-first application optimized for 900×670px default window
 **Target**: 900×670px and larger windows
 
 **Browse/Library Views**:
+
 - 5-column manga grid
 - Full sidebar with text labels (240px)
 - All UI elements visible
 - Grid gap: 16px horizontal, 24px vertical
 
 **Reader View**:
+
 - Double page mode available
 - Large control buttons (48px height)
 - Full chapter dropdown with titles
 
 **Settings View**:
+
 - Two-column form layouts where applicable
 - Full sidebar with section labels
 
@@ -38,17 +41,20 @@ DexReader is a desktop-first application optimized for 900×670px default window
 ### Medium (620px-720px) - Compact Layout
 
 **Browse/Library Views**:
+
 - 3-column manga grid
 - Sidebar still expanded (can manually collapse for more space)
 - Filters slightly compressed
 - Grid gap: 12px horizontal, 20px vertical
 
 **Reader View**:
+
 - Single page mode recommended
 - Compact controls (40px height)
 - Chapter dropdown shows numbers only
 
 **Settings View**:
+
 - Single-column forms
 - Sidebar remains visible
 
@@ -57,17 +63,20 @@ DexReader is a desktop-first application optimized for 900×670px default window
 ### Small (<620px) - Mobile-Style Layout
 
 **Browse/Library Views**:
+
 - 2-column manga grid
 - Icon-only sidebar (48px) or bottom navigation bar
 - Filters in collapsible drawer
 - Grid gap: 8px horizontal, 16px vertical
 
 **Reader View**:
+
 - Single page mode only
 - Touch-optimized controls (larger tap targets, minimum 44px)
 - Vertical scroll mode recommended for webtoons
 
 **Settings View**:
+
 - Single-column forms
 - Icon-only sidebar
 - Sections in drawer

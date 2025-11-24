@@ -17,6 +17,7 @@ This document defines all design tokens (colors, typography, spacing, shadows, e
 ### Theme Detection
 
 **System Theme Sync**:
+
 ```typescript
 // Main process (Electron)
 import { nativeTheme } from 'electron'
@@ -33,6 +34,7 @@ nativeTheme.on('updated', () => {
 ```
 
 **Renderer Application**:
+
 ```typescript
 // Apply theme to root element
 document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
@@ -329,6 +331,7 @@ document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
 **Definition**: Translucent window background that shows desktop wallpaper with blur
 
 **Implementation**:
+
 ```typescript
 // Main process (Electron)
 const win = new BrowserWindow({
@@ -338,6 +341,7 @@ const win = new BrowserWindow({
 ```
 
 **CSS Fallback** (if Electron doesn't support):
+
 ```css
 .app-shell {
   background-color: var(--win-bg-base);
@@ -349,6 +353,7 @@ const win = new BrowserWindow({
 **Definition**: Frosted glass effect for overlays and sidebars
 
 **CSS Implementation**:
+
 ```css
 .acrylic {
   background: var(--win-acrylic-bg);
@@ -363,6 +368,7 @@ const win = new BrowserWindow({
 ```
 
 **Applied To**:
+
 - Navigation sidebar
 - Reader top/bottom bars
 - Modal backgrounds
@@ -414,6 +420,7 @@ const win = new BrowserWindow({
 ### Animation Patterns
 
 **Fade In/Out**:
+
 ```css
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -427,6 +434,7 @@ const win = new BrowserWindow({
 ```
 
 **Slide In/Out**:
+
 ```css
 @keyframes slideInFromRight {
   from { transform: translateX(100%); opacity: 0; }
@@ -440,6 +448,7 @@ const win = new BrowserWindow({
 ```
 
 **Shimmer** (for skeleton screens):
+
 ```css
 @keyframes shimmer {
   0% { transform: translateX(-100%); }
@@ -675,6 +684,7 @@ Complete CSS file with all tokens:
 ### Applying Tokens
 
 **In Component Styles**:
+
 ```css
 .my-component {
   background: var(--win-bg-card);
@@ -687,6 +697,7 @@ Complete CSS file with all tokens:
 ```
 
 **Dynamic Theme Switching**:
+
 ```typescript
 function setTheme(theme: 'light' | 'dark') {
   document.documentElement.setAttribute('data-theme', theme)
@@ -698,6 +709,7 @@ function setTheme(theme: 'light' | 'dark') {
 **Format**: `--{category}-{property}-{variant}`
 
 **Examples**:
+
 - `--win-bg-card` (category: win, property: bg, variant: card)
 - `--win-text-secondary` (category: win, property: text, variant: secondary)
 - `--shadow-md` (category: shadow, variant: md)

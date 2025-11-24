@@ -17,18 +17,21 @@ This document specifies the fullscreen manga reading experience for DexReader, i
 ### 1. Single Page Mode (Default)
 
 **Layout**:
+
 - One page displayed at a time
 - Centered in viewport
 - Black letterboxing (#000000)
 - Fit-to-height by default
 
 **Navigation**:
+
 - Right Arrow / D / Click Right Half → Next page
 - Left Arrow / A / Click Left Half → Previous page
 - Space → Next page
 - Shift+Space → Previous page
 
 **Use Cases**:
+
 - Standard manga reading
 - Portrait-oriented pages
 - Smaller windows
@@ -38,6 +41,7 @@ This document specifies the fullscreen manga reading experience for DexReader, i
 ### 2. Double Page Mode
 
 **Layout**:
+
 - Two pages side-by-side
 - Right-to-left layout (manga convention)
   - Right page = current page
@@ -46,17 +50,20 @@ This document specifies the fullscreen manga reading experience for DexReader, i
 - Black letterboxing
 
 **Navigation**:
+
 - Right Arrow / D / Click Right → Previous 2 pages (move right in manga)
 - Left Arrow / A / Click Left → Next 2 pages (move left in manga)
 - Space → Next 2 pages
 - Shift+Space → Previous 2 pages
 
 **Use Cases**:
+
 - Large windows (>1200px width)
 - Spread pages (double-page illustrations)
 - Traditional manga reading experience
 
 **Smart Page Pairing**:
+
 ```typescript
 // Skip cover page (always single page)
 if (currentPage === 0) {
@@ -71,18 +78,21 @@ if (currentPage === 0) {
 ### 3. Vertical Scroll Mode (Webtoon)
 
 **Layout**:
+
 - Pages stacked vertically
 - Full-width pages (fit to viewport width)
 - Continuous scrolling
 - No black background (white/transparent between pages)
 
 **Navigation**:
+
 - Scroll wheel / Trackpad → Natural scrolling
 - Page Up / Page Down → Jump by viewport height
 - Space → Scroll down one viewport
 - Shift+Space → Scroll up one viewport
 
 **Scroll Snapping**:
+
 ```css
 .reader-canvas--vertical {
   scroll-snap-type: y proximity;
@@ -94,6 +104,7 @@ if (currentPage === 0) {
 ```
 
 **Use Cases**:
+
 - Webtoons (Korean manhwa, Chinese manhua)
 - Long-strip comics
 - Vertical-oriented content
@@ -105,11 +116,13 @@ if (currentPage === 0) {
 ### Top Bar (Auto-Hide)
 
 **Contents** (left to right):
-```
+
+```ui
 [← Back] | Manga Title - Chapter 45: Chapter Name | [Chapter ▼] | [☰ Menu] [Window Controls]
 ```
 
 **Components**:
+
 1. **Back Button** (← icon + "Back" text)
    - Returns to previous view (Manga Detail or Library)
    - Keyboard: Escape
@@ -128,6 +141,7 @@ if (currentPage === 0) {
    - Keyboard: M
 
 **Styling**:
+
 ```css
 .reader-top-bar {
   height: 64px;
@@ -142,6 +156,7 @@ if (currentPage === 0) {
 ```
 
 **Auto-Hide Behavior**:
+
 - Visible on page load
 - Fades out after 3 seconds of no mouse movement
 - Fades in on mouse movement or keyboard input
@@ -152,11 +167,13 @@ if (currentPage === 0) {
 ### Bottom Bar (Auto-Hide)
 
 **Contents** (left to right):
-```
+
+```ui
 [◀ Prev] | Page 12 / 24 | [⚙ Settings] [🔍 Zoom] | [Next ▶]
 ```
 
 **Components**:
+
 1. **Previous Button** (◀ Prev)
    - Navigate to previous page/chapter
    - Disabled at first page
@@ -182,6 +199,7 @@ if (currentPage === 0) {
    - Keyboard: Right Arrow, D, Space
 
 **Styling**:
+
 ```css
 .reader-bottom-bar {
   height: 64px;
@@ -196,6 +214,7 @@ if (currentPage === 0) {
 ```
 
 **Auto-Hide Behavior**:
+
 - Same as top bar
 - Exception: Always visible in vertical scroll mode
 
@@ -206,6 +225,7 @@ if (currentPage === 0) {
 ### Fit to Height (Default)
 
 **Behavior**:
+
 - Page height = viewport height
 - Page width scales proportionally
 - Horizontal scroll if page wider than viewport
@@ -224,6 +244,7 @@ if (currentPage === 0) {
 ### Fit to Width
 
 **Behavior**:
+
 - Page width = viewport width
 - Page height scales proportionally
 - Vertical scroll if page taller than viewport
@@ -242,6 +263,7 @@ if (currentPage === 0) {
 ### Original Size (100%)
 
 **Behavior**:
+
 - Page displays at actual pixel dimensions
 - Scroll in both directions if larger than viewport
 - Useful for reading small text
@@ -260,6 +282,7 @@ if (currentPage === 0) {
 ### Custom Zoom
 
 **Behavior**:
+
 - User sets zoom percentage (25% - 400%)
 - Page scales accordingly
 - Scroll as needed
@@ -309,7 +332,8 @@ if (currentPage === 0) {
 ### Single Page / Double Page Modes
 
 **Click Areas**:
-```
+
+```ui
 ┌─────────────────────────────────┐
 │                                 │
 │     Left Half    Right Half     │
@@ -319,11 +343,13 @@ if (currentPage === 0) {
 ```
 
 **Click Actions**:
+
 - Click left half → Previous page
 - Click right half → Next page
 - Click on control bars → Show controls (if hidden)
 
 **Scroll Actions**:
+
 - Scroll wheel up → Previous page
 - Scroll wheel down → Next page
 
@@ -332,10 +358,12 @@ if (currentPage === 0) {
 ### Vertical Scroll Mode
 
 **Scroll Actions**:
+
 - Natural vertical scrolling
 - Scroll snaps to page boundaries (proximity)
 
 **Click Actions**:
+
 - Click anywhere → Toggle controls visibility
 
 ---
@@ -343,6 +371,7 @@ if (currentPage === 0) {
 ### Drag to Pan (Custom Zoom)
 
 When zoomed in beyond viewport:
+
 ```typescript
 let isDragging = false
 let dragStart = { x: 0, y: 0 }
@@ -394,11 +423,13 @@ function onLastPage() {
 ### Online Reading
 
 **Phase 1: Current Chapter**
+
 - Load current page immediately
 - Preload next 3 pages in background
 - Preload previous 2 pages (for back navigation)
 
 **Phase 2: Adjacent Chapters**
+
 - Preload first 3 pages of next chapter (when at 80% progress)
 
 ```typescript
@@ -424,6 +455,7 @@ function preloadPages() {
 ### Offline Reading
 
 **Instant Loading**:
+
 - All pages loaded from local filesystem
 - No preloading needed (fast enough)
 - Only show spinner if filesystem read >100ms
@@ -435,11 +467,13 @@ function preloadPages() {
 ### Initial Chapter Load (Online)
 
 **Phase 1**: Indeterminate spinner while querying at-home endpoint
+
 ```typescript
 <LoadingSpinner message="Loading chapter..." />
 ```
 
 **Phase 2**: Progress ring showing image download progress
+
 ```typescript
 <ProgressRing progress={downloadProgress} size="lg" />
 <p>{downloadProgress}% loaded</p>
@@ -450,6 +484,7 @@ function preloadPages() {
 ### Page Transitions (Online)
 
 **Next Page Loading**:
+
 - Show skeleton/placeholder if next page not yet preloaded
 - Fade in page when loaded
 
@@ -469,6 +504,7 @@ function preloadPages() {
 ### Offline Reading
 
 **Instant Load**:
+
 - No loading indicators (pages load instantly from disk)
 - Fallback spinner only if >100ms delay
 
@@ -479,7 +515,8 @@ function preloadPages() {
 ### Failed to Load Page
 
 **Display**:
-```
+
+```ui
 ┌─────────────────────────────────┐
 │                                 │
 │     [❌]                         │
@@ -490,6 +527,7 @@ function preloadPages() {
 ```
 
 **Actions**:
+
 - Retry button → Reload current page
 - Skip button → Move to next page
 - Continue with other pages loading
@@ -499,7 +537,8 @@ function preloadPages() {
 ### Failed to Load Chapter
 
 **Display**:
-```
+
+```ui
 ┌─────────────────────────────────┐
 │                                 │
 │     Chapter Not Available       │
@@ -520,7 +559,8 @@ function preloadPages() {
 **Triggered by**: Settings button (⚙) or `S` key
 
 **Contents**:
-```
+
+```ui
 ┌──────────────────────────────┐
 │ Reading Settings             │
 ├──────────────────────────────┤
@@ -546,6 +586,7 @@ function preloadPages() {
 ```
 
 **Behavior**:
+
 - Popover appears above settings button
 - Click outside to close
 - Settings save instantly
@@ -558,7 +599,8 @@ function preloadPages() {
 **Triggered by**: Zoom button (🔍) or `Z` key
 
 **Contents**:
-```
+
+```ui
 ┌──────────────────────────────┐
 │ Zoom                         │
 ├──────────────────────────────┤
@@ -580,6 +622,7 @@ function preloadPages() {
 ```
 
 **Behavior**:
+
 - Popover appears above zoom button
 - Quick buttons for common zoom levels
 - Slider for custom zoom (25%-400%)
@@ -593,7 +636,8 @@ function preloadPages() {
 **Triggered by**: Menu button (☰) or `M` key
 
 **Layout**:
-```
+
+```ui
 ┌─────────────────────────────────┐
 │ ┌─────────────────────────────┐ │
 │ │ Manga Title                 │ │
@@ -612,6 +656,7 @@ function preloadPages() {
 ```
 
 **Behavior**:
+
 - Slides in from right
 - Current chapter highlighted
 - Click chapter → Jump to that chapter

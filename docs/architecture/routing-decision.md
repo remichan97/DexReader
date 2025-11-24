@@ -35,6 +35,7 @@
 **TypeScript**: ⭐⭐⭐⭐⭐ Excellent (first-class support)
 
 **Pros**:
+
 - Industry standard with massive adoption
 - Comprehensive TypeScript definitions
 - Nested routes support
@@ -45,10 +46,12 @@
 - Works seamlessly with Electron
 
 **Cons**:
+
 - Slightly larger bundle than alternatives
 - Some v5→v6 breaking changes (not relevant for new project)
 
 **Code Example**:
+
 ```typescript
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 
@@ -77,12 +80,14 @@ function App() {
 **TypeScript**: ⭐⭐⭐⭐⭐ Excellent (type-safe by design)
 
 **Pros**:
+
 - Type-safe routing (autocomplete for paths)
 - Built-in data loading
 - Modern API design
 - Excellent performance
 
 **Cons**:
+
 - Newer library (less battle-tested)
 - Smaller community
 - More complex setup
@@ -99,12 +104,14 @@ function App() {
 **TypeScript**: ⭐⭐⭐⭐ Good (TypeScript support)
 
 **Pros**:
+
 - Extremely lightweight
 - Simple API
 - Minimalist approach
 - Fast performance
 
 **Cons**:
+
 - Limited features (no nested routes)
 - No route guards
 - Small community
@@ -120,11 +127,13 @@ function App() {
 **TypeScript**: ⭐⭐⭐ Moderate (manual typing)
 
 **Pros**:
+
 - No dependencies
 - Full control
 - Can be tailored exactly to needs
 
 **Cons**:
+
 - Significant development time
 - Need to maintain routing code
 - Reinventing the wheel
@@ -233,12 +242,14 @@ export default ViewContainer
 ### Query Parameters
 
 **Browse View**:
+
 - `?q=search+term` - Search query
 - `?tags=action,adventure` - Tag filters
 - `?status=ongoing` - Status filter
 
 **Example**:
-```
+
+```ui
 /browse?q=one+piece&tags=action,adventure&status=ongoing
 ```
 
@@ -305,6 +316,7 @@ function ReaderTopBar() {
 ### useParams
 
 **Get route parameters**:
+
 ```typescript
 import { useParams } from 'react-router-dom'
 
@@ -320,6 +332,7 @@ function MangaDetailView() {
 ### useLocation
 
 **Access current location**:
+
 ```typescript
 import { useLocation } from 'react-router-dom'
 
@@ -337,6 +350,7 @@ function Sidebar() {
 ### useSearchParams
 
 **Query string management**:
+
 ```typescript
 import { useSearchParams } from 'react-router-dom'
 
@@ -353,6 +367,7 @@ function BrowseView() {
 ### useNavigate
 
 **Programmatic navigation**:
+
 ```typescript
 import { useNavigate } from 'react-router-dom'
 
@@ -621,12 +636,14 @@ typedNavigate('/reader/:mangaId/:chapterId', {
 If we need to switch routing libraries later:
 
 **React Router → TanStack Router**:
+
 - Similar API structure
 - Need to rewrite route definitions
 - Add type generation setup
 - Migration guide available
 
 **React Router → Custom**:
+
 - Preserve URL structure
 - Rewrite navigation hooks
 - Add history management

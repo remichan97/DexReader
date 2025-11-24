@@ -14,7 +14,7 @@ This document defines the complete React component hierarchy for DexReader's UI,
 
 ## Component Tree
 
-```
+```tree
 App (root)
 └── ThemeProvider
     └── Router (React Router)
@@ -112,6 +112,7 @@ function App(): React.JSX.Element {
 ```
 
 **Responsibilities**:
+
 - Initialize application
 - Provide global contexts
 - Set up router
@@ -148,6 +149,7 @@ function ThemeProvider({ children }: { children: React.ReactNode }): React.JSX.E
 ```
 
 **Responsibilities**:
+
 - Sync with Windows system theme
 - Provide theme context to children
 - Apply theme to root element
@@ -181,10 +183,12 @@ function AppShell(): React.JSX.Element {
 ```
 
 **CSS Classes**:
+
 - `.app-shell` - Flexbox container
 - `.app-shell--sidebar-collapsed` - When sidebar is collapsed
 
 **Responsibilities**:
+
 - Provide persistent layout structure
 - Manage sidebar collapse state
 - Render navigation and main content
@@ -235,10 +239,12 @@ function Sidebar({ collapsed, onToggle }: SidebarProps): React.JSX.Element {
 ```
 
 **CSS Classes**:
+
 - `.sidebar` - Base styles with Acrylic blur
 - `.sidebar--collapsed` - Collapsed state (48px width)
 
 **Responsibilities**:
+
 - Render navigation items
 - Highlight active view
 - Handle collapse/expand
@@ -277,12 +283,14 @@ function SidebarItem({ label, icon, route, active, collapsed }: SidebarItemProps
 ```
 
 **CSS Classes**:
+
 - `.sidebar-item` - Base button styles
 - `.sidebar-item--active` - Active state (accent color background)
 - `.sidebar-item__icon` - Icon container
 - `.sidebar-item__label` - Text label (hidden when collapsed)
 
 **Responsibilities**:
+
 - Navigate to route on click
 - Show active state
 - Show tooltip when collapsed
@@ -317,9 +325,11 @@ function ViewContainer(): React.JSX.Element {
 ```
 
 **CSS Classes**:
+
 - `.view-container` - Flex grow, scrollable
 
 **Responsibilities**:
+
 - Render current route
 - Provide scrollable container
 - Handle 404 routes
@@ -357,9 +367,11 @@ function BrowseView(): React.JSX.Element {
 ```
 
 **CSS Classes**:
+
 - `.browse-view` - View container with padding
 
 **Responsibilities**:
+
 - Manage search query and filters
 - Fetch manga from API
 - Render search UI and results grid
@@ -408,10 +420,12 @@ function LibraryView(): React.JSX.Element {
 ```
 
 **CSS Classes**:
+
 - `.library-view` - View container
 - `.library-view__content` - Flexbox for collections sidebar + manga grid/list
 
 **Responsibilities**:
+
 - Manage library state (sorting, view mode)
 - Filter by collection
 - Render library UI
@@ -456,9 +470,11 @@ function MangaDetailView(): React.JSX.Element {
 ```
 
 **CSS Classes**:
+
 - `.manga-detail-view` - Scrollable container
 
 **Responsibilities**:
+
 - Fetch manga details and chapters
 - Render manga information
 - Provide chapter navigation
@@ -528,9 +544,11 @@ function ReaderView(): React.JSX.Element {
 ```
 
 **CSS Classes**:
+
 - `.reader-view` - Fullscreen black background
 
 **Responsibilities**:
+
 - Fetch and display manga pages
 - Manage reading mode and page navigation
 - Handle control bar auto-hide
@@ -577,10 +595,12 @@ function DownloadsView(): React.JSX.Element {
 ```
 
 **CSS Classes**:
+
 - `.downloads-view` - View container
 - `.downloads-view__list` - Download list sections
 
 **Responsibilities**:
+
 - Display download queue
 - Show progress for each download
 - Provide download controls
@@ -624,10 +644,12 @@ function SettingsView(): React.JSX.Element {
 ```
 
 **CSS Classes**:
+
 - `.settings-view` - Flex container
 - `.settings-view__panels` - Panels area
 
 **Responsibilities**:
+
 - Load and save settings
 - Render settings panels
 - Auto-save on change
@@ -664,11 +686,13 @@ function MangaCard({ manga, onClick, showProgress }: MangaCardProps): React.JSX.
 ```
 
 **CSS Classes**:
+
 - `.manga-card` - Card container with hover effect
 - `.manga-card__cover` - Cover image container (2:3 aspect ratio)
 - `.manga-card__info` - Text info below cover
 
 **Responsibilities**:
+
 - Display manga cover image
 - Show title and latest chapter
 - Handle click events
@@ -705,11 +729,13 @@ function SearchBar({ value, onChange, placeholder = 'Search manga...' }: SearchB
 ```
 
 **CSS Classes**:
+
 - `.search-bar` - Container with border
 - `.search-bar__input` - Text input
 - `.search-bar__icon` - Search icon button
 
 **Responsibilities**:
+
 - Controlled input
 - Trigger search on change
 
@@ -740,12 +766,14 @@ function ProgressBar({ progress, height = 'normal', showLabel }: ProgressBarProp
 ```
 
 **CSS Classes**:
+
 - `.progress-bar` - Container
 - `.progress-bar--compact` - 4px height
 - `.progress-bar--normal` - 6px height
 - `.progress-bar__fill` - Accent color fill
 
 **Responsibilities**:
+
 - Display progress visually
 - Optionally show percentage
 
@@ -797,10 +825,12 @@ function ProgressRing({ progress, size = 'md' }: ProgressRingProps): React.JSX.E
 ```
 
 **CSS Classes**:
+
 - `.progress-ring` - SVG container
 - `.progress-ring__fill--indeterminate` - Spinning animation
 
 **Responsibilities**:
+
 - Display circular progress
 - Support indeterminate mode (spinning)
 
@@ -828,11 +858,13 @@ function LoadingSkeleton({ width = '100%', height = '20px', variant = 'rect' }: 
 ```
 
 **CSS Classes**:
+
 - `.skeleton` - Base with shimmer animation
 - `.skeleton--rect` - Rectangle (8px border radius)
 - `.skeleton--circle` - Circle (50% border radius)
 
 **Responsibilities**:
+
 - Show loading placeholder
 - Animate shimmer effect
 
@@ -877,6 +909,7 @@ function Toast({ type, message, action, onDismiss, duration = 5000 }: ToastProps
 ```
 
 **CSS Classes**:
+
 - `.toast` - Acrylic blur container
 - `.toast--error` - Red border
 - `.toast--warning` - Orange border
@@ -884,6 +917,7 @@ function Toast({ type, message, action, onDismiss, duration = 5000 }: ToastProps
 - `.toast--info` - Blue border
 
 **Responsibilities**:
+
 - Display notification
 - Auto-dismiss after duration
 - Provide action button
@@ -892,7 +926,7 @@ function Toast({ type, message, action, onDismiss, duration = 5000 }: ToastProps
 
 ## Component File Structure
 
-```
+```tree
 src/renderer/src/
 ├── App.tsx
 ├── main.tsx

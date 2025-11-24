@@ -28,6 +28,7 @@ interface LoadingSkeletonProps {
 ```
 
 **Implementation**:
+
 ```tsx
 function MangaCardSkeleton() {
   return (
@@ -50,6 +51,7 @@ function MangaCardSkeleton() {
 ```
 
 **CSS**:
+
 ```css
 .manga-card-skeleton__cover {
   aspect-ratio: 2 / 3;
@@ -118,6 +120,7 @@ interface ProgressRingProps {
 ```
 
 **Implementation**:
+
 ```tsx
 function ProgressRing({ progress, size = 48, strokeWidth = 4 }: ProgressRingProps) {
   const radius = (size - strokeWidth) / 2
@@ -173,6 +176,7 @@ interface ProgressBarProps {
 ```
 
 **Implementation**:
+
 ```tsx
 function DownloadProgress({ progress, speed, eta, status }: ProgressBarProps) {
   return (
@@ -198,6 +202,7 @@ function DownloadProgress({ progress, speed, eta, status }: ProgressBarProps) {
 ```
 
 **CSS**:
+
 ```css
 .download-progress__bar-container {
   height: 6px;
@@ -253,6 +258,7 @@ interface LoadingSpinnerProps {
 ```
 
 **Implementation**:
+
 ```tsx
 function LoadingSpinner({ size = 'medium' }: LoadingSpinnerProps) {
   return (
@@ -264,6 +270,7 @@ function LoadingSpinner({ size = 'medium' }: LoadingSpinnerProps) {
 ```
 
 **CSS**:
+
 ```css
 .spinner {
   display: inline-flex;
@@ -316,6 +323,7 @@ function NetworkBanner() {
 ```
 
 **CSS**:
+
 ```css
 .network-banner {
   display: flex;
@@ -372,6 +380,7 @@ function FailedPagePlaceholder({ onRetry, onSkip }: FailedPageProps) {
 ```
 
 **CSS**:
+
 ```css
 .failed-page {
   display: flex;
@@ -458,6 +467,7 @@ function EmptyDownloads() {
 ---
 
 **Shared Empty State CSS**:
+
 ```css
 .empty-state {
   display: flex;
@@ -502,104 +512,224 @@ function EmptyDownloads() {
 
 | Operation | Type | Reason |
 |-----------|------|--------|
+| Critical Errors | Native Error Dialog | OS-native, system integration, blocking |
+| Warnings/Confirmations | Native Message Box | OS-native, consistent with Windows UX |
+| Information Messages | Native Message Box | OS-native, standard Windows pattern |
 | Import Library | Native File Picker | OS-native dialog, file system access |
 | Export Library | Native Save Dialog | OS-native dialog, save location |
-| Delete Confirmation | Custom Overlay | Simple yes/no, app-styled |
+| API Errors | Custom Toast | Non-blocking, temporary, with retry action |
+| Network Status | Custom Banner | Persistent indicator, non-blocking |
+| Success Messages | Custom Toast | Lightweight feedback, auto-dismiss |
 | Settings | Full View | Complex form, not modal |
 | Image Zoom | Reader Overlay | Reader-specific, not blocking |
 | Chapter List | Slide-in Drawer | Persistent during reading |
+
+**Design Principle**: Use native OS dialogs for blocking operations and system-level feedback. Use custom in-app overlays only for non-blocking, temporary notifications.
 
 ---
 
 ### Native Dialogs (Electron)
 
 ```typescript
-// File picker for import
-async function importLibrary() {
-  const result = await window.api.showOpenDialog({
-    filters: [
-      { name: 'DexReader Library', extensions: ['json'] },
-      { name: 'Tachiyomi Backup', extensions: ['json', 'proto.gz'] }
-    ],
-    properties: ['openFile']
-  })
+// Error Dialog (Critical/Unrecoverable)
+import { dialog } from 'electron'
 
-  if (!result.canceled && result.filePaths[0]) {
-    // Process file
-  }
+dialog.showErrorBox(
+  'Import Failed',
+  'Could not read the selected file. Please check file permissions and try again.'
+)
+
+// Message Box (Warnings/Confirmations/Information)
+const result = await dialog.showMessageBox(mainWindow, {
+  type: 'warning', // 'none' | 'info' | 'error' | 'question' | 'warning'
+  title: 'Clear Reading History',
+  message: 'Are you sure you want to clear all reading history?',
+  detail: 'This action cannot be undone. Your reading progress will be permanently deleted.',
+  buttons: ['Cancel', 'Clear History'],
+  defaultId: 0,
+  cancelId: 0,
+  noLink: true // Windows 11 style buttons
+})
+
+if (result.response === 1) {
+  // User clicked "Clear History"
 }
 
-// Save dialog for export
-async function exportLibrary() {
-  const result = await window.api.showSaveDialog({
-    defaultPath: `dexreader-library-${Date.now()}.json`,
-    filters: [{ name: 'JSON', extensions: ['json'] }]
-  })
+// Information Dialog
+await dialog.showMessageBox(mainWindow, {
+  type: 'info',
+  title: 'About DexReader',
+  message: 'DexReader v1.0.0',
+  detail: 'A desktop manga reader for MangaDex.\n\nCopyright © 2025',
+  buttons: ['OK']
+})
 
-  if (!result.canceled && result.filePath) {
-    // Save file
-  }
+// File Picker (Import)
+const result = await dialog.showOpenDialog(mainWindow, {
+  title: 'Import Library Backup',
+  filters: [
+    { name: 'DexReader Library', extensions: ['json'] },
+    { name: 'Tachiyomi Backup', extensions: ['json', 'proto.gz'] }
+  ],
+  properties: ['openFile']
+})
+
+if (!result.canceled && result.filePaths[0]) {
+  // Process file
+}
+
+// Save Dialog (Export)
+const result = await dialog.showSaveDialog(mainWindow, {
+  title: 'Export Library',
+  defaultPath: `dexreader-library-${Date.now()}.json`,
+  filters: [{ name: 'JSON', extensions: ['json'] }]
+})
+
+if (!result.canceled && result.filePath) {
+  // Save file
+}
+
+// Folder Picker (Downloads Directory)
+const result = await dialog.showOpenDialog(mainWindow, {
+  title: 'Select Downloads Directory',
+  properties: ['openDirectory', 'createDirectory'],
+  defaultPath: app.getPath('downloads')
+})
+
+if (!result.canceled && result.filePaths[0]) {
+  // Update downloads directory setting
 }
 ```
+
+**Native Dialog Types**:
+
+- `error` - Red X icon, for critical errors
+- `warning` - Yellow warning icon, for destructive actions
+- `info` - Blue info icon, for informational messages
+- `question` - Question mark icon, for yes/no decisions
+- `none` - No icon, for custom scenarios
 
 ---
 
-### Custom Overlays
+### Custom Toasts (Non-Blocking Notifications)
+
+**Purpose**: Temporary, non-blocking feedback for API errors, success messages, and network status
 
 ```tsx
-function ConfirmDialog({ title, message, onConfirm, onCancel }: ConfirmDialogProps) {
+interface ToastProps {
+  type: 'error' | 'warning' | 'success' | 'info'
+  message: string
+  action?: {
+    label: string // e.g., "Retry", "Dismiss"
+    onClick: () => void
+  }
+  duration?: number // Auto-dismiss duration in ms (0 = no auto-dismiss)
+  dismissible?: boolean // Show close button (default: true)
+}
+
+function Toast({ type, message, action, duration = 4000 }: ToastProps) {
   return (
-    <div className="dialog-overlay" onClick={onCancel}>
-      <div
-        className="dialog"
-        onClick={(e) => e.stopPropagation()}
-        role="alertdialog"
-        aria-labelledby="dialog-title"
-        aria-describedby="dialog-message"
-      >
-        <h3 id="dialog-title">{title}</h3>
-        <p id="dialog-message">{message}</p>
-        <div className="dialog__actions">
-          <button onClick={onCancel}>Cancel</button>
-          <button onClick={onConfirm} className="button--danger">Delete</button>
-        </div>
-      </div>
+    <div className={`toast toast--${type}`} role="status" aria-live="polite">
+      <span className="toast__message">{message}</span>
+      {action && (
+        <button onClick={action.onClick} className="toast__action">
+          {action.label}
+        </button>
+      )}
+      <button className="toast__close" aria-label="Close notification">×</button>
     </div>
   )
 }
+
+// Usage examples
+toast.show({
+  type: 'error',
+  message: 'Failed to load manga. Please try again.',
+  action: { label: 'Retry', onClick: retryLoad },
+  duration: 0 // Don't auto-dismiss errors with actions
+})
+
+toast.show({
+  type: 'success',
+  message: 'Download completed successfully.',
+  duration: 3000
+})
 ```
 
 **CSS**:
+
 ```css
-.dialog-overlay {
+.toast {
   position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  bottom: 24px;
+  right: 24px;
+  min-width: 320px;
+  max-width: 480px;
+  background: var(--surface-secondary);
+  backdrop-filter: blur(30px);
+  border-radius: 8px;
+  padding: 12px 16px;
+  box-shadow: var(--shadow-large);
   display: flex;
   align-items: center;
-  justify-content: center;
-  z-index: var(--z-modal);
-  animation: fade-in 150ms;
+  gap: 12px;
+  z-index: var(--z-toast);
+  animation: slide-up 300ms ease-out;
 }
 
-.dialog {
-  background: var(--surface-secondary);
-  border-radius: 12px;
-  padding: 24px;
-  min-width: 400px;
-  max-width: 500px;
-  box-shadow: var(--shadow-large);
-  animation: scale-in 150ms cubic-bezier(0.4, 0, 0.2, 1);
+.toast--error {
+  border-left: 4px solid var(--error);
 }
 
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.toast--warning {
+  border-left: 4px solid var(--warning);
 }
 
-@keyframes scale-in {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+.toast--success {
+  border-left: 4px solid var(--success);
+}
+
+.toast--info {
+  border-left: 4px solid var(--accent);
+}
+
+.toast__message {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.toast__action {
+  padding: 6px 12px;
+  background: var(--accent);
+  color: var(--accent-text);
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.toast__close {
+  width: 20px;
+  height: 20px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 ```
 
@@ -613,7 +743,14 @@ function ConfirmDialog({ title, message, onConfirm, onCancel }: ConfirmDialogPro
 ✅ **Spinners**: Indeterminate operations
 ✅ **Error States**: Network banner, API toasts, failed pages
 ✅ **Empty States**: Library, search, downloads with CTAs
-✅ **Modal Strategy**: Native dialogs for file ops, custom overlays for confirmations
+✅ **Modal Strategy**: Native OS dialogs for errors/warnings/confirmations (Electron dialog API), custom toasts for non-blocking notifications
+
+**Design Benefits**:
+
+- Native dialogs provide consistent Windows 11 UX
+- Reduced custom CSS/component development
+- Better accessibility (OS-level keyboard navigation)
+- System-integrated error handling
 
 **Review Status**: ✅ Ready for implementation
 

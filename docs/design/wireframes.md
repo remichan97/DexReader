@@ -16,7 +16,7 @@ This document contains ASCII wireframes for all primary views in DexReader. All 
 
 **Purpose**: Search, discover, and explore manga from MangaDex
 
-```
+```ui
 ┌──────────────────────────────────────────────────────────────────────────┐
 │ DexReader - Browse                                          [_ □ X]       │
 ├──────────────────────────────────────────────────────────────────────────┤
@@ -69,6 +69,7 @@ This document contains ASCII wireframes for all primary views in DexReader. All 
 6. **Infinite Scroll**: "Load More" button at bottom (Phase 2 will implement auto-scroll)
 
 **Windows 11 Design Elements**:
+
 - Mica background (#f3f3f3 light, #202020 dark)
 - Rounded corners (8px) on cards
 - Subtle shadows for depth
@@ -80,7 +81,7 @@ This document contains ASCII wireframes for all primary views in DexReader. All 
 
 **Purpose**: View bookmarked manga and personal collections
 
-```
+```ui
 ┌──────────────────────────────────────────────────────────────────────────┐
 │ DexReader - My Library                                      [_ □ X]       │
 ├──────────────────────────────────────────────────────────────────────────┤
@@ -139,6 +140,7 @@ This document contains ASCII wireframes for all primary views in DexReader. All 
 7. **Chapter Progress**: Shows current chapter / total chapters
 
 **Windows 11 Design Elements**:
+
 - Collections sidebar uses subtle background (#ffffff light, #2c2c2c dark)
 - Hover states with accent color tint
 - Progress badges with semantic colors (green for complete, blue for in-progress)
@@ -151,7 +153,7 @@ This document contains ASCII wireframes for all primary views in DexReader. All 
 
 ### Single Page Mode
 
-```
+```ui
 ┌──────────────────────────────────────────────────────────────────────────┐
 │ ← Manga Title - Chapter 45: Chapter Name         Ch. 45 ▼    [≡] [X] [▭]│
 ├──────────────────────────────────────────────────────────────────────────┤
@@ -180,7 +182,7 @@ This document contains ASCII wireframes for all primary views in DexReader. All 
 
 ### Double Page Mode (Right-to-Left)
 
-```
+```ui
 ┌──────────────────────────────────────────────────────────────────────────┐
 │ ← Manga Title - Chapter 45: Chapter Name         Ch. 45 ▼    [≡] [X] [▭]│
 ├──────────────────────────────────────────────────────────────────────────┤
@@ -205,7 +207,7 @@ This document contains ASCII wireframes for all primary views in DexReader. All 
 
 ### Vertical Scroll Mode (Webtoon)
 
-```
+```ui
 ┌──────────────────────────────────────────────────────────────────────────┐
 │ ← Manga Title - Chapter 45: Chapter Name         Ch. 45 ▼    [≡] [X] [▭]│
 ├──────────────────────────────────────────────────────────────────────────┤
@@ -267,6 +269,7 @@ This document contains ASCII wireframes for all primary views in DexReader. All 
    - Settings panel (reading preferences)
 
 **Windows 11 Design Elements**:
+
 - Black background (#000000) for reader to maximize contrast
 - Semi-transparent bars with Acrylic blur
 - Smooth fade-in/fade-out animations (300ms)
@@ -278,7 +281,7 @@ This document contains ASCII wireframes for all primary views in DexReader. All 
 
 **Purpose**: Application configuration and preferences
 
-```
+```ui
 ┌──────────────────────────────────────────────────────────────────────────┐
 │ DexReader - Settings                                        [_ □ X]       │
 ├──────────────────────────────────────────────────────────────────────────┤
@@ -361,6 +364,7 @@ This document contains ASCII wireframes for all primary views in DexReader. All 
 - **About**: Version info, credits, documentation links
 
 **Windows 11 Design Elements**:
+
 - Card-based layout with rounded corners
 - Native form controls (styled to match Windows 11)
 - Proper spacing between sections (16-24px)
@@ -372,7 +376,7 @@ This document contains ASCII wireframes for all primary views in DexReader. All 
 
 ### Navigation Sidebar
 
-```
+```ui
 ┌────────┐
 │ [🔍]   │  Browse
 │ Browse │
@@ -391,7 +395,7 @@ This document contains ASCII wireframes for all primary views in DexReader. All 
 
 **Collapsed State** (icon-only):
 
-```
+```ui
 ┌───┐
 │ 🔍│  ← Tooltip: "Browse"
 │   │
@@ -405,6 +409,7 @@ This document contains ASCII wireframes for all primary views in DexReader. All 
 ```
 
 **Features**:
+
 - Active state: Accent color background, bold text
 - Hover state: Subtle background tint
 - Collapsible: Shrinks to icon-only (saves ~60px width)
@@ -413,11 +418,12 @@ This document contains ASCII wireframes for all primary views in DexReader. All 
 
 ### Native Menu Bar
 
-```
+```ui
 File  View  Library  Tools  Help
 ```
 
 **Menu Structures** (expanded in navigation-specification.md):
+
 - **File**: Check for Updates, Settings, Exit
 - **View**: Browse, Library, Downloads, Toggle Sidebar, Toggle Fullscreen, Reload, DevTools
 - **Library**: Add to Favorites, Create Collection, Manage Collections, Import/Export
@@ -429,16 +435,19 @@ File  View  Library  Tools  Help
 ## Responsive Behavior Summary
 
 ### Large (>720px) - Default Layout
+
 - 5-column manga grid
 - Full sidebar with text labels
 - All UI elements visible
 
 ### Medium (620px-720px)
+
 - 3-column manga grid
 - Sidebar with text labels (slightly compressed)
 - Compact filter panel
 
 ### Small (<620px)
+
 - 2-column manga grid
 - Icon-only sidebar or bottom navigation bar
 - Filters in collapsible drawer
