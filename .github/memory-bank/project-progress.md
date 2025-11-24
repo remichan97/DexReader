@@ -71,11 +71,11 @@
 
 ---
 
-### Phase 1: Core Architecture (Planning) 🔵
+### Phase 1: Core Architecture (In Progress) 🔵
 
 **Duration**: 3-4 weeks
-**Status**: Planning - P1-T01 in progress
-**Target Start**: December 2025
+**Status**: In Progress - P1-T02 ready to start
+**Target Start**: 24 November 2025 (started early)
 **Target Completion**: January 2026
 
 **Objectives**:
@@ -99,8 +99,8 @@
 
 **Key Technical Tasks**:
 
-- [✅] **P1-T01**: Design main application layout (EXECUTION COMPLETE - 11 documents in docs/)
-- [ ] **P1-T02**: Implement menu bar and navigation
+- [✅] **P1-T01**: Design main application layout (COMPLETE - 11 documents in docs/)
+- [⏳] **P1-T02**: Implement menu bar and navigation (PLANNED - ready to start)
 - [ ] **P1-T03**: Create base UI component library
 - [ ] **P1-T04**: Set up state management (Zustand/Redux)
 - [ ] **P1-T05**: Implement restricted filesystem access model

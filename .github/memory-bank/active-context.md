@@ -1,8 +1,8 @@
 # DexReader Active Context
 
 **Last Updated**: 24 November 2025
-**Current Phase**: Phase 1 - Core Architecture (Planning Complete)
-**Session**: P1-T01 Planning Finalized
+**Current Phase**: Phase 1 - Core Architecture (In Progress)
+**Session**: P1-T01 Complete, P1-T02 Planned
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -41,15 +41,23 @@
 - ✅ Step 8: Component Specifications (component-specifications.md - AppShell, Sidebar, reusables)
 - ✅ Step 9: Loading/Feedback States (loading-feedback-states.md - all patterns)
 
-**Documents Saved**: All 11 markdown files stored in `docs/` folder for git tracking as requested
+**Documents Saved**: All 11 markdown files organised in `docs/` folder (design/, architecture/, components/) for git tracking
+
+**P1-T02 PLANNING COMPLETE** - Implementation plan created:
+- **Plan Document**: `.github/copilot-plans/P1-T02-implement-menu-bar-and-navigation.md`
+- **Estimated Duration**: 2-3 days (16-24 hours)
+- **10 Implementation Steps**: Dependencies → Menu bar → Theme detection → Design tokens → AppShell → Sidebar → Router → IPC handlers → Keyboard shortcuts → Integration
+- **Key Deliverables**: Native menu bar (5 menus, 30+ items), AppShell layout, Sidebar component (240px/48px), React Router v6 setup, Theme detection, IPC handlers
+- **Ready for Execution**: All steps documented with acceptance criteria
 
 ### 🔄 Active Work
 
-- **P1-T01**: ✅ COMPLETE - All deliverables created and saved to docs/ folder
+- **P1-T01**: ✅ COMPLETE - All 11 deliverables created and saved to docs/ folder
+- **P1-T02**: ⏳ PLANNED - Complete implementation plan created, ready to start
 
 ### ⏳ Next Actions
 
-1. **P1-T02**: Implement menu bar and navigation (begin Phase 1 implementation)
+1. **Begin P1-T02 execution**: Start with Step 1 (install React Router v6)
 2. **P1-T03**: Create base UI component library (implement components from specs)
 3. **P1-T04**: Set up state management (Zustand/Redux)
 4. **P1-T05**: Implement restricted filesystem access model
@@ -61,6 +69,22 @@
 ## Recent Decisions
 
 ### 24 November 2025
+
+**Documentation Organisation**:
+
+- ✅ Reorganised `docs/` folder into logical subfolders
+- ✅ Created 3 categories: `design/` (wireframes, tokens, responsive), `architecture/` (navigation, layout, routing, reader, menu), `components/` (hierarchy, specs, loading states)
+- ✅ Added `docs/README.md` with folder structure guide and quick reference
+
+**P1-T02 Planning**:
+
+- ✅ Created comprehensive implementation plan for menu bar and navigation
+- ✅ Defined 10 detailed implementation steps with time estimates
+- ✅ Specified all deliverables, acceptance criteria, and file structure
+- ✅ Documented technical decisions (native Menu API, inline SVG icons, CSS variables for theme)
+- ✅ Plan saved to `.github/copilot-plans/P1-T02-implement-menu-bar-and-navigation.md`
+- ✅ Estimated effort: 2-3 days (16-24 hours)
+- ✅ Ready to begin implementation immediately
 
 **Display Language**:
 
