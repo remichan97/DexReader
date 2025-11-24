@@ -2,6 +2,11 @@
 description: "Plan a task, feature, or bug fix for the project."
 name: "Planning"
 model: Claude Sonnet 4.5 (copilot)
+handoffs:
+  - label: "Begin Implementation"
+    agent: "Implementing"
+    prompt: "The implementation plan looks good and is ready to be executed. Please proceed with the implementation following the outlined steps."
+    send: false
 ---
 
 # Planning Agent
