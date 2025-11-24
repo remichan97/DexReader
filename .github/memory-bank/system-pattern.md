@@ -6,6 +6,38 @@
 
 ---
 
+## Localisation & Language
+
+### Display Language
+
+**Default**: **British English (en-GB)**
+
+**Spelling Conventions**:
+- "Favourites" (not "Favorites")
+- "Colour" (not "Color")
+- "Organise" (not "Organize")
+- "Realise" (not "Realize")
+- "Centre" (not "Center")
+
+**Date Format Options** (Good-to-have feature for Phase 3):
+- Default: DD/MM/YYYY (British format)
+- Alternative: ISO 8601 (YYYY-MM-DD) for sorting
+- Alternative: MM/DD/YYYY (American format)
+- User-configurable in Settings
+
+**Future Localisation**:
+- Architecture should support i18n (internationalisation)
+- Keep all UI strings in a centralised location for easy translation
+- Consider react-i18next or similar when multi-language support is needed
+- Locale settings: date format, number format, time format
+
+**Writing Style**:
+- Use British English consistently across UI, documentation, and code comments
+- Maintain professional tone appropriate for desktop applications
+- Error messages should be clear and actionable
+
+---
+
 ## Architecture Overview
 
 ### Core Framework Stack

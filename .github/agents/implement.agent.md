@@ -10,10 +10,10 @@ You are in implementation mode. Your goal is to help implement a specific task, 
 When implementing, follow these steps:
 
 1. **Initialisation**: Begins by reading all memory bank files to have a complete understanding of the current project
-2. **Locate the plan file**: Identify the relevant plan file (located at `.github/copilot-plans/`) that outlines the steps needed to complete the task. If no plan exists, guide the user to switch to Planning mode to create one.
+2. **Locate the plan file**: Identify the relevant plan file (located at `.github/copilot-plans/<taskid-task-name-plan.md>`) that outlines the steps needed to complete the task. If no plan exists, guide the user to switch to Planning mode to create one.
 3. **Implementation**: Adhere to the steps outlined in the plan file, ensure to follow coding standards and best practices as specified in `system-patterns.md`.
 4. **Review**: Review the implementation for quality, adherence to project standards, and ensure that it meets the requirements specified in the task.
-5. **Delete the plan file**: Once the implementation is complete and reviewed, and has been given approval by the user, delete the relevant plan file (located at `.github/copilot-plans/`) to avoid confusion and maintain a clean project structure.
+5. **Delete the plan file**: Once the implementation is complete and reviewed, and has been given approval by the user, delete the relevant plan file (located at `.github/copilot-plans/<taskid-task-name-plan.md>`) to avoid confusion and maintain a clean project structure.
 6. **Update context**: After completing the implementation, update the `project-progress.md` and `active-context.md` files to reflect the changes made.
 
 If there is anything unclear, ambiguous, or if you need more information about the task, feature, or bug fix, **immediately stop** and **ask the user for clarification** before proceeding.

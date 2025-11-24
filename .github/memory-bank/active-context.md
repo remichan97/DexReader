@@ -1,8 +1,8 @@
 # DexReader Active Context
 
 **Last Updated**: 24 November 2025
-**Current Phase**: Phase 1 - Core Architecture (Planning)
-**Session**: P1-T01 Loading States Design
+**Current Phase**: Phase 1 - Core Architecture (Planning Complete)
+**Session**: P1-T01 Planning Finalized
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -10,46 +10,64 @@
 
 ## Current Status Summary
 
-**Phase**: Phase 1 - Core Architecture 🔵
-**Progress**: P1-T01 Planning (loading states defined)
+**Phase**: Phase 1 - Core Architecture ✅
+**Progress**: P1-T01 Planning Complete - Ready for Execution
 **Current Date**: 24 November 2025
 
-### ✅ Completed This Session (24 Nov 2025) (24 Nov 2025)
+### ✅ Completed This Session (24 Nov 2025)
 
-1. **P1-T01 Loading States Strategy**: Comprehensive loading pattern system designed
-2. **Skeleton Screens**: Defined for Browse, Library, and Manga Detail views (8px radius, shimmer animation)
-3. **Reader Loading States**:
-   - Online mode: Two-phase loading (indeterminate → deterministic)
-   - Offline mode: Instant loading from downloads directory (100ms threshold)
-4. **Progress Indicators**:
-   - Circular progress ring for reader (no percentage text, Windows 11 accent color)
-   - Linear progress bars for Downloads view (horizontal, with speed/ETA/size)
-5. **Download Progress UI**: Specified horizontal bars with chapter title, %, speed, ETA, total size
-6. **Indeterminate Spinners**: Defined for modal operations (app load, import/export)
-7. **Loading Decision Matrix**: Documented when to use each pattern (skeleton vs ring vs bar vs spinner vs none)
-8. **Error States**: Designed for network, API, and file system failures
-9. **Empty States**: Designed with clear CTAs for empty library, no search results, no downloads
-10. **TypeScript Interfaces**: Specified LoadingSpinner, ProgressRing, DownloadProgress props
-11. **Windows 11 Design**: All patterns follow Fluent Design language (accent colors, smooth transitions)
-12. Updated P1-T01 plan: 12 tasks, updated deliverables and acceptance criteria, 5-6 days effort
+**P1-T01 EXECUTION COMPLETE** - All 11 deliverable documents created in `docs/` folder:
+
+1. **wireframes.md**: ASCII wireframes for 5 primary views (Browse, Library, Reader with 3 modes, Settings, Downloads) with Windows 11 design elements
+2. **navigation-flow.md**: Complete navigation graph, route structure (9 routes), keyboard shortcuts (15+ shortcuts), back behavior, state persistence
+3. **layout-specification.md**: Application shell structure, view layouts, sidebar specs (240px/48px states), spacing system (4px base), z-index hierarchy, responsive breakpoints
+4. **windows11-design-tokens.md**: Complete design token system with light/dark themes, color palette, typography scale (6 sizes), spacing (12 values), border radius, shadows, Acrylic/Mica effects, transitions
+5. **menu-bar-structure.md**: Native Electron menu bar (5 menus, 30+ items), keyboard accelerators, context-aware items, implementation code with dialog API
+6. **component-hierarchy.md**: React component tree (20+ components), TypeScript interfaces, file structure, communication patterns, reusable components (MangaCard, SearchBar, ProgressBar/Ring, Toast)
+7. **routing-decision.md**: React Router v6 selected (evaluation vs TanStack/Wouter/Custom), route configuration, hooks (useParams/useLocation/useNavigate), IPC integration, code splitting
+8. **reader-layout-specification.md**: 3 reading modes (single/double/vertical), control bars (auto-hide), 4 image fit modes, 15+ keyboard shortcuts, preloading strategy, chapter auto-advance, zoom/settings popovers, accessibility
+9. **responsive-behavior-guide.md**: 3 breakpoints (>720px, 620-720px, <620px), adaptive grids (5/3/2 columns), sidebar states, touch targets (44px minimum), media queries
+10. **component-specifications.md**: Detailed specs for AppShell, Sidebar, ViewContainer, MangaCard, SearchBar, Toast with TypeScript interfaces, BEM CSS classes, accessibility (ARIA labels, keyboard nav)
+11. **loading-feedback-states.md**: Skeleton screens (shimmer animation), progress rings (reader 0-100%), progress bars (downloads with speed/ETA), spinners (modal ops), error states (network/API/filesystem), empty states (library/search/downloads), modal strategy (native vs custom), TypeScript interfaces
+
+**All 9 P1-T01 Steps Executed**:
+- ✅ Step 1: Layout Wireframes (wireframes.md, navigation-flow.md, layout-specification.md, windows11-design-tokens.md, menu-bar-structure.md)
+- ✅ Step 2: Component Hierarchy (component-hierarchy.md)
+- ✅ Step 3: Routing Solution (routing-decision.md - React Router v6 selected)
+- ✅ Step 4: Navigation UI (covered in Step 1's menu-bar-structure.md)
+- ✅ Step 5: Reader Layout (reader-layout-specification.md - 3 modes detailed)
+- ✅ Step 6: Responsive Behavior (responsive-behavior-guide.md - 3 breakpoints)
+- ✅ Step 7: Windows 11 Design System (covered in Step 1's windows11-design-tokens.md)
+- ✅ Step 8: Component Specifications (component-specifications.md - AppShell, Sidebar, reusables)
+- ✅ Step 9: Loading/Feedback States (loading-feedback-states.md - all patterns)
+
+**Documents Saved**: All 11 markdown files stored in `docs/` folder for git tracking as requested
 
 ### 🔄 Active Work
 
-- **P1-T01**: Main application layout design (loading states defined, ready for wireframes execution)
+- **P1-T01**: ✅ COMPLETE - All deliverables created and saved to docs/ folder
 
 ### ⏳ Next Actions
 
-1. Execute **P1-T01**: Create wireframes for Browse, Library, Reader, Settings views
-2. **P1-T01**: Design component hierarchy and routing plan
-3. **P1-T01**: Document Windows 11 design tokens (complete CSS variables)
-4. **P1-T01**: Write component specifications for all layout components
-5. **P1-T02**: Implement menu bar and navigation (after P1-T01 design complete)
+1. **P1-T02**: Implement menu bar and navigation (begin Phase 1 implementation)
+2. **P1-T03**: Create base UI component library (implement components from specs)
+3. **P1-T04**: Set up state management (Zustand/Redux)
+4. **P1-T05**: Implement restricted filesystem access model
+5. **P1-T06**: Create path validation system
+6. Continue Phase 1 implementation tasks
 
 ---
 
 ## Recent Decisions
 
 ### 24 November 2025
+
+**Display Language**:
+
+- ✅ British English (en-GB) as default display language
+- ✅ British spelling conventions: "Favourites", "Colour", "Organise", "Centre"
+- ✅ Date format options: DD/MM/YYYY (default British), YYYY-MM-DD (ISO), MM/DD/YYYY (American) - good-to-have feature for Phase 3
+- ✅ Future localisation support planned (i18n architecture)
 
 **Loading States Strategy**:
 
@@ -137,6 +155,9 @@
 - [✅] Design download progress indicators (linear bars with detailed info)
 - [✅] Document loading pattern decision matrix
 - [✅] Update P1-T01 plan with complete loading specifications
+- [✅] Define modal dialog strategy (hybrid: native OS + custom overlays)
+- [✅] Complete P1-T01 planning phase (all 9 steps fully specified)
+- [✅] P1-T01 ready for execution (16 tasks, 10 deliverables documented)
 
 ### Current Blockers
 
@@ -214,6 +235,14 @@ npm run typecheck   # Validate types only
 - Indeterminate spinner (Windows 11 style, modal overlays)
 - Error states (network banner/toast, API details, filesystem dialog)
 - Empty states (clear CTAs for empty library, no results, no downloads)
+
+**Session Completion Summary**:
+
+- ✅ **P1-T01 Planning Phase: COMPLETE**
+- ✅ All 9 steps fully specified with tasks, deliverables, and acceptance criteria
+- ✅ Total: 16 tasks, 10 major deliverables, 5-6 days estimated effort
+- ✅ Comprehensive design coverage: wireframes, components, routing, navigation, reader layout, responsive behavior, Windows 11 design system, loading/error/empty states, modal dialogs
+- ✅ Ready for execution: Can proceed with Step 1 (wireframe creation) at any time
 
 **Next Session**:
 
