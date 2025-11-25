@@ -1,3 +1,4 @@
+import './assets/tokens.css'
 import './assets/main.css'
 
 import { StrictMode } from 'react'

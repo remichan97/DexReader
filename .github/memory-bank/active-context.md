@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 24 November 2025
+**Last Updated**: 25 November 2025
 **Current Phase**: Phase 1 - Core Architecture (In Progress)
-**Session**: P1-T01 Complete, P1-T02 Planned
+**Session**: P1-T02 Complete
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -11,23 +11,56 @@
 ## Current Status Summary
 
 **Phase**: Phase 1 - Core Architecture ✅
-**Progress**: P1-T01 Planning Complete - Ready for Execution
-**Current Date**: 24 November 2025
+**Progress**: P1-T02 Implementation Complete - Navigation System Active
+**Current Date**: 25 November 2025
 
-### ✅ Completed This Session (24 Nov 2025)
+### ✅ Completed This Session (25 Nov 2025)
 
-**P1-T01 EXECUTION COMPLETE** - All 11 deliverable documents created in `docs/` folder:
+**P1-T02 EXECUTION COMPLETE** - Menu bar and navigation system implemented:
 
-1. **wireframes.md**: ASCII wireframes for 5 primary views (Browse, Library, Reader with 3 modes, Settings, Downloads) with Windows 11 design elements
-2. **navigation-flow.md**: Complete navigation graph, route structure (9 routes), keyboard shortcuts (15+ shortcuts), back behavior, state persistence
-3. **layout-specification.md**: Application shell structure, view layouts, sidebar specs (240px/48px states), spacing system (4px base), z-index hierarchy, responsive breakpoints
-4. **windows11-design-tokens.md**: Complete design token system with light/dark themes, color palette, typography scale (6 sizes), spacing (12 values), border radius, shadows, Acrylic/Mica effects, transitions
-5. **menu-bar-structure.md**: Native Electron menu bar (5 menus, 30+ items), keyboard accelerators, context-aware items, implementation code with dialog API
-6. **component-hierarchy.md**: React component tree (20+ components), TypeScript interfaces, file structure, communication patterns, reusable components (MangaCard, SearchBar, ProgressBar/Ring, Toast)
-7. **routing-decision.md**: React Router v6 selected (evaluation vs TanStack/Wouter/Custom), route configuration, hooks (useParams/useLocation/useNavigate), IPC integration, code splitting
-8. **reader-layout-specification.md**: 3 reading modes (single/double/vertical), control bars (auto-hide), 4 image fit modes, 15+ keyboard shortcuts, preloading strategy, chapter auto-advance, zoom/settings popovers, accessibility
-9. **responsive-behavior-guide.md**: 3 breakpoints (>720px, 620-720px, <620px), adaptive grids (5/3/2 columns), sidebar states, touch targets (44px minimum), media queries
-10. **component-specifications.md**: Detailed specs for AppShell, Sidebar, ViewContainer, MangaCard, SearchBar, Toast with TypeScript interfaces, BEM CSS classes, accessibility (ARIA labels, keyboard nav)
+1. **Native Electron Menu Bar**: 5 menus (File, View, Library, Tools, Help) with 30+ menu items, keyboard accelerators (Ctrl+1/2/3, F11, F12, etc.)
+2. **System Theme Detection**: Automatic light/dark theme switching based on Windows theme using `nativeTheme` API
+3. **Windows 11 Design Tokens**: Complete CSS design system with 200+ tokens for colors, typography, spacing, shadows, transitions
+4. **AppShell Layout**: Main application shell with sidebar and content area (removed redundant title bar - native menu handles window dragging)
+5. **Sidebar Navigation**: Collapsible sidebar (240px ↔ 48px) with Browse, Library, Downloads, Settings navigation items
+6. **React Router v6**: Complete routing setup with placeholder views for all primary routes
+7. **IPC Communication**: Menu commands trigger navigation via IPC, theme updates sent to renderer
+8. **Keyboard Shortcuts**: Global shortcuts (Ctrl+1/2/3, Ctrl+B, Ctrl+,) for quick navigation
+9. **Navigation Hook**: `useNavigationListener` to handle menu-triggered navigation
+10. **TypeScript Type Safety**: All IPC APIs properly typed with TypeScript definitions
+11. **Bug Fixes Applied**:
+    - Fixed sidebar toggle state management (consolidated to single source of truth in App component)
+    - Removed redundant 32px title bar (native menu bar handles dragging)
+    - Improved Windows 11 design (added 3px accent bar on active sidebar items)
+    - Fixed menu toggle IPC handler (now correctly uses current sidebarCollapsed state)
+    - All toggle methods now work correctly (keyboard shortcut, sidebar button, menu item)
+12. **Sidebar Toggle Button**: Added Windows 11-style hamburger menu button (≡) at top of sidebar
+    - Icon-only design (no label) matching Windows 11 patterns
+    - 40×40px clickable area with proper hover/active states
+    - Aligned with sidebar navigation icons using padding and negative margin technique
+    - Positioned at top before navigation items
+
+**Files Created**:
+
+- `src/main/menu.ts` - Menu bar template with all 5 menus
+- `src/main/theme.ts` - Theme detection and IPC bridge
+- `src/renderer/src/assets/tokens.css` - Design tokens (300+ lines)
+- `src/renderer/src/layouts/AppShell.tsx` - Main layout component
+- `src/renderer/src/components/Sidebar/` - Sidebar navigation component
+- `src/renderer/src/router.tsx` - Route configuration
+- `src/renderer/src/views/` - 6 placeholder view components
+- `src/renderer/src/hooks/useNavigationListener.ts` - Navigation IPC listener
+- `src/renderer/src/hooks/useKeyboardShortcuts.ts` - Global keyboard shortcuts
+
+**Application Running**: Development server started successfully, Electron app running with full navigation
+
+### ✅ Previously Completed (24 Nov 2025)
+
+### 🔄 Active Work
+
+- **P1-T01**: ✅ COMPLETE - All 11 deliverables created and saved to docs/ folder
+- **P1-T02**: ✅ COMPLETE - Menu bar and navigation system fully implementedwContainer, MangaCard, SearchBar, Toast with TypeScript interfaces, BEM CSS classes, accessibility (ARIA labels, keyboard nav)
+
 11. **loading-feedback-states.md**: Skeleton screens (shimmer animation), progress rings (reader 0-100%), progress bars (downloads with speed/ETA), spinners (modal ops), error states (network/API/filesystem), empty states (library/search/downloads), modal strategy (native vs custom), TypeScript interfaces
 
 **All 9 P1-T01 Steps Executed**:
@@ -37,14 +70,35 @@
 - ✅ Step 3: Routing Solution (routing-decision.md - React Router v6 selected)
 - ✅ Step 4: Navigation UI (covered in Step 1's menu-bar-structure.md)
 - ✅ Step 5: Reader Layout (reader-layout-specification.md - 3 modes detailed)
-- ✅ Step 6: Responsive Behavior (responsive-behavior-guide.md - 3 breakpoints)
-- ✅ Step 7: Windows 11 Design System (covered in Step 1's windows11-design-tokens.md)
-- ✅ Step 8: Component Specifications (component-specifications.md - AppShell, Sidebar, reusables)
-- ✅ Step 9: Loading/Feedback States (loading-feedback-states.md - all patterns)
 
-**Documents Saved**: All 11 markdown files organised in `docs/` folder (design/, architecture/, components/) for git tracking
+### ⏳ Next Actions
 
-**P1-T02 PLANNING COMPLETE** - Implementation plan created:
+1. **P1-T03**: Create base UI component library (MangaCard, SearchBar, Toast, ProgressBar, etc.)
+2. **P1-T04**: Set up state management (Zustand recommended for lightweight state)
+3. **P1-T05**: Implement restricted filesystem access model (AppData + user-configured downloads)
+4. **P1-T06**: Create path validation system (security layer for file operations)
+5. **P1-T07**: Implement file system handlers with path restrictions
+6. Continue Phase 1 implementation tasks
+
+### 💡 Good-to-Have (Future Enhancements)
+
+1. **Replace Emoji Icons with Windows 11 Icon Library**: Currently using emoji placeholders (🔍, 📚, ⬇️, ⚙️) in sidebar. Future enhancement: implement proper Windows 11 Fluent UI icons (SVG or icon font) for better visual consistency and scalability
+2. **Date Format Preferences**: Allow users to choose between DD/MM/YYYY (British), YYYY-MM-DD (ISO), MM/DD/YYYY (American) - planned for Phase 3
+
+---
+
+## Recent Decisions
+
+### 25 November 2025
+
+**Sidebar Toggle Button**:
+
+- ✅ Added Windows 11-style hamburger menu button (≡) at top of sidebar
+- ✅ Icon-only design (no label text) matching Windows 11 Settings app pattern
+- ✅ 40×40px hover/active area aligned with navigation icons
+- ✅ Uses `padding: 0 var(--space-5)` on container with negative margin on icon for proper alignment
+- ✅ Positioned before navigation items for easy access
+- ✅ Keyboard accessible with proper ARIA labels
 
 - **Plan Document**: `.github/copilot-plans/P1-T02-implement-menu-bar-and-navigation.md`
 - **Estimated Duration**: 2-3 days (16-24 hours)
@@ -278,6 +332,87 @@ npm run typecheck   # Validate types only
 4. **P1-T01 Step 4**: Design dual navigation (menu bar + sidebar)
 5. **P1-T01 Step 5**: Design reader layout (single/double/vertical modes)
 6. **P1-T01 Step 6-9**: Responsive behavior, Windows 11 tokens, component specs, loading/error/empty states
+
+### 25 November 2025 - P1-T02 Navigation Implementation
+
+**Accomplished**:
+
+- Installed React Router v6 for client-side routing
+- Created native Electron menu bar (src/main/menu.ts):
+  - 5 menus: File, View, Library, Tools, Help
+  - 30+ menu items with keyboard accelerators
+  - Context-aware items (Download Chapter, Add to Favourites)
+  - IPC integration for all menu actions
+- Implemented system theme detection (src/main/theme.ts):
+  - Uses Electron's `nativeTheme` API
+  - Detects Windows 11 light/dark theme
+  - Sends theme updates to renderer via IPC
+- Created Windows 11 design tokens CSS (src/renderer/src/assets/tokens.css):
+  - 200+ CSS variables for colors, typography, spacing, shadows
+  - Complete light and dark theme support
+  - Fluent Design principles (Mica backgrounds, Acrylic blur, rounded corners)
+- Built AppShell layout component (src/renderer/src/layouts/AppShell.tsx):
+  - Sidebar integration
+  - Theme switching
+  - Skip navigation link for accessibility
+  - IPC handler for menu-triggered sidebar toggle
+- Implemented Sidebar navigation component (src/renderer/src/components/Sidebar/):
+  - Collapsible states: 240px (expanded) ↔ 48px (collapsed)
+  - 4 navigation items: Browse, Library, Downloads, Settings
+  - Active route highlighting with Windows 11 accent bar (3px blue left border)
+  - Keyboard navigation support
+  - Responsive design (auto-collapses below 620px)
+- Set up React Router v6 configuration:
+  - 6 routes: /, /browse, /library, /reader/:mangaId/:chapterId, /settings, /downloads
+  - Placeholder view components for all routes
+  - 404 Not Found page
+- Created IPC handlers for navigation:
+  - Menu-triggered navigation
+  - Sidebar toggle via IPC
+  - Theme synchronisation
+  - Menu state updates
+- Implemented global keyboard shortcuts:
+  - Ctrl+1: Browse, Ctrl+2: Library, Ctrl+3: Downloads
+  - Ctrl+,: Settings, Ctrl+B: Toggle Sidebar
+- Updated preload API with TypeScript definitions:
+  - Theme API: `getTheme()`, `onThemeChanged()`
+  - Navigation API: `onNavigate()`
+  - Menu action handlers for all menu items
+- Fixed TypeScript errors and verified type safety
+- Application successfully running in development mode
+
+**Bug Fixes & Iterations**:
+
+1. **Removed redundant title bar**: Native menu bar already provides window dragging, removed custom 32px title bar from AppShell
+2. **Fixed sidebar state management**:
+   - Issue: Keyboard shortcut toggled AppContent's local state while menu toggled App's state
+   - Solution: Consolidated to single `sidebarCollapsed` state in App component, passed toggle callback down to AppContent
+3. **Improved Windows 11 design**: Added 3px blue accent bar on active sidebar items using `::before` pseudo-element
+4. **Fixed menu toggle IPC handler**:
+   - Issue: Menu toggle captured stale `sidebarCollapsed` value from initial render
+   - Solution: Changed to reference current state via dependency array: `onSidebarToggle(!sidebarCollapsed)` with `[onSidebarToggle, sidebarCollapsed]` deps
+5. **Verified all toggle methods**: Keyboard shortcut (Ctrl+B), sidebar button, and menu item (View → Toggle Sidebar) all working correctly
+
+**Key Decisions**:
+
+- Used native Electron Menu API for menu bar (not custom HTML)
+- Emoji icons as placeholders for sidebar (can upgrade to icon library later)
+- React `useState` for sidebar collapse state (no global state needed yet)
+- CSS variables with `data-theme` attribute for theme switching
+- British English throughout ("Favourites" not "Favorites")
+
+**Technical Implementation**:
+
+- 10 new files created across main, preload, and renderer processes
+- IPC communication layer properly typed with TypeScript
+- Separation of concerns: menu creation, theme detection, routing
+- Hooks for clean separation: `useNavigationListener`, `useKeyboardShortcuts`
+
+**Next Session**:
+
+1. **P1-T03**: Create base UI component library (MangaCard, SearchBar, Toast, ProgressBar)
+2. **P1-T04**: Set up state management (Zustand)
+3. Address linting warnings (ESLint prefers `globalThis` over `window`, etc.)
 
 ### 23 November 2025 - Initial Setup & Planning
 

@@ -100,13 +100,13 @@
 **Key Technical Tasks**:
 
 - [✅] **P1-T01**: Design main application layout (COMPLETE - 11 documents in docs/)
-- [⏳] **P1-T02**: Implement menu bar and navigation (PLANNED - ready to start)
+- [✅] **P1-T02**: Implement menu bar and navigation (COMPLETE - 25 Nov 2025)
 - [ ] **P1-T03**: Create base UI component library
 - [ ] **P1-T04**: Set up state management (Zustand/Redux)
 - [ ] **P1-T05**: Implement restricted filesystem access model
 - [ ] **P1-T06**: Create path validation for AppData and downloads directories
 - [ ] **P1-T07**: Implement file system handlers (with path restrictions)
-- [ ] **P1-T08**: Create IPC messaging architecture
+- [🔄] **P1-T08**: Create IPC messaging architecture (partially complete - menu/theme/navigation IPC done)
 - [ ] **P1-T09**: Implement basic error handling
 
 ---
@@ -200,6 +200,7 @@
 - [ ] **P3-T16**: Add backup/restore for app settings
 - [ ] **P3-T17**: Implement date format settings (DD/MM/YYYY, YYYY-MM-DD, MM/DD/YYYY)
 - [ ] **P3-T18**: Improve accessibility (ARIA labels, etc.)
+- [ ] **P3-T19**: Replace emoji icons with Windows 11 Fluent UI icon library (good-to-have)
 
 ---
 
@@ -543,38 +544,19 @@
 
 ## Notes & Decisions
 
+### 25 November 2025
+
+- ✅ **P1-T02 completed**: Menu bar and navigation system fully implemented with Windows 11 design
+- ✅ Added hamburger toggle button to sidebar (top placement, icon-only)
+- ✅ Fixed multiple state management and IPC handler issues
+- ✅ Added Windows 11 Fluent UI icon replacement as future enhancement (P3-T19)
+
 ### 24 November 2025
 
-**P1-T01 EXECUTION COMPLETED** ✅
-
-Created 11 comprehensive design documents in `docs/` folder:
-
-1. **wireframes.md** (11KB): ASCII wireframes for Browse (5-col grid), Library (collections), Reader (3 modes), Settings (panels), Downloads (progress bars)
-2. **navigation-flow.md** (9KB): Route hierarchy (9 routes), navigation graph, keyboard shortcuts (15+), back behavior, state persistence
-3. **layout-specification.md** (8KB): AppShell structure (title bar/sidebar/content), spacing system (4px base), z-index hierarchy, responsive breakpoints (720px, 620px)
-4. **windows11-design-tokens.md** (10KB): Complete design system with light/dark themes, typography (6 sizes), spacing (12 values), Mica/Acrylic specs
-5. **menu-bar-structure.md** (12KB): Native Electron menu (5 menus, 30+ items), keyboard accelerators, context-aware items, implementation code
-6. **component-hierarchy.md** (11KB): React tree (20+ components), TypeScript interfaces, file structure, communication patterns
-7. **routing-decision.md** (8KB): React Router v6 selected (evaluation matrix), route config, hooks, IPC integration, code splitting
-8. **reader-layout-specification.md** (14KB): 3 reading modes (single/double/vertical), control bars (auto-hide), 4 fit modes, preloading strategy, zoom/settings popovers
-9. **responsive-behavior-guide.md** (6KB): 3 breakpoints with adaptive grids (5/3/2 columns), sidebar states (240px/48px), touch targets (44px)
-10. **component-specifications.md** (10KB): Detailed specs for AppShell, Sidebar, ViewContainer, MangaCard, SearchBar, Toast with BEM CSS, ARIA labels
-11. **loading-feedback-states.md** (12KB): Skeleton screens (shimmer), progress rings (reader), progress bars (downloads), spinners, error/empty states, modal strategy
-
-**Total**: ~110KB of implementation-ready documentation covering all aspects of main application layout
-
-**Design Decisions Finalized**:
-
-- React Router v6 for routing (vs TanStack Router, Wouter, custom)
-- Three reading modes: Single page (centered), Double page (R-L), Vertical scroll (webtoon)
-- Dual navigation: Native menu bar (primary) + collapsible sidebar (secondary, 240px/48px)
-- Windows 11 design system: Mica backgrounds, Acrylic blur, Segoe UI Variable, system theme detection
-- Component architecture: AppShell → ThemeProvider → Router → Views → Components
-- Loading patterns: Skeleton screens (grids), progress rings (reader), progress bars (downloads), spinners (modals)
-- Responsive breakpoints: >720px (5 cols), 620-720px (3 cols), <620px (2 cols, icon-only sidebar)
-- Modal strategy: Native OS dialogs (file pickers) + custom overlays (confirmations)
-
-**Implementation Ready**: All specifications include TypeScript interfaces, CSS with BEM naming, accessibility requirements (ARIA labels, keyboard navigation), and code examples
+- ✅ **P1-T01 completed**: Created 11 comprehensive design documents (~110KB total)
+- ✅ Finalized React Router v6 as routing solution
+- ✅ Established Windows 11 design system with complete token library
+- ✅ Documented all UI patterns, loading states, and component specifications
 
 ### 23 November 2025
 
