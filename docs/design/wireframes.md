@@ -504,5 +504,5 @@ These wireframes serve as the foundation for:
 
 ---
 
-*Wireframes created: 24 November 2025*
-*Part of P1-T01 deliverables*
+_Wireframes created: 24 November 2025_
+_Part of P1-T01 deliverables_

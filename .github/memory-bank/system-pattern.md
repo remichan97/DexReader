@@ -196,11 +196,13 @@ if (process.contextIsolated) {
 
 ```html
 <!-- Strict CSP in index.html -->
-<meta http-equiv="Content-Security-Policy"
-      content="default-src 'self';
+<meta
+  http-equiv="Content-Security-Policy"
+  content="default-src 'self';
                script-src 'self';
                style-src 'self' 'unsafe-inline';
-               img-src 'self' data:" />
+               img-src 'self' data:"
+/>
 ```
 
 ---
@@ -248,7 +250,7 @@ import { app } from 'electron'
 
 const ALLOWED_BASE_PATHS = {
   appData: app.getPath('userData'),
-  downloads: null as string | null  // Set by user preference
+  downloads: null as string | null // Set by user preference
 }
 
 function isPathAllowed(requestedPath: string): boolean {
@@ -260,8 +262,7 @@ function isPathAllowed(requestedPath: string): boolean {
   }
 
   // Allow configured downloads directory
-  if (ALLOWED_BASE_PATHS.downloads &&
-      normalized.startsWith(ALLOWED_BASE_PATHS.downloads)) {
+  if (ALLOWED_BASE_PATHS.downloads && normalized.startsWith(ALLOWED_BASE_PATHS.downloads)) {
     return true
   }
 
@@ -301,7 +302,7 @@ ipcMain.handle('read-file', async (event, filePath) => {
 ```typescript
 // Settings interface for downloads directory
 interface AppSettings {
-  downloadsPath: string  // User can change via native folder picker
+  downloadsPath: string // User can change via native folder picker
   // When changed, validate and update ALLOWED_BASE_PATHS.downloads
 }
 
@@ -328,10 +329,10 @@ async function selectDownloadsFolder() {
 ### Formatting (Prettier)
 
 ```yaml
-singleQuote: true        # Use 'string' not "string"
-semi: false              # No semicolons
-printWidth: 100          # Max line length
-trailingComma: none      # Clean object literals
+singleQuote: true # Use 'string' not "string"
+semi: false # No semicolons
+printWidth: 100 # Max line length
+trailingComma: none # Clean object literals
 ```
 
 ### Linting (ESLint)
@@ -346,7 +347,7 @@ trailingComma: none      # Clean object literals
 
 ```tsx
 // Modern React 19 patterns
-import { StrictMode } from 'react'      // Always wrap in StrictMode
+import { StrictMode } from 'react' // Always wrap in StrictMode
 import { createRoot } from 'react-dom/client'
 
 // JSX Runtime (no need to import React in components)
@@ -415,9 +416,8 @@ assets/
 
 ```css
 /* Dark theme with Electron Vite branding */
---ev-c-black: #1b1b1f              /* Primary background */
---ev-c-text-1: rgba(255,255,245,0.86)  /* Primary text */
---ev-c-gray-*: ...                 /* Component backgrounds */
+--ev-c-black: #1b1b1f /* Primary background */ --ev-c-text-1: rgba(255, 255, 245, 0.86)
+  /* Primary text */ --ev-c-gray- *: ... /* Component backgrounds */;
 ```
 
 ### Responsive Breakpoints
@@ -479,7 +479,7 @@ npm run build:linux      # AppImage + snap + deb
 
 - **Build**: electron, electron-builder, electron-vite, vite
 - **Frontend**: react, react-dom, @vitejs/plugin-react
-- **TypeScript**: typescript, @types/* packages
+- **TypeScript**: typescript, @types/\* packages
 - **Quality**: eslint, prettier, + associated plugins
 
 **Philosophy**: Minimal production deps, comprehensive dev tooling
@@ -721,4 +721,4 @@ npm run format           # Format with Prettier
 
 ---
 
-*This system pattern reflects the current state of DexReader as a foundational Electron-React-TypeScript application. Update this document as architectural decisions are made and patterns evolve.*
+_This system pattern reflects the current state of DexReader as a foundational Electron-React-TypeScript application. Update this document as architectural decisions are made and patterns evolve._

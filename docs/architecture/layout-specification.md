@@ -85,11 +85,11 @@ Main Content Width = Window Width - Sidebar Width
 
 ### Breakpoints
 
-| Breakpoint | Window Width | Layout Behavior |
-|------------|--------------|-----------------|
-| **Small** | < 620px | 2-column grid, icon-only sidebar or bottom nav |
-| **Medium** | 620px - 720px | 3-column grid, compact UI |
-| **Large** | > 720px | 5-column grid, full UI (default) |
+| Breakpoint | Window Width  | Layout Behavior                                |
+| ---------- | ------------- | ---------------------------------------------- |
+| **Small**  | < 620px       | 2-column grid, icon-only sidebar or bottom nav |
+| **Medium** | 620px - 720px | 3-column grid, compact UI                      |
+| **Large**  | > 720px       | 5-column grid, full UI (default)               |
 
 ---
 
@@ -346,14 +346,14 @@ Main Content Width = Window Width - Sidebar Width
 
 Based on 4px base unit:
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--space-xs` | 4px | Tight spacing (icon-to-text) |
-| `--space-sm` | 8px | Card padding, small gaps |
-| `--space-md` | 12px | Component internal spacing |
-| `--space-lg` | 16px | Section gaps, grid gaps |
-| `--space-xl` | 24px | Major section separation |
-| `--space-2xl` | 32px | View-level margins |
+| Token         | Value | Usage                        |
+| ------------- | ----- | ---------------------------- |
+| `--space-xs`  | 4px   | Tight spacing (icon-to-text) |
+| `--space-sm`  | 8px   | Card padding, small gaps     |
+| `--space-md`  | 12px  | Component internal spacing   |
+| `--space-lg`  | 16px  | Section gaps, grid gaps      |
+| `--space-xl`  | 24px  | Major section separation     |
+| `--space-2xl` | 32px  | View-level margins           |
 
 ### Applied Spacing
 
@@ -381,14 +381,14 @@ Based on 4px base unit:
 
 Layering order from bottom to top:
 
-| Layer | Z-Index | Elements |
-|-------|---------|----------|
-| Base | 0 | Main content, background |
-| Sidebar | 10 | Navigation sidebar (Acrylic) |
-| Overlays | 100 | Modals, dropdowns, tooltips |
-| Reader Controls | 200 | Top/bottom bars in reader |
-| Native UI | System | Title bar, menu bar (OS-controlled) |
-| Toast/Snackbar | 1000 | Temporary notifications |
+| Layer           | Z-Index | Elements                            |
+| --------------- | ------- | ----------------------------------- |
+| Base            | 0       | Main content, background            |
+| Sidebar         | 10      | Navigation sidebar (Acrylic)        |
+| Overlays        | 100     | Modals, dropdowns, tooltips         |
+| Reader Controls | 200     | Top/bottom bars in reader           |
+| Native UI       | System  | Title bar, menu bar (OS-controlled) |
+| Toast/Snackbar  | 1000    | Temporary notifications             |
 
 ---
 
@@ -524,11 +524,19 @@ Invisible links at top of page for keyboard users:
 Semantic HTML for screen readers:
 
 ```html
-<header>       <!-- Title bar + menu bar -->
-<nav>          <!-- Sidebar navigation -->
-<main>         <!-- Main content area -->
-<aside>        <!-- Collections sidebar in Library -->
-<footer>       <!-- Status bar (if added) -->
+<header>
+  <!-- Title bar + menu bar -->
+  <nav>
+    <!-- Sidebar navigation -->
+    <main>
+      <!-- Main content area -->
+      <aside>
+        <!-- Collections sidebar in Library -->
+        <footer><!-- Status bar (if added) --></footer>
+      </aside>
+    </main>
+  </nav>
+</header>
 ```
 
 ### Focus Indicators
@@ -635,5 +643,5 @@ DexReader's layout system provides:
 
 ---
 
-*Layout specification created: 24 November 2025*
-*Part of P1-T01 deliverables*
+_Layout specification created: 24 November 2025_
+_Part of P1-T01 deliverables_

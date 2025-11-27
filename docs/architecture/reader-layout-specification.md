@@ -300,30 +300,30 @@ if (currentPage === 0) {
 
 ### Navigation
 
-| Key | Action |
-|-----|--------|
-| Right Arrow / D | Next page |
-| Left Arrow / A | Previous page |
-| Space | Next page |
-| Shift+Space | Previous page |
-| Page Down | Scroll down (vertical mode) |
-| Page Up | Scroll up (vertical mode) |
-| Home | First page |
-| End | Last page |
+| Key             | Action                      |
+| --------------- | --------------------------- |
+| Right Arrow / D | Next page                   |
+| Left Arrow / A  | Previous page               |
+| Space           | Next page                   |
+| Shift+Space     | Previous page               |
+| Page Down       | Scroll down (vertical mode) |
+| Page Up         | Scroll up (vertical mode)   |
+| Home            | First page                  |
+| End             | Last page                   |
 
 ### Controls
 
-| Key | Action |
-|-----|--------|
-| Escape | Exit reader (back to previous view) |
-| F / F11 | Toggle fullscreen |
-| M | Show/hide chapter menu |
-| S | Open settings popover |
-| Z | Cycle zoom modes |
-| Ctrl+J | Open chapter jump dropdown |
-| Ctrl+= | Zoom in |
-| Ctrl+- | Zoom out |
-| Ctrl+0 | Reset zoom (fit-to-height) |
+| Key     | Action                              |
+| ------- | ----------------------------------- |
+| Escape  | Exit reader (back to previous view) |
+| F / F11 | Toggle fullscreen                   |
+| M       | Show/hide chapter menu              |
+| S       | Open settings popover               |
+| Z       | Cycle zoom modes                    |
+| Ctrl+J  | Open chapter jump dropdown          |
+| Ctrl+=  | Zoom in                             |
+| Ctrl+-  | Zoom out                            |
+| Ctrl+0  | Reset zoom (fit-to-height)          |
 
 ---
 
@@ -443,7 +443,7 @@ function preloadPages() {
     pages[currentIndex - 2]
   ].filter(Boolean)
 
-  pagesToPreload.forEach(url => {
+  pagesToPreload.forEach((url) => {
     const img = new Image()
     img.src = url
   })
@@ -671,15 +671,8 @@ function preloadPages() {
 
 ```html
 <div role="application" aria-label="Manga Reader">
-  <img
-    role="img"
-    aria-label="Page 12 of 24"
-    alt="Manga page 12"
-    src="..."
-  />
-  <button aria-label="Previous page" onClick={onPrevPage}>
-    ◀ Prev
-  </button>
+  <img role="img" aria-label="Page 12 of 24" alt="Manga page 12" src="..." />
+  <button aria-label="Previous page" onClick="{onPrevPage}">◀ Prev</button>
 </div>
 ```
 
@@ -739,5 +732,5 @@ DexReader's reader layout provides:
 
 ---
 
-*Reader layout specification created: 24 November 2025*
-*Part of P1-T01 deliverables*
+_Reader layout specification created: 24 November 2025_
+_Part of P1-T01 deliverables_

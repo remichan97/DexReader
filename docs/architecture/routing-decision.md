@@ -15,14 +15,14 @@
 
 ## Evaluation Criteria
 
-| Criterion | Weight | Importance |
-|-----------|--------|------------|
-| TypeScript Support | High | Type safety across routing |
-| Bundle Size | Medium | Desktop app, less critical than web |
-| Feature Set | High | Nested routes, guards, params |
-| Learning Curve | Medium | Team familiarity, documentation |
-| Maintenance | High | Active development, security |
-| Community | Medium | Support, examples, ecosystem |
+| Criterion          | Weight | Importance                          |
+| ------------------ | ------ | ----------------------------------- |
+| TypeScript Support | High   | Type safety across routing          |
+| Bundle Size        | Medium | Desktop app, less critical than web |
+| Feature Set        | High   | Nested routes, guards, params       |
+| Learning Curve     | Medium | Team familiarity, documentation     |
+| Maintenance        | High   | Active development, security        |
+| Community          | Medium | Support, examples, ecosystem        |
 
 ---
 
@@ -226,18 +226,18 @@ export default ViewContainer
 
 ### Primary Routes
 
-| Path | Component | Params | Description |
-|------|-----------|--------|-------------|
-| `/` | Navigate → `/browse` | - | Default landing (redirects) |
-| `/browse` | BrowseView | - | Manga search and browse |
-| `/browse/:mangaId` | MangaDetailView | `mangaId` | Manga detail page |
-| `/library` | LibraryView | - | User library (all manga) |
-| `/library/:collection` | LibraryView | `collection` | Filtered library view |
-| `/reader/:mangaId/:chapterId` | ReaderView | `mangaId`, `chapterId` | Reading view |
-| `/downloads` | DownloadsView | - | Download queue |
-| `/settings` | SettingsView | - | General settings |
-| `/settings/:section` | SettingsView | `section` | Specific settings section |
-| `*` | NotFoundView | - | 404 page |
+| Path                          | Component            | Params                 | Description                 |
+| ----------------------------- | -------------------- | ---------------------- | --------------------------- |
+| `/`                           | Navigate → `/browse` | -                      | Default landing (redirects) |
+| `/browse`                     | BrowseView           | -                      | Manga search and browse     |
+| `/browse/:mangaId`            | MangaDetailView      | `mangaId`              | Manga detail page           |
+| `/library`                    | LibraryView          | -                      | User library (all manga)    |
+| `/library/:collection`        | LibraryView          | `collection`           | Filtered library view       |
+| `/reader/:mangaId/:chapterId` | ReaderView           | `mangaId`, `chapterId` | Reading view                |
+| `/downloads`                  | DownloadsView        | -                      | Download queue              |
+| `/settings`                   | SettingsView         | -                      | General settings            |
+| `/settings/:section`          | SettingsView         | `section`              | Specific settings section   |
+| `*`                           | NotFoundView         | -                      | 404 page                    |
 
 ### Query Parameters
 
@@ -609,10 +609,7 @@ type SettingsSection = 'general' | 'reading' | 'download' | 'storage' | 'about'
 function useTypedNavigate() {
   const navigate = useNavigate()
 
-  return <Path extends keyof RouteParams>(
-    path: Path,
-    params: RouteParams[Path]
-  ) => {
+  return <Path extends keyof RouteParams>(path: Path, params: RouteParams[Path]) => {
     let url = path as string
     for (const [key, value] of Object.entries(params)) {
       url = url.replace(`:${key}`, value as string)
@@ -667,5 +664,5 @@ React Router v6 selected because:
 
 ---
 
-*Routing decision made: 24 November 2025*
-*Part of P1-T01 deliverables*
+_Routing decision made: 24 November 2025_
+_Part of P1-T01 deliverables_

@@ -45,44 +45,44 @@ document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
 #### Light Theme
 
 ```css
-:root[data-theme="light"] {
+:root[data-theme='light'] {
   /* Backgrounds */
-  --win-bg-base: #f3f3f3;              /* Mica light background */
-  --win-bg-card: #ffffff;              /* Card/panel background */
-  --win-bg-elevated: #fafafa;          /* Elevated surfaces */
+  --win-bg-base: #f3f3f3; /* Mica light background */
+  --win-bg-card: #ffffff; /* Card/panel background */
+  --win-bg-elevated: #fafafa; /* Elevated surfaces */
   --win-bg-overlay: rgba(255, 255, 255, 0.95); /* Modal overlay bg */
 
   /* Backgrounds - Interactive States */
   --win-bg-hover: rgba(0, 0, 0, 0.03); /* Hover state tint */
   --win-bg-active: rgba(0, 0, 0, 0.05); /* Active state tint */
-  --win-bg-disabled: #f5f5f5;          /* Disabled elements */
+  --win-bg-disabled: #f5f5f5; /* Disabled elements */
 
   /* Text */
-  --win-text-primary: #000000;         /* Primary text (headings, body) */
-  --win-text-secondary: #605e5c;       /* Secondary text (captions, hints) */
-  --win-text-tertiary: #8a8886;        /* Tertiary text (placeholders) */
-  --win-text-disabled: #c8c6c4;        /* Disabled text */
-  --win-text-on-accent: #ffffff;       /* Text on accent color */
+  --win-text-primary: #000000; /* Primary text (headings, body) */
+  --win-text-secondary: #605e5c; /* Secondary text (captions, hints) */
+  --win-text-tertiary: #8a8886; /* Tertiary text (placeholders) */
+  --win-text-disabled: #c8c6c4; /* Disabled text */
+  --win-text-on-accent: #ffffff; /* Text on accent color */
 
   /* Borders */
-  --win-border-default: #e1dfdd;       /* Default border color */
-  --win-border-hover: #d2d0ce;         /* Hovered border */
+  --win-border-default: #e1dfdd; /* Default border color */
+  --win-border-hover: #d2d0ce; /* Hovered border */
   --win-border-focus: var(--win-accent); /* Focused border */
 
   /* Accent Colors (Windows 11 default blue) */
-  --win-accent: #0078d4;               /* Primary accent */
-  --win-accent-hover: #106ebe;         /* Accent hover state */
-  --win-accent-active: #005a9e;        /* Accent active state */
-  --win-accent-disabled: #c8c6c4;      /* Accent disabled */
+  --win-accent: #0078d4; /* Primary accent */
+  --win-accent-hover: #106ebe; /* Accent hover state */
+  --win-accent-active: #005a9e; /* Accent active state */
+  --win-accent-disabled: #c8c6c4; /* Accent disabled */
 
   /* Semantic Colors */
-  --win-error: #d13438;                /* Error state */
+  --win-error: #d13438; /* Error state */
   --win-error-hover: #b42b2f;
-  --win-warning: #f7630c;              /* Warning state */
+  --win-warning: #f7630c; /* Warning state */
   --win-warning-hover: #d85309;
-  --win-success: #0f7b0f;              /* Success state */
+  --win-success: #0f7b0f; /* Success state */
   --win-success-hover: #0c630c;
-  --win-info: var(--win-accent);       /* Info state (uses accent) */
+  --win-info: var(--win-accent); /* Info state (uses accent) */
 
   /* Acrylic Blur (for overlays, sidebars) */
   --win-acrylic-bg: rgba(249, 249, 249, 0.85);
@@ -93,44 +93,44 @@ document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
 #### Dark Theme
 
 ```css
-:root[data-theme="dark"] {
+:root[data-theme='dark'] {
   /* Backgrounds */
-  --win-bg-base: #202020;              /* Mica dark background */
-  --win-bg-card: #2c2c2c;              /* Card/panel background */
-  --win-bg-elevated: #333333;          /* Elevated surfaces */
+  --win-bg-base: #202020; /* Mica dark background */
+  --win-bg-card: #2c2c2c; /* Card/panel background */
+  --win-bg-elevated: #333333; /* Elevated surfaces */
   --win-bg-overlay: rgba(32, 32, 32, 0.95); /* Modal overlay bg */
 
   /* Backgrounds - Interactive States */
   --win-bg-hover: rgba(255, 255, 255, 0.05); /* Hover state tint */
   --win-bg-active: rgba(255, 255, 255, 0.08); /* Active state tint */
-  --win-bg-disabled: #292929;          /* Disabled elements */
+  --win-bg-disabled: #292929; /* Disabled elements */
 
   /* Text */
-  --win-text-primary: #ffffff;         /* Primary text */
-  --win-text-secondary: #e1dfdd;       /* Secondary text */
-  --win-text-tertiary: #c8c6c4;        /* Tertiary text */
-  --win-text-disabled: #605e5c;        /* Disabled text */
-  --win-text-on-accent: #000000;       /* Text on accent color (dark theme uses light accent) */
+  --win-text-primary: #ffffff; /* Primary text */
+  --win-text-secondary: #e1dfdd; /* Secondary text */
+  --win-text-tertiary: #c8c6c4; /* Tertiary text */
+  --win-text-disabled: #605e5c; /* Disabled text */
+  --win-text-on-accent: #000000; /* Text on accent color (dark theme uses light accent) */
 
   /* Borders */
-  --win-border-default: #3d3d3d;       /* Default border color */
-  --win-border-hover: #4d4d4d;         /* Hovered border */
+  --win-border-default: #3d3d3d; /* Default border color */
+  --win-border-hover: #4d4d4d; /* Hovered border */
   --win-border-focus: var(--win-accent); /* Focused border */
 
   /* Accent Colors (Windows 11 dark mode accent) */
-  --win-accent: #60cdff;               /* Primary accent (lighter for dark mode) */
-  --win-accent-hover: #7ed6ff;         /* Accent hover state */
-  --win-accent-active: #9ce0ff;        /* Accent active state */
-  --win-accent-disabled: #605e5c;      /* Accent disabled */
+  --win-accent: #60cdff; /* Primary accent (lighter for dark mode) */
+  --win-accent-hover: #7ed6ff; /* Accent hover state */
+  --win-accent-active: #9ce0ff; /* Accent active state */
+  --win-accent-disabled: #605e5c; /* Accent disabled */
 
   /* Semantic Colors */
-  --win-error: #f85149;                /* Error state (brighter for visibility) */
+  --win-error: #f85149; /* Error state (brighter for visibility) */
   --win-error-hover: #ff6d65;
-  --win-warning: #ff8c42;              /* Warning state */
+  --win-warning: #ff8c42; /* Warning state */
   --win-warning-hover: #ffa060;
-  --win-success: #3fb950;              /* Success state */
+  --win-success: #3fb950; /* Success state */
   --win-success-hover: #57c568;
-  --win-info: var(--win-accent);       /* Info state */
+  --win-info: var(--win-accent); /* Info state */
 
   /* Acrylic Blur */
   --win-acrylic-bg: rgba(44, 44, 44, 0.85);
@@ -176,12 +176,12 @@ document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
 
 ```css
 :root {
-  --win-font-size-caption: 12px;       /* Small labels, captions */
-  --win-font-size-body: 14px;          /* Default body text */
-  --win-font-size-subtitle: 16px;      /* Subtitles, emphasis */
-  --win-font-size-title: 20px;         /* Section titles */
-  --win-font-size-header: 28px;        /* Page headers */
-  --win-font-size-display: 40px;       /* Large display text (rare) */
+  --win-font-size-caption: 12px; /* Small labels, captions */
+  --win-font-size-body: 14px; /* Default body text */
+  --win-font-size-subtitle: 16px; /* Subtitles, emphasis */
+  --win-font-size-title: 20px; /* Section titles */
+  --win-font-size-header: 28px; /* Page headers */
+  --win-font-size-display: 40px; /* Large display text (rare) */
 }
 ```
 
@@ -189,9 +189,9 @@ document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
 
 ```css
 :root {
-  --win-font-weight-regular: 400;      /* Body text */
-  --win-font-weight-semibold: 600;     /* Emphasis, buttons */
-  --win-font-weight-bold: 700;         /* Strong emphasis, headings */
+  --win-font-weight-regular: 400; /* Body text */
+  --win-font-weight-semibold: 600; /* Emphasis, buttons */
+  --win-font-weight-bold: 700; /* Strong emphasis, headings */
 }
 ```
 
@@ -199,22 +199,22 @@ document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
 
 ```css
 :root {
-  --win-line-height-tight: 1.2;        /* Headings, titles */
-  --win-line-height-normal: 1.5;       /* Body text */
-  --win-line-height-relaxed: 1.7;      /* Long-form content */
+  --win-line-height-tight: 1.2; /* Headings, titles */
+  --win-line-height-normal: 1.5; /* Body text */
+  --win-line-height-relaxed: 1.7; /* Long-form content */
 }
 ```
 
 ### Typography Scale
 
-| Element | Font Size | Weight | Line Height | Usage |
-|---------|-----------|--------|-------------|-------|
-| **Display** | 40px | Bold (700) | 1.2 | Splash screens, major headers |
-| **Header** | 28px | Bold (700) | 1.2 | Page titles |
-| **Title** | 20px | Semibold (600) | 1.2 | Section headings |
-| **Subtitle** | 16px | Semibold (600) | 1.5 | Card titles, subsections |
-| **Body** | 14px | Regular (400) | 1.5 | Primary content |
-| **Caption** | 12px | Regular (400) | 1.5 | Labels, hints, metadata |
+| Element      | Font Size | Weight         | Line Height | Usage                         |
+| ------------ | --------- | -------------- | ----------- | ----------------------------- |
+| **Display**  | 40px      | Bold (700)     | 1.2         | Splash screens, major headers |
+| **Header**   | 28px      | Bold (700)     | 1.2         | Page titles                   |
+| **Title**    | 20px      | Semibold (600) | 1.2         | Section headings              |
+| **Subtitle** | 16px      | Semibold (600) | 1.5         | Card titles, subsections      |
+| **Body**     | 14px      | Regular (400)  | 1.5         | Primary content               |
+| **Caption**  | 12px      | Regular (400)  | 1.5         | Labels, hints, metadata       |
 
 ---
 
@@ -227,15 +227,15 @@ document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
 ```css
 :root {
   --space-0: 0;
-  --space-1: 4px;    /* xs - Tight spacing */
-  --space-2: 8px;    /* sm - Small gaps */
-  --space-3: 12px;   /* md - Medium spacing */
-  --space-4: 16px;   /* lg - Standard gaps */
-  --space-5: 20px;   /* lg+ */
-  --space-6: 24px;   /* xl - Section gaps */
-  --space-8: 32px;   /* 2xl - Major sections */
-  --space-10: 40px;  /* 3xl */
-  --space-12: 48px;  /* 4xl - View margins */
+  --space-1: 4px; /* xs - Tight spacing */
+  --space-2: 8px; /* sm - Small gaps */
+  --space-3: 12px; /* md - Medium spacing */
+  --space-4: 16px; /* lg - Standard gaps */
+  --space-5: 20px; /* lg+ */
+  --space-6: 24px; /* xl - Section gaps */
+  --space-8: 32px; /* 2xl - Major sections */
+  --space-10: 40px; /* 3xl */
+  --space-12: 48px; /* 4xl - View margins */
 }
 ```
 
@@ -244,19 +244,19 @@ document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
 ```css
 :root {
   /* Component Internal Spacing */
-  --padding-input: var(--space-2) var(--space-3);  /* 8px 12px */
+  --padding-input: var(--space-2) var(--space-3); /* 8px 12px */
   --padding-button: var(--space-2) var(--space-4); /* 8px 16px */
-  --padding-card: var(--space-4);                  /* 16px */
-  --padding-panel: var(--space-6);                 /* 24px */
+  --padding-card: var(--space-4); /* 16px */
+  --padding-panel: var(--space-6); /* 24px */
 
   /* Layout Gaps */
-  --gap-grid: var(--space-4);                      /* 16px - Grid cells */
-  --gap-section: var(--space-6);                   /* 24px - Sections */
-  --gap-view: var(--space-8);                      /* 32px - Views */
+  --gap-grid: var(--space-4); /* 16px - Grid cells */
+  --gap-section: var(--space-6); /* 24px - Sections */
+  --gap-view: var(--space-8); /* 32px - Views */
 
   /* Margins */
-  --margin-element: var(--space-4);                /* 16px - Between elements */
-  --margin-section: var(--space-8);                /* 32px - Between sections */
+  --margin-element: var(--space-4); /* 16px - Between elements */
+  --margin-section: var(--space-8); /* 32px - Between sections */
 }
 ```
 
@@ -269,24 +269,24 @@ document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
 ```css
 :root {
   --radius-none: 0;
-  --radius-sm: 4px;          /* Small elements (buttons, inputs) */
-  --radius-md: 8px;          /* Standard elements (cards, panels) */
-  --radius-lg: 12px;         /* Large elements (modals) */
-  --radius-full: 9999px;     /* Pills, circular buttons */
+  --radius-sm: 4px; /* Small elements (buttons, inputs) */
+  --radius-md: 8px; /* Standard elements (cards, panels) */
+  --radius-lg: 12px; /* Large elements (modals) */
+  --radius-full: 9999px; /* Pills, circular buttons */
 }
 ```
 
 ### Applied Radius
 
-| Element | Radius | Token |
-|---------|--------|-------|
-| Button | 4px | `--radius-sm` |
-| Input | 4px | `--radius-sm` |
-| Card | 8px | `--radius-md` |
-| Panel | 8px | `--radius-md` |
-| Modal | 12px | `--radius-lg` |
-| Toast | 8px | `--radius-md` |
-| Avatar | 50% | `--radius-full` |
+| Element | Radius | Token           |
+| ------- | ------ | --------------- |
+| Button  | 4px    | `--radius-sm`   |
+| Input   | 4px    | `--radius-sm`   |
+| Card    | 8px    | `--radius-md`   |
+| Panel   | 8px    | `--radius-md`   |
+| Modal   | 12px   | `--radius-lg`   |
+| Toast   | 8px    | `--radius-md`   |
+| Avatar  | 50%    | `--radius-full` |
 
 ---
 
@@ -303,7 +303,7 @@ document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
   --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.16);
 }
 
-:root[data-theme="dark"] {
+:root[data-theme='dark'] {
   /* Slightly stronger shadows for dark mode */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.4);
@@ -314,13 +314,13 @@ document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
 
 ### Elevation Mapping
 
-| Level | Shadow | Usage |
-|-------|--------|-------|
-| **0** | None | Flat elements (backgrounds) |
-| **1** | `--shadow-sm` | Cards at rest |
-| **2** | `--shadow-md` | Hovered cards, dropdowns |
-| **3** | `--shadow-lg` | Modals, popovers |
-| **4** | `--shadow-xl` | Full-screen overlays |
+| Level | Shadow        | Usage                       |
+| ----- | ------------- | --------------------------- |
+| **0** | None          | Flat elements (backgrounds) |
+| **1** | `--shadow-sm` | Cards at rest               |
+| **2** | `--shadow-md` | Hovered cards, dropdowns    |
+| **3** | `--shadow-lg` | Modals, popovers            |
+| **4** | `--shadow-xl` | Full-screen overlays        |
 
 ---
 
@@ -336,7 +336,7 @@ document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
 // Main process (Electron)
 const win = new BrowserWindow({
   backgroundColor: '#00000000', // Transparent
-  backgroundMaterial: 'mica'    // Electron 38+ feature
+  backgroundMaterial: 'mica' // Electron 38+ feature
 })
 ```
 
@@ -384,9 +384,9 @@ const win = new BrowserWindow({
 ```css
 :root {
   --duration-instant: 0ms;
-  --duration-fast: 150ms;        /* Quick feedback */
-  --duration-normal: 300ms;      /* Standard transitions */
-  --duration-slow: 500ms;        /* Deliberate animations */
+  --duration-fast: 150ms; /* Quick feedback */
+  --duration-normal: 300ms; /* Standard transitions */
+  --duration-slow: 500ms; /* Deliberate animations */
 }
 ```
 
@@ -394,8 +394,8 @@ const win = new BrowserWindow({
 
 ```css
 :root {
-  --ease-out: cubic-bezier(0, 0, 0.2, 1);     /* Elements entering */
-  --ease-in: cubic-bezier(0.4, 0, 1, 1);      /* Elements exiting */
+  --ease-out: cubic-bezier(0, 0, 0.2, 1); /* Elements entering */
+  --ease-in: cubic-bezier(0.4, 0, 1, 1); /* Elements exiting */
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1); /* Smooth transitions */
 }
 ```
@@ -423,13 +423,21 @@ const win = new BrowserWindow({
 
 ```css
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 ```
 
@@ -437,13 +445,25 @@ const win = new BrowserWindow({
 
 ```css
 @keyframes slideInFromRight {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 @keyframes slideOutToRight {
-  from { transform: translateX(0); opacity: 1; }
-  to { transform: translateX(100%); opacity: 0; }
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
 }
 ```
 
@@ -451,8 +471,12 @@ const win = new BrowserWindow({
 
 ```css
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 .skeleton {
@@ -605,7 +629,7 @@ const win = new BrowserWindow({
 
 ```css
 :root {
-  --touch-target-min: 44px;  /* WCAG 2.2 minimum */
+  --touch-target-min: 44px; /* WCAG 2.2 minimum */
 }
 ```
 
@@ -668,7 +692,7 @@ Complete CSS file with all tokens:
 }
 
 /* Dark Theme Overrides */
-:root[data-theme="dark"] {
+:root[data-theme='dark'] {
   --win-bg-base: #202020;
   --win-bg-card: #2c2c2c;
   --win-text-primary: #ffffff;
@@ -732,5 +756,5 @@ DexReader's Windows 11 design token system provides:
 
 ---
 
-*Design tokens created: 24 November 2025*
-*Part of P1-T01 deliverables*
+_Design tokens created: 24 November 2025_
+_Part of P1-T01 deliverables_

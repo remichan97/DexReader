@@ -422,9 +422,7 @@ const menuTemplate: MenuItemConstructorOptions[] = [
             click: async () => {
               const result = await dialog.showOpenDialog(mainWindow, {
                 title: 'Import Library',
-                filters: [
-                  { name: 'DexReader Backup', extensions: ['dexreader'] }
-                ],
+                filters: [{ name: 'DexReader Backup', extensions: ['dexreader'] }],
                 properties: ['openFile']
               })
               if (!result.canceled) {
@@ -437,9 +435,7 @@ const menuTemplate: MenuItemConstructorOptions[] = [
             click: async () => {
               const result = await dialog.showOpenDialog(mainWindow, {
                 title: 'Import Tachiyomi Backup',
-                filters: [
-                  { name: 'Tachiyomi Backup', extensions: ['proto.gz', 'tachibk'] }
-                ],
+                filters: [{ name: 'Tachiyomi Backup', extensions: ['proto.gz', 'tachibk'] }],
                 properties: ['openFile']
               })
               if (!result.canceled) {
@@ -459,9 +455,7 @@ const menuTemplate: MenuItemConstructorOptions[] = [
               const result = await dialog.showSaveDialog(mainWindow, {
                 title: 'Export Library',
                 defaultPath: 'dexreader-backup.dexreader',
-                filters: [
-                  { name: 'DexReader Backup', extensions: ['dexreader'] }
-                ]
+                filters: [{ name: 'DexReader Backup', extensions: ['dexreader'] }]
               })
               if (!result.canceled) {
                 mainWindow.webContents.send('export-library', result.filePath)
@@ -474,9 +468,7 @@ const menuTemplate: MenuItemConstructorOptions[] = [
               const result = await dialog.showSaveDialog(mainWindow, {
                 title: 'Export to Tachiyomi',
                 defaultPath: 'tachiyomi-backup.proto.gz',
-                filters: [
-                  { name: 'Tachiyomi Backup', extensions: ['proto.gz'] }
-                ]
+                filters: [{ name: 'Tachiyomi Backup', extensions: ['proto.gz'] }]
               })
               if (!result.canceled) {
                 mainWindow.webContents.send('export-tachiyomi', result.filePath)
@@ -579,9 +571,7 @@ ipcMain.on('update-menu-state', (event, state) => {
   const addToFavoritesItem = menu.getMenuItemById('add-to-favorites')
   if (addToFavoritesItem) {
     addToFavoritesItem.enabled = state.canAddToFavorites
-    addToFavoritesItem.label = state.isFavorited
-      ? 'Remove from Favorites'
-      : 'Add to Favorites'
+    addToFavoritesItem.label = state.isFavorited ? 'Remove from Favorites' : 'Add to Favorites'
   }
 
   // Update "Download Chapter"
@@ -610,30 +600,30 @@ ipcMain.on('update-menu-state', (event, state) => {
 
 ### Global Shortcuts
 
-| Shortcut | Action | Menu Location |
-|----------|--------|---------------|
-| `Ctrl+1` | Navigate to Browse | View → Browse Manga |
-| `Ctrl+2` | Navigate to Library | View → My Library |
-| `Ctrl+3` | Navigate to Downloads | View → Downloads |
-| `Ctrl+,` | Open Settings | File → Settings... |
-| `Ctrl+B` | Toggle Sidebar | View → Toggle Sidebar |
-| `Ctrl+R` | Reload View | View → Reload |
-| `Ctrl+U` | Check for Updates | File → Check for Updates... |
-| `F1` | Open Documentation | Help → Documentation |
-| `F11` | Toggle Fullscreen | View → Toggle Fullscreen |
-| `F12` | Toggle DevTools | View → Toggle DevTools |
-| `Alt+F4` | Exit Application | File → Exit |
+| Shortcut | Action                | Menu Location               |
+| -------- | --------------------- | --------------------------- |
+| `Ctrl+1` | Navigate to Browse    | View → Browse Manga         |
+| `Ctrl+2` | Navigate to Library   | View → My Library           |
+| `Ctrl+3` | Navigate to Downloads | View → Downloads            |
+| `Ctrl+,` | Open Settings         | File → Settings...          |
+| `Ctrl+B` | Toggle Sidebar        | View → Toggle Sidebar       |
+| `Ctrl+R` | Reload View           | View → Reload               |
+| `Ctrl+U` | Check for Updates     | File → Check for Updates... |
+| `F1`     | Open Documentation    | Help → Documentation        |
+| `F11`    | Toggle Fullscreen     | View → Toggle Fullscreen    |
+| `F12`    | Toggle DevTools       | View → Toggle DevTools      |
+| `Alt+F4` | Exit Application      | File → Exit                 |
 
 ### Context-Aware Shortcuts
 
-| Shortcut | Action | Menu Location | Context |
-|----------|--------|---------------|---------|
-| `Ctrl+D` | Add/Remove Favorites | Library → Add to Favorites | Manga Detail/Reader |
-| `Ctrl+Shift+D` | Download Chapter | Tools → Download Chapter | Manga Detail/Reader |
-| `Ctrl+Shift+N` | Create Collection | Library → Create Collection... | Any View |
-| `Ctrl+Shift+C` | Manage Collections | Library → Manage Collections... | Any View |
-| `Ctrl+Shift+E` | Export Library | Library → Export Library → DexReader | Any View |
-| `Ctrl+/` | Show Keyboard Shortcuts | Help → Keyboard Shortcuts... | Any View |
+| Shortcut       | Action                  | Menu Location                        | Context             |
+| -------------- | ----------------------- | ------------------------------------ | ------------------- |
+| `Ctrl+D`       | Add/Remove Favorites    | Library → Add to Favorites           | Manga Detail/Reader |
+| `Ctrl+Shift+D` | Download Chapter        | Tools → Download Chapter             | Manga Detail/Reader |
+| `Ctrl+Shift+N` | Create Collection       | Library → Create Collection...       | Any View            |
+| `Ctrl+Shift+C` | Manage Collections      | Library → Manage Collections...      | Any View            |
+| `Ctrl+Shift+E` | Export Library          | Library → Export Library → DexReader | Any View            |
+| `Ctrl+/`       | Show Keyboard Shortcuts | Help → Keyboard Shortcuts...         | Any View            |
 
 ---
 
@@ -700,5 +690,5 @@ DexReader's native menu bar provides:
 
 ---
 
-*Menu bar structure created: 24 November 2025*
-*Part of P1-T01 deliverables*
+_Menu bar structure created: 24 November 2025_
+_Part of P1-T01 deliverables_

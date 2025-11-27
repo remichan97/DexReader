@@ -224,39 +224,39 @@ dexreader://settings/reading
 
 ### Global Shortcuts (Work from Any View)
 
-| Shortcut | Action |
-|----------|--------|
-| Ctrl+1 | Navigate to Browse |
-| Ctrl+2 | Navigate to Library |
-| Ctrl+3 | Navigate to Downloads |
-| Ctrl+, | Navigate to Settings |
-| Ctrl+B | Toggle Sidebar |
-| F11 | Toggle Fullscreen |
-| Alt+Left | Back in history |
-| Alt+Right | Forward in history |
-| Ctrl+R | Reload current view |
+| Shortcut  | Action                |
+| --------- | --------------------- |
+| Ctrl+1    | Navigate to Browse    |
+| Ctrl+2    | Navigate to Library   |
+| Ctrl+3    | Navigate to Downloads |
+| Ctrl+,    | Navigate to Settings  |
+| Ctrl+B    | Toggle Sidebar        |
+| F11       | Toggle Fullscreen     |
+| Alt+Left  | Back in history       |
+| Alt+Right | Forward in history    |
+| Ctrl+R    | Reload current view   |
 
 ### View-Specific Shortcuts
 
 **Reader View**:
 
-| Shortcut | Action |
-|----------|--------|
-| Left Arrow / A | Previous page/chapter |
-| Right Arrow / D | Next page/chapter |
-| Space | Next page |
-| Shift+Space | Previous page |
-| Escape | Exit reader (back to previous view) |
-| F | Toggle fullscreen |
-| M | Show chapter menu overlay |
+| Shortcut        | Action                              |
+| --------------- | ----------------------------------- |
+| Left Arrow / A  | Previous page/chapter               |
+| Right Arrow / D | Next page/chapter                   |
+| Space           | Next page                           |
+| Shift+Space     | Previous page                       |
+| Escape          | Exit reader (back to previous view) |
+| F               | Toggle fullscreen                   |
+| M               | Show chapter menu overlay           |
 
 **Browse/Library Views**:
 
-| Shortcut | Action |
-|----------|--------|
-| Ctrl+F | Focus search input |
-| Ctrl+D | Add current manga to favorites |
-| Enter | Open selected manga (when focused) |
+| Shortcut | Action                             |
+| -------- | ---------------------------------- |
+| Ctrl+F   | Focus search input                 |
+| Ctrl+D   | Add current manga to favorites     |
+| Enter    | Open selected manga (when focused) |
 
 ---
 
@@ -512,5 +512,5 @@ DexReader's navigation system provides:
 
 ---
 
-*Navigation flow created: 24 November 2025*
-*Part of P1-T01 deliverables*
+_Navigation flow created: 24 November 2025_
+_Part of P1-T01 deliverables_

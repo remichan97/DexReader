@@ -139,16 +139,8 @@ interface SidebarItem {
 **ARIA Attributes**:
 
 ```tsx
-<nav
-  className="sidebar"
-  aria-label="Main navigation"
-  aria-expanded={!collapsed}
->
-  <button
-    className="sidebar__item"
-    aria-current={active ? "page" : undefined}
-    role="link"
-  >
+<nav className="sidebar" aria-label="Main navigation" aria-expanded={!collapsed}>
+  <button className="sidebar__item" aria-current={active ? 'page' : undefined} role="link">
     <Icon aria-hidden="true" />
     <span>{label}</span>
   </button>
@@ -221,7 +213,9 @@ interface MangaCardProps {
   border-radius: 8px;
   overflow: hidden;
   background: var(--surface-secondary);
-  transition: transform 150ms, box-shadow 150ms;
+  transition:
+    transform 150ms,
+    box-shadow 150ms;
 }
 
 .manga-card:hover {
@@ -268,14 +262,12 @@ interface MangaCardProps {
   role="button"
   aria-label={`${title}, ${progress.current} of ${progress.total} chapters read`}
 >
-  <img
-    src={coverUrl}
-    alt={`${title} cover`}
-    loading="lazy"
-  />
+  <img src={coverUrl} alt={`${title} cover`} loading="lazy" />
   <div className="manga-card__info">
     <h3 className="manga-card__title">{title}</h3>
-    <p className="manga-card__progress">{progress.current}/{progress.total}</p>
+    <p className="manga-card__progress">
+      {progress.current}/{progress.total}
+    </p>
   </div>
 </article>
 ```
@@ -439,18 +431,9 @@ interface ToastProps {
 **Accessibility**:
 
 ```tsx
-<div
-  className="toast"
-  role="status"
-  aria-live="polite"
-  aria-atomic="true"
->
+<div className="toast" role="status" aria-live="polite" aria-atomic="true">
   <span className="toast__message">{message}</span>
-  <button
-    className="toast__close"
-    onClick={onClose}
-    aria-label="Close notification"
-  >
+  <button className="toast__close" onClick={onClose} aria-label="Close notification">
     <CloseIcon />
   </button>
 </div>
@@ -470,5 +453,5 @@ interface ToastProps {
 
 ---
 
-*Component specifications created: 24 November 2025*
-*Part of P1-T01 deliverables*
+_Component specifications created: 24 November 2025_
+_Part of P1-T01 deliverables_

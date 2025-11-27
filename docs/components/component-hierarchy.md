@@ -1189,5 +1189,5 @@ DexReader's component hierarchy provides:
 
 ---
 
-*Component hierarchy created: 24 November 2025*
-*Part of P1-T01 deliverables*
+_Component hierarchy created: 24 November 2025_
+_Part of P1-T01 deliverables_

@@ -214,5 +214,5 @@ function Sidebar() {
 
 ---
 
-*Responsive guide created: 24 November 2025*
-*Part of P1-T01 deliverables*
+_Responsive guide created: 24 November 2025_
+_Part of P1-T01 deliverables_

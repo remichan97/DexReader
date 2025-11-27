@@ -43,7 +43,7 @@ function MangaCardSkeleton() {
 }
 
 // Show 15 skeleton cards while loading
-<div className="manga-grid">
+;<div className="manga-grid">
   {Array.from({ length: 15 }).map((_, i) => (
     <MangaCardSkeleton key={i} />
   ))}
@@ -86,12 +86,7 @@ function MangaCardSkeleton() {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
   animation: shimmer 1.5s infinite;
 }
 
@@ -278,9 +273,18 @@ function LoadingSpinner({ size = 'medium' }: LoadingSpinnerProps) {
   justify-content: center;
 }
 
-.spinner--small { width: 16px; height: 16px; }
-.spinner--medium { width: 24px; height: 24px; }
-.spinner--large { width: 48px; height: 48px; }
+.spinner--small {
+  width: 16px;
+  height: 16px;
+}
+.spinner--medium {
+  width: 24px;
+  height: 24px;
+}
+.spinner--large {
+  width: 48px;
+  height: 48px;
+}
 
 .spinner__circle {
   width: 100%;
@@ -292,7 +296,9 @@ function LoadingSpinner({ size = 'medium' }: LoadingSpinnerProps) {
 }
 
 @keyframes spin {
-  100% { transform: rotate(360deg); }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 ```
 
@@ -344,11 +350,12 @@ function NetworkBanner() {
 
 ```tsx
 function showApiError(error: ApiError) {
-  const message = error.code === 429
-    ? 'Rate limit exceeded. Please try again later.'
-    : error.code === 404
-    ? 'Content not found.'
-    : 'Failed to load data. Please try again.'
+  const message =
+    error.code === 429
+      ? 'Rate limit exceeded. Please try again later.'
+      : error.code === 404
+        ? 'Content not found.'
+        : 'Failed to load data. Please try again.'
 
   toast.show({
     type: 'error',
@@ -510,19 +517,19 @@ function EmptyDownloads() {
 
 ### Decision Matrix
 
-| Operation | Type | Reason |
-|-----------|------|--------|
-| Critical Errors | Native Error Dialog | OS-native, system integration, blocking |
-| Warnings/Confirmations | Native Message Box | OS-native, consistent with Windows UX |
-| Information Messages | Native Message Box | OS-native, standard Windows pattern |
-| Import Library | Native File Picker | OS-native dialog, file system access |
-| Export Library | Native Save Dialog | OS-native dialog, save location |
-| API Errors | Custom Toast | Non-blocking, temporary, with retry action |
-| Network Status | Custom Banner | Persistent indicator, non-blocking |
-| Success Messages | Custom Toast | Lightweight feedback, auto-dismiss |
-| Settings | Full View | Complex form, not modal |
-| Image Zoom | Reader Overlay | Reader-specific, not blocking |
-| Chapter List | Slide-in Drawer | Persistent during reading |
+| Operation              | Type                | Reason                                     |
+| ---------------------- | ------------------- | ------------------------------------------ |
+| Critical Errors        | Native Error Dialog | OS-native, system integration, blocking    |
+| Warnings/Confirmations | Native Message Box  | OS-native, consistent with Windows UX      |
+| Information Messages   | Native Message Box  | OS-native, standard Windows pattern        |
+| Import Library         | Native File Picker  | OS-native dialog, file system access       |
+| Export Library         | Native Save Dialog  | OS-native dialog, save location            |
+| API Errors             | Custom Toast        | Non-blocking, temporary, with retry action |
+| Network Status         | Custom Banner       | Persistent indicator, non-blocking         |
+| Success Messages       | Custom Toast        | Lightweight feedback, auto-dismiss         |
+| Settings               | Full View           | Complex form, not modal                    |
+| Image Zoom             | Reader Overlay      | Reader-specific, not blocking              |
+| Chapter List           | Slide-in Drawer     | Persistent during reading                  |
 
 **Design Principle**: Use native OS dialogs for blocking operations and system-level feedback. Use custom in-app overlays only for non-blocking, temporary notifications.
 
@@ -636,7 +643,9 @@ function Toast({ type, message, action, duration = 4000 }: ToastProps) {
           {action.label}
         </button>
       )}
-      <button className="toast__close" aria-label="Close notification">×</button>
+      <button className="toast__close" aria-label="Close notification">
+        ×
+      </button>
     </div>
   )
 }
@@ -756,5 +765,5 @@ toast.show({
 
 ---
 
-*Loading and feedback states documentation created: 24 November 2025*
-*Part of P1-T01 deliverables*
+_Loading and feedback states documentation created: 24 November 2025_
+_Part of P1-T01 deliverables_

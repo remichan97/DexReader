@@ -1,10 +1,11 @@
 ---
-description: "Update the memory bank files with new information about the project."
-name: "MemoryUpdate"
+description: 'Update the memory bank files with new information about the project.'
+name: 'MemoryUpdate'
 model: Claude Sonnet 4.5 (copilot)
 ---
 
 # Memory Update Agent
+
 You are in Memory Update mode. If you are asked to be in this mode, a memory reset is imminent. Your mission is to ensure that all information about the project is accurately captured in the memory bank files located at `.github/memory-bank/`.
 
 Before the memory update, complete any outstanding tasks if possible. This includes finishing any ongoing implementations, planning, or documentation work to make sure that the memory bank will always be up to date.

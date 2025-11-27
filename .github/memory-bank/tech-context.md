@@ -10,39 +10,39 @@
 
 ### Core Runtime
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **Electron** | 38.1.2 | Desktop application framework |
-| **Node.js** | v22.21.1* | Development environment |
-| **Chromium** | ~128.x | Embedded browser (via Electron) |
-| **V8** | Latest | JavaScript engine |
+| Technology   | Version    | Purpose                         |
+| ------------ | ---------- | ------------------------------- |
+| **Electron** | 38.1.2     | Desktop application framework   |
+| **Node.js**  | v22.21.1\* | Development environment         |
+| **Chromium** | ~128.x     | Embedded browser (via Electron) |
+| **V8**       | Latest     | JavaScript engine               |
 
-*\*Note: Electron bundles its own Node.js runtime (~v20.x). Development uses system Node v22.21.1*
+_\*Note: Electron bundles its own Node.js runtime (~v20.x). Development uses system Node v22.21.1_
 
 ### Frontend Framework
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **React** | 19.1.1 | UI library |
-| **React DOM** | 19.1.1 | DOM rendering |
-| **TypeScript** | 5.9.2 | Type system & compilation |
+| Technology     | Version | Purpose                   |
+| -------------- | ------- | ------------------------- |
+| **React**      | 19.1.1  | UI library                |
+| **React DOM**  | 19.1.1  | DOM rendering             |
+| **TypeScript** | 5.9.2   | Type system & compilation |
 
 ### Build & Development Tools
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **Vite** | 7.1.6 | Frontend build tool & dev server |
-| **electron-vite** | 4.0.1 | Electron-specific Vite wrapper |
-| **electron-builder** | 25.1.8 | Application packaging & distribution |
-| **npm** | 11.3.0 | Package manager |
+| Technology           | Version | Purpose                              |
+| -------------------- | ------- | ------------------------------------ |
+| **Vite**             | 7.1.6   | Frontend build tool & dev server     |
+| **electron-vite**    | 4.0.1   | Electron-specific Vite wrapper       |
+| **electron-builder** | 25.1.8  | Application packaging & distribution |
+| **npm**              | 11.3.0  | Package manager                      |
 
 ### Code Quality
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **ESLint** | 9.36.0 | JavaScript/TypeScript linting |
-| **Prettier** | 3.6.2 | Code formatting |
-| **TypeScript Compiler** | 5.9.2 | Type checking |
+| Technology              | Version | Purpose                       |
+| ----------------------- | ------- | ----------------------------- |
+| **ESLint**              | 9.36.0  | JavaScript/TypeScript linting |
+| **Prettier**            | 3.6.2   | Code formatting               |
+| **TypeScript Compiler** | 5.9.2   | Type checking                 |
 
 ---
 
@@ -218,10 +218,7 @@ export default defineConfig({
    ```jsonc
    {
      "files": [],
-     "references": [
-       { "path": "./tsconfig.node.json" },
-       { "path": "./tsconfig.web.json" }
-     ]
+     "references": [{ "path": "./tsconfig.node.json" }, { "path": "./tsconfig.web.json" }]
    }
    ```
 
@@ -230,11 +227,7 @@ export default defineConfig({
    ```jsonc
    {
      "extends": "@electron-toolkit/tsconfig/tsconfig.node.json",
-     "include": [
-       "electron.vite.config.*",
-       "src/main/**/*",
-       "src/preload/**/*"
-     ],
+     "include": ["electron.vite.config.*", "src/main/**/*", "src/preload/**/*"],
      "compilerOptions": {
        "composite": true,
        "types": ["electron-vite/node"]
@@ -280,24 +273,24 @@ export default defineConfig({
 // eslint.config.mjs
 export default defineConfig(
   { ignores: ['**/node_modules', '**/dist', '**/out'] },
-  tseslint.configs.recommended,                    // TypeScript rules
-  eslintPluginReact.configs.flat.recommended,      // React rules
-  eslintPluginReact.configs.flat['jsx-runtime'],   // New JSX transform
+  tseslint.configs.recommended, // TypeScript rules
+  eslintPluginReact.configs.flat.recommended, // React rules
+  eslintPluginReact.configs.flat['jsx-runtime'], // New JSX transform
   {
     settings: { react: { version: 'detect' } }
   },
   {
     files: ['**/*.{ts,tsx}'],
     plugins: {
-      'react-hooks': eslintPluginReactHooks,       // Hooks rules
-      'react-refresh': eslintPluginReactRefresh    // Fast Refresh validation
+      'react-hooks': eslintPluginReactHooks, // Hooks rules
+      'react-refresh': eslintPluginReactRefresh // Fast Refresh validation
     },
     rules: {
       ...eslintPluginReactHooks.configs.recommended.rules,
       ...eslintPluginReactRefresh.configs.vite.rules
     }
   },
-  eslintConfigPrettier                             // Disable conflicting rules
+  eslintConfigPrettier // Disable conflicting rules
 )
 ```
 
@@ -316,10 +309,10 @@ export default defineConfig(
 **`.prettierrc.yaml`**:
 
 ```yaml
-singleQuote: true         # 'string' not "string"
-semi: false               # No semicolons
-printWidth: 100           # Max line length
-trailingComma: none       # No trailing commas
+singleQuote: true # 'string' not "string"
+semi: false # No semicolons
+printWidth: 100 # Max line length
+trailingComma: none # No trailing commas
 ```
 
 **Philosophy**: Minimal configuration, relying on Prettier defaults with slight customizations for consistency.
@@ -332,8 +325,8 @@ trailingComma: none       # No trailing commas
 
 ```json
 {
-  "dev": "electron-vite dev",                    // Start dev server with HMR
-  "start": "electron-vite preview",              // Preview production build
+  "dev": "electron-vite dev", // Start dev server with HMR
+  "start": "electron-vite preview", // Preview production build
   "build": "npm run typecheck && electron-vite build"
 }
 ```
@@ -458,7 +451,7 @@ createRoot(document.getElementById('root')!).render(
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import icon from '../../resources/icon.png?asset'  // Vite asset import
+import icon from '../../resources/icon.png?asset' // Vite asset import
 ```
 
 ### Preload Script
@@ -475,9 +468,9 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { useState } from 'react'
 
-import './assets/main.css'                    // CSS imports
-import electronLogo from './assets/electron.svg'  // Vite handles SVG
-import Component from '@renderer/components/Component'  // Path alias
+import './assets/main.css' // CSS imports
+import electronLogo from './assets/electron.svg' // Vite handles SVG
+import Component from '@renderer/components/Component' // Path alias
 ```
 
 ---
@@ -498,8 +491,8 @@ import Component from '@renderer/components/Component'  // Path alias
 **Vite Asset Handling**:
 
 ```typescript
-import logo from './assets/logo.svg'        // Returns URL string
-import icon from '../../resources/icon.png?asset'  // Electron asset
+import logo from './assets/logo.svg' // Returns URL string
+import icon from '../../resources/icon.png?asset' // Electron asset
 ```
 
 ### Resource Files
@@ -521,8 +514,8 @@ import { ElectronAPI } from '@electron-toolkit/preload'
 
 declare global {
   interface Window {
-    electron: ElectronAPI      // Electron APIs
-    api: unknown               // Custom APIs (to be defined)
+    electron: ElectronAPI // Electron APIs
+    api: unknown // Custom APIs (to be defined)
   }
 }
 ```
@@ -550,11 +543,13 @@ Enables:
 **`src/renderer/index.html`**:
 
 ```html
-<meta http-equiv="Content-Security-Policy"
-      content="default-src 'self';
+<meta
+  http-equiv="Content-Security-Policy"
+  content="default-src 'self';
                script-src 'self';
                style-src 'self' 'unsafe-inline';
-               img-src 'self' data:" />
+               img-src 'self' data:"
+/>
 ```
 
 **Policy Breakdown**:
@@ -775,7 +770,7 @@ npm run build:linux            # Linux packages
 
 ### VS Code Launch Config
 
-*Note: No `.vscode/launch.json` currently configured*
+_Note: No `.vscode/launch.json` currently configured_
 
 **Recommended Configuration** (to be added):
 
@@ -885,4 +880,4 @@ To add environment variables:
 
 ---
 
-*This technical context provides a comprehensive view of all technologies, configurations, and patterns used in DexReader. Refer to this document when making technology choices or troubleshooting build issues.*
+_This technical context provides a comprehensive view of all technologies, configurations, and patterns used in DexReader. Refer to this document when making technology choices or troubleshooting build issues._

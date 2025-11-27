@@ -101,7 +101,7 @@
 
 - [✅] **P1-T01**: Design main application layout (COMPLETE - 11 documents in docs/)
 - [✅] **P1-T02**: Implement menu bar and navigation (COMPLETE - 25 Nov 2025)
-- [⏳] **P1-T03**: Create base UI component library (PLANNED - implementation plan ready)
+- [🔵] **P1-T03**: Create base UI component library (IN PROGRESS - Steps 1-9 complete, 9/9 components built)
 - [ ] **P1-T04**: Set up state management (Zustand/Redux)
 - [ ] **P1-T05**: Implement restricted filesystem access model
 - [ ] **P1-T06**: Create path validation for AppData and downloads directories
@@ -544,6 +544,19 @@
 
 ## Notes & Decisions
 
+### 26 November 2025
+
+- ✅ **P1-T03 Steps 7-9 completed**: Toast, ProgressBar, and ProgressRing components fully implemented
+  - **Toast Component**: Notification system with 4 variants (info, success, warning, error), ToastContainer with 4 position options, useToast hook for state management, auto-dismiss (configurable 0-∞ms), slide-in animations, close button, stacking support
+  - **ProgressBar Component**: Linear progress with determinate/indeterminate modes, 3 sizes, 3 color variants (default/success/error), optional labels with percentage, metadata support (speed, ETA), auto-success color at 100%, smooth transitions, moving gradient animation for indeterminate
+  - **ProgressRing Component**: Circular SVG-based progress indicator, determinate/indeterminate modes, 3 sizes (24px/40px/64px), 3 color variants, customizable stroke width, rotation + arc animations for indeterminate, rounded stroke caps
+  - All 9 must-have components now complete (Button, Input, MangaCard, SearchBar, Skeleton, Toast, ProgressBar, ProgressRing, Modal TBD)
+  - ~2,800 lines of TypeScript + CSS + documentation created
+  - Updated SettingsView with Toast/ProgressBar/ProgressRing showcase
+  - All TypeScript compilation passing, Prettier formatting applied
+  - Fixed ProgressVariant type definition (changed from determinate/indeterminate to default/success/error)
+  - Steps 10-12 remaining: Modal component, documentation consolidation, final integration/testing
+
 ### 25 November 2025
 
 - ✅ **P1-T02 completed**: Menu bar and navigation system fully implemented with Windows 11 design
@@ -558,6 +571,7 @@
   - Animation guidelines (60fps, GPU-accelerated)
   - Plan saved to `.github/copilot-plans/P1-T03-create-base-ui-component-library.md`
   - Ready for execution
+- ✅ **P1-T03 Steps 1-6 completed**: Component structure, Button, Input, MangaCard, SearchBar, Skeleton components fully implemented (~3,100 lines total)
 
 ### 24 November 2025
 
@@ -663,4 +677,4 @@
 
 ---
 
-*This timeline is a living document. Update regularly as the project progresses, priorities shift, or new information becomes available. The estimated dates are targets and will be adjusted based on actual progress and discoveries during development.*
+_This timeline is a living document. Update regularly as the project progresses, priorities shift, or new information becomes available. The estimated dates are targets and will be adjusted based on actual progress and discoveries during development._

@@ -1,10 +1,11 @@
 ---
-description: "Implement a task, feature, or bug fix for the project."
-name: "Implementing"
+description: 'Implement a task, feature, or bug fix for the project.'
+name: 'Implementing'
 model: Claude Sonnet 4.5 (copilot)
 ---
 
 # Implementing Agent
+
 You are in implementation mode. Your goal is to help implement a specific task, feature, or bug fix for the project.
 
 When implementing, follow these steps:
@@ -26,7 +27,10 @@ General Guidelines:
 - Always describe the outcome of each implementation step.
 - Make sure to comment your code where necessary for clarity.
 - Make sure that your implementation adheres to the project's coding standards and best practices as outlined in `system-patterns.md`, format the code properly.
+- When implementing in parts, ensure that each part is functional and testable on its own.
+- If being asked to implement in parts, note down what has been done and what remains for the next implementation session in plan file, and in memory bank active context, and summarise what has been done so far.
 - After completing the implementation, review the code for quality and adherence to project standards.
 - If you encounter any blockers or issues, document them in the `project-progress.md` file and seek assistance.
 - Always delete the relevant plan file after the implementation is complete to maintain a clean project structure.
+- Only delete the plan file once the implementation if fully completed and reviewed.
 - Upon completion of the task, summarise the changes made and any relevant notes for future reference.

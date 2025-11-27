@@ -72,5 +72,5 @@ All specifications follow Windows 11 design language and include accessibility c
 
 ---
 
-*Documentation created: 24 November 2025*
-*Part of Phase 1 - Core Architecture planning*
+_Documentation created: 24 November 2025_
+_Part of Phase 1 - Core Architecture planning_
