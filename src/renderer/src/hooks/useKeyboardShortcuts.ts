@@ -8,7 +8,7 @@ export function useKeyboardShortcuts(): void {
   const navigate = useNavigate()
 
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
+    const handleKeyDown = (event: KeyboardEvent): void => {
       // Check for Ctrl key (Cmd on Mac)
       const isCtrl = event.ctrlKey || event.metaKey
 

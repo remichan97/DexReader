@@ -17,8 +17,8 @@ interface API {
   // Navigation API
   onNavigate: (callback: (route: string) => void) => void
 
-  // Sidebar API
-  onToggleSidebar: (callback: () => void) => void
+  // Dialog API
+  showConfirmDialog: (message: string, detail?: string) => Promise<boolean>
 
   // Menu state API
   updateMenuState: (state: MenuState) => void

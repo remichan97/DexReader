@@ -14,10 +14,9 @@ const api = {
     ipcRenderer.on('navigate', (_, route) => callback(route))
   },
 
-  // Sidebar API
-  onToggleSidebar: (callback: () => void) => {
-    ipcRenderer.on('toggle-sidebar', callback)
-  },
+  // Dialog API
+  showConfirmDialog: (message: string, detail?: string) =>
+    ipcRenderer.invoke('show-confirm-dialog', message, detail),
 
   // Menu state API
   updateMenuState: (state: {

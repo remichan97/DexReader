@@ -73,6 +73,24 @@ app.whenReady().then(() => {
     return getCurrentTheme()
   })
 
+  // IPC handler for confirm dialog
+  ipcMain.handle('show-confirm-dialog', async (_event, message: string, detail?: string) => {
+    if (!mainWindow) return false
+
+    const { dialog } = await import('electron')
+    const result = await dialog.showMessageBox(mainWindow, {
+      type: 'warning',
+      buttons: ['Cancel', 'Leave'],
+      defaultId: 0,
+      cancelId: 0,
+      message: message,
+      detail: detail,
+      noLink: true
+    })
+
+    return result.response === 1
+  })
+
   createWindow()
 
   app.on('activate', function () {

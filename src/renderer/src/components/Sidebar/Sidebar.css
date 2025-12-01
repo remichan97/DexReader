@@ -96,3 +96,18 @@
   max-width: 100%;
   word-break: break-word;
 }
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar__indicator {
+    transition: none;
+  }
+
+  .sidebar__item {
+    transition: none;
+  }
+
+  .sidebar__item:active {
+    transform: none;
+  }
+}

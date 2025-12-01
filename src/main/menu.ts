@@ -54,13 +54,6 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
         },
         { type: 'separator' },
         {
-          label: 'Toggle Sidebar',
-          accelerator: 'CmdOrCtrl+B',
-          click: () => {
-            mainWindow.webContents.send('toggle-sidebar')
-          }
-        },
-        {
           label: 'Toggle Fullscreen',
           accelerator: 'F11',
           role: 'togglefullscreen'

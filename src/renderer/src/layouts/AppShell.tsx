@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { Sidebar } from '../components/Sidebar'
 import './AppShell.css'
 
@@ -9,6 +10,22 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps): JSX.Element {
   const [theme, setTheme] = useState<'light' | 'dark'>('light')
+  const location = useLocation()
+
+  // Update document title based on current route
+  useEffect(() => {
+    const viewTitles: Record<string, string> = {
+      '/': 'Browse',
+      '/browse': 'Browse',
+      '/library': 'Library',
+      '/downloads': 'Downloads',
+      '/reader': 'Reader',
+      '/settings': 'Settings'
+    }
+
+    const viewTitle = viewTitles[location.pathname] || 'DexReader'
+    document.title = `${viewTitle} - DexReader`
+  }, [location.pathname])
 
   useEffect(() => {
     // Get initial theme

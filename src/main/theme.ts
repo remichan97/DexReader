@@ -2,7 +2,7 @@ import { nativeTheme, BrowserWindow } from 'electron'
 
 export function setupThemeDetection(mainWindow: BrowserWindow): void {
   // Send initial theme to renderer
-  const sendTheme = () => {
+  const sendTheme = (): void => {
     const isDark = nativeTheme.shouldUseDarkColors
     mainWindow.webContents.send('theme-changed', isDark ? 'dark' : 'light')
   }

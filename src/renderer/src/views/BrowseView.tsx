@@ -61,7 +61,7 @@ export function BrowseView(): JSX.Element {
   const [loading, setLoading] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
   const [filterCount] = useState(2)
-  const [favorites, setFavorites] = useState<Set<string>>(new Set(['1', '3']))
+  const [favourites, setFavourites] = useState<Set<string>>(new Set(['1', '3']))
 
   const handleSearch = (query: string): void => {
     console.log('Search query:', query)
@@ -78,8 +78,8 @@ export function BrowseView(): JSX.Element {
     console.log('Manga clicked:', id)
   }
 
-  const handleFavoriteToggle = (id: string): void => {
-    setFavorites((prev) => {
+  const handleFavouriteToggle = (id: string): void => {
+    setFavourites((prev) => {
       const next = new Set(prev)
       if (next.has(id)) {
         next.delete(id)
@@ -97,11 +97,6 @@ export function BrowseView(): JSX.Element {
 
   return (
     <div style={{ padding: '24px' }}>
-      <h1 style={{ marginBottom: '8px' }}>Browse Manga</h1>
-      <p style={{ color: 'var(--win-text-secondary)', marginBottom: '24px' }}>
-        Discover and search for manga titles
-      </p>
-
       {/* Search Bar */}
       <div style={{ marginBottom: '24px' }}>
         <SearchBar
@@ -109,7 +104,7 @@ export function BrowseView(): JSX.Element {
           onChange={handleSearch}
           onFilterClick={handleFilterClick}
           filterCount={filterCount}
-          placeholder="Search manga titles..."
+          placeholder="Search for manga"
         />
       </div>
 
@@ -150,9 +145,9 @@ export function BrowseView(): JSX.Element {
               status={manga.status}
               chaptersRead={manga.chaptersRead}
               totalChapters={manga.totalChapters}
-              isFavorite={favorites.has(manga.id)}
+              isFavourite={favourites.has(manga.id)}
               onClick={handleMangaClick}
-              onFavorite={handleFavoriteToggle}
+              onFavourite={handleFavouriteToggle}
             />
           ))}
         </div>

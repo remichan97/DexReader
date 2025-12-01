@@ -10,7 +10,7 @@ export type ComponentSize = 'small' | 'medium' | 'large'
 /**
  * Common button variants
  */
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive'
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive' | 'accent' | 'danger'
 
 /**
  * Common input types
@@ -20,7 +20,7 @@ export type InputType = 'text' | 'password' | 'email' | 'search'
 /**
  * Manga status types
  */
-export type MangaStatus = 'ongoing' | 'completed' | 'hiatus'
+export type MangaStatus = 'ongoing' | 'completed' | 'hiatus' | 'cancelled'
 
 /**
  * Toast notification variants

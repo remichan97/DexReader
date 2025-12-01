@@ -1,4 +1,13 @@
-import { createContext, useContext, useState, useId, useRef, useEffect, useMemo } from 'react'
+import {
+  createContext,
+  useContext,
+  useState,
+  useId,
+  useRef,
+  useEffect,
+  useMemo,
+  useCallback
+} from 'react'
 import { BaseComponentProps } from '@renderer/types/components'
 import './Tabs.css'
 
@@ -66,13 +75,16 @@ export function Tabs({
   const isControlled = controlledValue !== undefined
   const activeValue = isControlled ? controlledValue : uncontrolledValue
 
-  const setActiveValue = (newValue: string): void => {
-    if (isControlled) {
-      onChange?.(newValue)
-    } else {
-      setUncontrolledValue(newValue)
-    }
-  }
+  const setActiveValue = useCallback(
+    (newValue: string): void => {
+      if (isControlled) {
+        onChange?.(newValue)
+      } else {
+        setUncontrolledValue(newValue)
+      }
+    },
+    [isControlled, onChange]
+  )
 
   const contextValue = useMemo(
     () => ({ activeValue, setActiveValue }),

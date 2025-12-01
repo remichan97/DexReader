@@ -45,9 +45,15 @@ export interface MangaCardProps extends BaseComponentProps {
   variant?: 'grid' | 'list'
 
   /**
-   * Is manga favorited
+   * Is manga favourited
    */
-  isFavorite?: boolean
+  isFavourite?: boolean
+
+  /**
+   * Show favourite badge indicator
+   * @default true
+   */
+  showFavouriteBadge?: boolean
 
   /**
    * Click handler
@@ -55,9 +61,9 @@ export interface MangaCardProps extends BaseComponentProps {
   onClick?: (id: string) => void
 
   /**
-   * Favorite toggle handler
+   * Favourite toggle handler
    */
-  onFavorite?: (id: string) => void
+  onFavourite?: (id: string) => void
 }
 
 /**
@@ -74,7 +80,7 @@ export interface MangaCardProps extends BaseComponentProps {
  *   chaptersRead={1050}
  *   totalChapters={1100}
  *   onClick={handleMangaClick}
- *   onFavorite={handleFavorite}
+ *   onFavourite={handleFavourite}
  * />
  * ```
  */
@@ -87,12 +93,13 @@ export function MangaCard({
   chaptersRead,
   totalChapters,
   variant = 'grid',
-  isFavorite = false,
+  isFavourite = false,
+  showFavouriteBadge = true,
   onClick,
-  onFavorite,
+  onFavourite,
   className = '',
   'aria-label': ariaLabel
-}: MangaCardProps): React.JSX.Element {
+}: Readonly<MangaCardProps>): React.JSX.Element {
   const [imageError, setImageError] = useState(false)
   const [imageLoaded, setImageLoaded] = useState(false)
 
@@ -112,9 +119,9 @@ export function MangaCard({
     onClick?.(id)
   }
 
-  const handleFavoriteClick = (event: React.MouseEvent): void => {
+  const handleFavouriteClick = (event: React.MouseEvent): void => {
     event.stopPropagation()
-    onFavorite?.(id)
+    onFavourite?.(id)
   }
 
   const handleImageLoad = (): void => {
@@ -129,16 +136,17 @@ export function MangaCard({
   const statusLabels: Record<MangaStatus, string> = {
     ongoing: 'Ongoing',
     completed: 'Completed',
-    hiatus: 'Hiatus'
+    hiatus: 'Hiatus',
+    cancelled: 'Cancelled'
   }
 
   return (
-    <article
+    <div
       className={classNames}
       onClick={handleClick}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => {
+      onKeyDown={(e): void => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()
           handleClick()
@@ -149,7 +157,24 @@ export function MangaCard({
       <div className="manga-card__cover-container">
         {!imageLoaded && <div className="manga-card__cover-skeleton" />}
 
-        {!imageError ? (
+        {imageError ? (
+          <div className="manga-card__cover-error">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="48"
+              height="48"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+              <line x1="12" y1="22.08" x2="12" y2="12" />
+            </svg>
+            <span>Cover unavailable</span>
+          </div>
+        ) : (
           <img
             src={coverUrl}
             alt={`${title} cover`}
@@ -158,52 +183,35 @@ export function MangaCard({
             onLoad={handleImageLoad}
             onError={handleImageError}
           />
-        ) : (
-          <div className="manga-card__cover-fallback">
+        )}
+
+        {/* Favourite indicator badge (always visible when favourited) */}
+        {isFavourite && showFavouriteBadge && (
+          <div className="manga-card__favorite-badge" aria-hidden="true">
             <svg
-              className="manga-card__cover-fallback-icon"
+              className="manga-card__favorite-badge-icon"
               viewBox="0 0 24 24"
-              fill="none"
+              fill="currentColor"
               xmlns="http://www.w3.org/2000/svg"
             >
-              <path
-                d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3Z"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M8.5 10C9.32843 10 10 9.32843 10 8.5C10 7.67157 9.32843 7 8.5 7C7.67157 7 7 7.67157 7 8.5C7 9.32843 7.67157 10 8.5 10Z"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M21 15L16 10L5 21"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
             </svg>
           </div>
         )}
 
-        {/* Hover overlay with favorite button */}
-        {onFavorite && (
+        {/* Hover overlay with favourite button */}
+        {onFavourite && (
           <div className="manga-card__overlay">
             <button
               className="manga-card__favorite-button"
-              onClick={handleFavoriteClick}
-              aria-label={isFavorite ? 'Remove from favourites' : 'Add to favourites'}
+              onClick={handleFavouriteClick}
+              aria-label={isFavourite ? 'Unfavourite' : 'Add to favourites'}
               type="button"
             >
               <svg
                 className="manga-card__favorite-icon"
                 viewBox="0 0 24 24"
-                fill={isFavorite ? 'currentColor' : 'none'}
+                fill={isFavourite ? 'currentColor' : 'none'}
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
@@ -220,17 +228,12 @@ export function MangaCard({
 
         {/* Progress bar */}
         {hasProgress && (
-          <div className="manga-card__progress-bar">
-            <div
-              className="manga-card__progress-fill"
-              style={{ width: `${progressPercentage}%` }}
-              role="progressbar"
-              aria-valuenow={progressPercentage}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-label={`${chaptersRead} of ${totalChapters} chapters read`}
-            />
-          </div>
+          <progress
+            className="manga-card__progress-bar"
+            value={progressPercentage}
+            max={100}
+            aria-label={`${chaptersRead} of ${totalChapters} chapters read`}
+          />
         )}
       </div>
 
@@ -256,6 +259,6 @@ export function MangaCard({
           </p>
         )}
       </div>
-    </article>
+    </div>
   )
 }

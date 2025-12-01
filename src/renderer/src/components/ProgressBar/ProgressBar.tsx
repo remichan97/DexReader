@@ -79,7 +79,7 @@ export function ProgressBar({
   animated = true,
   className = '',
   'aria-label': ariaLabel
-}: ProgressBarProps): React.JSX.Element {
+}: Readonly<ProgressBarProps>): React.JSX.Element {
   const isIndeterminate = value === undefined
   const clampedValue = isIndeterminate ? 0 : Math.min(100, Math.max(0, value))
 

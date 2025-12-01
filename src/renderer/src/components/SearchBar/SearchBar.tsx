@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { BaseComponentProps } from '@renderer/types/components'
 import { useDebounce } from '@renderer/hooks/useDebounce'
 import './SearchBar.css'
@@ -98,6 +98,16 @@ export function SearchBar({
     }
   }, [debouncedValue, onChange, value])
 
+  const handleClear = useCallback((): void => {
+    setInternalValue('')
+    onChange('')
+    inputRef.current?.focus()
+  }, [onChange])
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    setInternalValue(event.target.value)
+  }
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent): void => {
@@ -118,17 +128,7 @@ export function SearchBar({
     return (): void => {
       document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [])
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    setInternalValue(event.target.value)
-  }
-
-  const handleClear = (): void => {
-    setInternalValue('')
-    onChange('')
-    inputRef.current?.focus()
-  }
+  }, [handleClear])
 
   const handleFilterClick = (): void => {
     onFilterClick?.()

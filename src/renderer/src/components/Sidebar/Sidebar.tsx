@@ -93,11 +93,11 @@ export function Sidebar(): JSX.Element {
   const sidebarRef = useRef<HTMLDivElement>(null)
   const [indicatorStyle, setIndicatorStyle] = useState({ top: 0, height: 24, opacity: 0 })
 
-  const handleItemClick = (route: string) => {
+  const handleItemClick = (route: string): void => {
     navigate(route)
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent, route: string) => {
+  const handleKeyDown = (e: React.KeyboardEvent, route: string): void => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
       handleItemClick(route)
@@ -109,8 +109,7 @@ export function Sidebar(): JSX.Element {
       if (!sidebarRef.current) return
 
       const activeIndex = sidebarItems.findIndex(
-        (item) =>
-          location.pathname === item.route || location.pathname.startsWith(item.route + '/')
+        (item) => location.pathname === item.route || location.pathname.startsWith(item.route + '/')
       )
 
       if (activeIndex === -1) {
@@ -147,6 +146,7 @@ export function Sidebar(): JSX.Element {
           <div
             key={item.id}
             className={`sidebar__item ${isActive ? 'sidebar__item--active' : ''}`}
+            data-route={item.route}
             onClick={() => handleItemClick(item.route)}
             onKeyDown={(e) => handleKeyDown(e, item.route)}
             role="button"
