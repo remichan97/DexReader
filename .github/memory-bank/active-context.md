@@ -2,7 +2,7 @@
 
 **Last Updated**: 2 December 2025
 **Current Phase**: Phase 1 - Core Architecture (In Progress)
-**Session**: P1-T03 Complete - Ready for P1-T04 State Management
+**Session**: P1-T04 Planning Complete - Ready for Implementation
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -440,12 +440,17 @@
 
 ### ⏳ Next Actions
 
-1. **P1-T04 - Set up State Management** (~3-4 days):
-   - Install and configure Zustand
-   - Create stores: appStore (theme, sidebar), userPreferences, libraryStore (future)
-   - Implement localStorage persistence for settings
-   - Replace component useState with Zustand where appropriate
-   - Document state management patterns
+1. **P1-T04 - Set up State Management** (~3-4 days) - **READY FOR IMPLEMENTATION**:
+   - ✅ Planning complete - comprehensive 12-step plan created
+   - Execute Step 1: Install Zustand and create stores directory structure
+   - Execute Step 2: Create appStore (theme management with system sync)
+   - Execute Step 3: Create toastStore (global notifications)
+   - Execute Step 4: Create userPreferencesStore (settings with persistence)
+   - Execute Step 5: Create libraryStore skeleton (bookmarks demo)
+   - Execute Steps 6-8: Migrate AppShell, SettingsView, LibraryView to Zustand
+   - Execute Steps 9-10: Create store index barrel export, global ToastContainer
+   - Execute Steps 11-12: Documentation updates, testing & validation
+   - See `.github/copilot-plans/P1-T04-setup-state-management.md` for full details
 
 2. **P1-T05 - Restricted Filesystem Access** (~2-3 days):
    - Define allowed directories (AppData + user downloads folder)
@@ -489,6 +494,28 @@
   - Native dialogs show "DexReader" instead of "dexreader"
   - Professional capitalization for Windows title bars
   - Consistent branding across all OS dialogs
+
+**UI Voice & Tone**:
+
+- ✅ **Casual Messaging Style**: Decided to drop formality and professionalism
+  - Use conversational, friendly tone throughout the UI
+  - Contractions are encouraged (can't, won't, it's)
+  - Natural language over technical jargon
+  - Friendly error messages (e.g., "Oops! Something went wrong" instead of "Error: Operation failed")
+  - Updated system-pattern.md with writing style guidelines
+
+**P1-T04 State Management Planning**:
+
+- ✅ **Implementation Plan Created**: Complete 12-step plan saved to `.github/copilot-plans/P1-T04-setup-state-management.md`
+  - **Technology**: Zustand (1.4kb, TypeScript-first, built-in persistence)
+  - **4 Stores**: appStore (theme, UI), toastStore (notifications), userPreferencesStore (settings), libraryStore (bookmarks skeleton)
+  - **Migrations**: AppShell, SettingsView, LibraryView to Zustand
+  - **Global Toast**: Single ToastContainer in App.tsx, accessible from any view
+  - **Theme Management**: System sync + manual override with persistence
+  - **Persistence**: localStorage for preferences, theme mode, bookmarks
+  - **Documentation**: New state-management.md + updates to system-pattern.md and tech-context.md
+  - **Estimated Duration**: 24-32 hours (3-4 days)
+  - Ready for execution
 
 **Implementation Status Summary**:
 

@@ -37,8 +37,11 @@
 **Writing Style**:
 
 - Use British English consistently across UI, documentation, and code comments
-- Maintain professional tone appropriate for desktop applications
-- Error messages should be clear and actionable
+- **Casual, friendly tone** - Drop formality and professionalism for a more relaxed, conversational UI
+- Error messages should be clear, actionable, and friendly (e.g., "Oops! Couldn't load that chapter" instead of "An error occurred while loading the requested resource")
+- Use contractions (can't, won't, it's) and natural language
+- Emoji usage is acceptable where it adds clarity or warmth
+- Avoid corporate jargon or overly technical language in user-facing text
 
 ---
 

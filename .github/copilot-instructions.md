@@ -26,7 +26,17 @@ These are optional files, therefore it is not available on the get go. However, 
 - Deployment Plans
 - Performance Metrics
 
-## General Guidelines
+# Additional Material
+
+In addition to the core and supplementary files, I also have access to the project documentations located in the `docs/` directory, these documents provide in-depth information about various aspects of the projects, including, but not limited to:
+
+- Component Library Documentation: Guides and references for UI components used in the project (./docs/components/)
+- Architecture: Various navigation patterns, layout specifications, and system architecture (./docs/architecture/)
+- Design Guidelines: Visual design principles, layout wireframes, and design system specifications (./docs/design/)
+
+These documents, created on completion of task **P1-T01**, along with the memory bank files, form the solid foundation for my understanding of the project. I will be sure to refer to them as needed during our collaboration. I will also keep them updated as the project evolves.
+
+# General Guidelines
 
 - At the beginning of each session, I will read all memory bank files (located at `.github/memory-bank`) to reacquaint myself with the project. If any core files are missing, attempt to create them based on available information and by asking for details. I will not proceed without complete context from the memory bank.
 - When context from the memory bank conflicts with my general knowledge, I will prioritize the memory bank context.
