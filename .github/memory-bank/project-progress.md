@@ -101,7 +101,7 @@
 
 - [✅] **P1-T01**: Design main application layout (COMPLETE - 11 documents in docs/)
 - [✅] **P1-T02**: Implement menu bar and navigation (COMPLETE - 25 Nov 2025)
-- [🔵] **P1-T03**: Create base UI component library (IN PROGRESS - Steps 1-9 complete, 9/9 components built)
+- [🔵] **P1-T03**: Create base UI component library (IN PROGRESS - Steps 1-18 complete, 17/17 components built, 90% done)
 - [ ] **P1-T04**: Set up state management (Zustand/Redux)
 - [ ] **P1-T05**: Implement restricted filesystem access model
 - [ ] **P1-T06**: Create path validation for AppData and downloads directories
@@ -543,6 +543,66 @@
 ---
 
 ## Notes & Decisions
+
+### 01 December 2025 (Evening Session - Final Polish)
+
+- ✅ **P1-T03 Steps 16-18 completed**: Tooltip, Popover, and ViewTransition components fully implemented
+  - **Tooltip Component**: Hover-based information tooltips with 4 position variants (top/right/bottom/left), auto-flip near viewport edges, portal rendering to document.body, configurable delay (default 500ms), arrow pointer, fade/scale animation, Windows 11 card styling
+  - **Popover Component**: Contextual menus and overlays with 4 position variants, dual triggers (click/hover), click-outside-to-close, Escape key support, portal rendering, controlled/uncontrolled modes, direction-aware slide animations (200ms), focus management returns to trigger on close
+  - **ViewTransition Component**: Route transition animations with fade + 8px vertical slide (300ms cubic-bezier), monitors location changes via useLocation hook, two-stage animation (fade-out old, fade-in new), respects prefers-reduced-motion
+  - **Router Integration**: Wrapped all main routes (Browse, Library, Settings, Downloads, NotFound) with ViewTransition for seamless page transitions
+  - **Sidebar Enhancement**: Added `transform: scale(0.98)` on active state for improved click feedback
+  - All 3 components include comprehensive READMEs with usage examples and API documentation
+  - ~1,800 lines of TypeScript + CSS + documentation created for Steps 16-18
+  - SettingsView updated with Tooltip demos (4 positions, complex content), Popover demos (click/hover triggers, menu example)
+  - All TypeScript compilation passing with proper React hook dependency management
+  - Steps 16-18 complete: 18/20 steps done, 90% complete
+  - Steps 19-20 remaining: Documentation consolidation, Integration/Testing
+
+- ✅ **Comprehensive UI Polish Pass (9 Refinements)**:
+  1. **SearchBar Styling Consistency**: Matched SearchBar to Input component (32px height, 2px bottom border, identical focus behavior)
+  2. **Focus/Hover Conflict Fix**: Added `:not(:focus-within)` to SearchBar hover state to prevent overriding focus accent border
+  3. **Global Focus Glow Removal**: Removed `box-shadow` and `border-color` from global `input:focus` in main.css, added `!important` rules to component styles to prevent browser defaults
+  4. **ViewTransition Flash Fix**: Changed from per-route wrapping to single wrapper with `key={location.pathname}`, React key-based remounting eliminates content flash
+  5. **Sidebar Animated Indicator**: Added sliding blue accent bar with spring animation `cubic-bezier(0.34, 1.56, 0.64, 1)`, 400ms duration, position calculated via `offsetTop/offsetHeight`
+  6. **Input Focus Animation Evolution**: Started with Material Design expanding line → scale(1.01) → final: simple border-bottom-color transition (200ms cubic-bezier), removed all pseudo-elements
+  7. **Fluent Design Over Material**: Removed Material ripple effects, adopted clean Windows 11 patterns with minimal transitions
+  8. **@fluentui/react-icons Integration**: Installed official Microsoft Fluent UI icon library (67 packages, ~5-6 KB for 8 icons), tree-shakeable
+  9. **Icon Variant Pattern**: Implemented Regular icons for inactive state, Filled icons for active navigation items (Windows 11 pattern)
+  - **Icons Used**: Search24Regular/Filled, Library24Regular/Filled, ArrowDownload24Regular/Filled, Settings24Regular/Filled
+  - **Design Decisions**: Chose Fluent over Material for authenticity, spring animation for satisfying feedback, simple border transitions for clean focus states
+  - All 17 components now polished to Windows 11 Fluent Design standards with official icons and refined animations
+
+### 01 December 2025 (Afternoon Session)
+
+- ✅ **P1-T03 Steps 13-15 completed**: Switch, Badge, and Tabs components fully implemented
+  - **Switch Component**: Toggle switch with sliding knob animation (40×20px, 12px knob), full-width layout with right-aligned toggle, label + description support, keyboard navigation (Space/Enter), Windows 11 styling with accent colors, vertically centered knob using transform translateY(-50%)
+  - **Badge Component**: 5 variants (default/success/warning/error/info), 2 sizes (small 11px/medium 12px), optional icon, dot variant (6px/8px circles), pill-shaped design, high contrast support
+  - **Tabs Component**: Context-based architecture (Tabs/TabList/Tab/TabPanel), animated accent indicator that slides under active tab, keyboard navigation (Arrow keys/Home/End), controlled/uncontrolled modes, disabled tab support, content fade-in animation, proper ARIA attributes
+  - All 15 Step 1-15 components now complete: Button, Input, MangaCard, SearchBar, Skeleton, Toast, ProgressBar, ProgressRing, Modal, Select, Checkbox, Switch, Badge, Tabs
+  - ~2,000 lines of TypeScript + CSS + documentation added for Steps 13-15
+  - SettingsView updated with comprehensive demos (Switch settings panel, Badge variants/sizes/dots, Tabs with 4 panels)
+  - All TypeScript compilation passing, no errors
+  - Steps 16-20 remaining: Tooltip, Popover, View Transitions, Documentation, Integration/Testing
+- ✅ **UI Polish and Fixes Applied**:
+  - **Tabs Active Indicator**: Fixed indicator not updating on tab change by adding `activeValue` to useEffect dependency array in TabList
+  - **Switch Vertical Alignment**: Changed `.switch__control` from `align-items: flex-start` to `align-items: center`, removed `padding-top: 1px` from content
+  - **Switch Layout**: Reordered elements (content first, toggle second), added full-width layout with `justify-content: space-between` for right-aligned toggle
+  - **Switch Knob Centering**: Changed from `top: 2px` to `top: 50%; transform: translateY(-50%)` for perfect vertical centering
+  - **Select Font Weight**: Removed `font-weight: 600` from selected options to show normal weight
+  - **Select Arrow Positioning**: Made icon absolutely positioned for all variants (not just searchable), consistent `padding-right: 32px` on all triggers, fixed vertical centering with `top: 50%; transform: translateY(-50%)`
+  - **Input Focus Glow**: Added `box-shadow: none` and explicit `:focus/:focus-visible` rules to remove default browser glow, keeping only bottom border highlight
+  - All fixes tested and verified in SettingsView
+- ✅ **P1-T03 Steps 10-12 completed**: Modal, Select, and Checkbox components fully implemented
+  - **Modal Component**: Overlay dialog system with focus trap, keyboard navigation (Escape to close, Tab navigation), body scroll lock, click-outside-to-close, 3 sizes (small/medium/large), Windows 11 Acrylic backdrop blur, smooth fade/scale animations, header/content/footer structure
+  - **Select Component**: Custom dropdown with keyboard navigation (Arrow keys, Enter, Escape, Home, End), searchable mode with filtering, multi-select support with checkboxes, click-outside-to-close, disabled options support, smooth animations, Windows 11 styling
+  - **Checkbox Component**: Three states (checked/unchecked/indeterminate), checkmark animation with scale/fade, Windows 11 rounded style with accent color, label support, keyboard navigation (Space/Enter), group functionality with select-all pattern
+  - All 12 Step 1-12 components now complete: Button, Input, MangaCard, SearchBar, Skeleton, Toast, ProgressBar, ProgressRing, Modal, Select, Checkbox
+  - ~4,500 lines of additional TypeScript + CSS + documentation created (total ~7,300 lines for P1-T03)
+  - SettingsView updated with Modal (3 variants), Select (basic/searchable/multi-select), Checkbox (individual + group with indeterminate) demos
+  - All TypeScript compilation passing, Prettier formatting applied
+  - Minor accessibility linter warnings for custom components (intentional for Windows 11 styling)
+  - Steps 1-12 complete: All must-have + 3 should-have components implemented
 
 ### 26 November 2025
 

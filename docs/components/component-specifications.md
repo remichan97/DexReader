@@ -62,23 +62,28 @@ interface AppShellState {
 
 ### Sidebar
 
-**Purpose**: Primary navigation with collapsible states
+**Purpose**: Primary navigation with animated indicator and Fluent UI icons
+
+**Status**: ✅ Implemented with polish (Spring animation, Fluent icons)
 
 ```typescript
-interface SidebarProps {
-  collapsed: boolean
-  onCollapse: (collapsed: boolean) => void
-  activeRoute: string
-}
-
 interface SidebarItem {
   id: string
   label: string
-  icon: IconName
+  icon: JSX.Element          // Regular (outlined) variant
+  iconFilled: JSX.Element    // Filled (solid) variant for active state
   route: string
-  badge?: number // For downloads count
 }
 ```
+
+**Implementation Details**:
+
+- **Icons**: Uses `@fluentui/react-icons` (Search, Library, ArrowDownload, Settings)
+- **Icon Pattern**: Regular for inactive, Filled for active (Windows 11 convention)
+- **Animated Indicator**: Sliding blue bar with spring easing `cubic-bezier(0.34, 1.56, 0.64, 1)`
+- **Animation Duration**: 400ms for noticeable but smooth transitions
+- **Position Calculation**: Dynamic via `offsetTop` and `offsetHeight`
+- **Bundle Size**: ~5-6 KB for all 8 icons (4 Regular + 4 Filled)
 
 **CSS Classes**:
 
