@@ -1,0 +1,96 @@
+/**
+ * Tooltip Component Styles
+ * Following Windows 11 Fluent Design principles
+ */
+
+/* Tooltip Container */
+.tooltip {
+  z-index: 10000;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.95);
+  transition:
+    opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tooltip--visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Tooltip Content */
+.tooltip__content {
+  padding: var(--space-1-5) var(--space-2);
+  background: var(--win-bg-card);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--win-shadow-md);
+  font-family: var(--win-font-family);
+  font-size: var(--win-font-size-caption);
+  color: var(--win-text-primary);
+  line-height: 1.4;
+  max-width: 300px;
+  word-wrap: break-word;
+}
+
+/* Arrow */
+.tooltip__arrow {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--win-bg-card);
+  border: 1px solid var(--win-border-default);
+  transform: rotate(45deg);
+}
+
+/* Arrow positioning for each side */
+.tooltip--top .tooltip__arrow {
+  bottom: -5px;
+  left: 50%;
+  margin-left: -4px;
+  border-top: none;
+  border-left: none;
+}
+
+.tooltip--bottom .tooltip__arrow {
+  top: -5px;
+  left: 50%;
+  margin-left: -4px;
+  border-bottom: none;
+  border-right: none;
+}
+
+.tooltip--left .tooltip__arrow {
+  right: -5px;
+  top: 50%;
+  margin-top: -4px;
+  border-bottom: none;
+  border-left: none;
+}
+
+.tooltip--right .tooltip__arrow {
+  left: -5px;
+  top: 50%;
+  margin-top: -4px;
+  border-top: none;
+  border-right: none;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .tooltip {
+    transition: none;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .tooltip__content {
+    border-width: 2px;
+  }
+
+  .tooltip__arrow {
+    border-width: 2px;
+  }
+}

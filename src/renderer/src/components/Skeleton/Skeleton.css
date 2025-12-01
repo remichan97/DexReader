@@ -1,0 +1,169 @@
+/**
+ * Skeleton Component Styles
+ * Following Windows 11 Fluent Design principles
+ */
+
+/* Base Skeleton */
+.skeleton {
+  display: block;
+  background: var(--win-bg-subtle);
+  border-radius: var(--radius-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Shimmer Animation */
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+[data-theme='dark'] .skeleton::after {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* No Animation */
+.skeleton--no-animation::after {
+  display: none;
+}
+
+/* Text Variant */
+.skeleton--text {
+  width: 100%;
+  height: 16px;
+  border-radius: var(--radius-xs);
+}
+
+/* Card Variant */
+.skeleton--card {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border-radius: var(--radius-md);
+}
+
+/* Circle Variant */
+.skeleton--circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+/* Rectangle Variant */
+.skeleton--rectangle {
+  width: 100%;
+  height: 200px;
+  border-radius: var(--radius-md);
+}
+
+/* Skeleton Group (for multiple text lines) */
+.skeleton-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Skeleton Grid */
+.skeleton-grid {
+  width: 100%;
+}
+
+/* Skeleton Card (for grid) */
+.skeleton-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--win-bg-card);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.skeleton-card__cover {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  background: var(--win-bg-subtle);
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-card__cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+[data-theme='dark'] .skeleton-card__cover::after {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+}
+
+.skeleton-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+}
+
+/* Screen Reader Only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .skeleton-card__content {
+    padding: var(--space-2);
+  }
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after,
+  .skeleton-card__cover::after {
+    animation: none;
+  }
+}

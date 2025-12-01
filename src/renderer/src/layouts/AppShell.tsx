@@ -5,11 +5,9 @@ import './AppShell.css'
 
 interface AppShellProps {
   children: ReactNode
-  sidebarCollapsed: boolean
-  onSidebarToggle: (collapsed: boolean | ((prev: boolean) => boolean)) => void
 }
 
-export function AppShell({ children, sidebarCollapsed, onSidebarToggle }: AppShellProps): JSX.Element {
+export function AppShell({ children }: AppShellProps): JSX.Element {
   const [theme, setTheme] = useState<'light' | 'dark'>('light')
 
   useEffect(() => {
@@ -24,12 +22,7 @@ export function AppShell({ children, sidebarCollapsed, onSidebarToggle }: AppShe
       setTheme(newTheme)
       document.documentElement.setAttribute('data-theme', newTheme)
     })
-
-    // Listen for sidebar toggle from menu
-    window.api.onToggleSidebar(() => {
-      onSidebarToggle(!sidebarCollapsed)
-    })
-  }, [onSidebarToggle, sidebarCollapsed])
+  }, [])
 
   return (
     <div className="app-shell" data-theme={theme}>
@@ -37,7 +30,7 @@ export function AppShell({ children, sidebarCollapsed, onSidebarToggle }: AppShe
         Skip to main content
       </a>
       <div className="app-shell__body">
-        <Sidebar collapsed={sidebarCollapsed} onToggle={onSidebarToggle} />
+        <Sidebar />
         <main className="app-shell__content" id="main-content">
           {children}
         </main>

@@ -1,0 +1,218 @@
+/**
+ * Input Component Styles
+ * Following Windows 11 Fluent Design principles
+ */
+
+/* Wrapper */
+.input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Label */
+.input-label {
+  display: block;
+  font-family: var(--win-font-body);
+  font-size: var(--win-font-size-body);
+  font-weight: 600;
+  color: var(--win-text-primary);
+  line-height: 1.5;
+}
+
+.input-wrapper--disabled .input-label {
+  color: var(--win-text-disabled);
+}
+
+/* Container (holds input + icon + action buttons) */
+.input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  isolation: isolate;
+}
+
+/* Base Input */
+.input {
+  width: 100%;
+  height: 32px;
+  padding: var(--space-2) var(--space-3);
+  background: var(--win-bg-input);
+  border: 1px solid var(--win-border-default);
+  border-bottom: 2px solid var(--win-border-default);
+  border-radius: var(--radius-sm);
+  font-family: var(--win-font-body);
+  font-size: var(--win-font-size-body);
+  color: var(--win-text-primary);
+  line-height: 1.5;
+  outline: none !important;
+  box-shadow: none !important;
+  transition: border-bottom-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Remove focus glow */
+.input:focus,
+.input:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Input with icon (add left padding) */
+.input--with-icon {
+  padding-left: calc(var(--space-3) + 24px);
+}
+
+/* Input with action button (add right padding) */
+.input--with-action {
+  padding-right: calc(var(--space-3) + 24px);
+}
+
+/* Icon */
+.input-icon {
+  position: absolute;
+  left: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--win-text-secondary);
+  pointer-events: none;
+}
+
+/* Action buttons (clear, password toggle) */
+.input-action {
+  position: absolute;
+  right: var(--space-2);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-xs);
+  color: var(--win-text-secondary);
+  cursor: pointer;
+  transition: var(--transition-all-fast);
+  outline: none;
+}
+
+.input-action:hover {
+  background: var(--win-bg-hover);
+  color: var(--win-text-primary);
+}
+
+.input-action:active {
+  background: var(--win-bg-active);
+  transform: translateY(-50%) scale(0.95);
+}
+
+.input-action:focus-visible {
+  outline: 2px solid var(--win-accent);
+  outline-offset: 1px;
+}
+
+.input-action-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Hover State */
+.input:hover:not(:disabled):not(:focus) {
+  border-color: var(--win-border-hover);
+  border-bottom-color: var(--win-border-hover);
+}
+
+/* Focus State */
+.input:focus {
+  border-bottom-color: var(--win-accent);
+}
+
+/* Disabled State */
+.input:disabled {
+  background: var(--win-bg-disabled);
+  color: var(--win-text-disabled);
+  border-bottom-color: var(--win-border-disabled);
+  cursor: not-allowed;
+}
+
+.input-wrapper--disabled .input-icon {
+  color: var(--win-text-disabled);
+}
+
+/* Error State */
+.input-wrapper--error .input {
+  border-bottom-color: var(--win-error);
+}
+
+.input-wrapper--error .input:focus {
+  border-bottom-color: var(--win-error);
+}
+
+/* Footer (error, helper text, counter) */
+.input-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-height: 20px;
+}
+
+/* Error Message */
+.input-error {
+  display: block;
+  font-family: var(--win-font-body);
+  font-size: var(--win-font-size-caption);
+  color: var(--win-error);
+  line-height: 1.4;
+}
+
+/* Helper Text */
+.input-helper {
+  display: block;
+  font-family: var(--win-font-body);
+  font-size: var(--win-font-size-caption);
+  color: var(--win-text-secondary);
+  line-height: 1.4;
+}
+
+/* Character Counter */
+.input-counter {
+  display: block;
+  font-family: var(--win-font-body);
+  font-size: var(--win-font-size-caption);
+  color: var(--win-text-secondary);
+  line-height: 1.4;
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+/* Placeholder */
+.input::placeholder {
+  color: var(--win-text-placeholder);
+  opacity: 1;
+}
+
+.input:disabled::placeholder {
+  color: var(--win-text-disabled);
+}
+
+/* Autofill styles (override browser defaults) */
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover,
+.input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--win-text-primary);
+  -webkit-box-shadow: 0 0 0px 1000px var(--win-bg-input) inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Search input specific styles */
+input[type='search']::-webkit-search-cancel-button {
+  display: none;
+}

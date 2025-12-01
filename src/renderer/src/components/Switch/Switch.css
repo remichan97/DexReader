@@ -1,0 +1,149 @@
+/**
+ * Switch Component Styles
+ * Following Windows 11 Fluent Design principles
+ */
+
+/* Switch Container */
+.switch {
+  display: flex;
+  width: 100%;
+}
+
+.switch__control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+/* Switch Button */
+.switch__button {
+  position: relative;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+  flex-shrink: 0;
+}
+
+.switch__button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Switch Track */
+.switch__track {
+  display: block;
+  width: 40px;
+  height: 20px;
+  background: var(--win-bg-subtle);
+  border: 1.5px solid var(--win-border-default);
+  border-radius: 10px;
+  position: relative;
+  transition: var(--transition-all-fast);
+}
+
+.switch__button:hover:not(:disabled) .switch__track {
+  background: var(--win-bg-hover);
+  border-color: var(--win-border-hover);
+}
+
+.switch--checked .switch__track {
+  background: var(--win-accent);
+  border-color: var(--win-accent);
+}
+
+.switch--checked .switch__button:hover:not(:disabled) .switch__track {
+  background: var(--win-accent-dark);
+  border-color: var(--win-accent-dark);
+}
+
+/* Switch Knob */
+.switch__knob {
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  width: 12px;
+  height: 12px;
+  background: var(--win-text-primary);
+  border-radius: 50%;
+  transform: translateY(-50%);
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.switch--checked .switch__knob {
+  transform: translateX(20px) translateY(-50%);
+  background: white;
+}
+
+/* Focus State */
+.switch__button:focus-visible {
+  outline: 2px solid var(--win-border-focus);
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+
+/* Content */
+.switch__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1;
+}
+
+.switch__label {
+  font-family: var(--win-font-family);
+  font-size: var(--win-font-size-body);
+  font-weight: var(--win-font-weight-semibold);
+  color: var(--win-text-primary);
+  cursor: default;
+  user-select: none;
+  line-height: 1.4;
+}
+
+.switch--disabled .switch__label {
+  color: var(--win-text-disabled);
+  cursor: not-allowed;
+}
+
+.switch__description {
+  font-family: var(--win-font-family);
+  font-size: var(--win-font-size-caption);
+  color: var(--win-text-secondary);
+  margin: 0;
+  line-height: 1.4;
+  max-width: 400px;
+}
+
+.switch--disabled .switch__description {
+  color: var(--win-text-disabled);
+}
+
+/* Active State */
+.switch__button:active:not(:disabled) .switch__track {
+  transform: scale(0.95);
+}
+
+/* Disabled State */
+.switch--disabled .switch__track {
+  background: var(--win-bg-subtle);
+  border-color: var(--win-border-disabled);
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .switch__track,
+  .switch__knob {
+    transition: none;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .switch__track {
+    border-width: 2px;
+  }
+}

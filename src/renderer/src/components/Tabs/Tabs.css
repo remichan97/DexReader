@@ -1,0 +1,123 @@
+/**
+ * Tabs Component Styles
+ * Following Windows 11 Fluent Design principles
+ */
+
+/* Tabs Container */
+.tabs {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Tab List */
+.tab-list {
+  display: flex;
+  gap: var(--space-1);
+  border-bottom: 1px solid var(--win-border-default);
+  position: relative;
+}
+
+/* Tab */
+.tab {
+  position: relative;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  background: transparent;
+  font-family: var(--win-font-family);
+  font-size: var(--win-font-size-body);
+  font-weight: var(--win-font-weight-regular);
+  color: var(--win-text-secondary);
+  cursor: pointer;
+  outline: none;
+  transition: var(--transition-all-fast);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.tab:hover:not(.tab--disabled) {
+  color: var(--win-text-primary);
+  background: var(--win-bg-hover);
+}
+
+.tab:active:not(.tab--disabled) {
+  background: var(--win-bg-active);
+}
+
+.tab--active {
+  color: var(--win-accent);
+  font-weight: var(--win-font-weight-semibold);
+}
+
+.tab--active:hover {
+  color: var(--win-accent);
+  background: var(--win-accent-subtle);
+}
+
+.tab--disabled {
+  color: var(--win-text-disabled);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Focus State */
+.tab:focus-visible {
+  outline: 2px solid var(--win-border-focus);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Active Indicator */
+.tab-list__indicator {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  background: var(--win-accent);
+  transition:
+    left 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 2px 2px 0 0;
+}
+
+/* Tab Panel */
+.tab-panel {
+  padding: var(--space-4) 0;
+  animation: tab-panel-fade-in 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes tab-panel-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .tab {
+    transition: none;
+  }
+
+  .tab-list__indicator {
+    transition: none;
+  }
+
+  .tab-panel {
+    animation: none;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .tab-list {
+    border-bottom-width: 2px;
+  }
+
+  .tab-list__indicator {
+    height: 3px;
+  }
+}

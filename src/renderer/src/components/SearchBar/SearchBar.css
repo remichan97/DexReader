@@ -1,0 +1,232 @@
+/**
+ * SearchBar Component Styles
+ * Following Windows 11 Fluent Design principles
+ */
+
+/* Wrapper */
+.search-bar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Container (holds input + icons + buttons) */
+.search-bar__container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--win-bg-input);
+  border: 1px solid var(--win-border-default);
+  border-bottom: 2px solid var(--win-border-default);
+  border-radius: var(--radius-sm);
+  transition: border-bottom-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-bar__container:hover:not(.search-bar--disabled .search-bar__container):not(:focus-within) {
+  border-color: var(--win-border-hover);
+  border-bottom-color: var(--win-border-hover);
+}
+
+.search-bar__container:focus-within {
+  border-bottom-color: var(--win-accent);
+}
+
+/* Search Icon */
+.search-bar__icon {
+  position: absolute;
+  left: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--win-text-secondary);
+  pointer-events: none;
+}
+
+.search-bar__icon-svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Input */
+.search-bar__input {
+  flex: 1;
+  height: 32px;
+  padding: var(--space-2) var(--space-3);
+  padding-left: calc(var(--space-3) + 20px + var(--space-2));
+  background: transparent;
+  border: none;
+  font-family: var(--win-font-body);
+  font-size: var(--win-font-size-body);
+  color: var(--win-text-primary);
+  line-height: 1.5;
+  outline: none;
+  box-shadow: none;
+}
+
+/* Remove focus glow */
+.search-bar__input:focus,
+.search-bar__input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.search-bar__input::placeholder {
+  color: var(--win-text-placeholder);
+}
+
+.search-bar__input:disabled {
+  color: var(--win-text-disabled);
+  cursor: not-allowed;
+}
+
+/* Remove default search clear button */
+.search-bar__input::-webkit-search-cancel-button {
+  display: none;
+}
+
+/* Clear Button */
+.search-bar__clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-right: var(--space-1);
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-xs);
+  color: var(--win-text-secondary);
+  cursor: pointer;
+  transition: var(--transition-all-fast);
+  outline: none;
+}
+
+.search-bar__clear:hover {
+  background: var(--win-bg-hover);
+  color: var(--win-text-primary);
+}
+
+.search-bar__clear:active {
+  background: var(--win-bg-active);
+  transform: scale(0.95);
+}
+
+.search-bar__clear:focus-visible {
+  outline: 2px solid var(--win-accent);
+  outline-offset: 1px;
+}
+
+.search-bar__clear-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Filter Button */
+.search-bar__filter {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin-right: var(--space-1);
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-xs);
+  color: var(--win-text-secondary);
+  cursor: pointer;
+  transition: var(--transition-all-fast);
+  outline: none;
+}
+
+.search-bar__filter:hover:not(:disabled) {
+  background: var(--win-bg-hover);
+  color: var(--win-text-primary);
+}
+
+.search-bar__filter:active:not(:disabled) {
+  background: var(--win-bg-active);
+  transform: scale(0.95);
+}
+
+.search-bar__filter:focus-visible {
+  outline: 2px solid var(--win-accent);
+  outline-offset: 1px;
+}
+
+.search-bar__filter:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.search-bar__filter-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Filter Badge (count) */
+.search-bar__filter-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--win-accent);
+  color: var(--win-text-on-accent);
+  border-radius: 8px;
+  font-family: var(--win-font-body);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* Hint Text */
+.search-bar__hint {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--win-font-body);
+  font-size: var(--win-font-size-caption);
+  color: var(--win-text-secondary);
+  line-height: 1.4;
+}
+
+.search-bar__hint kbd {
+  padding: 2px 6px;
+  background: var(--win-bg-subtle);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-xs);
+  font-family: var(--win-font-body);
+  font-size: var(--win-font-size-caption);
+  font-weight: 600;
+  color: var(--win-text-primary);
+}
+
+/* Disabled State */
+.search-bar--disabled .search-bar__container {
+  background: var(--win-bg-disabled);
+  border-color: var(--win-border-disabled);
+  border-bottom-color: var(--win-border-disabled);
+  cursor: not-allowed;
+}
+
+.search-bar--disabled .search-bar__icon {
+  color: var(--win-text-disabled);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .search-bar__hint {
+    display: none;
+  }
+}

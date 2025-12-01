@@ -9,6 +9,9 @@
   --win-bg-overlay: rgba(255, 255, 255, 0.95);
 
   /* Backgrounds - Interactive States */
+  --win-bg-subtle: #f5f5f5;
+  --win-bg-input: #ffffff;
+  --win-bg-input-hover: #f9f9f9;
   --win-bg-hover: rgba(0, 0, 0, 0.03);
   --win-bg-active: rgba(0, 0, 0, 0.05);
   --win-bg-disabled: #f5f5f5;
@@ -19,27 +22,39 @@
   --win-text-tertiary: #8a8886;
   --win-text-disabled: #c8c6c4;
   --win-text-on-accent: #ffffff;
+  --win-text-placeholder: #8a8886;
+  --win-text-error: #d13438;
 
   /* Borders */
   --win-border-default: #e1dfdd;
   --win-border-hover: #d2d0ce;
+  --win-border-active: #c8c6c4;
   --win-border-focus: var(--win-accent);
+  --win-border-disabled: #e1dfdd;
 
   /* Accent Colors */
   --win-accent: #0078d4;
   --win-accent-hover: #106ebe;
   --win-accent-active: #005a9e;
+  --win-accent-dark: #005a9e;
   --win-accent-disabled: #c8c6c4;
   --win-accent-subtle: rgba(0, 120, 212, 0.1);
 
   /* Semantic Colors */
   --win-error: #d13438;
   --win-error-hover: #b42b2f;
+  --win-error-active: #a02427;
   --win-warning: #f7630c;
   --win-warning-hover: #d85309;
   --win-success: #0f7b0f;
   --win-success-hover: #0c630c;
   --win-info: var(--win-accent);
+
+  /* Semantic Color Tints */
+  --win-error-tint: rgba(209, 52, 56, 0.05);
+  --win-warning-tint: rgba(247, 99, 12, 0.05);
+  --win-success-tint: rgba(15, 123, 15, 0.05);
+  --win-info-tint: rgba(0, 120, 212, 0.05);
 
   /* Acrylic Blur */
   --win-acrylic-bg: rgba(249, 249, 249, 0.85);
@@ -61,6 +76,9 @@
   --win-bg-overlay: rgba(32, 32, 32, 0.95);
 
   /* Backgrounds - Interactive States */
+  --win-bg-subtle: #2c2c2c;
+  --win-bg-input: #1e1e1e;
+  --win-bg-input-hover: #262626;
   --win-bg-hover: rgba(255, 255, 255, 0.05);
   --win-bg-active: rgba(255, 255, 255, 0.08);
   --win-bg-disabled: #292929;
@@ -71,27 +89,39 @@
   --win-text-tertiary: #c8c6c4;
   --win-text-disabled: #605e5c;
   --win-text-on-accent: #000000;
+  --win-text-placeholder: #8a8886;
+  --win-text-error: #f85149;
 
   /* Borders */
   --win-border-default: #3d3d3d;
   --win-border-hover: #4d4d4d;
+  --win-border-active: #5d5d5d;
   --win-border-focus: var(--win-accent);
+  --win-border-disabled: #3d3d3d;
 
   /* Accent Colors */
   --win-accent: #60cdff;
   --win-accent-hover: #7ed6ff;
   --win-accent-active: #9ce0ff;
+  --win-accent-dark: #4db8e8;
   --win-accent-disabled: #605e5c;
   --win-accent-subtle: rgba(96, 205, 255, 0.1);
 
   /* Semantic Colors */
   --win-error: #f85149;
   --win-error-hover: #ff6d65;
+  --win-error-active: #ff8983;
   --win-warning: #ff8c42;
   --win-warning-hover: #ffa060;
   --win-success: #3fb950;
   --win-success-hover: #57c568;
   --win-info: var(--win-accent);
+
+  /* Semantic Color Tints */
+  --win-error-tint: rgba(248, 81, 73, 0.1);
+  --win-warning-tint: rgba(255, 140, 66, 0.1);
+  --win-success-tint: rgba(63, 185, 80, 0.1);
+  --win-info-tint: rgba(96, 205, 255, 0.1);
 
   /* Acrylic Blur */
   --win-acrylic-bg: rgba(44, 44, 44, 0.85);
@@ -128,6 +158,7 @@
   /* Spacing */
   --space-0: 0;
   --space-1: 4px;
+  --space-1-5: 6px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
@@ -152,6 +183,7 @@
 
   /* Border Radius */
   --radius-none: 0;
+  --radius-xs: 2px;
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
@@ -182,6 +214,39 @@
   --z-dropdown: 100;
   --z-modal: 1000;
   --z-toast: 2000;
+
+  /* Component-Specific Tokens */
+  /* Progress Bar */
+  --progress-height: 6px;
+  --progress-height-compact: 4px;
+  --progress-bg: var(--win-bg-elevated);
+  --progress-fill: var(--win-accent);
+  --progress-radius: 2px;
+
+  /* Progress Ring */
+  --ring-size-sm: 24px;
+  --ring-size-md: 48px;
+  --ring-size-lg: 64px;
+  --ring-thickness: 3px;
+  --ring-color: var(--win-accent);
+
+  /* Toast/Snackbar */
+  --toast-min-width: 320px;
+  --toast-max-width: 480px;
+  --toast-padding: var(--space-3) var(--space-4);
+  --toast-radius: var(--radius-md);
+
+  /* Sidebar */
+  --sidebar-width-expanded: 240px;
+  --sidebar-width-collapsed: 48px;
+  --sidebar-item-height: 48px;
+  --sidebar-transition: var(--duration-normal);
+
+  /* Accessibility */
+  --touch-target-min: 44px;
+  --focus-outline-width: 2px;
+  --focus-outline-offset: 2px;
+  --focus-outline-color: var(--win-border-focus);
 }
 
 /* Base application styles */

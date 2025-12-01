@@ -1,0 +1,324 @@
+/**
+ * MangaCard Component Styles
+ * Following Windows 11 Fluent Design principles
+ */
+
+/* Base Card - Grid Variant */
+.manga-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--win-bg-card);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  transition: var(--transition-all-fast);
+  outline: none;
+}
+
+.manga-card:hover {
+  border-color: var(--win-border-hover);
+  box-shadow: var(--win-shadow-sm);
+  transform: translateY(-2px);
+}
+
+.manga-card:active {
+  transform: translateY(0);
+}
+
+.manga-card:focus-visible {
+  outline: 2px solid var(--win-accent);
+  outline-offset: 2px;
+}
+
+/* Cover Container */
+.manga-card__cover-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  background: var(--win-bg-subtle);
+  overflow: hidden;
+}
+
+/* Cover Image */
+.manga-card__cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: var(--transition-all-smooth);
+}
+
+.manga-card:hover .manga-card__cover {
+  transform: scale(1.05);
+}
+
+/* Loading Skeleton */
+.manga-card__cover-skeleton {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    var(--win-bg-subtle) 0%,
+    var(--win-bg-hover) 50%,
+    var(--win-bg-subtle) 100%
+  );
+  background-size: 200% 100%;
+  animation: manga-card-shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes manga-card-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Cover Fallback (when image fails to load) */
+.manga-card__cover-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: var(--win-bg-subtle);
+  color: var(--win-text-disabled);
+}
+
+.manga-card__cover-fallback-icon {
+  width: 48px;
+  height: 48px;
+  opacity: 0.5;
+}
+
+/* Hover Overlay */
+.manga-card__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  transition: opacity var(--transition-all-fast);
+}
+
+.manga-card:hover .manga-card__overlay {
+  opacity: 1;
+}
+
+/* Favorite Button */
+.manga-card__favorite-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  color: var(--win-accent);
+  cursor: pointer;
+  transition: var(--transition-all-fast);
+  outline: none;
+}
+
+.manga-card__favorite-button:hover {
+  background: #ffffff;
+  transform: scale(1.1);
+}
+
+.manga-card__favorite-button:active {
+  transform: scale(0.95);
+}
+
+.manga-card__favorite-button:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.manga-card__favorite-icon {
+  width: 24px;
+  height: 24px;
+}
+
+/* Progress Bar */
+.manga-card__progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.manga-card__progress-fill {
+  height: 100%;
+  background: var(--win-accent);
+  transition: width var(--transition-all-smooth);
+}
+
+/* Content Area */
+.manga-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+}
+
+/* Title */
+.manga-card__title {
+  margin: 0;
+  font-family: var(--win-font-body);
+  font-size: var(--win-font-size-body);
+  font-weight: 600;
+  color: var(--win-text-primary);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Metadata */
+.manga-card__metadata {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.manga-card__author {
+  font-family: var(--win-font-body);
+  font-size: var(--win-font-size-caption);
+  color: var(--win-text-secondary);
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Status Badge */
+.manga-card__status {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-xs);
+  font-family: var(--win-font-body);
+  font-size: var(--win-font-size-caption);
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.manga-card__status--ongoing {
+  background: rgba(16, 124, 16, 0.1);
+  color: #107c10;
+}
+
+[data-theme='dark'] .manga-card__status--ongoing {
+  background: rgba(16, 198, 16, 0.15);
+  color: #10c610;
+}
+
+.manga-card__status--completed {
+  background: rgba(0, 120, 212, 0.1);
+  color: #0078d4;
+}
+
+[data-theme='dark'] .manga-card__status--completed {
+  background: rgba(96, 205, 255, 0.15);
+  color: #60cdff;
+}
+
+.manga-card__status--hiatus {
+  background: rgba(255, 185, 0, 0.1);
+  color: #f7630c;
+}
+
+[data-theme='dark'] .manga-card__status--hiatus {
+  background: rgba(255, 185, 0, 0.15);
+  color: #ffb900;
+}
+
+/* Progress Text */
+.manga-card__progress-text {
+  margin: 0;
+  font-family: var(--win-font-body);
+  font-size: var(--win-font-size-caption);
+  color: var(--win-text-secondary);
+  line-height: 1.4;
+}
+
+/* List Variant */
+.manga-card--list {
+  flex-direction: row;
+  height: 140px;
+}
+
+.manga-card--list .manga-card__cover-container {
+  width: 100px;
+  height: 100%;
+  aspect-ratio: auto;
+  flex-shrink: 0;
+}
+
+.manga-card--list .manga-card__cover {
+  object-fit: cover;
+}
+
+.manga-card--list .manga-card__content {
+  flex: 1;
+  padding: var(--space-3);
+  justify-content: center;
+}
+
+.manga-card--list .manga-card__title {
+  -webkit-line-clamp: 1;
+}
+
+.manga-card--list .manga-card__overlay {
+  width: 100px;
+}
+
+.manga-card--list .manga-card__progress-bar {
+  width: 4px;
+  height: 100%;
+  top: 0;
+  bottom: auto;
+  left: auto;
+  right: 0;
+}
+
+.manga-card--list .manga-card__progress-fill {
+  width: 100%;
+  height: var(--progress-height, 0%);
+}
+
+/* Loading State */
+.manga-card--loading .manga-card__cover {
+  opacity: 0;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .manga-card__content {
+    padding: var(--space-2);
+  }
+
+  .manga-card--list {
+    height: 120px;
+  }
+
+  .manga-card--list .manga-card__cover-container {
+    width: 80px;
+  }
+
+  .manga-card--list .manga-card__overlay {
+    width: 80px;
+  }
+}

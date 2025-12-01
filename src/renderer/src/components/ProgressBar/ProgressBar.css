@@ -1,0 +1,207 @@
+/**
+ * ProgressBar Component Styles
+ * Following Windows 11 Fluent Design principles
+ */
+
+/* Base Container */
+.progress-bar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+/* Header (Label + Metadata) */
+.progress-bar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.progress-bar__label {
+  font-family: var(--win-font-body);
+  font-size: var(--win-font-size-caption);
+  font-weight: 600;
+  color: var(--win-text-primary);
+  line-height: 1.4;
+}
+
+.progress-bar__metadata {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--win-font-body);
+  font-size: var(--win-font-size-caption);
+  color: var(--win-text-secondary);
+  line-height: 1.4;
+}
+
+.progress-bar__speed,
+.progress-bar__eta {
+  white-space: nowrap;
+}
+
+.progress-bar__separator {
+  color: var(--win-text-tertiary);
+}
+
+/* Track (Background) */
+.progress-bar__track {
+  position: relative;
+  width: 100%;
+  background: var(--win-bg-subtle);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+/* Size Variants */
+.progress-bar--small .progress-bar__track {
+  height: 2px;
+}
+
+.progress-bar--medium .progress-bar__track {
+  height: 4px;
+}
+
+.progress-bar--large .progress-bar__track {
+  height: 6px;
+}
+
+/* Fill (Progress) */
+.progress-bar__fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progress-bar--animated .progress-bar__fill {
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Color Variants */
+.progress-bar__fill--default {
+  background: var(--win-accent);
+}
+
+.progress-bar__fill--success {
+  background: #107c10;
+}
+
+[data-theme='dark'] .progress-bar__fill--success {
+  background: #10c610;
+}
+
+.progress-bar__fill--error {
+  background: #d13438;
+}
+
+[data-theme='dark'] .progress-bar__fill--error {
+  background: #ff6b6b;
+}
+
+/* Indeterminate State */
+.progress-bar--indeterminate .progress-bar__fill {
+  width: 40% !important;
+  animation: progress-indeterminate 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes progress-indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(250%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+/* Indeterminate Gradient Effect */
+.progress-bar--indeterminate .progress-bar__fill--default {
+  background: linear-gradient(
+    90deg,
+    var(--win-accent) 0%,
+    var(--win-accent-hover) 50%,
+    var(--win-accent) 100%
+  );
+  background-size: 200% 100%;
+  animation:
+    progress-indeterminate 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite,
+    progress-gradient 1s linear infinite;
+}
+
+@keyframes progress-gradient {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.progress-bar--indeterminate .progress-bar__fill--success {
+  background: linear-gradient(90deg, #107c10 0%, #10a610 50%, #107c10 100%);
+  background-size: 200% 100%;
+  animation:
+    progress-indeterminate 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite,
+    progress-gradient 1s linear infinite;
+}
+
+[data-theme='dark'] .progress-bar--indeterminate .progress-bar__fill--success {
+  background: linear-gradient(90deg, #10c610 0%, #20e620 50%, #10c610 100%);
+  background-size: 200% 100%;
+}
+
+.progress-bar--indeterminate .progress-bar__fill--error {
+  background: linear-gradient(90deg, #d13438 0%, #f15458 50%, #d13438 100%);
+  background-size: 200% 100%;
+  animation:
+    progress-indeterminate 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite,
+    progress-gradient 1s linear infinite;
+}
+
+[data-theme='dark'] .progress-bar--indeterminate .progress-bar__fill--error {
+  background: linear-gradient(90deg, #ff6b6b 0%, #ff8b8b 50%, #ff6b6b 100%);
+  background-size: 200% 100%;
+}
+
+/* Hover Effect */
+.progress-bar__track:hover .progress-bar__fill {
+  filter: brightness(1.1);
+}
+
+/* Focus Styles (for when wrapped in interactive element) */
+.progress-bar:focus-within .progress-bar__track {
+  outline: 2px solid var(--win-accent);
+  outline-offset: 2px;
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .progress-bar__fill {
+    transition: none;
+  }
+
+  .progress-bar--indeterminate .progress-bar__fill {
+    animation: none;
+    transform: translateX(0);
+    width: 100% !important;
+    opacity: 0.5;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .progress-bar__track {
+    border: 1px solid currentColor;
+  }
+
+  .progress-bar__fill {
+    background: currentColor;
+  }
+}

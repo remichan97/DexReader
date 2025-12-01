@@ -1,0 +1,147 @@
+/**
+ * ProgressRing Component Styles
+ * Following Windows 11 Fluent Design principles
+ */
+
+/* Base Container */
+.progress-ring {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* SVG */
+.progress-ring__svg {
+  display: block;
+}
+
+/* Circles */
+.progress-ring__circle {
+  transition: stroke-dashoffset 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progress-ring--animated .progress-ring__circle {
+  transition: stroke-dashoffset 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Background Circle */
+.progress-ring__circle--bg {
+  stroke: var(--win-bg-subtle);
+}
+
+/* Progress Circle - Default Variant */
+.progress-ring--default .progress-ring__circle--progress {
+  stroke: var(--win-accent);
+}
+
+/* Progress Circle - Success Variant */
+.progress-ring--success .progress-ring__circle--progress {
+  stroke: #107c10;
+}
+
+[data-theme='dark'] .progress-ring--success .progress-ring__circle--progress {
+  stroke: #10c610;
+}
+
+/* Progress Circle - Error Variant */
+.progress-ring--error .progress-ring__circle--progress {
+  stroke: #d13438;
+}
+
+[data-theme='dark'] .progress-ring--error .progress-ring__circle--progress {
+  stroke: #ff6b6b;
+}
+
+/* Indeterminate State - Rotate Animation (Fluent Design) */
+.progress-ring--indeterminate .progress-ring__svg {
+  animation: progress-ring-rotate 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: transform;
+}
+
+@keyframes progress-ring-rotate {
+  0% {
+    transform: rotate(-90deg);
+  }
+  100% {
+    transform: rotate(270deg);
+  }
+}
+
+/* Indeterminate State - Dash Animation for smooth arc reveal */
+.progress-ring--indeterminate .progress-ring__circle--progress {
+  animation: progress-ring-dash 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: stroke-dasharray, stroke-dashoffset;
+}
+
+@keyframes progress-ring-dash {
+  0% {
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 100, 200;
+    stroke-dashoffset: -50;
+  }
+  100% {
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: -150;
+  }
+}
+
+/* Size Variants */
+.progress-ring--small {
+  width: 24px;
+  height: 24px;
+}
+
+.progress-ring--medium {
+  width: 40px;
+  height: 40px;
+}
+
+.progress-ring--large {
+  width: 64px;
+  height: 64px;
+}
+
+/* Hover Effect */
+.progress-ring:hover .progress-ring__circle--progress {
+  filter: brightness(1.1);
+}
+
+/* Focus Styles (for when wrapped in interactive element) */
+.progress-ring:focus-within {
+  outline: 2px solid var(--win-accent);
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .progress-ring__circle {
+    transition: none;
+  }
+
+  .progress-ring--indeterminate .progress-ring__svg {
+    animation: none;
+  }
+
+  .progress-ring--indeterminate .progress-ring__circle--progress {
+    animation: none;
+    stroke-dasharray: 100 200;
+    opacity: 0.6;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .progress-ring__circle--bg {
+    stroke: CanvasText;
+    opacity: 0.3;
+  }
+
+  .progress-ring__circle--progress {
+    stroke: CanvasText;
+  }
+}

@@ -1,0 +1,134 @@
+/**
+ * Badge Component Styles
+ * Following Windows 11 Fluent Design principles
+ */
+
+/* Badge Base */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  font-family: var(--win-font-family);
+  font-weight: var(--win-font-weight-semibold);
+  line-height: 1;
+  border-radius: 12px;
+  white-space: nowrap;
+  vertical-align: middle;
+  user-select: none;
+}
+
+/* Sizes */
+.badge--small {
+  padding: 2px var(--space-1-5);
+  font-size: 11px;
+  border-radius: 10px;
+}
+
+.badge--medium {
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--win-font-size-caption);
+  border-radius: 12px;
+}
+
+/* Variants */
+.badge--default {
+  background: var(--win-bg-subtle);
+  color: var(--win-text-primary);
+  border: 1px solid var(--win-border-default);
+}
+
+.badge--success {
+  background: var(--win-success-tint);
+  color: var(--win-success);
+  border: 1px solid var(--win-success-subtle);
+}
+
+.badge--warning {
+  background: var(--win-warning-tint);
+  color: var(--win-warning);
+  border: 1px solid var(--win-warning-subtle);
+}
+
+.badge--error {
+  background: var(--win-error-tint);
+  color: var(--win-error);
+  border: 1px solid var(--win-error-subtle);
+}
+
+.badge--info {
+  background: var(--win-info-tint);
+  color: var(--win-info);
+  border: 1px solid var(--win-info-subtle);
+}
+
+/* Icon */
+.badge__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.badge--small .badge__icon {
+  font-size: 12px;
+  width: 12px;
+  height: 12px;
+}
+
+.badge--medium .badge__icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+/* Content */
+.badge__content {
+  display: inline-block;
+}
+
+/* Dot Variant */
+.badge--dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border-radius: 50%;
+  border: none;
+}
+
+.badge--dot.badge--small {
+  width: 6px;
+  height: 6px;
+}
+
+.badge--dot.badge--medium {
+  width: 8px;
+  height: 8px;
+}
+
+.badge--dot.badge--default {
+  background: var(--win-text-secondary);
+}
+
+.badge--dot.badge--success {
+  background: var(--win-success);
+}
+
+.badge--dot.badge--warning {
+  background: var(--win-warning);
+}
+
+.badge--dot.badge--error {
+  background: var(--win-error);
+}
+
+.badge--dot.badge--info {
+  background: var(--win-info);
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .badge {
+    border-width: 2px;
+  }
+}

@@ -110,8 +110,6 @@ input:focus,
 textarea:focus,
 select:focus {
   outline: none;
-  border-color: var(--win-border-focus);
-  box-shadow: 0 0 0 2px var(--win-accent-subtle);
 }
 
 input:disabled,

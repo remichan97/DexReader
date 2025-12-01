@@ -1,14 +1,10 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-interface KeyboardShortcutHandlers {
-  onToggleSidebar?: () => void
-}
-
 /**
  * Hook to handle global keyboard shortcuts
  */
-export function useKeyboardShortcuts(handlers: KeyboardShortcutHandlers = {}): void {
+export function useKeyboardShortcuts(): void {
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -43,15 +39,6 @@ export function useKeyboardShortcuts(handlers: KeyboardShortcutHandlers = {}): v
         navigate('/settings')
         return
       }
-
-      // Ctrl+B: Toggle Sidebar
-      if (isCtrl && event.key === 'b') {
-        event.preventDefault()
-        if (handlers.onToggleSidebar) {
-          handlers.onToggleSidebar()
-        }
-        return
-      }
     }
 
     window.addEventListener('keydown', handleKeyDown)
@@ -59,5 +46,5 @@ export function useKeyboardShortcuts(handlers: KeyboardShortcutHandlers = {}): v
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [navigate, handlers])
+  }, [navigate])
 }

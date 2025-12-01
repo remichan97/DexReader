@@ -126,9 +126,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
               click: async () => {
                 const result = await dialog.showOpenDialog(mainWindow, {
                   title: 'Import Tachiyomi Backup',
-                  filters: [
-                    { name: 'Tachiyomi Backup', extensions: ['proto.gz', 'tachibk'] }
-                  ],
+                  filters: [{ name: 'Tachiyomi Backup', extensions: ['proto.gz', 'tachibk'] }],
                   properties: ['openFile']
                 })
                 if (!result.canceled && result.filePaths.length > 0) {
@@ -252,16 +250,14 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
   return menu
 }
 
-export function updateMenuState(
-  state: {
-    canAddToFavorites?: boolean
-    isFavorited?: boolean
-    canDownloadChapter?: boolean
-    chapterTitle?: string
-    canDownloadManga?: boolean
-    mangaTitle?: string
-  }
-): void {
+export function updateMenuState(state: {
+  canAddToFavorites?: boolean
+  isFavorited?: boolean
+  canDownloadChapter?: boolean
+  chapterTitle?: string
+  canDownloadManga?: boolean
+  mangaTitle?: string
+}): void {
   const menu = Menu.getApplicationMenu()
   if (!menu) return
 
@@ -269,9 +265,7 @@ export function updateMenuState(
   const addToFavoritesItem = menu.getMenuItemById('add-to-favorites')
   if (addToFavoritesItem) {
     addToFavoritesItem.enabled = state.canAddToFavorites ?? false
-    addToFavoritesItem.label = state.isFavorited
-      ? 'Remove from Favourites'
-      : 'Add to Favourites'
+    addToFavoritesItem.label = state.isFavorited ? 'Remove from Favourites' : 'Add to Favourites'
   }
 
   // Update "Download Chapter"

@@ -1,0 +1,133 @@
+/**
+ * Popover Component Styles
+ * Following Windows 11 Fluent Design principles
+ */
+
+/* Popover Container */
+.popover {
+  z-index: 9999;
+  opacity: 0;
+  transform: scale(0.95);
+  transition:
+    opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.popover--open {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Popover Content */
+.popover__content {
+  min-width: 200px;
+  max-width: 400px;
+  padding: var(--space-2);
+  background: var(--win-bg-card);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--win-shadow-lg);
+  font-family: var(--win-font-family);
+  font-size: var(--win-font-size-body);
+  color: var(--win-text-primary);
+  line-height: 1.5;
+}
+
+/* Position-specific animations */
+.popover--top {
+  transform-origin: bottom center;
+}
+
+.popover--top.popover--open {
+  animation: popover-slide-up 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.popover--bottom {
+  transform-origin: top center;
+}
+
+.popover--bottom.popover--open {
+  animation: popover-slide-down 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.popover--left {
+  transform-origin: right center;
+}
+
+.popover--left.popover--open {
+  animation: popover-slide-left 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.popover--right {
+  transform-origin: left center;
+}
+
+.popover--right.popover--open {
+  animation: popover-slide-right 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Animations */
+@keyframes popover-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes popover-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes popover-slide-left {
+  from {
+    opacity: 0;
+    transform: translateX(8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes popover-slide-right {
+  from {
+    opacity: 0;
+    transform: translateX(-8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .popover {
+    transition: none;
+  }
+
+  .popover--top.popover--open,
+  .popover--bottom.popover--open,
+  .popover--left.popover--open,
+  .popover--right.popover--open {
+    animation: none;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .popover__content {
+    border-width: 2px;
+  }
+}
