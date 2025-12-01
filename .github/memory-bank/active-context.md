@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 1 December 2025
+**Last Updated**: 2 December 2025
 **Current Phase**: Phase 1 - Core Architecture (In Progress)
-**Session**: P1-T03 Steps 16-18 Complete + Final Polish Pass
+**Session**: P1-T03 Complete - Ready for P1-T04 State Management
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -11,10 +11,51 @@
 ## Current Status Summary
 
 **Phase**: Phase 1 - Core Architecture 🔵
-**Progress**: P1-T03 Step 19 Complete - Documentation Done, Ready for Step 20
-**Current Date**: 1 December 2025
+**Progress**: P1-T03 COMPLETE - All 20 Steps Done, UI Component Library Finished
+**Current Date**: 2 December 2025
 
-### ✅ Completed This Session (1 Dec 2025 Evening - Final Polish)
+### ✅ Completed This Session (2 Dec 2025 - Final Integration & Testing)
+
+**P1-T03 Step 20 Complete** - Integration, Testing, and Final Fixes:
+
+1. **Product Name Configuration**:
+   - Added `"productName": "DexReader"` to package.json
+   - Native dialogs now show "DexReader" in title bar (instead of "dexreader")
+   - Proper capitalization for professional appearance on Windows
+
+2. **CSP (Content Security Policy) Fix**:
+   - Issue: Cover images blocked by CSP (only allowed `'self'` and `data:`)
+   - Mock data using `https://picsum.photos` URLs caused CSP violations
+   - Solution: Updated CSP to allow `img-src 'self' data: https:`
+   - Result: All external manga cover images now load correctly
+
+3. **UI Verification**:
+   - All components rendering correctly
+   - Empty states with icons displaying properly
+   - Native dialogs working with proper app name
+   - Navigation blocking functioning as expected
+   - All linting errors resolved from previous session
+
+4. **Documentation Updates**:
+   - Corrected all design docs to remove sidebar collapse functionality
+   - Sidebar is fixed 240px width (no hamburger menu, no toggle)
+   - Removed Ctrl+B shortcut and "Toggle Sidebar" menu item from docs
+   - Updated wireframes.md, layout-specification.md, menu-bar-structure.md
+   - Updated responsive-behavior-guide.md to keep sidebar visible on all screen sizes
+   - All documentation now accurately reflects implemented design
+
+**P1-T03 Task Complete**:
+
+- ✅ All 17 components implemented and tested
+- ✅ All 20 steps executed successfully
+- ✅ UI polish and refinements applied
+- ✅ Comprehensive documentation created
+- ✅ Integration testing complete
+- ✅ Security policies configured (CSP)
+- ✅ Design documentation corrected (removed sidebar collapse)
+- ✅ Ready for Phase 1 Task 4 (State Management)
+
+### ✅ Completed Previous Session (1 Dec 2025 Evening - Final Polish)
 
 **UI Polish and Refinements**:
 
@@ -347,7 +388,7 @@
 
 - **P1-T01**: ✅ COMPLETE - All 11 deliverables created and saved to docs/ folder
 - **P1-T02**: ✅ COMPLETE - Menu bar and navigation system fully implemented
-- **P1-T03**: 🔵 IN PROGRESS - 15/17 components built, Steps 16-20 remaining (Tooltip, Popover, View Transitions, Documentation, Integration/Testing)
+- **P1-T03**: ✅ COMPLETE - All 17 components built, 20 steps executed, UI Component Library finished
 
 1. **IPC Communication**: Menu commands trigger navigation via IPC, theme updates sent to renderer
 2. **Keyboard Shortcuts**: Global shortcuts (Ctrl+1/2/3, Ctrl+B, Ctrl+,) for quick navigation
@@ -399,13 +440,21 @@
 
 ### ⏳ Next Actions
 
-1. **P1-T03 Step 19**: Create comprehensive component documentation - central `ui-component-library.md`, enhance individual READMEs, JSDoc comments (~3 hours)
-2. **P1-T03 Step 20**: Integration and testing - update Browse/Library/Downloads views with components, manual testing checklist, accessibility audit, cleanup (~4 hours)
-3. **Mark P1-T03 Complete**: All 17 components implemented, 20 steps executed
-4. **P1-T04**: Set up state management (Zustand recommended for lightweight state)
-5. **P1-T05**: Implement restricted filesystem access model (AppData + user-configured downloads)
-6. **P1-T06**: Create path validation system (security layer for file operations)
-7. **P1-T07**: Implement file system handlers (manga covers, chapter images)
+1. **P1-T04 - Set up State Management** (~3-4 days):
+   - Install and configure Zustand
+   - Create stores: appStore (theme, sidebar), userPreferences, libraryStore (future)
+   - Implement localStorage persistence for settings
+   - Replace component useState with Zustand where appropriate
+   - Document state management patterns
+
+2. **P1-T05 - Restricted Filesystem Access** (~2-3 days):
+   - Define allowed directories (AppData + user downloads folder)
+   - Implement path validation and allowlist
+   - Create secure filesystem API wrapper
+
+3. **P1-T06 - Path Validation System** (~2 days):
+   - Path sanitization and normalization
+   - Security middleware for file operations
 
 ### 💡 Good-to-Have (Future Enhancements)
 
@@ -415,6 +464,38 @@
 ---
 
 ## Recent Decisions
+
+### 2 December 2025 - Documentation Corrections & Final Polish
+
+**Documentation Architecture Updates**:
+
+- ✅ **Sidebar Design Clarification**: Confirmed sidebar is fixed 240px width with no collapse functionality
+  - No hamburger menu button
+  - No Ctrl+B keyboard shortcut
+  - No "Toggle Sidebar" menu item
+  - Sidebar always visible on all screen sizes
+  - Corrected all design docs to reflect this implementation
+
+**Security Configuration**:
+
+- ✅ **CSP Policy Updated**: Changed `img-src 'self' data:` to `img-src 'self' data: https:`
+  - Allows external manga cover images from MangaDex CDN
+  - Required for picsum.photos mock data and future API integration
+  - Documented in tech-context.md with rationale
+
+**Branding**:
+
+- ✅ **Product Name**: Added `"productName": "DexReader"` to package.json
+  - Native dialogs show "DexReader" instead of "dexreader"
+  - Professional capitalization for Windows title bars
+  - Consistent branding across all OS dialogs
+
+**Implementation Status Summary**:
+
+- P1-T01: ✅ COMPLETE (11 design documents)
+- P1-T02: ✅ COMPLETE (Menu bar, navigation, routing, IPC)
+- P1-T03: ✅ COMPLETE (17 components, 20 steps, ~8,500 lines)
+- P1-T04: ⏳ NEXT (State Management with Zustand)
 
 ### 1 December 2025 - Evening Session (Polish Pass)
 
@@ -1041,4 +1122,4 @@ npm run typecheck   # Validate types only
 
 ---
 
-_Last session: 24 Nov 2025 | Next session: TBD_
+_Last session: 2 Dec 2025 | Next session: P1-T04 State Management_

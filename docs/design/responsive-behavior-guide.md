@@ -65,7 +65,7 @@ DexReader is a desktop-first application optimized for 900×670px default window
 **Browse/Library Views**:
 
 - 2-column manga grid
-- Icon-only sidebar (48px) or bottom navigation bar
+- Sidebar remains visible (240px fixed)
 - Filters in collapsible drawer
 - Grid gap: 8px horizontal, 16px vertical
 
@@ -78,7 +78,7 @@ DexReader is a desktop-first application optimized for 900×670px default window
 **Settings View**:
 
 - Single-column forms
-- Icon-only sidebar
+- Sidebar remains visible (240px)
 - Sections in drawer
 
 ---

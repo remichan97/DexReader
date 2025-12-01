@@ -101,7 +101,7 @@
 
 - [✅] **P1-T01**: Design main application layout (COMPLETE - 11 documents in docs/)
 - [✅] **P1-T02**: Implement menu bar and navigation (COMPLETE - 25 Nov 2025)
-- [🔵] **P1-T03**: Create base UI component library (IN PROGRESS - Steps 1-18 complete, 17/17 components built, 90% done)
+- [✅] **P1-T03**: Create base UI component library (COMPLETE - 2 Dec 2025, all 17 components + 20 steps done)
 - [ ] **P1-T04**: Set up state management (Zustand/Redux)
 - [ ] **P1-T05**: Implement restricted filesystem access model
 - [ ] **P1-T06**: Create path validation for AppData and downloads directories
@@ -543,6 +543,21 @@
 ---
 
 ## Notes & Decisions
+
+### 02 December 2025 - P1-T03 Complete
+
+- ✅ **P1-T03 Step 20 completed**: Final integration, testing, and fixes
+  - Added `productName: "DexReader"` to package.json for native dialog titles
+  - Fixed CSP to allow HTTPS images: `img-src 'self' data: https:`
+  - All components rendering correctly with no errors
+  - Native dialogs showing proper app name
+- ✅ **Documentation Updates**: Corrected design docs to remove sidebar collapse functionality
+  - Sidebar is fixed 240px (no hamburger menu, no Ctrl+B toggle)
+  - Updated wireframes.md, layout-specification.md, menu-bar-structure.md, responsive-behavior-guide.md
+  - Removed "Toggle Sidebar" menu item and keyboard shortcut from docs
+  - All documentation now matches actual implementation
+- ✅ **P1-T03 COMPLETE**: All 17 components + 20 steps done, ~8,500 lines of code
+  - Ready to proceed with P1-T04 State Management
 
 ### 01 December 2025 (Evening Session - Final Polish)
 

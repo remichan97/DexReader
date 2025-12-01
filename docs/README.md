@@ -85,7 +85,7 @@ All documents in this folder are **implementation-ready specifications** and **l
 **Design System**: Windows 11 (Mica, Acrylic, Segoe UI Variable)
 **Animations**: Spring easing `cubic-bezier(0.34, 1.56, 0.64, 1)` for indicators
 **Reading Modes**: Single page, Double page (R-L), Vertical scroll
-**Navigation**: Native menu bar + Animated sidebar (240px/48px)
+**Navigation**: Native menu bar + Fixed sidebar with Fluent icons (240px)
 **Responsive**: 5/3/2 column grids across breakpoints
 **Components**: 17 production-ready, fully polished to Windows 11 standards
 

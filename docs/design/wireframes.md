@@ -62,7 +62,7 @@ This document contains ASCII wireframes for all primary views in DexReader. All 
 **Key Elements**:
 
 1. **Native Menu Bar**: File, View, Library, Tools, Help
-2. **Collapsible Sidebar**: Icon-based navigation (Browse, Library, Downloads, Settings)
+2. **Fixed Sidebar**: Fluent icon-based navigation with animated indicator (Browse, Library, Downloads, Settings)
 3. **Search Bar**: Full-width with search icon, prominent placement
 4. **Filters Panel**: Collapsible, shows active filters with tags
 5. **Manga Grid**: 5-column responsive grid, cover image + title + latest chapter
@@ -74,6 +74,9 @@ This document contains ASCII wireframes for all primary views in DexReader. All 
 - Rounded corners (8px) on cards
 - Subtle shadows for depth
 - Acrylic blur on sidebar
+- **Native menu bar** (no custom title bar)
+- **Fluent UI icons** with state variants (Regular/Filled)
+- **Spring animations** on sidebar indicator (400ms overshoot easing)
 
 ---
 
@@ -357,7 +360,7 @@ This document contains ASCII wireframes for all primary views in DexReader. All 
 
 **Settings Categories**:
 
-- **General**: Theme, language, update checks
+- **General**: Theme, language, update checks, product name
 - **Reading Preferences**: Default mode, direction, image fit, preload settings
 - **Downloads**: Location, quality, simultaneous downloads
 - **Storage**: Cache management, database size, backup/restore
@@ -380,6 +383,7 @@ This document contains ASCII wireframes for all primary views in DexReader. All 
 ┌────────┐
 │ [🔍]   │  Browse
 │ Browse │
+│ ━━━    │  ← Blue indicator bar (animated)
 │        │
 │ [📚]   │  Library
 │ Library│
@@ -393,28 +397,14 @@ This document contains ASCII wireframes for all primary views in DexReader. All 
 └────────┘
 ```
 
-**Collapsed State** (icon-only):
-
-```ui
-┌───┐
-│ 🔍│  ← Tooltip: "Browse"
-│   │
-│ 📚│  ← Tooltip: "Library"
-│   │
-│ ⬇ │  ← Tooltip: "Downloads"
-│   │
-│ ⚙ │  ← Tooltip: "Settings"
-│   │
-└───┘
-```
-
 **Features**:
 
-- Active state: Accent color background, bold text
-- Hover state: Subtle background tint
-- Collapsible: Shrinks to icon-only (saves ~60px width)
-- Keyboard accessible: Tab navigation, Enter to activate
-- Tooltips show on hover (collapsed state only)
+- **Active State**: 3px blue accent bar on left, bold text
+- **Animated Indicator**: Spring animation (cubic-bezier with overshoot) slides between items
+- **Icons**: @fluentui/react-icons - Regular (inactive), Filled (active)
+- **Hover State**: Subtle background tint with scale transform
+- **Fixed Width**: Always 240px (no collapse functionality)
+- **Keyboard Accessible**: Tab navigation, Enter to activate
 
 ### Native Menu Bar
 
@@ -449,7 +439,7 @@ File  View  Library  Tools  Help
 ### Small (<620px)
 
 - 2-column manga grid
-- Icon-only sidebar or bottom navigation bar
+- Sidebar remains visible (240px fixed)
 - Filters in collapsible drawer
 - Touch-optimized controls (larger tap targets)
 
@@ -495,12 +485,18 @@ See windows11-design-tokens.md for complete specifications, but wireframes use:
 
 These wireframes serve as the foundation for:
 
-1. Component hierarchy design (Step 2)
-2. Routing structure (Step 3)
-3. Detailed component specifications (Step 8)
-4. Implementation in Phase 1 tasks
+1. ✅ Component hierarchy design (Step 2) - COMPLETE
+2. ✅ Routing structure (Step 3) - COMPLETE
+3. ✅ Detailed component specifications (Step 8) - COMPLETE
+4. ✅ Implementation in Phase 1 tasks - P1-T03 COMPLETE
 
-**Review Status**: ✅ Ready for component design phase
+**Implementation Status**:
+- ✅ **P1-T01**: Design documentation complete (11 documents)
+- ✅ **P1-T02**: Menu bar and navigation implemented
+- ✅ **P1-T03**: UI Component Library complete (17 components)
+- ⏳ **Next**: P1-T04 State Management
+
+**Review Status**: ✅ Implemented and validated
 
 ---
 

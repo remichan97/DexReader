@@ -20,7 +20,7 @@ Every view in DexReader (except fullscreen Reader) shares these persistent eleme
 
 ```ui
 ┌─────────────────────────────────────────────────────────────┐
-│ Native Title Bar with Menu Bar        (always present)      │
+│ Native Menu Bar (File, View, Library, Tools, Help)          │
 ├──────────┬──────────────────────────────────────────────────┤
 │          │                                                   │
 │ Sidebar  │          Main Content Area                       │
@@ -31,19 +31,22 @@ Every view in DexReader (except fullscreen Reader) shares these persistent eleme
 
 ### Layout Zones
 
-**Zone 1: Native Title Bar + Menu Bar**
+**Zone 1: Native Menu Bar**
 
-- **Height**: System-defined (Windows 11: ~32px title bar + ~25px menu bar)
-- **Content**: Window controls, menu bar (File, View, Library, Tools, Help)
-- **Behavior**: Always visible, native OS rendering
+- **Height**: System-defined (Windows 11: ~25px)
+- **Content**: Menu bar (File, View, Library, Tools, Help)
+- **Behavior**: Always visible, native OS rendering, handles window dragging
 - **Electron Implementation**: `Menu.setApplicationMenu()`
+- **Note**: No custom title bar - native menu bar provides drag functionality
 
 **Zone 2: Navigation Sidebar**
 
-- **Width**: 240px (expanded), 48px (collapsed)
-- **Content**: Primary navigation icons + labels
-- **Behavior**: Collapsible, persists across views, uses Acrylic blur
-- **Toggle**: Ctrl+B or menu item
+- **Width**: 240px (fixed)
+- **Content**: Navigation items with Fluent icons (no hamburger menu)
+- **Icons**: @fluentui/react-icons (Regular for inactive, Filled for active)
+- **Animation**: Spring-animated blue indicator bar (400ms, overshoot easing)
+- **Behavior**: Always visible, persists across views
+- **Active State**: 3px blue left border, filled icon, bold text
 
 **Zone 3: Main Content Area**
 

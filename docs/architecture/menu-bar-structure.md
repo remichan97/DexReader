@@ -52,7 +52,6 @@ View
 ├─ My Library                       Ctrl+2
 ├─ Downloads                        Ctrl+3
 ├─ ──────────────────────          (separator)
-├─ Toggle Sidebar                   Ctrl+B
 ├─ Toggle Fullscreen                F11
 ├─ ──────────────────────          (separator)
 ├─ Reload                           Ctrl+R
@@ -76,8 +75,7 @@ View
    - Accelerator: `Ctrl+3`
    - Always enabled
 
-4. **Toggle Sidebar**
-   - Collapse/expand navigation sidebar
+4. **Toggle Fullscreen**
    - Accelerator: `Ctrl+B`
    - Always enabled
    - Checkmark shows current state (expanded/collapsed)
@@ -606,7 +604,6 @@ ipcMain.on('update-menu-state', (event, state) => {
 | `Ctrl+2` | Navigate to Library   | View → My Library           |
 | `Ctrl+3` | Navigate to Downloads | View → Downloads            |
 | `Ctrl+,` | Open Settings         | File → Settings...          |
-| `Ctrl+B` | Toggle Sidebar        | View → Toggle Sidebar       |
 | `Ctrl+R` | Reload View           | View → Reload               |
 | `Ctrl+U` | Check for Updates     | File → Check for Updates... |
 | `F1`     | Open Documentation    | Help → Documentation        |

@@ -1,6 +1,6 @@
 # DexReader Technical Context
 
-**Last Updated**: 23 November 2025
+**Last Updated**: 2 December 2025
 **Project Version**: 1.0.0
 **Type**: Desktop Application (Electron)
 
@@ -548,7 +548,7 @@ Enables:
   content="default-src 'self';
                script-src 'self';
                style-src 'self' 'unsafe-inline';
-               img-src 'self' data:"
+               img-src 'self' data: https:;"
 />
 ```
 
@@ -556,8 +556,15 @@ Enables:
 
 - `default-src 'self'` - Only load resources from same origin
 - `script-src 'self'` - No inline scripts, only bundled code
-- `style-src 'self' 'unsafe-inline'` - Allow inline styles (React)
-- `img-src 'self' data:` - Allow local images and data URIs
+- `style-src 'self' 'unsafe-inline'` - Allow inline styles (React components)
+- `img-src 'self' data: https:` - Allow local images, data URIs, and HTTPS images (for manga covers)
+
+**Implementation Notes**:
+
+- HTTPS images required for external manga cover art from MangaDex CDN
+- Data URIs support base64-encoded images
+- No inline scripts for XSS protection
+- `'unsafe-inline'` for styles is required for React CSS-in-JS patterns
 
 ### Context Isolation
 
