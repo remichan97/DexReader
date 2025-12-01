@@ -13,11 +13,13 @@
 ### 1. SearchBar Styling Consistency
 
 **Issue**: SearchBar had different dimensions and styling than Input component
+
 - Height was 36px (Input was 32px)
 - Border was 1px (Input had 2px emphasis)
 - Different focus behavior
 
 **Solution**:
+
 - Changed `.search-bar__input` height to 32px
 - Updated `border-bottom` to 2px for emphasis
 - Matched focus behavior exactly to Input
@@ -33,6 +35,7 @@
 **Root Cause**: Hover selector was overriding focus state
 
 **Solution**:
+
 ```css
 .search-bar__container:hover:not(:focus-within) {
   border-color: var(--win-border-hover);
@@ -48,6 +51,7 @@
 **Issue**: Despite component CSS, textboxes still showed browser default blue outer glow on focus
 
 **Root Cause**: Global `input:focus` rule in `main.css` was adding:
+
 ```css
 input:focus {
   box-shadow: 0 0 0 2px var(--win-accent-subtle);
@@ -56,8 +60,10 @@ input:focus {
 ```
 
 **Solution**:
+
 1. Removed `box-shadow` and `border-color` from global rule
 2. Added `!important` to component focus rules:
+
 ```css
 .input:focus {
   box-shadow: none !important;
@@ -96,6 +102,7 @@ const location = useLocation()
 ```
 
 **How It Works**:
+
 1. `key={location.pathname}` changes when route changes
 2. React unmounts old component
 3. React mounts new component
@@ -113,6 +120,7 @@ const location = useLocation()
 **Solution**: Added sliding blue accent bar positioned behind active item
 
 **Implementation**:
+
 ```tsx
 const [indicatorStyle, setIndicatorStyle] = useState({
   top: 0,
@@ -128,6 +136,7 @@ useEffect(() => {
 ```
 
 **CSS Animation**:
+
 ```css
 .sidebar__indicator {
   transition:
@@ -138,6 +147,7 @@ useEffect(() => {
 ```
 
 **Spring Easing Breakdown**:
+
 - `cubic-bezier(0.34, 1.56, 0.64, 1)`
 - The `1.56` value exceeds `1.0`, causing overshoot
 - Creates satisfying "bounce" effect common in modern UIs
@@ -152,6 +162,7 @@ useEffect(() => {
 **Journey**: Material Design → Scale Effect → Clean Fluent Design
 
 **Iteration 1 - Material Design Expanding Line**:
+
 ```css
 .input::after {
   content: '';
@@ -169,18 +180,22 @@ useEffect(() => {
   left: 0;
 }
 ```
+
 **Issue**: Too elaborate for Fluent Design, distracting ripple effect
 
 **Iteration 2 - Scale Effect**:
+
 ```css
 .input:focus {
   transform: scale(1.01);
   border-bottom-color: var(--win-accent);
 }
 ```
+
 **Issue**: Noticeable scale was too much, layout shift
 
 **Final - Simple Border Transition**:
+
 ```css
 .input:focus {
   outline: none;
@@ -199,6 +214,7 @@ useEffect(() => {
 **Decision**: Remove all Material Design patterns in favor of pure Fluent Design
 
 **Changes**:
+
 - ❌ Removed: Material ripple effects on buttons
 - ❌ Removed: Expanding line animations on inputs
 - ❌ Removed: Scale effects on focus
@@ -215,6 +231,7 @@ useEffect(() => {
 **Issue**: Using emoji placeholders (🔍📚⬇️⚙️) for navigation icons
 
 **Problems**:
+
 - Inconsistent rendering across platforms
 - Not authentic Windows 11 appearance
 - No active state variants
@@ -222,6 +239,7 @@ useEffect(() => {
 **Solution**: Installed `@fluentui/react-icons` package
 
 **Package Details**:
+
 - **Package**: `@fluentui/react-icons@^2.0.0`
 - **Total Install**: 67 packages (icons + dependencies)
 - **Bundle Impact**: ~5-6 KB for 8 icons used (tree-shakeable)
@@ -244,6 +262,7 @@ useEffect(() => {
 **Pattern**: Regular icons for inactive, Filled icons for active
 
 **Implementation**:
+
 ```tsx
 interface SidebarItem {
   icon: JSX.Element        // Regular (outlined)
@@ -255,12 +274,14 @@ interface SidebarItem {
 ```
 
 **Icons Used**:
+
 - Search24Regular → Search24Filled
 - Library24Regular → Library24Filled
 - ArrowDownload24Regular → ArrowDownload24Filled
 - Settings24Regular → Settings24Filled
 
 **Naming Convention**:
+
 - Format: `{Name}{Size}{Variant}`
 - Size: 24 (24×24px)
 - Variants: Regular, Filled
@@ -272,25 +293,30 @@ interface SidebarItem {
 ## Design Decisions Summary
 
 ### 1. Simple Over Elaborate
+
 - **Before**: Complex animations (expanding lines, scale effects, ripples)
 - **After**: Simple property transitions (border-color, background)
 - **Rationale**: Fluent Design emphasizes subtlety over flashiness
 
 ### 2. Authenticity Over Size
+
 - **Decision**: Use official Fluent icons despite ~2KB larger than alternatives
 - **Rationale**: Desktop app, authenticity matters more than minimal size difference
 
 ### 3. Spring Animations Where Appropriate
+
 - **Where**: Sidebar indicator, Tabs indicator (moving elements)
 - **Why**: Spring easing creates satisfying, natural feedback
 - **Formula**: `cubic-bezier(0.34, 1.56, 0.64, 1)` - P2 > 1.0 causes overshoot
 
 ### 4. Key-Based Over State-Based
+
 - **Context**: ViewTransition animation pattern
 - **Choice**: React key prop remounting over complex state management
 - **Benefits**: Simpler code, no flash, leverages React's built-in lifecycle
 
 ### 5. Consistency Across Inputs
+
 - **Rule**: All textboxes must have identical styling
 - **Applied to**: Input, SearchBar (32px height, 2px border, same focus)
 - **Why**: Unified experience, predictable behavior
@@ -337,6 +363,7 @@ All refinements discovered through:
 ## Metrics
 
 ### Before Polish
+
 - Components implemented: 17/17 ✅
 - Consistent styling: ~70%
 - Windows 11 authenticity: ~80%
@@ -344,6 +371,7 @@ All refinements discovered through:
 - Icon quality: Emoji placeholders
 
 ### After Polish
+
 - Components implemented: 17/17 ✅
 - Consistent styling: 100% (all textboxes identical)
 - Windows 11 authenticity: 95% (official icons, Fluent patterns)
@@ -351,6 +379,7 @@ All refinements discovered through:
 - Icon quality: Official Microsoft Fluent UI icons
 
 ### Code Changes
+
 - **Files Modified**: 8 (Input.tsx/css, SearchBar.tsx/css, Sidebar.tsx/css, ViewTransition.tsx, router.tsx, main.css)
 - **Lines Added**: ~150 (mostly JSDoc comments)
 - **Lines Modified**: ~80 (CSS changes, logic simplification)
@@ -362,18 +391,23 @@ All refinements discovered through:
 ## Lessons Learned
 
 ### 1. Test Early, Test Often
+
 Polish issues emerged during hands-on testing. Earlier testing would have caught these sooner.
 
 ### 2. Design System Consistency Matters
+
 Mixing Material and Fluent patterns created confusion. Stick to one design language.
 
 ### 3. Simple Often Wins
+
 ViewTransition went from 150 lines with complex state to 30 lines with key-based remounting.
 
 ### 4. Official Libraries Worth It
+
 The ~2KB difference for official Fluent icons was worth the authenticity gain.
 
 ### 5. Global Styles Can Interfere
+
 Global `input:focus` rule caused issues. Prefer component-scoped styles with `!important` when needed.
 
 ---
@@ -381,6 +415,7 @@ Global `input:focus` rule caused issues. Prefer component-scoped styles with `!i
 ## Future Enhancements
 
 ### Potential Improvements
+
 1. **Sidebar Customization**: Allow users to reorder/hide navigation items
 2. **Icon Size Options**: Support 16px, 20px, 24px variants
 3. **More Spring Animations**: Apply spring easing to dropdowns, modals
@@ -388,6 +423,7 @@ Global `input:focus` rule caused issues. Prefer component-scoped styles with `!i
 5. **Reduced Motion**: Add more granular motion controls beyond prefers-reduced-motion
 
 ### Component Additions
+
 - **Accordion**: For collapsible content sections
 - **DatePicker**: For date selection (Phase 3)
 - **ColorPicker**: For theming customization (Phase 3)

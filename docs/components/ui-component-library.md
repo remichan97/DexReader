@@ -124,6 +124,7 @@ All components follow Microsoft's Fluent Design System:
 ### Form Controls
 
 #### Button
+
 **Purpose**: Primary user action trigger
 **Variants**: 5 (primary, secondary, accent, danger, ghost)
 **Sizes**: 3 (small, medium, large)
@@ -140,6 +141,7 @@ All components follow Microsoft's Fluent Design System:
 ---
 
 #### Input
+
 **Purpose**: Single-line text input
 **Features**: Label, error states, required indicator, helper text
 **Focus**: Clean bottom border transition (no outer glow)
@@ -160,6 +162,7 @@ All components follow Microsoft's Fluent Design System:
 ---
 
 #### SearchBar
+
 **Purpose**: Dedicated search input with icon
 **Styling**: Matches Input component (32px height, 2px border)
 **Features**: Search icon, clear button, debounced callback
@@ -178,6 +181,7 @@ All components follow Microsoft's Fluent Design System:
 ---
 
 #### Checkbox
+
 **Purpose**: Binary or indeterminate selection
 **States**: 3 (unchecked, checked, indeterminate)
 **Features**: Animated checkmark, label support, group functionality
@@ -196,6 +200,7 @@ All components follow Microsoft's Fluent Design System:
 ---
 
 #### Switch
+
 **Purpose**: Toggle control for binary settings
 **Layout**: Full-width with right-aligned toggle
 **Features**: Label + description, sliding knob animation
@@ -215,6 +220,7 @@ All components follow Microsoft's Fluent Design System:
 ---
 
 #### Dropdown (Select)
+
 **Purpose**: Single or multi-select from options
 **Modes**: 3 (basic, searchable, multi-select)
 **Features**: Keyboard navigation, filtering, disabled options
@@ -237,6 +243,7 @@ All components follow Microsoft's Fluent Design System:
 ### Feedback & Status
 
 #### Toast
+
 **Purpose**: Temporary notification messages
 **Variants**: 4 (info, success, warning, error)
 **Positions**: 4 (top-right, top-left, bottom-right, bottom-left)
@@ -258,6 +265,7 @@ showToast({
 ---
 
 #### ProgressBar
+
 **Purpose**: Linear progress indicator
 **Modes**: 2 (determinate, indeterminate)
 **Variants**: 3 (default, success, error)
@@ -278,6 +286,7 @@ showToast({
 ---
 
 #### ProgressRing
+
 **Purpose**: Circular loading spinner
 **Modes**: 2 (determinate, indeterminate)
 **Sizes**: 3 (small 24px, medium 40px, large 64px)
@@ -292,6 +301,7 @@ showToast({
 ---
 
 #### Badge
+
 **Purpose**: Status indicators and labels
 **Variants**: 5 (default, success, warning, error, info)
 **Sizes**: 2 (small, medium)
@@ -307,6 +317,7 @@ showToast({
 ---
 
 #### Skeleton
+
 **Purpose**: Loading placeholders
 **Variants**: 4 (text, circle, rect, card)
 **Features**: Shimmer animation, grid support
@@ -323,6 +334,7 @@ showToast({
 ### Navigation
 
 #### Sidebar
+
 **Purpose**: Main application navigation
 **Features**: Fluent UI icons (Regular/Filled variants), animated indicator
 **Animation**: Spring easing `cubic-bezier(0.34, 1.56, 0.64, 1)` (400ms)
@@ -343,6 +355,7 @@ showToast({
 ```
 
 **Icons Used**:
+
 - `@fluentui/react-icons` package (~5-6 KB total)
 - Search24Regular/Filled
 - Library24Regular/Filled
@@ -354,6 +367,7 @@ showToast({
 ---
 
 #### Tabs
+
 **Purpose**: Content organization with tab navigation
 **Features**: Animated indicator, keyboard navigation, disabled tabs
 **Architecture**: Context-based (Tabs/TabList/Tab/TabPanel)
@@ -377,6 +391,7 @@ showToast({
 ### Layout & Display
 
 #### MangaCard
+
 **Purpose**: Display manga with cover, title, and metadata
 **Sizes**: 2 (compact, standard)
 **Features**: Hover effects, status badges, loading state
@@ -399,6 +414,7 @@ showToast({
 ### Overlays & Dialogs
 
 #### Modal
+
 **Purpose**: Full-screen overlay dialogs
 **Sizes**: 3 (small 400px, medium 600px, large 800px)
 **Features**: Focus trap, body scroll lock, Escape to close
@@ -420,6 +436,7 @@ showToast({
 ---
 
 #### Tooltip
+
 **Purpose**: Hover-based contextual information
 **Positions**: 4 (top, right, bottom, left)
 **Features**: Auto-flip near edges, arrow pointer, portal rendering
@@ -436,6 +453,7 @@ showToast({
 ---
 
 #### Popover
+
 **Purpose**: Contextual menus and content overlays
 **Triggers**: 2 (click, hover)
 **Positions**: 4 (top, right, bottom, left)
@@ -463,6 +481,7 @@ showToast({
 ### Utilities
 
 #### ViewTransition
+
 **Purpose**: Smooth route transition animations
 **Animation**: Fade + 8px slide (300ms)
 **Pattern**: Key-based React remounting
@@ -559,6 +578,7 @@ Following Windows 11 conventions, navigation icons show different weights for ac
 **Filled icons**: Active/selected state (solid fill)
 
 **Example**:
+
 - Inactive: `<Search24Regular />`
 - Active: `<Search24Filled />`
 
@@ -569,11 +589,13 @@ Following Windows 11 conventions, navigation icons show different weights for ac
 Many components support both patterns:
 
 **Controlled** (parent manages state):
+
 ```tsx
 <Switch checked={isDark} onChange={setIsDark} />
 ```
 
 **Uncontrolled** (component manages state):
+
 ```tsx
 <Switch defaultChecked={false} />
 ```
@@ -793,6 +815,7 @@ import { Search24Regular, Search24Filled } from '@fluentui/react-icons';
 ```
 
 **Icons in use**:
+
 - Search (Browse tab)
 - Library (Library tab)
 - ArrowDownload (Downloads tab)
@@ -846,6 +869,7 @@ import * as Components from '@/components';
 **Breaking Changes**:
 
 1. **Select renamed to Dropdown**: Import path changed
+
    ```tsx
    // Old
    import { Select } from '@/components';
@@ -855,6 +879,7 @@ import * as Components from '@/components';
    ```
 
 2. **Badge variant renamed**: `default` → `neutral`
+
    ```tsx
    // Old
    <Badge variant="default" />
@@ -864,6 +889,7 @@ import * as Components from '@/components';
    ```
 
 3. **ProgressBar variant props**: Separated into `variant` prop
+
    ```tsx
    // Old
    <ProgressBar value={75} success />
