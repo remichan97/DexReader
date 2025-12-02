@@ -116,6 +116,7 @@ Border color changes on hover
 ### Focus
 
 **Windows 11 Fluent Design Pattern**:
+
 - Clean 2px accent bottom border
 - **No outer glow** (browser defaults removed with `box-shadow: none !important`)
 - Simple 200ms `cubic-bezier(0.4, 0, 0.2, 1)` transition

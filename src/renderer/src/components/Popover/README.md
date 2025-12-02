@@ -58,15 +58,15 @@ function ControlledExample() {
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `content` | `React.ReactNode` | Required | Popover content to display |
-| `position` | `'top' \| 'right' \| 'bottom' \| 'left'` | `'bottom'` | Preferred position (auto-flips if near edge) |
-| `trigger` | `'click' \| 'hover'` | `'click'` | Activation trigger type |
-| `open` | `boolean` | `undefined` | Controlled open state |
-| `onOpenChange` | `(open: boolean) => void` | `undefined` | Called when open state changes |
-| `children` | `React.ReactElement` | Required | Trigger element |
-| `className` | `string` | `''` | Additional CSS classes |
+| Prop           | Type                                     | Default     | Description                                  |
+| -------------- | ---------------------------------------- | ----------- | -------------------------------------------- |
+| `content`      | `React.ReactNode`                        | Required    | Popover content to display                   |
+| `position`     | `'top' \| 'right' \| 'bottom' \| 'left'` | `'bottom'`  | Preferred position (auto-flips if near edge) |
+| `trigger`      | `'click' \| 'hover'`                     | `'click'`   | Activation trigger type                      |
+| `open`         | `boolean`                                | `undefined` | Controlled open state                        |
+| `onOpenChange` | `(open: boolean) => void`                | `undefined` | Called when open state changes               |
+| `children`     | `React.ReactElement`                     | Required    | Trigger element                              |
+| `className`    | `string`                                 | `''`        | Additional CSS classes                       |
 
 ## Behavior
 

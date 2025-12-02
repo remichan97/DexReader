@@ -4,7 +4,7 @@ import { Tabs, TabList, Tab, TabPanel } from '@renderer/components/Tabs'
 import { MangaCard } from '@renderer/components/MangaCard'
 import { SearchBar } from '@renderer/components/SearchBar'
 import { Badge } from '@renderer/components/Badge'
-import { useToast, ToastContainer } from '@renderer/components/Toast'
+import { useToastStore } from '@renderer/stores'
 import { BookQuestionMark24Regular, Search24Regular } from '@fluentui/react-icons'
 import './LibraryView.css'
 
@@ -116,7 +116,13 @@ const mockCategories: Array<{
 
 export function LibraryView(): JSX.Element {
   const [searchQuery, setSearchQuery] = useState('')
-  const { show, toasts } = useToast()
+
+  // Zustand stores
+  const show = useToastStore((state) => state.show)
+  // Library store hooks ready for Phase 3:
+  // const addBookmark = useLibraryStore((state) => state.addBookmark)
+  // const removeBookmark = useLibraryStore((state) => state.removeBookmark)
+  // const isBookmarked = useLibraryStore((state) => state.isBookmarked)
 
   const handleSearch = (query: string): void => {
     setSearchQuery(query)
@@ -237,9 +243,6 @@ export function LibraryView(): JSX.Element {
           )}
         </>
       )}
-
-      {/* Toast notifications */}
-      <ToastContainer toasts={toasts} position="bottom-right" />
     </div>
   )
 }

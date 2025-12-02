@@ -1,11 +1,17 @@
-import { Toast, ToastProps } from './Toast'
+import { Toast } from './Toast'
+import type { ToastItem } from '@renderer/stores'
 import './Toast.css'
 
 export interface ToastContainerProps {
   /**
-   * Array of active toasts
+   * Array of active toasts (from Zustand store)
    */
-  toasts: ToastProps[]
+  toasts: ToastItem[]
+
+  /**
+   * Function to dismiss a toast (from Zustand store)
+   */
+  onDismiss: (id: string) => void
 
   /**
    * Position of the toast container
@@ -19,14 +25,19 @@ export interface ToastContainerProps {
  *
  * @example
  * ```tsx
+ * const toasts = useToastStore((state) => state.toasts)
+ * const dismiss = useToastStore((state) => state.dismiss)
+ *
  * <ToastContainer
- *   toasts={activeToasts}
+ *   toasts={toasts}
+ *   onDismiss={dismiss}
  *   position="top-right"
  * />
  * ```
  */
 export function ToastContainer({
   toasts,
+  onDismiss,
   position = 'top-right'
 }: ToastContainerProps): React.JSX.Element | null {
   if (toasts.length === 0) return null
@@ -36,7 +47,7 @@ export function ToastContainer({
   return (
     <div className={classNames} aria-live="polite" aria-atomic="false">
       {toasts.map((toast) => (
-        <Toast key={toast.id} {...toast} />
+        <Toast key={toast.id} {...toast} onClose={onDismiss} />
       ))}
     </div>
   )

@@ -40,6 +40,7 @@ Most warnings relate to accessibility preferences (semantic HTML vs custom ARIA)
 - Custom focus trap implementation for better control
 
 **Example**:
+
 ```tsx
 // Our implementation
 <div
@@ -72,6 +73,7 @@ Most warnings relate to accessibility preferences (semantic HTML vs custom ARIA)
 - React Router `NavLink` integration
 
 **Example**:
+
 ```tsx
 // Our implementation
 <NavLink to={item.path}>
@@ -122,6 +124,7 @@ Most warnings relate to accessibility preferences (semantic HTML vs custom ARIA)
 - Card-style design with backdrop blur
 
 **Example**:
+
 ```tsx
 // Our implementation
 <div
@@ -170,6 +173,7 @@ Most warnings relate to accessibility preferences (semantic HTML vs custom ARIA)
 - Custom size/thickness/color options
 
 **Example**:
+
 ```tsx
 // Our implementation
 <div
@@ -187,7 +191,7 @@ Most warnings relate to accessibility preferences (semantic HTML vs custom ARIA)
       r="45"
       className="progress-ring__circle"
       style={{
-        strokeDashoffset: circumference - (value / 100) * circumference,
+        strokeDashoffset: circumference - (value / 100) * circumference
       }}
     />
   </svg>
@@ -217,15 +221,11 @@ Most warnings relate to accessibility preferences (semantic HTML vs custom ARIA)
 - `aria-hidden="true"` already applied to decorative elements
 
 **Example**:
+
 ```tsx
 // Our implementation
 <label className="checkbox">
-  <input
-    type="checkbox"
-    checked={checked}
-    aria-checked={checked}
-    aria-label={label}
-  />
+  <input type="checkbox" checked={checked} aria-checked={checked} aria-label={label} />
   <div className="checkbox__box" aria-hidden="true">
     <svg className="checkbox__checkmark" aria-hidden="true">
       {/* Checkmark icon */}
@@ -254,6 +254,7 @@ Most warnings relate to accessibility preferences (semantic HTML vs custom ARIA)
 - Adding keyboard listeners to non-focusable elements is anti-pattern
 
 **Example**:
+
 ```tsx
 // Our implementation
 <div
@@ -277,17 +278,18 @@ Most warnings relate to accessibility preferences (semantic HTML vs custom ARIA)
 **Count**: 8 occurrences (components.ts, component prop interfaces)
 
 **Example**:
+
 ```tsx
 // Current
 export interface ButtonProps {
-  children: React.ReactNode;
-  onClick?: () => void;
+  children: React.ReactNode
+  onClick?: () => void
 }
 
 // Should be
 export interface ButtonProps {
-  readonly children: React.ReactNode;
-  readonly onClick?: () => void;
+  readonly children: React.ReactNode
+  readonly onClick?: () => void
 }
 ```
 
@@ -301,9 +303,10 @@ export interface ButtonProps {
 **Count**: 3 occurrences (DownloadsView.tsx, Toast.tsx)
 
 **Example**:
+
 ```tsx
 // Current
-const label = `${count} download${count !== 1 ? 's' : ''}`;
+const label = `${count} download${count !== 1 ? 's' : ''}`
 
 // Linter: condition always true for template strings
 ```
@@ -318,12 +321,13 @@ const label = `${count} download${count !== 1 ? 's' : ''}`;
 **Count**: 2 occurrences (useKeyboardShortcuts.ts)
 
 **Example**:
+
 ```tsx
 // Current
-window.addEventListener('keydown', handler);
+window.addEventListener('keydown', handler)
 
 // Should be
-globalThis.addEventListener('keydown', handler);
+globalThis.addEventListener('keydown', handler)
 ```
 
 **Decision**: ⚠️ **Should fix** - Use globalThis for better compatibility
@@ -338,20 +342,21 @@ globalThis.addEventListener('keydown', handler);
 **Count**: 3 occurrences (LibraryView.tsx helper components)
 
 **Example**:
+
 ```tsx
 // Current (inside LibraryView component)
 const EmptyState = ({ message }: { message: string }) => (
   <div className="library__empty">{message}</div>
-);
+)
 
 // Should be (outside LibraryView)
 const EmptyState = ({ message }: { message: string }) => (
   <div className="library__empty">{message}</div>
-);
+)
 
 const LibraryView = () => {
   // Use EmptyState here
-};
+}
 ```
 
 **Decision**: ⚠️ **Should fix** - Move helper components outside parent
@@ -366,15 +371,16 @@ const LibraryView = () => {
 **Context**: Intentionally excluded dependencies to prevent re-runs
 
 **Example**:
+
 ```tsx
 // Current
 useEffect(() => {
   const handler = setTimeout(() => {
-    callback(value);
-  }, delay);
+    callback(value)
+  }, delay)
 
-  return () => clearTimeout(handler);
-}, [value, delay]); // callback intentionally excluded
+  return () => clearTimeout(handler)
+}, [value, delay]) // callback intentionally excluded
 
 // Linter wants: [value, delay, callback]
 ```
@@ -391,13 +397,16 @@ useEffect(() => {
 **Count**: 8 occurrences (various READMEs)
 
 **Example**:
+
 ````markdown
 <!-- Current -->
+
 ```
 npm install
 ```
 
 <!-- Should be -->
+
 ```bash
 npm install
 ```
@@ -413,13 +422,17 @@ npm install
 **Count**: 6 occurrences (various documentation)
 
 **Example**:
+
 ```markdown
 <!-- Current -->
+
 ## Features
+
 - Feature 1
 - Feature 2
 
 <!-- Should be -->
+
 ## Features
 
 - Feature 1
@@ -434,23 +447,23 @@ npm install
 
 ### Intentional Exceptions (Keep As-Is) - 38
 
-| Category | Count | Justification |
-|----------|-------|---------------|
-| Custom ARIA roles | 24 | Windows 11 design requirements |
-| Keyboard event warnings | 6 | Backdrop-only mouse interaction |
-| False positive (img alt) | 4 | No actual img elements |
-| Intentional hook dependencies | 2 | Prevent unnecessary re-renders |
-| Component patterns | 2 | React Router compatibility |
+| Category                      | Count | Justification                   |
+| ----------------------------- | ----- | ------------------------------- |
+| Custom ARIA roles             | 24    | Windows 11 design requirements  |
+| Keyboard event warnings       | 6     | Backdrop-only mouse interaction |
+| False positive (img alt)      | 4     | No actual img elements          |
+| Intentional hook dependencies | 2     | Prevent unnecessary re-renders  |
+| Component patterns            | 2     | React Router compatibility      |
 
 ### Should Fix - 17
 
-| Category | Count | Priority |
-|----------|-------|----------|
-| Markdown formatting | 14 | Low (P3-T15) |
-| TypeScript readonly | 8 | Medium (P2-T05) |
-| Component location | 3 | Medium (P2-T05) |
-| Redundant code | 3 | Low (P3-T15) |
-| Prefer globalThis | 2 | Low (P3-T15) |
+| Category            | Count | Priority        |
+| ------------------- | ----- | --------------- |
+| Markdown formatting | 14    | Low (P3-T15)    |
+| TypeScript readonly | 8     | Medium (P2-T05) |
+| Component location  | 3     | Medium (P2-T05) |
+| Redundant code      | 3     | Low (P3-T15)    |
+| Prefer globalThis   | 2     | Low (P3-T15)    |
 
 ---
 
@@ -495,10 +508,10 @@ export default [
       'jsx-a11y/no-static-element-interactions': 'off',
 
       // Component definitions - warn instead of error
-      'react/no-unstable-nested-components': ['warn', { allowAsProps: true }],
-    },
-  },
-];
+      'react/no-unstable-nested-components': ['warn', { allowAsProps: true }]
+    }
+  }
+]
 ```
 
 **Decision**: ⚠️ **Configure linter** - Add overrides to reduce noise

@@ -36,38 +36,38 @@ function MangaDetails() {
 
 ### Tabs (Container)
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `defaultValue` | `string` | `undefined` | Default active tab (uncontrolled) |
-| `value` | `string` | `undefined` | Active tab value (controlled) |
-| `onChange` | `(value: string) => void` | `undefined` | Change handler for controlled mode |
-| `children` | `React.ReactNode` | Required | TabList and TabPanel components |
-| `className` | `string` | `''` | Additional CSS class |
+| Prop           | Type                      | Default     | Description                        |
+| -------------- | ------------------------- | ----------- | ---------------------------------- |
+| `defaultValue` | `string`                  | `undefined` | Default active tab (uncontrolled)  |
+| `value`        | `string`                  | `undefined` | Active tab value (controlled)      |
+| `onChange`     | `(value: string) => void` | `undefined` | Change handler for controlled mode |
+| `children`     | `React.ReactNode`         | Required    | TabList and TabPanel components    |
+| `className`    | `string`                  | `''`        | Additional CSS class               |
 
 ### TabList
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `children` | `React.ReactNode` | Required | Tab components |
-| `className` | `string` | `''` | Additional CSS class |
+| Prop        | Type              | Default  | Description          |
+| ----------- | ----------------- | -------- | -------------------- |
+| `children`  | `React.ReactNode` | Required | Tab components       |
+| `className` | `string`          | `''`     | Additional CSS class |
 
 ### Tab
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `value` | `string` | Required | Tab value identifier |
-| `disabled` | `boolean` | `false` | Whether the tab is disabled |
-| `children` | `React.ReactNode` | Required | Tab label content |
-| `className` | `string` | `''` | Additional CSS class |
-| `aria-label` | `string` | `undefined` | ARIA label |
+| Prop         | Type              | Default     | Description                 |
+| ------------ | ----------------- | ----------- | --------------------------- |
+| `value`      | `string`          | Required    | Tab value identifier        |
+| `disabled`   | `boolean`         | `false`     | Whether the tab is disabled |
+| `children`   | `React.ReactNode` | Required    | Tab label content           |
+| `className`  | `string`          | `''`        | Additional CSS class        |
+| `aria-label` | `string`          | `undefined` | ARIA label                  |
 
 ### TabPanel
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `value` | `string` | Required | Panel value (matches Tab value) |
-| `children` | `React.ReactNode` | Required | Panel content |
-| `className` | `string` | `''` | Additional CSS class |
+| Prop        | Type              | Default  | Description                     |
+| ----------- | ----------------- | -------- | ------------------------------- |
+| `value`     | `string`          | Required | Panel value (matches Tab value) |
+| `children`  | `React.ReactNode` | Required | Panel content                   |
+| `className` | `string`          | `''`     | Additional CSS class            |
 
 ## Examples
 
@@ -109,7 +109,9 @@ function ControlledTabs() {
 <Tabs defaultValue="tab1">
   <TabList>
     <Tab value="tab1">Available</Tab>
-    <Tab value="tab2" disabled>Coming Soon</Tab>
+    <Tab value="tab2" disabled>
+      Coming Soon
+    </Tab>
     <Tab value="tab3">Another</Tab>
   </TabList>
   <TabPanel value="tab1">Content 1</TabPanel>
@@ -160,6 +162,7 @@ function ControlledTabs() {
 ## Styling
 
 Follows Windows 11 Fluent Design:
+
 - Bottom border with animated accent indicator
 - Hover states on tabs
 - Active tab uses accent color and semibold weight

@@ -3,6 +3,8 @@ import { AppShell } from './layouts/AppShell'
 import { AppRoutes } from './router'
 import { useNavigationListener } from './hooks/useNavigationListener'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
+import { ToastContainer } from './components/Toast'
+import { useToastStore } from './stores'
 
 function AppContent(): React.JSX.Element {
   // Listen for navigation commands from menu
@@ -15,11 +17,16 @@ function AppContent(): React.JSX.Element {
 }
 
 function App(): React.JSX.Element {
+  // Global toast state
+  const toasts = useToastStore((state) => state.toasts)
+  const dismissToast = useToastStore((state) => state.dismiss)
+
   return (
     <BrowserRouter>
       <AppShell>
         <AppContent />
       </AppShell>
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} position="bottom-right" />
     </BrowserRouter>
   )
 }

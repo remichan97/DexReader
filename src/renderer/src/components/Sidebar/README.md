@@ -11,9 +11,7 @@ function AppShell() {
   return (
     <div className="app-shell">
       <Sidebar />
-      <main className="app-content">
-        {/* Your content */}
-      </main>
+      <main className="app-content">{/* Your content */}</main>
     </div>
   )
 }
@@ -62,12 +60,12 @@ Uses `@fluentui/react-icons` with Regular/Filled variant pattern:
 
 Default items included:
 
-| Icon | Label | Route | Regular Icon | Filled Icon |
-|------|-------|-------|--------------|-------------|
-| 🔍 | Browse | `/browse` | Search24Regular | Search24Filled |
-| 📚 | Library | `/library` | Library24Regular | Library24Filled |
-| ⬇️ | Downloads | `/downloads` | ArrowDownload24Regular | ArrowDownload24Filled |
-| ⚙️ | Settings | `/settings` | Settings24Regular | Settings24Filled |
+| Icon | Label     | Route        | Regular Icon           | Filled Icon           |
+| ---- | --------- | ------------ | ---------------------- | --------------------- |
+| 🔍   | Browse    | `/browse`    | Search24Regular        | Search24Filled        |
+| 📚   | Library   | `/library`   | Library24Regular       | Library24Filled       |
+| ⬇️   | Downloads | `/downloads` | ArrowDownload24Regular | ArrowDownload24Filled |
+| ⚙️   | Settings  | `/settings`  | Settings24Regular      | Settings24Filled      |
 
 ## Props
 
@@ -80,7 +78,9 @@ The Sidebar component currently has no props - navigation items are defined inte
 Icons switch between Regular and Filled based on active state:
 
 ```tsx
-{isActive ? item.iconFilled : item.icon}
+{
+  isActive ? item.iconFilled : item.icon
+}
 ```
 
 This follows Windows 11 conventions where active navigation items show filled (solid) icons while inactive items show outlined icons.
@@ -95,8 +95,7 @@ useEffect(() => {
     if (!sidebarRef.current) return
 
     const activeIndex = sidebarItems.findIndex(
-      (item) => location.pathname === item.route ||
-                location.pathname.startsWith(item.route + '/')
+      (item) => location.pathname === item.route || location.pathname.startsWith(item.route + '/')
     )
 
     if (activeIndex === -1) {
@@ -246,6 +245,7 @@ Since this is an Electron app, we bundle Chromium, ensuring consistent animation
 **Before**: Emoji icons (🔍📚⬇️⚙️), no indicator animation
 
 **After**:
+
 - Official Fluent UI icons with Regular/Filled variants
 - Spring-animated sliding indicator (400ms cubic-bezier)
 - Proper icon sizing (24×24px)

@@ -5,6 +5,7 @@ A customizable modal dialog component for app-specific overlays and custom conte
 ## When to Use This Component
 
 **Use Custom Modal for:**
+
 - Keyboard shortcuts reference
 - Image galleries or media viewers
 - Complex forms that aren't blocking operations
@@ -12,6 +13,7 @@ A customizable modal dialog component for app-specific overlays and custom conte
 - Non-critical content that needs custom layout
 
 **Use Native Electron Dialogs for:**
+
 - Information messages (`dialog.showMessageBox` with `type: 'info'`)
 - Warning messages (`dialog.showMessageBox` with `type: 'warning'`)
 - Confirmation dialogs (`dialog.showMessageBox` with buttons)
@@ -19,6 +21,7 @@ A customizable modal dialog component for app-specific overlays and custom conte
 - File/folder pickers (`dialog.showOpenDialog`, `dialog.showSaveDialog`)
 
 **Why Native Dialogs for Standard Messages?**
+
 - System-consistent UX matching Windows 11
 - OS-native appearance users trust
 - Proper blocking behavior for critical decisions
@@ -73,18 +76,18 @@ function MyComponent() {
 
 ## Props
 
-| Prop                   | Type              | Default    | Description                      |
-| ---------------------- | ----------------- | ---------- | -------------------------------- |
-| `open`                 | `boolean`         | -          | Whether the modal is open        |
-| `onClose`              | `() => void`      | -          | Close handler                    |
-| `title`                | `string`          | -          | Modal title                      |
-| `children`             | `React.ReactNode` | -          | Modal content                    |
-| `footer`               | `React.ReactNode` | -          | Modal footer (actions)           |
-| `size`                 | `ModalSize`       | `'medium'` | Modal size                       |
-| `closeOnOverlayClick`  | `boolean`         | `true`     | Close when clicking overlay      |
-| `closeOnEscape`        | `boolean`         | `true`     | Close on Escape key              |
-| `className`            | `string`          | `''`       | Additional CSS class             |
-| `aria-label`           | `string`          | -          | Accessibility label              |
+| Prop                  | Type              | Default    | Description                 |
+| --------------------- | ----------------- | ---------- | --------------------------- |
+| `open`                | `boolean`         | -          | Whether the modal is open   |
+| `onClose`             | `() => void`      | -          | Close handler               |
+| `title`               | `string`          | -          | Modal title                 |
+| `children`            | `React.ReactNode` | -          | Modal content               |
+| `footer`              | `React.ReactNode` | -          | Modal footer (actions)      |
+| `size`                | `ModalSize`       | `'medium'` | Modal size                  |
+| `closeOnOverlayClick` | `boolean`         | `true`     | Close when clicking overlay |
+| `closeOnEscape`       | `boolean`         | `true`     | Close on Escape key         |
+| `className`           | `string`          | `''`       | Additional CSS class        |
+| `aria-label`          | `string`          | -          | Accessibility label         |
 
 ### Size Options
 
@@ -101,9 +104,15 @@ function MyComponent() {
   <div>
     <h3>Navigation</h3>
     <ul>
-      <li><kbd>Ctrl+1</kbd> - Browse</li>
-      <li><kbd>Ctrl+2</kbd> - Library</li>
-      <li><kbd>Ctrl+3</kbd> - Downloads</li>
+      <li>
+        <kbd>Ctrl+1</kbd> - Browse
+      </li>
+      <li>
+        <kbd>Ctrl+2</kbd> - Library
+      </li>
+      <li>
+        <kbd>Ctrl+3</kbd> - Downloads
+      </li>
     </ul>
   </div>
 </Modal>
@@ -113,7 +122,7 @@ function MyComponent() {
 
 ```tsx
 // DON'T DO THIS - Use native dialog instead
-<Modal
+;<Modal
   open={isOpen}
   onClose={handleClose}
   title="Delete Item"

@@ -43,15 +43,17 @@ ComponentName/
 ### Basic Usage
 
 ```tsx
-import { Button, Input, Modal } from '@/components';
+import { Button, Input, Modal } from '@/components'
 
 function MyComponent() {
   return (
     <div>
       <Input label="Username" placeholder="Enter username" />
-      <Button variant="accent" size="medium">Submit</Button>
+      <Button variant="accent" size="medium">
+        Submit
+      </Button>
     </div>
-  );
+  )
 }
 ```
 
@@ -169,11 +171,7 @@ All components follow Microsoft's Fluent Design System:
 **Focus**: Bottom border accent (no glow)
 
 ```tsx
-<SearchBar
-  placeholder="Search manga..."
-  onSearch={(query) => console.log(query)}
-  debounce={300}
-/>
+<SearchBar placeholder="Search manga..." onSearch={(query) => console.log(query)} debounce={300} />
 ```
 
 [Full Documentation](./SearchBar/README.md)
@@ -188,11 +186,7 @@ All components follow Microsoft's Fluent Design System:
 **Animation**: Scale + fade checkmark (200ms)
 
 ```tsx
-<Checkbox
-  label="Remember me"
-  checked={isChecked}
-  onChange={setIsChecked}
-/>
+<Checkbox label="Remember me" checked={isChecked} onChange={setIsChecked} />
 ```
 
 [Full Documentation](./Checkbox/README.md)
@@ -227,13 +221,7 @@ All components follow Microsoft's Fluent Design System:
 **Keyboard**: Arrow keys, Enter, Escape, Home/End
 
 ```tsx
-<Dropdown
-  label="Language"
-  options={languages}
-  value={selected}
-  onChange={setSelected}
-  searchable
-/>
+<Dropdown label="Language" options={languages} value={selected} onChange={setSelected} searchable />
 ```
 
 [Full Documentation](./Dropdown/README.md)
@@ -251,13 +239,13 @@ All components follow Microsoft's Fluent Design System:
 
 ```tsx
 // Use the hook
-const { showToast } = useToast();
+const { showToast } = useToast()
 
 showToast({
   message: 'Settings saved successfully',
   variant: 'success',
   duration: 3000
-});
+})
 ```
 
 [Full Documentation](./Toast/README.md)
@@ -421,12 +409,7 @@ showToast({
 **Backdrop**: Acrylic blur effect
 
 ```tsx
-<Modal
-  isOpen={isOpen}
-  onClose={() => setIsOpen(false)}
-  title="Confirm Action"
-  size="medium"
->
+<Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Confirm Action" size="medium">
   <p>Are you sure you want to continue?</p>
 </Modal>
 ```
@@ -488,18 +471,16 @@ showToast({
 **Usage**: Single wrapper around Routes
 
 ```tsx
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom'
 
 function App() {
-  const location = useLocation();
+  const location = useLocation()
 
   return (
     <ViewTransition key={location.pathname}>
-      <Routes location={location}>
-        {/* routes */}
-      </Routes>
+      <Routes location={location}>{/* routes */}</Routes>
     </ViewTransition>
-  );
+  )
 }
 ```
 
@@ -517,13 +498,10 @@ Using `key={location.pathname}` triggers React's unmount/remount cycle, allowing
 Components that need to escape their parent's stacking context use portal rendering:
 
 ```tsx
-import { createPortal } from 'react-dom';
+import { createPortal } from 'react-dom'
 
 function Tooltip() {
-  return createPortal(
-    <div className="tooltip">{content}</div>,
-    document.body
-  );
+  return createPortal(<div className="tooltip">{content}</div>, document.body)
 }
 ```
 
@@ -571,7 +549,9 @@ All interactive components follow Windows 11 focus patterns:
 Following Windows 11 conventions, navigation icons show different weights for active/inactive states:
 
 ```tsx
-{isActive ? item.iconFilled : item.icon}
+{
+  isActive ? item.iconFilled : item.icon
+}
 ```
 
 **Regular icons**: Inactive/default state (outlined)
@@ -612,13 +592,13 @@ For dropdowns, modals, and popovers:
 useEffect(() => {
   const handleClickOutside = (event: MouseEvent) => {
     if (ref.current && !ref.current.contains(event.target as Node)) {
-      onClose();
+      onClose()
     }
-  };
+  }
 
-  document.addEventListener('mousedown', handleClickOutside);
-  return () => document.removeEventListener('mousedown', handleClickOutside);
-}, [onClose]);
+  document.addEventListener('mousedown', handleClickOutside)
+  return () => document.removeEventListener('mousedown', handleClickOutside)
+}, [onClose])
 ```
 
 ---
@@ -653,12 +633,12 @@ height: auto;
 
 ### Easing Functions
 
-| Use Case | Easing | Duration |
-|----------|--------|----------|
-| Fade in/out | `ease` | 150-200ms |
-| Slide/scale | `cubic-bezier(0.4, 0, 0.2, 1)` | 200-300ms |
-| Spring/bounce | `cubic-bezier(0.34, 1.56, 0.64, 1)` | 400ms |
-| Indeterminate | `linear` | 800-1500ms |
+| Use Case      | Easing                              | Duration   |
+| ------------- | ----------------------------------- | ---------- |
+| Fade in/out   | `ease`                              | 150-200ms  |
+| Slide/scale   | `cubic-bezier(0.4, 0, 0.2, 1)`      | 200-300ms  |
+| Spring/bounce | `cubic-bezier(0.34, 1.56, 0.64, 1)` | 400ms      |
+| Indeterminate | `linear`                            | 800-1500ms |
 
 ### Motion Preferences
 
@@ -682,12 +662,7 @@ Always respect user preferences:
 All components include proper ARIA attributes:
 
 ```tsx
-<button
-  role="button"
-  aria-label="Close dialog"
-  aria-pressed={isPressed}
-  aria-disabled={isDisabled}
->
+<button role="button" aria-label="Close dialog" aria-pressed={isPressed} aria-disabled={isDisabled}>
   Close
 </button>
 ```
@@ -719,19 +694,19 @@ All components include proper ARIA attributes:
 ```typescript
 // Common base props for all components
 export interface BaseComponentProps {
-  className?: string;
-  style?: React.CSSProperties;
-  'data-testid'?: string;
+  className?: string
+  style?: React.CSSProperties
+  'data-testid'?: string
 }
 
 // Size variants used across components
-export type Size = 'small' | 'medium' | 'large';
+export type Size = 'small' | 'medium' | 'large'
 
 // Common variant types
-export type Variant = 'default' | 'success' | 'warning' | 'error' | 'info';
+export type Variant = 'default' | 'success' | 'warning' | 'error' | 'info'
 
 // Position types for tooltips/popovers
-export type Position = 'top' | 'right' | 'bottom' | 'left';
+export type Position = 'top' | 'right' | 'bottom' | 'left'
 ```
 
 ### Component-Specific Types
@@ -741,28 +716,28 @@ Each component exports its own prop interface:
 ```typescript
 // Button
 export interface ButtonProps extends BaseComponentProps {
-  variant?: 'primary' | 'secondary' | 'accent' | 'danger' | 'ghost';
-  size?: Size;
-  disabled?: boolean;
-  loading?: boolean;
-  fullWidth?: boolean;
-  icon?: React.ReactNode;
-  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  children: React.ReactNode;
+  variant?: 'primary' | 'secondary' | 'accent' | 'danger' | 'ghost'
+  size?: Size
+  disabled?: boolean
+  loading?: boolean
+  fullWidth?: boolean
+  icon?: React.ReactNode
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
+  children: React.ReactNode
 }
 
 // Input
 export interface InputProps extends BaseComponentProps {
-  label?: string;
-  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url';
-  placeholder?: string;
-  value?: string;
-  defaultValue?: string;
-  disabled?: boolean;
-  required?: boolean;
-  error?: string;
-  helperText?: string;
-  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  label?: string
+  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url'
+  placeholder?: string
+  value?: string
+  defaultValue?: string
+  disabled?: boolean
+  required?: boolean
+  error?: string
+  helperText?: string
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 ```
 
@@ -811,7 +786,7 @@ When creating new components, ensure:
 - **Pattern**: Regular/Filled variants
 
 ```tsx
-import { Search24Regular, Search24Filled } from '@fluentui/react-icons';
+import { Search24Regular, Search24Filled } from '@fluentui/react-icons'
 ```
 
 **Icons in use**:
@@ -825,12 +800,12 @@ import { Search24Regular, Search24Filled } from '@fluentui/react-icons';
 
 ## Browser Support
 
-| Browser | Version | Notes |
-|---------|---------|-------|
-| Chrome | 100+ | Full support |
-| Edge | 100+ | Full support (primary target) |
-| Firefox | 100+ | Full support |
-| Safari | 15+ | Full support |
+| Browser | Version | Notes                         |
+| ------- | ------- | ----------------------------- |
+| Chrome  | 100+    | Full support                  |
+| Edge    | 100+    | Full support (primary target) |
+| Firefox | 100+    | Full support                  |
+| Safari  | 15+     | Full support                  |
 
 **Note**: As an Electron app, we bundle Chromium, ensuring consistent behavior across all platforms.
 
@@ -854,10 +829,10 @@ import { Search24Regular, Search24Filled } from '@fluentui/react-icons';
 
 ```tsx
 // Good - tree-shakeable
-import { Button, Input } from '@/components';
+import { Button, Input } from '@/components'
 
 // Avoid - imports everything
-import * as Components from '@/components';
+import * as Components from '@/components'
 ```
 
 ---
@@ -872,10 +847,10 @@ import * as Components from '@/components';
 
    ```tsx
    // Old
-   import { Select } from '@/components';
+   import { Select } from '@/components'
 
    // New
-   import { Dropdown } from '@/components';
+   import { Dropdown } from '@/components'
    ```
 
 2. **Badge variant renamed**: `default` → `neutral`
@@ -933,4 +908,4 @@ import * as Components from '@/components';
 ---
 
 **Built with ❤️ for DexReader**
-*Windows 11 Fluent Design • TypeScript • React 19*
+_Windows 11 Fluent Design • TypeScript • React 19_

@@ -36,16 +36,32 @@ function App() {
 ### Why This Pattern?
 
 **❌ Wrong (causes flash)**:
+
 ```tsx
 <Routes>
-  <Route path="/library" element={<ViewTransition><LibraryView /></ViewTransition>} />
-  <Route path="/browse" element={<ViewTransition><BrowseView /></ViewTransition>} />
+  <Route
+    path="/library"
+    element={
+      <ViewTransition>
+        <LibraryView />
+      </ViewTransition>
+    }
+  />
+  <Route
+    path="/browse"
+    element={
+      <ViewTransition>
+        <BrowseView />
+      </ViewTransition>
+    }
+  />
 </Routes>
 ```
 
 Each route has different children, causing ViewTransition to show new content immediately before animating.
 
 **✅ Correct (smooth animation)**:
+
 ```tsx
 const location = useLocation()
 
@@ -60,8 +76,8 @@ The `key` prop changes when pathname changes, triggering React's unmount → rem
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
+| Prop       | Type              | Default  | Description             |
+| ---------- | ----------------- | -------- | ----------------------- |
 | `children` | `React.ReactNode` | Required | View content to animate |
 
 ## Behavior
@@ -85,14 +101,8 @@ The `key` prop changes when pathname changes, triggering React's unmount → rem
 ### Simplified Component
 
 ```tsx
-export function ViewTransition({
-  children
-}: ViewTransitionProps): React.JSX.Element {
-  return (
-    <div className="view-transition view-transition--fade-in">
-      {children}
-    </div>
-  )
+export function ViewTransition({ children }: ViewTransitionProps): React.JSX.Element {
+  return <div className="view-transition view-transition--fade-in">{children}</div>
 }
 ```
 
@@ -111,6 +121,7 @@ Key-based approach eliminates all these issues by leveraging React's built-in mo
 ## Polish History
 
 **Before (v1.0)**:
+
 ```tsx
 // Complex state management
 const [stage, setStage] = useState<'fade-out' | 'fade-in'>('fade-in')
@@ -126,6 +137,7 @@ useEffect(() => {
 ```
 
 **After (v1.1 - Current)**:
+
 ```tsx
 // Simple wrapper, parent controls via key
 export function ViewTransition({ children }) {

@@ -43,13 +43,13 @@ import { Tooltip } from '@renderer/components/Tooltip'
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `content` | `React.ReactNode` | Required | Tooltip content to display |
-| `position` | `'top' \| 'right' \| 'bottom' \| 'left'` | `'top'` | Preferred position (auto-flips if near edge) |
-| `delay` | `number` | `500` | Delay before showing tooltip (ms) |
-| `children` | `React.ReactElement` | Required | Trigger element |
-| `className` | `string` | `''` | Additional CSS classes |
+| Prop        | Type                                     | Default  | Description                                  |
+| ----------- | ---------------------------------------- | -------- | -------------------------------------------- |
+| `content`   | `React.ReactNode`                        | Required | Tooltip content to display                   |
+| `position`  | `'top' \| 'right' \| 'bottom' \| 'left'` | `'top'`  | Preferred position (auto-flips if near edge) |
+| `delay`     | `number`                                 | `500`    | Delay before showing tooltip (ms)            |
+| `children`  | `React.ReactElement`                     | Required | Trigger element                              |
+| `className` | `string`                                 | `''`     | Additional CSS classes                       |
 
 ## Behavior
 
@@ -67,6 +67,7 @@ import { Tooltip } from '@renderer/components/Tooltip'
 ## Design Tokens
 
 Uses Windows 11 design system:
+
 - Background: `--win-bg-card`
 - Border: `--win-border-default`
 - Text: `--win-text-primary`

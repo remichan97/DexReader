@@ -12,7 +12,9 @@ function MangaStatus() {
     <div>
       <Badge variant="success">Completed</Badge>
       <Badge variant="warning">Ongoing</Badge>
-      <Badge variant="info" icon={<Icon />}>5 New</Badge>
+      <Badge variant="info" icon={<Icon />}>
+        5 New
+      </Badge>
     </div>
   )
 }
@@ -20,15 +22,15 @@ function MangaStatus() {
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `variant` | `'default' \| 'success' \| 'warning' \| 'error' \| 'info'` | `'default'` | Visual style variant |
-| `size` | `'small' \| 'medium'` | `'medium'` | Badge size |
-| `children` | `React.ReactNode` | Required | Badge content |
-| `icon` | `React.ReactNode` | `undefined` | Optional icon |
-| `dot` | `boolean` | `false` | Show as dot instead of full badge |
-| `className` | `string` | `''` | Additional CSS class |
-| `aria-label` | `string` | `undefined` | ARIA label |
+| Prop         | Type                                                       | Default     | Description                       |
+| ------------ | ---------------------------------------------------------- | ----------- | --------------------------------- |
+| `variant`    | `'default' \| 'success' \| 'warning' \| 'error' \| 'info'` | `'default'` | Visual style variant              |
+| `size`       | `'small' \| 'medium'`                                      | `'medium'`  | Badge size                        |
+| `children`   | `React.ReactNode`                                          | Required    | Badge content                     |
+| `icon`       | `React.ReactNode`                                          | `undefined` | Optional icon                     |
+| `dot`        | `boolean`                                                  | `false`     | Show as dot instead of full badge |
+| `className`  | `string`                                                   | `''`        | Additional CSS class              |
+| `aria-label` | `string`                                                   | `undefined` | ARIA label                        |
 
 ## Variants
 
@@ -67,7 +69,9 @@ function MangaStatus() {
 ### Small
 
 ```tsx
-<Badge size="small" variant="info">3</Badge>
+<Badge size="small" variant="info">
+  3
+</Badge>
 ```
 
 ### Medium (Default)
@@ -102,7 +106,9 @@ Useful for notification indicators or status dots.
   <img src={cover} alt={title} />
   <div className="manga-info">
     <h3>{title}</h3>
-    <Badge variant="success" size="small">Completed</Badge>
+    <Badge variant="success" size="small">
+      Completed
+    </Badge>
   </div>
 </div>
 ```
@@ -110,6 +116,7 @@ Useful for notification indicators or status dots.
 ## Styling
 
 Follows Windows 11 Fluent Design:
+
 - Pill shape (rounded corners)
 - Semantic colors with subtle backgrounds
 - Small: 11px font, compact padding

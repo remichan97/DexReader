@@ -172,7 +172,9 @@ useEffect(() => {
   width: 0;
   height: 2px;
   background: var(--win-accent);
-  transition: width 0.3s, left 0.3s;
+  transition:
+    width 0.3s,
+    left 0.3s;
 }
 
 .input:focus::after {
@@ -247,11 +249,11 @@ useEffect(() => {
 
 **Why Fluent over alternatives?**
 
-| Library | Pros | Cons | Decision |
-|---------|------|------|----------|
-| Lucide | Smaller (~1KB per icon), popular | Not official, different style | ❌ |
-| Heroicons | Tailwind integration | Not Windows 11 style | ❌ |
-| **Fluentui** | **Official Microsoft, authentic, variants** | **Slightly larger** | ✅ |
+| Library      | Pros                                        | Cons                          | Decision |
+| ------------ | ------------------------------------------- | ----------------------------- | -------- |
+| Lucide       | Smaller (~1KB per icon), popular            | Not official, different style | ❌       |
+| Heroicons    | Tailwind integration                        | Not Windows 11 style          | ❌       |
+| **Fluentui** | **Official Microsoft, authentic, variants** | **Slightly larger**           | ✅       |
 
 **Decision**: Chose authenticity over ~2KB size difference. Desktop app context makes bundle size negligible.
 
@@ -265,12 +267,14 @@ useEffect(() => {
 
 ```tsx
 interface SidebarItem {
-  icon: JSX.Element        // Regular (outlined)
-  iconFilled: JSX.Element  // Filled (solid)
+  icon: JSX.Element // Regular (outlined)
+  iconFilled: JSX.Element // Filled (solid)
 }
 
 // Conditional rendering
-{isActive ? item.iconFilled : item.icon}
+{
+  isActive ? item.iconFilled : item.icon
+}
 ```
 
 **Icons Used**:
@@ -325,26 +329,26 @@ interface SidebarItem {
 
 ## Component Polish Status
 
-| Component | Polish Applied | Key Changes |
-|-----------|----------------|-------------|
-| Input | ✅ | Clean focus (no glow), 32px height, simple transition |
-| SearchBar | ✅ | Matches Input exactly, `:not(:focus-within)` on hover |
-| Sidebar | ✅ | Spring-animated indicator, Fluent icons Regular/Filled |
-| ViewTransition | ✅ | Key-based remounting, no flash |
-| Button | ✅ | (No changes needed - already polished) |
-| Modal | ✅ | (No changes needed - already polished) |
-| Tabs | ✅ | (Already had spring-animated indicator) |
-| Checkbox | ✅ | (No changes needed - already polished) |
-| Switch | ✅ | (Already polished with centered knob) |
-| Dropdown | ✅ | (No changes needed - already polished) |
-| Toast | ✅ | (No changes needed - already polished) |
-| Badge | ✅ | (No changes needed - already polished) |
-| ProgressBar | ✅ | (No changes needed - already polished) |
-| ProgressRing | ✅ | (No changes needed - already polished) |
-| Skeleton | ✅ | (No changes needed - already polished) |
-| MangaCard | ✅ | (No changes needed - already polished) |
-| Tooltip | ✅ | (No changes needed - already polished) |
-| Popover | ✅ | (No changes needed - already polished) |
+| Component      | Polish Applied | Key Changes                                            |
+| -------------- | -------------- | ------------------------------------------------------ |
+| Input          | ✅             | Clean focus (no glow), 32px height, simple transition  |
+| SearchBar      | ✅             | Matches Input exactly, `:not(:focus-within)` on hover  |
+| Sidebar        | ✅             | Spring-animated indicator, Fluent icons Regular/Filled |
+| ViewTransition | ✅             | Key-based remounting, no flash                         |
+| Button         | ✅             | (No changes needed - already polished)                 |
+| Modal          | ✅             | (No changes needed - already polished)                 |
+| Tabs           | ✅             | (Already had spring-animated indicator)                |
+| Checkbox       | ✅             | (No changes needed - already polished)                 |
+| Switch         | ✅             | (Already polished with centered knob)                  |
+| Dropdown       | ✅             | (No changes needed - already polished)                 |
+| Toast          | ✅             | (No changes needed - already polished)                 |
+| Badge          | ✅             | (No changes needed - already polished)                 |
+| ProgressBar    | ✅             | (No changes needed - already polished)                 |
+| ProgressRing   | ✅             | (No changes needed - already polished)                 |
+| Skeleton       | ✅             | (No changes needed - already polished)                 |
+| MangaCard      | ✅             | (No changes needed - already polished)                 |
+| Tooltip        | ✅             | (No changes needed - already polished)                 |
+| Popover        | ✅             | (No changes needed - already polished)                 |
 
 ---
 

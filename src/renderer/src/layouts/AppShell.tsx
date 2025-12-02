@@ -1,7 +1,8 @@
 import type { JSX, ReactNode } from 'react'
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Sidebar } from '../components/Sidebar'
+import { useAppStore } from '@renderer/stores'
 import './AppShell.css'
 
 interface AppShellProps {
@@ -9,7 +10,8 @@ interface AppShellProps {
 }
 
 export function AppShell({ children }: AppShellProps): JSX.Element {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light')
+  const theme = useAppStore((state) => state.theme)
+  const setSystemTheme = useAppStore((state) => state.setSystemTheme)
   const location = useLocation()
 
   // Update document title based on current route
@@ -27,19 +29,16 @@ export function AppShell({ children }: AppShellProps): JSX.Element {
     document.title = `${viewTitle} - DexReader`
   }, [location.pathname])
 
+  // Sync system theme from Electron main process
   useEffect(() => {
-    // Get initial theme
-    window.api.getTheme().then((initialTheme) => {
-      setTheme(initialTheme)
-      document.documentElement.setAttribute('data-theme', initialTheme)
-    })
+    window.api.getTheme().then(setSystemTheme)
+    window.api.onThemeChanged(setSystemTheme)
+  }, [setSystemTheme])
 
-    // Listen for theme changes
-    window.api.onThemeChanged((newTheme) => {
-      setTheme(newTheme)
-      document.documentElement.setAttribute('data-theme', newTheme)
-    })
-  }, [])
+  // Apply theme to document when it changes
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+  }, [theme])
 
   return (
     <div className="app-shell" data-theme={theme}>

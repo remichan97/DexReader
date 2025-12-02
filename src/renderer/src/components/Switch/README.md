@@ -23,15 +23,15 @@ function Settings() {
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `checked` | `boolean` | Required | Whether the switch is checked |
-| `onChange` | `(checked: boolean) => void` | Required | Change handler |
-| `label` | `string` | `undefined` | Label text |
-| `description` | `string` | `undefined` | Description text below the label |
-| `disabled` | `boolean` | `false` | Whether the switch is disabled |
-| `className` | `string` | `''` | Additional CSS class |
-| `aria-label` | `string` | `undefined` | ARIA label (defaults to label) |
+| Prop          | Type                         | Default     | Description                      |
+| ------------- | ---------------------------- | ----------- | -------------------------------- |
+| `checked`     | `boolean`                    | Required    | Whether the switch is checked    |
+| `onChange`    | `(checked: boolean) => void` | Required    | Change handler                   |
+| `label`       | `string`                     | `undefined` | Label text                       |
+| `description` | `string`                     | `undefined` | Description text below the label |
+| `disabled`    | `boolean`                    | `false`     | Whether the switch is disabled   |
+| `className`   | `string`                     | `''`        | Additional CSS class             |
+| `aria-label`  | `string`                     | `undefined` | ARIA label (defaults to label)   |
 
 ## Examples
 
@@ -44,11 +44,7 @@ function Settings() {
 ### With Label
 
 ```tsx
-<Switch
-  checked={enabled}
-  onChange={setEnabled}
-  label="Dark Mode"
-/>
+<Switch checked={enabled} onChange={setEnabled} label="Dark Mode" />
 ```
 
 ### With Label and Description
@@ -90,6 +86,7 @@ function Settings() {
 ## Styling
 
 Follows Windows 11 Fluent Design:
+
 - 40×20px track size
 - 12px knob that slides 20px when checked
 - Accent color when checked

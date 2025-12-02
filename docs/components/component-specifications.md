@@ -70,8 +70,8 @@ interface AppShellState {
 interface SidebarItem {
   id: string
   label: string
-  icon: JSX.Element          // Regular (outlined) variant
-  iconFilled: JSX.Element    // Filled (solid) variant for active state
+  icon: JSX.Element // Regular (outlined) variant
+  iconFilled: JSX.Element // Filled (solid) variant for active state
   route: string
 }
 ```

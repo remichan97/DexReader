@@ -42,21 +42,21 @@ function MyComponent() {
 
 ## Props
 
-| Prop           | Type                              | Default               | Description                     |
-| -------------- | --------------------------------- | --------------------- | ------------------------------- |
-| `value`        | `string \| string[]`              | -                     | Current selected value(s)       |
-| `onChange`     | `(value) => void`                 | -                     | Change handler                  |
-| `options`      | `SelectOption[]`                  | -                     | Available options               |
-| `label`        | `string`                          | -                     | Label text                      |
-| `placeholder`  | `string`                          | `'Select an option'`  | Placeholder when no selection   |
-| `helperText`   | `string`                          | -                     | Helper text below the select    |
-| `error`        | `string`                          | -                     | Error message                   |
-| `multiple`     | `boolean`                         | `false`               | Enable multi-select mode        |
-| `searchable`   | `boolean`                         | `false`               | Enable search/filter            |
-| `emptyMessage` | `string`                          | `'No options found'`  | Empty state message             |
-| `disabled`     | `boolean`                         | `false`               | Disabled state                  |
-| `className`    | `string`                          | `''`                  | Additional CSS class            |
-| `aria-label`   | `string`                          | -                     | Accessibility label             |
+| Prop           | Type                 | Default              | Description                   |
+| -------------- | -------------------- | -------------------- | ----------------------------- |
+| `value`        | `string \| string[]` | -                    | Current selected value(s)     |
+| `onChange`     | `(value) => void`    | -                    | Change handler                |
+| `options`      | `SelectOption[]`     | -                    | Available options             |
+| `label`        | `string`             | -                    | Label text                    |
+| `placeholder`  | `string`             | `'Select an option'` | Placeholder when no selection |
+| `helperText`   | `string`             | -                    | Helper text below the select  |
+| `error`        | `string`             | -                    | Error message                 |
+| `multiple`     | `boolean`            | `false`              | Enable multi-select mode      |
+| `searchable`   | `boolean`            | `false`              | Enable search/filter          |
+| `emptyMessage` | `string`             | `'No options found'` | Empty state message           |
+| `disabled`     | `boolean`            | `false`              | Disabled state                |
+| `className`    | `string`             | `''`                 | Additional CSS class          |
+| `aria-label`   | `string`             | -                    | Accessibility label           |
 
 ### SelectOption Interface
 

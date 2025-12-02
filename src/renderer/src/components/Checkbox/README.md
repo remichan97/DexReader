@@ -20,49 +20,37 @@ function MyComponent() {
   const [agreed, setAgreed] = useState(false)
 
   return (
-    <Checkbox
-      checked={agreed}
-      onChange={setAgreed}
-      label="I agree to the terms and conditions"
-    />
+    <Checkbox checked={agreed} onChange={setAgreed} label="I agree to the terms and conditions" />
   )
 }
 ```
 
 ## Props
 
-| Prop            | Type               | Default | Description                         |
-| --------------- | ------------------ | ------- | ----------------------------------- |
-| `checked`       | `boolean`          | -       | Whether the checkbox is checked     |
-| `onChange`      | `(checked) => void`| -       | Change handler                      |
-| `label`         | `string`           | -       | Label text                          |
-| `indeterminate` | `boolean`          | `false` | Indeterminate/partially checked     |
-| `disabled`      | `boolean`          | `false` | Disabled state                      |
-| `name`          | `string`           | -       | Name attribute for form submission  |
-| `value`         | `string`           | -       | Value attribute for form submission |
-| `className`     | `string`           | `''`    | Additional CSS class                |
-| `aria-label`    | `string`           | -       | Accessibility label                 |
+| Prop            | Type                | Default | Description                         |
+| --------------- | ------------------- | ------- | ----------------------------------- |
+| `checked`       | `boolean`           | -       | Whether the checkbox is checked     |
+| `onChange`      | `(checked) => void` | -       | Change handler                      |
+| `label`         | `string`            | -       | Label text                          |
+| `indeterminate` | `boolean`           | `false` | Indeterminate/partially checked     |
+| `disabled`      | `boolean`           | `false` | Disabled state                      |
+| `name`          | `string`            | -       | Name attribute for form submission  |
+| `value`         | `string`            | -       | Value attribute for form submission |
+| `className`     | `string`            | `''`    | Additional CSS class                |
+| `aria-label`    | `string`            | -       | Accessibility label                 |
 
 ## Examples
 
 ### Basic Checkbox
 
 ```tsx
-<Checkbox
-  checked={isEnabled}
-  onChange={setIsEnabled}
-  label="Enable notifications"
-/>
+<Checkbox checked={isEnabled} onChange={setIsEnabled} label="Enable notifications" />
 ```
 
 ### Without Label
 
 ```tsx
-<Checkbox
-  checked={isSelected}
-  onChange={setIsSelected}
-  aria-label="Select item"
-/>
+<Checkbox checked={isSelected} onChange={setIsSelected} aria-label="Select item" />
 ```
 
 ### Indeterminate State
@@ -79,12 +67,7 @@ function MyComponent() {
 ### Disabled Checkbox
 
 ```tsx
-<Checkbox
-  checked={true}
-  onChange={() => {}}
-  label="This option is locked"
-  disabled
-/>
+<Checkbox checked={true} onChange={() => {}} label="This option is locked" disabled />
 ```
 
 ### Form Integration

@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useNavigationBlocker } from '@renderer/hooks/useNavigationBlocker'
 import { Button } from '@renderer/components/Button'
 import { Input } from '@renderer/components/Input'
-import { useToast, ToastContainer } from '@renderer/components/Toast'
+import { useToastStore } from '@renderer/stores'
 import { ProgressBar } from '@renderer/components/ProgressBar'
 import { ProgressRing } from '@renderer/components/ProgressRing'
 import { Modal } from '@renderer/components/Modal'
@@ -58,7 +58,8 @@ export function SettingsView(): JSX.Element {
   // Track if there are unsaved changes
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
-  const { show, toasts } = useToast()
+  // Zustand stores
+  const show = useToastStore((state) => state.show)
 
   // Block navigation when there are unsaved changes
   useNavigationBlocker(
@@ -488,7 +489,7 @@ export function SettingsView(): JSX.Element {
                     })
                   }
                 >
-                  Show Loading
+                  Show Loading Toast
                 </Button>
               </div>
             </div>
@@ -988,8 +989,6 @@ export function SettingsView(): JSX.Element {
           </div>
         </div>
       )}
-
-      <ToastContainer toasts={toasts} position="bottom-right" />
 
       <style>
         {`

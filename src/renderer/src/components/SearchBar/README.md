@@ -95,12 +95,14 @@ Border color changes on hover (`:not(:focus-within)` prevents overriding focus s
 ### Focus
 
 **Matches Input Component Exactly**:
+
 - Clean 2px accent bottom border
 - **No outer glow** (consistent with Input styling)
 - 200ms `cubic-bezier(0.4, 0, 0.2, 1)` transition
 - Focus-visible outline on clear/filter buttons
 
 **Important**: Hover state uses `:not(:focus-within)` to prevent border conflict:
+
 ```css
 .search-bar__container:hover:not(:focus-within) {
   border-color: var(--win-border-hover);
@@ -147,12 +149,12 @@ When `filterCount > 0`:
 
 SearchBar was polished to match Input component exactly:
 
-| Property | Before | After |
-|----------|---------|-------|
-| Height | 36px | 32px |
-| Border Bottom | 1px | 2px |
-| Focus Behavior | With box-shadow | Border-bottom only |
-| Hover State | Always applied | `:not(:focus-within)` |
+| Property       | Before          | After                 |
+| -------------- | --------------- | --------------------- |
+| Height         | 36px            | 32px                  |
+| Border Bottom  | 1px             | 2px                   |
+| Focus Behavior | With box-shadow | Border-bottom only    |
+| Hover State    | Always applied  | `:not(:focus-within)` |
 
 This ensures all text inputs across the app have identical styling and behavior
 
