@@ -21,7 +21,7 @@
 
 ---
 
-## Current Status: Phase 0 Complete → Phase 1 Starting
+## Current Status: Phase 1 In Progress
 
 ### Completed Tasks
 
@@ -32,14 +32,15 @@
   - [x] System patterns documented
   - [x] Technical context established
   - [x] Project progress tracking initialized
-
-### Active Work
-
 - [x] Define core application features and requirements
 - [x] Establish project goals and target audience
 - [x] Create project brief document
 - [x] Set up Git repository and initial commit
-- [ ] Plan Phase 1 milestones (moving to Phase 1)
+- [x] Plan Phase 1 milestones
+
+### Active Work
+
+- [🔄] **P1-T05**: Implement restricted filesystem access model (Planning COMPLETE, ready for implementation)
 
 ---
 
@@ -102,8 +103,8 @@
 - [✅] **P1-T01**: Design main application layout (COMPLETE - 11 documents in docs/)
 - [✅] **P1-T02**: Implement menu bar and navigation (COMPLETE - 25 Nov 2025)
 - [✅] **P1-T03**: Create base UI component library (COMPLETE - 2 Dec 2025, all 17 components + 20 steps done)
-- [ ] **P1-T04**: Set up state management (Zustand/Redux)
-- [ ] **P1-T05**: Implement restricted filesystem access model
+- [✅] **P1-T04**: Set up state management (Zustand) (COMPLETE - 2 Dec 2025, all 4 stores + documentation)
+- [🔄] **P1-T05**: Implement restricted filesystem access model (PLANNING COMPLETE - 2 Dec 2025, ready for implementation)
 - [ ] **P1-T06**: Create path validation for AppData and downloads directories
 - [ ] **P1-T07**: Implement file system handlers (with path restrictions)
 - [🔄] **P1-T08**: Create IPC messaging architecture (partially complete - menu/theme/navigation IPC done)
@@ -520,29 +521,71 @@
 
 ## Next Steps (Immediate Actions)
 
-1. **Define Project Scope** (Priority: High)
-   - Clarify what file formats DexReader will support
-   - Define target user audience
-   - List must-have vs nice-to-have features
+1. **P1-T05 Step 1 - Path Validation Module** (Priority: High, In Progress)
+   - Create `src/main/filesystem/pathValidator.ts`
+   - Implement path normalization function
+   - Implement path validation logic
+   - Add security checks for traversal attacks
+   - Developer implements hands-on, Copilot reviews
 
-2. **Create Project Brief** (Priority: High)
-   - Document project vision and goals
-   - Define success criteria
-   - Establish design principles
+2. **P1-T05 Continuation** (Priority: High)
+   - Complete all 9 implementation steps
+   - Regular code reviews with Copilot
+   - Test each module as implemented
+   - Update documentation as needed
 
-3. **Set Up Development Workflow** (Priority: Medium)
-   - Configure Git branching strategy
-   - Set up commit message conventions
-   - Create PR/review process
+3. **P1-T06 - Path Validation System** (Priority: High, After P1-T05)
+   - Extends P1-T05 validation with additional layers
+   - Security middleware for operations
+   - Enhanced sanitization
 
-4. **Begin Phase 1 Planning** (Priority: Medium)
-   - Break down Phase 1 into specific tasks
-   - Create detailed technical specifications
-   - Identify required libraries and tools
+4. **Continue Phase 1 Tasks** (Priority: Medium)
+   - P1-T07: File system handlers
+   - P1-T08: Complete IPC architecture
+   - P1-T09: Basic error handling
 
 ---
 
 ## Notes & Decisions
+
+### 2 December 2025 (Evening) - P1-T05 Planning Complete + Development Approach Established
+
+- ✅ **P1-T05 Planning Complete**: Comprehensive filesystem security implementation plan created
+  - **Plan Location**: `.github/copilot-plans/P1-T05-implement-restricted-filesystem-access.md`
+  - **Duration Estimate**: 16-24 hours (2-3 days)
+  - **9 Implementation Steps**: Path validator, secure FS wrapper, settings manager, IPC handlers, preload API, initialization, settings UI, documentation, testing
+  - **Security Model**: 2 allowed directories (AppData + Downloads)
+  - **Default Downloads**: Changed from `~/Downloads/DexReader` to `AppData/downloads` for better security and out-of-the-box experience
+  - **Architecture**: 3 core modules, 10 IPC handlers, full TypeScript types
+  - **Key Files**: `pathValidator.ts`, `secureFS.ts`, `settingsManager.ts` + IPC integration
+  - Ready for Step 1 implementation
+
+- ✅ **Development Approach Documented**: Hands-on backend development philosophy established
+  - **Backend Code**: Developer implements directly, Copilot reviews and guides
+  - **Copilot's Role**: Review for mistakes/security/optimization, point out issues, suggest fixes
+  - **No Direct Implementation**: Copilot avoids writing backend code unless explicitly requested
+  - **Applies To**: All main process code, filesystem modules, IPC handlers, preload scripts, security-critical code
+  - **Frontend Exception**: Normal collaborative implementation for renderer/UI components
+  - **Rationale**: Security-critical backend code benefits from hands-on learning and deep understanding
+  - **Documented In**: `system-pattern.md` (new "Development Approach" section at top of architecture)
+
+### 2 December 2025 (Afternoon) - P1-T04 State Management Complete
+
+- ✅ **P1-T04 COMPLETE**: Zustand state management fully implemented
+  - **Duration**: 1 day (all 12 steps executed successfully)
+  - **Zustand v5.0.3 installed**: Lightweight state management (~1.4kb)
+  - **4 Stores Created**:
+    - `appStore.ts`: Theme management with system sync, fullscreen state
+    - `toastStore.ts`: Global notification system with auto-dismiss timers
+    - `userPreferencesStore.ts`: All user settings with validation and persistence
+    - `libraryStore.ts`: Bookmarks and collections (Phase 3 skeleton)
+  - **Component Migrations**: AppShell, SettingsView, LibraryView all using Zustand
+  - **Global Toast System**: Single ToastContainer in App.tsx, accessible from any view
+  - **Type System Fixed**: Added 'loading' variant to ToastVariant for ProgressRing integration
+  - **Documentation Created**: 900+ line state-management.md guide in docs/architecture/
+  - **Memory Bank Updated**: tech-context.md and system-pattern.md include state management sections
+  - **TypeScript Compilation**: All checks passing, dev server running without errors
+  - Ready for P1-T05 Restricted Filesystem Access
 
 ### 02 December 2025 - P1-T03 Complete
 

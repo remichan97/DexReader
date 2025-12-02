@@ -2,7 +2,7 @@
 
 **Last Updated**: 2 December 2025
 **Current Phase**: Phase 1 - Core Architecture (In Progress)
-**Session**: P1-T04 Planning Complete - Ready for Implementation
+**Session**: P1-T05 Planning COMPLETE - Filesystem Security Plan Ready
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -11,10 +11,161 @@
 ## Current Status Summary
 
 **Phase**: Phase 1 - Core Architecture 🔵
-**Progress**: P1-T03 COMPLETE - All 20 Steps Done, UI Component Library Finished
+**Progress**: P1-T05 PLANNED - Filesystem Security Ready for Implementation
 **Current Date**: 2 December 2025
+**Next Task**: P1-T05 Implementation (hands-on developer approach)
 
-### ✅ Completed This Session (2 Dec 2025 - Final Integration & Testing)
+### ✅ Completed This Session (2 Dec 2025 - P1-T05 Planning)
+
+**P1-T05 Planning Session Complete**:
+
+1. **Comprehensive Implementation Plan Created** (~2 hours planning):
+   - Created `.github/copilot-plans/P1-T05-implement-restricted-filesystem-access.md`
+   - 9 detailed implementation steps with code examples
+   - Security model defined: 2 allowed directories (AppData + Downloads)
+   - 28 hours estimated implementation time (2-3 days)
+   - Complete acceptance criteria for each step
+
+2. **Default Downloads Location Refined**:
+   - Initial proposal: `~/Downloads/DexReader` (system Downloads folder)
+   - Final decision: `AppData/Roaming/dexreader/downloads` (secure default)
+   - Rationale: Works out-of-the-box, no user configuration needed, stays within secure AppData boundary
+   - User can optionally override via Settings → Storage
+   - Type simplified: `downloads: string` (always valid, never null)
+
+3. **Implementation Approach Documented**:
+   - Developer will implement all backend/main process code hands-on
+   - Copilot's role: Review, guide, point out issues (no direct implementation unless requested)
+   - Applies to: filesystem modules, IPC handlers, preload APIs
+   - Updated both plan and active context with this preference
+
+4. **Architecture Decisions**:
+   - 3 core modules: `pathValidator.ts`, `secureFS.ts`, `settingsManager.ts`
+   - 10 IPC handlers for filesystem operations
+   - Path validation strategy: normalize → validate → execute
+   - Settings persistence in `AppData/settings.json`
+   - Native folder picker for user customization
+
+5. **Documentation Plan**:
+   - New `docs/architecture/filesystem-security.md` guide
+   - Memory bank updates (system-pattern.md, tech-context.md)
+   - Complete usage examples and security model documentation
+
+6. **Memory Bank Updated**:
+   - Active context reflects P1-T05 planning complete
+   - Implementation preferences documented
+   - Default downloads location decision recorded
+
+**Session Summary**:
+- Duration: ~2-3 hours (planning, refinement, documentation)
+- Deliverable: Complete implementation plan ready for execution
+- Status: ✅ Ready to begin hands-on implementation
+- Next: Developer implements Step 1 (Path Validation Module)
+
+---
+
+### ✅ Completed Earlier Today (2 Dec 2025 - P1-T04 State Management)
+
+**P1-T04 COMPLETE** - Zustand State Management Implementation (All 12 Steps):
+
+1. **Zustand v5.0.3 Installed** (~1.4kb):
+   - Added to package.json production dependencies
+   - Created stores directory: `src/renderer/src/stores/`
+   - Created shared types file: `stores/types.ts`
+
+2. **App State Store** (`appStore.ts`):
+   - Theme management: light, dark, system with auto-detection
+   - System theme sync via IPC from Electron main process
+   - Fullscreen state tracking
+   - Persists: theme mode only (to localStorage as 'dexreader-app')
+   - Computed theme based on user preference and OS theme
+
+3. **Toast Store** (`toastStore.ts`):
+   - Global notification system replacing local `useToast` hooks
+   - Auto-dismiss with configurable timers (0 = persistent)
+   - Toast variants: info, success, warning, error, loading (with ProgressRing)
+   - Unique ID generation for each toast
+   - Timer cleanup to prevent memory leaks
+   - No persistence (ephemeral notifications)
+
+4. **User Preferences Store** (`userPreferencesStore.ts`):
+   - Reading preferences: preloadPages, zoomLevel, readerMode, readingDirection
+   - Download preferences: simultaneousDownloads, downloadLocation, imageQuality, saveMangaMetadata
+   - UI preferences: enableAnimations, sidebarCollapsed, defaultTheme, compactMode
+   - Notification preferences: notifyDownloadComplete, notifyChapterUpdates, notifyErrors
+   - Individual setters with validation (clamped ranges 1-5 for preload/downloads)
+   - Bulk update actions for each category
+   - resetToDefaults() action
+   - Persists all to localStorage as 'dexreader-preferences'
+   - Extensibility documented inline for future settings additions
+
+5. **Library Store** (`libraryStore.ts`):
+   - Phase 3 skeleton for bookmarks and collections
+   - Bookmark CRUD: addBookmark, removeBookmark, isBookmarked (with duplicate prevention)
+   - Collection management: addCollection, removeCollection, addToCollection, removeFromCollection
+   - Persists to localStorage as 'dexreader-library'
+   - Ready for Phase 3 UI integration
+
+6. **Component Migrations**:
+   - **AppShell.tsx**: Migrated from useState to useAppStore for theme management
+   - **SettingsView.tsx**: Migrated to useToastStore, removed local ToastContainer
+   - **LibraryView.tsx**: Migrated to useToastStore, removed local ToastContainer
+   - **ToastContainer.tsx**: Updated interface to accept ToastItem[] and onDismiss callback
+   - **App.tsx**: Added global ToastContainer at root level
+
+7. **Type System Enhancement**:
+   - Issue discovered: Toast component supports 'loading' variant but store types didn't
+   - Fixed ToastVariant in stores/types.ts to include 'loading'
+   - Reverted SettingsView button from 'info' workaround back to 'loading' variant
+   - All TypeScript compilation now passing
+
+8. **Barrel Export** (`stores/index.ts`):
+   - Central export point for all store hooks
+   - Exports all TypeScript types from stores/types.ts
+   - Clean import pattern: `import { useAppStore, useToastStore } from '@renderer/stores'`
+
+9. **Documentation Created**:
+   - **docs/architecture/state-management.md** (900+ lines):
+     - Complete guide to all 4 stores with code examples
+     - Store architecture and patterns
+     - Best practices and anti-patterns
+     - TypeScript integration guide
+     - Performance considerations
+     - Migration guide from useState to Zustand
+     - Testing strategy
+     - Troubleshooting section
+   - **tech-context.md updated**:
+     - Added Zustand to production dependencies
+     - New State Management section with store details
+     - Persistence strategy documentation
+   - **system-pattern.md updated**:
+     - New State Management Architecture section
+     - Store structure and patterns
+     - Guidelines for adding new stores
+     - Do's and Don'ts for store usage
+
+10. **Testing & Validation**:
+    - TypeScript compilation: All checks passing (npm run typecheck)
+    - Development server: Running successfully with no errors
+    - Loading toast variant: Working correctly with ProgressRing
+    - Theme management: System sync functioning via IPC
+    - Global toasts: Accessible from all views
+    - Persistence: Settings and theme mode saving to localStorage
+
+11. **Plan File Cleanup**:
+    - Deleted `.github/copilot-plans/P1-T04-setup-state-management.md` after completion
+
+**Implementation Summary**:
+- **Files Created**: 6 (4 stores + types + index)
+- **Files Modified**: 7 (AppShell, SettingsView, LibraryView, App, ToastContainer, 2 memory bank docs)
+- **Documentation**: 3 files (state-management.md created, tech-context.md updated, system-pattern.md updated)
+- **Total Lines**: ~2,000 lines (stores + migrations + documentation)
+- **Duration**: 1 day (all 12 steps completed)
+- **Status**: ✅ COMPLETE, ready for P1-T05
+
+---
+
+### ✅ Completed Earlier This Session (2 Dec 2025 - P1-T03 Final Integration & Testing)
 
 **P1-T03 Step 20 Complete** - Integration, Testing, and Final Fixes:
 
@@ -350,10 +501,7 @@
 5. **SearchBar Component**: Debouncing (300ms), filter button with badge, keyboard shortcuts (Ctrl+F, Escape), `useDebounce` hook, ~600 lines
 6. **Skeleton Component**: 4 variants (text, card, circle, rectangle), shimmer animation, `SkeletonGrid` wrapper, prefers-reduced-motion support, ~600 lines
 
-**Session 2 (26 Nov - Afternoon)**: Steps 7-9 implemented
-7. **Toast Component**: Notification system with 4 variants (info, success, warning, error), `ToastContainer` with 4 positions, `useToast` hook, auto-dismiss (0-∞ms), slide-in animations, stacking support, ~700 lines
-8. **ProgressBar Component**: Linear progress with determinate/indeterminate modes, 3 sizes (2px/4px/6px), 3 color variants (default/success/error), optional labels, metadata (speed, ETA), auto-success at 100%, moving gradient animation, ~1,000 lines
-9. **ProgressRing Component**: SVG-based circular indicator, determinate/indeterminate modes, 3 sizes (24px/40px/64px), 3 color variants, customizable stroke width, rotation + arc animations, rounded caps, ~1,100 lines
+**Session 2 (26 Nov - Afternoon)**: Steps 7-9 implemented 7. **Toast Component**: Notification system with 4 variants (info, success, warning, error), `ToastContainer` with 4 positions, `useToast` hook, auto-dismiss (0-∞ms), slide-in animations, stacking support, ~700 lines 8. **ProgressBar Component**: Linear progress with determinate/indeterminate modes, 3 sizes (2px/4px/6px), 3 color variants (default/success/error), optional labels, metadata (speed, ETA), auto-success at 100%, moving gradient animation, ~1,000 lines 9. **ProgressRing Component**: SVG-based circular indicator, determinate/indeterminate modes, 3 sizes (24px/40px/64px), 3 color variants, customizable stroke width, rotation + arc animations, rounded caps, ~1,100 lines
 
 **Total Implementation**:
 
@@ -395,16 +543,16 @@
 3. **Navigation Hook**: `useNavigationListener` to handle menu-triggered navigation
 4. **TypeScript Type Safety**: All IPC APIs properly typed with TypeScript definitions
 5. **Bug Fixes Applied**:
-    - Fixed sidebar toggle state management (consolidated to single source of truth in App component)
-    - Removed redundant 32px title bar (native menu bar handles dragging)
-    - Improved Windows 11 design (added 3px accent bar on active sidebar items)
-    - Fixed menu toggle IPC handler (now correctly uses current sidebarCollapsed state)
-    - All toggle methods now work correctly (keyboard shortcut, sidebar button, menu item)
+   - Fixed sidebar toggle state management (consolidated to single source of truth in App component)
+   - Removed redundant 32px title bar (native menu bar handles dragging)
+   - Improved Windows 11 design (added 3px accent bar on active sidebar items)
+   - Fixed menu toggle IPC handler (now correctly uses current sidebarCollapsed state)
+   - All toggle methods now work correctly (keyboard shortcut, sidebar button, menu item)
 6. **Sidebar Toggle Button**: Added Windows 11-style hamburger menu button (≡) at top of sidebar
-    - Icon-only design (no label) matching Windows 11 patterns
-    - 40×40px clickable area with proper hover/active states
-    - Aligned with sidebar navigation icons using padding and negative margin technique
-    - Positioned at top before navigation items
+   - Icon-only design (no label) matching Windows 11 patterns
+   - 40×40px clickable area with proper hover/active states
+   - Aligned with sidebar navigation icons using padding and negative margin technique
+   - Positioned at top before navigation items
 
 **Files Created**:
 
@@ -440,37 +588,103 @@
 
 ### ⏳ Next Actions
 
-1. **P1-T04 - Set up State Management** (~3-4 days) - **READY FOR IMPLEMENTATION**:
-   - ✅ Planning complete - comprehensive 12-step plan created
-   - Execute Step 1: Install Zustand and create stores directory structure
-   - Execute Step 2: Create appStore (theme management with system sync)
-   - Execute Step 3: Create toastStore (global notifications)
-   - Execute Step 4: Create userPreferencesStore (settings with persistence)
-   - Execute Step 5: Create libraryStore skeleton (bookmarks demo)
-   - Execute Steps 6-8: Migrate AppShell, SettingsView, LibraryView to Zustand
-   - Execute Steps 9-10: Create store index barrel export, global ToastContainer
-   - Execute Steps 11-12: Documentation updates, testing & validation
-   - See `.github/copilot-plans/P1-T04-setup-state-management.md` for full details
+1. **P1-T05 - Implement Restricted Filesystem Access Model** (~2-3 days) - **READY FOR IMPLEMENTATION**:
+   - ✅ Planning complete - comprehensive 9-step plan created
+   - Execute Step 1: Create path validation module (`pathValidator.ts`)
+   - Execute Step 2: Create secure filesystem wrapper (`secureFS.ts`)
+   - Execute Step 3: Create settings manager (`settingsManager.ts`)
+   - Execute Step 4: Implement IPC handlers for filesystem operations
+   - Execute Step 5: Create preload API definitions with TypeScript types
+   - Execute Step 6: Initialize filesystem on app startup
+   - Execute Step 7: Add Settings UI for downloads path configuration
+   - Execute Step 8: Complete documentation (`filesystem-security.md`)
+   - Execute Step 9: Testing & validation (all scenarios)
+   - See `.github/copilot-plans/P1-T05-implement-restricted-filesystem-access.md` for full details
 
-2. **P1-T05 - Restricted Filesystem Access** (~2-3 days):
-   - Define allowed directories (AppData + user downloads folder)
-   - Implement path validation and allowlist
-   - Create secure filesystem API wrapper
-
-3. **P1-T06 - Path Validation System** (~2 days):
-   - Path sanitization and normalization
+2. **P1-T06 - Path Validation System** (~2 days):
+   - Extends P1-T05 with additional validation layers
+   - Path sanitization and normalization enhancements
    - Security middleware for file operations
+
+3. **P1-T07 - File System Handlers** (~2-3 days):
+   - Build on P1-T05 filesystem foundation
+   - Implement high-level file operations
+   - Cover image caching
+   - Manga download operations
 
 ### 💡 Good-to-Have (Future Enhancements)
 
 1. **Date Format Preferences**: Allow users to choose between DD/MM/YYYY (British), YYYY-MM-DD (ISO), MM/DD/YYYY (American) - planned for Phase 3
-3. **Keyboard Shortcuts Dialog**: Menu item exists (Help → Keyboard Shortcuts, Ctrl+/) but no dialog implemented yet. Defer until all shortcuts are finalized to show complete list in custom modal overlay (Windows 11-styled, not native dialog - per hybrid modal strategy)
+2. **Keyboard Shortcuts Dialog**: Menu item exists (Help → Keyboard Shortcuts, Ctrl+/) but no dialog implemented yet. Defer until all shortcuts are finalized to show complete list in custom modal overlay (Windows 11-styled, not native dialog - per hybrid modal strategy)
 
 ---
 
 ## Recent Decisions
 
-### 2 December 2025 - Documentation Corrections & Final Polish
+### 2 December 2025 (Evening Session) - P1-T05 Planning Complete
+
+**Filesystem Security Architecture Planning**:
+
+- ✅ **P1-T05 Planning Complete**: Comprehensive implementation plan created for restricted filesystem access
+  - **Plan saved to**: `.github/copilot-plans/P1-T05-implement-restricted-filesystem-access.md`
+  - **9 implementation steps** defined with detailed code examples and acceptance criteria
+  - **Duration**: 16-24 hours (2-3 days estimated)
+  - **Security Model**: Two allowed directory trees only (AppData + user-configurable Downloads)
+  - **Architecture**: 3 core modules (pathValidator, secureFS, settingsManager)
+  - **Validation Strategy**: Path normalization → prefix matching → operation execution
+  - **IPC Handlers**: Complete filesystem API exposed to renderer via IPC
+  - **Settings UI**: Native folder picker integration for downloads path configuration
+  - **Documentation**: New `filesystem-security.md` guide + memory bank updates
+  - **Testing**: 4 test scenario categories (path validation, downloads config, file ops, edge cases)
+  - Ready for execution when starting next session
+
+**Development Approach Established**:
+
+- ✅ **Hands-On Backend Development**: Developer preference for implementing all backend/main process code
+  - **Copilot's Role**: Review code, point out issues, suggest fixes, provide guidance
+  - **No Direct Implementation**: Copilot avoids writing backend code unless explicitly requested
+  - **Applies To**: Main process modules, filesystem operations, IPC handlers, preload scripts, security code
+  - **Frontend Exception**: Normal collaborative implementation for renderer/UI code
+  - **Rationale**: Security-critical backend code benefits from hands-on learning and deep developer understanding
+  - **Documented In**: system-pattern.md (Development Approach section)
+
+**Default Downloads Location Decision**:
+
+- ✅ **Changed default from system Downloads to AppData/downloads**
+  - **Old**: `~/Downloads/DexReader` (required user to have writable Downloads folder)
+  - **New**: `AppData/Roaming/dexreader/downloads` (secure, always accessible, works out-of-the-box)
+  - **Benefits**: No first-run configuration, stays within secure AppData boundary, optional user customization
+  - **User Override**: Optional via Settings → Storage (e.g., for larger drives)
+  - **Type Simplification**: `downloads: string` instead of `string | null` (always has valid path)
+
+**Security Principles Established**:
+
+- **Least Privilege Access**: Only access directories explicitly needed for app functionality
+- **Path Traversal Protection**: All paths normalized to canonical form, `../` attacks blocked
+- **Symlink Safety**: Symlinks resolved and validated, no external pointers allowed
+- **Native Dialogs Only**: No manual path entry, users select folders via OS dialogs
+- **Validation Before Operation**: Every filesystem call validates path first, no exceptions
+
+**Implementation Highlights**:
+
+- **3 Core Modules**:
+  1. `pathValidator.ts` - Normalizes paths, validates against allowed directories
+  2. `secureFS.ts` - Wraps Node.js `fs/promises` with automatic validation
+  3. `settingsManager.ts` - Persists downloads path to AppData/settings.json
+- **10 IPC Handlers**: read-file, write-file, exists, mkdir, unlink, rmdir, stat, readdir, get-allowed-paths, select-downloads-folder
+- **TypeScript Safety**: Full type definitions for `window.fs` API in renderer
+- **Automatic Directory Creation**: Parent directories created automatically on file write
+- **Settings Persistence**: Downloads path saved to settings.json, restored on app restart
+- **User Control**: Settings → Storage panel with native folder picker
+
+**Future Enhancements Planned**:
+
+- Phase 4: Quota management for downloads directory
+- Phase 3: Settings file backup and restore
+- Future: File encryption for downloaded chapters (optional)
+- Future: Advanced security with runtime integrity checks
+
+### 2 December 2025 (Afternoon Session) - Documentation Corrections & Final Polish
 
 **Documentation Architecture Updates**:
 

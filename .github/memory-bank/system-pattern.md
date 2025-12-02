@@ -45,6 +45,31 @@
 
 ---
 
+## Development Approach
+
+### Backend Development Philosophy
+
+**Hands-On Implementation**: For all backend/main process code, the developer implements directly with Copilot acting as a code reviewer and guide.
+
+**Copilot's Role**:
+- Review code for mistakes, security issues, and optimization opportunities
+- Point out what's wrong and suggest what should be done
+- Provide guidance, explanations, and best practices
+- **Avoid direct implementation** unless explicitly requested
+
+**Applies To**:
+- Main process modules (`src/main/**`)
+- Filesystem operations and security code
+- IPC handler implementations
+- Preload script logic
+- Node.js-based backend features
+
+**Frontend Code**: Normal collaborative implementation (Copilot can implement directly)
+
+**Rationale**: Backend code, especially security-critical filesystem operations, benefits from hands-on learning and deep understanding by the developer.
+
+---
+
 ## Architecture Overview
 
 ### Core Framework Stack
@@ -525,6 +550,133 @@ mainWindow.on('ready-to-show', () => {
 
 ---
 
+## State Management Architecture
+
+### Zustand Integration
+
+**Version**: 5.0.3
+**Store Location**: `src/renderer/src/stores/`
+**Import Alias**: `@renderer/stores`
+
+### Store Structure
+
+```tree
+stores/
+├── index.ts                    # Barrel export
+├── types.ts                    # Shared TypeScript interfaces
+├── appStore.ts                 # Theme & UI state
+├── toastStore.ts               # Global notifications
+├── userPreferencesStore.ts     # User settings
+└── libraryStore.ts             # Bookmarks & collections (Phase 3)
+```
+
+### Store Pattern
+
+```typescript
+// 1. Define types in stores/types.ts
+export interface AppState {
+  theme: Theme
+  setTheme: (theme: Theme) => void
+}
+
+// 2. Create store with persist middleware
+export const useAppStore = create<AppState>()(
+  persist(
+    (set, get) => ({
+      theme: 'system',
+      setTheme: (theme) => set({ theme })
+    }),
+    {
+      name: 'dexreader-app',
+      partialize: (state) => ({ theme: state.theme })
+    }
+  )
+)
+
+// 3. Use in components with selectors
+const theme = useAppStore((state) => state.theme)
+const setTheme = useAppStore((state) => state.setTheme)
+```
+
+### Current Stores
+
+#### 1. App State Store (`appStore.ts`)
+
+**Purpose**: Global UI state and theme management
+
+**State**:
+
+- `theme: 'light' | 'dark' | 'system'` - Computed theme
+- `themeMode: 'light' | 'dark' | 'system'` - User preference
+- `systemTheme: 'light' | 'dark'` - OS theme detection
+- `isFullscreen: boolean` - Window state
+
+**Actions**:
+
+- `setSystemTheme(theme)` - Update OS theme
+- `setThemeMode(mode)` - Set user preference
+- `setTheme(theme)` - Direct theme override
+- `setFullscreen(isFullscreen)` - Fullscreen toggle
+
+**Persistence**: `themeMode` only (via localStorage)
+
+#### 2. Toast Store (`toastStore.ts`)
+
+**Purpose**: Global notification system
+
+**State**:
+
+- `toasts: ToastItem[]` - Active notifications
+
+**Actions**:
+
+- `show(props)` - Add toast (returns unique ID)
+- `dismiss(id)` - Remove specific toast
+- `dismissAll()` - Clear all toasts
+
+**Toast Variants**: `info`, `success`, `warning`, `error`, `loading`
+
+**Persistence**: None (ephemeral)
+
+**Integration**: Global `ToastContainer` in `App.tsx`
+
+#### 3. User Preferences Store (`userPreferencesStore.ts`)
+
+**Purpose**: Persistent user settings
+
+**Categories**: Reading, Downloads, UI, Notifications
+
+**Actions**: Individual setters, bulk updates, reset to defaults
+
+**Persistence**: All preferences to localStorage
+
+**Extensibility**: Designed for future expansion
+
+#### 4. Library Store (`libraryStore.ts`)
+
+**Purpose**: Phase 3 skeleton for bookmarks and collections
+
+**Status**: Implemented but not yet integrated
+
+### Store Guidelines
+
+**✅ Do**:
+
+- Use selector pattern: `const value = useStore((state) => state.value)`
+- Keep stores focused and single-purpose
+- Validate input in setters
+- Use `partialize` for selective persistence
+- Clean up timers/subscriptions
+
+**❌ Don't**:
+
+- Access entire store: `const store = useStore()` (causes re-renders)
+- Store derived state
+- Mutate state directly
+- Forget to clean up timers
+
+---
+
 ## Extension Guidelines
 
 ### Adding New Features
@@ -540,19 +692,13 @@ mainWindow.on('ready-to-show', () => {
 1. Create component in `src/renderer/src/components/`
 2. Use path alias: `@renderer/...`
 3. Follow React 19 patterns
+4. Use Zustand for state management
 
 **Shared Types**:
 
 - Define in `src/preload/index.d.ts` for cross-process types
 - Use TypeScript interfaces for data contracts
-
-### State Management
-
-Currently using React's built-in `useState`. For complex state:
-
-- Consider Zustand or Redux Toolkit
-- Keep state close to where it's used
-- Lift state only when necessary
+- Export store types from `stores/types.ts`
 
 ---
 

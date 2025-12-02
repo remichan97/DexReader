@@ -85,13 +85,14 @@ electron_builder_binaries_mirror=https://npmmirror.com/mirrors/electron-builder-
 
 ## Dependency Management
 
-### Production Dependencies (3)
+### Production Dependencies (4)
 
 ```json
 {
   "@electron-toolkit/preload": "^3.0.2",
   "@electron-toolkit/utils": "^4.0.0",
-  "electron-updater": "^6.3.9"
+  "electron-updater": "^6.3.9",
+  "zustand": "^5.0.3"
 }
 ```
 
@@ -100,6 +101,7 @@ electron_builder_binaries_mirror=https://npmmirror.com/mirrors/electron-builder-
 - **@electron-toolkit/preload**: Helper utilities for secure preload scripts
 - **@electron-toolkit/utils**: Common Electron utilities (is.dev, optimizer, etc.)
 - **electron-updater**: Auto-update functionality for deployed applications
+- **zustand**: Lightweight state management library with persistence middleware (~1.4kb)
 
 ### Development Dependencies (18)
 
@@ -724,13 +726,108 @@ autoUpdater.checkForUpdatesAndNotify()
 
 ---
 
-## Future Technology Considerations
+## State Management
 
-### State Management (When Needed)
+### Zustand Implementation
 
-- **Zustand** - Lightweight, minimal boilerplate
-- **Redux Toolkit** - For complex state requirements
-- **Jotai** - Atomic state management
+**Version**: 5.0.3
+
+**Architecture**:
+
+```typescript
+// Store creation with persist middleware
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
+
+const useStore = create(
+  persist(
+    (set, get) => ({
+      // State and actions
+    }),
+    {
+      name: 'storage-key',
+      partialize: (state) => ({
+        /* selective persistence */
+      })
+    }
+  )
+)
+```
+
+**Current Stores**:
+
+1. **App State Store** (`appStore.ts`)
+
+   - Theme management (light/dark/system)
+   - UI state (fullscreen)
+   - System theme synchronization
+   - Persists: theme mode only
+
+2. **Toast Store** (`toastStore.ts`)
+
+   - Global notification system
+   - Auto-dismiss with timers
+   - Toast variants: info, success, warning, error, loading
+   - No persistence (ephemeral notifications)
+
+3. **User Preferences Store** (`userPreferencesStore.ts`)
+
+   - Reading preferences (page preload, zoom, reader mode)
+   - Download preferences (simultaneous downloads, location, quality)
+   - UI preferences (animations, sidebar state, theme, compact mode)
+   - Notification preferences (download complete, chapter updates, errors)
+   - Persists: all preferences to localStorage
+
+4. **Library Store** (`libraryStore.ts`)
+   - Bookmark management (Phase 3 skeleton)
+   - Collection management
+   - Persists: all library data
+
+**Store Location**: `src/renderer/src/stores/`
+
+**Import Pattern**:
+
+```typescript
+import {
+  useAppStore,
+  useToastStore,
+  useUserPreferencesStore,
+  useLibraryStore
+} from '@renderer/stores'
+```
+
+**Usage Pattern**:
+
+```typescript
+// Selector pattern for performance
+const theme = useAppStore((state) => state.theme)
+const setTheme = useAppStore((state) => state.setTheme)
+
+// Actions
+const show = useToastStore((state) => state.show)
+show({ variant: 'success', title: 'Done!', message: 'Task completed' })
+```
+
+**Persistence Strategy**:
+
+- **localStorage** for browser-based state
+- Keys: `dexreader-app`, `dexreader-preferences`, `dexreader-library`
+- Selective persistence via `partialize` function
+- Automatic hydration on app start
+
+**Benefits**:
+
+- Minimal bundle size (~1.4kb)
+- No boilerplate (no actions/reducers)
+- Built-in persistence middleware
+- TypeScript-first design
+- DevTools support
+- Automatic selector optimization
+
+### Future State Management Considerations
+
+- **Redux Toolkit** - For highly complex state requirements
+- **Jotai** - Atomic state management for granular updates
 
 ### Testing (To Be Added)
 
