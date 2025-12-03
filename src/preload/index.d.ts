@@ -12,7 +12,9 @@ interface MenuState {
 interface API {
   // Theme API
   onThemeChanged: (callback: (theme: 'light' | 'dark') => void) => void
+  onAccentColorChanged: (callback: (color: string) => void) => void
   getTheme: () => Promise<'light' | 'dark'>
+  getSystemAccentColor: () => Promise<string>
 
   // Navigation API
   onNavigate: (callback: (route: string) => void) => void
@@ -39,9 +41,38 @@ interface API {
   onShowShortcuts: (callback: () => void) => void
 }
 
+interface FileSystem {
+  readFile(filePath: string, encoding?: BufferEncoding): Promise<string | Buffer>
+  writeFile(filePath: string, data: string | Buffer, encoding?: BufferEncoding): Promise<boolean>
+  mkdir(dirPath: string): Promise<boolean>
+  isExists(filePath: string): Promise<boolean>
+  copyFile(srcPath: string, destPath: string): Promise<boolean>
+  appendFile(filePath: string, data: string): Promise<boolean>
+  rename(oldPath: string, newPath: string): Promise<boolean>
+  unlink(filePath: string): Promise<boolean>
+  rmdir(dirPath: string): Promise<boolean>
+  stat(path: string): Promise<{
+    isFile: boolean
+    isDirectory: boolean
+    size: number
+    created: string
+    modified: string
+  }>
+  readdir(dirPath: string): Promise<string[]>
+  getAllowedPaths(): Promise<{
+    appData: string
+    downloads: string
+  }>
+  selectDownloadsFolder(): Promise<{
+    cancelled: boolean
+    path: string | null
+  }>
+}
+
 declare global {
   interface Window {
     electron: ElectronAPI
     api: API
+    fileSystem: FileSystem
   }
 }

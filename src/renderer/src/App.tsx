@@ -3,6 +3,7 @@ import { AppShell } from './layouts/AppShell'
 import { AppRoutes } from './router'
 import { useNavigationListener } from './hooks/useNavigationListener'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
+import { useAccentColor } from './hooks/useAccentColor'
 import { ToastContainer } from './components/Toast'
 import { useToastStore } from './stores'
 
@@ -12,6 +13,9 @@ function AppContent(): React.JSX.Element {
 
   // Handle keyboard shortcuts
   useKeyboardShortcuts()
+
+  // Load and apply accent color on app startup
+  useAccentColor()
 
   return <AppRoutes />
 }

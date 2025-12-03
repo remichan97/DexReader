@@ -1,9 +1,16 @@
-import { app, shell, BrowserWindow, ipcMain, Menu } from 'electron'
-import { join } from 'path'
+import { app, shell, BrowserWindow, ipcMain, Menu, dialog } from 'electron'
+import path, { join } from 'node:path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { createMenu, updateMenuState } from './menu'
 import { setupThemeDetection, getCurrentTheme } from './theme'
+import { secureFs } from './filesystem/secureFs'
+import { getAppDataPath, getDownloadsPath } from './filesystem/pathValidator'
+import {
+  initializeDownloadsPath,
+  loadSettings,
+  setDownloadsPath
+} from './filesystem/settingsManager'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -46,10 +53,186 @@ function createWindow(): void {
   }
 }
 
+// Setting up IPC handlers for filesystem operations
+function registerFileSystemHandlers(mainWindow: BrowserWindow): void {
+  // Read files
+  ipcMain.handle('fs:read-file', async (_event, filePath: string, encoding?: BufferEncoding) => {
+    try {
+      return await secureFs.readFile(filePath, encoding)
+    } catch (error) {
+      throw new Error(`Unable to read file: ${error}`)
+    }
+  })
+
+  // Write files
+  ipcMain.handle('fs:write-file', async (_event, filePath: string, data: string | Buffer) => {
+    try {
+      await secureFs.writeFile(filePath, data)
+      return true
+    } catch (error) {
+      throw new Error(`Unable to write file: ${error}`)
+    }
+  })
+
+  // Copy files
+  ipcMain.handle('fs:copy-file', async (_event, srcPath: string, destPath: string) => {
+    try {
+      await secureFs.copyFile(srcPath, destPath)
+      return true
+    } catch (error) {
+      throw new Error(`Unable to copy file: ${error}`)
+    }
+  })
+
+  // Append to file
+  ipcMain.handle('fs:append-file', async (_event, filePath: string, data: string | Buffer) => {
+    try {
+      await secureFs.appendFile(filePath, data)
+      return true
+    } catch (error) {
+      throw new Error(`Unable to append to file: ${error}`)
+    }
+  })
+
+  // Rename file or directory
+  ipcMain.handle('fs:rename', async (_event, oldPath: string, newPath: string) => {
+    try {
+      await secureFs.rename(oldPath, newPath)
+      return true
+    } catch (error) {
+      throw new Error(`Unable to rename: ${error}`)
+    }
+  })
+
+  // Check if path exists
+  ipcMain.handle('fs:is-exists', async (_event, path: string) => {
+    try {
+      return await secureFs.isExists(path)
+    } catch (error) {
+      throw new Error(`Unable to check path existence: ${error}`)
+    }
+  })
+
+  // Create directory
+  ipcMain.handle('fs:mkdir', async (_event, dirPath: string) => {
+    try {
+      await secureFs.mkdir(dirPath)
+      return true
+    } catch (error) {
+      throw new Error(`Unable to create directory: ${error}`)
+    }
+  })
+
+  // Delete file
+  ipcMain.handle('fs:unlink', async (_event, filePath: string) => {
+    try {
+      await secureFs.deleteFile(filePath)
+      return true
+    } catch (error) {
+      throw new Error(`Unable to delete file: ${error}`)
+    }
+  })
+
+  // Delete directory
+  ipcMain.handle('fs:rm', async (_event, dirPath: string, options?: { recursive?: boolean }) => {
+    try {
+      await secureFs.deleteDir(dirPath, options)
+      return true
+    } catch (error) {
+      throw new Error(`Unable to delete directory: ${error}`)
+    }
+  })
+
+  // Get stats
+  ipcMain.handle('fs:stat', async (_event, path: string) => {
+    try {
+      const stats = await secureFs.stat(path)
+      // Serialize Stats object for IPC
+      return {
+        isFile: stats.isFile(),
+        isDirectory: stats.isDirectory(),
+        size: stats.size,
+        created: stats.birthtime.toISOString(),
+        modified: stats.mtime.toISOString()
+      }
+    } catch (error) {
+      throw new Error(`Unable to get stats: ${error}`)
+    }
+  })
+
+  // Read directory
+  ipcMain.handle('fs:readdir', async (_event, dirPath: string) => {
+    try {
+      return await secureFs.readDir(dirPath)
+    } catch (error) {
+      throw new Error(`Unable to read directory: ${error}`)
+    }
+  })
+
+  // Get Allowed Paths
+  ipcMain.handle('fs:get-allowed-paths', () => {
+    return {
+      appData: getAppDataPath(),
+      downloads: getDownloadsPath()
+    }
+  })
+
+  // Theme IPC handlers
+  ipcMain.handle('theme:get-system-accent-color', async () => {
+    const { getSystemAccentColor } = await import('./theme')
+    return getSystemAccentColor()
+  })
+
+  // Select download folder using native dialog
+  ipcMain.handle('fs:select-downloads-folder', async () => {
+    const result = await dialog.showOpenDialog(mainWindow, {
+      properties: ['openDirectory', 'createDirectory'],
+      title: 'Choose where to save downloaded manga',
+      defaultPath: getDownloadsPath(),
+      buttonLabel: 'Select Folder'
+    })
+
+    if (result.canceled || result.filePaths.length === 0) {
+      return { cancelled: true, path: null }
+    }
+
+    const selectedPath = result.filePaths[0]
+
+    try {
+      await setDownloadsPath(selectedPath)
+      return { cancelled: false, path: selectedPath }
+    } catch (error) {
+      throw new Error(`Unable to set downloads folder: ${error}`)
+    }
+  })
+}
+async function initFileSystem(): Promise<void> {
+  console.log('Initialising secure filesystem...')
+
+  // Ensure app data directory exists
+  const appDataPath = getAppDataPath()
+  await secureFs.ensureDir(appDataPath)
+
+  //Ensure required directories exists
+  await secureFs.ensureDir(path.join(appDataPath, 'cache'))
+  await secureFs.ensureDir(path.join(appDataPath, 'logs'))
+  await secureFs.ensureDir(path.join(appDataPath, 'downloads'))
+
+  // Load App settings
+  const settings = await loadSettings()
+  console.log('Settings loaded:', settings)
+
+  // Init Downloads path
+  await initializeDownloadsPath().catch(console.error)
+  console.log('Download path: ', getDownloadsPath())
+
+  console.log('Finished initialising secure filesystem.')
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
@@ -91,7 +274,13 @@ app.whenReady().then(() => {
     return result.response === 1
   })
 
+  await initFileSystem()
+
   createWindow()
+
+  if (mainWindow) {
+    registerFileSystemHandlers(mainWindow)
+  }
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
