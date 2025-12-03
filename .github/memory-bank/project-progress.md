@@ -184,7 +184,7 @@
 **Key Technical Tasks**:
 
 - [ ] **P3-T01**: Create local library database (favorites, bookmarks)
-- [ ] **P3-T02**: Implement cover image cache for bookmarked manga
+- [ ] **P3-T02**: Implement metadata storage for bookmarked manga (covers, titles, descriptions, chapter lists)
 - [ ] **P3-T03**: Implement local reading lists management
 - [ ] **P3-T04**: Add manga to favorites functionality
 - [ ] **P3-T05**: Create advanced search UI with tag filters
@@ -610,7 +610,7 @@
   - **Settings Manager** (`src/main/filesystem/settingsManager.ts`): Persists to AppData/settings.json, schema includes downloadsPath/theme/accentColor, graceful fallback to defaults
   - **IPC Handlers** (13 handlers in `src/main/index.ts`): All filesystem operations + fs:get-allowed-paths + fs:select-downloads-folder + theme:get-system-accent-color
   - **Preload API** (`src/preload/index.ts` + `index.d.ts`): window.fileSystem namespace exposed via contextBridge with full TypeScript definitions
-  - **Filesystem Initialization** (`initFileSystem()` in main/index.ts): Creates AppData structure (cache/, logs/, downloads/), loads settings, runs before window creation
+  - **Filesystem Initialization** (`initFileSystem()` in main/index.ts): Creates AppData structure (metadata/, logs/, downloads/), loads settings, runs before window creation
   - **Settings UI** (`SettingsView.tsx`): 2 tabs (Appearance + Storage), theme selector, accent color picker (system + custom), downloads path selector with native folder picker, responsive layout for 2K monitors
   - **Accent Color System** (bonus): System color detection (Windows BGR→RGB, macOS RGB), custom hex color input, real-time system color change listener, CSS variable injection (--win-accent/-hover/-active), useAccentColor hook for app-wide initialization
   - **UI Polish**: Removed toast spam from settings, removed duplicate header, responsive layout, Fluent UI icons (replaced unicode emoji with Lightbulb16Regular), fixed accent color not applying on launch

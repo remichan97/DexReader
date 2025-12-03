@@ -36,7 +36,7 @@ interface API {
   onExportTachiyomi: (callback: (filePath: string) => void) => void
   onDownloadChapter: (callback: () => void) => void
   onDownloadManga: (callback: () => void) => void
-  onClearCache: (callback: () => void) => void
+  onClearMetadata: (callback: () => void) => void
   onClearHistory: (callback: () => void) => void
   onShowShortcuts: (callback: () => void) => void
 }

@@ -65,8 +65,8 @@ const api = {
   onDownloadManga: (callback: () => void) => {
     ipcRenderer.on('download-manga', callback)
   },
-  onClearCache: (callback: () => void) => {
-    ipcRenderer.on('clear-cache', callback)
+  onClearMetadata: (callback: () => void) => {
+    ipcRenderer.on('clear-metadata', callback)
   },
   onClearHistory: (callback: () => void) => {
     ipcRenderer.on('clear-history', callback)

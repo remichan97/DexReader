@@ -254,7 +254,7 @@ if (process.contextIsolated) {
 
    **Contains**:
    - Application database (bookmarks, reading progress, collections)
-   - Cover image cache
+   - Manga metadata (covers, titles, descriptions, chapter lists)
    - Application settings/preferences
    - Logs
 
@@ -411,7 +411,7 @@ DexReader implements a **restricted filesystem access model** that limits all fi
    - Windows: `C:\Users\<username>\AppData\Roaming\dexreader`
    - macOS: `~/Library/Application Support/dexreader`
    - Linux: `~/.config/dexreader`
-   - Contents: `settings.json`, `cache/`, `logs/`, `downloads/`
+   - Contents: `settings.json`, `metadata/`, `logs/`, `downloads/`
 
 2. **Downloads Directory** - User-configurable (defaults to `AppData/downloads`)
    - Default: `<AppData>/downloads`

@@ -92,7 +92,7 @@
 
 6. **Filesystem Initialization** (`src/main/index.ts`):
    - ✅ `initFileSystem()` function runs on app startup
-   - ✅ Creates AppData directory structure: `cache/`, `logs/`, `downloads/`
+   - ✅ Creates AppData directory structure: `metadata/`, `logs/`, `downloads/`
    - ✅ Loads settings from disk or creates defaults
    - ✅ Initializes downloads path from saved settings
    - ✅ Runs before window creation in `app.whenReady()`

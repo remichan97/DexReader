@@ -187,7 +187,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
         {
           label: 'Clear Cache...',
           click: () => {
-            mainWindow.webContents.send('clear-cache')
+            mainWindow.webContents.send('clear-metadata')
           }
         },
         {

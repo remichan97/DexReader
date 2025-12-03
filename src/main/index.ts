@@ -214,7 +214,7 @@ async function initFileSystem(): Promise<void> {
   await secureFs.ensureDir(appDataPath)
 
   //Ensure required directories exists
-  await secureFs.ensureDir(path.join(appDataPath, 'cache'))
+  await secureFs.ensureDir(path.join(appDataPath, 'metadata'))
   await secureFs.ensureDir(path.join(appDataPath, 'logs'))
   await secureFs.ensureDir(path.join(appDataPath, 'downloads'))
 
