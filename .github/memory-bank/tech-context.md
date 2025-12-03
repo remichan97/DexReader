@@ -449,11 +449,13 @@ npmRebuild: false
 **32 IPC Handlers Implemented** (as of 3 Dec 2025, 60% complete):
 
 **Filesystem (13 handlers)** - `src/main/index.ts`:
+
 - File I/O: `fs:read-file`, `fs:write-file`, `fs:append-file`, `fs:copy-file`, `fs:rename`
 - File operations: `fs:unlink`, `fs:rm`, `fs:is-exists`, `fs:stat`, `fs:readdir`, `fs:mkdir`
 - System: `fs:get-allowed-paths`, `fs:select-downloads-folder`
 
 **Theme (4 handlers)**:
+
 - `theme:get-system-accent-color`, `theme:get-theme`, `theme:on-theme-changed`, theme sync
 
 **Navigation (1 handler)**: Menu-triggered navigation via IPC
@@ -463,6 +465,7 @@ npmRebuild: false
 **Dialog (1 handler)**: `show-confirm-dialog`
 
 **Current Status**:
+
 - Implementation plan: `.github/copilot-plans/P1-T08-create-ipc-messaging-architecture.md`
 - Remaining work (40%): Error handling formalization, channel registry, validation, documentation
 - All current handlers include error serialization for IPC transport
