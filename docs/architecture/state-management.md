@@ -380,7 +380,7 @@ setSimultaneousDownloads: (count) =>
 persist(
   // Store implementation
   {
-    name: 'dexreader-preferences',
+    name: 'dexreader-preferences'
     // Persist ALL preferences (no partialize needed)
   }
 )

@@ -1,8 +1,8 @@
 # DexReader Project Progress & Timeline
 
 **Project Start**: 23 November 2025
-**Current Phase**: Phase 1 - Core Architecture (Planning)
-**Last Updated**: 24 November 2025
+**Current Phase**: Phase 1 - Core Architecture (In Progress)
+**Last Updated**: 3 December 2025
 
 ---
 
@@ -40,7 +40,7 @@
 
 ### Active Work
 
-- [🔄] **P1-T05**: Implement restricted filesystem access model (Planning COMPLETE, ready for implementation)
+- None (P1-T05 complete, ready for next task selection)
 
 ---
 
@@ -75,7 +75,7 @@
 ### Phase 1: Core Architecture (In Progress) 🔵
 
 **Duration**: 3-4 weeks
-**Status**: In Progress - P1-T02 ready to start
+**Status**: In Progress - 7 of 9 tasks complete (78%)
 **Target Start**: 24 November 2025 (started early)
 **Target Completion**: January 2026
 
@@ -100,14 +100,14 @@
 
 **Key Technical Tasks**:
 
-- [✅] **P1-T01**: Design main application layout (COMPLETE - 11 documents in docs/)
-- [✅] **P1-T02**: Implement menu bar and navigation (COMPLETE - 25 Nov 2025)
-- [✅] **P1-T03**: Create base UI component library (COMPLETE - 2 Dec 2025, all 17 components + 20 steps done)
-- [✅] **P1-T04**: Set up state management (Zustand) (COMPLETE - 2 Dec 2025, all 4 stores + documentation)
-- [🔄] **P1-T05**: Implement restricted filesystem access model (PLANNING COMPLETE - 2 Dec 2025, ready for implementation)
-- [ ] **P1-T06**: Create path validation for AppData and downloads directories
-- [ ] **P1-T07**: Implement file system handlers (with path restrictions)
-- [🔄] **P1-T08**: Create IPC messaging architecture (partially complete - menu/theme/navigation IPC done)
+- [✅] **P1-T01**: Design main application layout (COMPLETE)
+- [✅] **P1-T02**: Implement menu bar and navigation (COMPLETE)
+- [✅] **P1-T03**: Create base UI component library (COMPLETE)
+- [✅] **P1-T04**: Set up state management (Zustand) (COMPLETE)
+- [✅] **P1-T05**: Implement restricted filesystem access model (COMPLETE)
+- [✅] **P1-T06**: Create path validation for AppData and downloads directories (merged into P1-T05)
+- [✅] **P1-T07**: Implement file system handlers (with path restrictions) (merged into P1-T05)
+- [🔄] **P1-T08**: Create IPC messaging architecture (IN PROGRESS)
 - [ ] **P1-T09**: Implement basic error handling
 
 ---
@@ -602,8 +602,38 @@
 - ✅ **P1-T03 COMPLETE**: All 17 components + 20 steps done, ~8,500 lines of code
   - Ready to proceed with P1-T04 State Management
 
-### 02 December 2025 (Afternoon Session - P1-T04 Planning)
+### 03 December 2025
 
+- ✅ **P1-T05 COMPLETE**: Filesystem Security fully implemented (all 9 steps + documentation)
+  - **Path Validator** (`src/main/filesystem/pathValidator.ts`): Path normalization, validation against AppData + Downloads, path traversal prevention, symlink resolution
+  - **Secure Filesystem** (`src/main/filesystem/secureFs.ts`): 12 operations with automatic path validation (readFile, writeFile, appendFile, copyFile, rename, mkdir, ensureDir, deleteFile, deleteDir, isExists, stat, readDir)
+  - **Settings Manager** (`src/main/filesystem/settingsManager.ts`): Persists to AppData/settings.json, schema includes downloadsPath/theme/accentColor, graceful fallback to defaults
+  - **IPC Handlers** (13 handlers in `src/main/index.ts`): All filesystem operations + fs:get-allowed-paths + fs:select-downloads-folder + theme:get-system-accent-color
+  - **Preload API** (`src/preload/index.ts` + `index.d.ts`): window.fileSystem namespace exposed via contextBridge with full TypeScript definitions
+  - **Filesystem Initialization** (`initFileSystem()` in main/index.ts): Creates AppData structure (cache/, logs/, downloads/), loads settings, runs before window creation
+  - **Settings UI** (`SettingsView.tsx`): 2 tabs (Appearance + Storage), theme selector, accent color picker (system + custom), downloads path selector with native folder picker, responsive layout for 2K monitors
+  - **Accent Color System** (bonus): System color detection (Windows BGR→RGB, macOS RGB), custom hex color input, real-time system color change listener, CSS variable injection (--win-accent/-hover/-active), useAccentColor hook for app-wide initialization
+  - **UI Polish**: Removed toast spam from settings, removed duplicate header, responsive layout, Fluent UI icons (replaced unicode emoji with Lightbulb16Regular), fixed accent color not applying on launch
+  - **Documentation Created**: `docs/architecture/filesystem-security.md` (600+ lines with architecture diagrams, usage examples, security guarantees, troubleshooting)
+  - **Memory Bank Updated**: Added Filesystem Security sections to system-pattern.md and tech-context.md with implementation details
+  - All TypeScript compilation passing, manual testing complete, automated tests deferred to Phase 5
+- ✅ **System Pattern Updated**: Added guideline "Always use Fluent UI icons, never unicode emoji" (rendering inconsistent across systems)
+- ✅ **Bug Fixes**: Windows accent color BGR→RGB conversion, API namespace fix (electron → api), accent color initialization on app startup via useAccentColor hook
+- ✅ **Phase 1 Progress**: 7 of 9 tasks complete (78%), P1-T06 and P1-T07 merged into P1-T05
+
+### 02 December 2025 (Afternoon Session - P1-T04 & P1-T05 Planning)
+
+- ✅ **P1-T05 Planning Complete**: Comprehensive 9-step implementation plan for restricted filesystem access
+  - Security model defined: 2 allowed directories (AppData + user-configurable Downloads)
+  - Default downloads location: AppData/downloads (secure default, user can override via Settings)
+  - 3 core modules: pathValidator.ts, secureFS.ts, settingsManager.ts
+  - 10+ IPC handlers for filesystem operations
+  - Native folder picker integration for downloads path selection
+  - Complete documentation plan (filesystem-security.md + memory bank updates)
+  - 28 hours estimated (2-3 days implementation)
+  - Plan saved to `.github/copilot-plans/P1-T05-implement-restricted-filesystem-access.md`
+  - Implementation approach documented: Developer implements backend hands-on, Copilot reviews and guides
+  - Ready for implementation (completed 3 Dec 2025)
 - ✅ **P1-T04 Planning Complete**: Comprehensive implementation plan created
   - **Plan saved to**: `.github/copilot-plans/P1-T04-setup-state-management.md`
   - **12 implementation steps** defined with detailed acceptance criteria

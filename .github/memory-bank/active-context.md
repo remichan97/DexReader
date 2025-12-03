@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 2 December 2025
+**Last Updated**: 3 December 2025
 **Current Phase**: Phase 1 - Core Architecture (In Progress)
-**Session**: P1-T05 Planning COMPLETE - Filesystem Security Plan Ready
+**Session**: P1-T05 COMPLETE - Filesystem Security Fully Implemented
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -11,11 +11,179 @@
 ## Current Status Summary
 
 **Phase**: Phase 1 - Core Architecture 🔵
-**Progress**: P1-T05 PLANNED - Filesystem Security Ready for Implementation
-**Current Date**: 2 December 2025
-**Next Task**: P1-T05 Implementation (hands-on developer approach)
+**Progress**: P1-T05 COMPLETE - Ready for Next Task
+**Current Date**: 3 December 2025
+**Next Task**: TBD - Choose next Phase 1 task from roadmap
 
-### ✅ Completed This Session (2 Dec 2025 - P1-T05 Planning)
+### ✅ Completed This Session (3 Dec 2025 - P1-T08 Planning & Documentation Updates)
+
+**P1-T08 Implementation Plan Created**:
+
+1. **Comprehensive IPC Architecture Planning** (~2 hours):
+   - Created `.github/copilot-plans/P1-T08-create-ipc-messaging-architecture.md`
+   - Analyzed existing 32 IPC handlers across 5 categories (filesystem, theme, navigation, menu, dialog)
+   - 7 detailed implementation steps with acceptance criteria
+   - Error handling system design (custom classes, serialization, wrapper pattern)
+   - Channel registry and validation patterns
+   - 12-16 hours estimated implementation time (1.5-2 days)
+   - Task currently 60% complete, plan covers remaining 40%
+
+2. **Progress Documentation Updates**:
+   - Updated Phase 1 progress: 56% → 78% (7 of 9 tasks complete)
+   - Marked P1-T06 and P1-T07 as complete (merged into P1-T05)
+   - Updated active-context.md with current priorities
+   - Synchronized all memory bank files for consistency
+
+**Session Summary**:
+
+- Duration: Planning and documentation session (3 December 2025)
+- Status: ✅ P1-T08 planning complete, memory bank updated, ready for execution
+- Deliverables: Comprehensive implementation plan (56 pages), updated progress tracking, timeline reorganization
+- Next Session: Execute P1-T08 Step 1 (Create error handling system)
+
+---
+
+### ✅ Completed Earlier (3 Dec 2025 - P1-T05 Implementation)
+
+**P1-T05 COMPLETE** - Filesystem Security Fully Implemented (All 9 Steps):
+
+1. **Path Validation Module** (`src/main/filesystem/pathValidator.ts`):
+   - ✅ `normalizePath()` - Converts paths to absolute canonical form
+   - ✅ `isPathAllowed()` - Validates against allowed directories
+   - ✅ `validatePath()` - Throws errors for unauthorized paths
+   - ✅ `getAppDataPath()` / `getDownloadsPath()` - Path getters
+   - ✅ `updateDownloadsPath()` - Updates in-memory allowed paths
+   - ✅ `validateDirectoryPath()` - Async validation with existence check
+   - Security: Blocks path traversal, validates against AppData + Downloads only
+
+2. **Secure Filesystem Wrapper** (`src/main/filesystem/secureFs.ts`):
+   - ✅ 12 filesystem operations with automatic path validation
+   - ✅ `readFile`, `writeFile`, `appendFile` - File I/O with security
+   - ✅ `mkdir`, `ensureDir` - Recursive directory creation
+   - ✅ `deleteFile`, `deleteDir` - Safe deletion operations
+   - ✅ `isExists`, `stat`, `readDir` - File system queries
+   - ✅ `copyFile`, `rename` - Multi-path operations with dual validation
+   - All operations validate paths before execution
+
+3. **Settings Manager** (`src/main/filesystem/settingsManager.ts`):
+   - ✅ `loadSettings()` - Loads from AppData/settings.json
+   - ✅ `saveSettings()` - Persists to disk with JSON formatting
+   - ✅ `updateSettings()` / `getSetting()` - Type-safe accessors
+   - ✅ `setDownloadsPath()` - Validates and updates downloads location
+   - ✅ `initializeDownloadsPath()` - Loads path on app startup
+   - Settings schema: `downloadsPath`, `theme`, `accentColor`
+   - Graceful error handling with fallback to defaults
+
+4. **IPC Handlers** (`src/main/index.ts` - 13 handlers):
+   - ✅ `fs:read-file`, `fs:write-file`, `fs:append-file`
+   - ✅ `fs:copy-file`, `fs:rename`, `fs:unlink`, `fs:rm`
+   - ✅ `fs:mkdir`, `fs:is-exists`, `fs:stat`, `fs:readdir`
+   - ✅ `fs:get-allowed-paths` - Returns AppData + Downloads paths
+   - ✅ `fs:select-downloads-folder` - Native OS folder picker
+   - ✅ `theme:get-system-accent-color` - System accent color detection
+   - All handlers include error serialization for IPC
+
+5. **Preload API** (`src/preload/index.ts` + `index.d.ts`):
+   - ✅ `fileSystem` namespace exposed via contextBridge
+   - ✅ Full TypeScript definitions in `FileSystem` interface
+   - ✅ All 13 IPC handlers wrapped with proper async returns
+   - ✅ Context isolation maintained for security
+   - Available globally as `window.fileSystem` in renderer
+
+6. **Filesystem Initialization** (`src/main/index.ts`):
+   - ✅ `initFileSystem()` function runs on app startup
+   - ✅ Creates AppData directory structure: `cache/`, `logs/`, `downloads/`
+   - ✅ Loads settings from disk or creates defaults
+   - ✅ Initializes downloads path from saved settings
+   - ✅ Runs before window creation in `app.whenReady()`
+   - Proper error handling with console logging
+
+7. **Settings UI** (`src/renderer/src/views/SettingsView.tsx`):
+   - ✅ 2 functional tabs: Appearance (theme + accent color), Storage (downloads path)
+   - ✅ Theme selector with Zustand integration
+   - ✅ Accent color picker: color input + hex input + "Use System" button
+   - ✅ System accent color detection and live updates
+   - ✅ Downloads path selector with native folder picker
+   - ✅ Grid layout for responsive design (min(1200px, 90%))
+   - ✅ Loading states and error handling with toasts
+   - ✅ Settings persist across app restarts
+
+8. **Accent Color System** (Bonus - not in original plan):
+   - ✅ System accent color detection (Windows BGR→RGB, macOS RGB)
+   - ✅ Custom accent color with hex input validation
+   - ✅ Real-time system color change listener
+   - ✅ CSS variable injection: `--win-accent`, `--win-accent-hover`, `--win-accent-active`
+   - ✅ Hover/active state calculation (-10%/-20% brightness)
+   - ✅ Settings persistence (saves custom, deletes when using system)
+   - ✅ **useAccentColor hook** - Loads and applies accent color on app startup
+   - ✅ Fluent UI icon usage (replaced unicode lightbulb with `Lightbulb16Regular`)
+
+9. **UI Polish & Bug Fixes**:
+   - ✅ Removed all toast notifications from settings changes (silent updates)
+   - ✅ Removed duplicate page header in Settings
+   - ✅ Responsive layout for 2K monitors
+   - ✅ Grid layout for wider downloads path input
+   - ✅ Fixed Windows BGR color format bug
+   - ✅ Fixed API namespace (electron → api)
+   - ✅ Fixed accent color not applying on app launch (useAccentColor hook)
+   - ✅ System pattern updated: "Always use Fluent UI icons, never unicode emoji"
+
+**Session Summary**:
+
+- Duration: Full implementation session (3 December 2025)
+- Status: ✅ **P1-T05 COMPLETE** - All 9 steps implemented and functional
+- Deliverables:
+  - 3 filesystem security modules (pathValidator, secureFs, settingsManager)
+  - 13 IPC handlers with preload API exposure
+  - Settings UI with theme, accent color, and downloads path
+  - Accent color system with app-wide initialization
+  - UI polish and bug fixes
+- Testing: Manual testing complete, TypeScript compilation passing
+- Missing: Architecture documentation (deferred), automated tests (Phase 5)
+- Ready to proceed with next Phase 1 task
+
+---
+
+### ✅ Completed Earlier (2 Dec 2025 - P1-T04, P1-T05, P1-T03 Final)
+
+**P1-T04 COMPLETE** - Zustand State Management Implementation (All 12 Steps):
+
+1. **Comprehensive Implementation Plan Created** (~2 hours planning):
+   - Created `.github/copilot-plans/P1-T05-implement-restricted-filesystem-access.md`
+   - 9 detailed implementation steps with code examples
+   - Security model defined: 2 allowed directories (AppData + Downloads)
+   - 28 hours estimated implementation time (2-3 days)
+   - Complete acceptance criteria for each step
+
+2. **Default Downloads Location Refined**:
+   - Initial proposal: `~/Downloads/DexReader` (system Downloads folder)
+   - Final decision: `AppData/Roaming/dexreader/downloads` (secure default)
+   - Rationale: Works out-of-the-box, no user configuration needed, stays within secure AppData boundary
+   - User can optionally override via Settings → Storage
+   - Type simplified: `downloads: string` (always valid, never null)
+
+3. **Implementation Approach Documented**:
+   - Developer will implement all backend/main process code hands-on
+   - Copilot's role: Review, guide, point out issues (no direct implementation unless requested)
+   - Applies to: filesystem modules, IPC handlers, preload APIs
+   - Updated both plan and active context with this preference
+
+4. **Architecture Decisions**:
+   - 3 core modules: `pathValidator.ts`, `secureFS.ts`, `settingsManager.ts`
+   - 10 IPC handlers for filesystem operations
+   - Path validation strategy: normalize → validate → execute
+   - Settings persistence in `AppData/settings.json`
+   - Native folder picker for user customization
+
+5. **Documentation Plan**:
+   - New `docs/architecture/filesystem-security.md` guide
+   - Memory bank updates (system-pattern.md, tech-context.md)
+   - Complete usage examples and security model documentation
+
+6. **Memory Bank Updated**:
+   - Active context reflects P1-T05 planning complete
+   - Implementation preferences documented
+   - Default downloads location decision recorded
 
 **P1-T05 Planning Session Complete**:
 
@@ -57,14 +225,50 @@
    - Default downloads location decision recorded
 
 **Session Summary**:
+
 - Duration: ~2-3 hours (planning, refinement, documentation)
 - Deliverable: Complete implementation plan ready for execution
 - Status: ✅ Ready to begin hands-on implementation
 - Next: Developer implements Step 1 (Path Validation Module)
 
----
+**P1-T03 Step 20 Complete** - Integration, Testing, and Final Fixes:
 
-### ✅ Completed Earlier Today (2 Dec 2025 - P1-T04 State Management)
+1. **Product Name Configuration**:
+   - Added `"productName": "DexReader"` to package.json
+   - Native dialogs now show "DexReader" in title bar (instead of "dexreader")
+   - Proper capitalization for professional appearance on Windows
+
+2. **CSP (Content Security Policy) Fix**:
+   - Issue: Cover images blocked by CSP (only allowed `'self'` and `data:`)
+   - Mock data using `https://picsum.photos` URLs caused CSP violations
+   - Solution: Updated CSP to allow `img-src 'self' data: https:`
+   - Result: All external manga cover images now load correctly
+
+3. **UI Verification**:
+   - All components rendering correctly
+   - Empty states with icons displaying properly
+   - Native dialogs working with proper app name
+   - Navigation blocking functioning as expected
+   - All linting errors resolved from previous session
+
+4. **Documentation Updates**:
+   - Corrected all design docs to remove sidebar collapse functionality
+   - Sidebar is fixed 240px width (no hamburger menu, no toggle)
+   - Removed Ctrl+B shortcut and "Toggle Sidebar" menu item from docs
+   - Updated wireframes.md, layout-specification.md, menu-bar-structure.md
+   - Updated responsive-behavior-guide.md to keep sidebar visible on all screen sizes
+   - All documentation now accurately reflects implemented design
+
+**P1-T03 Task Complete**:
+
+- ✅ All 17 components implemented and tested
+- ✅ All 20 steps executed successfully
+- ✅ UI polish and refinements applied
+- ✅ Comprehensive documentation created
+- ✅ Integration testing complete
+- ✅ Security policies configured (CSP)
+- ✅ Design documentation corrected (removed sidebar collapse)
+- ✅ Ready for Phase 1 Task 4 (State Management)
 
 **P1-T04 COMPLETE** - Zustand State Management Implementation (All 12 Steps):
 
@@ -156,55 +360,13 @@
     - Deleted `.github/copilot-plans/P1-T04-setup-state-management.md` after completion
 
 **Implementation Summary**:
+
 - **Files Created**: 6 (4 stores + types + index)
 - **Files Modified**: 7 (AppShell, SettingsView, LibraryView, App, ToastContainer, 2 memory bank docs)
 - **Documentation**: 3 files (state-management.md created, tech-context.md updated, system-pattern.md updated)
 - **Total Lines**: ~2,000 lines (stores + migrations + documentation)
 - **Duration**: 1 day (all 12 steps completed)
 - **Status**: ✅ COMPLETE, ready for P1-T05
-
----
-
-### ✅ Completed Earlier This Session (2 Dec 2025 - P1-T03 Final Integration & Testing)
-
-**P1-T03 Step 20 Complete** - Integration, Testing, and Final Fixes:
-
-1. **Product Name Configuration**:
-   - Added `"productName": "DexReader"` to package.json
-   - Native dialogs now show "DexReader" in title bar (instead of "dexreader")
-   - Proper capitalization for professional appearance on Windows
-
-2. **CSP (Content Security Policy) Fix**:
-   - Issue: Cover images blocked by CSP (only allowed `'self'` and `data:`)
-   - Mock data using `https://picsum.photos` URLs caused CSP violations
-   - Solution: Updated CSP to allow `img-src 'self' data: https:`
-   - Result: All external manga cover images now load correctly
-
-3. **UI Verification**:
-   - All components rendering correctly
-   - Empty states with icons displaying properly
-   - Native dialogs working with proper app name
-   - Navigation blocking functioning as expected
-   - All linting errors resolved from previous session
-
-4. **Documentation Updates**:
-   - Corrected all design docs to remove sidebar collapse functionality
-   - Sidebar is fixed 240px width (no hamburger menu, no toggle)
-   - Removed Ctrl+B shortcut and "Toggle Sidebar" menu item from docs
-   - Updated wireframes.md, layout-specification.md, menu-bar-structure.md
-   - Updated responsive-behavior-guide.md to keep sidebar visible on all screen sizes
-   - All documentation now accurately reflects implemented design
-
-**P1-T03 Task Complete**:
-
-- ✅ All 17 components implemented and tested
-- ✅ All 20 steps executed successfully
-- ✅ UI polish and refinements applied
-- ✅ Comprehensive documentation created
-- ✅ Integration testing complete
-- ✅ Security policies configured (CSP)
-- ✅ Design documentation corrected (removed sidebar collapse)
-- ✅ Ready for Phase 1 Task 4 (State Management)
 
 ### ✅ Completed Previous Session (1 Dec 2025 Evening - Final Polish)
 
@@ -488,257 +650,117 @@
 - Improved consistency across all loading indicators in the UI
 - All changes tested successfully in SettingsView
 
-### ✅ Previously Completed (26 Nov 2025)
+---
 
-**P1-T03 STEPS 1-9 COMPLETE** - UI Component Library (9/9 Components Built):
+### ✅ Previously Completed (26 Nov - 1 Dec 2025 - P1-T03 Component Library)
 
-**Session 1 (26 Nov - Morning)**: Steps 1-6 implemented
+**P1-T03 COMPLETE** - All 17 Components Built (Steps 1-20):
 
-1. **Component Structure**: Created folder structure for all 9 components with shared types file (`types/components.ts`)
-2. **Button Component**: 4 variants (primary, secondary, ghost, destructive), 3 sizes, loading state, keyboard accessibility, ~600 lines
-3. **Input Component**: 4 types (text, password, email, search), validation states, password toggle, clear button, character counter, ~800 lines
-4. **MangaCard Component**: Grid/list variants, lazy loading images, hover effects, progress bars, status badges (ongoing/completed/hiatus), ~1,100 lines
-5. **SearchBar Component**: Debouncing (300ms), filter button with badge, keyboard shortcuts (Ctrl+F, Escape), `useDebounce` hook, ~600 lines
-6. **Skeleton Component**: 4 variants (text, card, circle, rectangle), shimmer animation, `SkeletonGrid` wrapper, prefers-reduced-motion support, ~600 lines
+**26 Nov - Steps 1-9**: Button, Input, MangaCard, SearchBar, Skeleton, Toast, ProgressBar, ProgressRing (~6,500 lines)
+**1 Dec Morning - Steps 10-12**: Modal, Select, Checkbox (~2,000 lines)
+**1 Dec Afternoon - Steps 13-15**: Switch, Badge, Tabs + 7 UI polish fixes (~1,200 lines)
+**1 Dec Evening - Steps 16-18**: Tooltip, Popover, ViewTransition + Fluent UI icons integration (~900 lines)
+**1 Dec Evening - Step 19**: Complete documentation (ui-component-library.md, ui-polish-refinements.md, enhanced READMEs) (~1,150 lines)
+**2 Dec - Step 20**: Integration, testing, CSP fix, product name config, documentation corrections
 
-**Session 2 (26 Nov - Afternoon)**: Steps 7-9 implemented 7. **Toast Component**: Notification system with 4 variants (info, success, warning, error), `ToastContainer` with 4 positions, `useToast` hook, auto-dismiss (0-∞ms), slide-in animations, stacking support, ~700 lines 8. **ProgressBar Component**: Linear progress with determinate/indeterminate modes, 3 sizes (2px/4px/6px), 3 color variants (default/success/error), optional labels, metadata (speed, ETA), auto-success at 100%, moving gradient animation, ~1,000 lines 9. **ProgressRing Component**: SVG-based circular indicator, determinate/indeterminate modes, 3 sizes (24px/40px/64px), 3 color variants, customizable stroke width, rotation + arc animations, rounded caps, ~1,100 lines
+**Total**: ~12,000 lines (TypeScript + CSS + documentation), all components production-ready
 
-**Total Implementation**:
+---
 
-- **Lines of Code**: ~6,500 lines (TypeScript + CSS + documentation)
-- **Components**: 9/9 complete (Button, Input, MangaCard, SearchBar, Skeleton, Toast, ProgressBar, ProgressRing)
-- **Documentation**: 9 comprehensive README files with examples
-- **Integration**: BrowseView (SearchBar, MangaCard, SkeletonGrid), SettingsView (all components showcase)
-- **Quality**: All TypeScript compilation passing, Prettier formatting applied, BEM CSS naming throughout
+### ✅ Previously Completed (25 Nov 2025 - P1-T02 Navigation)
 
-**Technical Achievements**:
+**P1-T02 COMPLETE** - Menu Bar and Navigation System:
 
-- Consistent component structure: `Component.tsx`, `Component.css`, `index.ts`, `README.md`
-- Complete TypeScript type safety with 10+ shared types and 3 interfaces
-- Windows 11 Fluent Design patterns with design tokens integration
-- Full accessibility (ARIA labels, keyboard navigation, screen readers, WCAG AA)
-- GPU-accelerated animations with `prefers-reduced-motion` support
-- No new dependencies (pure React + CSS + existing design tokens)
+- Native Electron menu bar (5 menus, 30+ items)
+- IPC communication for menu actions
+- React Router v6 integration
+- Sidebar navigation with Fluent UI icons
+- Theme detection and synchronization
+- Global keyboard shortcuts (Ctrl+1/2/3, Ctrl+,)
+- Windows 11 design tokens (300+ CSS variables)
+- All navigation working correctly
 
-**Remaining Work (Steps 10-12)**:
+---
 
-- Step 10: Modal component (custom overlay dialogs)
-- Step 11: Documentation consolidation (central docs file, JSDoc comments)
-- Step 12: Integration and testing (update views, manual testing, accessibility audit)
+### ✅ Previously Completed (24 Nov 2025 - P1-T01 Planning)
 
-### ✅ Previously Completed (25 Nov 2025)
+**P1-T01 COMPLETE** - Application Layout Design:
 
-**P1-T02 EXECUTION COMPLETE** - Menu bar and navigation system implemented:
-
-1. **Native Electron Menu Bar**: 5 menus (File, View, Library, Tools, Help) with 30+ menu items, keyboard accelerators (Ctrl+1/2/3, F11, F12, etc.)
-
-### 🔄 Active Work
-
-- **P1-T01**: ✅ COMPLETE - All 11 deliverables created and saved to docs/ folder
-- **P1-T02**: ✅ COMPLETE - Menu bar and navigation system fully implemented
-- **P1-T03**: ✅ COMPLETE - All 17 components built, 20 steps executed, UI Component Library finished
-
-1. **IPC Communication**: Menu commands trigger navigation via IPC, theme updates sent to renderer
-2. **Keyboard Shortcuts**: Global shortcuts (Ctrl+1/2/3, Ctrl+B, Ctrl+,) for quick navigation
-3. **Navigation Hook**: `useNavigationListener` to handle menu-triggered navigation
-4. **TypeScript Type Safety**: All IPC APIs properly typed with TypeScript definitions
-5. **Bug Fixes Applied**:
-   - Fixed sidebar toggle state management (consolidated to single source of truth in App component)
-   - Removed redundant 32px title bar (native menu bar handles dragging)
-   - Improved Windows 11 design (added 3px accent bar on active sidebar items)
-   - Fixed menu toggle IPC handler (now correctly uses current sidebarCollapsed state)
-   - All toggle methods now work correctly (keyboard shortcut, sidebar button, menu item)
-6. **Sidebar Toggle Button**: Added Windows 11-style hamburger menu button (≡) at top of sidebar
-   - Icon-only design (no label) matching Windows 11 patterns
-   - 40×40px clickable area with proper hover/active states
-   - Aligned with sidebar navigation icons using padding and negative margin technique
-   - Positioned at top before navigation items
-
-**Files Created**:
-
-- `src/main/menu.ts` - Menu bar template with all 5 menus
-- `src/main/theme.ts` - Theme detection and IPC bridge
-- `src/renderer/src/assets/tokens.css` - Design tokens (300+ lines)
-- `src/renderer/src/layouts/AppShell.tsx` - Main layout component
-- `src/renderer/src/components/Sidebar/` - Sidebar navigation component
-- `src/renderer/src/router.tsx` - Route configuration
-- `src/renderer/src/views/` - 6 placeholder view components
-- `src/renderer/src/hooks/useNavigationListener.ts` - Navigation IPC listener
-- `src/renderer/src/hooks/useKeyboardShortcuts.ts` - Global keyboard shortcuts
-
-**Application Running**: Development server started successfully, Electron app running with full navigation
-
-### ✅ Previously Completed (24 Nov 2025)
-
-### 🔄 Active Work
-
-- **P1-T01**: ✅ COMPLETE - All 11 deliverables created and saved to docs/ folder
-- **P1-T02**: ✅ COMPLETE - Menu bar and navigation system fully implemented
-- **P1-T03**: ⏳ PLANNED - UI component library implementation plan ready for execution
-
-1. **loading-feedback-states.md**: Skeleton screens (shimmer animation), progress rings (reader 0-100%), progress bars (downloads with speed/ETA), spinners (modal ops), error states (network/API/filesystem), empty states (library/search/downloads), modal strategy (native vs custom), TypeScript interfaces
-
-**All 9 P1-T01 Steps Executed**:
-
-- ✅ Step 1: Layout Wireframes (wireframes.md, navigation-flow.md, layout-specification.md, windows11-design-tokens.md, menu-bar-structure.md)
-- ✅ Step 2: Component Hierarchy (component-hierarchy.md)
-- ✅ Step 3: Routing Solution (routing-decision.md - React Router v6 selected)
-- ✅ Step 4: Navigation UI (covered in Step 1's menu-bar-structure.md)
-- ✅ Step 5: Reader Layout (reader-layout-specification.md - 3 modes detailed)
+- 11 comprehensive design documents created
+- Wireframes for all 4 primary views
+- Component hierarchy and specifications
+- Routing decision (React Router v6)
+- Navigation flow (menu bar + sidebar)
+- Reader layout (3 modes: single/double/vertical)
+- Responsive behavior guide
+- Windows 11 design tokens specification
+- Loading/error/empty states strategy
+- Modal dialog patterns (hybrid: native + custom)
 
 ### ⏳ Next Actions
 
-1. **P1-T05 - Implement Restricted Filesystem Access Model** (~2-3 days) - **READY FOR IMPLEMENTATION**:
-   - ✅ Planning complete - comprehensive 9-step plan created
-   - Execute Step 1: Create path validation module (`pathValidator.ts`)
-   - Execute Step 2: Create secure filesystem wrapper (`secureFS.ts`)
-   - Execute Step 3: Create settings manager (`settingsManager.ts`)
-   - Execute Step 4: Implement IPC handlers for filesystem operations
-   - Execute Step 5: Create preload API definitions with TypeScript types
-   - Execute Step 6: Initialize filesystem on app startup
-   - Execute Step 7: Add Settings UI for downloads path configuration
-   - Execute Step 8: Complete documentation (`filesystem-security.md`)
-   - Execute Step 9: Testing & validation (all scenarios)
-   - See `.github/copilot-plans/P1-T05-implement-restricted-filesystem-access.md` for full details
+1. **P1-T08 - Create IPC Messaging Architecture** (~1.5-2 days) - **PLANNED**:
+   - ✅ Planning complete - comprehensive 7-step plan created
+   - 60% already implemented (32 IPC handlers across 5 categories)
+   - Formalize error handling, validation, and documentation
+   - Create IPC channel registry and architecture guide
+   - See `.github/copilot-plans/P1-T08-create-ipc-messaging-architecture.md` for full details
 
-2. **P1-T06 - Path Validation System** (~2 days):
-   - Extends P1-T05 with additional validation layers
-   - Path sanitization and normalization enhancements
-   - Security middleware for file operations
+2. **P1-T09 - Implement Basic Error Handling** (~2-3 days):
+   - Build on P1-T08 IPC error patterns
+   - Add global error boundaries in React
+   - Implement crash reporting infrastructure
+   - Create error recovery flows
 
-3. **P1-T07 - File System Handlers** (~2-3 days):
-   - Build on P1-T05 filesystem foundation
-   - Implement high-level file operations
-   - Cover image caching
-   - Manga download operations
+3. **Continue Phase 1**: Complete P1-T08 and P1-T09, then move to Phase 2 (MangaDex API integration)
 
 ### 💡 Good-to-Have (Future Enhancements)
 
 1. **Date Format Preferences**: Allow users to choose between DD/MM/YYYY (British), YYYY-MM-DD (ISO), MM/DD/YYYY (American) - planned for Phase 3
-2. **Keyboard Shortcuts Dialog**: Menu item exists (Help → Keyboard Shortcuts, Ctrl+/) but no dialog implemented yet. Defer until all shortcuts are finalized to show complete list in custom modal overlay (Windows 11-styled, not native dialog - per hybrid modal strategy)
+2. **Keyboard Shortcuts Dialog**: Menu item exists (Help → Keyboard Shortcuts, Ctrl+/) but no dialog implemented yet. Defer until all shortcuts are finalized
 
 ---
 
-## Recent Decisions
+## Recent Decisions (Last 7 Days)
 
-### 2 December 2025 (Evening Session) - P1-T05 Planning Complete
+### 3 December 2025 - P1-T08 Planning & Progress Updates
 
-**Filesystem Security Architecture Planning**:
+**IPC Architecture Planning**:
+- ✅ Created comprehensive 7-step implementation plan for P1-T08
+- Analyzed existing 32 IPC handlers (60% complete)
+- Designed error handling system with custom classes and serialization
+- Planned channel registry and validation patterns
+- Estimated 12-16 hours for remaining 40%
 
-- ✅ **P1-T05 Planning Complete**: Comprehensive implementation plan created for restricted filesystem access
-  - **Plan saved to**: `.github/copilot-plans/P1-T05-implement-restricted-filesystem-access.md`
-  - **9 implementation steps** defined with detailed code examples and acceptance criteria
-  - **Duration**: 16-24 hours (2-3 days estimated)
-  - **Security Model**: Two allowed directory trees only (AppData + user-configurable Downloads)
-  - **Architecture**: 3 core modules (pathValidator, secureFS, settingsManager)
-  - **Validation Strategy**: Path normalization → prefix matching → operation execution
-  - **IPC Handlers**: Complete filesystem API exposed to renderer via IPC
-  - **Settings UI**: Native folder picker integration for downloads path configuration
-  - **Documentation**: New `filesystem-security.md` guide + memory bank updates
-  - **Testing**: 4 test scenario categories (path validation, downloads config, file ops, edge cases)
-  - Ready for execution when starting next session
+**Progress Documentation**:
+- Updated Phase 1 progress from 56% to 78% (7 of 9 tasks)
+- Marked P1-T06 and P1-T07 as complete (merged into P1-T05)
+- Synchronized all memory bank files
 
-**Development Approach Established**:
+### 2 December 2025 - P1-T04, P1-T05, P1-T03 Final
 
-- ✅ **Hands-On Backend Development**: Developer preference for implementing all backend/main process code
-  - **Copilot's Role**: Review code, point out issues, suggest fixes, provide guidance
-  - **No Direct Implementation**: Copilot avoids writing backend code unless explicitly requested
-  - **Applies To**: Main process modules, filesystem operations, IPC handlers, preload scripts, security code
-  - **Frontend Exception**: Normal collaborative implementation for renderer/UI code
-  - **Rationale**: Security-critical backend code benefits from hands-on learning and deep developer understanding
-  - **Documented In**: system-pattern.md (Development Approach section)
+**P1-T05 Filesystem Security Planning**:
+- Created implementation plan with 9 detailed steps
+- Decided on AppData/downloads as secure default location
+- Established hands-on backend development approach
+- Defined security principles (least privilege, path traversal protection, symlink safety)
 
-**Default Downloads Location Decision**:
+**P1-T04 State Management Complete**:
+- Zustand v5.0.3 installed and configured
+- 4 stores created: appStore, toastStore, userPreferencesStore, libraryStore
+- Components migrated to Zustand (AppShell, SettingsView, LibraryView)
+- Global toast system implemented
+- Comprehensive documentation created
 
-- ✅ **Changed default from system Downloads to AppData/downloads**
-  - **Old**: `~/Downloads/DexReader` (required user to have writable Downloads folder)
-  - **New**: `AppData/Roaming/dexreader/downloads` (secure, always accessible, works out-of-the-box)
-  - **Benefits**: No first-run configuration, stays within secure AppData boundary, optional user customization
-  - **User Override**: Optional via Settings → Storage (e.g., for larger drives)
-  - **Type Simplification**: `downloads: string` instead of `string | null` (always has valid path)
+**P1-T03 Final Integration**:
+- Product name configured ("DexReader")
+- CSP updated to allow external images
+- Documentation corrected (removed sidebar collapse)
+- All UI components tested and verified
 
-**Security Principles Established**:
+### 1 December 2025 - P1-T03 Polish & Components
 
-- **Least Privilege Access**: Only access directories explicitly needed for app functionality
-- **Path Traversal Protection**: All paths normalized to canonical form, `../` attacks blocked
-- **Symlink Safety**: Symlinks resolved and validated, no external pointers allowed
-- **Native Dialogs Only**: No manual path entry, users select folders via OS dialogs
-- **Validation Before Operation**: Every filesystem call validates path first, no exceptions
-
-**Implementation Highlights**:
-
-- **3 Core Modules**:
-  1. `pathValidator.ts` - Normalizes paths, validates against allowed directories
-  2. `secureFS.ts` - Wraps Node.js `fs/promises` with automatic validation
-  3. `settingsManager.ts` - Persists downloads path to AppData/settings.json
-- **10 IPC Handlers**: read-file, write-file, exists, mkdir, unlink, rmdir, stat, readdir, get-allowed-paths, select-downloads-folder
-- **TypeScript Safety**: Full type definitions for `window.fs` API in renderer
-- **Automatic Directory Creation**: Parent directories created automatically on file write
-- **Settings Persistence**: Downloads path saved to settings.json, restored on app restart
-- **User Control**: Settings → Storage panel with native folder picker
-
-**Future Enhancements Planned**:
-
-- Phase 4: Quota management for downloads directory
-- Phase 3: Settings file backup and restore
-- Future: File encryption for downloaded chapters (optional)
-- Future: Advanced security with runtime integrity checks
-
-### 2 December 2025 (Afternoon Session) - Documentation Corrections & Final Polish
-
-**Documentation Architecture Updates**:
-
-- ✅ **Sidebar Design Clarification**: Confirmed sidebar is fixed 240px width with no collapse functionality
-  - No hamburger menu button
-  - No Ctrl+B keyboard shortcut
-  - No "Toggle Sidebar" menu item
-  - Sidebar always visible on all screen sizes
-  - Corrected all design docs to reflect this implementation
-
-**Security Configuration**:
-
-- ✅ **CSP Policy Updated**: Changed `img-src 'self' data:` to `img-src 'self' data: https:`
-  - Allows external manga cover images from MangaDex CDN
-  - Required for picsum.photos mock data and future API integration
-  - Documented in tech-context.md with rationale
-
-**Branding**:
-
-- ✅ **Product Name**: Added `"productName": "DexReader"` to package.json
-  - Native dialogs show "DexReader" instead of "dexreader"
-  - Professional capitalization for Windows title bars
-  - Consistent branding across all OS dialogs
-
-**UI Voice & Tone**:
-
-- ✅ **Casual Messaging Style**: Decided to drop formality and professionalism
-  - Use conversational, friendly tone throughout the UI
-  - Contractions are encouraged (can't, won't, it's)
-  - Natural language over technical jargon
-  - Friendly error messages (e.g., "Oops! Something went wrong" instead of "Error: Operation failed")
-  - Updated system-pattern.md with writing style guidelines
-
-**P1-T04 State Management Planning**:
-
-- ✅ **Implementation Plan Created**: Complete 12-step plan saved to `.github/copilot-plans/P1-T04-setup-state-management.md`
-  - **Technology**: Zustand (1.4kb, TypeScript-first, built-in persistence)
-  - **4 Stores**: appStore (theme, UI), toastStore (notifications), userPreferencesStore (settings), libraryStore (bookmarks skeleton)
-  - **Migrations**: AppShell, SettingsView, LibraryView to Zustand
-  - **Global Toast**: Single ToastContainer in App.tsx, accessible from any view
-  - **Theme Management**: System sync + manual override with persistence
-  - **Persistence**: localStorage for preferences, theme mode, bookmarks
-  - **Documentation**: New state-management.md + updates to system-pattern.md and tech-context.md
-  - **Estimated Duration**: 24-32 hours (3-4 days)
-  - Ready for execution
-
-**Implementation Status Summary**:
-
-- P1-T01: ✅ COMPLETE (11 design documents)
-- P1-T02: ✅ COMPLETE (Menu bar, navigation, routing, IPC)
-- P1-T03: ✅ COMPLETE (17 components, 20 steps, ~8,500 lines)
-- P1-T04: ⏳ NEXT (State Management with Zustand)
-
-### 1 December 2025 - Evening Session (Polish Pass)
+**UI Polish Pass**:
 
 **Final Polish Decisions**:
 
@@ -822,153 +844,72 @@
 - Debouncing in SearchBar (300ms default) to reduce API calls
 - Minimal bundle size (no external UI libraries, pure React + CSS)
 
-### 25 November 2025
-
-**Sidebar Toggle Button**:
-
-- ✅ Added Windows 11-style hamburger menu button (≡) at top of sidebar
-- ✅ Icon-only design (no label text) matching Windows 11 Settings app pattern
-- ✅ 40×40px hover/active area aligned with navigation icons
-- ✅ Uses `padding: 0 var(--space-5)` on container with negative margin on icon for proper alignment
-- ✅ Positioned before navigation items for easy access
-- ✅ Keyboard accessible with proper ARIA labels
+### 25 November 2025 - P1-T03 Planning
 
 **P1-T03 Planning Completed**:
 
-- ✅ Created comprehensive 12-step implementation plan for UI component library
-- ✅ Defined 9 must-have components: Button (4 variants, 3 sizes), Input (validation states), MangaCard (grid/list), SearchBar (debouncing), Skeleton (shimmer), Toast (notification system), ProgressBar (linear downloads), ProgressRing (circular reader), Modal (custom overlays)
-- ✅ Complete TypeScript interfaces for all components
-- ✅ BEM CSS naming convention specifications
-- ✅ Windows 11 design patterns and styling guidelines
-- ✅ Accessibility requirements (ARIA labels, keyboard nav, screen reader support, WCAG AA)
-- ✅ Animation guidelines (60fps target, GPU-accelerated transforms, prefers-reduced-motion support)
-- ✅ Testing strategy (manual testing checklist, accessibility testing with screen readers)
-- ✅ Component file structure and organization
-- ✅ No new dependencies required (pure React + CSS + existing design tokens)
-- ✅ Estimated duration: 3-4 days (24-32 hours total)
-- ✅ Plan saved to `.github/copilot-plans/P1-T03-create-base-ui-component-library.md`
-- ✅ Ready for execution
+- Created comprehensive 12-step implementation plan for UI component library
+- Defined 9 must-have components with complete specifications
+- BEM CSS naming, Windows 11 patterns, full accessibility (WCAG AA)
+- No new dependencies required (pure React + CSS)
+- Estimated 3-4 days, plan saved and ready for execution
 
-### 🔄 Active Work
-
-- **P1-T01**: ✅ COMPLETE - All 11 deliverables created and saved to docs/ folder
-- **P1-T02**: ⏳ PLANNED - Complete implementation plan created, ready to start
-
-### ⏳ Next Actions
-
-1. **Begin P1-T02 execution**: Start with Step 1 (install React Router v6)
-2. **P1-T03**: Create base UI component library (implement components from specs)
-3. **P1-T04**: Set up state management (Zustand/Redux)
-4. **P1-T05**: Implement restricted filesystem access model
-5. **P1-T06**: Create path validation system
-6. Continue Phase 1 implementation tasks
-
-### 24 November 2025
-
-**Documentation Organisation**:
-
-- ✅ Reorganised `docs/` folder into logical subfolders
-- ✅ Created 3 categories: `design/` (wireframes, tokens, responsive), `architecture/` (navigation, layout, routing, reader, menu), `components/` (hierarchy, specs, loading states)
-- ✅ Added `docs/README.md` with folder structure guide and quick reference
+### 24 November 2025 - P1-T02 Planning & P1-T01 Completion
 
 **P1-T02 Planning**:
 
-- ✅ Created comprehensive implementation plan for menu bar and navigation
-- ✅ Defined 10 detailed implementation steps with time estimates
-- ✅ Specified all deliverables, acceptance criteria, and file structure
-- ✅ Documented technical decisions (native Menu API, inline SVG icons, CSS variables for theme)
-- ✅ Estimated effort: 2-3 days (16-24 hours)
-- ✅ Implementation completed successfully
+- Created implementation plan for menu bar and navigation
+- 10 implementation steps, native Electron Menu API
+- British English as default display language
 
-**Display Language**:
+**P1-T01 Loading States**:
 
-- ✅ British English (en-GB) as default display language
-- ✅ British spelling conventions: "Favourites", "Colour", "Organise", "Centre"
-- ✅ Date format options: DD/MM/YYYY (default British), YYYY-MM-DD (ISO), MM/DD/YYYY (American) - good-to-have feature for Phase 3
-- ✅ Future localisation support planned (i18n architecture)
+- Defined comprehensive loading patterns (skeleton, progress rings/bars, spinners)
+- Two-phase reader loading (online), instant offline loading
+- Windows 11 design integration
 
-**Loading States Strategy**:
+### 23 November 2025 - Project Initialization
 
-- ✅ Skeleton screens for content-heavy grids (Browse, Library, Manga Detail)
-- ✅ Two-phase reader loading: Online (indeterminate → deterministic), Offline (instant)
-- ✅ Linear progress bars for download operations (Downloads view)
-- ✅ No percentage text in circular progress rings (clean design)
-- ✅ Horizontal progress bars show: title, %, speed, ETA, total size
-- ✅ Support multiple simultaneous downloads (stacked list UI)
-- ✅ No indicators for instant local operations (favorites, collections, settings, navigation)
-- ✅ Indeterminate spinners only for modal operations (app load, import/export)
-- ✅ 100ms threshold for offline reader (fallback spinner for rare slow filesystem reads)
+**Initial Setup**:
 
-**Progress Indicator Patterns**:
-
-- ✅ Circular rings: Reader view (online image streaming)
-- ✅ Linear bars: Downloads view (file operations)
-- ✅ Skeleton screens: Content grids (perceived performance)
-- ✅ Spinners: Modal/blocking operations (unknown duration)
-- ✅ None: Local instant operations (immediate feedback)
-
-**Windows 11 Design**:
-
-- ✅ All loading patterns use accent colors (light: #0078d4, dark: #60cdff)
-- ✅ Smooth transitions (150ms quick, 300ms smooth)
-- ✅ Subtle effects (4-6px progress bars, 8px skeleton radius, shimmer animation)
-- ✅ Native feel (follows Windows file operation conventions)
-
-### 23 November 2025
-
-**Content & API**:
-
-- ✅ MangaDex public API only (no authentication needed)
-- ✅ Image files only: JPG, PNG, WebP (no PDF support)
-- ✅ Public read-only endpoints for all features
-
-**Development Priority**:
-
-- ✅ Online functionality FIRST (Phase 2)
-- ✅ Offline downloads LATER (Phase 4)
-
-**Caching Strategy**:
-
-- ✅ Cover images: Auto-cache when manga bookmarked
-- ✅ Chapter images: User-initiated downloads only
-- ✅ Online reading: Stream only, no disk caching (memory preload for smooth transitions)
-
-**Tech Stack**:
-
-- ✅ Electron 38 + React 19 + TypeScript 5.9
-- ✅ electron-vite for build system
-- ✅ Three-process architecture (main/preload/renderer)
-
-**UI/UX Design**:
-
-- ✅ Windows 11 native design system (Mica, Acrylic effects)
-- ✅ System theme detection (auto light/dark based on Windows)
-- ✅ Native OS title bar with menu bar (File, View, Library, Tools, Help)
-- ✅ Collapsible sidebar navigation (secondary to menu bar)
-- ✅ Custom components (no UI library for performance)
-- ✅ Segoe UI Variable font
-
-**Security Model**:
-
-- ✅ Restricted filesystem access (2 directories only)
-- ✅ AppData: Database, cache, settings (automatic)
-- ✅ Downloads: User-configurable via native folder picker
-- ✅ Path validation enforced on all file operations
-- ✅ Network restricted to MangaDex domains only
-
-**Features**:
-
-- ✅ Library import/export (native DexReader + Tachiyomi formats)
-- ✅ Downloads directory configuration in Settings
-- ✅ Backup/restore for app data
+- Created project with electron-vite
+- Established memory bank documentation system
+- Defined MangaDex integration approach (public API, images only)
+- Security model (restricted filesystem, 2 directories)
+- Feature set (bookmarking, reading, downloads, import/export)
+- Task coding system (P1-T01 through P7-T12)
+- 7-month timeline with 8 phases documented
 
 ---
 
-## Current Work Focus
+## Session Notes (Detailed Technical Work)
 
-## Session Notes
+### 3 December 2025 - P1-T08 Planning
 
-### 1 December 2025 - P1-T03 UI Polish
+**IPC Architecture Analysis**:
+
+- Reviewed existing 32 IPC handlers
+- Created 56-page comprehensive implementation plan
+- 7 steps: error handling, registry, validation, documentation
+- Estimated 12-16 hours remaining work
+
+### 2 December 2025 - Multiple Tasks
+
+**Morning - P1-T04 State Management**:
+
+- Zustand v5.0.3 installation and setup
+- 4 stores implemented (app, toast, preferences, library)
+- Component migrations completed
+- ~2,000 lines of code + documentation
+
+**Afternoon - P1-T03 Final & P1-T05 Planning**:
+
+- Product name configuration
+- CSP policy updates
+- Documentation corrections
+- P1-T05 planning (filesystem security, 9 steps)
+
+### 1 December 2025 - P1-T03 Component Implementation
 
 **UI Consistency and Performance Improvements**:
 
@@ -1340,15 +1281,13 @@ npm run typecheck   # Validate types only
 - User-configurable downloads directory
 - Windows 11 native design with system theme sync
 
-**Next Session**:
+---
 
-1. Execute **P1-T03**: Create base UI component library
-2. **P1-T04**: Set up state management (Zustand)
-3. **P1-T05**: Implement restricted filesystem access model
-4. **P1-T06**: Create path validation system
-5. Continue Phase 1 implementation (**P1-T04** to **P1-T09**)
+## Current Work Focus
 
-> **Task Reference**: See `project-progress.md` for technical task codes (P1-T01 through P7-T12)
+**Now Working On**: P1-T08 (IPC Architecture) - Planning complete, ready for implementation
+**Phase**: Phase 1 - Core Architecture (78% complete, 7 of 9 tasks)
+**Recent Completions**: P1-T05 (Filesystem), P1-T04 (State), P1-T03 (Components), P1-T02 (Navigation), P1-T01 (Design)
 
 ---
 
@@ -1358,9 +1297,20 @@ npm run typecheck   # Validate types only
 - **project-progress.md** - Full timeline, all phases, milestones, risks
 - **system-pattern.md** - Architecture patterns, code conventions, design principles
 - **tech-context.md** - Technology stack details, configurations, dependencies
+- **project-brief.md** - High-level project overview and requirements
 
 > **When to Update**: End of each session, when making decisions, when completing milestones
 
 ---
 
-_Last session: 2 Dec 2025 | Next session: P1-T04 State Management_
+## Quick Command Reference
+
+```bash
+npm run dev         # Start development with HMR
+npm run build       # Type check + build
+npm run typecheck   # Validate types only
+```
+
+---
+
+**Last Updated**: 3 Dec 2025 - P1-T08 Planning Complete | **Next**: Execute P1-T08 Implementation

@@ -14,7 +14,7 @@ These files are essential for me to understand the project. If any of these file
 
 - `active-context.md`: This file contains the current context of our collaboration, including recent tasks, goals, any blockers, upcoming works, as well as up-to-date information on the project's status. This is my primary source of truth for current project state.
 - `project-brief.md`: This file provides a high-level overview of the project, including its purpose, target audience, and key features.
-- `system-patterns.md`: This file outlines the architectural patterns, coding standards, and best practices that should be followed in the project.
+- `system-pattern.md`: This file outlines the architectural patterns, coding standards, and best practices that should be followed in the project.
 - `tech-context.md`: This file details the technologies, frameworks, and libraries used in the project, along with their versions and configurations.
 - `project-progress.md`: This file tracks the progress of the project, including completed tasks, ongoing work, any known issues and upcoming milestones.
 

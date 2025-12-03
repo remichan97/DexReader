@@ -40,7 +40,7 @@
 - **Casual, friendly tone** - Drop formality and professionalism for a more relaxed, conversational UI
 - Error messages should be clear, actionable, and friendly (e.g., "Oops! Couldn't load that chapter" instead of "An error occurred while loading the requested resource")
 - Use contractions (can't, won't, it's) and natural language
-- Emoji usage is acceptable where it adds clarity or warmth
+- **Icons**: Always use Fluent UI icons from `@fluentui/react-icons` in source code - never use unicode emoji icons (rendering is inconsistent across different systems)
 - Avoid corporate jargon or overly technical language in user-facing text
 
 ---
@@ -52,12 +52,14 @@
 **Hands-On Implementation**: For all backend/main process code, the developer implements directly with Copilot acting as a code reviewer and guide.
 
 **Copilot's Role**:
+
 - Review code for mistakes, security issues, and optimization opportunities
 - Point out what's wrong and suggest what should be done
 - Provide guidance, explanations, and best practices
 - **Avoid direct implementation** unless explicitly requested
 
 **Applies To**:
+
 - Main process modules (`src/main/**`)
 - Filesystem operations and security code
 - IPC handler implementations
@@ -393,6 +395,84 @@ const [state, setState] = useState(initialValue)
 - **Utilities**: camelCase (when added)
 - **Types**: PascalCase interfaces/types
 - **Assets**: kebab-case (`base.css`, `main.css`)
+
+---
+
+## Filesystem Security
+
+**Status**: ✅ Implemented (P1-T05)
+**Documentation**: [filesystem-security.md](../../docs/architecture/filesystem-security.md)
+
+### Security Model
+
+DexReader implements a **restricted filesystem access model** that limits all file operations to two explicitly allowed directory trees:
+
+1. **AppData Directory** - Automatic, managed by Electron
+   - Windows: `C:\Users\<username>\AppData\Roaming\dexreader`
+   - macOS: `~/Library/Application Support/dexreader`
+   - Linux: `~/.config/dexreader`
+   - Contents: `settings.json`, `cache/`, `logs/`, `downloads/`
+
+2. **Downloads Directory** - User-configurable (defaults to `AppData/downloads`)
+   - Default: `<AppData>/downloads`
+   - Configurable via Settings → Storage
+   - Custom path validated before accepting
+
+### Implementation
+
+**Path Validation** (`src/main/filesystem/pathValidator.ts`):
+
+- All paths normalized to canonical form (prevents traversal attacks)
+- Validated against allowed directories before any operation
+- Symlinks resolved and checked
+
+**Secure Filesystem Wrapper** (`src/main/filesystem/secureFs.ts`):
+
+- 12 filesystem operations with automatic path validation
+- `readFile`, `writeFile`, `appendFile`, `copyFile`, `rename`
+- `mkdir`, `ensureDir`, `deleteFile`, `deleteDir`
+- `isExists`, `stat`, `readDir`
+
+**Settings Manager** (`src/main/filesystem/settingsManager.ts`):
+
+- Persists settings to `AppData/settings.json`
+- Schema: `downloadsPath`, `theme`, `accentColor`
+- Graceful fallback to defaults if corrupted
+
+### Usage in Renderer
+
+```typescript
+// Get allowed paths
+const paths = await window.fileSystem.getAllowedPaths()
+// { appData: "C:\\Users\\...\\dexreader", downloads: "D:\\Manga" }
+
+// Read file (validated automatically)
+const data = await window.fileSystem.readFile(`${paths.appData}/settings.json`, 'utf-8')
+
+// Write file (parent dirs created automatically)
+await window.fileSystem.writeFile(`${paths.downloads}/manga/123/ch1/page1.jpg`, imageBuffer)
+
+// Select downloads folder (native OS picker)
+const result = await window.fileSystem.selectDownloadsFolder()
+if (!result.cancelled) {
+  console.log('New path:', result.path)
+}
+```
+
+### Security Guarantees
+
+✅ **Prevents**:
+
+- Path traversal attacks (`../../../etc/passwd`)
+- Access to system directories (`System32`, `/usr`, `/bin`)
+- Access to user's Documents, Pictures, Desktop (unless explicitly selected)
+- Symlink exploits pointing outside allowed directories
+
+✅ **Allows**:
+
+- Reading/writing within AppData
+- Reading/writing within Downloads (default or custom)
+- User-selected directories via native folder picker
 
 ---
 

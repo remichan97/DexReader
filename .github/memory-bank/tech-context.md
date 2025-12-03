@@ -85,14 +85,16 @@ electron_builder_binaries_mirror=https://npmmirror.com/mirrors/electron-builder-
 
 ## Dependency Management
 
-### Production Dependencies (4)
+### Production Dependencies (5)
 
 ```json
 {
   "@electron-toolkit/preload": "^3.0.2",
   "@electron-toolkit/utils": "^4.0.0",
+  "@fluentui/react-icons": "^2.0.315",
   "electron-updater": "^6.3.9",
-  "zustand": "^5.0.3"
+  "react-router-dom": "^6.28.0",
+  "zustand": "^5.0.9"
 }
 ```
 
@@ -100,7 +102,9 @@ electron_builder_binaries_mirror=https://npmmirror.com/mirrors/electron-builder-
 
 - **@electron-toolkit/preload**: Helper utilities for secure preload scripts
 - **@electron-toolkit/utils**: Common Electron utilities (is.dev, optimizer, etc.)
+- **@fluentui/react-icons**: Microsoft Fluent UI icon library (2000+ icons, Regular/Filled variants)
 - **electron-updater**: Auto-update functionality for deployed applications
+- **react-router-dom**: Client-side routing for multi-view navigation
 - **zustand**: Lightweight state management library with persistence middleware (~1.4kb)
 
 ### Development Dependencies (18)
@@ -409,6 +413,80 @@ asarUnpack:
   - resources/**
 
 npmRebuild: false
+```
+
+---
+
+## Filesystem Architecture
+
+**Status**: ✅ Implemented (P1-T05)
+**Documentation**: [filesystem-security.md](../../docs/architecture/filesystem-security.md)
+
+### Core Modules
+
+**Path Validator** (`src/main/filesystem/pathValidator.ts`):
+
+- Path normalization and canonical resolution
+- Validates against 2 allowed directories: AppData + Downloads
+- Prevents path traversal and symlink exploits
+- In-memory allowed paths cache
+
+**Secure Filesystem** (`src/main/filesystem/secureFs.ts`):
+
+- Wraps Node.js `fs/promises` with automatic path validation
+- 12 operations: `readFile`, `writeFile`, `appendFile`, `copyFile`, `rename`, `mkdir`, `ensureDir`, `deleteFile`, `deleteDir`, `isExists`, `stat`, `readDir`
+- Parent directories automatically created on write operations
+
+**Settings Manager** (`src/main/filesystem/settingsManager.ts`):
+
+- Persists settings to `AppData/settings.json`
+- Schema: `downloadsPath` (string | null), `theme` ('light' | 'dark' | 'system'), `accentColor` (string | undefined)
+- Loads on app startup, validates downloads path
+- Graceful fallback to defaults if corrupted
+
+### IPC Integration
+
+**32 IPC Handlers Implemented** (as of 3 Dec 2025, 60% complete):
+
+**Filesystem (13 handlers)** - `src/main/index.ts`:
+- File I/O: `fs:read-file`, `fs:write-file`, `fs:append-file`, `fs:copy-file`, `fs:rename`
+- File operations: `fs:unlink`, `fs:rm`, `fs:is-exists`, `fs:stat`, `fs:readdir`, `fs:mkdir`
+- System: `fs:get-allowed-paths`, `fs:select-downloads-folder`
+
+**Theme (4 handlers)**:
+- `theme:get-system-accent-color`, `theme:get-theme`, `theme:on-theme-changed`, theme sync
+
+**Navigation (1 handler)**: Menu-triggered navigation via IPC
+
+**Menu (15 handlers)**: Context menu actions, state updates
+
+**Dialog (1 handler)**: `show-confirm-dialog`
+
+**Current Status**:
+- Implementation plan: `.github/copilot-plans/P1-T08-create-ipc-messaging-architecture.md`
+- Remaining work (40%): Error handling formalization, channel registry, validation, documentation
+- All current handlers include error serialization for IPC transport
+
+**Preload API** (`src/preload/index.ts`):
+
+- `window.fileSystem` namespace exposed via contextBridge
+- Full TypeScript definitions in `src/preload/index.d.ts`
+- Context isolation maintained for security
+
+### Usage Pattern
+
+```typescript
+// Get allowed paths
+const { appData, downloads } = await window.fileSystem.getAllowedPaths()
+
+// Read file (validated automatically)
+const settings = await window.fileSystem.readFile(`${appData}/settings.json`, 'utf-8')
+
+// Write file (parent dirs created automatically)
+await window.fileSystem.writeFile(`${downloads}/manga/123/metadata.json`, data, 'utf-8')
+
+// Select downloads folder (native OS picker)
+const result = await window.fileSystem.selectDownloadsFolder()
 ```
 
 ---
@@ -757,21 +835,18 @@ const useStore = create(
 **Current Stores**:
 
 1. **App State Store** (`appStore.ts`)
-
    - Theme management (light/dark/system)
    - UI state (fullscreen)
    - System theme synchronization
    - Persists: theme mode only
 
 2. **Toast Store** (`toastStore.ts`)
-
    - Global notification system
    - Auto-dismiss with timers
    - Toast variants: info, success, warning, error, loading
    - No persistence (ephemeral notifications)
 
 3. **User Preferences Store** (`userPreferencesStore.ts`)
-
    - Reading preferences (page preload, zoom, reader mode)
    - Download preferences (simultaneous downloads, location, quality)
    - UI preferences (animations, sidebar state, theme, compact mode)
