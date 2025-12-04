@@ -257,6 +257,7 @@ app.whenReady().then(async () => {
   })
 
   // IPC handler for confirm dialog
+  // Simple yes/no confirmation dialog
   ipcMain.handle('show-confirm-dialog', async (_event, message: string, detail?: string) => {
     if (!mainWindow) return false
 
@@ -273,6 +274,47 @@ app.whenReady().then(async () => {
 
     return result.response === 1
   })
+
+  // Enhanced dialog with custom buttons and options
+  ipcMain.handle(
+    'show-dialog',
+    async (
+      _event,
+      options: {
+        message: string
+        detail?: string
+        buttons?: string[]
+        type?: 'none' | 'info' | 'error' | 'question' | 'warning'
+        defaultId?: number
+        cancelId?: number
+        noLink?: boolean
+        checkboxLabel?: string
+        checkboxChecked?: boolean
+      }
+    ) => {
+      if (!mainWindow) {
+        return { response: -1, checkboxChecked: false }
+      }
+
+      const { dialog } = await import('electron')
+      const result = await dialog.showMessageBox(mainWindow, {
+        type: options.type || 'question',
+        buttons: options.buttons || ['OK', 'Cancel'],
+        defaultId: options.defaultId ?? 0,
+        cancelId: options.cancelId ?? (options.buttons?.length ?? 1) - 1,
+        message: options.message,
+        detail: options.detail,
+        noLink: options.noLink ?? false,
+        checkboxLabel: options.checkboxLabel,
+        checkboxChecked: options.checkboxChecked ?? false
+      })
+
+      return {
+        response: result.response,
+        checkboxChecked: result.checkboxChecked
+      }
+    }
+  )
 
   await initFileSystem()
 

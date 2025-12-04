@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 3 December 2025
+**Last Updated**: 4 December 2025
 **Current Phase**: Phase 1 - Core Architecture (In Progress)
-**Session**: P1-T05 COMPLETE - Filesystem Security Fully Implemented
+**Session**: P1-T08 - IPC Architecture Implementation (Steps 1-2 Complete)
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -11,11 +11,73 @@
 ## Current Status Summary
 
 **Phase**: Phase 1 - Core Architecture 🔵
-**Progress**: P1-T05 COMPLETE - Ready for Next Task
-**Current Date**: 3 December 2025
-**Next Task**: TBD - Choose next Phase 1 task from roadmap
+**Progress**: P1-T08 In Progress - 40% Complete (Steps 1-2 of 7)
+**Current Date**: 4 December 2025
+**Next Task**: P1-T08 Steps 3-7 - Type Safety, Validation, Monitoring, Documentation
 
-### ✅ Completed This Session (3 Dec 2025 - P1-T08 Planning & Documentation Updates)
+### ✅ Completed This Session (4 Dec 2025 - P1-T08 Implementation Steps 1-2)
+
+**P1-T08 Partial Implementation** (Steps 1-2 of 7):
+
+1. **IPC Error Handling System** (Step 1 - Complete):
+   - Created `src/main/ipc/error.ts` - Base `IpcError` class with code/details
+   - Created `src/main/ipc/fileSystemError.ts` - Filesystem-specific errors
+   - Created `src/main/ipc/validationError.ts` - Validation errors
+   - Created `src/main/ipc/themeError.ts` - Theme-specific errors
+   - Created `src/main/ipc/errorSerialiser.ts` - Error serialization (dev/prod modes)
+   - Created `src/main/ipc/wrapHandler.ts` - IPC handler wrapper with automatic error catching
+   - All files using British spelling conventions (serialiser, not serializer)
+
+2. **IPC Channel Registry** (Step 2 - Complete):
+   - Created `src/main/ipc/registry.ts` (337 lines)
+   - Documented all 37 IPC channels across 6 categories
+   - Categories: Filesystem (16), Menu (14), Theme (4), Navigation (1), Dialogue (2)
+   - Each entry includes: channel name, category, type, description, request/response types, error types, usage example
+   - Helper functions: `getChannelsByCategory()`, `getChannelDefinition()`
+   - Removed duplicate entries during implementation
+
+3. **Enhanced Dialogue System** (Bonus Implementation):
+   - Extended dialogue capabilities beyond simple confirmations
+   - New `show-dialog` IPC handler supporting multiple buttons (3+)
+   - **Two dialogue APIs** (complementary, not legacy vs new):
+     - `showConfirmDialog`: Simple yes/no confirmations (quick decisions)
+     - `showDialog`: Multi-choice with 3+ custom buttons, checkboxes, different types
+   - Windows command links support (arrow buttons for descriptive actions)
+   - Checkbox support for "Don't ask again" preferences
+   - Platform-specific behaviour documented (Windows/macOS/Linux)
+   - Created `docs/components/dialog-usage-examples.md` with comprehensive examples
+   - Real-world use case documented: Removing manga with downloaded chapters
+   - Button label approach: Use parenthetical descriptions ("Remove downloads (keep bookmark)")
+
+4. **TypeScript & Code Quality**:
+   - All implementations fully typed with TypeScript
+   - Prettier formatting applied
+   - TypeScript compilation passing (no errors)
+   - 37 IPC channels registered and documented
+
+**Technical Decisions Made**:
+
+- **Dialogue Design Philosophy**: Keep both `showConfirmDialog` and `showDialog` as complementary tools
+  - Simple dialogue for binary decisions (confirm/cancel)
+  - Multi-choice dialogue for complex decisions with 3+ options
+  - Example use case: "Remove bookmark only / Remove downloads / Remove everything / Cancel"
+- **Button Labels**: Use parenthetical descriptions rather than multi-line (cross-platform compatibility)
+- **British Spelling**: Maintained throughout (dialogue, serialiser)
+
+**Session Summary**:
+
+- Duration: Implementation session (4 December 2025)
+- Status: ✅ P1-T08 Steps 1-2 complete (40%), Steps 3-7 remaining
+- Deliverables:
+  - 7 new IPC infrastructure files (error handling + registry)
+  - Enhanced dialogue system with 2 complementary APIs
+  - Complete IPC registry (37 channels documented)
+  - Comprehensive dialogue usage documentation
+- Next: P1-T08 Steps 3-7 (Type safety, validation, monitoring, architecture docs)
+
+---
+
+### ✅ Completed Earlier (3 Dec 2025 - P1-T08 Planning & Documentation Updates)
 
 **P1-T08 Implementation Plan Created**:
 
@@ -726,6 +788,7 @@
 ### 3 December 2025 - P1-T08 Planning & Progress Updates
 
 **IPC Architecture Planning**:
+
 - ✅ Created comprehensive 7-step implementation plan for P1-T08
 - Analyzed existing 32 IPC handlers (60% complete)
 - Designed error handling system with custom classes and serialization
@@ -733,6 +796,7 @@
 - Estimated 12-16 hours for remaining 40%
 
 **Progress Documentation**:
+
 - Updated Phase 1 progress from 56% to 78% (7 of 9 tasks)
 - Marked P1-T06 and P1-T07 as complete (merged into P1-T05)
 - Synchronized all memory bank files
@@ -740,12 +804,14 @@
 ### 2 December 2025 - P1-T04, P1-T05, P1-T03 Final
 
 **P1-T05 Filesystem Security Planning**:
+
 - Created implementation plan with 9 detailed steps
 - Decided on AppData/downloads as secure default location
 - Established hands-on backend development approach
 - Defined security principles (least privilege, path traversal protection, symlink safety)
 
 **P1-T04 State Management Complete**:
+
 - Zustand v5.0.3 installed and configured
 - 4 stores created: appStore, toastStore, userPreferencesStore, libraryStore
 - Components migrated to Zustand (AppShell, SettingsView, LibraryView)
@@ -753,6 +819,7 @@
 - Comprehensive documentation created
 
 **P1-T03 Final Integration**:
+
 - Product name configured ("DexReader")
 - CSP updated to allow external images
 - Documentation corrected (removed sidebar collapse)

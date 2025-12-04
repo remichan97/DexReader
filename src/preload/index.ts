@@ -22,6 +22,18 @@ const api = {
   showConfirmDialog: (message: string, detail?: string) =>
     ipcRenderer.invoke('show-confirm-dialog', message, detail),
 
+  showDialog: (options: {
+    message: string
+    detail?: string
+    buttons?: string[]
+    type?: 'none' | 'info' | 'error' | 'question' | 'warning'
+    defaultId?: number
+    cancelId?: number
+    noLink?: boolean
+    checkboxLabel?: string
+    checkboxChecked?: boolean
+  }) => ipcRenderer.invoke('show-dialog', options),
+
   // Menu state API
   updateMenuState: (state: {
     canAddToFavorites?: boolean

@@ -21,6 +21,17 @@ interface API {
 
   // Dialog API
   showConfirmDialog: (message: string, detail?: string) => Promise<boolean>
+  showDialog: (options: {
+    message: string
+    detail?: string
+    buttons?: string[]
+    type?: 'none' | 'info' | 'error' | 'question' | 'warning'
+    defaultId?: number
+    cancelId?: number
+    noLink?: boolean
+    checkboxLabel?: string
+    checkboxChecked?: boolean
+  }) => Promise<{ response: number; checkboxChecked: boolean }>
 
   // Menu state API
   updateMenuState: (state: MenuState) => void
