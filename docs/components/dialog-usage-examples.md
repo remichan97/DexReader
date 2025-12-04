@@ -9,14 +9,14 @@ DexReader provides two dialogue APIs for showing native OS dialogues:
 
 ## When to Use Which?
 
-### Use `showConfirmDialog` for:
+### Use `showConfirmDialog` for
 
 - Simple yes/no decisions
 - Quick confirmations that don't need explanation
 - Actions that can be confirmed or cancelled
 - Examples: "Delete this item?", "Close without saving?", "Mark as read?"
 
-### Use `showDialog` for:
+### Use `showDialog` for
 
 - Multiple choice scenarios (3+ options)
 - Custom button labels that need to be descriptive
