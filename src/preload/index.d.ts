@@ -1,4 +1,5 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
+import type { IpcResponse, FileStats, AllowedPaths, FolderSelectResult } from './ipc.types'
 
 interface MenuState {
   canAddToFavorites?: boolean
@@ -53,31 +54,23 @@ interface API {
 }
 
 interface FileSystem {
-  readFile(filePath: string, encoding?: BufferEncoding): Promise<string | Buffer>
-  writeFile(filePath: string, data: string | Buffer, encoding?: BufferEncoding): Promise<boolean>
-  mkdir(dirPath: string): Promise<boolean>
-  isExists(filePath: string): Promise<boolean>
-  copyFile(srcPath: string, destPath: string): Promise<boolean>
-  appendFile(filePath: string, data: string): Promise<boolean>
-  rename(oldPath: string, newPath: string): Promise<boolean>
-  unlink(filePath: string): Promise<boolean>
-  rmdir(dirPath: string): Promise<boolean>
-  stat(path: string): Promise<{
-    isFile: boolean
-    isDirectory: boolean
-    size: number
-    created: string
-    modified: string
-  }>
-  readdir(dirPath: string): Promise<string[]>
-  getAllowedPaths(): Promise<{
-    appData: string
-    downloads: string
-  }>
-  selectDownloadsFolder(): Promise<{
-    cancelled: boolean
-    path: string | null
-  }>
+  readFile(filePath: string, encoding: BufferEncoding): Promise<IpcResponse<string | Buffer>>
+  writeFile(
+    filePath: string,
+    data: string | Buffer,
+    encoding: BufferEncoding
+  ): Promise<IpcResponse<boolean>>
+  mkdir(dirPath: string): Promise<IpcResponse<boolean>>
+  isExists(filePath: string): Promise<IpcResponse<boolean>>
+  copyFile(srcPath: string, destPath: string): Promise<IpcResponse<boolean>>
+  appendFile(filePath: string, data: string): Promise<IpcResponse<boolean>>
+  rename(oldPath: string, newPath: string): Promise<IpcResponse<boolean>>
+  unlink(filePath: string): Promise<IpcResponse<boolean>>
+  rmdir(dirPath: string): Promise<IpcResponse<boolean>>
+  stat(path: string): Promise<IpcResponse<FileStats>>
+  readdir(dirPath: string): Promise<IpcResponse<string[]>>
+  getAllowedPaths(): Promise<IpcResponse<AllowedPaths>>
+  selectDownloadsFolder(): Promise<IpcResponse<FolderSelectResult>>
 }
 
 declare global {

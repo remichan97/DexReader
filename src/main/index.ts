@@ -11,6 +11,8 @@ import {
   loadSettings,
   setDownloadsPath
 } from './filesystem/settingsManager'
+import { wrapIpcHandler } from './ipc/wrapHandler'
+import { validatePath, validateEncoding } from './ipc/validators'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -56,117 +58,87 @@ function createWindow(): void {
 // Setting up IPC handlers for filesystem operations
 function registerFileSystemHandlers(mainWindow: BrowserWindow): void {
   // Read files
-  ipcMain.handle('fs:read-file', async (_event, filePath: string, encoding?: BufferEncoding) => {
-    try {
-      return await secureFs.readFile(filePath, encoding)
-    } catch (error) {
-      throw new Error(`Unable to read file: ${error}`)
-    }
+  wrapIpcHandler('fs:read-file', async (_event, filePath: unknown, encoding: unknown) => {
+    const validPath = validatePath(filePath, 'filePath')
+    const validEncoding = validateEncoding(encoding, 'encoding')
+    return await secureFs.readFile(validPath, validEncoding)
   })
 
   // Write files
-  ipcMain.handle('fs:write-file', async (_event, filePath: string, data: string | Buffer) => {
-    try {
-      await secureFs.writeFile(filePath, data)
-      return true
-    } catch (error) {
-      throw new Error(`Unable to write file: ${error}`)
-    }
+  wrapIpcHandler('fs:write-file', async (_event, filePath: unknown, data: unknown) => {
+    const validPath = validatePath(filePath, 'filePath')
+    await secureFs.writeFile(validPath, data as string | Buffer)
+    return true
   })
 
   // Copy files
-  ipcMain.handle('fs:copy-file', async (_event, srcPath: string, destPath: string) => {
-    try {
-      await secureFs.copyFile(srcPath, destPath)
-      return true
-    } catch (error) {
-      throw new Error(`Unable to copy file: ${error}`)
-    }
+  wrapIpcHandler('fs:copy-file', async (_event, srcPath: unknown, destPath: unknown) => {
+    const validSrcPath = validatePath(srcPath, 'srcPath')
+    const validDestPath = validatePath(destPath, 'destPath')
+    await secureFs.copyFile(validSrcPath, validDestPath)
+    return true
   })
 
   // Append to file
-  ipcMain.handle('fs:append-file', async (_event, filePath: string, data: string | Buffer) => {
-    try {
-      await secureFs.appendFile(filePath, data)
-      return true
-    } catch (error) {
-      throw new Error(`Unable to append to file: ${error}`)
-    }
+  wrapIpcHandler('fs:append-file', async (_event, filePath: unknown, data: unknown) => {
+    const validPath = validatePath(filePath, 'filePath')
+    await secureFs.appendFile(validPath, data as string | Buffer)
+    return true
   })
 
   // Rename file or directory
-  ipcMain.handle('fs:rename', async (_event, oldPath: string, newPath: string) => {
-    try {
-      await secureFs.rename(oldPath, newPath)
-      return true
-    } catch (error) {
-      throw new Error(`Unable to rename: ${error}`)
-    }
+  wrapIpcHandler('fs:rename', async (_event, oldPath: unknown, newPath: unknown) => {
+    const validOldPath = validatePath(oldPath, 'oldPath')
+    const validNewPath = validatePath(newPath, 'newPath')
+    await secureFs.rename(validOldPath, validNewPath)
+    return true
   })
 
   // Check if path exists
-  ipcMain.handle('fs:is-exists', async (_event, path: string) => {
-    try {
-      return await secureFs.isExists(path)
-    } catch (error) {
-      throw new Error(`Unable to check path existence: ${error}`)
-    }
+  wrapIpcHandler('fs:is-exists', async (_event, pathToCheck: unknown) => {
+    const validPath = validatePath(pathToCheck, 'path')
+    return await secureFs.isExists(validPath)
   })
 
   // Create directory
-  ipcMain.handle('fs:mkdir', async (_event, dirPath: string) => {
-    try {
-      await secureFs.mkdir(dirPath)
-      return true
-    } catch (error) {
-      throw new Error(`Unable to create directory: ${error}`)
-    }
+  wrapIpcHandler('fs:mkdir', async (_event, dirPath: unknown) => {
+    const validPath = validatePath(dirPath, 'dirPath')
+    await secureFs.mkdir(validPath)
+    return true
   })
 
   // Delete file
-  ipcMain.handle('fs:unlink', async (_event, filePath: string) => {
-    try {
-      await secureFs.deleteFile(filePath)
-      return true
-    } catch (error) {
-      throw new Error(`Unable to delete file: ${error}`)
-    }
+  wrapIpcHandler('fs:unlink', async (_event, filePath: unknown) => {
+    const validPath = validatePath(filePath, 'filePath')
+    await secureFs.deleteFile(validPath)
+    return true
   })
 
   // Delete directory
-  ipcMain.handle('fs:rm', async (_event, dirPath: string, options?: { recursive?: boolean }) => {
-    try {
-      await secureFs.deleteDir(dirPath, options)
-      return true
-    } catch (error) {
-      throw new Error(`Unable to delete directory: ${error}`)
-    }
+  wrapIpcHandler('fs:rm', async (_event, dirPath: unknown, options: unknown) => {
+    const validPath = validatePath(dirPath, 'dirPath')
+    await secureFs.deleteDir(validPath, options as { recursive?: boolean } | undefined)
+    return true
   })
 
   // Get stats
-  ipcMain.handle('fs:stat', async (_event, path: string) => {
-    try {
-      const stats = await secureFs.stat(path)
-      // Serialize Stats object for IPC
-      return {
-        isFile: stats.isFile(),
-        isDirectory: stats.isDirectory(),
-        size: stats.size,
-        created: stats.birthtime.toISOString(),
-        modified: stats.mtime.toISOString()
-      }
-    } catch (error) {
-      throw new Error(`Unable to get stats: ${error}`)
+  wrapIpcHandler('fs:stat', async (_event, pathToStat: unknown) => {
+    const validPath = validatePath(pathToStat, 'path')
+    const stats = await secureFs.stat(validPath)
+    // Serialise Stats object for IPC
+    return {
+      isFile: stats.isFile(),
+      isDirectory: stats.isDirectory(),
+      size: stats.size,
+      created: stats.birthtime.toISOString(),
+      modified: stats.mtime.toISOString()
     }
   })
 
   // Read directory
-  ipcMain.handle('fs:readdir', async (_event, dirPath: string) => {
-    try {
-      return await secureFs.readDir(dirPath)
-    } catch (error) {
-      throw new Error(`Unable to read directory: ${error}`)
-    }
+  wrapIpcHandler('fs:readdir', async (_event, dirPath: unknown) => {
+    const validPath = validatePath(dirPath, 'dirPath')
+    return await secureFs.readDir(validPath)
   })
 
   // Get Allowed Paths
@@ -193,14 +165,14 @@ function registerFileSystemHandlers(mainWindow: BrowserWindow): void {
     })
 
     if (result.canceled || result.filePaths.length === 0) {
-      return { cancelled: true, path: null }
+      return { cancelled: true, filePath: undefined }
     }
 
     const selectedPath = result.filePaths[0]
 
     try {
       await setDownloadsPath(selectedPath)
-      return { cancelled: false, path: selectedPath }
+      return { cancelled: false, filePath: selectedPath }
     } catch (error) {
       throw new Error(`Unable to set downloads folder: ${error}`)
     }

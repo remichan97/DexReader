@@ -1,6 +1,6 @@
 # DexReader System Pattern
 
-**Last Updated**: 2 December 2025
+**Last Updated**: 5 December 2025
 **Version**: 1.0.0
 **Architecture**: Electron Multi-Process Desktop Application
 
@@ -476,37 +476,137 @@ if (!result.cancelled) {
 
 ---
 
-## IPC Communication Pattern
+## IPC Communication Architecture
 
-### Current Implementation
+**Status**: ✅ Implemented (P1-T08)
+**Documentation**: [ipc-messaging.md](../../docs/architecture/ipc-messaging.md)
 
-```typescript
-// Main Process (src/main/index.ts)
-ipcMain.on('ping', () => console.log('pong'))
+### Overview
 
-// Renderer Process (App.tsx)
-window.electron.ipcRenderer.send('ping')
+DexReader uses a robust IPC (Inter-Process Communication) architecture with **37 channels** across 6 categories. All IPC operations follow consistent patterns for type safety, error handling, and validation.
+
+### Channel Naming Convention
+
+```
+Pattern: <category>:<action>
+
+Examples:
+  fs:read-file           - Filesystem operations
+  theme:get-system-accent-color  - Theme operations
+
+Events (no prefix):
+  navigate               - Navigation event
+  theme-changed          - Theme change event
 ```
 
-### Recommended Pattern for Extension
+### Categories
+
+| Category | Channels | Description |
+|----------|----------|-------------|
+| Filesystem | 16 | File and directory operations with path validation |
+| Theme | 4 | System theme and accent colour detection |
+| Menu | 14 | Application menu actions and state updates |
+| Dialogue | 2 | Native confirmation and multi-choice dialogues |
+| Navigation | 1 | Route navigation events from menu |
+| Window | 0 | (Reserved for future window management) |
+
+### Error Handling System
+
+All IPC handlers use `wrapIpcHandler` for automatic error catching and serialisation:
 
 ```typescript
-// 1. Define in preload/index.ts
-const api = {
-  doSomething: (data) => ipcRenderer.invoke('do-something', data)
+// Main process
+import { wrapIpcHandler } from './ipc/wrapHandler'
+import { validatePath, validateEncoding } from './ipc/validators'
+
+wrapIpcHandler('fs:read-file', async (_event, filePath: unknown, encoding: unknown) => {
+  const validPath = validatePath(filePath, 'filePath')
+  const validEncoding = validateEncoding(encoding, 'encoding')
+  return await secureFs.readFile(validPath, validEncoding)
+})
+```
+
+**Custom Error Classes**:
+- `IpcError` - Base error with code and details
+- `FileSystemError` - Filesystem operation failures
+- `ValidationError` - Invalid parameter errors
+- `ThemeError` - Theme-related errors
+
+**Error Serialisation**:
+```typescript
+{
+  name: 'FileSystemError',
+  message: 'Failed to read file',
+  code: 'FS_ERROR',
+  details: { operation: 'read', path: '...' },
+  stack: '...'  // Development only
+}
+```
+
+### Request Validation
+
+Three core validators ensure parameter integrity:
+
+```typescript
+validateString(value, fieldName)    // Type checking
+validatePath(value, fieldName)      // Non-empty path validation
+validateEncoding(value, fieldName)  // BufferEncoding enum validation
+```
+
+All 11 filesystem handlers validate inputs before processing, preventing injection attacks and type errors.
+
+### Type Safety
+
+**Shared Types** (`src/preload/ipc.types.ts`):
+```typescript
+export interface IpcResponse<T = unknown> {
+  success: boolean
+  data?: T
+  error?: ISerialiseError
 }
 
-// 2. Handle in main/index.ts
-ipcMain.handle('do-something', async (event, data) => {
-  // Process and return result
-  return result
-})
-
-// 3. Use in renderer
-const result = await window.api.doSomething(data)
+export interface FileStats {
+  isFile: boolean
+  isDirectory: boolean
+  size: number
+  created: string
+  modified: string
+}
 ```
 
-**Types**: Always update `preload/index.d.ts` for TypeScript support
+**Type Guards** (`src/renderer/src/utils/ipcTypeGuards.ts`):
+```typescript
+function isIpcSuccess<T>(response: IpcResponse<T>): response is { success: true; data: T }
+function isIpcError<T>(response: IpcResponse<T>): response is { success: false; error: ISerialiseError }
+```
+
+**Usage in Renderer**:
+```typescript
+const response = await window.fileSystem.readFile(path, 'utf-8')
+
+if (isIpcSuccess(response)) {
+  // TypeScript knows response.data is string | Buffer
+  setContent(response.data)
+} else {
+  // TypeScript knows response.error is ISerialiseError
+  console.error(response.error.message)
+  if (response.error.code === 'FS_ERROR') {
+    toast.error('Couldn\'t read the file')
+  }
+}
+```
+
+### Adding New IPC Handlers
+
+1. **Define types** in `src/preload/ipc.types.ts`
+2. **Create validators** in `src/main/ipc/validators.ts` (if needed)
+3. **Implement handler** with `wrapIpcHandler` in main process
+4. **Expose in preload** via `contextBridge.exposeInMainWorld`
+5. **Update types** in `src/preload/index.d.ts`
+6. **Register in registry** at `src/main/ipc/registry.ts`
+7. **Use in renderer** with type guards
+
+See [ipc-messaging.md](../../docs/architecture/ipc-messaging.md) for complete guide.
 
 ---
 

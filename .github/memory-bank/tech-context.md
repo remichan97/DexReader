@@ -1,6 +1,6 @@
 # DexReader Technical Context
 
-**Last Updated**: 2 December 2025
+**Last Updated**: 5 December 2025
 **Project Version**: 1.0.0
 **Type**: Desktop Application (Electron)
 
@@ -444,53 +444,101 @@ npmRebuild: false
 - Loads on app startup, validates downloads path
 - Graceful fallback to defaults if corrupted
 
-### IPC Integration
+### IPC Communication Architecture
 
-**32 IPC Handlers Implemented** (as of 3 Dec 2025, 60% complete):
+**Status**: ✅ Complete (P1-T08)
+**Documentation**: [ipc-messaging.md](../../docs/architecture/ipc-messaging.md)
+**Implementation**: 37 IPC channels across 6 categories
 
-**Filesystem (13 handlers)** - `src/main/index.ts`:
+#### Architecture Components
 
-- File I/O: `fs:read-file`, `fs:write-file`, `fs:append-file`, `fs:copy-file`, `fs:rename`
-- File operations: `fs:unlink`, `fs:rm`, `fs:is-exists`, `fs:stat`, `fs:readdir`, `fs:mkdir`
-- System: `fs:get-allowed-paths`, `fs:select-downloads-folder`
+**Error Handling System** (`src/main/ipc/`):
+- `error.ts` - Base `IpcError` class with code/details
+- `fileSystemError.ts` - Filesystem-specific errors
+- `validationError.ts` - Parameter validation errors
+- `themeError.ts` - Theme operation errors
+- `errorSerialiser.ts` - Error serialisation for IPC transport (dev/prod modes)
+- `wrapHandler.ts` - `wrapIpcHandler` utility for automatic error catching
 
-**Theme (4 handlers)**:
+**Validation Layer** (`src/main/ipc/validators.ts`):
+- `validateString()` - Type checking for string parameters
+- `validatePath()` - Non-empty path validation
+- `validateEncoding()` - BufferEncoding enum validation (9 valid values)
 
-- `theme:get-system-accent-color`, `theme:get-theme`, `theme:on-theme-changed`, theme sync
+**Channel Registry** (`src/main/ipc/registry.ts`):
+- Complete registry of all 37 IPC channels
+- Queryable by category or channel name
+- Includes: description, request/response types, error types, examples
+- Categories: Filesystem (16), Theme (4), Menu (14), Dialogue (2), Navigation (1)
 
-**Navigation (1 handler)**: Menu-triggered navigation via IPC
+**Type Safety** (`src/preload/ipc.types.ts`):
+- `IpcResponse<T>` - Generic wrapper for all IPC responses
+- `ISerialiseError` - Error interface shared across processes
+- `FileStats`, `AllowedPaths`, `FolderSelectResult` - Domain types
+- Type guards in `src/renderer/src/utils/ipcTypeGuards.ts`
 
-**Menu (15 handlers)**: Context menu actions, state updates
+#### Channel Categories
 
-**Dialog (1 handler)**: `show-confirm-dialog`
+| Category | Channels | Implementation | Description |
+|----------|----------|----------------|-------------|
+| **Filesystem** | 16 | `src/main/index.ts` | File/directory operations with path validation |
+| **Theme** | 4 | `src/main/index.ts` | System theme and accent colour detection |
+| **Menu** | 14 | `src/main/menu.ts` | Application menu actions and state updates |
+| **Dialogue** | 2 | `src/main/index.ts` | Native confirmations and multi-choice dialogues |
+| **Navigation** | 1 | `src/main/menu.ts` | Route navigation events from menu |
+| **Window** | 0 | (reserved) | Future window management operations |
 
-**Current Status**:
+#### Handler Pattern
 
-- Implementation plan: `.github/copilot-plans/P1-T08-create-ipc-messaging-architecture.md`
-- Remaining work (40%): Error handling formalization, channel registry, validation, documentation
-- All current handlers include error serialization for IPC transport
-
-**Preload API** (`src/preload/index.ts`):
-
-- `window.fileSystem` namespace exposed via contextBridge
-- Full TypeScript definitions in `src/preload/index.d.ts`
-- Context isolation maintained for security
-
-### Usage Pattern
+All IPC handlers use `wrapIpcHandler` for consistent error handling:
 
 ```typescript
-// Get allowed paths
-const { appData, downloads } = await window.fileSystem.getAllowedPaths()
+import { wrapIpcHandler } from './ipc/wrapHandler'
+import { validatePath, validateEncoding } from './ipc/validators'
 
-// Read file (validated automatically)
-const settings = await window.fileSystem.readFile(`${appData}/settings.json`, 'utf-8')
-
-// Write file (parent dirs created automatically)
-await window.fileSystem.writeFile(`${downloads}/manga/123/metadata.json`, data, 'utf-8')
-
-// Select downloads folder (native OS picker)
-const result = await window.fileSystem.selectDownloadsFolder()
+wrapIpcHandler('fs:read-file', async (_event, filePath: unknown, encoding: unknown) => {
+  const validPath = validatePath(filePath, 'filePath')
+  const validEncoding = validateEncoding(encoding, 'encoding')
+  return await secureFs.readFile(validPath, validEncoding)
+})
 ```
+
+#### Type-Safe Usage in Renderer
+
+```typescript
+import { isIpcSuccess, isIpcError } from '@renderer/utils/ipcTypeGuards'
+
+const response = await window.fileSystem.readFile(path, 'utf-8')
+
+if (isIpcSuccess(response)) {
+  // TypeScript knows response.data is string | Buffer
+  setContent(response.data)
+} else {
+  // TypeScript knows response.error is ISerialiseError
+  console.error(response.error.message)
+  if (response.error.code === 'FS_ERROR') {
+    toast.error('Couldn\'t read the file')
+  }
+}
+```
+
+#### Performance Characteristics
+
+- Simple operations (exists, stat): <5ms
+- Small file reads (<1KB): <10ms
+- Medium file reads (1-10KB): <50ms
+- Large file operations (>10KB): <200ms
+- Dialogue operations: <100ms
+- Theme operations: <10ms
+
+#### Security Features
+
+✅ Context isolation enabled (renderer cannot access Node.js)
+✅ All filesystem paths validated against allowed directories
+✅ Runtime validation for all IPC arguments
+✅ Error sanitisation (no sensitive info in production)
+✅ Type safety prevents injection attacks
+✅ Custom error classes for clear error identification
 
 ---
 

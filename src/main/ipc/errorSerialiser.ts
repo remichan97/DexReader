@@ -1,12 +1,8 @@
 import { IpcError } from './error'
 
-interface ISerialiseError {
-  name: string
-  message: string
-  code?: string
-  details?: unknown
-  stack?: string
-}
+// Re-export shared type for convenience
+export type { ISerialiseError } from '../../preload/ipc.types'
+import type { ISerialiseError } from '../../preload/ipc.types'
 
 export function serialiseError(error: unknown): ISerialiseError {
   if (error instanceof IpcError) {

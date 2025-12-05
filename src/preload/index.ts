@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import { IpcResponse, FileStats, AllowedPaths, FolderSelectResult } from './ipc.types'
 
 // Custom APIs for renderer
 const api = {
@@ -91,46 +92,58 @@ const api = {
 // File system API
 const fileSystem = {
   // read file
-  readFile: (filePath: string, encoding: BufferEncoding) =>
+  readFile: (filePath: string, encoding: BufferEncoding): Promise<IpcResponse<string | Buffer>> =>
     ipcRenderer.invoke('fs:read-file', filePath, encoding),
 
   // write file
-  writeFile: (filePath: string, data: string, encoding: BufferEncoding) =>
-    ipcRenderer.invoke('fs:write-file', filePath, data, encoding),
+  writeFile: (
+    filePath: string,
+    data: string | Buffer,
+    encoding: BufferEncoding
+  ): Promise<IpcResponse<boolean>> => ipcRenderer.invoke('fs:write-file', filePath, data, encoding),
+
   // check if path exists
-  isExists: (filePath: string) => ipcRenderer.invoke('fs:is-exists', filePath),
+  isExists: (filePath: string): Promise<IpcResponse<boolean>> =>
+    ipcRenderer.invoke('fs:is-exists', filePath),
 
   // copy file
-  copyFile: (srcPath: string, destPath: string) =>
+  copyFile: (srcPath: string, destPath: string): Promise<IpcResponse<boolean>> =>
     ipcRenderer.invoke('fs:copy-file', srcPath, destPath),
 
   // append to file
-  appendFile: (filePath: string, data: string) =>
+  appendFile: (filePath: string, data: string): Promise<IpcResponse<boolean>> =>
     ipcRenderer.invoke('fs:append-file', filePath, data),
 
   // rename file or directory
-  rename: (oldPath: string, newPath: string) => ipcRenderer.invoke('fs:rename', oldPath, newPath),
+  rename: (oldPath: string, newPath: string): Promise<IpcResponse<boolean>> =>
+    ipcRenderer.invoke('fs:rename', oldPath, newPath),
 
   // create directory
-  mkdir: (dirPath: string) => ipcRenderer.invoke('fs:mkdir', dirPath),
+  mkdir: (dirPath: string): Promise<IpcResponse<boolean>> =>
+    ipcRenderer.invoke('fs:mkdir', dirPath),
 
   // Delete file
-  unlink: (filePath: string) => ipcRenderer.invoke('fs:unlink', filePath),
+  unlink: (filePath: string): Promise<IpcResponse<boolean>> =>
+    ipcRenderer.invoke('fs:unlink', filePath),
 
   // Delete directory
-  rmdir: (dirPath: string) => ipcRenderer.invoke('fs:rmdir', dirPath),
+  rmdir: (dirPath: string): Promise<IpcResponse<boolean>> =>
+    ipcRenderer.invoke('fs:rmdir', dirPath),
 
   // Get stats
-  stat: (path: string) => ipcRenderer.invoke('fs:stat', path),
+  stat: (path: string): Promise<IpcResponse<FileStats>> => ipcRenderer.invoke('fs:stat', path),
 
   // Read directory
-  readdir: (dirPath: string) => ipcRenderer.invoke('fs:readdir', dirPath),
+  readdir: (dirPath: string): Promise<IpcResponse<string[]>> =>
+    ipcRenderer.invoke('fs:readdir', dirPath),
 
-  //Get Allowed Paths
-  getAllowedPaths: () => ipcRenderer.invoke('fs:get-allowed-paths'),
+  // Get Allowed Paths
+  getAllowedPaths: (): Promise<IpcResponse<AllowedPaths>> =>
+    ipcRenderer.invoke('fs:get-allowed-paths'),
 
   // Select download folder
-  selectDownloadsFolder: () => ipcRenderer.invoke('fs:select-downloads-folder')
+  selectDownloadsFolder: (): Promise<IpcResponse<FolderSelectResult>> =>
+    ipcRenderer.invoke('fs:select-downloads-folder')
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
