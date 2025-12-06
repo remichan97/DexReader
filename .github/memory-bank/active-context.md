@@ -1,8 +1,8 @@
 # DexReader Active Context
 
 **Last Updated**: 6 December 2025
-**Current Phase**: Phase 1 - Core Architecture (Complete ✅)
-**Session**: P1-T09 Implementation Complete - Phase 1 Finished (9/9 tasks)
+**Current Phase**: Phase 2 - Content Display (In Progress)
+**Session**: P2-T01 Planning Complete - Ready for Implementation
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -10,13 +10,81 @@
 
 ## Current Status Summary
 
-**Phase**: Phase 1 - Core Architecture ✅ COMPLETE
-**Progress**: P1-T09 COMPLETE (100%), Phase 1 finished - 9 of 9 tasks (100%)
+**Phase**: Phase 2 - Content Display (In Progress)
+**Progress**: P2-T01 planning complete, ready to implement MangaDex API client
 **Current Date**: 6 December 2025
-**Next Phase**: Phase 2 - UI Component Library
-**Next Session**: 7+ December 2025
+**Phase 1 Status**: Complete ✅ (9/9 tasks, 100%)
+**Current Task**: P2-T01 - Implement MangaDex Public API Client
 
-### ✅ Completed This Session (6 Dec 2025 - P1-T09 COMPLETE, Phase 1 COMPLETE)
+### 🎯 Current Work (6 Dec 2025 - P2-T01 Planning)
+
+**Phase 2 Started**: Content Display phase begins with MangaDex API integration
+
+**P2-T01 Implementation Plan Created** (36 hours, 9 steps):
+
+- Comprehensive plan saved to `.github/copilot-plans/P2-T01-implement-mangadex-api-client.md`
+- **Step 1**: API Constants & Configuration (2h) - Base URLs, rate limits, enums
+- **Step 2**: TypeScript Interfaces (4h) - Manga, Chapter, response wrappers, search params
+- **Step 3**: Rate Limiter (4h) - Token bucket algorithm, 5 req/s global, endpoint-specific limits
+- **Step 4**: Image Proxy with Ephemeral Cache (4h) - Custom protocol handler, memory-only cache
+- **Step 5**: Core API Client (8h) - MangaDexClient class, all endpoints, error handling
+- **Step 6**: IPC Bridge (4h) - Expose to renderer via contextBridge, 6 IPC handlers
+- **Step 7**: Documentation (4h) - mangadex-api.md guide with examples
+- **Step 8**: Memory Bank Updates (2h) - Update system-pattern.md and tech-context.md
+- **Step 9**: Testing (4h) - Manual testing via Settings → Advanced test UI
+
+**Key API Details Researched**:
+
+- Base URL: `https://api.mangadex.org`
+- Authentication: NOT required for public endpoints
+- Rate Limiting: ~5 req/s global, 40 req/min for at-home endpoint
+- Penalties: HTTP 429 → HTTP 403 (temp ban) → IP block
+- Image Distribution: Via MangaDex@Home servers with 15-minute URL validity
+- Pagination: Max `offset + limit = 10,000`, max `limit = 100`
+- Quality Modes: `data` (original) and `data-saver` (compressed)
+- Primary Endpoints: Search manga, get manga, get feed, get chapter, get images, cover URLs
+
+**Image Proxy Requirement** (Critical Architecture Decision):
+
+- **Problem**: MangaDex blocks direct hotlinking - returns wrong images if accessed directly from renderer
+- **Solution**: Custom protocol handler (`mangadex://`) in main process
+- **Why Protocol Handler**: Native Chromium integration, streaming support, lowest memory overhead
+- **Implementation**: `protocol.handle('mangadex', ...)` fetches images and serves to renderer
+- **All images proxied**: Chapter pages, covers, thumbnails
+
+**Caching Strategy** (Progressive by Phase):
+
+- **Phase 2 (Streaming)**: Ephemeral memory cache
+  - Chapter images: 30MB LRU cache, 15-min expiry
+  - Cover images: 20MB LRU cache, no expiry
+  - Total: ~50MB memory limit
+  - Cleared on app close
+  - Use case: Smooth online reading
+
+- **Phase 3 (Bookmarks)**: Persistent metadata cache
+  - Storage: AppData/metadata/
+  - Content: Cover images (512x512) + manga metadata
+  - Trigger: User bookmarks manga
+  - Use case: Instant library view
+
+- **Phase 4 (Downloads)**: Full offline storage
+  - Storage: User downloads directory
+  - Content: Complete chapter images (all pages, original quality)
+  - Trigger: Explicit "Download" action
+  - Use case: Complete offline reading
+
+**MangaDex Usage Policy**:
+
+- Must credit MangaDex
+- Must credit scanlation groups
+- Cannot run ads or paid services
+- Must honor group removal requests
+
+**Ready for Implementation**: All architectural decisions made, comprehensive plan in place
+
+---
+
+### ✅ Recently Completed (6 Dec 2025 - Phase 1 COMPLETE)
 
 **P1-T09 Full Implementation** (Steps 1-8 Complete, 100%):
 

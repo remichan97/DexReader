@@ -1,7 +1,7 @@
 # DexReader Project Progress & Timeline
 
 **Project Start**: 23 November 2025
-**Current Phase**: Phase 1 - Core Architecture (Complete ✅)
+**Current Phase**: Phase 2 - Content Display (In Progress 🔵)
 **Last Updated**: 6 December 2025
 
 ---
@@ -21,7 +21,14 @@
 
 ---
 
-## Current Status: Phase 1 Complete ✅
+## Current Status: Phase 2 In Progress 🔵
+
+### Phase 2 Current Task
+
+- [🔵] **P2-T01**: Implement MangaDex public API client (TypeScript) - **PLANNING COMPLETE**
+  - Comprehensive implementation plan created (32 hours, 8 steps)
+  - Plan location: `.github/copilot-plans/P2-T01-implement-mangadex-api-client.md`
+  - Ready for implementation
 
 ### Phase 1 Completed Tasks (9/9 - 100%)
 
@@ -127,12 +134,12 @@
 
 ---
 
-### Phase 2: Content Display (Planned) ⚪
+### Phase 2: Content Display (In Progress) 🔵
 
 **Duration**: 4-5 weeks
-**Status**: Not Started
-**Target Start**: January 2026
-**Target Completion**: February 2026
+**Status**: In Progress - P2-T01 Planning Complete
+**Start Date**: 6 December 2025
+**Target Completion**: January 2026
 
 **Objectives**:
 
@@ -154,7 +161,7 @@
 
 **Key Technical Tasks**:
 
-- [ ] **P2-T01**: Implement MangaDex public API client (TypeScript)
+- [🔵] **P2-T01**: Implement MangaDex public API client (TypeScript) - Planning Complete
 - [ ] **P2-T02**: Create manga search interface (public endpoint)
 - [ ] **P2-T03**: Implement manga detail view (cover, description, chapters)
 - [ ] **P2-T04**: Add cover image fetching and caching
@@ -536,32 +543,56 @@
 
 ## Next Steps (Immediate Actions)
 
-1. **P1-T05 Step 1 - Path Validation Module** (Priority: High, In Progress)
-   - Create `src/main/filesystem/pathValidator.ts`
-   - Implement path normalization function
-   - Implement path validation logic
-   - Add security checks for traversal attacks
-   - Developer implements hands-on, Copilot reviews
+1. **P2-T01 Implementation** (Priority: High, Ready to Start)
+   - Follow 8-step implementation plan in `.github/copilot-plans/P2-T01-implement-mangadex-api-client.md`
+   - Step 1: API Constants & Configuration (2 hours)
+   - Step 2: TypeScript Interfaces (4 hours)
+   - Step 3: Rate Limiter Implementation (4 hours)
+   - Step 4: Core API Client (8 hours)
+   - Step 5: IPC Bridge for Renderer (4 hours)
+   - Step 6: Documentation (4 hours)
+   - Step 7: Memory Bank Updates (2 hours)
+   - Step 8: Basic Testing (4 hours)
+   - Estimated duration: 32 hours (4 days)
 
-2. **P1-T05 Continuation** (Priority: High)
-   - Complete all 9 implementation steps
-   - Regular code reviews with Copilot
-   - Test each module as implemented
-   - Update documentation as needed
+2. **P2-T02 - Manga Search Interface** (Priority: High, After P2-T01)
+   - Build search UI using MangaDex API client
+   - Implement filters (tags, content rating, status)
+   - Add pagination controls
+   - Display search results with MangaCard components
 
-3. **P1-T06 - Path Validation System** (Priority: High, After P1-T05)
-   - Extends P1-T05 validation with additional layers
-   - Security middleware for operations
-   - Enhanced sanitization
-
-4. **Continue Phase 1 Tasks** (Priority: Medium)
-   - P1-T07: File system handlers
-   - P1-T08: Complete IPC architecture
-   - P1-T09: Basic error handling
+3. **Continue Phase 2 Tasks** (Priority: Medium)
+   - P2-T03: Manga detail view
+   - P2-T04: Cover image caching
+   - P2-T05: Chapter list fetching
 
 ---
 
 ## Notes & Decisions
+
+### 6 December 2025 - Phase 2 Started: P2-T01 Planning Complete
+
+- ✅ **Phase 1 Complete**: All 9 tasks finished (100%)
+  - Duration: 2 weeks (24 Nov - 6 Dec 2025)
+  - Deliverables: App shell, routing, 17 UI components, 4 Zustand stores, IPC architecture (37 channels), filesystem security, error handling system (25 files)
+  - Documentation: 4 architecture docs, 4 memory bank files updated
+  - Zero compilation errors, production-ready foundation
+
+- ✅ **P2-T01 Planning Complete**: Comprehensive MangaDex API client implementation plan
+  - **Plan Location**: `.github/copilot-plans/P2-T01-implement-mangadex-api-client.md`
+  - **Duration Estimate**: 32 hours (4 days)
+  - **8 Implementation Steps**: Constants, interfaces, rate limiter, API client, IPC bridge, documentation, memory bank updates, testing
+  - **Architecture**: TypeScript client with token bucket rate limiter (5 req/s global, endpoint-specific limits)
+  - **Key Features**: Type-safe interfaces, automatic retry on 429, error handling, image URL fetching, cover CDN support
+  - **MangaDex API Research**: Documented base URLs, rate limits, pagination constraints, image distribution workflow
+  - **No Dependencies**: Uses native fetch API (Node.js 18+, bundled with Electron)
+  - **Integration**: Uses existing error handling (P1-T09) and IPC patterns (P1-T08)
+  - Ready for implementation when user is available
+
+- 🔵 **Phase 2 In Progress**: Content Display phase started
+  - First task: P2-T01 (MangaDex API client)
+  - Target completion: January 2026
+  - Next tasks: Search UI, manga detail view, chapter viewer
 
 ### 2 December 2025 (Evening) - P1-T05 Planning Complete + Development Approach Established
 

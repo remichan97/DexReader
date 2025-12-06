@@ -46,6 +46,124 @@ _\*Note: Electron bundles its own Node.js runtime (~v20.x). Development uses sys
 
 ---
 
+## MangaDex API Integration (Phase 2+)
+
+### API Client Architecture
+
+**Location**: `src/main/api/`
+
+| File | Purpose | Key Exports |
+|------|---------|-------------|
+| **constants.ts** | API URLs, enums, rate limits | `BASE_URL`, `ContentRating`, `PublicationStatus`, `RATE_LIMITS` |
+| **types.ts** | TypeScript interfaces (~40 interfaces) | `Manga`, `Chapter`, `MangaSearchParams`, `CollectionResponse<T>` |
+| **rateLimiter.ts** | Token bucket rate limiter | `RateLimiter` class |
+| **imageProxy.ts** | Custom protocol handler + cache | `ImageProxy` class |
+| **mangadexClient.ts** | Main API client | `MangaDexClient` class |
+
+### Image Proxy System
+
+**Critical Architecture Decision**: Custom protocol handler for image proxying
+
+**Why**: MangaDex blocks direct hotlinking - images must be fetched through main process
+
+**Protocol**: `mangadex://`
+
+- Registered via `protocol.handle('mangadex', ...)` in main process
+- Replaces `https://` in all image URLs
+- Transparent to renderer - works like regular image URLs
+
+**Cache Implementation** (Phase 2 - Ephemeral):
+
+```typescript
+class ImageProxy {
+  private chapterCache: Map<string, CacheEntry> = new Map()  // 30MB
+  private coverCache: Map<string, CacheEntry> = new Map()    // 20MB
+
+  // Each CacheEntry: { buffer: Buffer, timestamp: number, size: number }
+  // LRU eviction when cache full
+  // 15-minute expiry for chapter images
+}
+```
+
+**Memory Limits**:
+
+- Chapter images: 30MB (LRU eviction)
+- Cover images: 20MB (LRU eviction)
+- Per-image max: 5MB (larger images not cached)
+- Total: ~50MB for streaming mode
+
+**Caching by Phase**:
+
+- **Phase 2**: Ephemeral memory cache (in-memory Maps)
+- **Phase 3**: Persistent covers for bookmarks (AppData/metadata/)
+- **Phase 4**: Full offline downloads (user downloads directory)
+
+### API Client Methods
+
+**Endpoints Exposed to Renderer**:
+
+```typescript
+window.mangadex.searchManga(params: MangaSearchParams): Promise<CollectionResponse<Manga>>
+window.mangadex.getManga(id: string, includes?: string[]): Promise<APIResponse<Manga>>
+window.mangadex.getMangaFeed(id: string, params: FeedParams): Promise<CollectionResponse<Chapter>>
+window.mangadex.getChapter(id: string, includes?: string[]): Promise<APIResponse<Chapter>>
+window.mangadex.getChapterImages(chapterId: string, quality?: 'data' | 'data-saver'): Promise<ImageUrl[]>
+window.mangadex.getCoverUrl(mangaId: string, fileName: string, size?: CoverSize): string
+```
+
+**IPC Channels** (6 new handlers in Phase 2):
+
+- `mangadex:search-manga`
+- `mangadex:get-manga`
+- `mangadex:get-manga-feed`
+- `mangadex:get-chapter`
+- `mangadex:get-chapter-images`
+- `mangadex:get-cover-url`
+
+### Rate Limiting
+
+**Algorithm**: Token bucket
+
+- Global: 5 requests/second capacity, refills at 5/sec
+- At-home endpoint: 40 requests/minute (tracked separately)
+- Automatic throttling via `await rateLimiter.waitForSlot()`
+- Exponential backoff on HTTP 429 responses
+
+**Integration**: Every API request waits for rate limiter before fetch
+
+### Error Handling
+
+**Custom Error Types**:
+
+```typescript
+class MangaDexAPIError extends Error {
+  status: number
+  errors: ErrorResponse
+  requestId: string | null
+}
+
+class MangaDexNetworkError extends Error {
+  url: string
+}
+```
+
+**IPC Integration**: All handlers wrapped with `wrapHandler()` from P1-T08
+
+### Dependencies
+
+**External**: NONE (uses native APIs)
+
+- Native `fetch()` for HTTP requests
+- `AbortSignal.timeout()` for request timeouts
+- Electron `protocol` and `net` modules for image proxy
+
+**Internal Dependencies**:
+
+- Error handling system (P1-T09): `wrapHandler`, `getUserFriendlyError`
+- IPC architecture (P1-T08): contextBridge patterns
+
+---
+
 ## Development Environment
 
 ### Required Software

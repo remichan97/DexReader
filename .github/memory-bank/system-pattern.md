@@ -45,6 +45,124 @@
 
 ---
 
+## MangaDex API Integration
+
+### Image Proxy Architecture
+
+**Critical Requirement**: MangaDex **blocks direct image hotlinking** - attempting to load images directly from the renderer will return wrong/incorrect images. All images MUST be proxied through the main process.
+
+**Implementation**: Custom protocol handler (`mangadex://`)
+
+- **Why Protocol Handler**: Native Chromium integration, streaming support, lowest memory overhead
+- **Alternatives Rejected**:
+  - Base64 IPC: 33% memory overhead, message size limits
+  - Localhost HTTP server: Extra port management, server overhead
+- **Registration**: `protocol.handle('mangadex', ...)` in main process on `app.whenReady()`
+- **URL Format**: `mangadex://uploads.mangadex.org/covers/...` (replaces `https://`)
+- **All images use protocol**: Chapter pages, cover images, thumbnails
+
+**Security: Internal Protocol Only**
+
+- **Scope**: Protocol is ONLY accessible within DexReader's renderer processes
+- **Not OS-registered**: We do NOT call `app.setAsDefaultProtocolClient('mangadex')`
+- **No external access**: Other applications, browsers, or websites cannot trigger `mangadex://` URLs
+- **Sandboxed**: Protocol handler inherits app's security context
+- **Future consideration**: If we need OS-level protocol handling (e.g., "Open in DexReader" from browser), use a different protocol like `dexreader://` with explicit validation
+
+### Caching Strategy: Progressive by Phase
+
+**IMPORTANT**: Caching is implemented progressively across phases. Each phase has different caching requirements and storage mechanisms.
+
+#### Phase 2 (Streaming Mode): Ephemeral Memory Cache
+
+**Scope**: Online reading only, temporary session cache
+
+- **Chapter Images**: 30MB LRU cache, 15-minute expiry
+- **Cover Images**: 20MB LRU cache, no expiry (metadata stable)
+- **Total Memory Limit**: ~50MB maximum
+- **Storage**: In-memory only (`Map<string, Buffer>`)
+- **Persistence**: NONE - cleared on app close
+- **Eviction**: LRU (Least Recently Used) when cache full
+- **Expiry**: 15 minutes (matches MangaDex URL validity)
+- **Use Case**: Smooth page navigation during online reading
+- **Clear Trigger**: Chapter switch clears chapter cache
+
+**Implementation**:
+```typescript
+class ImageProxy {
+  private chapterCache: Map<string, CacheEntry>  // 30MB limit
+  private coverCache: Map<string, CacheEntry>    // 20MB limit
+
+  registerProtocol() {
+    protocol.handle('mangadex', async (request) => {
+      // 1. Check cache (if not expired)
+      // 2. Fetch from network if cache miss
+      // 3. Add to appropriate cache with LRU eviction
+      // 4. Return Response with buffer
+    })
+  }
+}
+```
+
+#### Phase 3 (Bookmarks): Persistent Metadata Cache
+
+**Scope**: Cached metadata and covers for favourited/bookmarked manga
+
+- **Storage Location**: `AppData/DexReader/metadata/`
+- **Cover Images**: 512x512 JPG, persistent on disk
+- **Metadata**: Manga details, chapter lists, tags
+- **Trigger**: User adds manga to favourites/library
+- **Invalidation**: Based on `updatedAt` timestamps from API
+- **Benefit**: Instant library view, offline metadata browsing
+- **Size Limit**: TBD (likely 500MB-1GB for metadata + covers)
+
+#### Phase 4 (Downloads): Full Offline Storage
+
+**Scope**: Complete chapter downloads for offline reading
+
+- **Storage Location**: User-configured downloads directory
+- **Content**: Full chapter images (all pages, original quality)
+- **Trigger**: Explicit "Download Chapter" or "Download Manga" action
+- **Management**: Download queue, progress tracking, storage quota
+- **Metadata**: JSON manifest per manga/chapter
+- **Benefit**: Complete offline reading capability
+
+**Key Distinction**:
+- **Streaming (Phase 2)**: Ephemeral, memory-only, automatic
+- **Bookmarks (Phase 3)**: Persistent covers/metadata, automatic on bookmark
+- **Downloads (Phase 4)**: Persistent full chapters, manual user action
+
+### Rate Limiting
+
+**Global Limit**: 5 requests/second per IP
+**At-Home Endpoint**: 40 requests/minute (image URLs)
+**Penalties**: HTTP 429 → HTTP 403 (temp ban) → IP block
+
+**Implementation**: Token bucket algorithm
+
+- Capacity: 5 tokens
+- Refill rate: 5 tokens/second
+- Per-endpoint tracking for at-home limit
+- Exponential backoff on 429 responses (1s → 2s → 4s... max 60s)
+- Respect `Retry-After` header if present
+
+**Integration**: All API requests call `await rateLimiter.waitForSlot()` before fetch
+
+### Error Handling
+
+**Custom Error Types**:
+- `MangaDexAPIError`: HTTP errors from API (4xx, 5xx)
+- `MangaDexNetworkError`: Network/timeout failures
+
+**Retry Strategy**:
+- HTTP 429: Automatic retry after backoff
+- Network errors: Up to 3 retries with exponential backoff
+- Other errors: Immediate failure, user-facing error message
+
+**Request Tracking**: Log `X-Request-Id` header on all errors for debugging
+
+---
+
 ## Development Approach
 
 ### Backend Development Philosophy
