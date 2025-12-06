@@ -453,6 +453,7 @@ npmRebuild: false
 #### Architecture Components
 
 **Error Handling System** (`src/main/ipc/`):
+
 - `error.ts` - Base `IpcError` class with code/details
 - `fileSystemError.ts` - Filesystem-specific errors
 - `validationError.ts` - Parameter validation errors
@@ -461,17 +462,20 @@ npmRebuild: false
 - `wrapHandler.ts` - `wrapIpcHandler` utility for automatic error catching
 
 **Validation Layer** (`src/main/ipc/validators.ts`):
+
 - `validateString()` - Type checking for string parameters
 - `validatePath()` - Non-empty path validation
 - `validateEncoding()` - BufferEncoding enum validation (9 valid values)
 
 **Channel Registry** (`src/main/ipc/registry.ts`):
+
 - Complete registry of all 37 IPC channels
 - Queryable by category or channel name
 - Includes: description, request/response types, error types, examples
 - Categories: Filesystem (16), Theme (4), Menu (14), Dialogue (2), Navigation (1)
 
 **Type Safety** (`src/preload/ipc.types.ts`):
+
 - `IpcResponse<T>` - Generic wrapper for all IPC responses
 - `ISerialiseError` - Error interface shared across processes
 - `FileStats`, `AllowedPaths`, `FolderSelectResult` - Domain types

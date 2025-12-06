@@ -590,12 +590,14 @@ wrapIpcHandler('fs:read-file', async (_event, filePath: unknown, encoding: unkno
 ```
 
 **Custom Error Classes**:
+
 - `IpcError` - Base error with code and details
 - `FileSystemError` - Filesystem operation failures
 - `ValidationError` - Invalid parameter errors
 - `ThemeError` - Theme-related errors
 
 **Error Serialisation**:
+
 ```typescript
 {
   name: 'FileSystemError',
@@ -621,6 +623,7 @@ All 11 filesystem handlers validate inputs before processing, preventing injecti
 ### Type Safety
 
 **Shared Types** (`src/preload/ipc.types.ts`):
+
 ```typescript
 export interface IpcResponse<T = unknown> {
   success: boolean
@@ -638,12 +641,14 @@ export interface FileStats {
 ```
 
 **Type Guards** (`src/renderer/src/utils/ipcTypeGuards.ts`):
+
 ```typescript
 function isIpcSuccess<T>(response: IpcResponse<T>): response is { success: true; data: T }
 function isIpcError<T>(response: IpcResponse<T>): response is { success: false; error: ISerialiseError }
 ```
 
 **Usage in Renderer**:
+
 ```typescript
 const response = await window.fileSystem.readFile(path, 'utf-8')
 
