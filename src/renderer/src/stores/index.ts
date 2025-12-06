@@ -10,6 +10,7 @@ export { useAppStore } from './appStore'
 export { useToastStore, useToast } from './toastStore'
 export { useUserPreferencesStore } from './userPreferencesStore'
 export { useLibraryStore } from './libraryStore'
+export { useConnectivityStore } from './connectivityStore'
 
 // Types - re-export from types.ts for convenience
 export type {

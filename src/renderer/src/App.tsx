@@ -6,6 +6,7 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useAccentColor } from './hooks/useAccentColor'
 import { ToastContainer } from './components/Toast'
 import { useToastStore } from './stores'
+import { ErrorBoundary } from './components/ErrorBoundary'
 
 function AppContent(): React.JSX.Element {
   // Listen for navigation commands from menu
@@ -26,12 +27,20 @@ function App(): React.JSX.Element {
   const dismissToast = useToastStore((state) => state.dismiss)
 
   return (
-    <BrowserRouter>
-      <AppShell>
-        <AppContent />
-      </AppShell>
-      <ToastContainer toasts={toasts} onDismiss={dismissToast} position="bottom-right" />
-    </BrowserRouter>
+    <ErrorBoundary
+      level="app"
+      onError={(error, errorInfo) => {
+        // Log to console in dev, future: send to crash reporting
+        console.error('[App Error]', error, errorInfo)
+      }}
+    >
+      <BrowserRouter>
+        <AppShell>
+          <AppContent />
+        </AppShell>
+        <ToastContainer toasts={toasts} onDismiss={dismissToast} position="bottom-right" />
+      </BrowserRouter>
+    </ErrorBoundary>
   )
 }
 

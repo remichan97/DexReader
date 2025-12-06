@@ -1,6 +1,6 @@
 # DexReader System Pattern
 
-**Last Updated**: 5 December 2025
+**Last Updated**: 6 December 2025
 **Version**: 1.0.0
 **Architecture**: Electron Multi-Process Desktop Application
 
@@ -115,6 +115,69 @@ DexReader follows Electron's security-first multi-process model:
 │  - Browser-based environment            │
 └─────────────────────────────────────────┘
 ```
+
+---
+
+## Error Handling Architecture
+
+### Three-Layer Defense System
+
+DexReader implements a comprehensive error handling strategy with three layers:
+
+1. **Error Boundaries** (React Component Errors)
+   - App-level: Last resort catch-all, replaces entire app
+   - Page-level: Primary handler, replaces content area (sidebar stays functional)
+   - Component-level: Optional granular handling for specific widgets
+
+2. **Try-Catch + IPC Handlers** (Async Operations)
+   - All async operations wrapped in try-catch
+   - IPC calls checked with type guards (`isIpcSuccess`, `isIpcError`)
+   - User-friendly error messages via `getUserFriendlyError()`
+
+3. **Global Handlers** (Uncaught Exceptions)
+   - `window.onerror` - Catches uncaught exceptions
+   - `window.onunhandledrejection` - Catches unhandled promise rejections
+   - Automatic toast notifications and error logging
+
+### Error Message Philosophy
+
+**Casual, Conversational Tone** - All user-facing error messages use friendly language:
+
+- ❌ "An error has occurred while attempting to access the specified resource"
+- ✓ "Can't find that file. Maybe it was moved or deleted?"
+
+**Error Message Catalog** (~20 patterns):
+
+- Filesystem errors: ENOENT, EACCES, ENOSPC
+- Network errors: Timeout, connection refused, no internet
+- Validation errors: Invalid input, bad paths
+- IPC errors: Communication failures
+- Generic fallback: "Well, that's weird"
+
+### Error Recovery
+
+- **Retry Utility**: Exponential backoff for transient failures (3 attempts by default)
+- **useRetry Hook**: React hook with loading/error/retry states
+- **ErrorRecovery Component**: Inline error UI with "Try Again" button
+
+### Offline Mode
+
+**Three Connectivity States**:
+
+1. `online` - Normal operation
+2. `offline-user` - User manually enabled offline mode (blue banner)
+3. `offline-no-internet` - System detected no internet (yellow banner)
+
+**OfflineStatusBar**: Persistent banner at top of app when offline, with context-appropriate actions ("Go Online" vs "Retry")
+
+### Error Logging
+
+- In-memory circular buffer (max 50 entries)
+- Viewable in Settings → Advanced → Error Log
+- Copy to clipboard for bug reports
+- Technical details preserved for debugging
+
+**See**: `docs/architecture/error-handling.md` for comprehensive guide
 
 ---
 

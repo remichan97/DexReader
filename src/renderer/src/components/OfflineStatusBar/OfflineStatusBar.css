@@ -1,0 +1,66 @@
+.offline-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: var(--surface-secondary);
+  border-bottom: 1px solid var(--stroke-surface-flyout);
+  min-height: 40px;
+  animation: slideDown 0.2s ease-out;
+}
+
+/* User-initiated offline mode - informational (blue) */
+.offline-status-bar[data-type='user'] {
+  background: var(--fill-accent-secondary);
+  color: var(--text-on-accent-secondary);
+}
+
+/* System no internet - warning (yellow) */
+.offline-status-bar[data-type='system'] {
+  background: var(--fill-attention-secondary);
+  color: var(--text-on-attention-secondary);
+}
+
+.offline-status-bar__content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.offline-status-bar__icon {
+  flex-shrink: 0;
+}
+
+.offline-status-bar__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.offline-status-bar__title {
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.offline-status-bar__message {
+  font-size: 12px;
+  line-height: 1.3;
+  opacity: 0.9;
+}
+
+.offline-status-bar__actions {
+  flex-shrink: 0;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

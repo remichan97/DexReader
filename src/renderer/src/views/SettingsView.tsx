@@ -5,6 +5,7 @@ import { Button } from '@renderer/components/Button'
 import { Input } from '@renderer/components/Input'
 import { Select, type SelectOption } from '@renderer/components/Select'
 import { Tabs, TabList, Tab, TabPanel } from '@renderer/components/Tabs'
+import { ErrorLogViewer } from '@renderer/components/ErrorLogViewer'
 import { useToastStore, useAppStore } from '@renderer/stores'
 
 export function SettingsView(): JSX.Element {
@@ -206,6 +207,7 @@ export function SettingsView(): JSX.Element {
         <TabList>
           <Tab value="appearance">Appearance</Tab>
           <Tab value="storage">Storage</Tab>
+          <Tab value="advanced">Advanced</Tab>
         </TabList>
 
         {/* Appearance Settings */}
@@ -342,6 +344,13 @@ export function SettingsView(): JSX.Element {
                 </span>
               </p>
             </div>
+          </div>
+        </TabPanel>
+
+        {/* Advanced Settings */}
+        <TabPanel value="advanced">
+          <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <ErrorLogViewer />
           </div>
         </TabPanel>
       </Tabs>

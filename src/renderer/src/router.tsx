@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { ViewTransition } from './components/ViewTransition'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { BrowseView } from './views/BrowseView'
 import { LibraryView } from './views/LibraryView'
 import { ReaderView } from './views/ReaderView'
@@ -16,11 +17,46 @@ export function AppRoutes(): JSX.Element {
     <ViewTransition key={isReaderRoute ? 'reader' : location.pathname}>
       <Routes location={location}>
         <Route path="/" element={<Navigate to="/browse" replace />} />
-        <Route path="/browse" element={<BrowseView />} />
-        <Route path="/library" element={<LibraryView />} />
-        <Route path="/reader/:mangaId/:chapterId" element={<ReaderView />} />
-        <Route path="/settings" element={<SettingsView />} />
-        <Route path="/downloads" element={<DownloadsView />} />
+        <Route
+          path="/browse"
+          element={
+            <ErrorBoundary level="page">
+              <BrowseView />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/library"
+          element={
+            <ErrorBoundary level="page">
+              <LibraryView />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/reader/:mangaId/:chapterId"
+          element={
+            <ErrorBoundary level="page">
+              <ReaderView />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ErrorBoundary level="page">
+              <SettingsView />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/downloads"
+          element={
+            <ErrorBoundary level="page">
+              <DownloadsView />
+            </ErrorBoundary>
+          }
+        />
         <Route path="*" element={<NotFoundView />} />
       </Routes>
     </ViewTransition>

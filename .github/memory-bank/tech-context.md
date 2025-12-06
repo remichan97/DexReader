@@ -1,6 +1,6 @@
 # DexReader Technical Context
 
-**Last Updated**: 5 December 2025
+**Last Updated**: 6 December 2025
 **Project Version**: 1.0.0
 **Type**: Desktop Application (Electron)
 
@@ -1107,6 +1107,150 @@ To add environment variables:
 - Better performance in development
 - Simpler configuration for Vite users
 - Growing ecosystem
+
+---
+
+## Error Handling System
+
+### Components
+
+**Error Boundaries** (`src/renderer/src/components/ErrorBoundary/`):
+
+- `ErrorBoundary.tsx` - React class component for catching component errors
+- `ErrorFallback.tsx` - Default fallback UI with 3 levels (app/page/component)
+- `ErrorBoundary.css` - Styling for all error boundary levels
+
+**Error Recovery** (`src/renderer/src/components/ErrorRecovery/`):
+
+- `ErrorRecovery.tsx` - Inline error UI with retry button
+- `ErrorRecovery.css` - Casual, user-friendly error display
+
+**Error Logging** (`src/renderer/src/components/ErrorLogViewer/`):
+
+- `ErrorLogViewer.tsx` - Dev/debug tool for viewing error history
+- `ErrorLogViewer.css` - Settings → Advanced → Error Log
+- In-memory circular buffer (max 50 entries)
+- Copy to clipboard functionality
+
+**Offline Status** (`src/renderer/src/components/OfflineStatusBar/`):
+
+- `OfflineStatusBar.tsx` - Persistent banner for offline states
+- `OfflineStatusBar.css` - Conditional styling (blue vs yellow)
+- Three states: online, offline-user, offline-no-internet
+
+### Utilities
+
+**Global Error Handler** (`src/renderer/src/utils/errorHandler.ts`):
+
+- `GlobalErrorHandler` class with initialization
+- Catches `window.onerror` and `window.onunhandledrejection`
+- Automatic toast notifications
+- Error log management
+- Initialized in `main.tsx` on app startup
+
+**Error Message Catalog** (`src/renderer/src/utils/errorMessages.ts`):
+
+- `ERROR_CATALOG` - ~20 error patterns with user-friendly messages
+- `getUserFriendlyError()` - Convert technical errors to casual language
+- Covers: filesystem, network, validation, IPC, parsing errors
+- All messages use conversational tone
+
+**Retry Utility** (`src/renderer/src/utils/retry.ts`):
+
+- `retry<T>()` - Promise-based retry with exponential backoff
+- Configurable: maxAttempts, delay, backoff strategy
+- Returns typed result or throws after all attempts
+
+### Hooks
+
+**useRetry** (`src/renderer/src/hooks/useRetry.ts`):
+
+- React hook for retry operations
+- Returns: `{ execute, isLoading, error, attemptCount, retry }`
+- Used with `<ErrorRecovery>` component
+
+### State Management
+
+**Connectivity Store** (`src/renderer/src/stores/connectivityStore.ts`):
+
+- Zustand store for connectivity state
+- States: `online | offline-user | offline-no-internet`
+- Actions: `setOnline()`, `setOfflineMode()`, `setNoInternet()`, `checkConnectivity()`
+- Automatic connectivity monitoring
+
+### Integration Points
+
+**App.tsx**:
+
+- App-level error boundary wraps entire application
+- Last resort catch-all for uncovered errors
+
+**router.tsx**:
+
+- Page-level error boundaries on all routes
+- Keeps sidebar functional when page crashes
+
+**AppShell.tsx**:
+
+- `<OfflineStatusBar />` at top of app layout
+- Shows/hides based on connectivity state
+
+**main.tsx**:
+
+- `globalErrorHandler.initialize()` - Global handlers
+- Catches uncaught exceptions and promise rejections
+
+**SettingsView.tsx**:
+
+- Advanced tab includes `<ErrorLogViewer />`
+- View/copy/clear error logs
+
+### Error Handling Patterns
+
+**IPC Call Pattern**:
+
+```typescript
+import { isIpcSuccess } from '@renderer/utils/ipcTypeGuards'
+import { getUserFriendlyError } from '@renderer/utils/errorMessages'
+
+const response = await window.fileSystem.readFile(path, 'utf-8')
+if (isIpcSuccess(response)) {
+  // Use response.data
+} else {
+  const friendly = getUserFriendlyError(response.error.message)
+  showToast({ variant: 'error', message: friendly.message })
+}
+```
+
+**Retry Pattern**:
+
+```typescript
+import { useRetry } from '@renderer/hooks/useRetry'
+
+const { execute, error, retry, isLoading } = useRetry(
+  async () => await downloadChapter(id),
+  { maxAttempts: 3 }
+)
+
+if (error) return <ErrorRecovery error={error} onRetry={retry} isRetrying={isLoading} />
+```
+
+**Component Error Boundary**:
+
+```tsx
+<ErrorBoundary level="page">
+  <MyComponent />
+</ErrorBoundary>
+```
+
+### Documentation
+
+- **Comprehensive Guide**: `docs/architecture/error-handling.md` (900+ lines)
+  - Architecture overview
+  - Usage patterns
+  - Best practices
+  - Testing strategies
+  - Troubleshooting
 
 ---
 

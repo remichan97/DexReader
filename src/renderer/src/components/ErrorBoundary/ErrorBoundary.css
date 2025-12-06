@@ -1,0 +1,160 @@
+/* Error Fallback Base Styles */
+.error-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.error-fallback__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+/* App-level: Full-screen centered (replaces entire app including sidebar) */
+.error-fallback[data-level='app'] {
+  position: fixed;
+  inset: 0;
+  background: var(--background-primary);
+  z-index: 9999;
+}
+
+/* Page-level: Fits within main content area (sidebar remains visible) */
+.error-fallback[data-level='page'] {
+  min-height: 400px;
+  background: var(--surface-primary);
+  border-radius: var(--corner-radius-medium);
+}
+
+/* Component-level: Inline card, minimal styling */
+.error-fallback[data-level='component'] {
+  min-height: 200px;
+  background: var(--surface-secondary);
+  border-radius: var(--corner-radius-small);
+  border: 1px solid var(--stroke-surface-flyout);
+}
+
+/* Icon */
+.error-fallback__icon {
+  color: var(--text-error);
+  margin-bottom: 16px;
+}
+
+.error-fallback__icon svg {
+  width: 48px;
+  height: 48px;
+}
+
+.error-fallback[data-level='component'] .error-fallback__icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+/* Title */
+.error-fallback__title {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+}
+
+.error-fallback[data-level='component'] .error-fallback__title {
+  font-size: 16px;
+}
+
+/* Message */
+.error-fallback__message {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin: 0 0 24px 0;
+}
+
+.error-fallback[data-level='component'] .error-fallback__message {
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+/* Technical Details (collapsible) */
+.error-fallback__details {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.error-fallback__details details {
+  background: var(--surface-secondary);
+  border: 1px solid var(--stroke-surface-flyout);
+  border-radius: var(--corner-radius-small);
+  padding: 12px;
+}
+
+.error-fallback__details summary {
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+}
+
+.error-fallback__details summary::-webkit-details-marker {
+  display: none;
+}
+
+.error-fallback__details summary::before {
+  content: '▶';
+  display: inline-block;
+  margin-right: 6px;
+  transition: transform 0.2s ease;
+  font-size: 10px;
+}
+
+.error-fallback__details details[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.error-fallback__details summary:hover {
+  color: var(--text-primary);
+}
+
+.error-fallback__error-message,
+.error-fallback__stack {
+  margin: 12px 0 0 0;
+  padding: 12px;
+  background: var(--background-primary);
+  border: 1px solid var(--stroke-surface-flyout);
+  border-radius: var(--corner-radius-small);
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.error-fallback__stack {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* Actions */
+.error-fallback__actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.error-fallback[data-level='component'] .error-fallback__actions {
+  flex-direction: column;
+}
+
+/* Hide technical details in component-level errors by default */
+.error-fallback[data-level='component'] .error-fallback__details {
+  display: none;
+}

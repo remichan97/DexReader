@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Sidebar } from '../components/Sidebar'
+import { OfflineStatusBar } from '../components/OfflineStatusBar'
 import { useAppStore } from '@renderer/stores'
 import './AppShell.css'
 
@@ -45,6 +46,7 @@ export function AppShell({ children }: AppShellProps): JSX.Element {
       <a href="#main-content" className="skip-link">
         Skip to main content
       </a>
+      <OfflineStatusBar />
       <div className="app-shell__body">
         <Sidebar />
         <main className="app-shell__content" id="main-content">
