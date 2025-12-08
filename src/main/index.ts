@@ -13,8 +13,11 @@ import {
 } from './filesystem/settingsManager'
 import { wrapIpcHandler } from './ipc/wrapHandler'
 import { validatePath, validateEncoding } from './ipc/validators'
+import { ImageProxy } from './api/imageProxy'
 
 let mainWindow: BrowserWindow | null = null
+
+const imageProxy = new ImageProxy()
 
 function createWindow(): void {
   // Create the browser window.
@@ -207,6 +210,8 @@ async function initFileSystem(): Promise<void> {
 app.whenReady().then(async () => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
+
+  imageProxy.registerProtocol()
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
