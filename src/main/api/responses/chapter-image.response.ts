@@ -1,7 +1,9 @@
-import { ImageQuality } from '../enums/image-quality.enum'
-
 export interface ChapterImagesResponse {
-  url: string
-  filename: string
-  quality: ImageQuality
+  result: 'ok' | 'error'
+  baseUrl: string // Base URL for image server, only works for 15 minutes
+  chapter: {
+    hash: string
+    data: string[]
+    dataSaver: string[]
+  }
 }
