@@ -14,10 +14,15 @@ import {
 import { wrapIpcHandler } from './ipc/wrapHandler'
 import { validatePath, validateEncoding } from './ipc/validators'
 import { ImageProxy } from './api/imageProxy'
+import { MangaDexClient } from './api/mangadexClient'
+import { MangaSearchParams } from './api/searchparams/manga.searchparam'
+import { FeedParams } from './api/searchparams/feed.searchparam'
+import { CoverSize, ImageQuality } from './api/enums'
 
 let mainWindow: BrowserWindow | null = null
 
 const imageProxy = new ImageProxy()
+const mangadexClient = new MangaDexClient()
 
 function createWindow(): void {
   // Create the browser window.
@@ -181,6 +186,39 @@ function registerFileSystemHandlers(mainWindow: BrowserWindow): void {
     }
   })
 }
+
+function registerMangaDexHandlers(): void {
+  ipcMain.handle('mangadex:search-manga', async (_, query: MangaSearchParams) => {
+    return await mangadexClient.searchManga(query)
+  })
+
+  ipcMain.handle('mangadex:get-manga', async (_, id: string, includes?: string[]) => {
+    return await mangadexClient.getManga(id, includes)
+  })
+
+  ipcMain.handle('mangadex:get-manga-feed', async (_, id: string, query: FeedParams) => {
+    return await mangadexClient.getMangaFeed(id, query)
+  })
+
+  ipcMain.handle('mangadex:get-chapter', async (_, id: string, includes?: string[]) => {
+    return await mangadexClient.getChapter(id, includes)
+  })
+
+  ipcMain.handle(
+    'mangadex:get-chapter-images',
+    async (_event, id: string, quality: ImageQuality) => {
+      return await mangadexClient.getChapterImages(id, quality)
+    }
+  )
+
+  ipcMain.handle(
+    'mangadex:get-cover-url',
+    async (_, id: string, fileName: string, size?: CoverSize) => {
+      return mangadexClient.getCoverImageUrl(id, fileName, size)
+    }
+  )
+}
+
 async function initFileSystem(): Promise<void> {
   console.log('Initialising secure filesystem...')
 
@@ -294,6 +332,8 @@ app.whenReady().then(async () => {
   )
 
   await initFileSystem()
+
+  registerMangaDexHandlers()
 
   createWindow()
 

@@ -1,6 +1,9 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { IpcResponse, FileStats, AllowedPaths, FolderSelectResult } from './ipc.types'
+import { MangaSearchParams } from '../main/api/searchparams/manga.searchparam'
+import { FeedParams } from '../main/api/searchparams/feed.searchparam'
+import { ImageQuality } from '../main/api/enums'
 
 // Custom APIs for renderer
 const api = {
@@ -146,6 +149,20 @@ const fileSystem = {
     ipcRenderer.invoke('fs:select-downloads-folder')
 }
 
+const mangadexApi = {
+  searchManga: (params: MangaSearchParams) => ipcRenderer.invoke('mangadex:search-manga', params),
+  getManga: (id: string, includes?: string[]) =>
+    ipcRenderer.invoke('mangadex:get-manga', id, includes),
+  getMangaFeed: (id: string, query: FeedParams) =>
+    ipcRenderer.invoke('mangadex:get-manga-feed', id, query),
+  getChapter: (id: string, includes?: string[]) =>
+    ipcRenderer.invoke('mangadex:get-chapter', id, includes),
+  getChapterImages: (id: string, quality: ImageQuality) =>
+    ipcRenderer.invoke('mangadex:get-chapter-images', id, quality),
+  getCoverUrl: (id: string, fileName: string, size?: string) =>
+    ipcRenderer.invoke('mangadex:get-cover-url', id, fileName, size)
+}
+
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
@@ -154,6 +171,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('api', api)
     contextBridge.exposeInMainWorld('fileSystem', fileSystem)
+    contextBridge.exposeInMainWorld('mangadex', mangadexApi)
   } catch (error) {
     console.error(error)
   }

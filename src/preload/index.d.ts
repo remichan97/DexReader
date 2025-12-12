@@ -1,3 +1,7 @@
+import { ImageUrlResponse } from './../main/api/responses/image-url.response'
+import { ApiResponse } from './../main/api/responses/api.response'
+import { Manga } from './../main/api/entities/manga.entity'
+import { CollectionResponse } from './../main/api/responses/collection.response'
 import { ElectronAPI } from '@electron-toolkit/preload'
 import type { IpcResponse, FileStats, AllowedPaths, FolderSelectResult } from './ipc.types'
 
@@ -71,6 +75,15 @@ interface FileSystem {
   readdir(dirPath: string): Promise<IpcResponse<string[]>>
   getAllowedPaths(): Promise<IpcResponse<AllowedPaths>>
   selectDownloadsFolder(): Promise<IpcResponse<FolderSelectResult>>
+}
+
+interface MangaDexApi {
+  searchManga: (params: MangaSearchParams) => Promise<CollectionResponse<Manga>>
+  getManga: (id: string, includes?: string[]) => Promise<ApiResponse<Manga>>
+  getMangaFeed: (id: string, query: FeedParams) => Promise<CollectionResponse<Chapter>>
+  getChapter: (id: string, includes?: string[]) => Promise<ApiResponse<Chapter>>
+  getChapterImages: (id: string, quality: ImageQuality) => Promise<ImageUrlResponse[]>
+  getCoverUrl: (id: string, fileName: string, size?: string) => string
 }
 
 declare global {
