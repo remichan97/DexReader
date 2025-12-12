@@ -1,5 +1,5 @@
 import { ApiConfig } from './constants/api-config.constant'
-import { EndpointLimit } from './shared/common-types.shared'
+import { EndpointConfig, EndpointLimit } from './shared/common-types.shared'
 
 export class RateLimiter {
   private globalTokens: number = ApiConfig.GLOBAL_RATE_LIMIT
@@ -7,6 +7,12 @@ export class RateLimiter {
   private readonly globalRefillRate: number = ApiConfig.GLOBAL_RATE_LIMIT
   private lastGlobalRefill: number = Date.now()
   private readonly endpointLimits: Map<string, EndpointLimit> = new Map()
+  private readonly endpointConfigs: Record<string, EndpointConfig> = {
+    'at-home/server': {
+      capacity: 40,
+      refillRatePerSecond: 40 / 60 // 40 requests per minute = 0.67 per second
+    }
+  }
 
   async waitForToken(endpoint?: string): Promise<void> {
     // Refill global tokens based on elapsed time
@@ -26,22 +32,21 @@ export class RateLimiter {
     // Refill endpoint tokens
     let endpointLimit: EndpointLimit | undefined
     if (endpoint) {
+      const config = this.endpointConfigs[endpoint]
+      const capacity = config?.capacity ?? ApiConfig.GLOBAL_RATE_LIMIT
+      const refillRate = config?.refillRatePerSecond ?? ApiConfig.GLOBAL_RATE_LIMIT
+
       endpointLimit = this.endpointLimits.get(endpoint)
       if (endpointLimit) {
         const endpointElapsed = now - endpointLimit.lastRefill
-        const endpointTokensToAdd = Math.floor(
-          (endpointElapsed / 1000) * ApiConfig.GLOBAL_RATE_LIMIT
-        )
+        const endpointTokensToAdd = Math.floor((endpointElapsed / 1000) * refillRate)
         if (endpointTokensToAdd > 0) {
-          endpointLimit.tokens = Math.min(
-            endpointLimit.tokens + endpointTokensToAdd,
-            ApiConfig.GLOBAL_RATE_LIMIT
-          )
+          endpointLimit.tokens = Math.min(endpointLimit.tokens + endpointTokensToAdd, capacity)
           endpointLimit.lastRefill = now
         }
       } else {
         endpointLimit = {
-          tokens: ApiConfig.GLOBAL_RATE_LIMIT,
+          tokens: capacity,
           lastRefill: now
         }
         this.endpointLimits.set(endpoint, endpointLimit)

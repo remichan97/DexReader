@@ -91,5 +91,6 @@ declare global {
     electron: ElectronAPI
     api: API
     fileSystem: FileSystem
+    mangadex: MangaDexApi
   }
 }

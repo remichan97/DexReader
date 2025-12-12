@@ -182,4 +182,6 @@ if (process.contextIsolated) {
   globalThis.api = api
   // @ts-ignore (define in dts)
   globalThis.fileSystem = fileSystem
+  // @ts-ignore (define in dts)
+  globalThis.mangadex = mangadexApi
 }

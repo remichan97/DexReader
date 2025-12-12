@@ -188,33 +188,34 @@ function registerFileSystemHandlers(mainWindow: BrowserWindow): void {
 }
 
 function registerMangaDexHandlers(): void {
-  ipcMain.handle('mangadex:search-manga', async (_, query: MangaSearchParams) => {
-    return await mangadexClient.searchManga(query)
+  wrapIpcHandler('mangadex:search-manga', async (_, query: unknown) => {
+    return await mangadexClient.searchManga(query as MangaSearchParams)
   })
 
-  ipcMain.handle('mangadex:get-manga', async (_, id: string, includes?: string[]) => {
-    return await mangadexClient.getManga(id, includes)
+  wrapIpcHandler('mangadex:get-manga', async (_, id: unknown, includes: unknown) => {
+    return await mangadexClient.getManga(id as string, includes as string[] | undefined)
   })
 
-  ipcMain.handle('mangadex:get-manga-feed', async (_, id: string, query: FeedParams) => {
-    return await mangadexClient.getMangaFeed(id, query)
+  wrapIpcHandler('mangadex:get-manga-feed', async (_, id: unknown, query: unknown) => {
+    return await mangadexClient.getMangaFeed(id as string, query as FeedParams)
   })
 
-  ipcMain.handle('mangadex:get-chapter', async (_, id: string, includes?: string[]) => {
-    return await mangadexClient.getChapter(id, includes)
+  wrapIpcHandler('mangadex:get-chapter', async (_, id: unknown, includes: unknown) => {
+    return await mangadexClient.getChapter(id as string, includes as string[] | undefined)
   })
 
-  ipcMain.handle(
-    'mangadex:get-chapter-images',
-    async (_event, id: string, quality: ImageQuality) => {
-      return await mangadexClient.getChapterImages(id, quality)
-    }
-  )
+  wrapIpcHandler('mangadex:get-chapter-images', async (_, id: unknown, quality: unknown) => {
+    return await mangadexClient.getChapterImages(id as string, quality as ImageQuality)
+  })
 
-  ipcMain.handle(
+  wrapIpcHandler(
     'mangadex:get-cover-url',
-    async (_, id: string, fileName: string, size?: CoverSize) => {
-      return mangadexClient.getCoverImageUrl(id, fileName, size)
+    async (_, id: unknown, fileName: unknown, size: unknown) => {
+      return mangadexClient.getCoverImageUrl(
+        id as string,
+        fileName as string,
+        size as CoverSize | undefined
+      )
     }
   )
 }

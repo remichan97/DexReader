@@ -1,4 +1,4 @@
-const BASE_API_URL = 'https://api.mangadex.com'
+const BASE_API_URL = 'https://api.mangadex.org'
 const BASE_CDN_URL = 'https://uploads.mangadex.org'
 
 export const ApiConfig = {

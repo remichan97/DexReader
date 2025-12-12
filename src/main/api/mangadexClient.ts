@@ -121,18 +121,29 @@ export class MangaDexClient {
       const requestId = response.headers.get('X-Request-ID') || 'N/A'
 
       if (!response.ok) {
-        const retryAfter = response.headers.get('X-RateLimit-Retry-After')
-        const delay = this.rateLimiter.handleRateLimitResponse(
-          retryAfter ? Number.parseInt(retryAfter) : undefined
-        )
+        // Only retry on rate limit (429)
+        if (response.status === 429) {
+          const retryAfter = response.headers.get('X-RateLimit-Retry-After')
+          const delay = this.rateLimiter.handleRateLimitResponse(
+            retryAfter ? Number.parseInt(retryAfter) : undefined
+          )
 
-        // We got rate limited, log it and retry after the specified delay
-        console.warn(
-          `[MangaDex] Request ID: ${requestId} - Rate limited. Retrying after ${delay} ms.`
-        )
+          // We got rate limited, log it and retry after the specified delay
+          console.warn(
+            `[MangaDex] Request ID: ${requestId} - Rate limited. Retrying after ${delay} ms.`
+          )
 
-        await new Promise((resolve) => setTimeout(resolve, delay))
-        return this.fetch<T>(endpoint, options) // Retry the request
+          await new Promise((resolve) => setTimeout(resolve, delay))
+          return this.fetch<T>(endpoint, options) // Retry the request
+        }
+
+        // For other errors, throw
+        const errorBody = await response.text()
+        throw new MangaDexApiError(
+          `HTTP ${response.status}: ${response.statusText}`,
+          JSON.parse(errorBody),
+          requestId
+        )
       }
 
       // We made it, return the JSON response

@@ -5,6 +5,7 @@ interface CacheEntry {
   buffer: Buffer
   timestamp: number
   size: number
+  lastAccessed: number
 }
 
 export class ImageProxy {
@@ -26,11 +27,21 @@ export class ImageProxy {
       const cache = isCover ? this.coverCache : this.chapterCache
       const cached = cache.get(url)
 
-      if (cached && !this.isExpired(cached)) {
-        const cachedBuffer = Buffer.from(cached.buffer)
-        return new Response(cachedBuffer.buffer, {
-          headers: { 'Content-Type': this.getContentType(url), 'Cache-Control': 'no-store' }
-        })
+      if (cached) {
+        // Check expiry only for chapter images, covers never expire
+        const isExpired = !isCover && this.isExpired(cached)
+        if (isExpired) {
+          // Remove expired entry
+          cache.delete(url)
+          this.currentChapterCacheSize -= cached.size
+        } else {
+          // Update last accessed time for LRU
+          cached.lastAccessed = Date.now()
+          const cachedBuffer = Buffer.from(cached.buffer)
+          return new Response(cachedBuffer.buffer, {
+            headers: { 'Content-Type': this.getContentType(url), 'Cache-Control': 'no-store' }
+          })
+        }
       }
 
       // Fetch from network
@@ -77,37 +88,61 @@ export class ImageProxy {
   }
 
   private addToChapterCache(url: string, buffer: Buffer): void {
-    // Evict old entries if necessary
+    // Evict least recently used entries if necessary
     while (this.currentChapterCacheSize + buffer.length > this.MAX_CHAPTER_CACHE) {
-      const oldestKey = this.chapterCache.keys().next().value
-      if (!oldestKey) break
-      const oldestEntry = this.chapterCache.get(oldestKey)
-      this.chapterCache.delete(oldestKey)
-      this.currentChapterCacheSize -= oldestEntry!.size
+      let lruKey: string | null = null
+      let lruTime = Infinity
+
+      // Find least recently used entry
+      for (const [key, entry] of this.chapterCache.entries()) {
+        if (entry.lastAccessed < lruTime) {
+          lruTime = entry.lastAccessed
+          lruKey = key
+        }
+      }
+
+      if (!lruKey) break
+      const lruEntry = this.chapterCache.get(lruKey)!
+      this.chapterCache.delete(lruKey)
+      this.currentChapterCacheSize -= lruEntry.size
     }
 
+    const now = Date.now()
     this.chapterCache.set(url, {
       buffer,
-      timestamp: Date.now(),
-      size: buffer.length
+      timestamp: now,
+      size: buffer.length,
+      lastAccessed: now
     })
     this.currentChapterCacheSize += buffer.length
   }
 
   private addToCoverCache(url: string, buffer: Buffer): void {
-    // Evict old entries if necessary
+    // Evict least recently used entries if necessary
     while (this.currentCoverCacheSize + buffer.length > this.MAX_COVER_CACHE) {
-      const oldestKey = this.coverCache.keys().next().value
-      if (!oldestKey) break
-      const oldestEntry = this.coverCache.get(oldestKey)
-      this.coverCache.delete(oldestKey)
-      this.currentCoverCacheSize -= oldestEntry!.size
+      let lruKey: string | null = null
+      let lruTime = Infinity
+
+      // Find least recently used entry
+      for (const [key, entry] of this.coverCache.entries()) {
+        if (entry.lastAccessed < lruTime) {
+          lruTime = entry.lastAccessed
+          lruKey = key
+        }
+      }
+
+      if (!lruKey) break
+      const lruEntry = this.coverCache.get(lruKey)!
+      this.coverCache.delete(lruKey)
+      this.currentCoverCacheSize -= lruEntry.size
     }
 
+    const now = Date.now()
     this.coverCache.set(url, {
       buffer,
-      timestamp: Date.now(),
-      size: buffer.length
+      timestamp: now,
+      size: buffer.length,
+      lastAccessed: now
     })
     this.currentCoverCacheSize += buffer.length
   }

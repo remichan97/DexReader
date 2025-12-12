@@ -6,3 +6,8 @@ export interface EndpointLimit {
   tokens: number
   lastRefill: number
 }
+
+export interface EndpointConfig {
+  capacity: number
+  refillRatePerSecond: number
+}
