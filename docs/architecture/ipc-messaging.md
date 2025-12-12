@@ -110,21 +110,21 @@ Renderer Process (React components)
 Event channels that push data from main to renderer use simple names:
 
 ```typescript
-'navigate'           // Navigation event
-'theme-changed'      // Theme change event
+'navigate' // Navigation event
+'theme-changed' // Theme change event
 'accent-color-changed'
 ```
 
 ### Category Definitions
 
-| Category | Prefix | Description | Example |
-|----------|--------|-------------|---------|
-| Filesystem | `fs:` | File and directory operations | `fs:read-file` |
-| Theme | `theme:` | System theme and accent colour | `theme:get-system-accent-color` |
-| Menu | `menu:` | Application menu actions | `menu:update-state` |
-| Dialogue | `dialogue:` | Native dialogues | `show-confirm-dialog` |
-| Navigation | (none) | Route navigation events | `navigate` |
-| Window | (none) | Window management | (future) |
+| Category   | Prefix      | Description                    | Example                         |
+| ---------- | ----------- | ------------------------------ | ------------------------------- |
+| Filesystem | `fs:`       | File and directory operations  | `fs:read-file`                  |
+| Theme      | `theme:`    | System theme and accent colour | `theme:get-system-accent-color` |
+| Menu       | `menu:`     | Application menu actions       | `menu:update-state`             |
+| Dialogue   | `dialogue:` | Native dialogues               | `show-confirm-dialog`           |
+| Navigation | (none)      | Route navigation events        | `navigate`                      |
+| Window     | (none)      | Window management              | (future)                        |
 
 ---
 
@@ -150,33 +150,25 @@ class IpcError extends Error {
 // Filesystem errors
 class FileSystemError extends IpcError {
   constructor(operation: string, path: string, originalError: unknown) {
-    super(
-      'FS_ERROR',
-      `Filesystem operation '${operation}' failed for path: ${path}`,
-      { operation, path, originalError }
-    )
+    super('FS_ERROR', `Filesystem operation '${operation}' failed for path: ${path}`, {
+      operation,
+      path,
+      originalError
+    })
   }
 }
 
 // Validation errors
 class ValidationError extends IpcError {
   constructor(field: string, reason: string) {
-    super(
-      'VALIDATION_ERROR',
-      `Validation failed for '${field}': ${reason}`,
-      { field, reason }
-    )
+    super('VALIDATION_ERROR', `Validation failed for '${field}': ${reason}`, { field, reason })
   }
 }
 
 // Theme errors
 class ThemeError extends IpcError {
   constructor(operation: string, originalError: unknown) {
-    super(
-      'THEME_ERROR',
-      `Theme operation '${operation}' failed`,
-      { operation, originalError }
-    )
+    super('THEME_ERROR', `Theme operation '${operation}' failed`, { operation, originalError })
   }
 }
 ```
@@ -191,7 +183,7 @@ interface ISerialiseError {
   message: string
   code?: string
   details?: unknown
-  stack?: string  // Only in development
+  stack?: string // Only in development
 }
 
 function serialiseError(error: unknown): ISerialiseError {
@@ -288,10 +280,7 @@ function validatePath(value: unknown, fieldName: string): string {
   const path = validateString(value, fieldName)
 
   if (path.length === 0) {
-    throw new ValidationError(
-      fieldName,
-      `Invalid value for ${fieldName}: path cannot be empty`
-    )
+    throw new ValidationError(fieldName, `Invalid value for ${fieldName}: path cannot be empty`)
   }
 
   return path
@@ -304,8 +293,15 @@ function validateEncoding(value: unknown, fieldName: string): BufferEncoding | u
   const str = validateString(value, fieldName)
 
   const validEncodings: BufferEncoding[] = [
-    'ascii', 'utf8', 'utf-8', 'utf16le', 'ucs2',
-    'base64', 'latin1', 'binary', 'hex'
+    'ascii',
+    'utf8',
+    'utf-8',
+    'utf16le',
+    'ucs2',
+    'base64',
+    'latin1',
+    'binary',
+    'hex'
   ]
 
   if (!validEncodings.includes(str as BufferEncoding)) {
@@ -342,19 +338,19 @@ wrapIpcHandler('fs:copy-file', async (_event, srcPath: unknown, destPath: unknow
 
 ### Validation Coverage
 
-| Handler | Validators Applied | Coverage |
-|---------|-------------------|----------|
-| `fs:read-file` | validatePath, validateEncoding | ✅ Full |
-| `fs:write-file` | validatePath | ✅ Full |
-| `fs:copy-file` | validatePath (×2) | ✅ Full |
-| `fs:append-file` | validatePath | ✅ Full |
-| `fs:rename` | validatePath (×2) | ✅ Full |
-| `fs:is-exists` | validatePath | ✅ Full |
-| `fs:mkdir` | validatePath | ✅ Full |
-| `fs:unlink` | validatePath | ✅ Full |
-| `fs:rm` | validatePath | ✅ Full |
-| `fs:stat` | validatePath | ✅ Full |
-| `fs:readdir` | validatePath | ✅ Full |
+| Handler          | Validators Applied             | Coverage |
+| ---------------- | ------------------------------ | -------- |
+| `fs:read-file`   | validatePath, validateEncoding | ✅ Full  |
+| `fs:write-file`  | validatePath                   | ✅ Full  |
+| `fs:copy-file`   | validatePath (×2)              | ✅ Full  |
+| `fs:append-file` | validatePath                   | ✅ Full  |
+| `fs:rename`      | validatePath (×2)              | ✅ Full  |
+| `fs:is-exists`   | validatePath                   | ✅ Full  |
+| `fs:mkdir`       | validatePath                   | ✅ Full  |
+| `fs:unlink`      | validatePath                   | ✅ Full  |
+| `fs:rm`          | validatePath                   | ✅ Full  |
+| `fs:stat`        | validatePath                   | ✅ Full  |
+| `fs:readdir`     | validatePath                   | ✅ Full  |
 
 ---
 
@@ -450,7 +446,7 @@ if (isIpcSuccess(response)) {
 
   // Handle specific error codes
   if (response.error.code === 'FS_ERROR') {
-    toast.error('Couldn\'t read the file. It might have been moved or deleted.')
+    toast.error("Couldn't read the file. It might have been moved or deleted.")
   } else if (response.error.code === 'VALIDATION_ERROR') {
     toast.error('Invalid file path provided.')
   }
@@ -530,62 +526,62 @@ flowchart TD
 
 #### Filesystem (16 channels)
 
-| Channel | Type | Description | Request | Response |
-|---------|------|-------------|---------|----------|
-| `fs:read-file` | invoke | Read file contents | `filePath: string, encoding?: BufferEncoding` | `string \| Buffer` |
-| `fs:write-file` | invoke | Write file contents | `filePath: string, data: string \| Buffer` | `boolean` |
-| `fs:append-file` | invoke | Append to file | `filePath: string, data: string \| Buffer` | `boolean` |
-| `fs:copy-file` | invoke | Copy file | `srcPath: string, destPath: string` | `boolean` |
-| `fs:rename` | invoke | Rename file/directory | `oldPath: string, newPath: string` | `boolean` |
-| `fs:is-exists` | invoke | Check path existence | `path: string` | `boolean` |
-| `fs:mkdir` | invoke | Create directory | `dirPath: string` | `boolean` |
-| `fs:unlink` | invoke | Delete file | `filePath: string` | `boolean` |
-| `fs:rm` | invoke | Delete directory | `dirPath: string, options?: { recursive?: boolean }` | `boolean` |
-| `fs:stat` | invoke | Get file/directory stats | `path: string` | `FileStats` |
-| `fs:readdir` | invoke | List directory contents | `dirPath: string` | `string[]` |
-| `fs:get-allowed-paths` | invoke | Get AppData and downloads paths | (none) | `AllowedPaths` |
-| `fs:select-downloads-folder` | invoke | Open folder picker dialogue | (none) | `FolderSelectResult` |
+| Channel                      | Type   | Description                     | Request                                              | Response             |
+| ---------------------------- | ------ | ------------------------------- | ---------------------------------------------------- | -------------------- |
+| `fs:read-file`               | invoke | Read file contents              | `filePath: string, encoding?: BufferEncoding`        | `string \| Buffer`   |
+| `fs:write-file`              | invoke | Write file contents             | `filePath: string, data: string \| Buffer`           | `boolean`            |
+| `fs:append-file`             | invoke | Append to file                  | `filePath: string, data: string \| Buffer`           | `boolean`            |
+| `fs:copy-file`               | invoke | Copy file                       | `srcPath: string, destPath: string`                  | `boolean`            |
+| `fs:rename`                  | invoke | Rename file/directory           | `oldPath: string, newPath: string`                   | `boolean`            |
+| `fs:is-exists`               | invoke | Check path existence            | `path: string`                                       | `boolean`            |
+| `fs:mkdir`                   | invoke | Create directory                | `dirPath: string`                                    | `boolean`            |
+| `fs:unlink`                  | invoke | Delete file                     | `filePath: string`                                   | `boolean`            |
+| `fs:rm`                      | invoke | Delete directory                | `dirPath: string, options?: { recursive?: boolean }` | `boolean`            |
+| `fs:stat`                    | invoke | Get file/directory stats        | `path: string`                                       | `FileStats`          |
+| `fs:readdir`                 | invoke | List directory contents         | `dirPath: string`                                    | `string[]`           |
+| `fs:get-allowed-paths`       | invoke | Get AppData and downloads paths | (none)                                               | `AllowedPaths`       |
+| `fs:select-downloads-folder` | invoke | Open folder picker dialogue     | (none)                                               | `FolderSelectResult` |
 
 #### Theme (4 channels)
 
-| Channel | Type | Description | Request | Response |
-|---------|------|-------------|---------|----------|
-| `get-theme` | invoke | Get current system theme | (none) | `'light' \| 'dark'` |
-| `theme:get-system-accent-color` | invoke | Get OS accent colour | (none) | `string` (hex colour) |
-| `theme-changed` | on | System theme changed event | (none) | `'light' \| 'dark'` |
-| `accent-color-changed` | on | System accent colour changed | (none) | `string` (hex colour) |
+| Channel                         | Type   | Description                  | Request | Response              |
+| ------------------------------- | ------ | ---------------------------- | ------- | --------------------- |
+| `get-theme`                     | invoke | Get current system theme     | (none)  | `'light' \| 'dark'`   |
+| `theme:get-system-accent-color` | invoke | Get OS accent colour         | (none)  | `string` (hex colour) |
+| `theme-changed`                 | on     | System theme changed event   | (none)  | `'light' \| 'dark'`   |
+| `accent-color-changed`          | on     | System accent colour changed | (none)  | `string` (hex colour) |
 
 #### Menu (14 channels)
 
-| Channel | Type | Description | Request | Response |
-|---------|------|-------------|---------|----------|
-| `update-menu-state` | send | Update dynamic menu item states | `MenuState` object | (none) |
-| `check-for-updates` | on | Check for updates menu item clicked | (none) | (none) |
-| `add-to-favorites` | on | Add to favourites menu item clicked | (none) | (none) |
-| `create-collection` | on | Create collection menu item clicked | (none) | (none) |
-| `manage-collections` | on | Manage collections menu item clicked | (none) | (none) |
-| `import-library` | on | Import library menu item clicked | (none) | (none) |
-| `import-tachiyomi` | on | Import Tachiyomi menu item clicked | (none) | (none) |
-| `export-library` | on | Export library menu item clicked | (none) | (none) |
-| `export-tachiyomi` | on | Export Tachiyomi menu item clicked | (none) | (none) |
-| `download-chapter` | on | Download chapter menu item clicked | (none) | (none) |
-| `download-manga` | on | Download manga menu item clicked | (none) | (none) |
-| `clear-cache` | on | Clear cache menu item clicked | (none) | (none) |
-| `clear-history` | on | Clear history menu item clicked | (none) | (none) |
-| `show-shortcuts` | on | Show shortcuts menu item clicked | (none) | (none) |
+| Channel              | Type | Description                          | Request            | Response |
+| -------------------- | ---- | ------------------------------------ | ------------------ | -------- |
+| `update-menu-state`  | send | Update dynamic menu item states      | `MenuState` object | (none)   |
+| `check-for-updates`  | on   | Check for updates menu item clicked  | (none)             | (none)   |
+| `add-to-favorites`   | on   | Add to favourites menu item clicked  | (none)             | (none)   |
+| `create-collection`  | on   | Create collection menu item clicked  | (none)             | (none)   |
+| `manage-collections` | on   | Manage collections menu item clicked | (none)             | (none)   |
+| `import-library`     | on   | Import library menu item clicked     | (none)             | (none)   |
+| `import-tachiyomi`   | on   | Import Tachiyomi menu item clicked   | (none)             | (none)   |
+| `export-library`     | on   | Export library menu item clicked     | (none)             | (none)   |
+| `export-tachiyomi`   | on   | Export Tachiyomi menu item clicked   | (none)             | (none)   |
+| `download-chapter`   | on   | Download chapter menu item clicked   | (none)             | (none)   |
+| `download-manga`     | on   | Download manga menu item clicked     | (none)             | (none)   |
+| `clear-cache`        | on   | Clear cache menu item clicked        | (none)             | (none)   |
+| `clear-history`      | on   | Clear history menu item clicked      | (none)             | (none)   |
+| `show-shortcuts`     | on   | Show shortcuts menu item clicked     | (none)             | (none)   |
 
 #### Dialogue (2 channels)
 
-| Channel | Type | Description | Request | Response |
-|---------|------|-------------|---------|----------|
-| `show-confirm-dialog` | invoke | Show simple yes/no confirmation | `message: string, detail?: string` | `boolean` |
-| `show-dialog` | invoke | Show multi-choice dialogue | `DialogOptions` | `{ response: number, checkboxChecked: boolean }` |
+| Channel               | Type   | Description                     | Request                            | Response                                         |
+| --------------------- | ------ | ------------------------------- | ---------------------------------- | ------------------------------------------------ |
+| `show-confirm-dialog` | invoke | Show simple yes/no confirmation | `message: string, detail?: string` | `boolean`                                        |
+| `show-dialog`         | invoke | Show multi-choice dialogue      | `DialogOptions`                    | `{ response: number, checkboxChecked: boolean }` |
 
 #### Navigation (1 channel)
 
-| Channel | Type | Description | Request | Response |
-|---------|------|-------------|---------|----------|
-| `navigate` | on | Menu-triggered navigation event | `route: string` | (none) |
+| Channel    | Type | Description                     | Request         | Response |
+| ---------- | ---- | ------------------------------- | --------------- | -------- |
+| `navigate` | on   | Menu-triggered navigation event | `route: string` | (none)   |
 
 ### Querying the Registry
 
@@ -636,10 +632,7 @@ export function validateMyParam(value: unknown, fieldName: string): string {
   const str = validateString(value, fieldName)
 
   if (!str.match(/^[a-zA-Z0-9]+$/)) {
-    throw new ValidationError(
-      fieldName,
-      `Invalid value for ${fieldName}: must be alphanumeric`
-    )
+    throw new ValidationError(fieldName, `Invalid value for ${fieldName}: must be alphanumeric`)
   }
 
   return str
@@ -690,10 +683,7 @@ Add types to `src/preload/index.d.ts`:
 
 ```typescript
 interface MyApi {
-  myOperation: (
-    param1: string,
-    param2: number
-  ) => Promise<IpcResponse<MyOperationResponse>>
+  myOperation: (param1: string, param2: number) => Promise<IpcResponse<MyOperationResponse>>
 }
 
 interface Window {
@@ -769,14 +759,14 @@ All filesystem operations validate paths against allowed directories:
 ```typescript
 // Allowed directories (configured at runtime)
 const allowedPaths = [
-  getAppDataPath(),     // C:\Users\<user>\AppData\Roaming\DexReader
-  getDownloadsPath()    // User-configured downloads folder
+  getAppDataPath(), // C:\Users\<user>\AppData\Roaming\DexReader
+  getDownloadsPath() // User-configured downloads folder
 ]
 
 // Path validation (in secureFs.ts)
 function isPathAllowed(targetPath: string): boolean {
   const normalized = normalizePath(targetPath)
-  return allowedPaths.some(allowed => normalized.startsWith(allowed))
+  return allowedPaths.some((allowed) => normalized.startsWith(allowed))
 }
 ```
 
@@ -861,14 +851,14 @@ function checkRateLimit(channel: string, limit: number, windowMs: number): void 
 
 Target performance metrics for IPC operations:
 
-| Operation Type | Target Latency | Acceptable Range |
-|----------------|----------------|------------------|
-| Simple queries (exists, stat) | <5ms | 0-10ms |
-| Small file reads (<1KB) | <10ms | 5-20ms |
-| Medium file reads (1-10KB) | <50ms | 20-100ms |
-| Large file operations (>10KB) | <200ms | 100-500ms |
-| Dialogue operations | <100ms | 50-200ms |
-| Theme operations | <10ms | 5-20ms |
+| Operation Type                | Target Latency | Acceptable Range |
+| ----------------------------- | -------------- | ---------------- |
+| Simple queries (exists, stat) | <5ms           | 0-10ms           |
+| Small file reads (<1KB)       | <10ms          | 5-20ms           |
+| Medium file reads (1-10KB)    | <50ms          | 20-100ms         |
+| Large file operations (>10KB) | <200ms         | 100-500ms        |
+| Dialogue operations           | <100ms         | 50-200ms         |
+| Theme operations              | <10ms          | 5-20ms           |
 
 ### Performance Monitoring
 
@@ -904,7 +894,7 @@ const files = await Promise.all([
 
 // Cache allowed paths
 const paths = await window.fileSystem.getAllowedPaths()
-store.setAllowedPaths(paths.data)  // Store in Zustand
+store.setAllowedPaths(paths.data) // Store in Zustand
 
 // Use events for real-time updates
 ipcRenderer.on('theme-changed', (_, theme) => {
@@ -917,16 +907,16 @@ ipcRenderer.on('theme-changed', (_, theme) => {
 ```typescript
 // Don't poll for changes
 setInterval(async () => {
-  const theme = await window.api.getTheme()  // ❌ Wasteful
+  const theme = await window.api.getTheme() // ❌ Wasteful
 }, 1000)
 
 // Don't make sequential calls when parallel is possible
-const file1 = await window.fileSystem.readFile('/path/1.txt', 'utf-8')  // ❌ Slow
+const file1 = await window.fileSystem.readFile('/path/1.txt', 'utf-8') // ❌ Slow
 const file2 = await window.fileSystem.readFile('/path/2.txt', 'utf-8')
 const file3 = await window.fileSystem.readFile('/path/3.txt', 'utf-8')
 
 // Don't load large files into memory
-const hugeFile = await window.fileSystem.readFile('/huge-file.txt')  // ❌ Memory issue
+const hugeFile = await window.fileSystem.readFile('/huge-file.txt') // ❌ Memory issue
 ```
 
 ---
@@ -962,8 +952,8 @@ const response = await window.fileSystem.readFile(path)
 ```typescript
 new BrowserWindow({
   webPreferences: {
-    preload: join(__dirname, '../preload/index.js'),  // Correct path
-    contextIsolation: true  // Must be enabled
+    preload: join(__dirname, '../preload/index.js'), // Correct path
+    contextIsolation: true // Must be enabled
   }
 })
 ```
@@ -978,7 +968,7 @@ new BrowserWindow({
 
 ```typescript
 // ❌ Wrong
-await window.fileSystem.readFile()  // Missing path
+await window.fileSystem.readFile() // Missing path
 
 // ✅ Correct
 await window.fileSystem.readFile('/path/to/file.txt', 'utf-8')
@@ -995,12 +985,12 @@ await window.fileSystem.readFile('/path/to/file.txt', 'utf-8')
 ```typescript
 // ❌ Wrong
 const response = await window.fileSystem.readFile(path)
-console.log(response.data)  // Type error
+console.log(response.data) // Type error
 
 // ✅ Correct
 const response = await window.fileSystem.readFile(path)
 if (isIpcSuccess(response)) {
-  console.log(response.data)  // Type safe
+  console.log(response.data) // Type safe
 }
 ```
 
@@ -1015,13 +1005,13 @@ if (isIpcSuccess(response)) {
 ```typescript
 // ❌ Wrong
 ipcMain.handle('my:operation', async (_event, param) => {
-  return await myService.doOperation(param)  // Errors not caught
+  return await myService.doOperation(param) // Errors not caught
 })
 
 // ✅ Correct
 wrapIpcHandler('my:operation', async (_event, param: unknown) => {
   const validParam = validateParam(param, 'param')
-  return await myService.doOperation(validParam)  // Errors automatically caught
+  return await myService.doOperation(validParam) // Errors automatically caught
 })
 ```
 

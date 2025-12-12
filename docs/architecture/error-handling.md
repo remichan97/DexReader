@@ -292,22 +292,20 @@ Automatic retry with exponential backoff for transient failures:
 import { retry } from '@renderer/utils/retry'
 
 // Simple retry
-const data = await retry(
-  () => fetch('/api/data').then(r => r.json()),
-  { maxAttempts: 3, delay: 1000, exponentialBackoff: true }
-)
+const data = await retry(() => fetch('/api/data').then((r) => r.json()), {
+  maxAttempts: 3,
+  delay: 1000,
+  exponentialBackoff: true
+})
 
 // With retry callback
-const result = await retry(
-  () => downloadManga(id),
-  {
-    maxAttempts: 5,
-    delay: 2000,
-    onRetry: (attempt, error) => {
-      console.log(`Retry attempt ${attempt}: ${error.message}`)
-    }
+const result = await retry(() => downloadManga(id), {
+  maxAttempts: 5,
+  delay: 2000,
+  onRetry: (attempt, error) => {
+    console.log(`Retry attempt ${attempt}: ${error.message}`)
   }
-)
+})
 ```
 
 **Backoff calculation**:
@@ -350,11 +348,7 @@ function MyComponent(): React.JSX.Element {
 Inline error UI with retry button:
 
 ```tsx
-<ErrorRecovery
-  error={error}
-  onRetry={handleRetry}
-  isRetrying={isLoading}
->
+<ErrorRecovery error={error} onRetry={handleRetry} isRetrying={isLoading}>
   <p>Additional context or help text</p>
 </ErrorRecovery>
 ```
@@ -394,14 +388,14 @@ try {
 
 The catalog includes ~20 patterns covering:
 
-| Category | Example Errors | User-Friendly Message |
-|----------|----------------|----------------------|
+| Category       | Example Errors         | User-Friendly Message                                  |
+| -------------- | ---------------------- | ------------------------------------------------------ |
 | **Filesystem** | ENOENT, EACCES, ENOSPC | "Can't find that file. Maybe it was moved or deleted?" |
-| **Network** | ETIMEDOUT, ENOTFOUND | "Can't reach the internet right now." |
-| **Validation** | VALIDATION_ERROR | "That doesn't look right" |
-| **IPC** | IPC_ERROR | "Something didn't work" |
-| **Parsing** | JSON parse error | "Got some garbled data" |
-| **Generic** | Unknown errors | "Well, that's weird" |
+| **Network**    | ETIMEDOUT, ENOTFOUND   | "Can't reach the internet right now."                  |
+| **Validation** | VALIDATION_ERROR       | "That doesn't look right"                              |
+| **IPC**        | IPC_ERROR              | "Something didn't work"                                |
+| **Parsing**    | JSON parse error       | "Got some garbled data"                                |
+| **Generic**    | Unknown errors         | "Well, that's weird"                                   |
 
 ### Writing Style
 
@@ -428,7 +422,7 @@ const ERROR_CATALOG: ErrorPattern[] = [
     title: 'Short user-facing title',
     message: 'Casual explanation of what went wrong',
     action: 'What the user should do next'
-  },
+  }
   // ... existing patterns
 ]
 ```
@@ -588,11 +582,14 @@ async function handleDownload(): Promise<void> {
 1. **Always wrap routes with page-level error boundaries**
 
    ```tsx
-   <Route path="/library" element={
-     <ErrorBoundary level="page">
-       <LibraryView />
-     </ErrorBoundary>
-   } />
+   <Route
+     path="/library"
+     element={
+       <ErrorBoundary level="page">
+         <LibraryView />
+       </ErrorBoundary>
+     }
+   />
    ```
 
 2. **Use try-catch for all async operations**
@@ -670,13 +667,13 @@ async function handleDownload(): Promise<void> {
 
 ### When to Use What
 
-| Scenario | Solution |
-|----------|----------|
-| Component crashes during render | Error Boundary |
-| Async IPC call fails | Try-catch + getUserFriendlyError + Toast |
-| User input validation fails | Inline validation error UI |
-| Network request fails | Retry utility + ErrorRecovery component |
-| Unknown/uncaught error | Global error handler (automatic) |
+| Scenario                        | Solution                                 |
+| ------------------------------- | ---------------------------------------- |
+| Component crashes during render | Error Boundary                           |
+| Async IPC call fails            | Try-catch + getUserFriendlyError + Toast |
+| User input validation fails     | Inline validation error UI               |
+| Network request fails           | Retry utility + ErrorRecovery component  |
+| Unknown/uncaught error          | Global error handler (automatic)         |
 
 ---
 
@@ -721,7 +718,7 @@ async function handleDownload(): Promise<void> {
 
 5. **Offline Mode**
    - Disconnect internet
-   **Expected**: Yellow "No internet" banner appears, "Retry" button checks connectivity
+     **Expected**: Yellow "No internet" banner appears, "Retry" button checks connectivity
 
 ### Error Test View (Dev Mode)
 
@@ -730,15 +727,15 @@ Add to Settings → Advanced (development builds only):
 ```tsx
 <div className="error-test-section">
   <h4>Test Errors (Dev Only)</h4>
-  <Button onClick={() => { throw new Error('Test') }}>
+  <Button
+    onClick={() => {
+      throw new Error('Test')
+    }}
+  >
     Throw Component Error
   </Button>
-  <Button onClick={() => Promise.reject('Test rejection')}>
-    Unhandled Promise
-  </Button>
-  <Button onClick={() => window.fileSystem.readFile('/fake', 'utf-8')}>
-    File Not Found
-  </Button>
+  <Button onClick={() => Promise.reject('Test rejection')}>Unhandled Promise</Button>
+  <Button onClick={() => window.fileSystem.readFile('/fake', 'utf-8')}>File Not Found</Button>
 </div>
 ```
 
@@ -815,8 +812,8 @@ Add to Settings → Advanced (development builds only):
 
    ```typescript
    await retry(fn, {
-     maxAttempts: 3,  // Must be > 1
-     delay: 1000      // Must be > 0
+     maxAttempts: 3, // Must be > 1
+     delay: 1000 // Must be > 0
    })
    ```
 
