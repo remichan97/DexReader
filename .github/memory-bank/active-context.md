@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 6 December 2025
+**Last Updated**: 12 December 2025
 **Current Phase**: Phase 2 - Content Display (In Progress)
-**Session**: P2-T01 Planning Complete - Ready for Implementation
+**Session**: P2-T02 Planning Complete - Ready for Implementation
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -11,27 +11,68 @@
 ## Current Status Summary
 
 **Phase**: Phase 2 - Content Display (In Progress)
-**Progress**: P2-T01 planning complete, ready to implement MangaDex API client
-**Current Date**: 6 December 2025
+**Progress**: P2-T01 complete, P2-T02 planning complete, ready to implement manga search interface
+**Current Date**: 12 December 2025
 **Phase 1 Status**: Complete ✅ (9/9 tasks, 100%)
-**Current Task**: P2-T01 - Implement MangaDex Public API Client
+**Phase 2 Progress**: 1/11 tasks complete (9%)
+**Current Task**: P2-T02 - Create Manga Search Interface (Planning Complete)
 
-### 🎯 Current Work (6 Dec 2025 - P2-T01 Planning)
+### 🎯 Current Work (12 Dec 2025 - P2-T02 Planning)
 
-**Phase 2 Started**: Content Display phase begins with MangaDex API integration
+**P2-T02 Implementation Plan Created** (16 hours, 8 steps):
 
-**P2-T01 Implementation Plan Created** (36 hours, 9 steps):
+- Comprehensive plan saved to `.github/copilot-plans/P2-T02-create-manga-search-interface.md`
+- **Step 1**: Create Search State Store (2h) - Zustand store for search/filters/pagination
+- **Step 2**: Update BrowseView Integration (3h) - Replace mock data with real API
+- **Step 3**: Implement Filter Panel (4h) - Content rating, status, demographic, sort
+- **Step 4**: Add Pagination Controls (2h) - Navigate results with 10K limit
+- **Step 5**: Handle Cover Images (2h) - Extract via `mangadex://` protocol
+- **Step 6**: Loading & Error States (2h) - Skeletons, error recovery, empty states
+- **Step 7**: Optimize Search Experience (1h) - Performance and UX polish
+- **Step 8**: Testing & Bug Fixes (2h) - Manual testing and refinement
 
-- Comprehensive plan saved to `.github/copilot-plans/P2-T01-implement-mangadex-api-client.md`
-- **Step 1**: API Constants & Configuration (2h) - Base URLs, rate limits, enums
-- **Step 2**: TypeScript Interfaces (4h) - Manga, Chapter, response wrappers, search params
-- **Step 3**: Rate Limiter (4h) - Token bucket algorithm, 5 req/s global, endpoint-specific limits
-- **Step 4**: Image Proxy with Ephemeral Cache (4h) - Custom protocol handler, memory-only cache
-- **Step 5**: Core API Client (8h) - MangaDexClient class, all endpoints, error handling
-- **Step 6**: IPC Bridge (4h) - Expose to renderer via contextBridge, 6 IPC handlers
-- **Step 7**: Documentation (4h) - mangadex-api.md guide with examples
-- **Step 8**: Memory Bank Updates (2h) - Update system-pattern.md and tech-context.md
-- **Step 9**: Testing (4h) - Manual testing via Settings → Advanced test UI
+**Key Components to Build**:
+
+- `searchStore.ts` - Centralized search/filter/pagination state
+- `FilterPanel.tsx` - Sidebar with content rating, status, demographic, sort filters
+- `Pagination.tsx` - Page navigation with MangaDex 10K limit handling
+- `mangaHelpers.ts` - Cover/author extraction utilities
+
+**Reuses Existing Components**:
+
+- SearchBar ✅ (with 300ms debouncing)
+- MangaCard ✅ (displays manga in grid)
+- SkeletonGrid ✅ (loading states)
+- ErrorRecovery ✅ (error handling with retry)
+- Select/Checkbox ✅ (filter controls)
+
+**Technical Decisions**:
+
+- State Management: Zustand (consistent with existing stores)
+- Pagination: Offset-based (API limitation, max 10K results)
+- Image Loading: Lazy loading with `mangadex://` proxy protocol
+- Filters: Content rating (multi), status, demographic, sort order
+- No new NPM dependencies required
+
+**Ready for Implementation**: All architectural decisions made, comprehensive 16-hour plan in place
+
+---
+
+### ✅ Recently Completed (12 Dec 2025 - P2-T01 COMPLETE)
+
+**Phase 2 Milestone**: MangaDex API client fully implemented with all bug fixes
+
+**P2-T01 Implementation Complete** (All 9 steps finished + critical bug fixes):
+
+- ✅ **Step 1**: API Constants & Configuration - Base URLs, rate limits, 16 enums
+- ✅ **Step 2**: TypeScript Interfaces - Entities, responses, search params (30+ interfaces)
+- ✅ **Step 3**: Rate Limiter - Token bucket with endpoint-specific limits
+- ✅ **Step 4**: Image Proxy - Custom `mangadex://` protocol with true LRU caching
+- ✅ **Step 5**: Core API Client - MangaDexClient with 6 endpoints
+- ✅ **Step 6**: IPC Bridge - All 6 handlers wrapped with error handling
+- ✅ **Step 7**: Documentation - Complete mangadex-api.md (800+ lines)
+- ✅ **Step 8**: Memory Bank Updates - This update
+- ⏳ **Step 9**: Testing - Ready for manual testing
 
 **Key API Details Researched**:
 
@@ -73,14 +114,35 @@
   - Trigger: Explicit "Download" action
   - Use case: Complete offline reading
 
-**MangaDex Usage Policy**:
+**Critical Bug Fixes Applied** (12 Dec 2025):
 
-- Must credit MangaDex
-- Must credit scanlation groups
-- Cannot run ads or paid services
-- Must honor group removal requests
+1. ✅ **API URL Fixed**: Changed from `api.mangadex.com` → `api.mangadex.org`
+2. ✅ **Rate Limiter**: Added endpoint configuration system with proper at-home limits (40 req/min)
+3. ✅ **LRU Cache**: Fixed FIFO → true LRU with `lastAccessed` tracking
+4. ✅ **Cover Expiry**: Removed TTL for cover images (chapter images still expire at 15 min)
+5. ✅ **Preload Exposure**: Added `mangadex` to non-isolated context mode
+6. ✅ **Retry Logic**: Only retries on 429, throws proper errors for other status codes
+7. ✅ **IPC Error Handling**: All handlers use `wrapIpcHandler` for error serialization
+8. ✅ **TypeScript Types**: Added `mangadex: MangaDexApi` to Window interface
 
-**Ready for Implementation**: All architectural decisions made, comprehensive plan in place
+**Files Created** (50+ files):
+- API Client: `mangadexClient.ts` (170 lines)
+- Rate Limiter: `rateLimiter.ts` (103 lines)
+- Image Proxy: `imageProxy.ts` (140 lines)
+- Constants: 5 files (api-config, languages, includes, relation types)
+- Entities: 4 files (manga, chapter, relationship, tag)
+- Enums: 16 files (content rating, demographic, status, quality, etc.)
+- Responses: 4+ files (collection, api, image URLs, chapter images)
+- Search Params: 2+ files (manga search, feed params)
+- Documentation: `mangadex-api.md` (800+ lines)
+
+**MangaDex Usage Policy Compliance**:
+- Credits MangaDex and scanlation groups
+- No monetization, no ads
+- Respects all rate limits
+- Honors removal requests
+
+**Status**: P2-T01 100% complete, ready for P2-T02 (manga search interface)
 
 ---
 

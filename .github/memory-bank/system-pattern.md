@@ -1,7 +1,7 @@
 # DexReader System Pattern
 
-**Last Updated**: 6 December 2025
-**Version**: 1.0.0
+**Last Updated**: 12 December 2025
+**Version**: 1.0.1
 **Architecture**: Electron Multi-Process Desktop Application
 
 ---
@@ -60,6 +60,7 @@
 - **Registration**: `protocol.handle('mangadex', ...)` in main process on `app.whenReady()`
 - **URL Format**: `mangadex://uploads.mangadex.org/covers/...` (replaces `https://`)
 - **All images use protocol**: Chapter pages, cover images, thumbnails
+- **Status**: ✅ Implemented in `src/main/api/imageProxy.ts`
 
 **Security: Internal Protocol Only**
 
@@ -73,32 +74,43 @@
 
 **IMPORTANT**: Caching is implemented progressively across phases. Each phase has different caching requirements and storage mechanisms.
 
-#### Phase 2 (Streaming Mode): Ephemeral Memory Cache
+#### Phase 2 (Streaming Mode): Ephemeral Memory Cache ✅ **IMPLEMENTED**
 
 **Scope**: Online reading only, temporary session cache
 
-- **Chapter Images**: 30MB LRU cache, 15-minute expiry
-- **Cover Images**: 20MB LRU cache, no expiry (metadata stable)
+- **Chapter Images**: 30MB true LRU cache, 15-minute expiry
+- **Cover Images**: 20MB true LRU cache, **no expiry**
 - **Total Memory Limit**: ~50MB maximum
-- **Storage**: In-memory only (`Map<string, Buffer>`)
+- **Storage**: In-memory only (`Map<string, CacheEntry>`)
 - **Persistence**: NONE - cleared on app close
-- **Eviction**: LRU (Least Recently Used) when cache full
-- **Expiry**: 15 minutes (matches MangaDex URL validity)
+- **Eviction**: True LRU (tracks `lastAccessed` time) when cache full
+- **Expiry**: 15 minutes for chapter images only (matches MangaDex URL validity)
 - **Use Case**: Smooth page navigation during online reading
 - **Clear Trigger**: Chapter switch clears chapter cache
+- **Implementation**: `src/main/api/imageProxy.ts` (140 lines)
 
 **Implementation**:
+
 ```typescript
+// Implemented in src/main/api/imageProxy.ts
+interface CacheEntry {
+  buffer: Buffer
+  timestamp: number
+  size: number
+  lastAccessed: number  // ✅ For true LRU tracking
+}
+
 class ImageProxy {
-  private chapterCache: Map<string, CacheEntry>  // 30MB limit
-  private coverCache: Map<string, CacheEntry>    // 20MB limit
+  private chapterCache: Map<string, CacheEntry> // 30MB limit
+  private coverCache: Map<string, CacheEntry> // 20MB limit
 
   registerProtocol() {
     protocol.handle('mangadex', async (request) => {
-      // 1. Check cache (if not expired)
-      // 2. Fetch from network if cache miss
-      // 3. Add to appropriate cache with LRU eviction
-      // 4. Return Response with buffer
+      // 1. Check cache (expired check only for chapter images)
+      // 2. Update lastAccessed on cache hit
+      // 3. Fetch from network if cache miss
+      // 4. Add to appropriate cache with true LRU eviction
+      // 5. Return Response with buffer
     })
   }
 }
@@ -128,38 +140,42 @@ class ImageProxy {
 - **Benefit**: Complete offline reading capability
 
 **Key Distinction**:
+
 - **Streaming (Phase 2)**: Ephemeral, memory-only, automatic
 - **Bookmarks (Phase 3)**: Persistent covers/metadata, automatic on bookmark
 - **Downloads (Phase 4)**: Persistent full chapters, manual user action
 
-### Rate Limiting
+### Rate Limiting ✅ **IMPLEMENTED**
 
 **Global Limit**: 5 requests/second per IP
 **At-Home Endpoint**: 40 requests/minute (image URLs)
 **Penalties**: HTTP 429 → HTTP 403 (temp ban) → IP block
 
-**Implementation**: Token bucket algorithm
+**Implementation**: Token bucket algorithm with endpoint-specific limits
 
-- Capacity: 5 tokens
-- Refill rate: 5 tokens/second
-- Per-endpoint tracking for at-home limit
-- Exponential backoff on 429 responses (1s → 2s → 4s... max 60s)
-- Respect `Retry-After` header if present
+- **Global**: Capacity 5 tokens, refill rate 5 tokens/second
+- **Endpoint-Specific**: at-home/server has 40 tokens, refill rate 0.67 tokens/second (40/min)
+- Per-endpoint tracking for specialized limits
+- Automatic retry on 429 responses with `Retry-After` header
+- **Status**: ✅ Implemented in `src/main/api/rateLimiter.ts`
 
-**Integration**: All API requests call `await rateLimiter.waitForSlot()` before fetch
+**Integration**: All API requests call `await rateLimiter.waitForToken(endpoint)` before fetch
 
-### Error Handling
+### Error Handling ✅ **IMPLEMENTED**
 
 **Custom Error Types**:
-- `MangaDexAPIError`: HTTP errors from API (4xx, 5xx)
-- `MangaDexNetworkError`: Network/timeout failures
+
+- `MangaDexApiError`: HTTP errors from API (4xx, 5xx) with request ID
+- `MangaDexNetworkError`: Network/timeout failures with URL
 
 **Retry Strategy**:
-- HTTP 429: Automatic retry after backoff
-- Network errors: Up to 3 retries with exponential backoff
-- Other errors: Immediate failure, user-facing error message
 
-**Request Tracking**: Log `X-Request-Id` header on all errors for debugging
+- HTTP 429: Automatic retry after delay (respects `Retry-After` header)
+- Other HTTP errors (4xx, 5xx): Immediate failure with error details
+- Network errors: Thrown as `MangaDexNetworkError`
+
+**Request Tracking**: Logs `X-Request-Id` header on all errors for debugging
+**IPC Integration**: All errors serialized via `wrapIpcHandler` for renderer consumption
 
 ---
 
@@ -682,14 +698,14 @@ Events (no prefix):
 
 ### Categories
 
-| Category | Channels | Description |
-|----------|----------|-------------|
-| Filesystem | 16 | File and directory operations with path validation |
-| Theme | 4 | System theme and accent colour detection |
-| Menu | 14 | Application menu actions and state updates |
-| Dialogue | 2 | Native confirmation and multi-choice dialogues |
-| Navigation | 1 | Route navigation events from menu |
-| Window | 0 | (Reserved for future window management) |
+| Category   | Channels | Description                                        |
+| ---------- | -------- | -------------------------------------------------- |
+| Filesystem | 16       | File and directory operations with path validation |
+| Theme      | 4        | System theme and accent colour detection           |
+| Menu       | 14       | Application menu actions and state updates         |
+| Dialogue   | 2        | Native confirmation and multi-choice dialogues     |
+| Navigation | 1        | Route navigation events from menu                  |
+| Window     | 0        | (Reserved for future window management)            |
 
 ### Error Handling System
 
@@ -731,9 +747,9 @@ wrapIpcHandler('fs:read-file', async (_event, filePath: unknown, encoding: unkno
 Three core validators ensure parameter integrity:
 
 ```typescript
-validateString(value, fieldName)    // Type checking
-validatePath(value, fieldName)      // Non-empty path validation
-validateEncoding(value, fieldName)  // BufferEncoding enum validation
+validateString(value, fieldName) // Type checking
+validatePath(value, fieldName) // Non-empty path validation
+validateEncoding(value, fieldName) // BufferEncoding enum validation
 ```
 
 All 11 filesystem handlers validate inputs before processing, preventing injection attacks and type errors.
@@ -762,7 +778,9 @@ export interface FileStats {
 
 ```typescript
 function isIpcSuccess<T>(response: IpcResponse<T>): response is { success: true; data: T }
-function isIpcError<T>(response: IpcResponse<T>): response is { success: false; error: ISerialiseError }
+function isIpcError<T>(
+  response: IpcResponse<T>
+): response is { success: false; error: ISerialiseError }
 ```
 
 **Usage in Renderer**:
@@ -777,7 +795,7 @@ if (isIpcSuccess(response)) {
   // TypeScript knows response.error is ISerialiseError
   console.error(response.error.message)
   if (response.error.code === 'FS_ERROR') {
-    toast.error('Couldn\'t read the file')
+    toast.error("Couldn't read the file")
   }
 }
 ```

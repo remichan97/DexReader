@@ -1,7 +1,7 @@
 # DexReader Technical Context
 
-**Last Updated**: 6 December 2025
-**Project Version**: 1.0.0
+**Last Updated**: 12 December 2025
+**Project Version**: 1.0.1
 **Type**: Desktop Application (Electron)
 
 ---
@@ -46,21 +46,27 @@ _\*Note: Electron bundles its own Node.js runtime (~v20.x). Development uses sys
 
 ---
 
-## MangaDex API Integration (Phase 2+)
+## MangaDex API Integration ✅ **IMPLEMENTED (P2-T01)**
 
 ### API Client Architecture
 
 **Location**: `src/main/api/`
+**Status**: Complete with bug fixes (12 Dec 2025)
 
-| File | Purpose | Key Exports |
-|------|---------|-------------|
-| **constants.ts** | API URLs, enums, rate limits | `BASE_URL`, `ContentRating`, `PublicationStatus`, `RATE_LIMITS` |
-| **types.ts** | TypeScript interfaces (~40 interfaces) | `Manga`, `Chapter`, `MangaSearchParams`, `CollectionResponse<T>` |
-| **rateLimiter.ts** | Token bucket rate limiter | `RateLimiter` class |
-| **imageProxy.ts** | Custom protocol handler + cache | `ImageProxy` class |
-| **mangadexClient.ts** | Main API client | `MangaDexClient` class |
+| File                      | Purpose                                           | Key Exports                                                                |
+| ------------------------- | ------------------------------------------------- | -------------------------------------------------------------------------- |
+| **constants/api-config**  | API URLs, rate limits, config                     | `ApiConfig` (BASE_API_URL, timeouts, rate limits)                          |
+| **entities/**             | Data models (4 files)                             | `Manga`, `Chapter`, `Relationship`, `Tag`                                  |
+| **enums/**                | TypeScript enums (16 files)                       | `ContentRating`, `Demographic`, `PublicationStatus`, `ImageQuality`, etc.  |
+| **responses/**            | API response wrappers                             | `CollectionResponse<T>`, `ApiResponse<T>`, `ImageUrlResponse`, etc.        |
+| **searchparams/**         | Search & filter params                            | `MangaSearchParams`, `FeedParams`                                          |
+| **rateLimiter.ts**        | Token bucket with endpoint limits                 | `RateLimiter` class (103 lines)                                            |
+| **imageProxy.ts**         | Protocol handler + true LRU cache                 | `ImageProxy` class (140 lines)                                             |
+| **mangadexClient.ts**     | Main API client with 6 endpoints                  | `MangaDexClient` class (170 lines)                                         |
+| **shared/error.shared**   | Custom error classes                              | `MangaDexApiError`, `MangaDexNetworkError`                                 |
+| **shared/common-types**   | Shared interfaces                                 | `LocalizedString`, `EndpointLimit`                                         |
 
-### Image Proxy System
+### Image Proxy System ✅ **IMPLEMENTED**
 
 **Critical Architecture Decision**: Custom protocol handler for image proxying
 
@@ -71,83 +77,121 @@ _\*Note: Electron bundles its own Node.js runtime (~v20.x). Development uses sys
 - Registered via `protocol.handle('mangadex', ...)` in main process
 - Replaces `https://` in all image URLs
 - Transparent to renderer - works like regular image URLs
+- **Implementation**: `src/main/api/imageProxy.ts` (140 lines)
 
 **Cache Implementation** (Phase 2 - Ephemeral):
 
 ```typescript
-class ImageProxy {
-  private chapterCache: Map<string, CacheEntry> = new Map()  // 30MB
-  private coverCache: Map<string, CacheEntry> = new Map()    // 20MB
+// True LRU cache with lastAccessed tracking
+interface CacheEntry {
+  buffer: Buffer
+  timestamp: number
+  size: number
+  lastAccessed: number  // ✅ Updated on every access
+}
 
-  // Each CacheEntry: { buffer: Buffer, timestamp: number, size: number }
-  // LRU eviction when cache full
-  // 15-minute expiry for chapter images
+class ImageProxy {
+  private chapterCache: Map<string, CacheEntry> = new Map() // 30MB
+  private coverCache: Map<string, CacheEntry> = new Map() // 20MB
+
+  // LRU eviction: Finds entry with oldest lastAccessed, removes it
+  // Chapter images: 15-minute expiry
+  // Cover images: No expiry (only size-based eviction)
 }
 ```
 
 **Memory Limits**:
 
-- Chapter images: 30MB (LRU eviction)
-- Cover images: 20MB (LRU eviction)
+- Chapter images: 30MB (true LRU eviction, 15-min TTL)
+- Cover images: 20MB (true LRU eviction, no expiry)
 - Per-image max: 5MB (larger images not cached)
 - Total: ~50MB for streaming mode
 
+**Bug Fixes Applied**:
+
+- ✅ Fixed FIFO → true LRU (tracks `lastAccessed`)
+- ✅ Covers never expire (only chapters expire)
+- ✅ Proper size tracking and eviction
+
 **Caching by Phase**:
 
-- **Phase 2**: Ephemeral memory cache (in-memory Maps)
+- **Phase 2** ✅: Ephemeral memory cache (in-memory Maps)
 - **Phase 3**: Persistent covers for bookmarks (AppData/metadata/)
 - **Phase 4**: Full offline downloads (user downloads directory)
 
-### API Client Methods
+### API Client Methods ✅ **IMPLEMENTED**
 
-**Endpoints Exposed to Renderer**:
+**Endpoints Exposed to Renderer** (via `window.mangadex`):
 
 ```typescript
 window.mangadex.searchManga(params: MangaSearchParams): Promise<CollectionResponse<Manga>>
-window.mangadex.getManga(id: string, includes?: string[]): Promise<APIResponse<Manga>>
+window.mangadex.getManga(id: string, includes?: string[]): Promise<ApiResponse<Manga>>
 window.mangadex.getMangaFeed(id: string, params: FeedParams): Promise<CollectionResponse<Chapter>>
-window.mangadex.getChapter(id: string, includes?: string[]): Promise<APIResponse<Chapter>>
-window.mangadex.getChapterImages(chapterId: string, quality?: 'data' | 'data-saver'): Promise<ImageUrl[]>
-window.mangadex.getCoverUrl(mangaId: string, fileName: string, size?: CoverSize): string
+window.mangadex.getChapter(id: string, includes?: string[]): Promise<ApiResponse<Chapter>>
+window.mangadex.getChapterImages(id: string, quality: ImageQuality): Promise<ImageUrlResponse[]>
+window.mangadex.getCoverUrl(id: string, fileName: string, size?: CoverSize): string
 ```
 
-**IPC Channels** (6 new handlers in Phase 2):
+**IPC Channels** (6 handlers, all wrapped with `wrapIpcHandler`):
 
-- `mangadex:search-manga`
-- `mangadex:get-manga`
-- `mangadex:get-manga-feed`
-- `mangadex:get-chapter`
-- `mangadex:get-chapter-images`
-- `mangadex:get-cover-url`
+- `mangadex:search-manga` → `searchManga()`
+- `mangadex:get-manga` → `getManga()`
+- `mangadex:get-manga-feed` → `getMangaFeed()`
+- `mangadex:get-chapter` → `getChapter()`
+- `mangadex:get-chapter-images` → `getChapterImages()`
+- `mangadex:get-cover-url` → `getCoverImageUrl()`
 
-### Rate Limiting
+**Bug Fixes Applied**:
 
-**Algorithm**: Token bucket
+- ✅ API URL fixed: `api.mangadex.com` → `api.mangadex.org`
+- ✅ Retry logic: Only retries on 429, throws on other errors
+- ✅ All handlers use `wrapIpcHandler` for error serialization
+- ✅ TypeScript types complete (Window.mangadex interface)
 
-- Global: 5 requests/second capacity, refills at 5/sec
-- At-home endpoint: 40 requests/minute (tracked separately)
-- Automatic throttling via `await rateLimiter.waitForSlot()`
-- Exponential backoff on HTTP 429 responses
+### Rate Limiting ✅ **IMPLEMENTED**
 
-**Integration**: Every API request waits for rate limiter before fetch
+**Algorithm**: Token bucket with endpoint-specific configuration
 
-### Error Handling
+- **Global**: 5 requests/second capacity, refills at 5/sec
+- **At-home endpoint**: 40 tokens capacity, refills at 0.67/sec (40 requests/minute)
+- **Other endpoints**: Use global limit (5 req/s)
+- Automatic throttling via `await rateLimiter.waitForToken(endpoint)`
+- Automatic retry on HTTP 429 with `Retry-After` header support
+
+**Bug Fixes Applied**:
+
+- ✅ Added endpoint configuration system
+- ✅ At-home limit now correctly 40 req/min (was using global 5 req/s)
+- ✅ Per-endpoint capacity and refill rates
+
+**Implementation**: `src/main/api/rateLimiter.ts` (103 lines)
+
+**Integration**: Every API request calls `await rateLimiter.waitForToken(endpoint)` before fetch
+
+### Error Handling ✅ **IMPLEMENTED**
 
 **Custom Error Types**:
 
 ```typescript
-class MangaDexAPIError extends Error {
-  status: number
-  errors: ErrorResponse
-  requestId: string | null
+class MangaDexApiError extends Error {
+  message: string
+  error?: ErrorResponse
+  requestId?: string  // From X-Request-ID header
 }
 
 class MangaDexNetworkError extends Error {
+  message: string
   url: string
 }
 ```
 
-**IPC Integration**: All handlers wrapped with `wrapHandler()` from P1-T08
+**Retry Logic**:
+
+- HTTP 429: Automatic retry after delay (respects `Retry-After` header)
+- Other HTTP errors (4xx, 5xx): Throws `MangaDexApiError` with details
+- Network/timeout: Throws `MangaDexNetworkError`
+
+**IPC Integration**: All handlers wrapped with `wrapIpcHandler()` for automatic error serialization
 
 ### Dependencies
 
@@ -601,14 +645,14 @@ npmRebuild: false
 
 #### Channel Categories
 
-| Category | Channels | Implementation | Description |
-|----------|----------|----------------|-------------|
-| **Filesystem** | 16 | `src/main/index.ts` | File/directory operations with path validation |
-| **Theme** | 4 | `src/main/index.ts` | System theme and accent colour detection |
-| **Menu** | 14 | `src/main/menu.ts` | Application menu actions and state updates |
-| **Dialogue** | 2 | `src/main/index.ts` | Native confirmations and multi-choice dialogues |
-| **Navigation** | 1 | `src/main/menu.ts` | Route navigation events from menu |
-| **Window** | 0 | (reserved) | Future window management operations |
+| Category       | Channels | Implementation      | Description                                     |
+| -------------- | -------- | ------------------- | ----------------------------------------------- |
+| **Filesystem** | 16       | `src/main/index.ts` | File/directory operations with path validation  |
+| **Theme**      | 4        | `src/main/index.ts` | System theme and accent colour detection        |
+| **Menu**       | 14       | `src/main/menu.ts`  | Application menu actions and state updates      |
+| **Dialogue**   | 2        | `src/main/index.ts` | Native confirmations and multi-choice dialogues |
+| **Navigation** | 1        | `src/main/menu.ts`  | Route navigation events from menu               |
+| **Window**     | 0        | (reserved)          | Future window management operations             |
 
 #### Handler Pattern
 
@@ -639,7 +683,7 @@ if (isIpcSuccess(response)) {
   // TypeScript knows response.error is ISerialiseError
   console.error(response.error.message)
   if (response.error.code === 'FS_ERROR') {
-    toast.error('Couldn\'t read the file')
+    toast.error("Couldn't read the file")
   }
 }
 ```
