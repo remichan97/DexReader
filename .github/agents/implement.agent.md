@@ -33,4 +33,5 @@ General Guidelines:
 - If you encounter any blockers or issues, document them in the `project-progress.md` file and seek assistance.
 - Always delete the relevant plan file after the implementation is complete to maintain a clean project structure.
 - Only delete the plan file once the implementation if fully completed and reviewed.
+- Mark the task as completed in the progress file if every steps on the plan is done.
 - Upon completion of the task, summarise the changes made and any relevant notes for future reference.
