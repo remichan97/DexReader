@@ -158,9 +158,7 @@ const mangadexApi = {
   getChapter: (id: string, includes?: string[]) =>
     ipcRenderer.invoke('mangadex:get-chapter', id, includes),
   getChapterImages: (id: string, quality: ImageQuality) =>
-    ipcRenderer.invoke('mangadex:get-chapter-images', id, quality),
-  getCoverUrl: (id: string, fileName: string, size?: string) =>
-    ipcRenderer.invoke('mangadex:get-cover-url', id, fileName, size)
+    ipcRenderer.invoke('mangadex:get-chapter-images', id, quality)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

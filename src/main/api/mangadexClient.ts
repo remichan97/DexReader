@@ -8,7 +8,7 @@ import { URLSearchParams } from 'node:url'
 import { ApiResponse } from './responses/api.response'
 import { FeedParams } from './searchparams/feed.searchparam'
 import { Chapter } from './entities/chapter.entity'
-import { CoverSize, ImageQuality } from './enums'
+import { ImageQuality } from './enums'
 import { ImageUrlResponse } from './responses/image-url.response'
 import { ChapterImagesResponse } from './responses/chapter-image.response'
 
@@ -93,11 +93,6 @@ export class MangaDexClient {
     }))
   }
 
-  // Cover image URL builder (this is for displaying covers to the frontend, no rate limit, direct CDN access)
-  getCoverImageUrl(mangaId: string, fileName: string, size: CoverSize = CoverSize.Medium): string {
-    return `https://uploads.mangadex.org/cover/${mangaId}/${fileName}-${size}.jpg`
-  }
-
   //#endregion
 
   //#region Private helper methods
@@ -162,7 +157,8 @@ export class MangaDexClient {
       if (value === undefined || value === null) continue
 
       if (Array.isArray(value)) {
-        value.forEach((v) => queryParams.append(key, v.toString()))
+        // MangaDex API requires [] suffix for array parameters
+        value.forEach((v) => queryParams.append(`${key}[]`, v.toString()))
       } else if (typeof value === 'object' && !(value instanceof Date)) {
         for (const [subKey, subValue] of Object.entries(value)) {
           if (subValue !== undefined && subValue !== null) {

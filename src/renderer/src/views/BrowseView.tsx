@@ -1,81 +1,74 @@
 import type { JSX } from 'react'
-import { useState } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { SearchBar } from '@renderer/components/SearchBar'
 import { MangaCard } from '@renderer/components/MangaCard'
 import { SkeletonGrid } from '@renderer/components/Skeleton'
-
-// Mock data for demonstration
-const mockManga = [
-  {
-    id: '1',
-    coverUrl: 'https://picsum.photos/seed/manga1/300/450',
-    title: 'One Piece',
-    author: 'Oda Eiichiro',
-    status: 'ongoing' as const,
-    chaptersRead: 1050,
-    totalChapters: 1100
-  },
-  {
-    id: '2',
-    coverUrl: 'https://picsum.photos/seed/manga2/300/450',
-    title: 'Attack on Titan',
-    author: 'Hajime Isayama',
-    status: 'completed' as const,
-    chaptersRead: 139,
-    totalChapters: 139
-  },
-  {
-    id: '3',
-    coverUrl: 'https://picsum.photos/seed/manga3/300/450',
-    title: 'Hunter × Hunter',
-    author: 'Togashi Yoshihiro',
-    status: 'hiatus' as const,
-    chaptersRead: 350,
-    totalChapters: 400
-  },
-  {
-    id: '4',
-    coverUrl: 'https://picsum.photos/seed/manga4/300/450',
-    title: 'My Hero Academia',
-    author: 'Horikoshi Kohei',
-    status: 'ongoing' as const
-  },
-  {
-    id: '5',
-    coverUrl: 'https://picsum.photos/seed/manga5/300/450',
-    title: 'Demon Slayer',
-    author: 'Gotouge Koyoharu',
-    status: 'completed' as const
-  },
-  {
-    id: '6',
-    coverUrl: 'https://picsum.photos/seed/manga6/300/450',
-    title: 'Jujutsu Kaisen',
-    author: 'Akutami Gege',
-    status: 'ongoing' as const
-  }
-]
+import { ErrorRecovery } from '@renderer/components/ErrorRecovery'
+import { useSearchStore } from '@renderer/stores'
+import { PublicationStatus } from '@renderer/stores/searchStore'
+import {
+  getCoverImageUrl,
+  getAuthorName,
+  getMangaTitle,
+  mapPublicationStatus
+} from '@renderer/utils/mangaHelpers'
 
 export function BrowseView(): JSX.Element {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [loading, setLoading] = useState(false)
+  const { query, results, loading, error, hasMore, setQuery, search, loadMore } = useSearchStore()
+
   const [showFilters, setShowFilters] = useState(false)
-  const [filterCount] = useState(2)
-  const [favourites, setFavourites] = useState<Set<string>>(new Set(['1', '3']))
+  const [filterCount] = useState(0) // TODO: Calculate from active filters
+  const [favourites, setFavourites] = useState<Set<string>>(new Set())
 
-  const handleSearch = (query: string): void => {
-    console.log('Search query:', query)
-    setSearchQuery(query)
+  // Ref for infinite scroll sentinel
+  const sentinelRef = useRef<HTMLDivElement>(null)
 
-    // Simulate API call
-    setLoading(true)
+  // Load initial popular manga on mount
+  useEffect(() => {
+    search()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Infinite scroll: load more when sentinel comes into view
+  const handleIntersection = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      const [entry] = entries
+      if (entry.isIntersecting && !loading && hasMore) {
+        loadMore()
+      }
+    },
+    [loading, hasMore, loadMore]
+  )
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current
+    if (!sentinel) return
+
+    const observer = new IntersectionObserver(handleIntersection, {
+      root: null,
+      rootMargin: '200px', // Trigger 200px before reaching the sentinel
+      threshold: 0
+    })
+
+    observer.observe(sentinel)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [handleIntersection])
+
+  const handleSearch = (newQuery: string): void => {
+    setQuery(newQuery)
+    // Debouncing is handled by SearchBar component
+    // Trigger search after query is updated
     setTimeout(() => {
-      setLoading(false)
-    }, 1500)
+      search()
+    }, 0)
   }
 
   const handleMangaClick = (id: string): void => {
     console.log('Manga clicked:', id)
+    // TODO: Navigate to manga detail view
   }
 
   const handleFavouriteToggle = (id: string): void => {
@@ -88,6 +81,7 @@ export function BrowseView(): JSX.Element {
       }
       return next
     })
+    // TODO: Persist to library store
   }
 
   const handleFilterClick = (): void => {
@@ -95,12 +89,16 @@ export function BrowseView(): JSX.Element {
     console.log('Filter button clicked')
   }
 
+  const handleRetry = (): void => {
+    search()
+  }
+
   return (
     <div style={{ padding: '24px' }}>
       {/* Search Bar */}
       <div style={{ marginBottom: '24px' }}>
         <SearchBar
-          value={searchQuery}
+          value={query}
           onChange={handleSearch}
           onFilterClick={handleFilterClick}
           filterCount={filterCount}
@@ -123,34 +121,76 @@ export function BrowseView(): JSX.Element {
         </div>
       )}
 
-      {/* Loading State */}
-      {loading && <SkeletonGrid count={6} />}
+      {/* Error State */}
+      {error && !loading && <ErrorRecovery error={new Error(error)} onRetry={handleRetry} />}
 
-      {/* Manga Grid */}
-      {!loading && (
+      {/* Loading State */}
+      {loading && results.length === 0 && <SkeletonGrid count={20} />}
+
+      {/* Empty State */}
+      {!loading && !error && results.length === 0 && (
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-            gap: '16px'
+            textAlign: 'center',
+            padding: '48px 24px',
+            color: 'var(--win-text-secondary)'
           }}
         >
-          {mockManga.map((manga) => (
-            <MangaCard
-              key={manga.id}
-              id={manga.id}
-              coverUrl={manga.coverUrl}
-              title={manga.title}
-              author={manga.author}
-              status={manga.status}
-              chaptersRead={manga.chaptersRead}
-              totalChapters={manga.totalChapters}
-              isFavourite={favourites.has(manga.id)}
-              onClick={handleMangaClick}
-              onFavourite={handleFavouriteToggle}
-            />
-          ))}
+          <p style={{ fontSize: '16px', marginBottom: '8px' }}>No manga found</p>
+          <p style={{ fontSize: '14px' }}>
+            {query ? 'Try different search terms or filters' : 'Start searching to discover manga'}
+          </p>
         </div>
+      )}
+
+      {/* Manga Grid */}
+      {!loading && !error && results.length > 0 && (
+        <>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+              gap: '16px'
+            }}
+          >
+            {results.map((manga) => (
+              <MangaCard
+                key={manga.id}
+                id={manga.id}
+                coverUrl={getCoverImageUrl(manga)}
+                title={getMangaTitle(manga)}
+                author={getAuthorName(manga)}
+                status={mapPublicationStatus(
+                  (manga.attributes as { status: PublicationStatus }).status
+                )}
+                isFavourite={favourites.has(manga.id)}
+                onClick={handleMangaClick}
+                onFavourite={handleFavouriteToggle}
+              />
+            ))}
+          </div>
+
+          {/* Infinite scroll sentinel */}
+          <div ref={sentinelRef} style={{ height: '1px', margin: '24px 0' }} />
+
+          {/* Loading more indicator */}
+          {loading && hasMore && (
+            <div style={{ textAlign: 'center', padding: '24px' }}>
+              <p style={{ color: 'var(--win-text-secondary)', fontSize: '14px' }}>
+                Loading more manga...
+              </p>
+            </div>
+          )}
+
+          {/* End of results */}
+          {!hasMore && (
+            <div style={{ textAlign: 'center', padding: '24px' }}>
+              <p style={{ color: 'var(--win-text-secondary)', fontSize: '14px' }}>
+                No more results to load
+              </p>
+            </div>
+          )}
+        </>
       )}
     </div>
   )

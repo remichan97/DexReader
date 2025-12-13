@@ -31,22 +31,28 @@ export class RateLimiter {
 
     // Refill endpoint tokens
     let endpointLimit: EndpointLimit | undefined
+    let endpointCapacity: number = ApiConfig.GLOBAL_RATE_LIMIT
+    let endpointRefillRate: number = ApiConfig.GLOBAL_RATE_LIMIT
+
     if (endpoint) {
       const config = this.endpointConfigs[endpoint]
-      const capacity = config?.capacity ?? ApiConfig.GLOBAL_RATE_LIMIT
-      const refillRate = config?.refillRatePerSecond ?? ApiConfig.GLOBAL_RATE_LIMIT
+      endpointCapacity = config?.capacity ?? ApiConfig.GLOBAL_RATE_LIMIT
+      endpointRefillRate = config?.refillRatePerSecond ?? ApiConfig.GLOBAL_RATE_LIMIT
 
       endpointLimit = this.endpointLimits.get(endpoint)
       if (endpointLimit) {
         const endpointElapsed = now - endpointLimit.lastRefill
-        const endpointTokensToAdd = Math.floor((endpointElapsed / 1000) * refillRate)
+        const endpointTokensToAdd = Math.floor((endpointElapsed / 1000) * endpointRefillRate)
         if (endpointTokensToAdd > 0) {
-          endpointLimit.tokens = Math.min(endpointLimit.tokens + endpointTokensToAdd, capacity)
+          endpointLimit.tokens = Math.min(
+            endpointLimit.tokens + endpointTokensToAdd,
+            endpointCapacity
+          )
           endpointLimit.lastRefill = now
         }
       } else {
         endpointLimit = {
-          tokens: capacity,
+          tokens: endpointCapacity,
           lastRefill: now
         }
         this.endpointLimits.set(endpoint, endpointLimit)
@@ -67,13 +73,11 @@ export class RateLimiter {
 
       if (endpointLimit) {
         const endpointElapsed = now - endpointLimit.lastRefill
-        const endpointTokensToAdd = Math.floor(
-          (endpointElapsed / 1000) * ApiConfig.GLOBAL_RATE_LIMIT
-        )
+        const endpointTokensToAdd = Math.floor((endpointElapsed / 1000) * endpointRefillRate)
         if (endpointTokensToAdd > 0) {
           endpointLimit.tokens = Math.min(
             endpointLimit.tokens + endpointTokensToAdd,
-            ApiConfig.GLOBAL_RATE_LIMIT
+            endpointCapacity
           )
           endpointLimit.lastRefill = now
         }

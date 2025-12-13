@@ -17,7 +17,7 @@ import { ImageProxy } from './api/imageProxy'
 import { MangaDexClient } from './api/mangadexClient'
 import { MangaSearchParams } from './api/searchparams/manga.searchparam'
 import { FeedParams } from './api/searchparams/feed.searchparam'
-import { CoverSize, ImageQuality } from './api/enums'
+import { ImageQuality } from './api/enums'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -207,17 +207,6 @@ function registerMangaDexHandlers(): void {
   wrapIpcHandler('mangadex:get-chapter-images', async (_, id: unknown, quality: unknown) => {
     return await mangadexClient.getChapterImages(id as string, quality as ImageQuality)
   })
-
-  wrapIpcHandler(
-    'mangadex:get-cover-url',
-    async (_, id: unknown, fileName: unknown, size: unknown) => {
-      return mangadexClient.getCoverImageUrl(
-        id as string,
-        fileName as string,
-        size as CoverSize | undefined
-      )
-    }
-  )
 }
 
 async function initFileSystem(): Promise<void> {
