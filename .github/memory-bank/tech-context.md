@@ -53,18 +53,18 @@ _\*Note: Electron bundles its own Node.js runtime (~v20.x). Development uses sys
 **Location**: `src/main/api/`
 **Status**: Complete with bug fixes (12 Dec 2025)
 
-| File                      | Purpose                                           | Key Exports                                                                |
-| ------------------------- | ------------------------------------------------- | -------------------------------------------------------------------------- |
-| **constants/api-config**  | API URLs, rate limits, config                     | `ApiConfig` (BASE_API_URL, timeouts, rate limits)                          |
-| **entities/**             | Data models (4 files)                             | `Manga`, `Chapter`, `Relationship`, `Tag`                                  |
-| **enums/**                | TypeScript enums (16 files)                       | `ContentRating`, `Demographic`, `PublicationStatus`, `ImageQuality`, etc.  |
-| **responses/**            | API response wrappers                             | `CollectionResponse<T>`, `ApiResponse<T>`, `ImageUrlResponse`, etc.        |
-| **searchparams/**         | Search & filter params                            | `MangaSearchParams`, `FeedParams`                                          |
-| **rateLimiter.ts**        | Token bucket with endpoint limits                 | `RateLimiter` class (103 lines)                                            |
-| **imageProxy.ts**         | Protocol handler + true LRU cache                 | `ImageProxy` class (140 lines)                                             |
-| **mangadexClient.ts**     | Main API client with 6 endpoints                  | `MangaDexClient` class (170 lines)                                         |
-| **shared/error.shared**   | Custom error classes                              | `MangaDexApiError`, `MangaDexNetworkError`                                 |
-| **shared/common-types**   | Shared interfaces                                 | `LocalizedString`, `EndpointLimit`                                         |
+| File                     | Purpose                           | Key Exports                                                               |
+| ------------------------ | --------------------------------- | ------------------------------------------------------------------------- |
+| **constants/api-config** | API URLs, rate limits, config     | `ApiConfig` (BASE_API_URL, timeouts, rate limits)                         |
+| **entities/**            | Data models (4 files)             | `Manga`, `Chapter`, `Relationship`, `Tag`                                 |
+| **enums/**               | TypeScript enums (16 files)       | `ContentRating`, `Demographic`, `PublicationStatus`, `ImageQuality`, etc. |
+| **responses/**           | API response wrappers             | `CollectionResponse<T>`, `ApiResponse<T>`, `ImageUrlResponse`, etc.       |
+| **searchparams/**        | Search & filter params            | `MangaSearchParams`, `FeedParams`                                         |
+| **rateLimiter.ts**       | Token bucket with endpoint limits | `RateLimiter` class (103 lines)                                           |
+| **imageProxy.ts**        | Protocol handler + true LRU cache | `ImageProxy` class (140 lines)                                            |
+| **mangadexClient.ts**    | Main API client with 6 endpoints  | `MangaDexClient` class (170 lines)                                        |
+| **shared/error.shared**  | Custom error classes              | `MangaDexApiError`, `MangaDexNetworkError`                                |
+| **shared/common-types**  | Shared interfaces                 | `LocalizedString`, `EndpointLimit`                                        |
 
 ### Image Proxy System ✅ **IMPLEMENTED**
 
@@ -87,7 +87,7 @@ interface CacheEntry {
   buffer: Buffer
   timestamp: number
   size: number
-  lastAccessed: number  // ✅ Updated on every access
+  lastAccessed: number // ✅ Updated on every access
 }
 
 class ImageProxy {
@@ -176,7 +176,7 @@ window.mangadex.getCoverUrl(id: string, fileName: string, size?: CoverSize): str
 class MangaDexApiError extends Error {
   message: string
   error?: ErrorResponse
-  requestId?: string  // From X-Request-ID header
+  requestId?: string // From X-Request-ID header
 }
 
 class MangaDexNetworkError extends Error {

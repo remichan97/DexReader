@@ -126,6 +126,7 @@
 8. ✅ **TypeScript Types**: Added `mangadex: MangaDexApi` to Window interface
 
 **Files Created** (50+ files):
+
 - API Client: `mangadexClient.ts` (170 lines)
 - Rate Limiter: `rateLimiter.ts` (103 lines)
 - Image Proxy: `imageProxy.ts` (140 lines)
@@ -137,6 +138,7 @@
 - Documentation: `mangadex-api.md` (800+ lines)
 
 **MangaDex Usage Policy Compliance**:
+
 - Credits MangaDex and scanlation groups
 - No monetization, no ads
 - Respects all rate limits

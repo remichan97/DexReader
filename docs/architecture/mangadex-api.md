@@ -96,12 +96,12 @@ const ApiConfig = {
   BASE_API_URL: 'https://api.mangadex.org',
   BASE_CDN_URL: 'https://uploads.mangadex.org',
   REQUEST_USER_AGENT: 'DexReader/1.0.0',
-  API_TIMEOUT_MS: 15000,        // 15 seconds
-  IMAGE_TIMEOUT_MS: 30000,      // 30 seconds
-  GLOBAL_RATE_LIMIT: 5,         // 5 requests/second
-  AT_HOME_RATE_LIMIT: 40,       // 40 requests/minute
-  MAX_LIMIT: 100,               // Max items per page
-  MAX_OFFSET_PLUS_LIMIT: 10000  // Pagination limit
+  API_TIMEOUT_MS: 15000, // 15 seconds
+  IMAGE_TIMEOUT_MS: 30000, // 30 seconds
+  GLOBAL_RATE_LIMIT: 5, // 5 requests/second
+  AT_HOME_RATE_LIMIT: 40, // 40 requests/minute
+  MAX_LIMIT: 100, // Max items per page
+  MAX_OFFSET_PLUS_LIMIT: 10000 // Pagination limit
 }
 ```
 
@@ -151,10 +151,7 @@ async getManga(mangaId: string, includes?: string[]): Promise<ApiResponse<Manga>
 **Example:**
 
 ```typescript
-const manga = await window.mangadex.getManga(
-  'manga-id-here',
-  ['cover_art', 'author', 'artist']
-)
+const manga = await window.mangadex.getManga('manga-id-here', ['cover_art', 'author', 'artist'])
 ```
 
 #### 3. Get Manga Feed (Chapter List)
@@ -195,10 +192,7 @@ async getChapter(chapterId: string, includes?: string[]): Promise<ApiResponse<Ch
 **Example:**
 
 ```typescript
-const chapter = await window.mangadex.getChapter(
-  'chapter-id-here',
-  ['scanlation_group', 'manga']
-)
+const chapter = await window.mangadex.getChapter('chapter-id-here', ['scanlation_group', 'manga'])
 ```
 
 #### 5. Get Chapter Images
@@ -282,7 +276,7 @@ Uses token bucket algorithm with two layers:
 const ENDPOINT_CONFIGS = {
   'at-home/server': {
     capacity: 40,
-    refillRatePerSecond: 0.67  // 40 requests/minute
+    refillRatePerSecond: 0.67 // 40 requests/minute
   }
 }
 ```
@@ -411,9 +405,9 @@ function ChapterViewer({ images }: { images: ImageUrlResponse[] }) {
 ```typescript
 interface CacheEntry {
   buffer: Buffer
-  timestamp: number      // When added
-  size: number          // Buffer size in bytes
-  lastAccessed: number  // Last access time (for LRU)
+  timestamp: number // When added
+  size: number // Buffer size in bytes
+  lastAccessed: number // Last access time (for LRU)
 }
 ```
 
@@ -618,8 +612,7 @@ try {
 
 ```typescript
 const mangadexApi = {
-  searchManga: (params: MangaSearchParams) =>
-    ipcRenderer.invoke('mangadex:search-manga', params),
+  searchManga: (params: MangaSearchParams) => ipcRenderer.invoke('mangadex:search-manga', params),
   getManga: (id: string, includes?: string[]) =>
     ipcRenderer.invoke('mangadex:get-manga', id, includes),
   getMangaFeed: (id: string, query: FeedParams) =>
@@ -721,11 +714,7 @@ function MangaDetailView({ mangaId }: { mangaId: string }) {
   useEffect(() => {
     async function loadManga() {
       // Fetch manga details
-      const mangaRes = await window.mangadex.getManga(mangaId, [
-        'cover_art',
-        'author',
-        'artist'
-      ])
+      const mangaRes = await window.mangadex.getManga(mangaId, ['cover_art', 'author', 'artist'])
       setManga(mangaRes.data)
 
       // Fetch chapter list
@@ -850,7 +839,7 @@ function MangaCoverImage({ manga }: { manga: Manga }) {
 useEffect(() => {
   // Preload next 3 pages
   const nextPages = images.slice(currentPage + 1, currentPage + 4)
-  nextPages.forEach(img => {
+  nextPages.forEach((img) => {
     const image = new Image()
     image.src = img.url
   })
@@ -915,10 +904,7 @@ const chapters = await window.mangadex.getMangaFeed(manga.data.id, {
 console.log(chapters)
 
 // Get chapter images
-const images = await window.mangadex.getChapterImages(
-  chapters.data[0].id,
-  'data'
-)
+const images = await window.mangadex.getChapterImages(chapters.data[0].id, 'data')
 console.log(images)
 ```
 
@@ -939,12 +925,9 @@ for (let i = 0; i < 20; i++) {
 
 ```html
 <!-- In DevTools, create test image -->
-const img = document.createElement('img')
-img.src = 'mangadex://uploads.mangadex.org/covers/manga-id/cover.jpg'
-document.body.appendChild(img)
-
-// Should load successfully
-// Check Network tab - protocol should be "mangadex"
+const img = document.createElement('img') img.src =
+'mangadex://uploads.mangadex.org/covers/manga-id/cover.jpg' document.body.appendChild(img) // Should
+load successfully // Check Network tab - protocol should be "mangadex"
 ```
 
 ---

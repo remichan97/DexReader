@@ -97,7 +97,7 @@ interface CacheEntry {
   buffer: Buffer
   timestamp: number
   size: number
-  lastAccessed: number  // ✅ For true LRU tracking
+  lastAccessed: number // ✅ For true LRU tracking
 }
 
 class ImageProxy {
