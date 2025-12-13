@@ -33,7 +33,7 @@ export function BrowseView(): JSX.Element {
 
   // Calculate active filter count (excluding default content ratings)
   const filterCount =
-    (filters.contentRating.length !== 2 ? 1 : 0) + // Only count if not default (Safe + Suggestive)
+    (filters.contentRating.length === 2 ? 0 : 1) + // Only count if not default (Safe + Suggestive)
     filters.publicationStatus.length +
     filters.publicationDemographic.length +
     filters.includedTags.length +
