@@ -83,6 +83,7 @@ export interface SearchFilters {
   includedTags: string[]
   excludedTags: string[]
   includedTagsMode: IncludedTagsMode
+  availableTranslatedLanguage: string[]
   sortBy: OrderOptions
   sortDirection: OrderDirection
 }
@@ -94,6 +95,7 @@ export const DEFAULT_FILTERS: SearchFilters = {
   includedTags: [],
   excludedTags: [],
   includedTagsMode: IncludedTagsMode.And,
+  availableTranslatedLanguage: ['en'],
   sortBy: OrderOptions.Relevance,
   sortDirection: OrderDirection.Desc
 }
@@ -111,6 +113,7 @@ interface SearchState {
   error: string | null
   setQuery: (query: string) => void
   setFilters: (filters: Partial<SearchFilters>) => void
+  setLimit: (limit: number) => void
   search: () => Promise<void>
   loadMore: () => Promise<void>
   reset: () => void
@@ -139,6 +142,11 @@ export const useSearchStore = create<SearchState>((set, get) => ({
     set((state) => ({
       filters: { ...state.filters, ...newFilters }
     }))
+  },
+
+  setLimit: (limit: number) => {
+    const clampedLimit = Math.min(Math.max(limit, 5), 100)
+    set({ limit: clampedLimit })
   },
 
   search: async () => {
@@ -182,6 +190,9 @@ export const useSearchStore = create<SearchState>((set, get) => ({
       if (state.filters.excludedTags.length > 0) {
         searchParams.excludedTags = state.filters.excludedTags
         searchParams.excludedTagsMode = state.filters.includedTagsMode
+      }
+      if (state.filters.availableTranslatedLanguage.length > 0) {
+        searchParams.availableTranslatedLanguage = state.filters.availableTranslatedLanguage
       }
 
       // Set order: use relevance only if there's a search query, otherwise use updatedAt
@@ -256,6 +267,9 @@ export const useSearchStore = create<SearchState>((set, get) => ({
       if (state.filters.excludedTags.length > 0) {
         searchParams.excludedTags = state.filters.excludedTags
         searchParams.excludedTagsMode = state.filters.includedTagsMode
+      }
+      if (state.filters.availableTranslatedLanguage.length > 0) {
+        searchParams.availableTranslatedLanguage = state.filters.availableTranslatedLanguage
       }
 
       // Set order: use relevance only if there's a search query, otherwise use updatedAt

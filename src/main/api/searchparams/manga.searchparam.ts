@@ -20,6 +20,9 @@ export interface MangaSearchParams {
   contentRating?: ContentRating[]
   createdAtSince?: string
   updatedAtSince?: string
+  availableTranslatedLanguage?: string[]
+  originalLanguage?: string[]
+  excludedOriginalLanguage?: string[]
   order?: Record<OrderOptions, OrderDirection>
   includes?: MangaIncludes[]
   hasAvailableChapters?: boolean | 'true' | 'false'

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { MangaStatus, BaseComponentProps } from '@renderer/types/components'
+import { getLanguageName } from '@renderer/constants/language-list.constant'
 import './MangaCard.css'
 
 export interface MangaCardProps extends BaseComponentProps {
@@ -27,6 +28,11 @@ export interface MangaCardProps extends BaseComponentProps {
    * Publication status (optional)
    */
   status?: MangaStatus
+
+  /**
+   * Available languages (optional)
+   */
+  languages?: string[]
 
   /**
    * Number of chapters read (optional)
@@ -90,6 +96,7 @@ export function MangaCard({
   title,
   author,
   status,
+  languages,
   chaptersRead,
   totalChapters,
   variant = 'grid',
@@ -242,12 +249,24 @@ export function MangaCard({
           {title}
         </h3>
 
-        {(author || status) && (
+        {(author || status || languages) && (
           <div className="manga-card__metadata">
             {author && <span className="manga-card__author">{author}</span>}
             {status && (
               <span className={`manga-card__status manga-card__status--${status}`}>
                 {statusLabels[status]}
+              </span>
+            )}
+            {languages && languages.length > 0 && (
+              <span
+                className="manga-card__languages"
+                title={languages.map((code) => getLanguageName(code)).join(', ')}
+              >
+                {languages
+                  .slice(0, 3)
+                  .map((code) => code.toUpperCase())
+                  .join(', ')}
+                {languages.length > 3 ? ` +${languages.length - 3}` : ''}
               </span>
             )}
           </div>

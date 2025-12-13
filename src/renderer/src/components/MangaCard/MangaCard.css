@@ -295,6 +295,27 @@
   color: #ff99a4;
 }
 
+/* Language Badge */
+.manga-card__languages {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-xs);
+  font-family: var(--win-font-body);
+  font-size: var(--win-font-size-caption);
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+  background: rgba(96, 94, 92, 0.1);
+  color: var(--win-text-secondary);
+  text-transform: uppercase;
+}
+
+[data-theme='dark'] .manga-card__languages {
+  background: rgba(150, 150, 150, 0.15);
+  color: var(--win-text-secondary);
+}
+
 /* Progress Text */
 .manga-card__progress-text {
   margin: 0;

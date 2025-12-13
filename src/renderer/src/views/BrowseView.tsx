@@ -11,7 +11,8 @@ import {
   getCoverImageUrl,
   getAuthorName,
   getMangaTitle,
-  mapPublicationStatus
+  mapPublicationStatus,
+  getAvailableLanguages
 } from '@renderer/utils/mangaHelpers'
 
 export function BrowseView(): JSX.Element {
@@ -22,8 +23,10 @@ export function BrowseView(): JSX.Element {
     error,
     hasMore,
     filters,
+    limit,
     setQuery,
     setFilters,
+    setLimit,
     search,
     loadMore
   } = useSearchStore()
@@ -78,11 +81,7 @@ export function BrowseView(): JSX.Element {
 
   const handleSearch = (newQuery: string): void => {
     setQuery(newQuery)
-    // Debouncing is handled by SearchBar component
-    // Trigger search after query is updated
-    setTimeout(() => {
-      search()
-    }, 0)
+    search()
   }
 
   const handleMangaClick = (id: string): void => {
@@ -148,7 +147,9 @@ export function BrowseView(): JSX.Element {
         <div style={{ marginBottom: '24px' }}>
           <FilterPanel
             filters={filters}
+            limit={limit}
             onChange={handleFilterChange}
+            onLimitChange={setLimit}
             onApply={handleApplyFilters}
             onClear={handleClearFilters}
           />
@@ -197,6 +198,7 @@ export function BrowseView(): JSX.Element {
                 status={mapPublicationStatus(
                   (manga.attributes as { status: PublicationStatus }).status
                 )}
+                languages={getAvailableLanguages(manga)}
                 isFavourite={favourites.has(manga.id)}
                 onClick={handleMangaClick}
                 onFavourite={handleFavouriteToggle}

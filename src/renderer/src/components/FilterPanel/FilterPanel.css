@@ -8,12 +8,12 @@
   background: var(--win-bg-default);
   border: 1px solid var(--win-border-default);
   border-radius: var(--radius-md);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .filter-panel__quick {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 16px;
   padding: 16px;
   flex-wrap: wrap;
@@ -32,13 +32,16 @@
   color: var(--win-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  line-height: 1.5;
+  min-height: 18px;
 }
 
 .filter-panel__checkboxes {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   flex-wrap: wrap;
   align-items: center;
+  min-height: 32px;
 }
 
 .filter-panel__actions {
@@ -76,8 +79,133 @@
 /* Advanced Filters Section */
 .filter-panel__advanced {
   border-top: 1px solid var(--win-border-default);
-  padding: 16px;
+  padding: 20px;
   background: var(--win-bg-default);
+  max-height: 65vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Tag Mode Selection */
+.filter-panel__tag-mode {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--win-border-default);
+}
+
+/* Tag Group */
+.filter-panel__tag-group {
+  margin-bottom: 28px;
+}
+
+.filter-panel__tag-group:last-child {
+  margin-bottom: 0;
+}
+
+.filter-panel__tag-group-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--win-text-primary);
+  margin: 0 0 16px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--win-border-default);
+}
+
+/* Tag Grid */
+.filter-panel__tag-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+/* Tag Item */
+.filter-panel__tag-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--win-bg-subtle);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-sm);
+  transition: all 0.15s ease;
+  min-height: 40px;
+  height: 40px;
+}
+
+.filter-panel__tag-item:hover {
+  background: var(--win-bg-secondary);
+  border-color: var(--win-border-strong);
+}
+
+.filter-panel__tag-name {
+  font-size: 13px;
+  color: var(--win-text-primary);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Tag Controls */
+.filter-panel__tag-controls {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.filter-panel__tag-btn {
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--win-border-default);
+  background: var(--win-bg-default);
+  color: var(--win-text-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+  line-height: 1;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.filter-panel__tag-btn:hover:not(.active) {
+  border-color: var(--win-border-strong);
+  background: var(--win-bg-secondary);
+}
+
+.filter-panel__tag-btn.include.active {
+  background: var(--win-accent-default) !important;
+  border-color: var(--win-accent-default) !important;
+  color: white !important;
+}
+
+.filter-panel__tag-btn.include.active:hover {
+  background: var(--win-accent-secondary) !important;
+  border-color: var(--win-accent-secondary) !important;
+  color: white !important;
+}
+
+.filter-panel__tag-btn.exclude.active {
+  background: #d13438 !important;
+  border-color: #d13438 !important;
+  color: white !important;
+}
+
+.filter-panel__tag-btn.exclude.active:hover {
+  background: #a82c2f !important;
+  border-color: #a82c2f !important;
+  color: white !important;
 }
 
 .filter-panel__tag-section {
@@ -101,4 +229,20 @@
     margin-left: 0;
     justify-content: flex-end;
   }
+}
+
+/* Tag List (for languages and other list-style filters) */
+.filter-panel__tag-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+  align-items: start;
+}
+
+/* Language Filter Section */
+.filter-panel__language-item {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  min-height: 32px;
 }

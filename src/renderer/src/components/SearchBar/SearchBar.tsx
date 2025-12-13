@@ -92,14 +92,17 @@ export function SearchBar({
   }, [value])
 
   // Call onChange when debounced value changes
+  // Only trigger if debouncedValue matches current internalValue (prevents stale updates after clear)
   useEffect(() => {
-    if (debouncedValue !== value) {
+    if (debouncedValue !== value && debouncedValue === internalValue) {
       onChange(debouncedValue)
     }
-  }, [debouncedValue, onChange, value])
+  }, [debouncedValue, onChange, value, internalValue])
 
   const handleClear = useCallback((): void => {
+    // Update local state immediately for visual feedback
     setInternalValue('')
+    // Notify parent to update query
     onChange('')
     inputRef.current?.focus()
   }, [onChange])

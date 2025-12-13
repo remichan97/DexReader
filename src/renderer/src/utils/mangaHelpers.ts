@@ -155,3 +155,17 @@ export function formatChapterCount(read: number | undefined, total: number | und
 
   return read === undefined ? `— / ${total}` : `${read} / ${total}`
 }
+
+/**
+ * Extract available translation languages from manga entity
+ * Returns array of language codes (e.g., ['en', 'ja', 'es'])
+ */
+export function getAvailableLanguages(manga: MangaEntity): string[] {
+  try {
+    const attrs = manga.attributes as { availableTranslatedLanguages?: string[] }
+    return attrs.availableTranslatedLanguages || []
+  } catch (error) {
+    console.error('Error extracting available languages:', error)
+    return []
+  }
+}
