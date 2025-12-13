@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { SearchBar } from '@renderer/components/SearchBar'
+import { FilterPanel } from '@renderer/components/FilterPanel'
 import { MangaCard } from '@renderer/components/MangaCard'
 import { SkeletonGrid } from '@renderer/components/Skeleton'
 import { ErrorRecovery } from '@renderer/components/ErrorRecovery'
@@ -14,11 +15,29 @@ import {
 } from '@renderer/utils/mangaHelpers'
 
 export function BrowseView(): JSX.Element {
-  const { query, results, loading, error, hasMore, setQuery, search, loadMore } = useSearchStore()
+  const {
+    query,
+    results,
+    loading,
+    error,
+    hasMore,
+    filters,
+    setQuery,
+    setFilters,
+    search,
+    loadMore
+  } = useSearchStore()
 
-  const [showFilters, setShowFilters] = useState(false)
-  const [filterCount] = useState(0) // TODO: Calculate from active filters
+  const [showFilters, setShowFilters] = useState(true) // Show filters by default
   const [favourites, setFavourites] = useState<Set<string>>(new Set())
+
+  // Calculate active filter count (excluding default content ratings)
+  const filterCount =
+    (filters.contentRating.length !== 2 ? 1 : 0) + // Only count if not default (Safe + Suggestive)
+    filters.publicationStatus.length +
+    filters.publicationDemographic.length +
+    filters.includedTags.length +
+    filters.excludedTags.length
 
   // Ref for infinite scroll sentinel
   const sentinelRef = useRef<HTMLDivElement>(null)
@@ -86,7 +105,25 @@ export function BrowseView(): JSX.Element {
 
   const handleFilterClick = (): void => {
     setShowFilters(!showFilters)
-    console.log('Filter button clicked')
+  }
+
+  const handleFilterChange = (newFilters: Partial<typeof filters>): void => {
+    setFilters(newFilters)
+  }
+
+  const handleApplyFilters = (): void => {
+    search()
+  }
+
+  const handleClearFilters = (): void => {
+    setFilters({
+      contentRating: [],
+      publicationStatus: [],
+      publicationDemographic: [],
+      includedTags: [],
+      excludedTags: []
+    })
+    search()
   }
 
   const handleRetry = (): void => {
@@ -96,7 +133,7 @@ export function BrowseView(): JSX.Element {
   return (
     <div style={{ padding: '24px' }}>
       {/* Search Bar */}
-      <div style={{ marginBottom: '24px' }}>
+      <div style={{ marginBottom: '16px' }}>
         <SearchBar
           value={query}
           onChange={handleSearch}
@@ -106,18 +143,15 @@ export function BrowseView(): JSX.Element {
         />
       </div>
 
-      {/* Filter info */}
+      {/* Filter Panel */}
       {showFilters && (
-        <div
-          style={{
-            padding: '16px',
-            background: 'var(--win-bg-subtle)',
-            border: '1px solid var(--win-border-default)',
-            borderRadius: 'var(--radius-md)',
-            marginBottom: '24px'
-          }}
-        >
-          <p>Filters panel would go here. Active filters: {filterCount}</p>
+        <div style={{ marginBottom: '24px' }}>
+          <FilterPanel
+            filters={filters}
+            onChange={handleFilterChange}
+            onApply={handleApplyFilters}
+            onClear={handleClearFilters}
+          />
         </div>
       )}
 

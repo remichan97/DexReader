@@ -1,0 +1,104 @@
+/**
+ * Filter Panel Styles
+ * Horizontal filter bar spanning full width
+ */
+
+.filter-panel {
+  width: 100%;
+  background: var(--win-bg-default);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.filter-panel__quick {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  padding: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-panel__group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 120px;
+}
+
+.filter-panel__label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--win-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filter-panel__checkboxes {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-panel__actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+  align-items: flex-end;
+}
+
+/* Advanced Filters Toggle */
+.filter-panel__advanced-toggle {
+  border-top: 1px solid var(--win-border-default);
+  padding: 8px 16px;
+  background: var(--win-bg-subtle);
+}
+
+.filter-panel__toggle-btn {
+  background: none;
+  border: none;
+  color: var(--win-text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.15s ease;
+}
+
+.filter-panel__toggle-btn:hover {
+  color: var(--win-accent-default);
+}
+
+/* Advanced Filters Section */
+.filter-panel__advanced {
+  border-top: 1px solid var(--win-border-default);
+  padding: 16px;
+  background: var(--win-bg-default);
+}
+
+.filter-panel__tag-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .filter-panel__quick {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-panel__group {
+    min-width: unset;
+  }
+
+  .filter-panel__actions {
+    margin-left: 0;
+    justify-content: flex-end;
+  }
+}
