@@ -91,7 +91,32 @@
 - Vertical scroll mode
 - Reading statistics
 
-**Next Session**: Move to P2-T08 (Zoom/Pan) or P2-T10 (Reading Progress Tracking)
+**Next Session**: Ready to implement P2-T08 (Zoom/Pan Controls) or P2-T10 (Reading Progress Tracking)
+
+---
+
+### 📋 Ready for Implementation (14 Dec 2025 - P2-T08)
+
+**P2-T08 Zoom/Pan/Fit Controls - PLANNING COMPLETE ✅**:
+
+**Implementation Plan Created**: Comprehensive 10-step plan (~12-16 hours)
+- **Plan Location**: `.github/copilot-plans/P2-T08-zoom-pan-fit-controls-plan.md`
+- **Features Planned**:
+  * Three fit modes: fit-to-width, fit-to-height, actual size (100%)
+  * Custom zoom: 25%-400% range with smooth controls
+  * Pan/drag: Drag zoomed images with boundary constraints
+  * Zoom controls toolbar: Integrated into reader header
+  * Keyboard shortcuts: Z (cycle), Ctrl+0 (reset), Ctrl+= (in), Ctrl+- (out), Ctrl+Wheel (zoom)
+  * Transform origin: Zoom focuses on cursor position
+  * Smooth animations: GPU-accelerated CSS transforms (60fps)
+- **Architecture Decisions**:
+  * CSS Transform Scale for zoom (GPU-accelerated, no re-rendering)
+  * CSS Transform Translate for pan (precise boundary control)
+  * ZoomControls component in reader header
+  * Pan boundary constraints to prevent over-scrolling
+- **10 Implementation Steps**: State update → Zoom functions → Pan/drag → PageDisplay update → Toolbar → Keyboard shortcuts → Transform origin → CSS polish → Testing → Documentation
+- **Duration Estimate**: 12-16 hours (1.5-2 days)
+- **Ready for Implementation**: All architecture decided, code examples provided, testing checklist prepared
 
 ---
 

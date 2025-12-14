@@ -86,6 +86,14 @@
     * 'L' key to toggle chapter list
   - Performance optimizations ready for future enhancement
 
+- [ ] **P2-T08**: Add zoom/pan/fit controls - **PLANNING COMPLETE** ✅
+  - Comprehensive 10-step implementation plan created (~12-16 hours estimated)
+  - Plan location: `.github/copilot-plans/P2-T08-zoom-pan-fit-controls-plan.md`
+  - Features planned: Three fit modes (width/height/actual), custom zoom (25%-400%), pan/drag with boundaries, zoom toolbar, keyboard shortcuts (Z/Ctrl+0/Ctrl+=/Ctrl+-/Ctrl+Wheel), transform origin at cursor, GPU-accelerated animations
+  - Architecture: CSS Transform Scale for zoom, CSS Transform Translate for pan, ZoomControls component integrated in reader header
+  - Implementation steps: State update → Zoom functions → Pan/drag → PageDisplay update → Toolbar → Keyboard shortcuts → Transform origin → CSS polish → Testing → Documentation
+  - Ready for implementation (14 Dec 2025)
+
 ### Phase 1 Completed Tasks (9/9 - 100%)
 
 - [✅] **P1-T01**: Design main application layout
@@ -225,7 +233,7 @@
 - [✅] **P2-T05**: Chapter list fetching from API - **COMPLETE** (P2-T03)
 - [✅] **P2-T06**: Image URL fetching from at-home server - **COMPLETE** (P2-T01)
 - [✅] **P2-T07**: Create online manga reader with streaming - **COMPLETE** (14 Dec 2025)
-- [ ] **P2-T08**: Add zoom/pan/fit controls (fit-width, fit-height, actual size)
+- [ ] **P2-T08**: Add zoom/pan/fit controls (fit-width, fit-height, actual size) - **PLANNING COMPLETE** ✅ (14 Dec 2025)
 - [✅] **P2-T09**: Implement image preloading for smooth page transitions - **COMPLETE** (14 Dec 2025)
 - [ ] **P2-T10**: Add local reading progress tracking (stored locally)
 - [ ] **P2-T11**: Support reading modes (single page, double page, vertical scroll)
