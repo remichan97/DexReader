@@ -6,11 +6,19 @@ import {
   validateDirectoryPath
 } from './pathValidator'
 import { secureFs } from './secureFs'
+import { ImageQuality } from '../api/enums'
 
 interface AppSettings {
   downloadsPath: string | null
   theme: 'light' | 'dark' | 'system'
   accentColor: string | undefined // Accent color in hex format, e.g., '#FF5733'
+  reader: {
+    scrollMode: 'paginated' | 'continuous' | 'reverse-paginated'
+    imageQuality: ImageQuality
+    backgroundColor?: string // Background color in hex format, e.g., '#FFFFFF'
+    showPageNumbers?: boolean
+    fitMode: 'width' | 'height' | 'actual'
+  }
 }
 
 const SETTINGS_FILE = path.join(getAppDataPath(), 'settings.json')
@@ -23,7 +31,12 @@ export async function loadSettings(): Promise<AppSettings> {
       const defaults: AppSettings = {
         downloadsPath: null,
         theme: 'system',
-        accentColor: undefined
+        accentColor: undefined,
+        reader: {
+          scrollMode: 'paginated',
+          imageQuality: ImageQuality.High,
+          fitMode: 'width'
+        }
       }
       await saveSettings(defaults)
       return defaults
@@ -37,7 +50,12 @@ export async function loadSettings(): Promise<AppSettings> {
     return {
       downloadsPath: null,
       theme: 'system',
-      accentColor: undefined
+      accentColor: undefined,
+      reader: {
+        scrollMode: 'paginated',
+        imageQuality: ImageQuality.High,
+        fitMode: 'width'
+      }
     }
   }
 }
