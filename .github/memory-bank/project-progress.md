@@ -23,7 +23,7 @@
 
 ## Current Status: Phase 2 In Progress 🔵
 
-### Phase 2 Progress: 6/11 Tasks Complete (55%)
+### Phase 2 Progress: 7/11 Tasks Complete (64%)
 
 - [✅] **P2-T01**: Implement MangaDex public API client - **COMPLETE**
   - All 9 implementation steps finished
@@ -55,6 +55,36 @@
   - Responsive design with media queries
   - Additional enhancements: InfoBar component, filter UX improvements
   - All Fluent UI icons, no emojis
+
+- [✅] **P2-T07**: Create online manga reader with streaming - **COMPLETE**
+  - All 8 core implementation steps finished (~10 hours)
+  - ReaderView component (937 lines) with full functionality
+  - Core Features:
+    * Image fetching from MangaDex at-home server via mangadex:// protocol
+    * Page-by-page navigation with keyboard shortcuts (arrows, space, home, end, escape)
+    * Click zones for navigation (left 40% = previous, right 60% = next)
+    * Reader header with back button, chapter title, and page counter
+    * Loading states with ProgressRing spinner
+    * Error recovery with friendly messages and technical details
+    * Dark theme enforcement for better reading experience
+  - Advanced Features (Beyond Plan):
+    * Next/Previous chapter navigation with end-of-chapter overlay
+    * Collapsible chapter list sidebar for quick chapter jumping
+    * Seamless chapter transitions (next/previous at page boundaries)
+    * Chapter data optimization (reuses chapter list from detail view)
+    * Image preloading (2 pages ahead, 1 page back) for smooth navigation
+    * Navigation indicators on hover
+    * Proper state management with location state handling
+  - Dark Mode UI:
+    * All buttons styled for dark theme (header, sidebar, overlays)
+    * Windows 11 Fluent Design with acrylic effects
+    * Consistent styling across all interactive elements
+  - Keyboard Shortcuts:
+    * Arrow keys, Space, Enter for page navigation
+    * Home/End for first/last page
+    * Escape for back or close sidebar
+    * 'L' key to toggle chapter list
+  - Performance optimizations ready for future enhancement
 
 ### Phase 1 Completed Tasks (9/9 - 100%)
 
@@ -163,7 +193,7 @@
 ### Phase 2: Content Display (In Progress) 🔵
 
 **Duration**: 4-5 weeks
-**Status**: In Progress - 6/11 tasks complete (55%)
+**Status**: In Progress - 7/11 tasks complete (64%)
 **Start Date**: 6 December 2025
 **Target Completion**: January 2026
 
@@ -180,10 +210,11 @@
 
 - Working MangaDex public API client ✅
 - Manga search and browse interface ✅
-- Online manga image viewer with streaming
-- Page-by-page navigation from API
-- Zoom, pan, and fit-to-screen controls
-- Chapter/volume navigation from MangaDex
+- Online manga image viewer with streaming ✅
+- Page-by-page navigation from API ✅
+- Chapter navigation with seamless transitions ✅
+- Zoom, pan, and fit-to-screen controls (pending)
+- Reading progress tracking (pending)
 
 **Key Technical Tasks**:
 
@@ -193,9 +224,9 @@
 - [✅] **P2-T04**: Cover image fetching and in-memory caching - **COMPLETE** (P2-T01, persistent caching in Phase 3)
 - [✅] **P2-T05**: Chapter list fetching from API - **COMPLETE** (P2-T03)
 - [✅] **P2-T06**: Image URL fetching from at-home server - **COMPLETE** (P2-T01)
-- [⏳] **P2-T07**: Create online image viewer with streaming - **PLANNING COMPLETE** (14 Dec 2025)
+- [✅] **P2-T07**: Create online manga reader with streaming - **COMPLETE** (14 Dec 2025)
 - [ ] **P2-T08**: Add zoom/pan/fit controls (fit-width, fit-height, actual size)
-- [ ] **P2-T09**: Implement image preloading for smooth page transitions (memory only)
+- [✅] **P2-T09**: Implement image preloading for smooth page transitions - **COMPLETE** (14 Dec 2025)
 - [ ] **P2-T10**: Add local reading progress tracking (stored locally)
 - [ ] **P2-T11**: Support reading modes (single page, double page, vertical scroll)
 
