@@ -116,7 +116,8 @@
 
 /* Label */
 .checkbox__label {
-  font-family: var(--win-font-body), 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+  font-family:
+    var(--win-font-body), 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
   font-size: var(--win-font-size-body);
   color: var(--win-text-primary);
   line-height: 1.5;

@@ -1,0 +1,98 @@
+/**
+ * InfoBar Component Styles
+ * Sticky information bar following Windows 11 Fluent Design
+ */
+
+.info-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  margin: 0 -24px 16px -24px;
+  padding: 0 24px;
+  animation: info-bar-slide-down 0.2s ease-out;
+}
+
+@keyframes info-bar-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.info-bar__content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--win-bg-card);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--win-shadow-sm);
+  backdrop-filter: blur(20px);
+  transition: var(--transition-all-fast);
+}
+
+.info-bar__content:hover {
+  box-shadow: var(--win-shadow-md);
+  border-color: var(--win-border-strong);
+}
+
+.info-bar__text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--win-text-secondary);
+  line-height: 1.5;
+}
+
+.info-bar__actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .info-bar {
+    margin: 0 -16px 16px -16px;
+    padding: 0 16px;
+  }
+
+  .info-bar__content {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .info-bar__text {
+    text-align: center;
+  }
+
+  .info-bar__actions {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+/* Variant: Compact (for smaller screens or less prominent display) */
+.info-bar--compact .info-bar__content {
+  padding: 8px 12px;
+}
+
+.info-bar--compact .info-bar__text {
+  font-size: 12px;
+}
+
+/* Variant: Accent (for highlighted information) */
+.info-bar--accent .info-bar__content {
+  background: var(--win-accent-subtle);
+  border-color: var(--win-accent-default);
+}
+
+.info-bar--accent .info-bar__text {
+  color: var(--win-accent-text);
+  font-weight: 600;
+}

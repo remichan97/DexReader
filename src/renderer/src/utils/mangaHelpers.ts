@@ -169,3 +169,92 @@ export function getAvailableLanguages(manga: MangaEntity): string[] {
     return []
   }
 }
+
+/**
+ * Get manga description in preferred language
+ * Falls back to English, romaji, then first available
+ */
+export function getMangaDescription(manga: MangaEntity): string {
+  try {
+    const descObj = (manga.attributes as { description?: Record<string, string> }).description
+
+    if (!descObj || typeof descObj !== 'object') {
+      return 'No description available.'
+    }
+
+    // Try English first
+    if (descObj.en) {
+      return descObj.en
+    }
+
+    // Try romaji
+    if (descObj['ja-ro']) {
+      return descObj['ja-ro']
+    }
+
+    // Fall back to first available
+    const descriptions = Object.values(descObj)
+    return descriptions[0] || 'No description available.'
+  } catch (error) {
+    console.error('Error extracting manga description:', error)
+    return 'No description available.'
+  }
+}
+
+/**
+ * Get manga publication year
+ */
+export function getMangaYear(manga: MangaEntity): number | null {
+  try {
+    const year = (manga.attributes as { year?: number | null }).year
+    return year ?? null
+  } catch (error) {
+    console.error('Error extracting manga year:', error)
+    return null
+  }
+}
+
+/**
+ * Get content rating display text
+ */
+export function getContentRatingText(rating: string): string {
+  const map: Record<string, string> = {
+    safe: 'Safe',
+    suggestive: 'Suggestive',
+    erotica: 'Erotica',
+    pornographic: '18+'
+  }
+  return map[rating?.toLowerCase()] || 'Unknown'
+}
+
+/**
+ * Extract tags from manga relationships
+ */
+export function getMangaTags(manga: MangaEntity): Array<{ id: string; name: string }> {
+  try {
+    return (
+      manga.relationships
+        ?.filter((r) => r.type === 'tag')
+        .map((r) => ({
+          id: r.id,
+          name: (r.attributes as { name?: { en?: string } })?.name?.en || 'Unknown'
+        })) || []
+    )
+  } catch (error) {
+    console.error('Error extracting manga tags:', error)
+    return []
+  }
+}
+
+/**
+ * Get all available titles for manga (internationalization)
+ */
+export function getAllTitles(manga: MangaEntity): Record<string, string> {
+  try {
+    const titleObj = (manga.attributes as { title?: Record<string, string> }).title
+    return titleObj || {}
+  } catch (error) {
+    console.error('Error extracting all titles:', error)
+    return {}
+  }
+}

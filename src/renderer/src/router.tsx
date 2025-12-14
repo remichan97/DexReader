@@ -8,6 +8,7 @@ import { ReaderView } from './views/ReaderView'
 import { SettingsView } from './views/SettingsView'
 import { DownloadsView } from './views/DownloadsView'
 import { NotFoundView } from './views/NotFoundView'
+import { MangaDetailView } from './views/MangaDetailView'
 
 export function AppRoutes(): JSX.Element {
   const location = useLocation()
@@ -22,6 +23,14 @@ export function AppRoutes(): JSX.Element {
           element={
             <ErrorBoundary level="page">
               <BrowseView />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/browse/:mangaId"
+          element={
+            <ErrorBoundary level="page">
+              <MangaDetailView />
             </ErrorBoundary>
           }
         />

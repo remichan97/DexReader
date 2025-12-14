@@ -1,12 +1,15 @@
 import type { JSX } from 'react'
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Warning48Regular } from '@fluentui/react-icons'
 import { SearchBar } from '@renderer/components/SearchBar'
 import { FilterPanel } from '@renderer/components/FilterPanel'
 import { MangaCard } from '@renderer/components/MangaCard'
 import { SkeletonGrid } from '@renderer/components/Skeleton'
-import { ErrorRecovery } from '@renderer/components/ErrorRecovery'
+import { Button } from '@renderer/components/Button'
+import { InfoBar } from '@renderer/components/InfoBar'
 import { useSearchStore } from '@renderer/stores'
-import { PublicationStatus } from '@renderer/stores/searchStore'
+import { PublicationStatus, DEFAULT_FILTERS } from '@renderer/stores/searchStore'
 import {
   getCoverImageUrl,
   getAuthorName,
@@ -14,8 +17,12 @@ import {
   mapPublicationStatus,
   getAvailableLanguages
 } from '@renderer/utils/mangaHelpers'
+import './BrowseView.css'
 
 export function BrowseView(): JSX.Element {
+  const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [showErrorDetails, setShowErrorDetails] = useState<boolean>(false)
   const {
     query,
     results,
@@ -31,8 +38,11 @@ export function BrowseView(): JSX.Element {
     loadMore
   } = useSearchStore()
 
-  const [showFilters, setShowFilters] = useState(true) // Show filters by default
+  // Hide filters by default - users reveal when needed
+  const [showFilters, setShowFilters] = useState(false)
   const [favourites, setFavourites] = useState<Set<string>>(new Set())
+  const [showFilterBar, setShowFilterBar] = useState(false) // Show info bar when filters out of view
+  const filterPanelRef = useRef<HTMLDivElement>(null)
 
   // Calculate active filter count (excluding default content ratings)
   const filterCount =
@@ -44,12 +54,56 @@ export function BrowseView(): JSX.Element {
 
   // Ref for infinite scroll sentinel
   const sentinelRef = useRef<HTMLDivElement>(null)
+  const initialLoadRef = useRef(false)
 
-  // Load initial popular manga on mount
+  // Handle tag parameter from URL and apply to filters
   useEffect(() => {
-    search()
+    const tagId = searchParams.get('tag')
+    if (tagId) {
+      // Reset to default filters and apply only the tag filter
+      setQuery('')
+      setFilters({
+        ...DEFAULT_FILTERS,
+        includedTags: [tagId]
+      })
+      setSearchParams({}) // Clear query params
+      // Trigger search immediately for URL-based tag navigation
+      setTimeout(() => search(), 0)
+      initialLoadRef.current = true
+    } else if (!initialLoadRef.current) {
+      // Load initial popular manga on mount (no tag filter)
+      search()
+      initialLoadRef.current = true
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Observe filter panel visibility to show/hide info bar
+  useEffect(() => {
+    const filterPanel = filterPanelRef.current
+    if (!filterPanel || !showFilters) {
+      setShowFilterBar(false)
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // Show info bar when filter panel is not visible
+        setShowFilterBar(!entry.isIntersecting)
+      },
+      {
+        root: null,
+        threshold: 0,
+        rootMargin: '0px'
+      }
+    )
+
+    observer.observe(filterPanel)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [showFilters])
 
   // Infinite scroll: load more when sentinel comes into view
   const handleIntersection = useCallback(
@@ -85,8 +139,7 @@ export function BrowseView(): JSX.Element {
   }
 
   const handleMangaClick = (id: string): void => {
-    console.log('Manga clicked:', id)
-    // TODO: Navigate to manga detail view
+    navigate(`/browse/${id}`)
   }
 
   const handleFavouriteToggle = (id: string): void => {
@@ -129,6 +182,16 @@ export function BrowseView(): JSX.Element {
     search()
   }
 
+  const handleScrollToFilters = (): void => {
+    filterPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  const handleResetFilters = (): void => {
+    setFilters(DEFAULT_FILTERS)
+    setQuery('')
+    search()
+  }
+
   return (
     <div style={{ padding: '24px' }}>
       {/* Search Bar */}
@@ -144,7 +207,7 @@ export function BrowseView(): JSX.Element {
 
       {/* Filter Panel */}
       {showFilters && (
-        <div style={{ marginBottom: '24px' }}>
+        <div ref={filterPanelRef} style={{ marginBottom: '24px' }}>
           <FilterPanel
             filters={filters}
             limit={limit}
@@ -156,8 +219,62 @@ export function BrowseView(): JSX.Element {
         </div>
       )}
 
+      {/* Sticky Filter Info Bar - Shows when filters are out of view */}
+      <InfoBar
+        visible={showFilterBar && showFilters && results.length > 0}
+        text={
+          filterCount > 0
+            ? `${filterCount} filter${filterCount > 1 ? 's' : ''} active`
+            : 'Browsing all manga'
+        }
+        actions={
+          <>
+            <Button variant="ghost" size="small" onClick={handleScrollToFilters}>
+              Scroll to Filters
+            </Button>
+            <Button variant="secondary" size="small" onClick={handleResetFilters}>
+              Reset to Default
+            </Button>
+          </>
+        }
+      />
+
       {/* Error State */}
-      {error && !loading && <ErrorRecovery error={new Error(error)} onRetry={handleRetry} />}
+      {error && !loading && (
+        <div className="browse-error">
+          <div className="browse-error__icon">
+            <Warning48Regular />
+          </div>
+          <h3 className="browse-error__title">Couldn&apos;t load manga</h3>
+          <p className="browse-error__message">
+            Something went wrong while searching. This might be a connection issue or the service
+            might be temporarily unavailable.
+          </p>
+          <div className="browse-error__actions">
+            <Button variant="primary" onClick={handleRetry}>
+              Try Again
+            </Button>
+            <Button variant="ghost" onClick={() => setShowErrorDetails(!showErrorDetails)}>
+              {showErrorDetails ? 'Hide' : 'Show'} technical details
+            </Button>
+          </div>
+          {showErrorDetails && (
+            <div className="browse-error__technical-details">
+              <div>
+                <strong>Error:</strong> {error.message}
+              </div>
+              {error.stack && (
+                <div style={{ marginTop: '8px' }}>
+                  <strong>Stack Trace:</strong>
+                  <pre style={{ margin: '4px 0 0 0', fontSize: '11px', lineHeight: '1.4' }}>
+                    {error.stack}
+                  </pre>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Loading State */}
       {loading && results.length === 0 && <SkeletonGrid count={20} />}

@@ -110,7 +110,7 @@ interface SearchState {
   hasMore: boolean
   loading: boolean
   loadingMore: boolean
-  error: string | null
+  error: Error | null
   setQuery: (query: string) => void
   setFilters: (filters: Partial<SearchFilters>) => void
   setLimit: (limit: number) => void
@@ -186,6 +186,7 @@ export const useSearchStore = create<SearchState>((set, get) => ({
       }
       if (state.filters.includedTags.length > 0) {
         searchParams.includedTags = state.filters.includedTags
+        searchParams.includedTagsMode = state.filters.includedTagsMode
       }
       if (state.filters.excludedTags.length > 0) {
         searchParams.excludedTags = state.filters.excludedTags
@@ -201,8 +202,14 @@ export const useSearchStore = create<SearchState>((set, get) => ({
 
       const response = await globalThis.mangadex.searchManga(searchParams)
 
+      // Check IPC wrapper success
+      if (!response.success || !response.data) {
+        throw new Error(response.error?.message || 'Failed to search manga')
+      }
+
+      // Check API result
       if (response.data.result === 'error') {
-        throw new Error('Failed to search manga')
+        throw new Error('Failed to search manga from API')
       }
 
       // Extract data array and total from CollectionResponse (wrapped in IPC handler)
@@ -219,7 +226,7 @@ export const useSearchStore = create<SearchState>((set, get) => ({
     } catch (error) {
       console.error('Search error:', error)
       set({
-        error: error instanceof Error ? error.message : 'Failed to search manga',
+        error: error instanceof Error ? error : new Error(String(error)),
         loading: false
       })
     }
@@ -263,6 +270,7 @@ export const useSearchStore = create<SearchState>((set, get) => ({
       }
       if (state.filters.includedTags.length > 0) {
         searchParams.includedTags = state.filters.includedTags
+        searchParams.includedTagsMode = state.filters.includedTagsMode
       }
       if (state.filters.excludedTags.length > 0) {
         searchParams.excludedTags = state.filters.excludedTags
@@ -278,8 +286,14 @@ export const useSearchStore = create<SearchState>((set, get) => ({
 
       const response = await globalThis.mangadex.searchManga(searchParams)
 
+      // Check IPC wrapper success
+      if (!response.success || !response.data) {
+        throw new Error(response.error?.message || 'Failed to load more manga')
+      }
+
+      // Check API result
       if (response.data.result === 'error') {
-        throw new Error('Failed to load more manga')
+        throw new Error('Failed to load more manga from API')
       }
 
       // Extract data array from CollectionResponse (wrapped in IPC handler)
@@ -299,7 +313,7 @@ export const useSearchStore = create<SearchState>((set, get) => ({
     } catch (error) {
       console.error('Load more error:', error)
       set({
-        error: error instanceof Error ? error.message : 'Failed to load more manga',
+        error: error instanceof Error ? error : new Error(String(error)),
         loadingMore: false
       })
     }

@@ -229,15 +229,17 @@ export function FilterPanel({
           />
         </div>
 
-        {/* Action Buttons */}
-        <div className="filter-panel__actions">
-          <Button variant="secondary" size="small" onClick={onClear}>
-            Clear ({activeFilterCount})
-          </Button>
-          <Button variant="primary" size="small" onClick={onApply}>
-            Apply
-          </Button>
-        </div>
+        {/* Action Buttons - Only show in quick filters when advanced is collapsed */}
+        {!isExpanded && (
+          <div className="filter-panel__actions">
+            <Button variant="secondary" size="small" onClick={onClear}>
+              Clear ({activeFilterCount})
+            </Button>
+            <Button variant="primary" size="small" onClick={onApply}>
+              Apply
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Advanced Filters Toggle */}
@@ -334,6 +336,18 @@ export function FilterPanel({
               })}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Sticky Footer with Action Buttons - Only when advanced filters are expanded */}
+      {isExpanded && (
+        <div className="filter-panel__sticky-footer">
+          <Button variant="secondary" size="small" onClick={onClear}>
+            Clear ({activeFilterCount})
+          </Button>
+          <Button variant="primary" size="small" onClick={onApply}>
+            Apply Filters
+          </Button>
         </div>
       )}
     </div>
