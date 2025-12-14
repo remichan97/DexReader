@@ -15,14 +15,18 @@ export function AppShell({ children }: AppShellProps): JSX.Element {
   const setSystemTheme = useAppStore((state) => state.setSystemTheme)
   const location = useLocation()
 
-  // Update document title based on current route
+  // Update document title based on current route (only for main views, not sub-views)
   useEffect(() => {
+    // Skip title management for dynamic routes (handled by individual views)
+    if (location.pathname.startsWith('/browse/') || location.pathname.startsWith('/reader/')) {
+      return
+    }
+
     const viewTitles: Record<string, string> = {
       '/': 'Browse',
       '/browse': 'Browse',
       '/library': 'Library',
       '/downloads': 'Downloads',
-      '/reader': 'Reader',
       '/settings': 'Settings'
     }
 

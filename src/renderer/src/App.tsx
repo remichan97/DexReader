@@ -1,4 +1,4 @@
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter, useLocation } from 'react-router-dom'
 import { AppShell } from './layouts/AppShell'
 import { AppRoutes } from './router'
 import { useNavigationListener } from './hooks/useNavigationListener'
@@ -9,6 +9,9 @@ import { useToastStore } from './stores'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
 function AppContent(): React.JSX.Element {
+  const location = useLocation()
+  const isReaderRoute = location.pathname.startsWith('/reader/')
+
   // Listen for navigation commands from menu
   useNavigationListener()
 
@@ -18,7 +21,17 @@ function AppContent(): React.JSX.Element {
   // Load and apply accent color on app startup
   useAccentColor()
 
-  return <AppRoutes />
+  // Reader gets full screen without sidebar
+  if (isReaderRoute) {
+    return <AppRoutes />
+  }
+
+  // Other views get AppShell with sidebar
+  return (
+    <AppShell>
+      <AppRoutes />
+    </AppShell>
+  )
 }
 
 function App(): React.JSX.Element {
@@ -35,9 +48,7 @@ function App(): React.JSX.Element {
       }}
     >
       <BrowserRouter>
-        <AppShell>
-          <AppContent />
-        </AppShell>
+        <AppContent />
         <ToastContainer toasts={toasts} onDismiss={dismissToast} position="bottom-right" />
       </BrowserRouter>
     </ErrorBoundary>

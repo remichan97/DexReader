@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   ArrowLeftRegular,
@@ -29,6 +29,17 @@ import './MangaDetailView.css'
 type MangaEntity = Awaited<ReturnType<Window['mangadex']['getManga']>>['data']
 type ChapterEntity = Awaited<ReturnType<Window['mangadex']['getMangaFeed']>>['data'][number]
 
+// Module-level cache to persist data across component remounts
+const mangaCache = new Map<
+  string,
+  {
+    manga: MangaEntity
+    chapters: ChapterEntity[]
+    selectedLanguage: string
+    chapterSort: 'asc' | 'desc'
+  }
+>()
+
 interface MangaDetailViewState {
   manga: MangaEntity | null
   chapters: ChapterEntity[]
@@ -50,18 +61,22 @@ export function MangaDetailView(): JSX.Element {
   const { mangaId } = useParams<{ mangaId: string }>()
   const navigate = useNavigate()
 
+  // Initialize state from cache if available
+  const cachedData = mangaId ? mangaCache.get(mangaId) : null
   const [state, setState] = useState<MangaDetailViewState>({
-    manga: null,
-    chapters: [],
-    loading: true,
+    manga: cachedData?.manga || null,
+    chapters: cachedData?.chapters || [],
+    loading: !cachedData, // Don't show loading if we have cached data
     error: null,
-    selectedLanguage: 'en',
-    chapterSort: 'asc',
+    selectedLanguage: cachedData?.selectedLanguage || 'en',
+    chapterSort: cachedData?.chapterSort || 'asc',
     chaptersLoading: false,
     chaptersError: null
   })
   const [showMainErrorDetails, setShowMainErrorDetails] = useState<boolean>(false)
   const [showChapterErrorDetails, setShowChapterErrorDetails] = useState<boolean>(false)
+  const [showStickyTitle, setShowStickyTitle] = useState<boolean>(false)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   // Load manga details and chapters on mount
   useEffect(() => {
@@ -70,8 +85,40 @@ export function MangaDetailView(): JSX.Element {
       return
     }
 
-    loadMangaDetails(mangaId)
-  }, [mangaId, navigate])
+    // Only load if we don't have data for this manga yet (cache behavior)
+    if (state.manga?.id !== mangaId) {
+      loadMangaDetails(mangaId)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mangaId])
+
+  // Update document title with manga name
+  useEffect(() => {
+    if (state.manga) {
+      const mangaTitle = getMangaTitle(state.manga)
+      document.title = `${mangaTitle} - DexReader`
+    } else if (state.loading) {
+      document.title = 'Loading... - DexReader'
+    } else {
+      document.title = 'Manga Details - DexReader'
+    }
+  }, [state.manga, state.loading, mangaId]) // Include mangaId to force update on navigation
+
+  // Handle scroll to show/hide sticky title
+  useEffect(() => {
+    const handleScroll = (): void => {
+      if (scrollContainerRef.current) {
+        // Show title when scrolled more than 300px (past hero section)
+        setShowStickyTitle(scrollContainerRef.current.scrollTop > 300)
+      }
+    }
+
+    const container = scrollContainerRef.current
+    if (container) {
+      container.addEventListener('scroll', handleScroll)
+      return () => container.removeEventListener('scroll', handleScroll)
+    }
+  }, [state.manga])
 
   /**
    * Fetch manga details and chapter list from API
@@ -139,12 +186,26 @@ export function MangaDetailView(): JSX.Element {
           throw new Error('Failed to fetch chapters from API')
         }
 
-        setState((prev) => ({
-          ...prev,
-          chapters: chaptersResponse.data.data,
-          chaptersLoading: false,
-          chaptersError: null
-        }))
+        setState((prev) => {
+          const newState = {
+            ...prev,
+            chapters: chaptersResponse.data.data,
+            chaptersLoading: false,
+            chaptersError: null
+          }
+
+          // Update cache
+          if (manga) {
+            mangaCache.set(id, {
+              manga: manga,
+              chapters: chaptersResponse.data.data,
+              selectedLanguage: initialLanguage,
+              chapterSort: 'asc'
+            })
+          }
+
+          return newState
+        })
       } catch (chapterError) {
         console.error('Failed to load chapters:', chapterError)
         setState((prev) => ({
@@ -192,13 +253,27 @@ export function MangaDetailView(): JSX.Element {
         throw new Error('Failed to fetch chapters from API')
       }
 
-      setState((prev) => ({
-        ...prev,
-        chapters: chaptersResponse.data.data,
-        selectedLanguage: language,
-        chaptersLoading: false,
-        chaptersError: null
-      }))
+      setState((prev) => {
+        const newState = {
+          ...prev,
+          chapters: chaptersResponse.data.data,
+          selectedLanguage: language,
+          chaptersLoading: false,
+          chaptersError: null
+        }
+
+        // Update cache
+        if (prev.manga && mangaId) {
+          mangaCache.set(mangaId, {
+            manga: prev.manga,
+            chapters: chaptersResponse.data.data,
+            selectedLanguage: language,
+            chapterSort: prev.chapterSort
+          })
+        }
+
+        return newState
+      })
     } catch (error) {
       console.error('Failed to load chapters for language:', error)
       setState((prev) => ({
@@ -214,7 +289,7 @@ export function MangaDetailView(): JSX.Element {
    * Handle back button click
    */
   const handleBackClick = (): void => {
-    navigate(-1)
+    navigate('/browse')
   }
 
   /**
@@ -303,12 +378,15 @@ export function MangaDetailView(): JSX.Element {
   }
 
   return (
-    <div className="manga-detail-view">
-      {/* Back button */}
+    <div className="manga-detail-view" ref={scrollContainerRef}>
+      {/* Back button with optional sticky title */}
       <div className="manga-detail-view__back-button">
         <Button variant="ghost" onClick={handleBackClick} icon={<ArrowLeftRegular />}>
           Back
         </Button>
+        {showStickyTitle && state.manga && (
+          <span className="manga-detail-view__sticky-title">{getMangaTitle(state.manga)}</span>
+        )}
       </div>
 
       {/* Hero section - Cover + Metadata */}
@@ -368,7 +446,14 @@ function MangaHeroSection({ manga, chapters }: MangaHeroSectionProps): JSX.Eleme
 
     // Navigate to first chapter
     const firstChapter = chapters[0]
-    navigate(`/reader/${manga.id}/${firstChapter.id}`)
+    navigate(`/reader/${manga.id}/${firstChapter.id}`, {
+      state: {
+        chapterNumber: firstChapter.attributes.chapter,
+        chapterTitle: firstChapter.attributes.title,
+        mangaTitle: getMangaTitle(manga),
+        chapters: chapters // Pass full chapter list for navigation
+      }
+    })
   }
 
   const handleAddToLibrary = (): void => {
@@ -545,6 +630,21 @@ function ExternalLinksSection({ manga }: ExternalLinksSectionProps): JSX.Element
     return urlMap[key] ? urlMap[key](value) : value
   }
 
+  // Handle external link click with confirmation
+  const handleExternalLinkClick = async (key: string, value: string): Promise<void> => {
+    const url = getExternalUrl(key, value)
+    const serviceName = serviceNames[key]
+
+    const confirmed = await globalThis.api.showConfirmDialog(
+      `Open ${serviceName}?`,
+      `You're about to open an external website in your default browser. Just so you know where you're headed:\n\n${url}`
+    )
+
+    if (confirmed) {
+      globalThis.open(url, '_blank', 'noopener,noreferrer')
+    }
+  }
+
   const linkEntries = Object.entries(links).filter(([key]) => serviceNames[key])
 
   if (linkEntries.length === 0) return <></>
@@ -559,7 +659,7 @@ function ExternalLinksSection({ manga }: ExternalLinksSectionProps): JSX.Element
             variant="secondary"
             size="small"
             icon={<GlobeRegular />}
-            onClick={() => window.open(getExternalUrl(key, value), '_blank', 'noopener,noreferrer')}
+            onClick={() => handleExternalLinkClick(key, value)}
             title={`View on ${serviceNames[key]}`}
           >
             {serviceNames[key]}
@@ -778,7 +878,16 @@ function ChapterList({
             <ChapterItem
               key={chapter.id}
               chapter={chapter}
-              onClick={() => navigate(`/reader/${mangaId}/${chapter.id}`)}
+              onClick={() =>
+                navigate(`/reader/${mangaId}/${chapter.id}`, {
+                  state: {
+                    chapterNumber: chapter.attributes.chapter,
+                    chapterTitle: chapter.attributes.title,
+                    mangaTitle: manga ? getMangaTitle(manga) : 'Manga',
+                    chapters: chapters // Pass full chapter list for navigation
+                  }
+                })
+              }
             />
           ))}
       </div>

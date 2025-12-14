@@ -5,6 +5,10 @@ import { CollectionResponse } from './../main/api/responses/collection.response'
 import { ElectronAPI } from '@electron-toolkit/preload'
 import type { IpcResponse, FileStats, AllowedPaths, FolderSelectResult } from './ipc.types'
 
+// Re-export types for renderer use
+export type { ImageUrlResponse } from './../main/api/responses/image-url.response'
+export type { IpcResponse } from './ipc.types'
+
 interface MenuState {
   canAddToFavorites?: boolean
   isFavorited?: boolean
@@ -82,7 +86,7 @@ interface MangaDexApi {
   getManga: (id: string, includes?: string[]) => Promise<ApiResponse<Manga>>
   getMangaFeed: (id: string, query: FeedParams) => Promise<CollectionResponse<Chapter>>
   getChapter: (id: string, includes?: string[]) => Promise<ApiResponse<Chapter>>
-  getChapterImages: (id: string, quality: ImageQuality) => Promise<ImageUrlResponse[]>
+  getChapterImages: (id: string, quality: ImageQuality) => Promise<IpcResponse<ImageUrlResponse[]>>
   getCoverUrl: (id: string, fileName: string, size?: string) => string
 }
 
