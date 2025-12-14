@@ -2,7 +2,7 @@
 
 **Last Updated**: 14 December 2025
 **Current Phase**: Phase 2 - Content Display (In Progress)
-**Session**: P2-T03 Complete - Manga Detail View Implemented
+**Session**: P2-T07 Planning Complete - Reader View Ready for Implementation
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -11,13 +11,53 @@
 ## Current Status Summary
 
 **Phase**: Phase 2 - Content Display (In Progress)
-**Progress**: P2-T01, P2-T02, P2-T03 complete
+**Progress**: P2-T01 through P2-T06 complete, P2-T07 planning complete
 **Current Date**: 14 December 2025
 **Phase 1 Status**: Complete ✅ (9/9 tasks, 100%)
-**Phase 2 Progress**: 3/11 tasks complete (27%)
-**Current Task**: P2-T03 - Implement Manga Detail View (COMPLETE ✅)
+**Phase 2 Progress**: 6/11 tasks complete (55%), 1 task in planning
+**Current Task**: P2-T07 - Implement Reader View (Planning Complete ⏳)
 
-### 🎉 Just Completed (14 Dec 2025 - P2-T03 Implementation)
+### � Current Work (14 Dec 2025 - P2-T07 Planning)
+
+**P2-T07 Reader View - PLANNING COMPLETE ⏳** (10-11 hours estimated):
+
+**Implementation Plan Created**:
+
+- Comprehensive plan saved to `.github/copilot-plans/P2-T07-implement-reader-view.md`
+- **Step 1**: State Management Setup (1.5h) - Reader state with images, navigation, loading
+- **Step 2**: Image Fetching (1h) - Load chapter images from at-home server
+- **Step 3**: Page Navigation Logic (1.5h) - Keyboard shortcuts and click zones
+- **Step 4**: Reader UI Layout (2h) - Header bar, page display, navigation hints
+- **Step 5**: Windows 11 Styling (1.5h) - Fluent Design CSS
+- **Step 6**: Loading and Error States (1h) - Comprehensive error handling
+- **Step 7**: Integration Testing (1h) - Test with real manga data
+- **Step 8**: Polish and Optimization (1.5h) - Chapter title fetch, preload, accessibility
+
+**Key Features to Build**:
+
+- Online image streaming using mangadex:// protocol (already implemented in imageProxy)
+- Page-by-page navigation with keyboard shortcuts (arrows, space, home, end, escape)
+- Click navigation zones (left 40% = previous, right 60% = next)
+- Header with back button, chapter title, and page counter (X / Y format)
+- Loading skeletons for images
+- Error recovery for failed image loads
+- Fit-to-width display mode (zoom/pan in P2-T08)
+- Distraction-free fullscreen reading experience
+
+**Technical Decisions**:
+
+- High quality images by default (ImageQuality.Data)
+- Fit-to-width display mode (most manga are portrait)
+- Standard manga reading flow (right = next, left = previous)
+- In-memory caching via imageProxy (no persistent cache)
+- Preload next page for instant navigation
+- Chapter metadata fetch for proper title display
+
+**Ready for Implementation**: All architectural decisions made, comprehensive 10-11 hour plan in place
+
+---
+
+### 🎉 Recently Completed (14 Dec 2025 - P2-T03 Implementation)
 
 **P2-T03 Manga Detail View - COMPLETE ✅** (~12 hours actual):
 

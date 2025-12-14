@@ -193,7 +193,7 @@
 - [✅] **P2-T04**: Cover image fetching and in-memory caching - **COMPLETE** (P2-T01, persistent caching in Phase 3)
 - [✅] **P2-T05**: Chapter list fetching from API - **COMPLETE** (P2-T03)
 - [✅] **P2-T06**: Image URL fetching from at-home server - **COMPLETE** (P2-T01)
-- [ ] **P2-T07**: Create online image viewer with streaming (no local caching)
+- [⏳] **P2-T07**: Create online image viewer with streaming - **PLANNING COMPLETE** (14 Dec 2025)
 - [ ] **P2-T08**: Add zoom/pan/fit controls (fit-width, fit-height, actual size)
 - [ ] **P2-T09**: Implement image preloading for smooth page transitions (memory only)
 - [ ] **P2-T10**: Add local reading progress tracking (stored locally)
