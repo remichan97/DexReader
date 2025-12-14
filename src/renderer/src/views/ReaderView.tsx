@@ -350,6 +350,7 @@ export function ReaderView(): JSX.Element {
     chapterTitle?: string
     mangaTitle?: string
     chapters?: ChapterEntity[] // Chapter list from detail view
+    startAtLastPage?: boolean // Flag to start at last page (when navigating from previous chapter)
   } | null
 
   const [state, setState] = useState<ReaderState>({
@@ -380,7 +381,7 @@ export function ReaderView(): JSX.Element {
    * Load chapter images from API
    */
   const loadChapterImages = useCallback(
-    async (id: string): Promise<void> => {
+    async (id: string, startAtLastPage = false): Promise<void> => {
       setState((prev) => ({ ...prev, loading: true, error: null }))
 
       try {
@@ -414,11 +415,14 @@ export function ReaderView(): JSX.Element {
             loadingStates.set(index, existingState || 'loading')
           })
 
+          // Determine starting page - last page if flag is set, otherwise first page
+          const startPage = startAtLastPage ? images.length - 1 : 0
+
           return {
             ...prev,
             images,
             totalPages: images.length,
-            currentPage: 0,
+            currentPage: startPage,
             loading: false,
             imageLoadingStates: loadingStates,
             chapterId: id,
@@ -533,7 +537,8 @@ export function ReaderView(): JSX.Element {
   // Fetch images on mount or chapterId change
   useEffect(() => {
     if (chapterId && mangaId) {
-      loadChapterImages(chapterId).then(() => {
+      const startAtLastPage = locationState?.startAtLastPage || false
+      loadChapterImages(chapterId, startAtLastPage).then(() => {
         // Load chapter list for navigation after images are loaded
         loadChapterList(mangaId, chapterId)
       })
@@ -559,6 +564,62 @@ export function ReaderView(): JSX.Element {
     state.loading,
     state.error
   ])
+
+  /**
+   * Preload adjacent pages for smoother navigation
+   * Preloads: 2 pages ahead, 1 page back
+   */
+  useEffect(() => {
+    if (!state.loading && state.images.length > 0 && state.totalPages > 0) {
+      // Only preload if current page is loaded or loading
+      const currentPageState = state.imageLoadingStates.get(state.currentPage)
+      if (!currentPageState || currentPageState === 'error') return
+
+      // Determine which pages to preload
+      const pagesToPreload = [
+        state.currentPage - 1, // 1 page back
+        state.currentPage + 1, // 1 page ahead
+        state.currentPage + 2  // 2 pages ahead
+      ]
+
+      // Preload images for adjacent pages
+      pagesToPreload.forEach((pageIndex) => {
+        if (pageIndex >= 0 && pageIndex < state.totalPages) {
+          const pageState = state.imageLoadingStates.get(pageIndex)
+          // Only preload if not already loaded or loading
+          if (!pageState || pageState === 'error') {
+            const img = new Image()
+            img.src = state.images[pageIndex].url
+
+            // Update loading state
+            setState((prev) => {
+              const newStates = new Map(prev.imageLoadingStates)
+              if (!newStates.get(pageIndex)) {
+                newStates.set(pageIndex, 'loading')
+              }
+              return { ...prev, imageLoadingStates: newStates }
+            })
+
+            img.onload = () => {
+              setState((prev) => {
+                const newStates = new Map(prev.imageLoadingStates)
+                newStates.set(pageIndex, 'loaded')
+                return { ...prev, imageLoadingStates: newStates }
+              })
+            }
+
+            img.onerror = () => {
+              setState((prev) => {
+                const newStates = new Map(prev.imageLoadingStates)
+                newStates.set(pageIndex, 'error')
+                return { ...prev, imageLoadingStates: newStates }
+              })
+            }
+          }
+        }
+      })
+    }
+  }, [state.currentPage, state.images, state.loading, state.totalPages, state.imageLoadingStates])
 
   /**
    * Navigate to specific page
@@ -589,9 +650,21 @@ export function ReaderView(): JSX.Element {
   const goToNextPage = useCallback((): void => {
     if (state.currentPage < state.totalPages - 1) {
       goToPage(state.currentPage + 1)
+    } else if (state.currentPage === state.totalPages - 1 && state.nextChapter && mangaId) {
+      // At last page and next chapter exists - navigate to next chapter
+      const chapter = state.nextChapter
+      navigate(`/reader/${mangaId}/${chapter.id}`, {
+        state: {
+          chapterNumber: chapter.attributes.chapter,
+          chapterTitle: chapter.attributes.title,
+          mangaTitle: state.mangaTitle,
+          chapters: state.chapters,
+          startAtLastPage: false // Start at first page of next chapter
+        }
+      })
     }
-    // At last page - stay on last page for now
-  }, [state.currentPage, state.totalPages, goToPage])
+    // Otherwise stay on last page
+  }, [state.currentPage, state.totalPages, state.nextChapter, state.mangaTitle, state.chapters, mangaId, goToPage, navigate])
 
   /**
    * Navigate to previous page
@@ -599,8 +672,21 @@ export function ReaderView(): JSX.Element {
   const goToPreviousPage = useCallback((): void => {
     if (state.currentPage > 0) {
       goToPage(state.currentPage - 1)
+    } else if (state.currentPage === 0 && state.previousChapter && mangaId) {
+      // At first page and previous chapter exists - navigate to previous chapter's last page
+      const chapter = state.previousChapter
+      navigate(`/reader/${mangaId}/${chapter.id}`, {
+        state: {
+          chapterNumber: chapter.attributes.chapter,
+          chapterTitle: chapter.attributes.title,
+          mangaTitle: state.mangaTitle,
+          chapters: state.chapters,
+          startAtLastPage: true // Flag to indicate we should start at the last page
+        }
+      })
     }
-  }, [state.currentPage, goToPage])
+    // Otherwise stay on first page
+  }, [state.currentPage, state.previousChapter, state.mangaTitle, state.chapters, mangaId, goToPage, navigate])
 
   /**
    * Navigate to first page
