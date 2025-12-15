@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 14 December 2025
+**Last Updated**: 15 December 2025
 **Current Phase**: Phase 2 - Content Display (In Progress)
-**Session**: P2-T07 Implementation Complete ✅
+**Session**: P2-T10 Planning Complete ✅
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -11,19 +11,172 @@
 ## Current Status Summary
 
 **Phase**: Phase 2 - Content Display (In Progress)
-**Progress**: P2-T01 through P2-T07 complete, P2-T09 complete
-**Current Date**: 14 December 2025
+**Progress**: P2-T01 through P2-T09 complete, P2-T10 planning complete
+**Current Date**: 15 December 2025
 **Phase 1 Status**: Complete ✅ (9/9 tasks, 100%)
-**Phase 2 Progress**: 7/11 tasks complete (64%)
-**Current Task**: Ready for P2-T08 (Zoom/Pan Controls) or P2-T10 (Reading Progress)
+**Phase 2 Progress**: 9/11 tasks complete (82%)
+**Current Task**: Ready to implement P2-T10 (Reading Progress) or plan P2-T11 (Reading Modes)
 
-### 🎉 Recently Completed (14 Dec 2025 - P2-T07)
+### 🎉 Recently Completed (15 Dec 2025 - P2-T10 Planning)
+
+**P2-T10 Reading Progress Tracking - PLANNING COMPLETE ✅** (~2 hours planning):
+
+**Comprehensive Implementation Plan Created** (745 lines, 11 steps):
+
+✅ **Planning Outcomes**:
+
+- Complete technical specification with data structures
+- 11-step implementation plan (22-30 hours estimated)
+- Backend: ProgressManager, 6 IPC handlers, JSON storage in AppData
+- Frontend: progressStore, 3 new components, 5 view updates
+- Incognito mode fully designed (Settings + File menu toggle)
+- Status bar notifications for incognito state changes
+- Silent save pattern (no success indicators, error-only toasts)
+- Menu bar integration (File menu, "Go Incognito" / "Exit Incognito")
+- Exit handling with 3-layer approach (React cleanup, beforeunload, before-quit)
+
+✅ **Key Features Specified**:
+
+- **Local Progress Tracking**: Last chapter, last page, timestamps, statistics
+- **Auto-save**: 1s debounce for page changes, immediate for chapter changes
+- **Continue Reading**: Badges on manga covers, reading history tab in Library
+- **Incognito Mode**: Toggle in Settings + File menu ("Go Incognito")
+- **Status Bar**: Full-width notification when toggling incognito (5s auto-dismiss)
+- **Visual Indicators**: Incognito badge in ReaderView, menu label toggle
+- **Modern UX**: Silent saves (no success feedback), error toasts only on failure
+- **Exit Handling**: Auto-save on app close (max 500ms delay, no confirmation)
+
+✅ **User Refinements Applied**:
+
+1. Exit behavior clarified: Silent auto-save on app close (3 layers)
+2. Incognito mode added: Privacy-focused browsing without history
+3. Menu integration: "Go Incognito" in File menu (below Settings)
+4. Checkmark removed: Label toggle sufficient ("Go" ↔ "Exit Incognito")
+5. Save indicators removed: Silent save pattern (modern UX, matches Notion/Discord)
+
+**Plan Details**:
+
+- **File**: `.github/copilot-plans/P2-T10-reading-progress-tracking-plan.md`
+- **Total Scope**: ~2,200 lines across 29 files
+- **Time Estimate**: 22-30 hours core + 5-8 hours buffer = 27-38 hours total (3-5 days)
+- **Implementation Steps**:
+  1. Progress Manager Core (6h)
+  2. IPC Handlers + Exit Handler (4h)
+  3. Preload Bridge (2h)
+  4. progressStore (4h)
+  5. IncognitoStatusBar Component (2h)
+  6. ReaderView Integration (3h)
+  7. Library Reading History (5h)
+  8. Testing UI Components (2h)
+  9. UI Polish & Styling (2h)
+  10. Documentation (2h)
+  11. Final Testing & Memory Bank Updates (2h)
+
+---
+
+### Previously Completed (15 Dec 2025 - P2-T08)
+
+**P2-T08 Zoom/Pan/Fit Controls - COMPLETE ✅** (~8 hours):
+
+**All 10 Implementation Steps + UX Polish Completed**:
+
+✅ **Core Features** (Steps 1-8):
+
+- **State Management**: Added zoom/pan state (fitMode, zoomLevel, panX, panY, isDragging, transformOrigin)
+- **Zoom Functions**: setFitMode(), zoomIn(), zoomOut(), resetZoom(), handleWheel() with 25%-400% bounds
+- **Pan/Drag**: Full drag support with boundary constraints, smooth cursor feedback (grab/grabbing)
+- **PageDisplay Updates**: CSS transforms (scale + translate), event handlers, dynamic styling
+- **ZoomControls Toolbar**: Collapsible toolbar with fit mode buttons, zoom in/out, percentage display, reset button
+- **Keyboard Shortcuts**: Z to cycle modes, Ctrl+0 reset, Ctrl+= zoom in, Ctrl+- zoom out
+- **Transform Origin**: Zooms at cursor position for Ctrl+Wheel operations
+- **CSS Polish**: GPU acceleration, smooth transitions, dark mode styling
+
+✅ **UX Enhancements** (Beyond Plan):
+
+- **Auto-reset at 100%**: Automatically exits custom zoom mode when reaching 100% (returns to fit-height)
+- **Tooltips**: Descriptive tooltips on all zoom control buttons explaining their function
+- **Hidden by Default**: Zoom controls collapse into a percentage button (cleaner UI)
+- **Zoom Indicator Overlay**: Large centered percentage display during Ctrl+Wheel zoom (debounced, stays visible while zooming)
+- **Smart Navigation**: Click navigation disabled when zoomed to prevent interference with dragging
+- **Clickable Indicators**: Navigation arrows (◀ ▶) remain clickable even when zoomed
+
+**Component Details** (`ReaderView.tsx`, ~1,483 lines):
+
+**Zoom/Pan State**:
+
+```typescript
+fitMode: 'width' | 'height' | 'actual' | 'custom'
+zoomLevel: number // 0.25 to 4 (25% to 400%)
+panX, panY: number // Pixel offsets
+isDragging: boolean
+transformOriginX, transformOriginY: number // Percentage (0-100)
+showZoomControls: boolean
+zoomIndicatorVisible: boolean
+```
+
+**ZoomControls Component**:
+
+- Fit mode buttons: Width, Height, 100% (with tooltips)
+- Zoom in/out: +/- buttons with disabled states at bounds
+- Live zoom percentage display (tabular-nums for stability)
+- Reset button (returns to fit-height)
+- Dark mode styling with semi-transparent backgrounds
+
+**Zoom Functions**:
+
+- `zoomIn()`: 20% increment, max 400%, auto-reset at 100%
+- `zoomOut()`: 20% decrement, min 25%, auto-reset at 100%
+- `handleWheel()`: Ctrl+Wheel zoom with cursor-based transform origin
+- `constrainPan()`: Boundary checking to prevent panning beyond image edges
+
+**Keyboard Shortcuts**:
+
+- `Z`: Cycle through fit modes (height → width → actual → height)
+- `Ctrl+0`: Reset to default (fit-height at 100%)
+- `Ctrl+=` or `Ctrl++`: Zoom in
+- `Ctrl+-`: Zoom out
+- All Ctrl+Wheel: Zoom at cursor position
+
+**Navigation Improvements**:
+
+- Click navigation disabled when `fitMode === 'custom'` or `zoomLevel > 1`
+- Navigation indicators (◀ ▶) converted to `<button>` elements
+- Indicators clickable even when zoomed (stopPropagation prevents parent click)
+- Hover states and active feedback on indicators
+
+**CSS Features**:
+
+- GPU acceleration: `will-change: transform`, `translateZ(0)`, `backface-visibility: hidden`
+- Smooth transitions: `transform 0.2s ease-out` (disabled while dragging)
+- Transform origin: Dynamically set based on cursor position during wheel zoom
+- Zoom indicator: Centered overlay with fade-in animation, auto-hides after 1.5s inactivity
+
+**Performance**:
+
+- Debounced zoom indicator (stays visible during continuous zooming)
+- Proper timeout cleanup on unmount
+- Constrained pan calculations to prevent unnecessary renders
+
+**Future Enhancements** (Deferred to Phase 3):
+
+- Double-tap to zoom
+- Pinch-to-zoom on touch devices
+- Zoom presets (50%, 75%, 100%, 125%, 150%, 200%)
+- Remember zoom level per manga/chapter
+- Vertical scroll mode with zoom
+
+**Next Session**: Ready to implement P2-T10 (Reading Progress Tracking) or P2-T11 (Download Management)
+
+---
+
+### 📋 Previous Session (14 Dec 2025 - P2-T07)
 
 **P2-T07 Manga Reader View - COMPLETE ✅** (~10 hours):
 
 **All 8 Core Steps + Bonus Features Completed**:
 
 ✅ **Core Implementation** (Steps 1-8):
+
 - State Management: ReaderState interface with chapter data, navigation, UI state, settings
 - Image Fetching: API integration with mangadex:// protocol conversion
 - Page Navigation: Keyboard shortcuts, click zones, smooth scrolling
@@ -34,6 +187,7 @@
 - Polish: Navigation indicators on hover, proper focus states
 
 ✅ **Advanced Features** (Beyond Plan):
+
 - **Chapter Navigation**: End-of-chapter overlay with prev/next buttons
 - **Chapter List Sidebar**: Collapsible sidebar (press 'L') for quick chapter jumping
 - **Seamless Transitions**: Next/prev at page boundaries navigates chapters automatically
@@ -44,47 +198,55 @@
 **Component Details** (`ReaderView.tsx`, 937 lines):
 
 **State Management**:
+
 - ReaderState interface (18 properties): chapter data, navigation, UI state, settings
 - Proper type extraction: `ChapterEntity` from API return types
 - Location state handling for chapter info and chapter list passing
 
 **Image & Chapter Data**:
+
 - Fetches images via `getChapterImages()` with quality setting
 - Converts URLs: `https://` → `mangadex://` for proxy protocol
 - Loads chapter list from navigation state or fetches as fallback
 - Determines prev/next chapters for navigation
 
 **Navigation**:
+
 - **Keyboard**: Arrow keys, Space, Enter, Home, End, Escape, 'L' for chapter list
 - **Click Zones**: Left 40% = previous, Right 60% = next
 - **Seamless Chapter Nav**: At last page → next chapter first page, at first page → prev chapter last page
 - **Functions**: goToPage, goToNextPage, goToPreviousPage, goToFirstPage, goToLastPage, goToNextChapter, goToPreviousChapter
 
 **UI Components**:
+
 - **ReaderHeader**: Back button, chapter title, page counter, Chapters button
 - **PageDisplay**: Image with loading/error states, navigation indicators
 - **EndOfChapterOverlay**: Slide-up panel on last page with prev/next chapter buttons
 - **ChapterListSidebar**: 400px slide-out sidebar with chapter list, click to jump
 
 **Performance**:
+
 - Image preloading: 2 pages ahead, 1 page back (near-instant navigation)
 - Smart loading states: Only preload unloaded pages
 - Memory-efficient: Only 3 extra images in memory at a time
 - Proper cleanup on chapter change
 
 **Dark Theme**:
+
 - Forced dark mode for reader view (`data-theme="dark"`)
 - All buttons styled: header buttons, sidebar buttons, overlay buttons
 - Windows 11 Fluent Design: acrylic effects, backdrop blur, elevation shadows
 - Consistent semi-transparent backgrounds for visibility
 
 **Error Handling**:
+
 - Friendly casual British tone messages
 - Expandable technical details (error message + stack trace)
 - Retry functionality for failed loads
 - Graceful handling of missing chapters/images
 
 **Future Enhancements** (Deferred to Phase 3):
+
 - Data-saver mode toggle (ImageQuality.DataSaver)
 - Fit mode controls (width/height/actual size)
 - Double-page mode
@@ -100,20 +262,21 @@
 **P2-T08 Zoom/Pan/Fit Controls - PLANNING COMPLETE ✅**:
 
 **Implementation Plan Created**: Comprehensive 10-step plan (~12-16 hours)
+
 - **Plan Location**: `.github/copilot-plans/P2-T08-zoom-pan-fit-controls-plan.md`
 - **Features Planned**:
-  * Three fit modes: fit-to-width, fit-to-height, actual size (100%)
-  * Custom zoom: 25%-400% range with smooth controls
-  * Pan/drag: Drag zoomed images with boundary constraints
-  * Zoom controls toolbar: Integrated into reader header
-  * Keyboard shortcuts: Z (cycle), Ctrl+0 (reset), Ctrl+= (in), Ctrl+- (out), Ctrl+Wheel (zoom)
-  * Transform origin: Zoom focuses on cursor position
-  * Smooth animations: GPU-accelerated CSS transforms (60fps)
+  - Three fit modes: fit-to-width, fit-to-height, actual size (100%)
+  - Custom zoom: 25%-400% range with smooth controls
+  - Pan/drag: Drag zoomed images with boundary constraints
+  - Zoom controls toolbar: Integrated into reader header
+  - Keyboard shortcuts: Z (cycle), Ctrl+0 (reset), Ctrl+= (in), Ctrl+- (out), Ctrl+Wheel (zoom)
+  - Transform origin: Zoom focuses on cursor position
+  - Smooth animations: GPU-accelerated CSS transforms (60fps)
 - **Architecture Decisions**:
-  * CSS Transform Scale for zoom (GPU-accelerated, no re-rendering)
-  * CSS Transform Translate for pan (precise boundary control)
-  * ZoomControls component in reader header
-  * Pan boundary constraints to prevent over-scrolling
+  - CSS Transform Scale for zoom (GPU-accelerated, no re-rendering)
+  - CSS Transform Translate for pan (precise boundary control)
+  - ZoomControls component in reader header
+  - Pan boundary constraints to prevent over-scrolling
 - **10 Implementation Steps**: State update → Zoom functions → Pan/drag → PageDisplay update → Toolbar → Keyboard shortcuts → Transform origin → CSS polish → Testing → Documentation
 - **Duration Estimate**: 12-16 hours (1.5-2 days)
 - **Ready for Implementation**: All architecture decided, code examples provided, testing checklist prepared
@@ -125,6 +288,7 @@
 **P2-T09 Image Preloading - COMPLETE ✅** (~30 minutes):
 
 **Implementation**:
+
 - Preloads 2 pages ahead + 1 page back automatically
 - Only preloads when current page is loading or loaded
 - Checks loading states to avoid duplicate loads

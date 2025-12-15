@@ -2,7 +2,7 @@
 
 **Project Start**: 23 November 2025
 **Current Phase**: Phase 2 - Content Display (In Progress 🔵)
-**Last Updated**: 14 December 2025
+**Last Updated**: 15 December 2025
 
 ---
 
@@ -23,7 +23,7 @@
 
 ## Current Status: Phase 2 In Progress 🔵
 
-### Phase 2 Progress: 7/11 Tasks Complete (64%)
+### Phase 2 Progress: 9/11 Tasks Complete (82%)
 
 - [✅] **P2-T01**: Implement MangaDex public API client - **COMPLETE**
   - All 9 implementation steps finished
@@ -60,39 +60,87 @@
   - All 8 core implementation steps finished (~10 hours)
   - ReaderView component (937 lines) with full functionality
   - Core Features:
-    * Image fetching from MangaDex at-home server via mangadex:// protocol
-    * Page-by-page navigation with keyboard shortcuts (arrows, space, home, end, escape)
-    * Click zones for navigation (left 40% = previous, right 60% = next)
-    * Reader header with back button, chapter title, and page counter
-    * Loading states with ProgressRing spinner
-    * Error recovery with friendly messages and technical details
-    * Dark theme enforcement for better reading experience
+    - Image fetching from MangaDex at-home server via mangadex:// protocol
+    - Page-by-page navigation with keyboard shortcuts (arrows, space, home, end, escape)
+    - Click zones for navigation (left 40% = previous, right 60% = next)
+    - Reader header with back button, chapter title, and page counter
+    - Loading states with ProgressRing spinner
+    - Error recovery with friendly messages and technical details
+    - Dark theme enforcement for better reading experience
   - Advanced Features (Beyond Plan):
-    * Next/Previous chapter navigation with end-of-chapter overlay
-    * Collapsible chapter list sidebar for quick chapter jumping
-    * Seamless chapter transitions (next/previous at page boundaries)
-    * Chapter data optimization (reuses chapter list from detail view)
-    * Image preloading (2 pages ahead, 1 page back) for smooth navigation
-    * Navigation indicators on hover
-    * Proper state management with location state handling
+    - Next/Previous chapter navigation with end-of-chapter overlay
+    - Collapsible chapter list sidebar for quick chapter jumping
+    - Seamless chapter transitions (next/previous at page boundaries)
+    - Chapter data optimization (reuses chapter list from detail view)
+    - Image preloading (2 pages ahead, 1 page back) for smooth navigation
+    - Navigation indicators on hover
+    - Proper state management with location state handling
   - Dark Mode UI:
-    * All buttons styled for dark theme (header, sidebar, overlays)
-    * Windows 11 Fluent Design with acrylic effects
-    * Consistent styling across all interactive elements
+    - All buttons styled for dark theme (header, sidebar, overlays)
+    - Windows 11 Fluent Design with acrylic effects
+    - Consistent styling across all interactive elements
   - Keyboard Shortcuts:
-    * Arrow keys, Space, Enter for page navigation
-    * Home/End for first/last page
-    * Escape for back or close sidebar
-    * 'L' key to toggle chapter list
+    - Arrow keys, Space, Enter for page navigation
+    - Home/End for first/last page
+    - Escape for back or close sidebar
+    - 'L' key to toggle chapter list
   - Performance optimizations ready for future enhancement
 
-- [ ] **P2-T08**: Add zoom/pan/fit controls - **PLANNING COMPLETE** ✅
-  - Comprehensive 10-step implementation plan created (~12-16 hours estimated)
-  - Plan location: `.github/copilot-plans/P2-T08-zoom-pan-fit-controls-plan.md`
-  - Features planned: Three fit modes (width/height/actual), custom zoom (25%-400%), pan/drag with boundaries, zoom toolbar, keyboard shortcuts (Z/Ctrl+0/Ctrl+=/Ctrl+-/Ctrl+Wheel), transform origin at cursor, GPU-accelerated animations
-  - Architecture: CSS Transform Scale for zoom, CSS Transform Translate for pan, ZoomControls component integrated in reader header
-  - Implementation steps: State update → Zoom functions → Pan/drag → PageDisplay update → Toolbar → Keyboard shortcuts → Transform origin → CSS polish → Testing → Documentation
-  - Ready for implementation (14 Dec 2025)
+- [✅] **P2-T08**: Add zoom/pan/fit controls - **COMPLETE** ✅
+  - All 10 implementation steps finished (~8 hours)
+  - ReaderView updated with full zoom/pan functionality (1,483 lines)
+  - Core Features:
+    - Three fit modes: width, height, actual size, custom zoom
+    - Zoom range: 25%-400% with smooth scaling
+    - Pan/drag support with boundary constraints
+    - ZoomControls component with collapsible toolbar
+    - Keyboard shortcuts (Z, Ctrl+0, Ctrl+=, Ctrl+-)
+    - Ctrl+Wheel zoom with cursor-based transform origin
+    - GPU-accelerated transforms for smooth performance
+  - UX Enhancements (Beyond Plan):
+    - Auto-reset to fit-height mode when zoom returns to 100%
+    - Tooltips on all zoom control buttons
+    - Hidden by default (toggle with percentage button)
+    - Zoom indicator overlay during Ctrl+Wheel zoom (debounced)
+    - Click navigation disabled when zoomed (prevents interference with dragging)
+    - Navigation arrows (◀ ▶) remain clickable even when zoomed
+  - State Management:
+    - fitMode, zoomLevel, panX, panY, isDragging, transformOrigin
+    - showZoomControls, zoomIndicatorVisible flags
+  - Implementation ready for regression testing
+
+- [ ] **P2-T10**: Add local reading progress tracking - **PLANNING COMPLETE** ✅
+  - Comprehensive implementation plan created (745 lines, 11 steps)
+  - Estimated duration: 22-30 hours (3-4 days) plus buffer
+  - Core Features:
+    - Local progress tracking (last chapter, last page, timestamps)
+    - Auto-save progress as user reads (1s debounce, silent saves)
+    - "Continue Reading" badges on manga covers
+    - Reading history view in Library tab with statistics
+    - **Incognito mode** - toggle in Settings + File menu
+    - Status bar notifications for incognito toggle
+    - Silent save pattern (no success feedback, error-only toasts)
+  - Backend Architecture:
+    - ProgressManager class for CRUD operations
+    - JSON storage in AppData/progress.json (with backups)
+    - 6 IPC handlers (get/update/delete, statistics, toggle incognito)
+    - Exit handler (before-quit) for final save (max 500ms delay)
+  - Frontend Architecture:
+    - progressStore (Zustand) with autoSaveEnabled flag
+    - IncognitoStatusBar component (full-width notification, 5s auto-dismiss)
+    - ContinueReadingBadge, ReadingHistoryCard components
+    - ReaderView auto-save integration (3 layers: unmount, beforeunload, before-quit)
+    - Settings toggle + File menu "Go Incognito" item
+  - Menu Integration:
+    - "Go Incognito" / "Exit Incognito" in File menu (below Settings)
+    - Keyboard shortcut: Ctrl+Shift+P
+    - Label toggles dynamically (no checkmark needed)
+  - Visual Indicators:
+    - Status bar notification on incognito toggle ("You've gone incognito. No progress tracking from this point onward")
+    - Incognito badge in ReaderView header when tracking disabled
+    - Menu label change (Go ↔ Exit Incognito)
+  - Plan location: `.github/copilot-plans/P2-T10-reading-progress-tracking-plan.md`
+  - Ready for implementation (awaiting P2-T11 planning or direct implementation)
 
 ### Phase 1 Completed Tasks (9/9 - 100%)
 
@@ -201,7 +249,7 @@
 ### Phase 2: Content Display (In Progress) 🔵
 
 **Duration**: 4-5 weeks
-**Status**: In Progress - 7/11 tasks complete (64%)
+**Status**: In Progress - 9/11 tasks complete (82%)
 **Start Date**: 6 December 2025
 **Target Completion**: January 2026
 
@@ -233,9 +281,9 @@
 - [✅] **P2-T05**: Chapter list fetching from API - **COMPLETE** (P2-T03)
 - [✅] **P2-T06**: Image URL fetching from at-home server - **COMPLETE** (P2-T01)
 - [✅] **P2-T07**: Create online manga reader with streaming - **COMPLETE** (14 Dec 2025)
-- [ ] **P2-T08**: Add zoom/pan/fit controls (fit-width, fit-height, actual size) - **PLANNING COMPLETE** ✅ (14 Dec 2025)
+- [✅] **P2-T08**: Add zoom/pan/fit controls (fit-width, fit-height, actual size) - **COMPLETE** (15 Dec 2025)
 - [✅] **P2-T09**: Implement image preloading for smooth page transitions - **COMPLETE** (14 Dec 2025)
-- [ ] **P2-T10**: Add local reading progress tracking (stored locally)
+- [ ] **P2-T10**: Add local reading progress tracking (stored locally) - **PLANNING COMPLETE** ✅ (15 Dec 2025)
 - [ ] **P2-T11**: Support reading modes (single page, double page, vertical scroll)
 
 ---
