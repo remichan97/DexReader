@@ -15,7 +15,7 @@ When implementing, follow these steps:
 3. **Implementation**: Adhere to the steps outlined in the plan file, ensure to follow coding standards and best practices as specified in `system-patterns.md`.
 4. **Review**: Review the implementation for quality, adherence to project standards, and ensure that it meets the requirements specified in the task.
 5. **Delete the plan file**: Once the implementation is complete and reviewed, delete the relevant plan file (located at `.github/copilot-plans/<taskid-task-name-plan.md>`) to avoid confusion and maintain a clean project structure.
-6. **Update context**: After completing the implementation, update the `project-progress.md` and `active-context.md` files to reflect the changes made.
+6. **Update context**: After completing the implementation, update `active-context.md`, and tick off the task as completed on `project-progress.md` to reflect the changes made.
 7. **Evaluate the change**: Before wrapping up, assert the current change and suggest a full memory update if needed depending on the scale of the implementation.
 
 If there is anything unclear, ambiguous, or if you need more information about the task, feature, or bug fix, **immediately stop** and **ask the user for clarification** before proceeding.
