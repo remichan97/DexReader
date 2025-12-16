@@ -22,6 +22,13 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
         },
         { type: 'separator' },
         {
+          label: 'Go Incognito',
+          accelerator: 'CmdOrCtrl+Shift+N',
+          click: () => {
+            mainWindow.webContents.send('progress:toggle-incognito')
+          }
+        },
+        {
           label: 'Exit',
           accelerator: 'Alt+F4',
           role: 'quit'
@@ -50,6 +57,13 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           accelerator: 'CmdOrCtrl+3',
           click: () => {
             mainWindow.webContents.send('navigate', '/downloads')
+          }
+        },
+        {
+          label: 'Reading History',
+          accelerator: 'CmdOrCtrl+4',
+          click: () => {
+            mainWindow.webContents.send('navigate', '/history')
           }
         },
         { type: 'separator' },
@@ -250,6 +264,7 @@ export function updateMenuState(state: {
   chapterTitle?: string
   canDownloadManga?: boolean
   mangaTitle?: string
+  isIncognito?: boolean
 }): void {
   const menu = Menu.getApplicationMenu()
   if (!menu) return
@@ -281,5 +296,11 @@ export function updateMenuState(state: {
     } else {
       downloadMangaItem.label = 'Download Manga'
     }
+  }
+
+  // Update Go Incognito label based on current state
+  const goIncognitoItem = menu.getMenuItemById('go-incognito')
+  if (goIncognitoItem) {
+    goIncognitoItem.label = state.isIncognito ? 'Leave Incognito' : 'Go Incognito'
   }
 }
