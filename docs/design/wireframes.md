@@ -501,5 +501,123 @@ These wireframes serve as the foundation for:
 
 ---
 
+## History View
+
+**Purpose**: Display reading history with all read manga, progress tracking, and statistics
+**Added**: 16 December 2025 (P2-T10 - Reading Progress Tracking)
+
+```ui
+┌──────────────────────────────────────────────────────────────────────────┐
+│ DexReader - History                                        [_ □ X]       │
+├──────────────────────────────────────────────────────────────────────────┤
+│ File  View  Library  Tools  Help                                         │
+├────────┬─────────────────────────────────────────────────────────────────┤
+│ [🔍]   │  ┌──── Reading Statistics ──────────────────────────────────┐  │
+│ Browse │  │  📚 12 Manga Read  •  📖 247 Chapters  •  📄 4,823 Pages  │  │
+│        │  │  ⏱️ ~27 hours reading time                                │  │
+│ [📚]   │  └──────────────────────────────────────────────────────────┘  │
+│ Library│                                                                  │
+│        │  ┌─────────────────────────────────────────────────────────┐   │
+│ [📖]   │  │ 🔍 Search history...              [All Time ▾] [Sort ▾] │   │
+│History │  └─────────────────────────────────────────────────────────┘   │
+│        │                                                                  │
+│ [⚙]    │  ┌─────────────────────────────────────────────────────────┐  │
+│Settings│  │ ┌──────┐                                                 │  │
+│        │  │ │ ____ │  One Piece                      2 hours ago    │  │
+│        │  │ │|Covr││  Chapter 1050: The Battle Begins               │  │
+│        │  │ │|80x ││  Page 15/20                                     │  │
+│        │  │ │|120 ││  [Continue Reading]  [Remove from History]     │  │
+│        │  │ └──────┘                                                 │  │
+│        │  ├─────────────────────────────────────────────────────────┤  │
+│        │  │ ┌──────┐                                                 │  │
+│        │  │ │ ____ │  Attack on Titan                Yesterday      │  │
+│        │  │ │|Covr││  Chapter 139: Toward the Tree on That Hill     │  │
+│        │  │ │|80x ││  Page 45/51                                     │  │
+│        │  │ │|120 ││  [Continue Reading]  [Remove from History]     │  │
+│        │  │ └──────┘                                                 │  │
+│        │  ├─────────────────────────────────────────────────────────┤  │
+│        │  │ ┌──────┐                                                 │  │
+│        │  │ │ ____ │  My Hero Academia               3 days ago     │  │
+│        │  │ │|Covr││  Chapter 405: We Are Here                      │  │
+│        │  │ │|80x ││  Completed (20/20)                             │  │
+│        │  │ │|120 ││  [Continue Reading]  [Remove from History]     │  │
+│        │  │ └──────┘                                                 │  │
+│        │  └─────────────────────────────────────────────────────────┘  │
+│        │                                                                  │
+│        │  Empty State (when no history):                                │
+│        │  ┌─────────────────────────────────────────────────────────┐  │
+│        │  │                                                           │  │
+│        │  │                    📖                                    │  │
+│        │  │         No reading history yet                           │  │
+│        │  │    Start reading to see your progress here               │  │
+│        │  │                                                           │  │
+│        │  │              [Browse Manga]                              │  │
+│        │  │                                                           │  │
+│        │  └─────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────────────────┘
+```
+
+### Layout Components
+
+**Statistics Header** (Full-width, top section):
+
+- Total manga read count
+- Total chapters read count
+- Total pages read count
+- Estimated reading time
+- Background: Subtle accent color with transparency
+
+**Search & Filter Bar**:
+
+- Search input (filter by manga title)
+- Date range filter dropdown: All Time / Last 7 Days / Last 30 Days / Last 90 Days
+- Sort dropdown: Most Recent / Oldest / Most Read / Alphabetical
+
+**History Card** (Horizontal layout):
+
+- **Left**: Cover image (80×120px, rounded corners)
+- **Right**: Info section with:
+  - Manga title (18px, bold)
+  - Chapter info (14px, muted): "Chapter [number]: [title]"
+  - Progress info (14px, muted): "Page [current]/[total]" or "Completed"
+  - Timestamp (12px, muted): Relative time ("2 hours ago") or absolute date
+  - Action buttons:
+    - "Continue Reading" (Primary button)
+    - "Remove from History" (Ghost button)
+
+**Empty State**:
+
+- Centered content with icon
+- Friendly message: "No reading history yet"
+- Call-to-action: "Browse Manga" button
+
+### Interaction Patterns
+
+1. **Continue Reading**: Navigate to `/reader/:mangaId/:chapterId` with `startPage` state
+2. **Remove from History**: Show confirmation dialog → Delete progress entry
+3. **Search**: Live filter (debounced 300ms)
+4. **Filter by Date**: Instant filter, no API call
+5. **Infinite Scroll**: Load 50 items at a time, lazy load more on scroll
+6. **Cover Loading**: Lazy load covers as they enter viewport
+
+### Responsive Behavior
+
+- **2K+ monitors**: 3-column grid layout for history cards
+- **1080p**: 2-column grid layout
+- **<1080p**: Single column (vertical stack)
+- Statistics header: Responsive text size, stacks on narrow screens
+
+### Design Tokens
+
+- **Card Background**: `rgba(255, 255, 255, 0.03)` (dark mode)
+- **Card Hover**: `rgba(255, 255, 255, 0.05)` + elevation increase
+- **Timestamp Color**: `#999` (muted gray)
+- **Statistics Background**: Accent color with 10% opacity
+- **Border Radius**: 8px (cards), 4px (buttons)
+- **Icons**: Fluent UI Icon Library (`@fluentui/react-icons`)
+
+---
+
 _Wireframes created: 24 November 2025_
+_History view added: 16 December 2025 (P2-T10)_
 _Part of P1-T01 deliverables_
