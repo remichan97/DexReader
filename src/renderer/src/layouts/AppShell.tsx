@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Sidebar } from '../components/Sidebar'
 import { OfflineStatusBar } from '../components/OfflineStatusBar'
+import { IncognitoStatusBar } from '../components/IncognitoStatusBar'
 import { useAppStore } from '@renderer/stores'
 import './AppShell.css'
 
@@ -51,6 +52,7 @@ export function AppShell({ children }: AppShellProps): JSX.Element {
         Skip to main content
       </a>
       <OfflineStatusBar />
+      <IncognitoStatusBar />
       <div className="app-shell__body">
         <Sidebar />
         <main className="app-shell__content" id="main-content">

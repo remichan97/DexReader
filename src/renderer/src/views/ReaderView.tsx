@@ -5,7 +5,13 @@ import type { ImageUrlResponse } from '../../../preload/index.d'
 import { ImageQuality } from '../../../main/api/enums/image-quality.enum'
 import { Button } from '@renderer/components/Button'
 import { ProgressRing } from '@renderer/components/ProgressRing'
-import { ArrowLeftRegular, Warning48Regular, BookRegular } from '@fluentui/react-icons'
+import {
+  ArrowLeftRegular,
+  Warning48Regular,
+  BookRegular,
+  EyeOff20Regular
+} from '@fluentui/react-icons'
+import { useProgressStore } from '@renderer/stores/progressStore'
 import './ReaderView.css'
 
 /**
@@ -178,6 +184,8 @@ interface ReaderHeaderProps {
   readonly onZoomIn: () => void
   readonly onZoomOut: () => void
   readonly onResetZoom: () => void
+  // Incognito mode
+  readonly isIncognito: boolean
 }
 
 function ReaderHeader({
@@ -196,7 +204,8 @@ function ReaderHeader({
   onActualSize,
   onZoomIn,
   onZoomOut,
-  onResetZoom
+  onResetZoom,
+  isIncognito
 }: ReaderHeaderProps): JSX.Element {
   return (
     <header className="reader-header">
@@ -209,6 +218,16 @@ function ReaderHeader({
       <h1 className="reader-header__title">{chapterTitle}</h1>
 
       <div className="reader-header__right">
+        {/* Incognito mode indicator */}
+        {isIncognito && (
+          <div
+            className="reader-header__incognito-badge"
+            title="Progress tracking is disabled. Go to Settings or File menu to enable."
+          >
+            <EyeOff20Regular />
+            <span>Incognito</span>
+          </div>
+        )}
         {/* Zoom controls toggle button */}
         <Button
           variant="ghost"
@@ -561,6 +580,11 @@ export function ReaderView(): JSX.Element {
   const navigate = useNavigate()
   const location = useLocation()
 
+  // Progress tracking
+  const saveProgress = useProgressStore((state) => state.saveProgress)
+  const autoSaveEnabled = useProgressStore((state) => state.autoSaveEnabled)
+  const toggleIncognito = useProgressStore((state) => state.toggleIncognito)
+
   // Get chapter data from navigation state if available
   const locationState = location.state as {
     chapterNumber?: string
@@ -810,7 +834,7 @@ export function ReaderView(): JSX.Element {
       const pagesToPreload = [
         state.currentPage - 1, // 1 page back
         state.currentPage + 1, // 1 page ahead
-        state.currentPage + 2  // 2 pages ahead
+        state.currentPage + 2 // 2 pages ahead
       ]
 
       // Preload images for adjacent pages
@@ -895,7 +919,16 @@ export function ReaderView(): JSX.Element {
       })
     }
     // Otherwise stay on last page
-  }, [state.currentPage, state.totalPages, state.nextChapter, state.mangaTitle, state.chapters, mangaId, goToPage, navigate])
+  }, [
+    state.currentPage,
+    state.totalPages,
+    state.nextChapter,
+    state.mangaTitle,
+    state.chapters,
+    mangaId,
+    goToPage,
+    navigate
+  ])
 
   /**
    * Navigate to previous page
@@ -917,7 +950,15 @@ export function ReaderView(): JSX.Element {
       })
     }
     // Otherwise stay on first page
-  }, [state.currentPage, state.previousChapter, state.mangaTitle, state.chapters, mangaId, goToPage, navigate])
+  }, [
+    state.currentPage,
+    state.previousChapter,
+    state.mangaTitle,
+    state.chapters,
+    mangaId,
+    goToPage,
+    navigate
+  ])
 
   /**
    * Navigate to first page
@@ -1138,27 +1179,24 @@ export function ReaderView(): JSX.Element {
   /**
    * Constrain pan offsets to image boundaries
    */
-  const constrainPan = useCallback(
-    (panX: number, panY: number): { x: number; y: number } => {
-      // Get image and viewport dimensions
-      const imgElement = document.querySelector('.reader-page__image') as HTMLImageElement
-      if (!imgElement) return { x: 0, y: 0 }
+  const constrainPan = useCallback((panX: number, panY: number): { x: number; y: number } => {
+    // Get image and viewport dimensions
+    const imgElement = document.querySelector('.reader-page__image') as HTMLImageElement
+    if (!imgElement) return { x: 0, y: 0 }
 
-      const rect = imgElement.getBoundingClientRect()
-      const viewportWidth = window.innerWidth
-      const viewportHeight = window.innerHeight
+    const rect = imgElement.getBoundingClientRect()
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
 
-      // Calculate boundaries (don't pan beyond image edges)
-      const maxX = Math.max(0, (rect.width - viewportWidth) / 2)
-      const maxY = Math.max(0, (rect.height - viewportHeight) / 2)
+    // Calculate boundaries (don't pan beyond image edges)
+    const maxX = Math.max(0, (rect.width - viewportWidth) / 2)
+    const maxY = Math.max(0, (rect.height - viewportHeight) / 2)
 
-      return {
-        x: Math.max(-maxX, Math.min(maxX, panX)),
-        y: Math.max(-maxY, Math.min(maxY, panY))
-      }
-    },
-    []
-  )
+    return {
+      x: Math.max(-maxX, Math.min(maxX, panX)),
+      y: Math.max(-maxY, Math.min(maxY, panY))
+    }
+  }, [])
 
   /**
    * Handle mouse down for drag start
@@ -1339,6 +1377,128 @@ export function ReaderView(): JSX.Element {
     }
   }, [])
 
+  // Auto-save progress on page change (debounced)
+  useEffect(() => {
+    // Skip if not reading or incognito mode active
+    if (
+      !autoSaveEnabled ||
+      !mangaId ||
+      !chapterId ||
+      state.loading ||
+      state.error ||
+      state.totalPages === 0
+    ) {
+      return
+    }
+
+    // Debounce: wait 1 second after page change before saving
+    const timer = setTimeout(() => {
+      // Calculate unique chapters read (add current chapter to set)
+      const chaptersRead = [chapterId] // For now, just track current chapter
+      // Estimate reading time: ~20 seconds per page
+      const estimatedMinutes = Math.round((state.totalPages * 20) / 60)
+
+      saveProgress({
+        mangaId,
+        mangaTitle: state.mangaTitle,
+        lastChapterId: chapterId,
+        lastChapterNumber: state.chapterNumber ? Number(state.chapterNumber) : undefined,
+        lastChapterTitle: state.chapterTitle,
+        lastPage: state.currentPage,
+        totalChapterPages: state.totalPages,
+        chaptersRead,
+        totalPagesRead: state.currentPage + 1, // Pages read in this session
+        estimatedMinutesRead: estimatedMinutes
+      })
+    }, 1000) // 1 second debounce
+
+    return () => clearTimeout(timer)
+  }, [
+    state.currentPage,
+    state.totalPages,
+    state.mangaTitle,
+    state.chapterTitle,
+    state.chapterNumber,
+    state.loading,
+    state.error,
+    mangaId,
+    chapterId,
+    autoSaveEnabled,
+    saveProgress
+  ])
+
+  // Auto-save progress on chapter change (immediate, no debounce)
+  useEffect(() => {
+    // Skip if not reading or incognito mode active
+    if (
+      !autoSaveEnabled ||
+      !mangaId ||
+      !chapterId ||
+      state.loading ||
+      state.error ||
+      state.totalPages === 0
+    ) {
+      return
+    }
+
+    // Save immediately on chapter change (no debounce)
+    const chaptersRead = [chapterId]
+    const estimatedMinutes = Math.round((state.totalPages * 20) / 60)
+
+    saveProgress({
+      mangaId,
+      mangaTitle: state.mangaTitle,
+      lastChapterId: chapterId,
+      lastChapterNumber: state.chapterNumber ? Number(state.chapterNumber) : undefined,
+      lastChapterTitle: state.chapterTitle,
+      lastPage: 0, // Start of new chapter
+      totalChapterPages: state.totalPages,
+      chaptersRead,
+      totalPagesRead: 1,
+      estimatedMinutesRead: estimatedMinutes
+    })
+  }, [chapterId]) // Only trigger on chapter change
+
+  // Auto-save progress on component unmount
+  useEffect(() => {
+    return () => {
+      // Save progress on unmount if enabled
+      if (
+        autoSaveEnabled &&
+        mangaId &&
+        chapterId &&
+        !state.loading &&
+        !state.error &&
+        state.totalPages > 0
+      ) {
+        const chaptersRead = [chapterId]
+        const estimatedMinutes = Math.round((state.totalPages * 20) / 60)
+
+        saveProgress({
+          mangaId,
+          mangaTitle: state.mangaTitle,
+          lastChapterId: chapterId,
+          lastChapterNumber: state.chapterNumber ? Number(state.chapterNumber) : undefined,
+          lastChapterTitle: state.chapterTitle,
+          lastPage: state.currentPage,
+          totalChapterPages: state.totalPages,
+          chaptersRead,
+          totalPagesRead: state.currentPage + 1,
+          estimatedMinutesRead: estimatedMinutes
+        })
+      }
+    }
+  }, []) // Empty deps - only on unmount
+
+  // Listen for menu-triggered incognito toggle
+  useEffect(() => {
+    const handleIncognitoToggle = (): void => {
+      toggleIncognito()
+    }
+
+    globalThis.progress.onIncognitoToggle(handleIncognitoToggle)
+  }, [toggleIncognito])
+
   return (
     <main className="reader-view" data-theme={state.forceReaderDarkMode ? 'dark' : undefined}>
       {state.loading && (
@@ -1418,6 +1578,7 @@ export function ReaderView(): JSX.Element {
             onZoomIn={zoomIn}
             onZoomOut={zoomOut}
             onResetZoom={resetZoom}
+            isIncognito={!autoSaveEnabled}
           />
 
           <PageDisplay
@@ -1459,7 +1620,9 @@ export function ReaderView(): JSX.Element {
           {/* Zoom indicator overlay (shown during Ctrl+Wheel zoom) */}
           {state.zoomIndicatorVisible && (
             <div className="zoom-indicator">
-              <span className="zoom-indicator__percentage">{Math.round(state.zoomLevel * 100)}%</span>
+              <span className="zoom-indicator__percentage">
+                {Math.round(state.zoomLevel * 100)}%
+              </span>
             </div>
           )}
 

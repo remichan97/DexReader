@@ -4,9 +4,11 @@ import { Lightbulb16Regular } from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
 import { Input } from '@renderer/components/Input'
 import { Select, type SelectOption } from '@renderer/components/Select'
+import { Switch } from '@renderer/components/Switch'
 import { Tabs, TabList, Tab, TabPanel } from '@renderer/components/Tabs'
 import { ErrorLogViewer } from '@renderer/components/ErrorLogViewer'
 import { useToastStore, useAppStore } from '@renderer/stores'
+import { useProgressStore } from '@renderer/stores/progressStore'
 
 export function SettingsView(): JSX.Element {
   // Zustand stores
@@ -14,6 +16,10 @@ export function SettingsView(): JSX.Element {
 
   // App state (theme)
   const { themeMode, setThemeMode } = useAppStore()
+
+  // Progress tracking
+  const autoSaveEnabled = useProgressStore((state) => state.autoSaveEnabled)
+  const toggleIncognito = useProgressStore((state) => state.toggleIncognito)
 
   // Local state for UI
   const [activeTab, setActiveTab] = useState('appearance')
@@ -206,6 +212,7 @@ export function SettingsView(): JSX.Element {
       <Tabs value={activeTab} onChange={setActiveTab}>
         <TabList>
           <Tab value="appearance">Appearance</Tab>
+          <Tab value="privacy">Privacy</Tab>
           <Tab value="storage">Storage</Tab>
           <Tab value="advanced">Advanced</Tab>
         </TabList>
@@ -279,6 +286,40 @@ export function SettingsView(): JSX.Element {
                     : 'Using custom accent color. Click "Use System" to restore system color.'}
                 </p>
               </div>
+            </div>
+          </div>
+        </TabPanel>
+
+        {/* Privacy/Reading Settings */}
+        <TabPanel value="privacy">
+          <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div>
+              <h4 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
+                Reading Progress
+              </h4>
+              <Switch
+                checked={autoSaveEnabled}
+                onChange={toggleIncognito}
+                label="Track reading progress"
+                description="Automatically save your reading position. Disable for private browsing (incognito mode)."
+              />
+              <p
+                style={{
+                  fontSize: '12px',
+                  color: 'var(--win-text-tertiary)',
+                  marginTop: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <Lightbulb16Regular style={{ flexShrink: 0 }} />
+                <span>
+                  {autoSaveEnabled
+                    ? 'Progress is being saved. Disable to browse without tracking (incognito mode).'
+                    : "Incognito mode active. Your reading progress won't be saved. Enable to resume tracking."}
+                </span>
+              </p>
             </div>
           </div>
         </TabPanel>

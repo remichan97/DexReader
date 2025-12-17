@@ -4,10 +4,16 @@ import { Manga } from './../main/api/entities/manga.entity'
 import { CollectionResponse } from './../main/api/responses/collection.response'
 import { ElectronAPI } from '@electron-toolkit/preload'
 import type { IpcResponse, FileStats, AllowedPaths, FolderSelectResult } from './ipc.types'
+import type { MangaProgress } from '../main/progress/entity/manga-progress.entity'
+import type { ProgressDatabase } from '../main/progress/entity/progress-database.entity'
+import type { ReadingStats } from '../main/progress/entity/reading-stats.entity'
 
 // Re-export types for renderer use
 export type { ImageUrlResponse } from './../main/api/responses/image-url.response'
 export type { IpcResponse } from './ipc.types'
+export type { MangaProgress } from '../main/progress/entity/manga-progress.entity'
+export type { ProgressDatabase } from '../main/progress/entity/progress-database.entity'
+export type { ReadingStats } from '../main/progress/entity/reading-stats.entity'
 
 interface MenuState {
   canAddToFavorites?: boolean
@@ -90,11 +96,22 @@ interface MangaDexApi {
   getCoverUrl: (id: string, fileName: string, size?: string) => string
 }
 
+interface Progress {
+  getProgress: (mangaId: string) => Promise<IpcResponse<MangaProgress | undefined>>
+  saveProgress: (progressData: MangaProgress[]) => Promise<IpcResponse<void>>
+  getAllProgress: () => Promise<IpcResponse<MangaProgress[]>>
+  deleteProgress: (mangaId: string) => Promise<IpcResponse<void>>
+  getStatistics: () => Promise<IpcResponse<ReadingStats>>
+  loadProgress: () => Promise<IpcResponse<ProgressDatabase>>
+  onIncognitoToggle: (callback: () => void) => void
+}
+
 declare global {
   interface Window {
     electron: ElectronAPI
     api: API
     fileSystem: FileSystem
     mangadex: MangaDexApi
+    progress: Progress
   }
 }

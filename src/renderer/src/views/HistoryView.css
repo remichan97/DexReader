@@ -1,0 +1,194 @@
+/* HistoryView Styles */
+
+.history-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--win-bg-base);
+}
+
+/* Header */
+.history-view__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--win-border-default);
+  background: var(--win-bg-card);
+  flex-shrink: 0;
+}
+
+.history-view__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-title);
+  font-weight: var(--font-weight-semibold);
+  color: var(--win-text-primary);
+  margin: 0;
+}
+
+/* Statistics */
+.history-view__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--win-bg-card);
+  border-bottom: 1px solid var(--win-border-default);
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-3);
+  background: var(--win-bg-subtle);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--win-border-subtle);
+}
+
+.stat-card__value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--win-accent-default);
+}
+
+.stat-card__label {
+  font-size: var(--font-size-caption);
+  color: var(--win-text-secondary);
+  margin-top: var(--space-1);
+}
+
+/* Search */
+.history-view__search {
+  padding: var(--space-3);
+  background: var(--win-bg-card);
+  border-bottom: 1px solid var(--win-border-default);
+}
+
+.history-view__search-input {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--win-bg-subtle);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-sm);
+  color: var(--win-text-primary);
+  font-size: var(--font-size-body);
+  outline: none;
+  transition: all 0.2s;
+}
+
+.history-view__search-input:focus {
+  border-color: var(--win-accent-default);
+  box-shadow: 0 0 0 1px var(--win-accent-default);
+}
+
+.history-view__search-input::placeholder {
+  color: var(--win-text-tertiary);
+}
+
+/* Content */
+.history-view__content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-4);
+}
+
+/* Loading */
+.history-view__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  gap: var(--space-3);
+  color: var(--win-text-secondary);
+}
+
+/* Empty State */
+.history-view__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  gap: var(--space-3);
+  text-align: center;
+}
+
+.history-view__empty svg {
+  font-size: 48px;
+  color: var(--win-text-tertiary);
+}
+
+.history-view__empty h2 {
+  font-size: var(--font-size-subtitle);
+  font-weight: var(--font-weight-semibold);
+  color: var(--win-text-primary);
+  margin: 0;
+}
+
+.history-view__empty p {
+  color: var(--win-text-secondary);
+  margin: 0;
+}
+
+/* History List */
+.history-view__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Reading History Card */
+.reading-history-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--win-bg-card);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-md);
+  transition: all 0.2s;
+}
+
+.reading-history-card:hover {
+  border-color: var(--win-border-hover);
+  box-shadow: var(--win-shadow-sm);
+  transform: translateY(-1px);
+}
+
+.reading-history-card__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.reading-history-card__title {
+  font-size: var(--font-size-subtitle);
+  font-weight: var(--font-weight-semibold);
+  color: var(--win-text-primary);
+  margin: 0 0 var(--space-1) 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reading-history-card__progress {
+  font-size: var(--font-size-body);
+  color: var(--win-text-secondary);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.reading-history-card__meta {
+  font-size: var(--font-size-caption);
+  color: var(--win-text-tertiary);
+  margin: 0;
+}
+
+.reading-history-card__actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}

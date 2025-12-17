@@ -102,6 +102,33 @@
   margin-top: auto;
 }
 
+/* Progress Badge */
+.manga-detail-view__progress-badge {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: rgba(0, 120, 212, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 4px;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.manga-detail-view__cover {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--win-shadow-md);
+}
+
 /* Status Badge */
 .status-badge {
   display: inline-flex;

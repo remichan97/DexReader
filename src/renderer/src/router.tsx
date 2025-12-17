@@ -4,6 +4,7 @@ import { ViewTransition } from './components/ViewTransition'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { BrowseView } from './views/BrowseView'
 import { LibraryView } from './views/LibraryView'
+import { HistoryView } from './views/HistoryView'
 import { ReaderView } from './views/ReaderView'
 import { SettingsView } from './views/SettingsView'
 import { DownloadsView } from './views/DownloadsView'
@@ -39,6 +40,14 @@ export function AppRoutes(): JSX.Element {
           element={
             <ErrorBoundary level="page">
               <LibraryView />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/history"
+          element={
+            <ErrorBoundary level="page">
+              <HistoryView />
             </ErrorBoundary>
           }
         />

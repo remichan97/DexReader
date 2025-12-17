@@ -6,6 +6,8 @@ import {
   Search24Filled,
   Library24Regular,
   Library24Filled,
+  History24Regular,
+  History24Filled,
   ArrowDownload24Regular,
   ArrowDownload24Filled,
   Settings24Regular,
@@ -47,6 +49,13 @@ const sidebarItems: SidebarItem[] = [
     icon: <Library24Regular />,
     iconFilled: <Library24Filled />,
     route: '/library'
+  },
+  {
+    id: 'history',
+    label: 'History',
+    icon: <History24Regular />,
+    iconFilled: <History24Filled />,
+    route: '/history'
   },
   {
     id: 'downloads',

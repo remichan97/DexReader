@@ -161,6 +161,20 @@ const mangadexApi = {
     ipcRenderer.invoke('mangadex:get-chapter-images', id, quality)
 }
 
+// Progress tracking API
+const progress = {
+  getProgress: (mangaId: string) => ipcRenderer.invoke('progress:get-progress', mangaId),
+  saveProgress: (progressData: unknown) =>
+    ipcRenderer.invoke('progress:save-progress', progressData),
+  getAllProgress: () => ipcRenderer.invoke('progress:get-all-progress'),
+  deleteProgress: (mangaId: string) => ipcRenderer.invoke('progress:delete-progress', mangaId),
+  getStatistics: () => ipcRenderer.invoke('progress:get-statistics'),
+  loadProgress: () => ipcRenderer.invoke('progress:load-progress'),
+  onIncognitoToggle: (callback: () => void) => {
+    ipcRenderer.on('progress:toggle-incognito', callback)
+  }
+}
+
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
@@ -170,6 +184,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('api', api)
     contextBridge.exposeInMainWorld('fileSystem', fileSystem)
     contextBridge.exposeInMainWorld('mangadex', mangadexApi)
+    contextBridge.exposeInMainWorld('progress', progress)
   } catch (error) {
     console.error(error)
   }
@@ -182,4 +197,6 @@ if (process.contextIsolated) {
   globalThis.fileSystem = fileSystem
   // @ts-ignore (define in dts)
   globalThis.mangadex = mangadexApi
+  // @ts-ignore (define in dts)
+  globalThis.progress = progress
 }

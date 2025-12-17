@@ -6,11 +6,13 @@ import {
   BookOpenRegular,
   StarRegular,
   GlobeRegular,
-  Warning48Regular
+  Warning48Regular,
+  PlayCircle24Regular
 } from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
 import { Select } from '@renderer/components/Select'
 import { Skeleton } from '@renderer/components/Skeleton'
+import { useProgressStore } from '@renderer/stores/progressStore'
 import {
   getCoverImageUrl,
   getMangaTitle,
@@ -49,6 +51,7 @@ interface MangaDetailViewState {
   chapterSort: 'asc' | 'desc'
   chaptersLoading: boolean
   chaptersError: Error | null
+  progress: NonNullable<Awaited<ReturnType<Window['progress']['getProgress']>>['data']> | null
 }
 
 /**
@@ -71,12 +74,17 @@ export function MangaDetailView(): JSX.Element {
     selectedLanguage: cachedData?.selectedLanguage || 'en',
     chapterSort: cachedData?.chapterSort || 'asc',
     chaptersLoading: false,
-    chaptersError: null
+    chaptersError: null,
+    progress: null
   })
   const [showMainErrorDetails, setShowMainErrorDetails] = useState<boolean>(false)
   const [showChapterErrorDetails, setShowChapterErrorDetails] = useState<boolean>(false)
   const [showStickyTitle, setShowStickyTitle] = useState<boolean>(false)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+
+  // Progress tracking
+  const loadProgress = useProgressStore((state) => state.loadProgress)
+  const progressMap = useProgressStore((state) => state.progressMap)
 
   // Load manga details and chapters on mount
   useEffect(() => {
@@ -89,8 +97,19 @@ export function MangaDetailView(): JSX.Element {
     if (state.manga?.id !== mangaId) {
       loadMangaDetails(mangaId)
     }
+
+    // Load progress for this manga
+    loadProgress(mangaId)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mangaId])
+
+  // Update state when progress changes
+  useEffect(() => {
+    if (mangaId) {
+      const progress = progressMap.get(mangaId)
+      setState((prev) => ({ ...prev, progress: progress || null }))
+    }
+  }, [mangaId, progressMap])
 
   // Update document title with manga name
   useEffect(() => {
@@ -444,7 +463,24 @@ function MangaHeroSection({ manga, chapters }: MangaHeroSectionProps): JSX.Eleme
   const handleReadClick = (): void => {
     if (chapters.length === 0) return
 
-    // Navigate to first chapter
+    // If progress exists, continue from last read position
+    if (state.progress) {
+      const lastChapter = chapters.find((ch) => ch.id === state.progress!.lastChapterId)
+      if (lastChapter) {
+        navigate(`/reader/${manga.id}/${lastChapter.id}`, {
+          state: {
+            chapterNumber: lastChapter.attributes.chapter,
+            chapterTitle: lastChapter.attributes.title,
+            mangaTitle: getMangaTitle(manga),
+            chapters: chapters,
+            startPage: state.progress.lastPage // Start at last read page
+          }
+        })
+        return
+      }
+    }
+
+    // Navigate to first chapter (no progress or chapter not found)
     const firstChapter = chapters[0]
     navigate(`/reader/${manga.id}/${firstChapter.id}`, {
       state: {
@@ -507,18 +543,39 @@ function MangaHeroSection({ manga, chapters }: MangaHeroSectionProps): JSX.Eleme
 
         {/* Action Buttons */}
         <div className="manga-detail-view__actions">
-          <Button
-            variant="accent"
-            onClick={handleReadClick}
-            disabled={chapters.length === 0}
-            icon={<BookOpenRegular />}
-          >
-            Start Reading
-          </Button>
+          {state.progress ? (
+            <Button
+              variant="accent"
+              onClick={handleReadClick}
+              disabled={chapters.length === 0}
+              icon={<PlayCircle24Regular />}
+            >
+              Continue Reading
+            </Button>
+          ) : (
+            <Button
+              variant="accent"
+              onClick={handleReadClick}
+              disabled={chapters.length === 0}
+              icon={<BookOpenRegular />}
+            >
+              Start Reading
+            </Button>
+          )}
           <Button variant="secondary" onClick={handleAddToLibrary} icon={<StarRegular />}>
             Add to Library
           </Button>
         </div>
+
+        {/* Progress badge on cover */}
+        {state.progress && (
+          <div className="manga-detail-view__progress-badge">
+            <PlayCircle24Regular />
+            <span>
+              Ch. {state.progress.lastChapterNumber || '?'}, p. {state.progress.lastPage + 1}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   )
