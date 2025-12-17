@@ -30,8 +30,11 @@ export class ProgressManager {
 
   async saveProgress(progressData: MangaProgress[]): Promise<void> {
     try {
-      // Save the progress data to progress.json on AppData folder
-      const progressDatabase = await this.readDatabaseFile()
+      // Load existing progress database, if no file exists, it will create a new one
+      const progressDatabase = await this.loadProgress()
+
+      // Backup the current progress file before making changes
+      await this.backupProgressFile()
 
       // Append the new progress data, updating existing entries if necessary
       for (const progress of progressData) {
@@ -55,7 +58,7 @@ export class ProgressManager {
 
   async getProgress(mangaId: string): Promise<MangaProgress | undefined> {
     // Return the progress data for a specific mangaId or undefined if not found
-    const progressDatabase = await this.readDatabaseFile()
+    const progressDatabase = await this.loadProgress()
 
     return progressDatabase.manga[mangaId]
   }
@@ -63,7 +66,7 @@ export class ProgressManager {
   async deleteProgress(mangaId: string): Promise<void> {
     // Delete the progress data for a specific mangaId
     try {
-      const progressDatabase = await this.readDatabaseFile()
+      const progressDatabase = await this.loadProgress()
       // Backup the current progress file before making changes
       await this.backupProgressFile()
 
@@ -87,7 +90,7 @@ export class ProgressManager {
   async getStatistics(): Promise<ReadingStats> {
     // Calculate and return overall reading statistics such as total pages read, total estimated minutes read, etc.
 
-    const progressDatabase = await this.readDatabaseFile()
+    const progressDatabase = await this.loadProgress()
 
     // If empty database, return zeros
     if (!progressDatabase.manga) {
@@ -122,6 +125,15 @@ export class ProgressManager {
     }
   }
 
+  async getAllProgress(): Promise<MangaProgress[]> {
+    // Returns a sorted by last read date array of all MangaProgress entries
+    const progressDatabase = await this.loadProgress()
+    const allProgress: MangaProgress[] = Object.values(progressDatabase.manga)
+
+    // Sort by last read date descending
+    return allProgress.sort((a, b) => b.lastReadAt - a.lastReadAt)
+  }
+
   private async backupProgressFile(): Promise<void> {
     // Create a backup of the current progress.json file, save it as progress.backup.json
     await secureFs.copyFile(this.PROGRESS_FILE, this.BACKUP_FILE)
@@ -142,12 +154,6 @@ export class ProgressManager {
       }
       await secureFs.writeFile(this.PROGRESS_FILE, JSON.stringify(emptyDatabase, null, 2), 'utf-8')
     }
-  }
-
-  private async readDatabaseFile(): Promise<ProgressDatabase> {
-    // Reusable method to read and parse the progress.json file
-    const data = (await secureFs.readFile(this.PROGRESS_FILE, 'utf-8')) as string
-    return JSON.parse(data) as ProgressDatabase
   }
 
   private dateToUnixTimestamp(date: Date): number {

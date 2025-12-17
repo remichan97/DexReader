@@ -18,11 +18,14 @@ import { MangaDexClient } from './api/mangadexClient'
 import { MangaSearchParams } from './api/searchparams/manga.searchparam'
 import { FeedParams } from './api/searchparams/feed.searchparam'
 import { ImageQuality } from './api/enums'
+import { ProgressManager } from './progress/progressManager'
+import { MangaProgress } from './progress/entity/manga-progress.entity'
 
 let mainWindow: BrowserWindow | null = null
 
 const imageProxy = new ImageProxy()
 const mangadexClient = new MangaDexClient()
+const progressManager = new ProgressManager()
 
 function createWindow(): void {
   // Create the browser window.
@@ -209,6 +212,32 @@ function registerMangaDexHandlers(): void {
   })
 }
 
+function registerProgressTrackingHandlers(): void {
+  wrapIpcHandler('progress:get-progress', async (_, id: unknown) => {
+    return await progressManager.getProgress(id as string)
+  })
+
+  wrapIpcHandler('progress:save-progress', async (_, progressData: unknown) => {
+    return await progressManager.saveProgress(progressData as MangaProgress[])
+  })
+
+  wrapIpcHandler('progress:delete-progress', async (_, id: unknown) => {
+    return await progressManager.deleteProgress(id as string)
+  })
+
+  wrapIpcHandler('progress:get-statistics', async () => {
+    return await progressManager.getStatistics()
+  })
+
+  wrapIpcHandler('progress:get-all-progress', async () => {
+    return await progressManager.getAllProgress()
+  })
+
+  wrapIpcHandler('progress:load-progress', async () => {
+    return await progressManager.loadProgress()
+  })
+}
+
 async function initFileSystem(): Promise<void> {
   console.log('Initialising secure filesystem...')
 
@@ -325,6 +354,8 @@ app.whenReady().then(async () => {
 
   registerMangaDexHandlers()
 
+  registerProgressTrackingHandlers()
+
   createWindow()
 
   if (mainWindow) {
@@ -345,6 +376,13 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+// Before stopping the app, save all reading progress
+app.on('before-quit', async (event) => {
+  event.preventDefault()
+  await new Promise((resolve) => setTimeout(resolve, 1000)) // Wait a second for everything to settle
+  app.exit(0)
 })
 
 // In this file you can include the rest of your app's specific main process

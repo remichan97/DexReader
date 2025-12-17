@@ -23,6 +23,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
         { type: 'separator' },
         {
           label: 'Go Incognito',
+          id: 'go-incognito',
           accelerator: 'CmdOrCtrl+Shift+N',
           click: () => {
             mainWindow.webContents.send('progress:toggle-incognito')
@@ -78,11 +79,15 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           accelerator: 'CmdOrCtrl+R',
           role: 'reload'
         },
-        {
-          label: 'Toggle DevTools',
-          accelerator: 'F12',
-          role: 'toggleDevTools'
-        }
+        ...(process.env.NODE_ENV === 'development'
+          ? [
+              {
+                label: 'Toggle DevTools',
+                accelerator: 'F12',
+                role: 'toggleDevTools' as const
+              }
+            ]
+          : [])
       ]
     },
     {
