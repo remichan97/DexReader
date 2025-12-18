@@ -8,17 +8,6 @@
   background: var(--win-bg-base);
 }
 
-/* Header */
-.history-view__header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3);
-  border-bottom: 1px solid var(--win-border-default);
-  background: var(--win-bg-card);
-  flex-shrink: 0;
-}
-
 .history-view__title {
   display: flex;
   align-items: center;
@@ -27,6 +16,8 @@
   font-weight: var(--font-weight-semibold);
   color: var(--win-text-primary);
   margin: 0;
+  padding: var(--space-4);
+  padding-bottom: var(--space-3);
 }
 
 /* Statistics */
@@ -158,6 +149,32 @@
   border-color: var(--win-border-hover);
   box-shadow: var(--win-shadow-sm);
   transform: translateY(-1px);
+}
+
+.reading-history-card__cover {
+  width: 64px;
+  height: 96px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--win-bg-subtle);
+  border: 1px solid var(--win-border-subtle);
+}
+
+.reading-history-card__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.reading-history-card__cover-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--win-text-tertiary);
+  font-size: 32px;
 }
 
 .reading-history-card__info {

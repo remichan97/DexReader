@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   History24Regular,
-  ArrowLeft24Regular,
   PlayCircle24Regular,
   Delete24Regular
 } from '@fluentui/react-icons'
@@ -47,8 +46,25 @@ function ReadingHistoryCard({
     }
   }
 
+  // Get page progress from current chapter
+  const chapterProgress = progress.chapters?.[progress.lastChapterId]
+  const pageInfo = chapterProgress
+    ? `Page ${chapterProgress.currentPage + 1} of ${chapterProgress.totalPages}`
+    : 'No page info'
+
   return (
     <div className="reading-history-card">
+      {/* Cover Image */}
+      <div className="reading-history-card__cover">
+        {progress.coverUrl ? (
+          <img src={progress.coverUrl} alt={`${progress.mangaTitle} cover`} />
+        ) : (
+          <div className="reading-history-card__cover-placeholder">
+            <History24Regular />
+          </div>
+        )}
+      </div>
+
       {/* Info */}
       <div className="reading-history-card__info">
         <h3 className="reading-history-card__title">{progress.mangaTitle}</h3>
@@ -56,7 +72,7 @@ function ReadingHistoryCard({
           Ch. {progress.lastChapterNumber || '?'}
           {progress.lastChapterTitle && `: ${progress.lastChapterTitle}`}
           {' • '}
-          Page {progress.lastPage + 1} of {progress.totalChapterPages}
+          {pageInfo}
         </p>
         <p className="reading-history-card__meta">
           Last read {getRelativeTime(progress.lastReadAt)}
@@ -104,6 +120,11 @@ export function HistoryView(): JSX.Element {
     loadStatistics()
   }, [loadAllProgress, loadStatistics])
 
+  // Set document title
+  useEffect(() => {
+    document.title = 'Reading History - DexReader'
+  }, [])
+
   // Convert progress map to sorted array
   const allProgress = Array.from(progressMap.values()).sort((a, b) => b.lastReadAt - a.lastReadAt)
 
@@ -113,12 +134,16 @@ export function HistoryView(): JSX.Element {
     : allProgress
 
   const handleContinueReading = (progress: MangaProgress): void => {
+    // Get current page from chapter progress
+    const chapterProgress = progress.chapters?.[progress.lastChapterId]
+    const startPage = chapterProgress?.currentPage ?? 0
+
     navigate(`/reader/${progress.mangaId}/${progress.lastChapterId}`, {
       state: {
         chapterNumber: progress.lastChapterNumber?.toString(),
         chapterTitle: progress.lastChapterTitle,
         mangaTitle: progress.mangaTitle,
-        startPage: progress.lastPage
+        startPage
       }
     })
   }
@@ -129,28 +154,8 @@ export function HistoryView(): JSX.Element {
     loadStatistics()
   }
 
-  const handleBackClick = (): void => {
-    navigate(-1)
-  }
-
   return (
     <div className="history-view">
-      {/* Header */}
-      <header className="history-view__header">
-        <Button
-          variant="ghost"
-          size="medium"
-          onClick={handleBackClick}
-          icon={<ArrowLeft24Regular />}
-        >
-          Back
-        </Button>
-        <h1 className="history-view__title">
-          <History24Regular />
-          Reading History
-        </h1>
-      </header>
-
       {/* Statistics */}
       {statistics && (
         <div className="history-view__stats">

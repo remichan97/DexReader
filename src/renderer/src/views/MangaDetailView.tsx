@@ -137,6 +137,7 @@ export function MangaDetailView(): JSX.Element {
       container.addEventListener('scroll', handleScroll)
       return () => container.removeEventListener('scroll', handleScroll)
     }
+    return undefined // Explicit return for no cleanup
   }, [state.manga])
 
   /**
@@ -409,7 +410,7 @@ export function MangaDetailView(): JSX.Element {
       </div>
 
       {/* Hero section - Cover + Metadata */}
-      <MangaHeroSection manga={state.manga} chapters={state.chapters} />
+      <MangaHeroSection manga={state.manga} chapters={state.chapters} progress={state.progress} />
 
       {/* Description section */}
       <DescriptionSection manga={state.manga} />
@@ -430,6 +431,7 @@ export function MangaDetailView(): JSX.Element {
         loading={state.chaptersLoading}
         error={state.chaptersError}
         showErrorDetails={showChapterErrorDetails}
+        progress={state.progress}
         onLanguageChange={loadChaptersForLanguage}
         onSortChange={(order) => setState((prev) => ({ ...prev, chapterSort: order }))}
         onRetry={() => loadChaptersForLanguage(state.selectedLanguage)}
@@ -445,9 +447,12 @@ export function MangaDetailView(): JSX.Element {
 interface MangaHeroSectionProps {
   readonly manga: MangaEntity
   readonly chapters: ChapterEntity[]
+  readonly progress: NonNullable<
+    Awaited<ReturnType<Window['progress']['getProgress']>>['data']
+  > | null
 }
 
-function MangaHeroSection({ manga, chapters }: MangaHeroSectionProps): JSX.Element {
+function MangaHeroSection({ manga, chapters, progress }: MangaHeroSectionProps): JSX.Element {
   const navigate = useNavigate()
   const coverUrl = getCoverImageUrl(manga, CoverSize.Large)
   const title = getMangaTitle(manga)
@@ -464,16 +469,21 @@ function MangaHeroSection({ manga, chapters }: MangaHeroSectionProps): JSX.Eleme
     if (chapters.length === 0) return
 
     // If progress exists, continue from last read position
-    if (state.progress) {
-      const lastChapter = chapters.find((ch) => ch.id === state.progress!.lastChapterId)
+    if (progress) {
+      const lastChapter = chapters.find((ch) => ch.id === progress.lastChapterId)
       if (lastChapter) {
+        // Get chapter-specific progress
+        const chapterProgress = progress.chapters?.[progress.lastChapterId]
+        const startPage = chapterProgress?.currentPage ?? 0
+
         navigate(`/reader/${manga.id}/${lastChapter.id}`, {
           state: {
             chapterNumber: lastChapter.attributes.chapter,
             chapterTitle: lastChapter.attributes.title,
             mangaTitle: getMangaTitle(manga),
             chapters: chapters,
-            startPage: state.progress.lastPage // Start at last read page
+            startPage, // Start at last read page
+            coverUrl // Pass cover URL for progress tracking
           }
         })
         return
@@ -487,7 +497,8 @@ function MangaHeroSection({ manga, chapters }: MangaHeroSectionProps): JSX.Eleme
         chapterNumber: firstChapter.attributes.chapter,
         chapterTitle: firstChapter.attributes.title,
         mangaTitle: getMangaTitle(manga),
-        chapters: chapters // Pass full chapter list for navigation
+        chapters: chapters,
+        coverUrl // Pass cover URL for progress tracking // Pass full chapter list for navigation
       }
     })
   }
@@ -543,7 +554,7 @@ function MangaHeroSection({ manga, chapters }: MangaHeroSectionProps): JSX.Eleme
 
         {/* Action Buttons */}
         <div className="manga-detail-view__actions">
-          {state.progress ? (
+          {progress ? (
             <Button
               variant="accent"
               onClick={handleReadClick}
@@ -566,16 +577,6 @@ function MangaHeroSection({ manga, chapters }: MangaHeroSectionProps): JSX.Eleme
             Add to Library
           </Button>
         </div>
-
-        {/* Progress badge on cover */}
-        {state.progress && (
-          <div className="manga-detail-view__progress-badge">
-            <PlayCircle24Regular />
-            <span>
-              Ch. {state.progress.lastChapterNumber || '?'}, p. {state.progress.lastPage + 1}
-            </span>
-          </div>
-        )}
       </div>
     </div>
   )
@@ -786,6 +787,9 @@ interface ChapterListProps {
   readonly loading: boolean
   readonly error: Error | null
   readonly showErrorDetails: boolean
+  readonly progress: NonNullable<
+    Awaited<ReturnType<Window['progress']['getProgress']>>['data']
+  > | null
   readonly onLanguageChange: (lang: string) => void
   readonly onSortChange: (order: 'asc' | 'desc') => void
   readonly onRetry: () => void
@@ -801,6 +805,7 @@ function ChapterList({
   loading,
   error,
   showErrorDetails,
+  progress,
   onLanguageChange,
   onSortChange,
   onRetry,
@@ -931,22 +936,42 @@ function ChapterList({
         {!loading &&
           !error &&
           displayChapters.length > 0 &&
-          displayChapters.map((chapter) => (
-            <ChapterItem
-              key={chapter.id}
-              chapter={chapter}
-              onClick={() =>
-                navigate(`/reader/${mangaId}/${chapter.id}`, {
-                  state: {
-                    chapterNumber: chapter.attributes.chapter,
-                    chapterTitle: chapter.attributes.title,
-                    mangaTitle: manga ? getMangaTitle(manga) : 'Manga',
-                    chapters: chapters // Pass full chapter list for navigation
-                  }
-                })
-              }
-            />
-          ))}
+          displayChapters.map((chapter) => {
+            // Get chapter progress from new per-chapter structure
+            const chapterProgress = progress?.chapters?.[chapter.id]
+
+            // Check if this chapter is in progress (currently reading)
+            const isInProgress = progress?.lastChapterId === chapter.id
+
+            // Check if this chapter is completed
+            const isRead = chapterProgress?.completed ?? false
+
+            // Get page progress (use chapter-specific data)
+            const pageProgress = chapterProgress
+              ? { currentPage: chapterProgress.currentPage, totalPages: chapterProgress.totalPages }
+              : undefined
+
+            return (
+              <ChapterItem
+                key={chapter.id}
+                chapter={chapter}
+                isRead={isRead}
+                isInProgress={isInProgress}
+                pageProgress={pageProgress}
+                onClick={() =>
+                  navigate(`/reader/${mangaId}/${chapter.id}`, {
+                    state: {
+                      chapterNumber: chapter.attributes.chapter,
+                      chapterTitle: chapter.attributes.title,
+                      mangaTitle: manga ? getMangaTitle(manga) : 'Manga',
+                      chapters: chapters, // Pass full chapter list for navigation
+                      coverUrl: manga ? getCoverImageUrl(manga, CoverSize.Large) : undefined
+                    }
+                  })
+                }
+              />
+            )
+          })}
       </div>
     </div>
   )
@@ -958,9 +983,18 @@ function ChapterList({
 interface ChapterItemProps {
   readonly chapter: ChapterEntity
   readonly onClick: () => void
+  readonly isRead?: boolean
+  readonly isInProgress?: boolean
+  readonly pageProgress?: { currentPage: number; totalPages: number }
 }
 
-function ChapterItem({ chapter, onClick }: ChapterItemProps): JSX.Element {
+function ChapterItem({
+  chapter,
+  onClick,
+  isRead,
+  isInProgress,
+  pageProgress
+}: ChapterItemProps): JSX.Element {
   const chapterNum = chapter.attributes.chapter || '0'
   const title = chapter.attributes.title || 'Untitled'
   const publishDate = new Date(chapter.attributes.publishAt).toLocaleDateString()
@@ -969,10 +1003,18 @@ function ChapterItem({ chapter, onClick }: ChapterItemProps): JSX.Element {
   const scanlationGroup = chapter.relationships.find((r) => r.type === 'scanlation_group')
   const groupName = scanlationGroup?.attributes?.name || 'Unknown Group'
 
+  // Determine status classes
+  let statusClass = ''
+  if (isInProgress) {
+    statusClass = 'chapter-item--in-progress'
+  } else if (isRead) {
+    statusClass = 'chapter-item--read'
+  }
+
   return (
     <Button
       variant="ghost"
-      className="chapter-item"
+      className={`chapter-item ${statusClass}`}
       onClick={onClick}
       aria-label={`Read Chapter ${chapterNum}: ${title}`}
     >
@@ -986,6 +1028,11 @@ function ChapterItem({ chapter, onClick }: ChapterItemProps): JSX.Element {
         </div>
 
         <div className="chapter-item__meta">
+          {pageProgress && (
+            <span className="chapter-item__progress">
+              p. {pageProgress.currentPage + 1}/{pageProgress.totalPages}
+            </span>
+          )}
           <span className="chapter-item__date">{publishDate}</span>
         </div>
       </div>

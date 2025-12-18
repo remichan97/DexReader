@@ -22,6 +22,7 @@ interface MenuState {
   chapterTitle?: string
   canDownloadManga?: boolean
   mangaTitle?: string
+  isIncognito?: boolean
 }
 
 interface API {
@@ -103,7 +104,7 @@ interface Progress {
   deleteProgress: (mangaId: string) => Promise<IpcResponse<void>>
   getStatistics: () => Promise<IpcResponse<ReadingStats>>
   loadProgress: () => Promise<IpcResponse<ProgressDatabase>>
-  onIncognitoToggle: (callback: () => void) => void
+  onIncognitoToggle: (callback: () => void) => () => void // Returns cleanup function
 }
 
 declare global {

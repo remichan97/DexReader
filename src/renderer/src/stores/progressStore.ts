@@ -34,7 +34,17 @@ interface ProgressState {
 
   // Actions
   loadProgress: (mangaId: string) => Promise<void>
-  saveProgress: (progressData: Partial<MangaProgress> & { mangaId: string }) => Promise<void>
+  saveProgress: (progressData: {
+    mangaId: string
+    mangaTitle: string
+    coverUrl?: string // Optional cover image URL
+    lastChapterId: string
+    lastChapterNumber?: number
+    lastChapterTitle: string
+    currentPage: number
+    totalPages: number
+    markComplete?: boolean // Optional flag to mark chapter as complete
+  }) => Promise<void>
   loadAllProgress: () => Promise<void>
   loadStatistics: () => Promise<void>
   deleteProgress: (mangaId: string) => Promise<void>
@@ -102,25 +112,41 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
       return
     }
 
-    const { mangaId } = progressData
+    const {
+      mangaId,
+      lastChapterId,
+      currentPage,
+      totalPages,
+      markComplete = false,
+      coverUrl
+    } = progressData
 
-    // Optimistic update: merge with existing progress
+    // Get existing progress to preserve other chapters
     const existingProgress = progressMap.get(mangaId)
+    const existingChapters = existingProgress?.chapters || {}
+
+    // Update current chapter progress
+    const updatedChapters = {
+      ...existingChapters,
+      [lastChapterId]: {
+        currentPage,
+        totalPages,
+        lastReadAt: Date.now(),
+        completed: markComplete || (existingChapters[lastChapterId]?.completed ?? false)
+      }
+    }
+
+    // Build updated progress object
     const updatedProgress: MangaProgress = {
       mangaId,
-      mangaTitle: progressData.mangaTitle ?? existingProgress?.mangaTitle ?? '',
-      lastChapterId: progressData.lastChapterId ?? existingProgress?.lastChapterId ?? '',
-      lastChapterNumber:
-        progressData.lastChapterNumber ?? existingProgress?.lastChapterNumber ?? undefined,
-      lastChapterTitle: progressData.lastChapterTitle ?? existingProgress?.lastChapterTitle ?? '',
-      lastPage: progressData.lastPage ?? existingProgress?.lastPage ?? 0,
-      totalChapterPages: progressData.totalChapterPages ?? existingProgress?.totalChapterPages ?? 0,
+      mangaTitle: progressData.mangaTitle,
+      coverUrl: coverUrl ?? existingProgress?.coverUrl ?? '',
+      lastChapterId,
+      lastChapterNumber: progressData.lastChapterNumber,
+      lastChapterTitle: progressData.lastChapterTitle,
       firstReadAt: existingProgress?.firstReadAt ?? Date.now(),
       lastReadAt: Date.now(),
-      chaptersRead: progressData.chaptersRead ?? existingProgress?.chaptersRead ?? [],
-      totalPagesRead: progressData.totalPagesRead ?? existingProgress?.totalPagesRead ?? 0,
-      estimatedMinutesRead:
-        progressData.estimatedMinutesRead ?? existingProgress?.estimatedMinutesRead ?? 0
+      chapters: updatedChapters
     }
 
     // Update cache immediately (optimistic)
@@ -277,12 +303,22 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
    * Toggle incognito mode
    * - When enabled: stops tracking progress, shows status bar
    * - When disabled: resumes tracking, hides status bar
+   * - Updates menu bar label (Go Incognito ↔ Leave Incognito)
    */
   toggleIncognito: async () => {
     const newState = !get().autoSaveEnabled
+    console.log('[ProgressStore] Toggling incognito:', {
+      from: get().autoSaveEnabled,
+      to: newState
+    })
     set({ autoSaveEnabled: newState })
 
-    // Show status bar notification (handled by IncognitoStatusBar component)
+    // Update menu bar label
+    globalThis.api.updateMenuState({
+      isIncognito: !newState // isIncognito is inverse of autoSaveEnabled
+    })
+
+    // Status bar notification (handled by IncognitoStatusBar component)
     // Status bar will appear/disappear based on autoSaveEnabled state
   },
 

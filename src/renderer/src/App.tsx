@@ -4,6 +4,7 @@ import { AppRoutes } from './router'
 import { useNavigationListener } from './hooks/useNavigationListener'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useAccentColor } from './hooks/useAccentColor'
+import { useIncognitoListener } from './hooks/useIncognitoListener'
 import { ToastContainer } from './components/Toast'
 import { useToastStore } from './stores'
 import { ErrorBoundary } from './components/ErrorBoundary'
@@ -14,6 +15,9 @@ function AppContent(): React.JSX.Element {
 
   // Listen for navigation commands from menu
   useNavigationListener()
+
+  // Listen for incognito toggle from menu
+  useIncognitoListener()
 
   // Handle keyboard shortcuts
   useKeyboardShortcuts()

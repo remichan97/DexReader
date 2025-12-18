@@ -46,6 +46,7 @@ const api = {
     chapterTitle?: string
     canDownloadManga?: boolean
     mangaTitle?: string
+    isIncognito?: boolean
   }) => {
     ipcRenderer.send('update-menu-state', state)
   },
@@ -172,6 +173,10 @@ const progress = {
   loadProgress: () => ipcRenderer.invoke('progress:load-progress'),
   onIncognitoToggle: (callback: () => void) => {
     ipcRenderer.on('progress:toggle-incognito', callback)
+    // Return cleanup function to remove listener
+    return () => {
+      ipcRenderer.removeListener('progress:toggle-incognito', callback)
+    }
   }
 }
 

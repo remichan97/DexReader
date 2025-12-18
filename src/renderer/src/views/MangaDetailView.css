@@ -530,6 +530,35 @@
   color: var(--win-text-tertiary);
 }
 
+.chapter-item__progress {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--win-text-secondary);
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-xs);
+}
+
+/* Read chapter styling - faded appearance */
+.chapter-item--read {
+  opacity: 0.5;
+}
+
+.chapter-item--read:hover {
+  opacity: 0.7;
+}
+
+.chapter-item--read .chapter-item__number,
+.chapter-item--read .chapter-item__title {
+  color: var(--win-text-tertiary);
+}
+
+/* In-progress chapter styling */
+.chapter-item--in-progress .chapter-item__progress {
+  background: rgba(0, 120, 212, 0.15);
+  color: #60a5fa;
+}
+
 /* Error State */
 .manga-detail-error {
   display: flex;

@@ -22,22 +22,14 @@
 }
 
 .incognito-status-bar__text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.incognito-status-bar__title {
-  font-weight: 600;
   font-size: 13px;
-  line-height: 1.3;
-  color: var(--text-primary);
+  line-height: 1.4;
+  color: var(--text-secondary);
 }
 
-.incognito-status-bar__message {
-  font-size: 12px;
-  line-height: 1.3;
-  color: var(--text-secondary);
+.incognito-status-bar__text strong {
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 @keyframes slideDown {

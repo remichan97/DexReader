@@ -30,13 +30,9 @@ export function IncognitoStatusBar(): JSX.Element | null {
     <output className="incognito-status-bar" aria-live="polite">
       <div className="incognito-status-bar__content">
         <EyeOff24Regular className="incognito-status-bar__icon" />
-
-        <div className="incognito-status-bar__text">
-          <span className="incognito-status-bar__title">Incognito mode</span>
-          <span className="incognito-status-bar__message">
-            Progress tracking is disabled. Only showing saved history.
-          </span>
-        </div>
+        <span className="incognito-status-bar__text">
+          <strong>You've gone Incognito</strong> — Progress tracking is disabled
+        </span>
       </div>
     </output>
   )

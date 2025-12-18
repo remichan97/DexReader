@@ -590,8 +590,10 @@ export function ReaderView(): JSX.Element {
     chapterNumber?: string
     chapterTitle?: string
     mangaTitle?: string
+    coverUrl?: string // Cover image URL for progress tracking
     chapters?: ChapterEntity[] // Chapter list from detail view
     startAtLastPage?: boolean // Flag to start at last page (when navigating from previous chapter)
+    startPage?: number // Page to start at (from Continue Reading)
   } | null
 
   const [state, setState] = useState<ReaderState>({
@@ -631,6 +633,8 @@ export function ReaderView(): JSX.Element {
 
   // Ref to store zoom indicator timeout
   const zoomIndicatorTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  // Track previous chapter state for completion detection
+  const previousChapterRef = useRef<{ id: string; wasOnLastPage: boolean } | null>(null)
 
   /**
    * Load chapter images from API
@@ -670,8 +674,8 @@ export function ReaderView(): JSX.Element {
             loadingStates.set(index, existingState || 'loading')
           })
 
-          // Determine starting page - last page if flag is set, otherwise first page
-          const startPage = startAtLastPage ? images.length - 1 : 0
+          // Determine starting page: 1) from startPage prop (Continue Reading), 2) from startAtLastPage flag, 3) default to 0
+          const startPage = locationState?.startPage ?? (startAtLastPage ? images.length - 1 : 0)
 
           return {
             ...prev,
@@ -1393,22 +1397,21 @@ export function ReaderView(): JSX.Element {
 
     // Debounce: wait 1 second after page change before saving
     const timer = setTimeout(() => {
-      // Calculate unique chapters read (add current chapter to set)
-      const chaptersRead = [chapterId] // For now, just track current chapter
-      // Estimate reading time: ~20 seconds per page
-      const estimatedMinutes = Math.round((state.totalPages * 20) / 60)
+      // Update ref to track if we're on last page (for potential completion on navigation)
+      const isOnLastPage = state.currentPage === state.totalPages - 1
+      previousChapterRef.current = { id: chapterId, wasOnLastPage: isOnLastPage }
 
+      // Save current page progress (don't mark as complete yet)
       saveProgress({
         mangaId,
         mangaTitle: state.mangaTitle,
+        coverUrl: locationState?.coverUrl,
         lastChapterId: chapterId,
         lastChapterNumber: state.chapterNumber ? Number(state.chapterNumber) : undefined,
         lastChapterTitle: state.chapterTitle,
-        lastPage: state.currentPage,
-        totalChapterPages: state.totalPages,
-        chaptersRead,
-        totalPagesRead: state.currentPage + 1, // Pages read in this session
-        estimatedMinutesRead: estimatedMinutes
+        currentPage: state.currentPage,
+        totalPages: state.totalPages,
+        markComplete: false
       })
     }, 1000) // 1 second debounce
 
@@ -1441,23 +1444,54 @@ export function ReaderView(): JSX.Element {
       return
     }
 
-    // Save immediately on chapter change (no debounce)
-    const chaptersRead = [chapterId]
-    const estimatedMinutes = Math.round((state.totalPages * 20) / 60)
+    // Check if previous chapter should be marked complete
+    // Only mark complete if user finished (was on last page) AND navigated to different chapter
+    const prevChapter = previousChapterRef.current
+    const shouldMarkPreviousComplete =
+      prevChapter && prevChapter.id !== chapterId && prevChapter.wasOnLastPage
 
+    // If previous chapter should be marked complete, save it
+    if (shouldMarkPreviousComplete && mangaId) {
+      saveProgress({
+        mangaId,
+        mangaTitle: state.mangaTitle,
+        coverUrl: locationState?.coverUrl,
+        lastChapterId: prevChapter.id,
+        lastChapterNumber: undefined, // We don't have this info for previous chapter
+        lastChapterTitle: '',
+        currentPage: 0, // Not relevant for completed chapters
+        totalPages: 1, // Not relevant for completed chapters
+        markComplete: true
+      })
+    }
+
+    // Save progress for new chapter (starting at page 0, not complete)
     saveProgress({
       mangaId,
       mangaTitle: state.mangaTitle,
+      coverUrl: locationState?.coverUrl,
       lastChapterId: chapterId,
       lastChapterNumber: state.chapterNumber ? Number(state.chapterNumber) : undefined,
       lastChapterTitle: state.chapterTitle,
-      lastPage: 0, // Start of new chapter
-      totalChapterPages: state.totalPages,
-      chaptersRead,
-      totalPagesRead: 1,
-      estimatedMinutesRead: estimatedMinutes
+      currentPage: 0,
+      totalPages: state.totalPages,
+      markComplete: false
     })
-  }, [chapterId]) // Only trigger on chapter change
+
+    // Update ref for new chapter
+    previousChapterRef.current = { id: chapterId, wasOnLastPage: false }
+  }, [
+    chapterId,
+    autoSaveEnabled,
+    mangaId,
+    state.loading,
+    state.error,
+    state.totalPages,
+    state.mangaTitle,
+    state.chapterNumber,
+    state.chapterTitle,
+    saveProgress
+  ]) // Only trigger on chapter change
 
   // Auto-save progress on component unmount
   useEffect(() => {
@@ -1471,24 +1505,35 @@ export function ReaderView(): JSX.Element {
         !state.error &&
         state.totalPages > 0
       ) {
-        const chaptersRead = [chapterId]
-        const estimatedMinutes = Math.round((state.totalPages * 20) / 60)
-
+        // Don't mark as complete on unmount - user might return to this chapter
+        // Only mark complete when navigating to another chapter
         saveProgress({
           mangaId,
           mangaTitle: state.mangaTitle,
+          coverUrl: locationState?.coverUrl,
           lastChapterId: chapterId,
           lastChapterNumber: state.chapterNumber ? Number(state.chapterNumber) : undefined,
           lastChapterTitle: state.chapterTitle,
-          lastPage: state.currentPage,
-          totalChapterPages: state.totalPages,
-          chaptersRead,
-          totalPagesRead: state.currentPage + 1,
-          estimatedMinutesRead: estimatedMinutes
+          currentPage: state.currentPage,
+          totalPages: state.totalPages,
+          markComplete: false
         })
       }
     }
-  }, []) // Empty deps - only on unmount
+    // Include all dependencies so cleanup captures current values
+  }, [
+    autoSaveEnabled,
+    mangaId,
+    chapterId,
+    state.loading,
+    state.error,
+    state.totalPages,
+    state.mangaTitle,
+    state.chapterNumber,
+    state.chapterTitle,
+    state.currentPage,
+    saveProgress
+  ])
 
   // Listen for menu-triggered incognito toggle
   useEffect(() => {
