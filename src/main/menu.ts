@@ -1,6 +1,16 @@
 import { Menu, dialog, shell, app, BrowserWindow, MenuItemConstructorOptions } from 'electron'
 
-export function createMenu(mainWindow: BrowserWindow): Menu {
+export interface MenuState {
+  canAddToFavorites?: boolean
+  isFavorited?: boolean
+  canDownloadChapter?: boolean
+  chapterTitle?: string
+  canDownloadManga?: boolean
+  mangaTitle?: string
+  isIncognito?: boolean
+}
+
+export function createMenu(mainWindow: BrowserWindow, state: MenuState = {}): Menu {
   const menuTemplate: MenuItemConstructorOptions[] = [
     {
       label: 'File',
@@ -22,7 +32,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
         },
         { type: 'separator' },
         {
-          label: 'Go Incognito',
+          label: state.isIncognito ? 'Leave Incognito' : 'Go Incognito',
           id: 'go-incognito',
           accelerator: 'CmdOrCtrl+Shift+N',
           click: () => {

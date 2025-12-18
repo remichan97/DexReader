@@ -27,6 +27,11 @@ const imageProxy = new ImageProxy()
 const mangadexClient = new MangaDexClient()
 const progressManager = new ProgressManager()
 
+// Store menu state
+let menuState = {
+  isIncognito: false
+}
+
 function createWindow(): void {
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -51,7 +56,7 @@ function createWindow(): void {
   })
 
   // Set up application menu
-  const menu = createMenu(mainWindow)
+  const menu = createMenu(mainWindow, menuState)
   Menu.setApplicationMenu(menu)
 
   // Set up theme detection
@@ -282,7 +287,15 @@ app.whenReady().then(async () => {
 
   // IPC handler for menu state updates
   ipcMain.on('update-menu-state', (_, state) => {
-    updateMenuState(state)
+    // Merge new state
+    menuState = { ...menuState, ...state }
+    // Rebuild menu with current state to apply label changes
+    if (mainWindow) {
+      const updatedMenu = createMenu(mainWindow, menuState)
+      Menu.setApplicationMenu(updatedMenu)
+      // Re-apply state AFTER setting new menu (for enabled/disabled states)
+      updateMenuState(menuState)
+    }
   })
 
   // IPC handler for theme request

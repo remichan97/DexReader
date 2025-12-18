@@ -111,10 +111,14 @@ export class ProgressManager {
     // Iterate through each manga and its chapters to accumulate stats
     for (const mangaId in progressDatabase.manga) {
       const mangaProgress = progressDatabase.manga[mangaId]
+      const chapters = Object.values(mangaProgress.chapters || {})
+      const completedChapters = chapters.filter((chapter) => chapter.completed).length
+      const totalPages = chapters.reduce((sum, chapter) => sum + (chapter.currentPage || 0), 0)
+
       totalMangaRead += 1
-      totalChaptersRead += Object.keys(mangaProgress.chaptersRead).length
-      totalPagesRead += mangaProgress.totalPagesRead
-      totalEstimatedMinutesRead += mangaProgress.estimatedMinutesRead
+      totalChaptersRead += completedChapters
+      totalPagesRead += totalPages
+      totalEstimatedMinutesRead += Math.round((totalPages * 20) / 60) // assuming average reading speed of 20 pages per minute
     }
 
     return {

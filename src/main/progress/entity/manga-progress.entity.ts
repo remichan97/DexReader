@@ -1,17 +1,16 @@
+import { ChapterProgress } from './chapter-progress.entity'
+
 export interface MangaProgress {
   mangaId: string
   mangaTitle: string
+  coverUrl: string
 
   lastChapterId: string
   lastChapterNumber: number | undefined
   lastChapterTitle: string
-  lastPage: number
-  totalChapterPages: number
 
   firstReadAt: number //unix timestamp
   lastReadAt: number //unix timestamp
 
-  chaptersRead: string[]
-  totalPagesRead: number
-  estimatedMinutesRead: number
+  chapters: Record<string, ChapterProgress> // per-chapter progress
 }
