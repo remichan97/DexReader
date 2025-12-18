@@ -2,7 +2,7 @@
 
 **Project Start**: 23 November 2025
 **Current Phase**: Phase 2 - Content Display (In Progress 🔵)
-**Last Updated**: 15 December 2025
+**Last Updated**: 18 December 2025
 
 ---
 
@@ -23,7 +23,7 @@
 
 ## Current Status: Phase 2 In Progress 🔵
 
-### Phase 2 Progress: 9/11 Tasks Complete (82%)
+### Phase 2 Progress: 10/11 Tasks Complete (91%)
 
 - [✅] **P2-T01**: Implement MangaDex public API client - **COMPLETE**
   - All 9 implementation steps finished
@@ -109,38 +109,53 @@
     - showZoomControls, zoomIndicatorVisible flags
   - Implementation ready for regression testing
 
-- [ ] **P2-T10**: Add local reading progress tracking - **PLANNING COMPLETE** ✅
-  - Comprehensive implementation plan created (745 lines, 11 steps)
-  - Estimated duration: 22-30 hours (3-4 days) plus buffer
-  - Core Features:
-    - Local progress tracking (last chapter, last page, timestamps)
-    - Auto-save progress as user reads (1s debounce, silent saves)
-    - "Continue Reading" badges on manga covers
-    - Reading history view in Library tab with statistics
-    - **Incognito mode** - toggle in Settings + File menu
-    - Status bar notifications for incognito toggle
-    - Silent save pattern (no success feedback, error-only toasts)
-  - Backend Architecture:
-    - ProgressManager class for CRUD operations
-    - JSON storage in AppData/progress.json (with backups)
-    - 6 IPC handlers (get/update/delete, statistics, toggle incognito)
-    - Exit handler (before-quit) for final save (max 500ms delay)
-  - Frontend Architecture:
-    - progressStore (Zustand) with autoSaveEnabled flag
-    - IncognitoStatusBar component (full-width notification, 5s auto-dismiss)
-    - ContinueReadingBadge, ReadingHistoryCard components
-    - ReaderView auto-save integration (3 layers: unmount, beforeunload, before-quit)
-    - Settings toggle + File menu "Go Incognito" item
-  - Menu Integration:
-    - "Go Incognito" / "Exit Incognito" in File menu (below Settings)
-    - Keyboard shortcut: Ctrl+Shift+P
-    - Label toggles dynamically (no checkmark needed)
-  - Visual Indicators:
-    - Status bar notification on incognito toggle ("You've gone incognito. No progress tracking from this point onward")
-    - Incognito badge in ReaderView header when tracking disabled
-    - Menu label change (Go ↔ Exit Incognito)
-  - Plan location: `.github/copilot-plans/P2-T10-reading-progress-tracking-plan.md`
-  - Ready for implementation (awaiting P2-T11 planning or direct implementation)
+- [✅] **P2-T10**: Add local reading progress tracking - **COMPLETE** ✅
+  - **Duration**: ~24 hours total (15-18 Dec 2025)
+  - **Status**: All 8 frontend steps complete + complete data structure refactor + bug fixes
+  - **Major Refactor (18 Dec 2025)**: Complete per-chapter progress tracking system
+    - **Problem**: Original approach couldn't distinguish "reading last page" vs "fully complete", couldn't track multiple in-progress chapters
+    - **Solution**: Per-chapter progress with explicit completion flag
+    - **New Data Structure**: `chapters: Record<string, ChapterProgress>` with `currentPage`, `totalPages`, `lastReadAt`, `completed` flag
+    - **Backend**: ChapterProgress entity, MangaProgress updated, statistics calculation from per-chapter data
+    - **Frontend**: progressStore saveProgress rewrite, ReaderView auto-save updates, MangaDetailView reads from chapters object
+  - **Bug Fixes (18 Dec 2025)**:
+    - Fixed infinite loop in ReaderView (progressMap reference changes causing effect re-triggers)
+    - Fixed menu label not updating ("Go Incognito" / "Leave Incognito" now builds menu with correct label)
+    - Added cover images to HistoryView with placeholder fallback
+    - Fixed HistoryView document title (was showing "DexReader - DexReader")
+    - Removed incognito toggle from Settings (mode is temporary, menu-controlled only)
+  - **UI Polish (18 Dec 2025)**:
+    - Incognito status bar: "**You've gone Incognito** — Progress tracking is disabled" (bold title, one-liner)
+    - Menu integration: File menu "Go Incognito" / "Leave Incognito" with Ctrl+Shift+N shortcut
+    - All debug logs removed from production code
+  - Core Features Implemented:
+    - **Preload Bridge**: 6 IPC methods + onIncognitoToggle listener
+    - **Progress Store**: Zustand with optimistic updates, retry logic, 1s debounced saves
+    - **Incognito Status Bar**: Persistent notification when tracking disabled (polished messaging)
+    - **ReaderView Auto-Save**: Page change (1s debounce), chapter change (immediate), unmount
+    - **MangaDetailView**: "Continue Reading" button + progress badge on cover
+    - **HistoryView**: Full reading history with statistics, search, delete, cover images
+    - **Menu Integration**: "Go Incognito" in File menu (temporary mode, no persistence)
+  - Technical Implementation:
+    - Per-chapter progress with explicit completion tracking
+    - Type-safe with global Window interface (no explicit imports)
+    - Silent save pattern (error-only notifications)
+    - 3-retry exponential backoff for failed saves
+    - Optimistic updates for instant UI feedback
+    - Debouncing prevents excessive IPC calls
+    - Respects autoSaveEnabled flag throughout
+  - Files Modified (17 files total):
+    - Backend: manga-progress.entity.ts, chapter-progress.entity.ts (NEW), progressManager.ts
+    - Preload: index.ts, index.d.ts (IPC bridge)
+    - Store: progressStore.ts (296 lines, NEW)
+    - Components: IncognitoStatusBar/ (3 files, NEW)
+    - Layouts: AppShell.tsx (status bar integration)
+    - Views: ReaderView (auto-save), MangaDetailView (Continue Reading), HistoryView (cover images, title fix), SettingsView (removed Privacy tab)
+    - Menu: menu.ts (MenuState interface, state-based label building), index.ts (menu state management)
+    - Router: router.tsx (added /history route)
+    - Navigation: Sidebar.tsx (added History item)
+    - Styles: ReaderView.css, MangaDetailView.css, HistoryView.css (NEW)
+  - Testing: Per-chapter tracking ready for comprehensive user testing
 
 ### Phase 1 Completed Tasks (9/9 - 100%)
 
@@ -249,9 +264,10 @@
 ### Phase 2: Content Display (In Progress) 🔵
 
 **Duration**: 4-5 weeks
-**Status**: In Progress - 9/11 tasks complete (82%)
+**Status**: In Progress - 10/11 tasks complete (91%)
 **Start Date**: 6 December 2025
 **Target Completion**: January 2026
+**Current Task**: P2-T11 (Reading Modes) - Planning complete, ready for implementation
 
 **Objectives**:
 
@@ -283,8 +299,8 @@
 - [✅] **P2-T07**: Create online manga reader with streaming - **COMPLETE** (14 Dec 2025)
 - [✅] **P2-T08**: Add zoom/pan/fit controls (fit-width, fit-height, actual size) - **COMPLETE** (15 Dec 2025)
 - [✅] **P2-T09**: Implement image preloading for smooth page transitions - **COMPLETE** (14 Dec 2025)
-- [ ] **P2-T10**: Add local reading progress tracking (stored locally) - **PLANNING COMPLETE** ✅ (15 Dec 2025)
-- [ ] **P2-T11**: Support reading modes (single page, double page, vertical scroll)
+- [✅] **P2-T10**: Add local reading progress tracking (stored locally) - **COMPLETE** ✅ (15-17 Dec 2025)
+- [🔵] **P2-T11**: Support reading modes (single page, double page, vertical scroll) - **PLANNING COMPLETE**
 
 ---
 
@@ -682,6 +698,18 @@
 ---
 
 ## Notes & Decisions
+
+### 18 December 2025 - P2-T10 Complete + P2-T11 Planning
+
+✅ **P2-T10 COMPLETE**: Reading progress tracking fully implemented with major refactor and bug fixes (~24 hours, 15-18 Dec 2025)
+✅ **P2-T11 Planning Complete**: Comprehensive reading modes implementation plan created (16-20 hours estimated)
+🔵 **Phase 2 Progress**: 10/11 tasks (91%), one final task remaining
+
+**See `active-context.md` for detailed session notes including:**
+- Complete per-chapter progress refactor details
+- All bug fixes and UI polish
+- P2-T11 reading modes architecture and features
+- Technical decisions and implementation notes
 
 ### 6 December 2025 - Phase 2 Started: P2-T01 Planning Complete
 

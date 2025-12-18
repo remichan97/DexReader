@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 15 December 2025
+**Last Updated**: 18 December 2025
 **Current Phase**: Phase 2 - Content Display (In Progress)
-**Session**: P2-T10 Planning Complete ✅
+**Session**: P2-T10 Complete ✅ + P2-T11 Planning Complete ✅
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -11,13 +11,282 @@
 ## Current Status Summary
 
 **Phase**: Phase 2 - Content Display (In Progress)
-**Progress**: P2-T01 through P2-T09 complete, P2-T10 planning complete
-**Current Date**: 15 December 2025
+**Progress**: P2-T01 through P2-T10 complete, P2-T11 remaining
+**Current Date**: 18 December 2025
 **Phase 1 Status**: Complete ✅ (9/9 tasks, 100%)
-**Phase 2 Progress**: 9/11 tasks complete (82%)
-**Current Task**: Ready to implement P2-T10 (Reading Progress) or plan P2-T11 (Reading Modes)
+**Phase 2 Progress**: 10/11 tasks complete (91%)
+**Current Task**: P2-T10 fully complete ✅ (with major refactor + bug fixes), P2-T11 planning complete (ready for implementation)
 
-### 🎉 Recently Completed (15 Dec 2025 - P2-T10 Planning)
+### 🔄 Major Refactor (18 Dec 2025 - P2-T10 Per-Chapter Progress)
+
+**Problem**: Original progress tracking was fundamentally flawed - couldn't distinguish between "read 1 page" vs "fully complete", couldn't track multiple in-progress chapters simultaneously, and revisiting chapters overwrote their status.
+
+**Solution**: Complete data structure refactor to per-chapter progress tracking.
+
+**New Data Structure**:
+
+```typescript
+{
+  mangaId: string,
+  mangaTitle: string,
+  lastChapterId: string,      // Most recently viewed
+  lastReadAt: number,
+  chapters: {                  // NEW: Per-chapter map
+    [chapterId: string]: {
+      currentPage: number,     // 0-indexed, last page read
+      totalPages: number,
+      lastReadAt: number,
+      completed: boolean       // Explicitly marked when finished
+    }
+  }
+}
+```
+
+**Removed Fields**:
+
+- `lastPage`, `totalChapterPages` (now per-chapter in `chapters` object)
+- `chaptersRead: string[]` (replaced by `chapters` object with `completed` flag)
+- `totalPagesRead`, `estimatedMinutesRead` (calculated from `chapters` dynamically)
+
+**New Chapter States**:
+
+- **Not Started**: Chapter ID not in `chapters` object
+- **In Progress**: Chapter exists in `chapters` AND `completed === false`
+- **Complete**: Chapter exists in `chapters` AND `completed === true`
+
+**Backend Changes** (User implemented):
+
+1. Created `ChapterProgress` entity with `currentPage`, `totalPages`, `lastReadAt`, `completed`
+2. Updated `MangaProgress` entity - added `chapters: Record<string, ChapterProgress>`
+3. Updated `ProgressManager.getStatistics()` to calculate from per-chapter data
+4. Added `coverUrl` back to MangaProgress (user's decision)
+
+**Frontend Changes** (AI implemented):
+
+1. **progressStore.saveProgress** - Complete rewrite:
+   - New signature accepts `currentPage`, `totalPages`, `markComplete` flag
+   - Builds `chapters` object by merging with existing chapters
+   - Optimistic update preserves all chapter data
+
+2. **ReaderView auto-save effects**:
+   - Removed `getChaptersRead()` helper (no longer needed)
+   - **Page change**: Saves current page, updates ref for last page detection
+   - **Chapter change**: Marks previous chapter complete if finished, starts new chapter
+   - **Unmount**: Saves current state without marking complete
+
+3. **MangaDetailView**:
+   - Chapter list reads from `progress.chapters[chapterId]`
+   - `isRead = chapters[id]?.completed` (explicit flag, not inferred)
+   - `isInProgress = lastChapterId === id` (still works)
+   - Continue Reading uses `chapters[lastChapterId].currentPage`
+
+**Scenario Handling**:
+
+| Scenario | Behavior |
+|----------|----------|
+| Finish Ch1, move to Ch2, read a bit, go back | Ch1: completed=true, Ch2: completed=false ✓ |
+| Finish all chapters, revisit from beginning | Ch1: stays completed=true when revisited ✓ |
+| Read Ch1 to page 5, switch to Ch2 | Both tracked with page numbers ✓ |
+
+**Files Modified**:
+
+- Backend: `chapter-progress.entity.ts` (NEW), `manga-progress.entity.ts`, `progressManager.ts`
+- Frontend: `progressStore.ts`, `ReaderView.tsx`, `MangaDetailView.tsx`
+
+**Migration**: Backend handles old format gracefully (missing `chapters` field = empty object)
+
+**Testing**: Ready for user testing - old progress data will be empty but won't crash
+
+### 🎉 Previously Completed (18 Dec 2025 - Bug Fixes)
+
+**Bug #1: Infinite Loop / App Hang** (18 Dec 2025)
+
+**Issue**: ReaderView was hanging the app, causing it to become unresponsive.
+
+**Root Cause**: `progressMap` from Zustand store is a Map object that gets a new reference on every store update. This caused `getChaptersRead` callback to be recreated constantly, triggering all dependent useEffect hooks in an infinite loop.
+
+**Solution**:
+
+- Removed `progressMap` from component subscription
+- Access store directly inside `getChaptersRead` using `useProgressStore.getState().progressMap`
+- Removed `progressMap` from callback dependencies (only `mangaId` needed)
+
+**Files Modified**: `src/renderer/src/views/ReaderView.tsx`
+
+---
+
+**Bug #2: Incorrect Chapter Completion Detection** (18 Dec 2025)
+
+**Issue**: Chapter completion logic was fundamentally flawed:
+
+1. User reads Chapter 1 to last page → marked as complete ✓
+2. User navigates to Chapter 2, reads a bit → not complete ✓
+3. User goes back to Chapter 1 → Chapter 1 now shows as "in progress" ✗
+4. Chapter 2 incorrectly appears as completed in some cases ✗
+
+**Root Cause**: Original logic marked chapters as complete simply by being on the last page. This is wrong because:
+
+- Being on last page doesn't mean user finished and moved on
+- Revisiting a completed chapter overwrites its completion status
+- No distinction between "reading last page" and "finished and navigated away"
+
+**Correct Logic**: A chapter should only be marked complete when:
+
+1. User was on the last page of that chapter
+2. User navigated to a DIFFERENT chapter (not just unmounting/going back)
+
+**Solution Implemented**:
+
+1. Added `previousChapterRef` to track previous chapter state (id + wasOnLastPage)
+2. **Page change effect**: Updates ref to track if on last page, but doesn't mark complete
+3. **Chapter change effect**: Checks if previous chapter was finished (on last page) and marks it complete ONLY when navigating to different chapter
+4. **Unmount effect**: Does NOT mark as complete (user might return later)
+
+**Key Changes**:
+
+- `getChaptersRead(completedChapterId?)` - Only marks complete when chapter ID provided
+- Page change: Updates ref but doesn't add to chaptersRead
+- Chapter change: Marks previous chapter complete if finished
+- Unmount: Just saves current state without marking complete
+
+**Files Modified**: `src/renderer/src/views/ReaderView.tsx`
+**Backend Changes**: None required - only frontend logic changed
+**Testing**: TypeScript compilation passes ✅
+
+**Result**: Now chapters are correctly marked as complete only when user finishes AND navigates away, and completed chapters remain marked as complete even when revisited.
+
+### 🎉 Previously Completed (17 Dec 2025 - P2-T10 Initial Bug Fix)
+
+**Issue**: When users finished reading a chapter (reached last page and moved to next chapter), the completed chapter wasn't being saved to the `chaptersRead` array in progress data. This caused:
+
+- Read chapter indicators not showing correctly
+- Progress history not accumulating
+- Chapter read count incorrect
+
+**Root Cause**: All three auto-save effects in ReaderView were setting `chaptersRead = [chapterId]` which overwrote the array instead of accumulating chapters.
+
+**Solution Implemented**:
+
+1. Added `progressMap` from store to ReaderView component
+2. Created `getChaptersRead()` helper function that:
+   - Loads existing progress for the manga
+   - Merges current chapter with existing `chaptersRead` array
+   - Prevents duplicates using Set
+   - Only adds chapter when marked as complete
+3. Updated all three auto-save effects to use the helper:
+   - **Page change effect**: Marks chapter as complete when `currentPage === totalPages - 1`
+   - **Chapter change effect**: Doesn't mark as complete (user just started reading)
+   - **Unmount effect**: Marks chapter as complete if user was on last page
+
+**Files Modified**:
+
+- `src/renderer/src/views/ReaderView.tsx` - Added progressMap, getChaptersRead() helper, updated 3 save effects
+- `src/renderer/src/views/MangaDetailView.tsx` - Fixed TypeScript error (explicit undefined return in useEffect)
+
+**Testing**: TypeScript compilation passes ✅
+
+**Result**: Now when users finish a chapter and navigate to the next one, the completed chapter is properly added to the `chaptersRead` array, which makes the read indicators and faded chapter styling work correctly.
+
+### 🎉 Previously Completed (17 Dec 2025 - P2-T10 Frontend Implementation)
+
+**P2-T10 Reading Progress Tracking - FRONTEND COMPLETE ✅** (~19 hours implementation):
+
+**All 8 Frontend Steps Completed** (Backend was already implemented):
+
+✅ **Step 3: Preload Bridge** (2 hours):
+
+- Added `progress` namespace to preload API with 6 IPC methods
+- Methods: getProgress, saveProgress, getAllProgress, deleteProgress, getStatistics, loadProgress
+- Event listener: onIncognitoToggle for menu-triggered mode switching
+- TypeScript definitions with full type safety
+- Re-exported MangaProgress, ProgressDatabase, ReadingStats types
+
+✅ **Step 4: Progress Store** (3 hours):
+
+- Zustand store with complete state management (296 lines)
+- Optimistic updates for instant UI feedback
+- Retry logic with exponential backoff (3 attempts)
+- Silent save pattern (no success toasts, errors only)
+- Debounced saves (1s delay, coalesces rapid updates)
+- Respects autoSaveEnabled flag (incognito mode)
+- Global types extracted from Window interface (no imports needed)
+
+✅ **Step 5: Incognito Status Bar** (2 hours):
+
+- Persistent notification component (mirrors OfflineStatusBar)
+- Shows when autoSaveEnabled === false
+- Slide-down animation on mount (300ms ease-out)
+- Stacks with OfflineStatusBar if both active
+- Uses `<output>` element for accessibility
+
+✅ **Step 6: ReaderView Auto-Save & Incognito Indicator** (4 hours):
+
+- Auto-save on page change (1s debounce)
+- Immediate save on chapter change
+- Save on unmount (captures exit state)
+- Incognito badge in header (Windows 11 design)
+- Toggle listener for menu-triggered incognito mode
+- All saves respect autoSaveEnabled flag
+
+✅ **Step 7: MangaDetailView Continue Reading** (3 hours):
+
+- "Continue Reading" button (replaces "Start Reading" when progress exists)
+- Progress badge on manga cover (shows chapter + page)
+- Navigates directly to last read page
+- Fallback to chapter 1 page 1 if no progress
+- Fluent UI PlayCircle icon integration
+
+✅ **Step 8: Standalone History View & Settings Toggle** (5 hours):
+
+- **HistoryView** (215 lines):
+  - Statistics cards: Total Titles, Total Chapters, Estimated Reading Time
+  - ReadingHistoryCard component with relative timestamps
+  - Search by title (case-insensitive)
+  - Delete progress with confirmation
+  - Empty states for no history and no search results
+- **Router Integration**: Added /history route
+- **Sidebar**: Added History nav item (between Library and Downloads)
+- **Settings**: Added Privacy tab with incognito toggle
+
+**Technical Highlights**:
+
+- Type-safe with global Window interface (no explicit imports)
+- Silent save pattern (modern UX, matches Notion/Discord)
+- Error handling with toast notifications
+- Debouncing prevents excessive saves
+- Optimistic updates for instant feedback
+- Clean separation of concerns (store, components, views)
+
+**Files Modified** (14 files):
+
+- `src/preload/index.ts` - Progress namespace
+- `src/preload/index.d.ts` - Type definitions
+- `src/renderer/src/stores/progressStore.ts` - NEW (296 lines)
+- `src/renderer/src/components/IncognitoStatusBar/` - NEW (3 files)
+- `src/renderer/src/layouts/AppShell.tsx` - Status bar integration
+- `src/renderer/src/views/ReaderView.tsx` - Auto-save + badge
+- `src/renderer/src/views/ReaderView.css` - Incognito styles
+- `src/renderer/src/views/MangaDetailView.tsx` - Continue Reading
+- `src/renderer/src/views/MangaDetailView.css` - Progress badge
+- `src/renderer/src/views/HistoryView.tsx` - NEW (215 lines)
+- `src/renderer/src/views/HistoryView.css` - NEW (full styling)
+- `src/renderer/src/router.tsx` - History route
+- `src/renderer/src/components/Sidebar/Sidebar.tsx` - History nav item
+- `src/renderer/src/views/SettingsView.tsx` - Privacy tab
+
+**Implementation Notes**:
+
+- MangaProgress entity does not include coverUrl (removed from UI)
+- Button components require children prop (pass empty string for icon-only)
+- Global Window interface types accessible without imports in renderer
+- Debouncing requires careful timer cleanup in useEffect
+- Silent save pattern only shows errors, never success notifications
+
+**Next Step**: Mark P2-T10 as complete in project-progress.md, then ready for P2-T11 planning
+
+---
+
+### Previously Completed (15 Dec 2025 - P2-T10 Planning)
 
 **P2-T10 Reading Progress Tracking - PLANNING COMPLETE ✅** (~2 hours planning):
 
@@ -758,6 +1027,70 @@ zoomIndicatorVisible: boolean
   - Complete IPC registry (37 channels documented)
   - Comprehensive dialogue usage documentation
 - Next: P1-T08 Steps 3-7 (Type safety, validation, monitoring, architecture docs)
+
+---
+
+## Session Summary (18 December 2025)
+
+**Duration**: Full implementation and planning session
+**Status**: ✅ P2-T10 COMPLETE (with major refactor + bug fixes), ✅ P2-T11 Planning Complete
+**Phase Progress**: 10 of 11 tasks (91%) - One final task remaining
+
+### Major Accomplishments:
+
+**1. P2-T10 Complete** ✅:
+   - **Major Refactor**: Complete data structure overhaul to per-chapter progress tracking
+     - Problem: Original design couldn't distinguish "reading" vs "complete", couldn't track multiple in-progress chapters
+     - Solution: `chapters: Record<string, ChapterProgress>` with explicit `completed` flag
+     - Backend: New ChapterProgress entity, updated MangaProgress, statistics from per-chapter data
+     - Frontend: progressStore saveProgress rewrite, ReaderView auto-save updates, MangaDetailView reads from chapters
+   - **Bug Fixes**:
+     - Fixed infinite loop in ReaderView (progressMap reference changes causing effect re-triggers)
+     - Fixed menu label not updating ("Go Incognito" / "Leave Incognito" now builds menu with correct label from state)
+     - Added cover images to HistoryView with placeholder fallback
+     - Fixed HistoryView document title (was showing "DexReader - DexReader")
+     - Removed incognito toggle from Settings (mode is temporary, menu-controlled only)
+   - **UI Polish**:
+     - Incognito status bar: "**You've gone Incognito** — Progress tracking is disabled" (bold title, one-liner)
+     - Menu integration: File menu "Go Incognito" / "Leave Incognito" with Ctrl+Shift+N shortcut
+     - All debug logs removed from production code
+   - **Duration**: ~24 hours total (15-18 Dec 2025)
+   - **Files Modified**: 17 files (backend, preload, stores, components, views, menu system)
+   - **Status**: Ready for comprehensive user testing
+
+**2. P2-T11 Planning Complete** ✅:
+   - **Plan Location**: `.github/copilot-plans/P2-T11-reading-modes-plan.md`
+   - **Duration Estimate**: 16-20 hours (2-3 days)
+   - **Backend Changes**: Minimal (3 hours) - Settings persistence only
+   - **Three Modes**:
+     - **Single Page** (current): Already complete, one page at a time with click/keyboard nav
+     - **Double Page**: Two pages side-by-side, RTL support for manga, smart pairing (covers alone)
+     - **Vertical Scroll**: All pages in scrollable layout, IntersectionObserver tracking, aggressive preloading
+   - **Key Features**:
+     - Mode selector with keyboard shortcut (`M` to cycle)
+     - Per-manga mode override (stored in progress)
+     - Double page settings (RTL, skip cover pages)
+     - Responsive fallback (double → single on narrow screens)
+     - Mode-aware preloading strategies
+   - **Architecture**: 3 new components (ReadingModeSelector, DoublePageDisplay, VerticalScrollDisplay)
+   - **Files**: ~17 files (3 backend, 10 frontend, 4 docs)
+   - Ready for implementation when P2-T10 testing validates per-chapter tracking
+
+**3. Documentation & Memory Bank**:
+   - Updated project-progress.md: Phase 2 progress 10/11 (91%), P2-T10 marked complete with full details, P2-T11 marked as planning complete
+   - Updated active-context.md: Current session notes and status
+   - Comprehensive implementation plan created for P2-T11
+
+**Key Technical Decisions**:
+
+- **Per-chapter progress**: Each chapter tracked independently with explicit completion flag (no more inferring from page position)
+- **Menu state management**: Pass state to createMenu() so menu builds with correct labels from the start (Windows compatibility)
+- **Incognito mode**: Menu-only control (File → Go Incognito), no persistence, temporary session-based mode
+- **Reading modes**: Minimal backend changes, mode-aware preloading, responsive behavior for different screen sizes
+
+**Blockers**: None
+
+**Next Session Action**: Begin P2-T11 Step 1 - Backend settings persistence (2 hours), then proceed to mode selector component implementation
 
 ---
 
