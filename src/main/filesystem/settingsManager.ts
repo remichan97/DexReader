@@ -20,7 +20,7 @@ interface AppSettings {
     forceDarkMode: boolean // Whether to force dark mode in the reader
     quality: ImageQuality // Which image quality to use
     global: ReaderSettings // Global reader settings
-    manga: Record<string, ReaderSettings> // Per-manga reader settings overrides
+    manga: Record<string, ReaderSettings> // Per-manga reader settings overrides, keyed by manga ID
   }
 }
 
@@ -119,6 +119,26 @@ export async function setDownloadsPath(newPath: string): Promise<void> {
 
   // Save to settings
   await updateSettings('downloads', { ...settings.downloads, downloadPath: newPath })
+}
+
+export async function getMangaReaderSettings(mangaId: string): Promise<ReaderSettings> {
+  const settings = await loadSettings()
+  return settings.reader.manga[mangaId] || settings.reader.global
+}
+
+export async function updateMangaReaderSettings(
+  mangaId: string,
+  newSettings: ReaderSettings
+): Promise<void> {
+  const settings = await loadSettings()
+  settings.reader.manga[mangaId] = newSettings
+  await updateSettings('reader', settings.reader)
+}
+
+export async function deleteMangaReaderSettings(mangaId: string): Promise<void> {
+  const settings = await loadSettings()
+  delete settings.reader.manga[mangaId]
+  await updateSettings('reader', settings.reader)
 }
 
 // Initialize downloads path from settings on app startup

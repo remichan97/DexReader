@@ -180,6 +180,15 @@ const progress = {
   }
 }
 
+const reader = {
+  getMangaReaderSettings: (mangaId: string) =>
+    ipcRenderer.invoke('reader:get-manga-settings', mangaId),
+  updateMangaReaderSettings: (mangaId: string, newSettings: unknown) =>
+    ipcRenderer.invoke('reader:update-manga-settings', mangaId, newSettings),
+  resetMangaReaderSettings: (mangaId: string) =>
+    ipcRenderer.invoke('reader:reset-manga-settings', mangaId)
+}
+
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
@@ -190,6 +199,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('fileSystem', fileSystem)
     contextBridge.exposeInMainWorld('mangadex', mangadexApi)
     contextBridge.exposeInMainWorld('progress', progress)
+    contextBridge.exposeInMainWorld('reader', reader)
   } catch (error) {
     console.error(error)
   }

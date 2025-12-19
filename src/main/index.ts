@@ -7,9 +7,12 @@ import { setupThemeDetection, getCurrentTheme } from './theme'
 import { secureFs } from './filesystem/secureFs'
 import { getAppDataPath, getDownloadsPath } from './filesystem/pathValidator'
 import {
+  deleteMangaReaderSettings,
+  getMangaReaderSettings,
   initializeDownloadsPath,
   loadSettings,
-  setDownloadsPath
+  setDownloadsPath,
+  updateMangaReaderSettings
 } from './filesystem/settingsManager'
 import { wrapIpcHandler } from './ipc/wrapHandler'
 import { validatePath, validateEncoding } from './ipc/validators'
@@ -20,6 +23,7 @@ import { FeedParams } from './api/searchparams/feed.searchparam'
 import { ImageQuality } from './api/enums'
 import { ProgressManager } from './progress/progressManager'
 import { MangaProgress } from './progress/entity/manga-progress.entity'
+import { ReaderSettings } from './filesystem/entity/reading-settings.entity'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -243,6 +247,23 @@ function registerProgressTrackingHandlers(): void {
   })
 }
 
+function registerReaderSettingsHandlers(): void {
+  wrapIpcHandler('reader:get-manga-settings', async (_, mangaId: unknown) => {
+    return await getMangaReaderSettings(mangaId as string)
+  })
+
+  wrapIpcHandler(
+    'reader:update-manga-settings',
+    async (_, mangaId: unknown, newSettings: unknown) => {
+      return await updateMangaReaderSettings(mangaId as string, newSettings as ReaderSettings)
+    }
+  )
+
+  wrapIpcHandler('reader:reset-manga-settings', async (_, mangaId: unknown) => {
+    return await deleteMangaReaderSettings(mangaId as string)
+  })
+}
+
 async function initFileSystem(): Promise<void> {
   console.log('Initialising secure filesystem...')
 
@@ -368,6 +389,8 @@ app.whenReady().then(async () => {
   registerMangaDexHandlers()
 
   registerProgressTrackingHandlers()
+
+  registerReaderSettingsHandlers()
 
   createWindow()
 
