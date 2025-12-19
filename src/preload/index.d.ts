@@ -107,6 +107,12 @@ interface Progress {
   onIncognitoToggle: (callback: () => void) => () => void // Returns cleanup function
 }
 
+interface Reader {
+  getMangaReaderSettings: (mangaId: string) => Promise<ReaderSettings>
+  updateMangaReaderSettings: (mangaId: string, settings: ReaderSettings) => Promise<void>
+  resetMangaReaderSettings: (mangaId: string) => Promise<void>
+}
+
 declare global {
   interface Window {
     electron: ElectronAPI
@@ -114,5 +120,6 @@ declare global {
     fileSystem: FileSystem
     mangadex: MangaDexApi
     progress: Progress
+    reader: Reader
   }
 }
