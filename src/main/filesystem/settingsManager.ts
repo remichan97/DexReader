@@ -7,17 +7,20 @@ import {
 } from './pathValidator'
 import { secureFs } from './secureFs'
 import { ImageQuality } from '../api/enums'
+import { AppTheme } from './enum/theme-mode.enum'
+import { ReaderSettings } from './entity/reading-settings.entity'
+import { ReadingMode } from './enum/reading-mode.enum'
+import { DownloadSettings } from './entity/downloads-settings.entity'
 
 interface AppSettings {
-  downloadsPath: string | null
-  theme: 'light' | 'dark' | 'system'
+  downloads: DownloadSettings
+  theme: AppTheme
   accentColor: string | undefined // Accent color in hex format, e.g., '#FF5733'
   reader: {
-    scrollMode: 'paginated' | 'continuous' | 'reverse-paginated'
-    imageQuality: ImageQuality
-    backgroundColor?: string // Background color in hex format, e.g., '#FFFFFF'
-    showPageNumbers?: boolean
-    fitMode: 'width' | 'height' | 'actual'
+    forceDarkMode: boolean // Whether to force dark mode in the reader
+    quality: ImageQuality // Which image quality to use
+    global: ReaderSettings // Global reader settings
+    manga: Record<string, ReaderSettings> // Per-manga reader settings overrides
   }
 }
 
@@ -29,13 +32,20 @@ export async function loadSettings(): Promise<AppSettings> {
 
     if (!exists) {
       const defaults: AppSettings = {
-        downloadsPath: null,
-        theme: 'system',
+        downloads: {
+          downloadPath: null,
+          downloadQuality: ImageQuality.High,
+          concurrentChapterDownloads: 3
+        },
+        theme: AppTheme.System,
         accentColor: undefined,
         reader: {
-          scrollMode: 'paginated',
-          imageQuality: ImageQuality.High,
-          fitMode: 'width'
+          forceDarkMode: true,
+          quality: ImageQuality.High,
+          global: {
+            readingMode: ReadingMode.SinglePage
+          },
+          manga: {}
         }
       }
       await saveSettings(defaults)
@@ -48,13 +58,20 @@ export async function loadSettings(): Promise<AppSettings> {
     console.error('Error loading settings:', error)
     console.warn('Reverting to default settings.')
     return {
-      downloadsPath: null,
-      theme: 'system',
+      downloads: {
+        downloadPath: null,
+        downloadQuality: ImageQuality.High,
+        concurrentChapterDownloads: 3
+      },
+      theme: AppTheme.System,
       accentColor: undefined,
       reader: {
-        scrollMode: 'paginated',
-        imageQuality: ImageQuality.High,
-        fitMode: 'width'
+        forceDarkMode: true,
+        quality: ImageQuality.High,
+        global: {
+          readingMode: ReadingMode.SinglePage
+        },
+        manga: {}
       }
     }
   }
@@ -87,11 +104,13 @@ export async function getSetting<K extends keyof AppSettings>(key: K): Promise<A
 // Get the current downloads path (from settings or default)
 export async function getConfiguredDownloadsPath(): Promise<string> {
   const settings = await loadSettings()
-  return settings.downloadsPath ?? getDownloadsPath()
+  return settings.downloads.downloadPath ?? getDownloadsPath()
 }
 
 // Set a new downloads path with validation
 export async function setDownloadsPath(newPath: string): Promise<void> {
+  const settings = await loadSettings()
+
   // Validate that the path exists and is a directory
   await validateDirectoryPath(newPath)
 
@@ -99,22 +118,22 @@ export async function setDownloadsPath(newPath: string): Promise<void> {
   updateDownloadsPath(newPath)
 
   // Save to settings
-  await updateSettings('downloadsPath', newPath)
+  await updateSettings('downloads', { ...settings.downloads, downloadPath: newPath })
 }
 
 // Initialize downloads path from settings on app startup
 export async function initializeDownloadsPath(): Promise<void> {
   const settings = await loadSettings()
 
-  if (settings.downloadsPath) {
+  if (settings.downloads.downloadPath) {
     try {
-      await validateDirectoryPath(settings.downloadsPath)
-      updateDownloadsPath(settings.downloadsPath)
+      await validateDirectoryPath(settings.downloads.downloadPath)
+      updateDownloadsPath(settings.downloads.downloadPath)
     } catch (error) {
       console.warn(`Failed to set saved downloads path: ${error}`)
       console.log(`Using default downloads path at ${getDownloadsPath()} instead.`)
       // Reset to default in settings
-      await updateSettings('downloadsPath', null)
+      await updateSettings('downloads', { ...settings.downloads, downloadPath: null })
     }
   }
 }

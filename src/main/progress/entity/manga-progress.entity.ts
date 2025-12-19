@@ -1,9 +1,11 @@
+import { ReaderSettings } from '../../filesystem/entity/reading-settings.entity'
 import { ChapterProgress } from './chapter-progress.entity'
 
 export interface MangaProgress {
   mangaId: string
   mangaTitle: string
   coverUrl: string
+  readerSettings: ReaderSettings
 
   lastChapterId: string
   lastChapterNumber: number | undefined
