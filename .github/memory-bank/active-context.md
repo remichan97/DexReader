@@ -1,8 +1,8 @@
 # DexReader Active Context
 
 **Last Updated**: 20 December 2025
-**Current Phase**: Phase 2 - Content Display (COMPLETE ✅)
-**Session**: Phase 2 Complete! 🎉
+**Current Phase**: Guerilla Refactoring (Before Phase 3) 🔧
+**Session**: Planning Codebase Cleanup
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -10,12 +10,99 @@
 
 ## Current Status Summary
 
-**Phase**: Phase 2 - Content Display (COMPLETE ✅)
-**Progress**: All tasks complete (11/11)
+**Phase**: Guerilla Refactoring Task (Between Phase 2 and Phase 3)
+**Progress**: Planning complete, ready for implementation
 **Current Date**: 20 December 2025
 **Phase 1 Status**: Complete ✅ (9/9 tasks, 100%)
-**Phase 2 Progress**: 11/11 tasks complete (100%) ✅
-**Current Task**: P2-T11 complete ✅ (Reading Modes with all three modes + per-manga overrides working)
+**Phase 2 Status**: Complete ✅ (11/11 tasks, 100%)
+**Current Task**: Guerilla Refactoring Planning ✅ - Comprehensive frontend and backend cleanup plans created
+
+### 🔧 Guerilla Refactoring Planning (20 Dec 2025)
+
+**Decision**: Before proceeding to Phase 3, conduct comprehensive codebase refactoring to address technical debt.
+
+**Rationale**:
+
+- Phase 2 work created several large files (ReaderView: 2,189 lines, MangaDetailView: 993 lines, SettingsView: 831 lines)
+- Backend has organizational issues (main/index.ts: 357 lines mixing concerns)
+- **CRITICAL**: SettingsView bypasses SettingsManager by writing directly to files (security/data integrity risk)
+- Cleaning up now prevents compounding technical debt in Phase 3
+
+**Plans Created**:
+
+1. **Frontend Refactoring Plan** (25-34 hours, 3-4 days) - `.github/copilot-plans/guerilla-frontend-refactoring-plan.md`
+2. **Backend Refactoring Plan** (11-15 hours, 2 days) - `.github/copilot-plans/guerilla-backend-refactoring-plan.md`
+
+**Phase 0 (CRITICAL - Do First)**:
+
+- **Problem**: SettingsView writes directly to settings.json via `globalThis.fileSystem.writeFile()`, bypassing all validation
+- **Impact**: Can write garbage data, corrupts settings, crashes other components
+- **Solution**: Create proper IPC handlers in backend, update frontend to use them
+- **Backend** (1-2 hours): Implement settings IPC handlers using SettingsManager
+- **Frontend** (1-2 hours): Replace 6 instances of direct file writes with IPC calls
+- **Coordination Required**: Backend must complete Phase 0 before frontend can proceed
+
+**Frontend Refactoring Phases**:
+
+- **Phase 1**: ReaderView extraction (10-12 hours)
+  - Extract 6 custom hooks (navigation, keyboard, zoom, settings, page pairs, preload)
+  - Extract 3 reading mode components
+  - Target: 2,189 lines → 350 lines
+- **Phase 2**: MangaDetailView extraction (4-5 hours)
+  - Extract hero, actions, metadata, description, links, tags components
+  - Target: 993 lines → 400 lines
+- **Phase 3**: SettingsView extraction (3-4 hours)
+  - Extract 4 settings section components
+  - Target: 831 lines → 300 lines
+- **Phase 4**: General improvements (6-8 hours)
+  - Type safety (reduce `any` by 80%)
+  - Common components (LoadingState, ErrorState, EmptyState)
+  - Documentation and import organization
+
+**Backend Refactoring Phases**:
+
+- **Phase 1**: main/index.ts refactoring (3-4 hours)
+  - Extract window.ts (window creation/management)
+  - Extract app-lifecycle.ts (app events)
+  - Target: 357 lines → 100 lines
+- **Phase 2**: IPC handler organization (2-3 hours)
+  - Split registry.ts into domain-specific handler files
+  - filesystem.handlers.ts, mangadex.handlers.ts, progress.handlers.ts, settings.handlers.ts, theme.handlers.ts
+  - Target: 347 lines → 50 lines registry + 5 handler files
+- **Phase 3**: menu.ts refactoring (2 hours)
+  - Extract menu sections (file, edit, view, help)
+  - Target: 313 lines → cleaner structure
+- **Phase 4**: Settings validation (2-3 hours)
+  - Create comprehensive validators for all settings sections
+  - Input sanitization (path traversal, control characters, null bytes)
+  - Range/enum validation
+- **Phase 5**: General improvements (1 hour)
+  - Type safety, documentation, consistency
+
+**Success Metrics**:
+
+- ✅ No file over 500 lines
+- ✅ All settings operations go through validated backend
+- ✅ Clear separation of concerns
+- ✅ Reduce `any` usage by 80%
+- ✅ Zero TypeScript errors
+
+**Timeline**:
+
+- Frontend: 25-34 hours (3-4 days)
+- Backend: 11-15 hours (2 days)
+- Can run in parallel after Phase 0 coordination
+
+**Next Steps**:
+
+1. Backend Phase 0: Implement settings IPC handlers
+2. Frontend Phase 0: Update SettingsView to use IPC
+3. Test integration thoroughly
+4. Continue with rest of refactoring in parallel
+5. Update memory bank on completion
+6. Proceed to Phase 3
+
+---
 
 ### ✅ P2-T11 Complete (20 Dec 2025 - Reading Modes)
 

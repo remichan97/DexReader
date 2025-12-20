@@ -306,12 +306,83 @@
 
 ---
 
+### Guerilla Task: Codebase Refactoring (Current) 🔧
+
+**Duration**: ~1 week (frontend: 3-4 days, backend: 2 days, can run in parallel)
+**Status**: Planning Complete, Ready for Implementation
+**Start Date**: 20 December 2025 (planning)
+**Target Start**: 21 December 2025 (implementation)
+**Target Completion**: 27 December 2025
+**Priority**: HIGH - Must complete before Phase 3
+
+**Objectives**:
+
+- Fix critical architectural issue: SettingsView bypassing backend validation
+- Break down large files into focused, maintainable modules
+- Improve code organization and separation of concerns
+- Reduce technical debt before Phase 3 work begins
+- Enhance type safety across codebase
+- Add comprehensive input validation to backend
+
+**Deliverables**:
+
+- Settings IPC integration (frontend uses backend, not direct file writes)
+- ReaderView refactored from 2,189 → ~350 lines (custom hooks + components)
+- MangaDetailView refactored from 993 → ~400 lines (component extraction)
+- SettingsView refactored from 831 → ~300 lines (section components)
+- Backend entry point refactored from 357 → ~100 lines (module extraction)
+- IPC handlers organized by domain (5 handler files)
+- Comprehensive settings validation (types, ranges, enums, sanitization)
+- Common components extracted (LoadingState, ErrorState, EmptyState)
+- Type safety improved (`any` usage reduced by 80%)
+- Inline documentation added
+
+**Key Technical Tasks**:
+
+**Phase 0 (CRITICAL - Coordination Required)**:
+
+- [ ] **Backend**: Implement settings IPC handlers (1-2 hours)
+- [ ] **Frontend**: Replace direct file writes with IPC calls (1-2 hours)
+- [ ] **Testing**: Verify settings integration works correctly
+
+**Frontend Refactoring**:
+
+- [ ] Phase 1: ReaderView extraction (10-12 hours)
+- [ ] Phase 2: MangaDetailView extraction (4-5 hours)
+- [ ] Phase 3: SettingsView extraction (3-4 hours)
+- [ ] Phase 4: General improvements (6-8 hours)
+
+**Backend Refactoring**:
+
+- [ ] Phase 1: main/index.ts extraction (3-4 hours)
+- [ ] Phase 2: IPC handler organization (2-3 hours)
+- [ ] Phase 3: menu.ts refactoring (2 hours)
+- [ ] Phase 4: Settings validation (2-3 hours)
+- [ ] Phase 5: General improvements (1 hour)
+
+**Success Criteria**:
+
+- ✅ No direct file writes from SettingsView (all via IPC)
+- ✅ All files under 500 lines
+- ✅ Settings validation implemented (types, ranges, sanitization)
+- ✅ Clear separation of concerns throughout codebase
+- ✅ Type safety improved (`any` reduced by 80%)
+- ✅ Zero TypeScript errors
+- ✅ All features tested and working
+
+**Documentation**:
+
+- Frontend Plan: `.github/copilot-plans/guerilla-frontend-refactoring-plan.md`
+- Backend Plan: `.github/copilot-plans/guerilla-backend-refactoring-plan.md`
+
+---
+
 ### Phase 3: User Experience Enhancement (Planned) ⚪
 
 **Duration**: 3-4 weeks
-**Status**: Not Started
-**Target Start**: February 2026
-**Target Completion**: March 2026
+**Status**: Not Started (Pending Guerilla Refactoring Completion)
+**Target Start**: January 2026 (after refactoring)
+**Target Completion**: February 2026
 
 **Objectives**:
 
@@ -701,10 +772,11 @@
 
 ## Notes & Decisions
 
-### 20 December 2025 - P2-T11 Complete + Phase 2 COMPLETE 🎉
+### 20 December 2025 - P2-T11 Complete + Phase 2 COMPLETE + Guerilla Refactoring Planning 🎉
 
 ✅ **P2-T11 COMPLETE**: Reading modes fully implemented (~6 hours, 20 Dec 2025)
 ✅ **Phase 2 COMPLETE**: All 11 tasks finished (100%) 🎉
+🔧 **Guerilla Refactoring Planning COMPLETE**: Comprehensive cleanup plans created before Phase 3
 
 **P2-T11 Implementation Summary:**
 
@@ -729,9 +801,39 @@
 - Documentation: Complete API docs, architecture docs, memory bank updates
 - Production ready: Zero compilation errors, full TypeScript type safety
 
-🔵 **Next**: Planning Phase 3 - User Experience Enhancement
+**Guerilla Refactoring Planning Summary:**
 
-**See `active-context.md` for detailed session notes**
+**Decision Rationale**:
+
+- Phase 2 created technical debt (large files, mixed concerns)
+- **CRITICAL ISSUE**: SettingsView bypasses backend by writing directly to files (security/integrity risk)
+- Better to clean up now before Phase 3 adds more complexity
+
+**Plans Created**:
+
+1. **Frontend Plan** (25-34 hours): ReaderView, MangaDetailView, SettingsView extraction + general improvements
+2. **Backend Plan** (11-15 hours): Settings IPC integration, module extraction, validation, organization
+
+**Phase 0 Priority** (CRITICAL):
+
+- Fix SettingsView architectural flaw
+- Backend: Create proper settings IPC handlers
+- Frontend: Replace direct file writes with IPC calls
+- Coordination required between frontend and backend
+
+**Key Improvements**:
+
+- Settings validation: Types, ranges, enums, path traversal prevention, sanitization
+- File size reduction: ReaderView 2,189→350 lines, MangaDetailView 993→400 lines, SettingsView 831→300 lines
+- Backend organization: Split by domain, clear separation of concerns
+- Type safety: Reduce `any` usage by 80%
+- Common components: LoadingState, ErrorState, EmptyState
+
+**Timeline**: ~1 week (can run frontend/backend in parallel after Phase 0)
+
+🔧 **Next**: Begin Guerilla Refactoring - Phase 0 (Settings IPC Integration)
+
+**See `active-context.md` for detailed session notes and `.github/copilot-plans/` for complete refactoring plans**
 
 ### 18 December 2025 - P2-T10 Complete + P2-T11 Planning
 
