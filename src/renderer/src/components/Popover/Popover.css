@@ -33,6 +33,23 @@
   line-height: 1.5;
 }
 
+/* Dark mode support for reader view and other dark contexts */
+.popover[data-theme='dark'] .popover__content {
+  background: #2e2e2e;
+  border-color: #3a3a3a;
+  color: #ffffff;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.5),
+    0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Override CSS variables for dark mode inside popover */
+.popover[data-theme='dark'] .popover__content {
+  --win-bg-subtle: #242424;
+  --win-text-secondary: #b3b3b3;
+  --win-border: #3a3a3a;
+}
+
 /* Position-specific animations */
 .popover--top {
   transform-origin: bottom center;

@@ -62,6 +62,7 @@ export function Popover({
   const [internalOpen, setInternalOpen] = useState(false)
   const [popoverPosition, setPopoverPosition] = useState({ top: 0, left: 0 })
   const [actualPosition, setActualPosition] = useState(position)
+  const [parentTheme, setParentTheme] = useState<string | null>(null)
   const triggerRef = useRef<HTMLElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -212,11 +213,31 @@ export function Popover({
     return () => document.removeEventListener('keydown', handleEscape)
   }, [isOpen, setIsOpen])
 
+  // Detect parent theme when popover opens
+  useEffect(() => {
+    if (isOpen && triggerRef.current) {
+      const theme = triggerRef.current.closest('[data-theme]')?.getAttribute('data-theme')
+      setParentTheme(theme || null)
+    }
+  }, [isOpen])
+
   // Calculate position when opened
   useEffect(() => {
     if (isOpen && popoverRef.current) {
       calculatePosition()
     }
+  }, [isOpen, calculatePosition])
+
+  // Recalculate position on window resize (for maximize/restore)
+  useEffect(() => {
+    if (!isOpen) return
+
+    const handleResize = (): void => {
+      calculatePosition()
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
   }, [isOpen, calculatePosition])
 
   // Cleanup timeout
@@ -259,6 +280,7 @@ export function Popover({
           <div
             ref={popoverRef}
             className={popoverClasses}
+            data-theme={parentTheme || undefined}
             role="dialog"
             aria-modal="false"
             style={{

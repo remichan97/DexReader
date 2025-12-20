@@ -1,7 +1,6 @@
-import type { JSX } from 'react'
+import React, { type JSX, useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
-import { useState, useEffect, useCallback, useRef } from 'react'
-import type { ImageUrlResponse } from '../../../preload/index.d'
+import type { ImageUrlResponse, ReaderSettings } from '../../../preload/index.d'
 import { ImageQuality } from '../../../main/api/enums/image-quality.enum'
 import { Button } from '@renderer/components/Button'
 import { ProgressRing } from '@renderer/components/ProgressRing'
@@ -9,9 +8,12 @@ import {
   ArrowLeftRegular,
   Warning48Regular,
   BookRegular,
-  EyeOff20Regular
+  EyeOff20Regular,
+  Settings20Regular
 } from '@fluentui/react-icons'
 import { useProgressStore } from '@renderer/stores/progressStore'
+import type { ReadingMode } from '@renderer/components/ReadingModeSelector'
+import { ReaderSettingsModal } from '@renderer/components/ReaderSettingsModal'
 import './ReaderView.css'
 
 /**
@@ -46,11 +48,21 @@ interface ReaderState {
   showChapterList: boolean
   showZoomControls: boolean
   zoomIndicatorVisible: boolean
+  showSettingsModal: boolean // NEW: Reader settings modal
 
   // Settings
   imageQuality: ImageQuality
   fitMode: 'width' | 'height' | 'actual' | 'custom'
   forceReaderDarkMode: boolean // Whether to force dark theme for reader
+  readingMode: ReadingMode // Current reading mode (single/double/vertical)
+  doublePageSettings: {
+    skipCoverPages: boolean
+    readRightToLeft: boolean
+  }
+
+  // Double page mode state
+  pagePairs: Array<[number] | [number, number]> // Page indexes grouped in pairs
+  currentPairIndex: number // Which pair is being viewed
 
   // Zoom/Pan state
   zoomLevel: number // 0.25 to 4.0 (25% to 400%)
@@ -186,6 +198,12 @@ interface ReaderHeaderProps {
   readonly onResetZoom: () => void
   // Incognito mode
   readonly isIncognito: boolean
+  // Reader settings
+  readonly settingsPopover: React.ReactNode
+  // Reading mode info for page counter
+  readonly readingMode: 'single' | 'double' | 'vertical'
+  readonly currentPagePair?: [number] | [number, number]
+  readonly readRightToLeft?: boolean
 }
 
 function ReaderHeader({
@@ -205,7 +223,11 @@ function ReaderHeader({
   onZoomIn,
   onZoomOut,
   onResetZoom,
-  isIncognito
+  isIncognito,
+  settingsPopover,
+  readingMode,
+  currentPagePair,
+  readRightToLeft
 }: ReaderHeaderProps): JSX.Element {
   return (
     <header className="reader-header">
@@ -228,6 +250,8 @@ function ReaderHeader({
             <span>Incognito</span>
           </div>
         )}
+        {/* Reader settings popover */}
+        {settingsPopover}
         {/* Zoom controls toggle button */}
         <Button
           variant="ghost"
@@ -253,9 +277,11 @@ function ReaderHeader({
         )}
 
         <div className="reader-header__page-counter">
-          <span className="reader-header__current-page">{currentPage + 1}</span>
-          <span className="reader-header__separator">/</span>
-          <span className="reader-header__total-pages">{totalPages}</span>
+          {readingMode === 'double' && currentPagePair && currentPagePair.length === 2
+            ? readRightToLeft
+              ? `Page ${currentPagePair[1] + 1}-${currentPagePair[0] + 1}/${totalPages}`
+              : `Page ${currentPagePair[0] + 1}-${currentPagePair[1] + 1}/${totalPages}`
+            : `${currentPage + 1}/${totalPages}`}
         </div>
         <Button
           variant="ghost"
@@ -418,6 +444,282 @@ function PageDisplay({
 }
 
 /**
+ * Double Page Display Component
+ */
+interface DoublePageDisplayProps {
+  readonly images: ImageUrlResponse[]
+  readonly pagePair: [number] | [number, number]
+  readonly imageStates: Map<number, 'loading' | 'loaded' | 'error'>
+  readonly fitMode: 'width' | 'height' | 'actual' | 'custom'
+  readonly onImageLoad: (pageIndex: number) => void
+  readonly onImageError: (pageIndex: number) => void
+  readonly onClick: (e: React.MouseEvent<HTMLDivElement>) => void
+  // Zoom/Pan props
+  readonly zoomLevel: number
+  readonly panX: number
+  readonly panY: number
+  readonly isDragging: boolean
+  readonly onMouseDown: (e: React.MouseEvent) => void
+  readonly onMouseMove: (e: React.MouseEvent) => void
+  readonly onMouseUp: (e: React.MouseEvent) => void
+  readonly onWheel: (e: React.WheelEvent) => void
+  readonly transformOriginX: number
+  readonly transformOriginY: number
+  // Navigation handlers
+  readonly onNavigateLeft: () => void
+  readonly onNavigateRight: () => void
+  readonly readRightToLeft: boolean
+}
+
+function DoublePageDisplay({
+  images,
+  pagePair,
+  imageStates,
+  fitMode,
+  onImageLoad,
+  onImageError,
+  onClick,
+  zoomLevel,
+  panX,
+  panY,
+  isDragging,
+  onMouseDown,
+  onMouseMove,
+  onMouseUp,
+  onWheel,
+  transformOriginX,
+  transformOriginY,
+  onNavigateLeft,
+  onNavigateRight,
+  readRightToLeft
+}: DoublePageDisplayProps): JSX.Element {
+  const getCursor = (): string => {
+    if (fitMode === 'custom' || zoomLevel > 1) {
+      return isDragging ? 'grabbing' : 'grab'
+    }
+    return 'default'
+  }
+
+  const imageStyle: React.CSSProperties = {
+    transform:
+      fitMode === 'custom'
+        ? `scale(${zoomLevel}) translate(${panX / zoomLevel}px, ${panY / zoomLevel}px)`
+        : undefined,
+    transformOrigin: `${transformOriginX}% ${transformOriginY}%`,
+    cursor: getCursor(),
+    transition: isDragging ? 'none' : 'transform 0.2s ease-out'
+  }
+
+  const isSinglePage = pagePair.length === 1
+  const isLoading = pagePair.some((idx) => imageStates.get(idx) === 'loading')
+  const hasError = pagePair.some((idx) => imageStates.get(idx) === 'error')
+
+  // Page order is already determined by generatePagePairs based on reading direction
+  // No need to reverse here as pairs are already in correct order
+  const pageOrder = pagePair
+
+  return (
+    <div className="reader-page-container">
+      {isLoading && (
+        <div className="reader-page-loading">
+          <ProgressRing size="large" aria-label="Loading pages" />
+          <p className="reader-page-loading__text">Loading pages...</p>
+        </div>
+      )}
+
+      {hasError && !isLoading && (
+        <div className="reader-page-error">
+          <p>Failed to load one or more pages</p>
+          <p className="reader-page-error__hint">Try navigating to another page</p>
+        </div>
+      )}
+
+      {!hasError && (
+        <div
+          className={`double-page-container ${isSinglePage ? 'double-page-container--single' : ''}`}
+          onClick={onClick}
+          onWheel={onWheel}
+          style={{ display: isLoading ? 'none' : 'flex' }}
+        >
+          {/* Navigation indicators */}
+          <button
+            type="button"
+            className="reader-page__nav-indicator reader-page__nav-indicator--left"
+            onClick={(e) => {
+              e.stopPropagation()
+              onNavigateLeft()
+            }}
+            aria-label="Previous pages"
+          >
+            <span>◀</span>
+          </button>
+          <button
+            type="button"
+            className="reader-page__nav-indicator reader-page__nav-indicator--right"
+            onClick={(e) => {
+              e.stopPropagation()
+              onNavigateRight()
+            }}
+            aria-label="Next pages"
+          >
+            <span>▶</span>
+          </button>
+
+          {pageOrder.map((pageIndex) => (
+            <div key={pageIndex} className="double-page-container__page">
+              <img
+                src={images[pageIndex].url}
+                alt={`Page ${pageIndex + 1}`}
+                className={`reader-page__image reader-page__image--fit-${fitMode === 'custom' ? 'height' : fitMode}`}
+                style={imageStyle}
+                onLoad={() => onImageLoad(pageIndex)}
+                onError={() => onImageError(pageIndex)}
+                onMouseDown={onMouseDown}
+                onMouseMove={onMouseMove}
+                onMouseUp={onMouseUp}
+                onMouseLeave={onMouseUp}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/**
+ * Vertical Scroll Display Component
+ */
+interface VerticalScrollDisplayProps {
+  readonly images: ImageUrlResponse[]
+  readonly imageStates: Map<number, 'loading' | 'loaded' | 'error'>
+  readonly currentPage: number
+  readonly onPageChange: (page: number) => void
+  readonly onImageLoad: (pageIndex: number) => void
+  readonly onImageError: (pageIndex: number) => void
+}
+
+function VerticalScrollDisplay({
+  images,
+  imageStates,
+  currentPage,
+  onPageChange,
+  onImageLoad,
+  onImageError
+}: VerticalScrollDisplayProps): JSX.Element {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const pageRefsRef = useRef<Map<number, HTMLDivElement>>(new Map())
+
+  // Track visible page with IntersectionObserver
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Find the most visible page
+        let maxRatio = 0
+        let mostVisiblePage = currentPage
+
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio > maxRatio) {
+            const pageIndex = Number.parseInt(
+              entry.target.getAttribute('data-page-index') || '0',
+              10
+            )
+            maxRatio = entry.intersectionRatio
+            mostVisiblePage = pageIndex
+          }
+        })
+
+        // Update current page if a more visible page was found
+        if (maxRatio > 0 && mostVisiblePage !== currentPage) {
+          onPageChange(mostVisiblePage)
+        }
+      },
+      {
+        threshold: [0, 0.25, 0.5, 0.75, 1.0], // Multiple thresholds for better tracking
+        rootMargin: '-20% 0px -20% 0px' // Center area has priority
+      }
+    )
+
+    // Observe all page elements
+    pageRefsRef.current.forEach((element) => {
+      observer.observe(element)
+    })
+
+    return () => observer.disconnect()
+  }, [currentPage, onPageChange, images.length])
+
+  // Scroll to specific page programmatically
+  useEffect(() => {
+    const pageElement = pageRefsRef.current.get(currentPage)
+    if (pageElement && containerRef.current) {
+      // Check if page is already visible
+      const rect = pageElement.getBoundingClientRect()
+      const containerRect = containerRef.current.getBoundingClientRect()
+      const isVisible = rect.top >= containerRect.top && rect.bottom <= containerRect.bottom
+
+      if (!isVisible) {
+        pageElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        })
+      }
+    }
+  }, [currentPage])
+
+  return (
+    <div ref={containerRef} className="vertical-scroll-container">
+      <div className="vertical-scroll-container__page-wrapper">
+        {images.map((image, index) => {
+          const pageState = imageStates.get(index)
+          const isLoading = pageState === 'loading'
+          const hasError = pageState === 'error'
+
+          return (
+            <div
+              key={index}
+              ref={(el) => {
+                if (el) {
+                  pageRefsRef.current.set(index, el)
+                } else {
+                  pageRefsRef.current.delete(index)
+                }
+              }}
+              data-page-index={index}
+              className="vertical-scroll-container__page"
+            >
+              {isLoading && (
+                <div className="vertical-scroll-page__loading">
+                  <ProgressRing size="medium" aria-label={`Loading page ${index + 1}`} />
+                </div>
+              )}
+
+              {hasError && !isLoading && (
+                <div className="vertical-scroll-page__error">
+                  <Warning48Regular />
+                  <p>Failed to load page {index + 1}</p>
+                </div>
+              )}
+
+              {!hasError && (
+                <img
+                  src={image.url}
+                  alt={`Page ${index + 1}`}
+                  className="vertical-scroll-container__image"
+                  onLoad={() => onImageLoad(index)}
+                  onError={() => onImageError(index)}
+                  loading={index > currentPage + 10 ? 'lazy' : 'eager'}
+                  style={{ display: isLoading ? 'none' : 'block' }}
+                />
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+/**
  * End of Chapter Overlay - Shows navigation options at the end of chapter
  */
 interface EndOfChapterOverlayProps {
@@ -575,6 +877,58 @@ function ChapterListSidebar({
   )
 }
 
+/**
+ * Generate page pairs for double page mode
+ * @param totalPages Total number of pages in chapter
+ * @param skipCoverPages Whether to show first page alone
+ * @param readRightToLeft Whether to pair pages right-to-left (manga style)
+ * @returns Array of page index pairs
+ */
+function generatePagePairs(
+  totalPages: number,
+  skipCoverPages: boolean,
+  readRightToLeft: boolean
+): Array<[number] | [number, number]> {
+  const pairs: Array<[number] | [number, number]> = []
+
+  if (totalPages === 0) return pairs
+
+  // First page shown alone if skipCoverPages is true
+  if (skipCoverPages) {
+    pairs.push([0])
+
+    // Pair remaining pages
+    for (let i = 1; i < totalPages; i += 2) {
+      if (i + 1 < totalPages) {
+        // Two pages available - pair them based on reading direction
+        if (readRightToLeft) {
+          pairs.push([i + 1, i]) // Right page first (manga standard)
+        } else {
+          pairs.push([i, i + 1]) // Left page first (western comics)
+        }
+      } else {
+        // Odd page at end, show alone
+        pairs.push([i])
+      }
+    }
+  } else {
+    // Don't skip cover - pair from the start
+    for (let i = 0; i < totalPages; i += 2) {
+      if (i + 1 < totalPages) {
+        if (readRightToLeft) {
+          pairs.push([i + 1, i])
+        } else {
+          pairs.push([i, i + 1])
+        }
+      } else {
+        pairs.push([i])
+      }
+    }
+  }
+
+  return pairs
+}
+
 export function ReaderView(): JSX.Element {
   const { mangaId, chapterId } = useParams<{ mangaId: string; chapterId: string }>()
   const navigate = useNavigate()
@@ -615,9 +969,17 @@ export function ReaderView(): JSX.Element {
     showChapterList: false,
     showZoomControls: false,
     zoomIndicatorVisible: false,
+    showSettingsModal: false, // NEW: Reader settings modal
     imageQuality: ImageQuality.High, // High quality by default
     fitMode: 'height',
     forceReaderDarkMode: true, // Force dark mode by default for better reading experience
+    readingMode: 'single', // Will be loaded from settings in useEffect
+    doublePageSettings: {
+      skipCoverPages: true,
+      readRightToLeft: false
+    },
+    pagePairs: [], // Will be computed when images load
+    currentPairIndex: 0,
     // Zoom/Pan defaults
     zoomLevel: 1,
     panX: 0,
@@ -793,14 +1155,43 @@ export function ReaderView(): JSX.Element {
     }
   }, [chapterId, location.key]) // Use location.key to detect navigation changes
 
-  // Fetch images on mount or chapterId change
+  // Load reading mode settings for this manga FIRST, then load images
   useEffect(() => {
     if (chapterId && mangaId) {
-      const startAtLastPage = locationState?.startAtLastPage || false
-      loadChapterImages(chapterId, startAtLastPage).then(() => {
-        // Load chapter list for navigation after images are loaded
-        loadChapterList(mangaId, chapterId)
-      })
+      // Load settings first
+      globalThis.reader
+        .getMangaReaderSettings(mangaId)
+        .then((response) => {
+          // Extract settings from IPC response wrapper
+          const settings = response.data
+
+          const newDoublePageSettings = {
+            skipCoverPages: settings.doublePageMode?.skipCoverPages ?? true,
+            readRightToLeft: settings.doublePageMode?.readRightToLeft ?? false
+          }
+
+          setState((prev) => ({
+            ...prev,
+            readingMode: settings.readingMode,
+            doublePageSettings: newDoublePageSettings
+          }))
+
+          // Then load images after settings are applied
+          const startAtLastPage = locationState?.startAtLastPage || false
+          return loadChapterImages(chapterId, startAtLastPage)
+        })
+        .then(() => {
+          // Load chapter list for navigation after images are loaded
+          loadChapterList(mangaId, chapterId)
+        })
+        .catch((error) => {
+          console.error('Failed to load reader settings:', error)
+          // Continue loading images even if settings fail
+          const startAtLastPage = locationState?.startAtLastPage || false
+          loadChapterImages(chapterId, startAtLastPage).then(() => {
+            loadChapterList(mangaId, chapterId)
+          })
+        })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chapterId, mangaId])
@@ -823,6 +1214,26 @@ export function ReaderView(): JSX.Element {
     state.loading,
     state.error
   ])
+
+  // Generate page pairs when images load or double page settings change
+  useEffect(() => {
+    if (state.totalPages > 0 && state.readingMode === 'double') {
+      const pairs = generatePagePairs(
+        state.totalPages,
+        state.doublePageSettings.skipCoverPages,
+        state.doublePageSettings.readRightToLeft
+      )
+
+      // Find which pair contains the current page
+      const pairIndex = pairs.findIndex((pair) => pair.includes(state.currentPage))
+
+      setState((prev) => ({
+        ...prev,
+        pagePairs: pairs,
+        currentPairIndex: pairIndex >= 0 ? pairIndex : 0
+      }))
+    }
+  }, [state.totalPages, state.readingMode, state.doublePageSettings, state.currentPage])
 
   /**
    * Preload adjacent pages for smoother navigation
@@ -904,28 +1315,54 @@ export function ReaderView(): JSX.Element {
   )
 
   /**
-   * Navigate to next page
+   * Navigate to next page (mode-aware)
    */
   const goToNextPage = useCallback((): void => {
-    if (state.currentPage < state.totalPages - 1) {
-      goToPage(state.currentPage + 1)
-    } else if (state.currentPage === state.totalPages - 1 && state.nextChapter && mangaId) {
-      // At last page and next chapter exists - navigate to next chapter
-      const chapter = state.nextChapter
-      navigate(`/reader/${mangaId}/${chapter.id}`, {
-        state: {
-          chapterNumber: chapter.attributes.chapter,
-          chapterTitle: chapter.attributes.title,
-          mangaTitle: state.mangaTitle,
-          chapters: state.chapters,
-          startAtLastPage: false // Start at first page of next chapter
-        }
-      })
+    if (state.readingMode === 'double' && state.pagePairs.length > 0) {
+      // Double page mode: navigate by pairs
+      if (state.currentPairIndex < state.pagePairs.length - 1) {
+        const nextPair = state.pagePairs[state.currentPairIndex + 1]
+        goToPage(nextPair[0]) // Go to first page of next pair
+      } else if (
+        state.currentPairIndex === state.pagePairs.length - 1 &&
+        state.nextChapter &&
+        mangaId
+      ) {
+        // At last pair and next chapter exists
+        const chapter = state.nextChapter
+        navigate(`/reader/${mangaId}/${chapter.id}`, {
+          state: {
+            chapterNumber: chapter.attributes.chapter,
+            chapterTitle: chapter.attributes.title,
+            mangaTitle: state.mangaTitle,
+            chapters: state.chapters,
+            startAtLastPage: false
+          }
+        })
+      }
+    } else {
+      // Single page mode: navigate by individual pages
+      if (state.currentPage < state.totalPages - 1) {
+        goToPage(state.currentPage + 1)
+      } else if (state.currentPage === state.totalPages - 1 && state.nextChapter && mangaId) {
+        const chapter = state.nextChapter
+        navigate(`/reader/${mangaId}/${chapter.id}`, {
+          state: {
+            chapterNumber: chapter.attributes.chapter,
+            chapterTitle: chapter.attributes.title,
+            mangaTitle: state.mangaTitle,
+            chapters: state.chapters,
+            startAtLastPage: false
+          }
+        })
+      }
     }
-    // Otherwise stay on last page
   }, [
+    state.readingMode,
     state.currentPage,
     state.totalPages,
+    state.currentPairIndex,
+    state.pagePairs,
     state.nextChapter,
     state.mangaTitle,
     state.chapters,
@@ -935,27 +1372,49 @@ export function ReaderView(): JSX.Element {
   ])
 
   /**
-   * Navigate to previous page
+   * Navigate to previous page (mode-aware)
    */
   const goToPreviousPage = useCallback((): void => {
-    if (state.currentPage > 0) {
-      goToPage(state.currentPage - 1)
-    } else if (state.currentPage === 0 && state.previousChapter && mangaId) {
-      // At first page and previous chapter exists - navigate to previous chapter's last page
-      const chapter = state.previousChapter
-      navigate(`/reader/${mangaId}/${chapter.id}`, {
-        state: {
-          chapterNumber: chapter.attributes.chapter,
-          chapterTitle: chapter.attributes.title,
-          mangaTitle: state.mangaTitle,
-          chapters: state.chapters,
-          startAtLastPage: true // Flag to indicate we should start at the last page
-        }
-      })
+    if (state.readingMode === 'double' && state.pagePairs.length > 0) {
+      // Double page mode: navigate by pairs
+      if (state.currentPairIndex > 0) {
+        const prevPair = state.pagePairs[state.currentPairIndex - 1]
+        goToPage(prevPair[0]) // Go to first page of previous pair
+      } else if (state.currentPairIndex === 0 && state.previousChapter && mangaId) {
+        // At first pair and previous chapter exists
+        const chapter = state.previousChapter
+        navigate(`/reader/${mangaId}/${chapter.id}`, {
+          state: {
+            chapterNumber: chapter.attributes.chapter,
+            chapterTitle: chapter.attributes.title,
+            mangaTitle: state.mangaTitle,
+            chapters: state.chapters,
+            startAtLastPage: true
+          }
+        })
+      }
+    } else {
+      // Single page mode: navigate by individual pages
+      if (state.currentPage > 0) {
+        goToPage(state.currentPage - 1)
+      } else if (state.currentPage === 0 && state.previousChapter && mangaId) {
+        const chapter = state.previousChapter
+        navigate(`/reader/${mangaId}/${chapter.id}`, {
+          state: {
+            chapterNumber: chapter.attributes.chapter,
+            chapterTitle: chapter.attributes.title,
+            mangaTitle: state.mangaTitle,
+            chapters: state.chapters,
+            startAtLastPage: true
+          }
+        })
+      }
     }
-    // Otherwise stay on first page
   }, [
+    state.readingMode,
     state.currentPage,
+    state.currentPairIndex,
+    state.pagePairs,
     state.previousChapter,
     state.mangaTitle,
     state.chapters,
@@ -1043,6 +1502,43 @@ export function ReaderView(): JSX.Element {
       showZoomControls: !prev.showZoomControls
     }))
   }, [])
+
+  /**
+   * Toggle settings modal
+   */
+  const toggleSettingsModal = useCallback((): void => {
+    setState((prev) => ({
+      ...prev,
+      showSettingsModal: !prev.showSettingsModal
+    }))
+  }, [])
+
+  /**
+   * Handle reader settings change from modal
+   */
+  const handleReaderSettingsChange = useCallback(
+    (newSettings: ReaderSettings): void => {
+      if (!mangaId) return
+
+      const newDoublePageSettings = {
+        skipCoverPages: newSettings.doublePageMode?.skipCoverPages ?? true,
+        readRightToLeft: newSettings.doublePageMode?.readRightToLeft ?? true
+      }
+
+      // Update state immediately
+      setState((prev) => ({
+        ...prev,
+        readingMode: newSettings.readingMode,
+        doublePageSettings: newDoublePageSettings
+      }))
+
+      // Save to backend
+      globalThis.reader.updateMangaReaderSettings(mangaId, newSettings).catch((error) => {
+        console.error('Failed to save reader settings:', error)
+      })
+    },
+    [mangaId]
+  )
 
   /**
    * Navigate to a specific chapter from the chapter list
@@ -1294,10 +1790,9 @@ export function ReaderView(): JSX.Element {
         }
       }
 
-      // Cycle through fit modes with 'Z' key
-      if (e.key === 'z' || e.key === 'Z') {
+      // Cycle through fit modes with 'Z' key (not for vertical scroll)
+      if ((e.key === 'z' || e.key === 'Z') && state.readingMode !== 'vertical') {
         e.preventDefault()
-        // Cycle: height → width → actual → height
         const modes = ['height', 'width', 'actual'] as const
         const currentIndex = modes.indexOf(state.fitMode as (typeof modes)[number])
         const nextMode = modes[(currentIndex + 1) % modes.length]
@@ -1305,28 +1800,104 @@ export function ReaderView(): JSX.Element {
         return
       }
 
-      // Prevent default for navigation keys
+      // Vertical scroll mode: different keyboard behavior
+      if (state.readingMode === 'vertical') {
+        switch (e.key) {
+          case ' ': {
+            // Space bar: scroll down by viewport height
+            e.preventDefault()
+            const container = document.querySelector('.vertical-scroll-container')
+            if (container) {
+              container.scrollBy({ top: window.innerHeight * 0.8, behavior: 'smooth' })
+            }
+            break
+          }
+          case 'Home': {
+            e.preventDefault()
+            // Scroll to top
+            const container = document.querySelector('.vertical-scroll-container')
+            if (container) {
+              container.scrollTo({ top: 0, behavior: 'smooth' })
+            }
+            break
+          }
+          case 'End': {
+            e.preventDefault()
+            // Scroll to bottom
+            const container = document.querySelector('.vertical-scroll-container')
+            if (container) {
+              container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' })
+            }
+            break
+          }
+          case 'ArrowLeft':
+            // Previous chapter in vertical mode
+            if (state.previousChapter) {
+              goToPreviousChapter()
+            }
+            break
+          case 'ArrowRight':
+            // Next chapter in vertical mode
+            if (state.nextChapter) {
+              goToNextChapter()
+            }
+            break
+          case 'Escape':
+            e.preventDefault()
+            if (state.showChapterList) {
+              toggleChapterList()
+            } else {
+              handleBackClick()
+            }
+            break
+          case 'l':
+          case 'L':
+            e.preventDefault()
+            toggleChapterList()
+            break
+        }
+        return
+      }
+
+      // Single/Double page mode: standard navigation
+      // Prevent default for navigation keys (but NOT for vertical mode)
       if (
         [
           'ArrowLeft',
           'ArrowRight',
-          'ArrowUp',
-          'ArrowDown',
           ' ',
           'Home',
           'End',
           'Escape',
           'l',
-          'L'
+          'L',
+          'm',
+          'M'
         ].includes(e.key)
       ) {
         e.preventDefault()
       }
 
       switch (e.key) {
+        case 'm':
+        case 'M':
+          // Cycle through reading modes: single → double → vertical → single
+          const modes: Array<'single' | 'double' | 'vertical'> = ['single', 'double', 'vertical']
+          const currentIndex = modes.indexOf(state.readingMode)
+          const nextIndex = (currentIndex + 1) % modes.length
+          const nextMode = modes[nextIndex]
+
+          handleReaderSettingsChange({
+            readingMode: nextMode,
+            doublePageMode: {
+              skipCoverPages: state.doublePageSettings.skipCoverPages,
+              readRightToLeft: state.doublePageSettings.readRightToLeft
+            }
+          })
+          break
         case 'ArrowRight':
         case 'ArrowDown':
-        case ' ': // Spacebar
+        case ' ':
         case 'Enter':
           goToNextPage()
           break
@@ -1341,7 +1912,6 @@ export function ReaderView(): JSX.Element {
           goToLastPage()
           break
         case 'Escape':
-          // If chapter list is open, close it, otherwise go back
           if (state.showChapterList) {
             toggleChapterList()
           } else {
@@ -1362,9 +1932,14 @@ export function ReaderView(): JSX.Element {
     goToPreviousPage,
     goToFirstPage,
     goToLastPage,
+    goToPreviousChapter,
+    goToNextChapter,
     handleBackClick,
     toggleChapterList,
     state.showChapterList,
+    state.readingMode,
+    state.previousChapter,
+    state.nextChapter,
     state.fitMode,
     setFitMode,
     resetZoom,
@@ -1624,43 +2199,136 @@ export function ReaderView(): JSX.Element {
             onZoomOut={zoomOut}
             onResetZoom={resetZoom}
             isIncognito={!autoSaveEnabled}
+            readingMode={state.readingMode as any}
+            currentPagePair={
+              state.readingMode === 'double' && state.pagePairs.length > 0
+                ? state.pagePairs[state.currentPairIndex]
+                : undefined
+            }
+            readRightToLeft={state.doublePageSettings.readRightToLeft}
+            settingsPopover={
+              <ReaderSettingsModal
+                isOpen={state.showSettingsModal}
+                onOpen={toggleSettingsModal}
+                onClose={toggleSettingsModal}
+                settings={{
+                  readingMode: state.readingMode as any,
+                  doublePageMode: {
+                    skipCoverPages: state.doublePageSettings.skipCoverPages,
+                    readRightToLeft: state.doublePageSettings.readRightToLeft
+                  }
+                }}
+                onSettingsChange={handleReaderSettingsChange}
+              >
+                <Button
+                  variant="ghost"
+                  size="small"
+                  icon={<Settings20Regular />}
+                  aria-label="Reader settings"
+                  title="Reader settings (reading mode)"
+                >
+                  Settings
+                </Button>
+              </ReaderSettingsModal>
+            }
           />
 
-          <PageDisplay
-            imageUrl={state.images[state.currentPage].url}
-            pageNumber={state.currentPage}
-            totalPages={state.totalPages}
-            fitMode={state.fitMode}
-            isLoading={state.imageLoadingStates.get(state.currentPage) === 'loading'}
-            hasError={state.imageLoadingStates.get(state.currentPage) === 'error'}
-            onImageLoad={() => {
-              setState((prev) => {
-                const newStates = new Map(prev.imageLoadingStates)
-                newStates.set(prev.currentPage, 'loaded')
-                return { ...prev, imageLoadingStates: newStates }
-              })
-            }}
-            onImageError={() => {
-              setState((prev) => {
-                const newStates = new Map(prev.imageLoadingStates)
-                newStates.set(prev.currentPage, 'error')
-                return { ...prev, imageLoadingStates: newStates }
-              })
-            }}
-            onClick={handleImageClick}
-            zoomLevel={state.zoomLevel}
-            panX={state.panX}
-            panY={state.panY}
-            isDragging={state.isDragging}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onWheel={handleWheel}
-            transformOriginX={state.transformOriginX}
-            transformOriginY={state.transformOriginY}
-            onNavigateLeft={goToPreviousPage}
-            onNavigateRight={goToNextPage}
-          />
+          {/* Render based on reading mode */}
+          {state.readingMode === 'vertical' ? (
+            <VerticalScrollDisplay
+              images={state.images}
+              imageStates={state.imageLoadingStates}
+              currentPage={state.currentPage}
+              onPageChange={(newPage) => {
+                setState((prev) => ({ ...prev, currentPage: newPage }))
+              }}
+              onImageLoad={(pageIndex) => {
+                setState((prev) => {
+                  const newStates = new Map(prev.imageLoadingStates)
+                  newStates.set(pageIndex, 'loaded')
+                  return { ...prev, imageLoadingStates: newStates }
+                })
+              }}
+              onImageError={(pageIndex) => {
+                setState((prev) => {
+                  const newStates = new Map(prev.imageLoadingStates)
+                  newStates.set(pageIndex, 'error')
+                  return { ...prev, imageLoadingStates: newStates }
+                })
+              }}
+            />
+          ) : state.readingMode === 'double' && state.pagePairs.length > 0 ? (
+            <DoublePageDisplay
+              images={state.images}
+              pagePair={state.pagePairs[state.currentPairIndex]}
+              imageStates={state.imageLoadingStates}
+              fitMode={state.fitMode}
+              onImageLoad={(pageIndex) => {
+                setState((prev) => {
+                  const newStates = new Map(prev.imageLoadingStates)
+                  newStates.set(pageIndex, 'loaded')
+                  return { ...prev, imageLoadingStates: newStates }
+                })
+              }}
+              onImageError={(pageIndex) => {
+                setState((prev) => {
+                  const newStates = new Map(prev.imageLoadingStates)
+                  newStates.set(pageIndex, 'error')
+                  return { ...prev, imageLoadingStates: newStates }
+                })
+              }}
+              onClick={handleImageClick}
+              zoomLevel={state.zoomLevel}
+              panX={state.panX}
+              panY={state.panY}
+              isDragging={state.isDragging}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onWheel={handleWheel}
+              transformOriginX={state.transformOriginX}
+              transformOriginY={state.transformOriginY}
+              onNavigateLeft={goToPreviousPage}
+              onNavigateRight={goToNextPage}
+              readRightToLeft={state.doublePageSettings.readRightToLeft}
+            />
+          ) : (
+            <PageDisplay
+              imageUrl={state.images[state.currentPage].url}
+              pageNumber={state.currentPage}
+              totalPages={state.totalPages}
+              fitMode={state.fitMode}
+              isLoading={state.imageLoadingStates.get(state.currentPage) === 'loading'}
+              hasError={state.imageLoadingStates.get(state.currentPage) === 'error'}
+              onImageLoad={() => {
+                setState((prev) => {
+                  const newStates = new Map(prev.imageLoadingStates)
+                  newStates.set(prev.currentPage, 'loaded')
+                  return { ...prev, imageLoadingStates: newStates }
+                })
+              }}
+              onImageError={() => {
+                setState((prev) => {
+                  const newStates = new Map(prev.imageLoadingStates)
+                  newStates.set(prev.currentPage, 'error')
+                  return { ...prev, imageLoadingStates: newStates }
+                })
+              }}
+              onClick={handleImageClick}
+              zoomLevel={state.zoomLevel}
+              panX={state.panX}
+              panY={state.panY}
+              isDragging={state.isDragging}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onWheel={handleWheel}
+              transformOriginX={state.transformOriginX}
+              transformOriginY={state.transformOriginY}
+              onNavigateLeft={goToPreviousPage}
+              onNavigateRight={goToNextPage}
+            />
+          )}
 
           {/* Zoom indicator overlay (shown during Ctrl+Wheel zoom) */}
           {state.zoomIndicatorVisible && (

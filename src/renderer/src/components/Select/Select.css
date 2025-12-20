@@ -295,6 +295,59 @@
   }
 }
 
+/* Dark Mode Support */
+.popover[data-theme='dark'] .select__dropdown {
+  background: #242424;
+  border-color: #3a3a3a;
+  box-shadow:
+    0 8px 16px rgba(0, 0, 0, 0.6),
+    0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.popover[data-theme='dark'] .select__option {
+  color: #ffffff;
+}
+
+.popover[data-theme='dark'] .select__option:hover {
+  background: #2e2e2e;
+}
+
+.popover[data-theme='dark'] .select__option--selected {
+  background: #3a3a3a;
+  color: #ffffff;
+}
+
+.popover[data-theme='dark'] .select__option--focused {
+  background: #2e2e2e;
+}
+
+.popover[data-theme='dark'] .select__listbox::-webkit-scrollbar-thumb {
+  background: #3a3a3a;
+}
+
+.popover[data-theme='dark'] .select__listbox::-webkit-scrollbar-thumb:hover {
+  background: #4a4a4a;
+}
+
+.popover[data-theme='dark'] .select__trigger {
+  background: #242424;
+  border-color: #3a3a3a;
+  color: #ffffff;
+}
+
+.popover[data-theme='dark'] .select__trigger:hover:not(:disabled) {
+  background: #2e2e2e;
+  border-color: #4a4a4a;
+}
+
+.popover[data-theme='dark'] .select__label {
+  color: #ffffff;
+}
+
+.popover[data-theme='dark'] .select__helper {
+  color: #b3b3b3;
+}
+
 /* High Contrast Mode */
 @media (prefers-contrast: high) {
   .select__trigger,

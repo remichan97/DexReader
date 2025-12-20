@@ -7,6 +7,7 @@ import type { IpcResponse, FileStats, AllowedPaths, FolderSelectResult } from '.
 import type { MangaProgress } from '../main/progress/entity/manga-progress.entity'
 import type { ProgressDatabase } from '../main/progress/entity/progress-database.entity'
 import type { ReadingStats } from '../main/progress/entity/reading-stats.entity'
+import type { ReaderSettings } from '../main/filesystem/entity/reading-settings.entity'
 
 // Re-export types for renderer use
 export type { ImageUrlResponse } from './../main/api/responses/image-url.response'
@@ -14,6 +15,7 @@ export type { IpcResponse } from './ipc.types'
 export type { MangaProgress } from '../main/progress/entity/manga-progress.entity'
 export type { ProgressDatabase } from '../main/progress/entity/progress-database.entity'
 export type { ReadingStats } from '../main/progress/entity/reading-stats.entity'
+export type { ReaderSettings } from '../main/filesystem/entity/reading-settings.entity'
 
 interface MenuState {
   canAddToFavorites?: boolean

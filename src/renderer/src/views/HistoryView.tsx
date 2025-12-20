@@ -1,11 +1,7 @@
 import type { JSX } from 'react'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  History24Regular,
-  PlayCircle24Regular,
-  Delete24Regular
-} from '@fluentui/react-icons'
+import { History24Regular, PlayCircle24Regular, Delete24Regular } from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
 import { ProgressRing } from '@renderer/components/ProgressRing'
 import { useProgressStore } from '@renderer/stores/progressStore'
