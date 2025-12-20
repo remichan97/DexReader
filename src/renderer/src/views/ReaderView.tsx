@@ -1862,26 +1862,17 @@ export function ReaderView(): JSX.Element {
       // Single/Double page mode: standard navigation
       // Prevent default for navigation keys (but NOT for vertical mode)
       if (
-        [
-          'ArrowLeft',
-          'ArrowRight',
-          ' ',
-          'Home',
-          'End',
-          'Escape',
-          'l',
-          'L',
-          'm',
-          'M'
-        ].includes(e.key)
+        ['ArrowLeft', 'ArrowRight', ' ', 'Home', 'End', 'Escape', 'l', 'L', 'm', 'M'].includes(
+          e.key
+        )
       ) {
         e.preventDefault()
       }
 
       switch (e.key) {
         case 'm':
-        case 'M':
-          // Cycle through reading modes: single → double → vertical → single
+        case 'M': // Cycle through reading modes: single → double → vertical → single
+        {
           const modes: Array<'single' | 'double' | 'vertical'> = ['single', 'double', 'vertical']
           const currentIndex = modes.indexOf(state.readingMode)
           const nextIndex = (currentIndex + 1) % modes.length
@@ -1895,6 +1886,7 @@ export function ReaderView(): JSX.Element {
             }
           })
           break
+        }
         case 'ArrowRight':
         case 'ArrowDown':
         case ' ':
