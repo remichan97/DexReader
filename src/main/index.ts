@@ -12,7 +12,7 @@ import {
   initializeDownloadsPath,
   loadSettings,
   setDownloadsPath,
-  updateMangaReaderSettings
+  updateMangaReaderSettings,
 } from './filesystem/settingsManager'
 import { wrapIpcHandler } from './ipc/wrapHandler'
 import { validatePath, validateEncoding } from './ipc/validators'

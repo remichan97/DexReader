@@ -12,7 +12,7 @@ import { ReaderSettings } from './entity/reading-settings.entity'
 import { ReadingMode } from './enum/reading-mode.enum'
 import { DownloadSettings } from './entity/downloads-settings.entity'
 
-interface AppSettings {
+export interface AppSettings {
   downloads: DownloadSettings
   theme: AppTheme
   accentColor: string | undefined // Accent color in hex format, e.g., '#FF5733'
