@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 18 December 2025
-**Current Phase**: Phase 2 - Content Display (In Progress)
-**Session**: P2-T10 Complete ✅ + P2-T11 Planning Complete ✅
+**Last Updated**: 20 December 2025
+**Current Phase**: Phase 2 - Content Display (COMPLETE ✅)
+**Session**: Phase 2 Complete! 🎉
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -10,12 +10,41 @@
 
 ## Current Status Summary
 
-**Phase**: Phase 2 - Content Display (In Progress)
-**Progress**: P2-T01 through P2-T10 complete, P2-T11 remaining
-**Current Date**: 18 December 2025
+**Phase**: Phase 2 - Content Display (COMPLETE ✅)
+**Progress**: All tasks complete (11/11)
+**Current Date**: 20 December 2025
 **Phase 1 Status**: Complete ✅ (9/9 tasks, 100%)
-**Phase 2 Progress**: 10/11 tasks complete (91%)
-**Current Task**: P2-T10 fully complete ✅ (with major refactor + bug fixes), P2-T11 planning complete (ready for implementation)
+**Phase 2 Progress**: 11/11 tasks complete (100%) ✅
+**Current Task**: P2-T11 complete ✅ (Reading Modes with all three modes + per-manga overrides working)
+
+### ✅ P2-T11 Complete (20 Dec 2025 - Reading Modes)
+
+**Implementation**: All three reading modes fully functional with per-manga settings override.
+
+**Features Implemented**:
+
+1. **Single Page Mode** - One page at a time (already working)
+2. **Double Page Mode** - Two pages side-by-side with RTL support
+   - Smart page pairing (cover pages shown alone)
+   - Right-to-left reading order for manga
+   - Page counter shows ranges (e.g., "Page 5-6/110")
+   - Responsive: Falls back to single column on narrow screens (<768px)
+3. **Vertical Scroll Mode** - All pages in scrollable layout (webtoon style)
+   - IntersectionObserver tracks current page
+   - Keyboard: ArrowUp/Down scroll by page height
+   - Aggressive preloading for smooth scrolling
+4. **Per-Manga Settings Override** - Each manga can have its own reading mode
+   - ReaderSettingsModal popover in reader view
+   - Backend stores per-manga overrides
+   - Settings load before images to prevent race condition
+5. **Keyboard Shortcut** - Press `M` to cycle through modes
+
+**Critical Bug Fixes**:
+
+- Fixed IPC response wrapper extraction (was accessing `settings.readingMode` instead of `settings.data.readingMode`)
+- Fixed RTL display (removed double reversal that canceled out the effect)
+- Fixed page counter to show correct order in RTL mode
+- Fixed settings loading race condition (now loads settings BEFORE images)
 
 ### 🔄 Major Refactor (18 Dec 2025 - P2-T10 Per-Chapter Progress)
 
@@ -82,11 +111,11 @@
 
 **Scenario Handling**:
 
-| Scenario | Behavior |
-|----------|----------|
+| Scenario                                     | Behavior                                    |
+| -------------------------------------------- | ------------------------------------------- |
 | Finish Ch1, move to Ch2, read a bit, go back | Ch1: completed=true, Ch2: completed=false ✓ |
-| Finish all chapters, revisit from beginning | Ch1: stays completed=true when revisited ✓ |
-| Read Ch1 to page 5, switch to Ch2 | Both tracked with page numbers ✓ |
+| Finish all chapters, revisit from beginning  | Ch1: stays completed=true when revisited ✓  |
+| Read Ch1 to page 5, switch to Ch2            | Both tracked with page numbers ✓            |
 
 **Files Modified**:
 
@@ -1039,47 +1068,50 @@ zoomIndicatorVisible: boolean
 ### Major Accomplishments:
 
 **1. P2-T10 Complete** ✅:
-   - **Major Refactor**: Complete data structure overhaul to per-chapter progress tracking
-     - Problem: Original design couldn't distinguish "reading" vs "complete", couldn't track multiple in-progress chapters
-     - Solution: `chapters: Record<string, ChapterProgress>` with explicit `completed` flag
-     - Backend: New ChapterProgress entity, updated MangaProgress, statistics from per-chapter data
-     - Frontend: progressStore saveProgress rewrite, ReaderView auto-save updates, MangaDetailView reads from chapters
-   - **Bug Fixes**:
-     - Fixed infinite loop in ReaderView (progressMap reference changes causing effect re-triggers)
-     - Fixed menu label not updating ("Go Incognito" / "Leave Incognito" now builds menu with correct label from state)
-     - Added cover images to HistoryView with placeholder fallback
-     - Fixed HistoryView document title (was showing "DexReader - DexReader")
-     - Removed incognito toggle from Settings (mode is temporary, menu-controlled only)
-   - **UI Polish**:
-     - Incognito status bar: "**You've gone Incognito** — Progress tracking is disabled" (bold title, one-liner)
-     - Menu integration: File menu "Go Incognito" / "Leave Incognito" with Ctrl+Shift+N shortcut
-     - All debug logs removed from production code
-   - **Duration**: ~24 hours total (15-18 Dec 2025)
-   - **Files Modified**: 17 files (backend, preload, stores, components, views, menu system)
-   - **Status**: Ready for comprehensive user testing
+
+- **Major Refactor**: Complete data structure overhaul to per-chapter progress tracking
+  - Problem: Original design couldn't distinguish "reading" vs "complete", couldn't track multiple in-progress chapters
+  - Solution: `chapters: Record<string, ChapterProgress>` with explicit `completed` flag
+  - Backend: New ChapterProgress entity, updated MangaProgress, statistics from per-chapter data
+  - Frontend: progressStore saveProgress rewrite, ReaderView auto-save updates, MangaDetailView reads from chapters
+- **Bug Fixes**:
+  - Fixed infinite loop in ReaderView (progressMap reference changes causing effect re-triggers)
+  - Fixed menu label not updating ("Go Incognito" / "Leave Incognito" now builds menu with correct label from state)
+  - Added cover images to HistoryView with placeholder fallback
+  - Fixed HistoryView document title (was showing "DexReader - DexReader")
+  - Removed incognito toggle from Settings (mode is temporary, menu-controlled only)
+- **UI Polish**:
+  - Incognito status bar: "**You've gone Incognito** — Progress tracking is disabled" (bold title, one-liner)
+  - Menu integration: File menu "Go Incognito" / "Leave Incognito" with Ctrl+Shift+N shortcut
+  - All debug logs removed from production code
+- **Duration**: ~24 hours total (15-18 Dec 2025)
+- **Files Modified**: 17 files (backend, preload, stores, components, views, menu system)
+- **Status**: Ready for comprehensive user testing
 
 **2. P2-T11 Planning Complete** ✅:
-   - **Plan Location**: `.github/copilot-plans/P2-T11-reading-modes-plan.md`
-   - **Duration Estimate**: 16-20 hours (2-3 days)
-   - **Backend Changes**: Minimal (3 hours) - Settings persistence only
-   - **Three Modes**:
-     - **Single Page** (current): Already complete, one page at a time with click/keyboard nav
-     - **Double Page**: Two pages side-by-side, RTL support for manga, smart pairing (covers alone)
-     - **Vertical Scroll**: All pages in scrollable layout, IntersectionObserver tracking, aggressive preloading
-   - **Key Features**:
-     - Mode selector with keyboard shortcut (`M` to cycle)
-     - Per-manga mode override (stored in progress)
-     - Double page settings (RTL, skip cover pages)
-     - Responsive fallback (double → single on narrow screens)
-     - Mode-aware preloading strategies
-   - **Architecture**: 3 new components (ReadingModeSelector, DoublePageDisplay, VerticalScrollDisplay)
-   - **Files**: ~17 files (3 backend, 10 frontend, 4 docs)
-   - Ready for implementation when P2-T10 testing validates per-chapter tracking
+
+- **Plan Location**: `.github/copilot-plans/P2-T11-reading-modes-plan.md`
+- **Duration Estimate**: 16-20 hours (2-3 days)
+- **Backend Changes**: Minimal (3 hours) - Settings persistence only
+- **Three Modes**:
+  - **Single Page** (current): Already complete, one page at a time with click/keyboard nav
+  - **Double Page**: Two pages side-by-side, RTL support for manga, smart pairing (covers alone)
+  - **Vertical Scroll**: All pages in scrollable layout, IntersectionObserver tracking, aggressive preloading
+- **Key Features**:
+  - Mode selector with keyboard shortcut (`M` to cycle)
+  - Per-manga mode override (stored in progress)
+  - Double page settings (RTL, skip cover pages)
+  - Responsive fallback (double → single on narrow screens)
+  - Mode-aware preloading strategies
+- **Architecture**: 3 new components (ReadingModeSelector, DoublePageDisplay, VerticalScrollDisplay)
+- **Files**: ~17 files (3 backend, 10 frontend, 4 docs)
+- Ready for implementation when P2-T10 testing validates per-chapter tracking
 
 **3. Documentation & Memory Bank**:
-   - Updated project-progress.md: Phase 2 progress 10/11 (91%), P2-T10 marked complete with full details, P2-T11 marked as planning complete
-   - Updated active-context.md: Current session notes and status
-   - Comprehensive implementation plan created for P2-T11
+
+- Updated project-progress.md: Phase 2 progress 10/11 (91%), P2-T10 marked complete with full details, P2-T11 marked as planning complete
+- Updated active-context.md: Current session notes and status
+- Comprehensive implementation plan created for P2-T11
 
 **Key Technical Decisions**:
 
