@@ -6,8 +6,8 @@ import { secureFs } from '../filesystem/secureFs'
 import { ReadingStats } from './entity/reading-stats.entity'
 
 export class ProgressManager {
-  private readonly PROGRESS_FILE = path.join(getAppDataPath(), 'progress.json')
-  private readonly BACKUP_FILE = path.join(getAppDataPath(), 'progress.backup.json')
+  private readonly PROGRESS_FILE = path.join(getAppDataPath(), 'progress', 'progress.json')
+  private readonly BACKUP_FILE = path.join(getAppDataPath(), 'progress', 'progress.backup.json')
 
   async loadProgress(): Promise<ProgressDatabase> {
     // Grab progress data from the progress.json saved on AppData folder

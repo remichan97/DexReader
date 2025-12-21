@@ -13,6 +13,7 @@ import {
   loadSettings,
   setDownloadsPath,
   updateMangaReaderSettings,
+  updateSettings
 } from './filesystem/settingsManager'
 import { wrapIpcHandler } from './ipc/wrapHandler'
 import { validatePath, validateEncoding } from './ipc/validators'
@@ -24,6 +25,7 @@ import { ImageQuality } from './api/enums'
 import { ProgressManager } from './progress/progressManager'
 import { MangaProgress } from './progress/entity/manga-progress.entity'
 import { ReaderSettings } from './filesystem/entity/reading-settings.entity'
+import { AppSettings } from './filesystem/enum/app-settings.entity'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -264,6 +266,16 @@ function registerReaderSettingsHandlers(): void {
   })
 }
 
+function registerAppSettingsHandlers(): void {
+  wrapIpcHandler('settings:load', async () => {
+    return await loadSettings()
+  })
+
+  wrapIpcHandler('settings:save', async (_, key: unknown, value: unknown) => {
+    return await updateSettings(key as keyof AppSettings, value as AppSettings[keyof AppSettings])
+  })
+}
+
 async function initFileSystem(): Promise<void> {
   console.log('Initialising secure filesystem...')
 
@@ -391,6 +403,8 @@ app.whenReady().then(async () => {
   registerProgressTrackingHandlers()
 
   registerReaderSettingsHandlers()
+
+  registerAppSettingsHandlers()
 
   createWindow()
 

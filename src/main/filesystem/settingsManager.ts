@@ -10,19 +10,7 @@ import { ImageQuality } from '../api/enums'
 import { AppTheme } from './enum/theme-mode.enum'
 import { ReaderSettings } from './entity/reading-settings.entity'
 import { ReadingMode } from './enum/reading-mode.enum'
-import { DownloadSettings } from './entity/downloads-settings.entity'
-
-export interface AppSettings {
-  downloads: DownloadSettings
-  theme: AppTheme
-  accentColor: string | undefined // Accent color in hex format, e.g., '#FF5733'
-  reader: {
-    forceDarkMode: boolean // Whether to force dark mode in the reader
-    quality: ImageQuality // Which image quality to use
-    global: ReaderSettings // Global reader settings
-    manga: Record<string, ReaderSettings> // Per-manga reader settings overrides, keyed by manga ID
-  }
-}
+import { AppSettings } from './enum/app-settings.entity'
 
 const SETTINGS_FILE = path.join(getAppDataPath(), 'settings.json')
 
@@ -31,23 +19,7 @@ export async function loadSettings(): Promise<AppSettings> {
     const exists = await secureFs.isExists(SETTINGS_FILE)
 
     if (!exists) {
-      const defaults: AppSettings = {
-        downloads: {
-          downloadPath: null,
-          downloadQuality: ImageQuality.High,
-          concurrentChapterDownloads: 3
-        },
-        theme: AppTheme.System,
-        accentColor: undefined,
-        reader: {
-          forceDarkMode: true,
-          quality: ImageQuality.High,
-          global: {
-            readingMode: ReadingMode.SinglePage
-          },
-          manga: {}
-        }
-      }
+      const defaults: AppSettings = getDefaultSettings()
       await saveSettings(defaults)
       return defaults
     }
@@ -57,23 +29,7 @@ export async function loadSettings(): Promise<AppSettings> {
   } catch (error) {
     console.error('Error loading settings:', error)
     console.warn('Reverting to default settings.')
-    return {
-      downloads: {
-        downloadPath: null,
-        downloadQuality: ImageQuality.High,
-        concurrentChapterDownloads: 3
-      },
-      theme: AppTheme.System,
-      accentColor: undefined,
-      reader: {
-        forceDarkMode: true,
-        quality: ImageQuality.High,
-        global: {
-          readingMode: ReadingMode.SinglePage
-        },
-        manga: {}
-      }
-    }
+    return getDefaultSettings()
   }
 }
 
@@ -154,6 +110,26 @@ export async function initializeDownloadsPath(): Promise<void> {
       console.log(`Using default downloads path at ${getDownloadsPath()} instead.`)
       // Reset to default in settings
       await updateSettings('downloads', { ...settings.downloads, downloadPath: null })
+    }
+  }
+}
+
+function getDefaultSettings(): AppSettings {
+  return {
+    downloads: {
+      downloadPath: null,
+      downloadQuality: ImageQuality.High,
+      concurrentChapterDownloads: 3
+    },
+    theme: AppTheme.System,
+    accentColor: undefined,
+    reader: {
+      forceDarkMode: true,
+      quality: ImageQuality.High,
+      global: {
+        readingMode: ReadingMode.SinglePage
+      },
+      manga: {}
     }
   }
 }

@@ -10,8 +10,8 @@ interface IAllowedPath {
 // Define allowed paths
 // By default, allow app data and a downloads folder within app data
 const allowedPaths: IAllowedPath = {
-  appData: app.app.getPath('userData'),
-  downloads: path.join(app.app.getPath('userData'), 'downloads')
+  appData: path.join(app.app.getPath('userData'), 'dexreader'),
+  downloads: path.join(app.app.getPath('userData'), 'dexreader', 'downloads')
 }
 
 // Get the application data path
