@@ -6,7 +6,7 @@ import { getSystemAccentColor } from '../../theme'
 import { validateEncoding, validatePath } from '../validators'
 import { wrapIpcHandler } from '../wrapHandler'
 
-export function registerFileSystemHandlers(mainWindow: BrowserWindow): void {
+export function registerFileSystemHandlers(getWindow: () => BrowserWindow): void {
   // Read files
   wrapIpcHandler('fs:read-file', async (_event, filePath: unknown, encoding: unknown) => {
     const validPath = validatePath(filePath, 'filePath')
@@ -106,6 +106,7 @@ export function registerFileSystemHandlers(mainWindow: BrowserWindow): void {
 
   // Select download folder using native dialog
   wrapIpcHandler('fs:select-downloads-folder', async () => {
+    const mainWindow = getWindow()
     const result = await dialog.showOpenDialog(mainWindow, {
       properties: ['openDirectory', 'createDirectory'],
       title: 'Choose where to save downloaded manga',
