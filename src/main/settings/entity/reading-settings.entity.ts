@@ -1,6 +1,6 @@
 import { ReadingMode } from '../enum/reading-mode.enum'
 
-export interface ReaderSettings {
+export interface MangaReadingSettings {
   readingMode: ReadingMode
   doublePageMode?: {
     skipCoverPages: boolean

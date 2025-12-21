@@ -1,5 +1,5 @@
 import { BrowserWindow, MenuItemConstructorOptions } from 'electron'
-import { MenuState } from '../menu'
+import { MenuState } from './menu-state'
 
 export function buildFileMenu(
   mainWindow: BrowserWindow,

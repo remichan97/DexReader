@@ -8,9 +8,9 @@ import {
 import { secureFs } from '../filesystem/secureFs'
 import { ImageQuality } from '../api/enums'
 import { AppTheme } from './enum/theme-mode.enum'
-import { ReaderSettings } from './entity/reading-settings.entity'
 import { ReadingMode } from './enum/reading-mode.enum'
 import { AppSettings } from './entity/app-settings.entity'
+import { MangaReadingSettings } from './entity/reading-settings.entity'
 
 const SETTINGS_FILE = path.join(getAppDataPath(), 'settings.json')
 
@@ -65,26 +65,34 @@ export async function getConfiguredDownloadsPath(): Promise<string> {
 
 // Set a new downloads path with validation
 export async function setDownloadsPath(newPath: string): Promise<void> {
-  const settings = await loadSettings()
+  // Sanitize the new path (remove control characters)
+  // eslint-disable-next-line no-control-regex
+  const sanitizedPath = newPath.replaceAll(/[\u0000-\u001F\u007F]/g, '')
+
+  // Prevent setting to system directories
+  if (isSystemDirectory(sanitizedPath)) {
+    throw new Error('Setting downloads path to system directories is not allowed.')
+  }
 
   // Validate that the path exists and is a directory
-  await validateDirectoryPath(newPath)
+  await validateDirectoryPath(sanitizedPath)
 
+  // Load and update settings
+  const settings = await loadSettings()
   // Update in-memory allowed paths
-  updateDownloadsPath(newPath)
-
+  updateDownloadsPath(sanitizedPath)
   // Save to settings
-  await updateSettings('downloads', { ...settings.downloads, downloadPath: newPath })
+  await updateSettings('downloads', { ...settings.downloads, downloadPath: sanitizedPath })
 }
 
-export async function getMangaReaderSettings(mangaId: string): Promise<ReaderSettings> {
+export async function getMangaReaderSettings(mangaId: string): Promise<MangaReadingSettings> {
   const settings = await loadSettings()
   return settings.reader.manga[mangaId] || settings.reader.global
 }
 
 export async function updateMangaReaderSettings(
   mangaId: string,
-  newSettings: ReaderSettings
+  newSettings: MangaReadingSettings
 ): Promise<void> {
   const settings = await loadSettings()
   settings.reader.manga[mangaId] = newSettings
@@ -121,8 +129,9 @@ function getDefaultSettings(): AppSettings {
       downloadQuality: ImageQuality.High,
       concurrentChapterDownloads: 3
     },
-    theme: AppTheme.System,
-    accentColor: undefined,
+    appearance: {
+      theme: AppTheme.System
+    },
     reader: {
       forceDarkMode: true,
       quality: ImageQuality.High,
@@ -132,4 +141,22 @@ function getDefaultSettings(): AppSettings {
       manga: {}
     }
   }
+}
+
+function isSystemDirectory(folderPath: string): boolean {
+  const systemDirs = [
+    String.raw`C:\Windows`,
+    String.raw`C:\Program Files`,
+    '/usr',
+    '/bin',
+    '/etc',
+    '/var',
+    '/root',
+    '/sys',
+    '/proc',
+    String.raw`/System`,
+    String.raw`/Library`
+  ]
+
+  return systemDirs.some((dir) => folderPath.startsWith(dir))
 }

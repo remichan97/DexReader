@@ -1,4 +1,4 @@
-import { ReaderSettings } from '../../settings/entity/reading-settings.entity'
+import { MangaReadingSettings } from '../../settings/entity/reading-settings.entity'
 import {
   getMangaReaderSettings,
   updateMangaReaderSettings,
@@ -14,7 +14,7 @@ export function registerReaderSettingsHandlers(): void {
   wrapIpcHandler(
     'reader:update-manga-settings',
     async (_, mangaId: unknown, newSettings: unknown) => {
-      return await updateMangaReaderSettings(mangaId as string, newSettings as ReaderSettings)
+      return await updateMangaReaderSettings(mangaId as string, newSettings as MangaReadingSettings)
     }
   )
 

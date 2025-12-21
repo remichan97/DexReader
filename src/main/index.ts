@@ -45,7 +45,7 @@ async function initFileSystem(): Promise<void> {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(async () => {
   // Set app user model id for windows
-  electronApp.setAppUserModelId('com.electron')
+  electronApp.setAppUserModelId('com.dexreader.app')
 
   imageProxy.registerProtocol()
 
@@ -65,12 +65,6 @@ app.whenReady().then(async () => {
     menuState = { ...menuState, ...state }
     // Rebuild menu with current state (handles both labels and enabled states)
     updateMenuState(menuState)
-  })
-
-  electronApp.setAppUserModelId('com.dexreader.app')
-
-  app.on('browser-window-created', (_, window) => {
-    optimizer.watchWindowShortcuts(window)
   })
 
   await initFileSystem()
