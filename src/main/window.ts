@@ -1,7 +1,7 @@
 import { BrowserWindow, Menu, shell } from 'electron'
 import icon from '../../resources/icon.png?asset'
 import { join } from 'node:path'
-import { createMenu } from './menu'
+import { createMenu } from './menu/index'
 import { setupThemeDetection } from './theme'
 import { is } from '@electron-toolkit/utils'
 
@@ -35,7 +35,7 @@ export function createWindow(): void {
   })
 
   // Set up application menu
-  const menu = createMenu(mainWindow, menuState)
+  const menu = createMenu(menuState)
   Menu.setApplicationMenu(menu)
 
   // Set up theme detection

@@ -1,12 +1,12 @@
-import { app, ipcMain, Menu } from 'electron'
+import { app, ipcMain } from 'electron'
 import path from 'node:path'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
-import { createMenu, updateMenuState } from './menu'
+import { updateMenuState } from './menu/index'
 import { secureFs } from './filesystem/secureFs'
 import { getAppDataPath, getDownloadsPath } from './filesystem/pathValidator'
 import { initializeDownloadsPath, loadSettings } from './filesystem/settingsManager'
 import { ImageProxy } from './api/imageProxy'
-import { createWindow, getMainWindow } from './window'
+import { createWindow } from './window'
 import { setupAppLifecycle } from './app-lifecycle'
 import { registerAllHandlers } from './ipc/registry'
 
@@ -63,14 +63,8 @@ app.whenReady().then(async () => {
   ipcMain.on('update-menu-state', (_, state) => {
     // Merge new state
     menuState = { ...menuState, ...state }
-    // Rebuild menu with current state to apply label changes
-    const mainWindow = getMainWindow()
-    if (mainWindow) {
-      const updatedMenu = createMenu(mainWindow, menuState)
-      Menu.setApplicationMenu(updatedMenu)
-      // Re-apply state AFTER setting new menu (for enabled/disabled states)
-      updateMenuState(menuState)
-    }
+    // Rebuild menu with current state (handles both labels and enabled states)
+    updateMenuState(menuState)
   })
 
   electronApp.setAppUserModelId('com.dexreader.app')
