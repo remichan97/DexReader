@@ -1,5 +1,5 @@
-import { AppSettings } from '../../filesystem/enum/app-settings.entity'
-import { loadSettings, updateSettings } from '../../filesystem/settingsManager'
+import { AppSettings } from '../../settings/entity/app-settings.entity'
+import { loadSettings, updateSettings } from '../../settings/settingsManager'
 import { wrapIpcHandler } from '../wrapHandler'
 
 export function registerAppSettingsHandlers(): void {

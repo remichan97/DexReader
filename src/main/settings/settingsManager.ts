@@ -4,13 +4,13 @@ import {
   getDownloadsPath,
   updateDownloadsPath,
   validateDirectoryPath
-} from './pathValidator'
-import { secureFs } from './secureFs'
+} from '../filesystem/pathValidator'
+import { secureFs } from '../filesystem/secureFs'
 import { ImageQuality } from '../api/enums'
 import { AppTheme } from './enum/theme-mode.enum'
 import { ReaderSettings } from './entity/reading-settings.entity'
 import { ReadingMode } from './enum/reading-mode.enum'
-import { AppSettings } from './enum/app-settings.entity'
+import { AppSettings } from './entity/app-settings.entity'
 
 const SETTINGS_FILE = path.join(getAppDataPath(), 'settings.json')
 

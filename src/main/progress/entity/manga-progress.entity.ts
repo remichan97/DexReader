@@ -1,4 +1,4 @@
-import { ReaderSettings } from '../../filesystem/entity/reading-settings.entity'
+import { ReaderSettings } from '../../settings/entity/reading-settings.entity'
 import { ChapterProgress } from './chapter-progress.entity'
 
 export interface MangaProgress {

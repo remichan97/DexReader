@@ -1,7 +1,7 @@
 import { BrowserWindow, dialog } from 'electron'
 import { getAppDataPath, getDownloadsPath } from '../../filesystem/pathValidator'
 import { secureFs } from '../../filesystem/secureFs'
-import { setDownloadsPath } from '../../filesystem/settingsManager'
+import { setDownloadsPath } from '../../settings/settingsManager'
 import { getSystemAccentColor } from '../../theme'
 import { validateEncoding, validatePath } from '../validators'
 import { wrapIpcHandler } from '../wrapHandler'

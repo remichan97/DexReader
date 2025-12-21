@@ -1,9 +1,9 @@
-import { ReaderSettings } from '../../filesystem/entity/reading-settings.entity'
+import { ReaderSettings } from '../../settings/entity/reading-settings.entity'
 import {
   getMangaReaderSettings,
   updateMangaReaderSettings,
   deleteMangaReaderSettings
-} from '../../filesystem/settingsManager'
+} from '../../settings/settingsManager'
 import { wrapIpcHandler } from '../wrapHandler'
 
 export function registerReaderSettingsHandlers(): void {

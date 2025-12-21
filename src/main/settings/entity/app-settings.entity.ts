@@ -1,7 +1,7 @@
 import { ImageQuality } from '../../api/enums'
-import { DownloadSettings } from '../entity/downloads-settings.entity'
-import { ReaderSettings } from '../entity/reading-settings.entity'
-import { AppTheme } from './theme-mode.enum'
+import { DownloadSettings } from './downloads-settings.entity'
+import { ReaderSettings } from './reading-settings.entity'
+import { AppTheme } from '../enum/theme-mode.enum'
 
 export interface AppSettings {
   downloads: DownloadSettings
