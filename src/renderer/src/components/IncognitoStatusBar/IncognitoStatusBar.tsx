@@ -31,7 +31,7 @@ export function IncognitoStatusBar(): JSX.Element | null {
       <div className="incognito-status-bar__content">
         <EyeOff24Regular className="incognito-status-bar__icon" />
         <span className="incognito-status-bar__text">
-          <strong>You've gone Incognito</strong> — Progress tracking is disabled
+          <strong>You&apos;ve gone Incognito</strong> — Progress tracking is disabled
         </span>
       </div>
     </output>

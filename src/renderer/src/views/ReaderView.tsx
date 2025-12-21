@@ -490,8 +490,7 @@ function DoublePageDisplay({
   transformOriginX,
   transformOriginY,
   onNavigateLeft,
-  onNavigateRight,
-  readRightToLeft
+  onNavigateRight
 }: DoublePageDisplayProps): JSX.Element {
   const getCursor = (): string => {
     if (fitMode === 'custom' || zoomLevel > 1) {
@@ -1871,8 +1870,7 @@ export function ReaderView(): JSX.Element {
 
       switch (e.key) {
         case 'm':
-        case 'M': // Cycle through reading modes: single → double → vertical → single
-        {
+        case 'M': { // Cycle through reading modes: single → double → vertical → single
           const modes: Array<'single' | 'double' | 'vertical'> = ['single', 'double', 'vertical']
           const currentIndex = modes.indexOf(state.readingMode)
           const nextIndex = (currentIndex + 1) % modes.length

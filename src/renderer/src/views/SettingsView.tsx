@@ -75,18 +75,15 @@ export function SettingsView(): JSX.Element {
         const systemAccent = await globalThis.api.getSystemAccentColor()
         setSystemAccentColor(systemAccent)
 
-        // Load accent color from settings, fallback to system color
+        // Load settings via IPC
         try {
-          const settings = await globalThis.fileSystem.readFile(
-            paths.appData + '/settings.json',
-            'utf-8'
-          )
-          const parsed = JSON.parse(settings as string)
-          if (parsed.accentColor) {
+          const settings = await globalThis.electron.ipcRenderer.invoke('settings:load')
+
+          if (settings.accentColor) {
             // User has custom color - use it
-            setAccentColor(parsed.accentColor)
+            setAccentColor(settings.accentColor)
             setIsUsingSystemColor(false)
-            applyAccentColor(parsed.accentColor)
+            applyAccentColor(settings.accentColor)
           } else {
             // No custom color - use system color
             setAccentColor(systemAccent)
@@ -95,22 +92,22 @@ export function SettingsView(): JSX.Element {
           }
 
           // Load reader settings
-          if (parsed.reader) {
-            if (parsed.reader.global) {
-              setGlobalReaderSettings(parsed.reader.global)
+          if (settings.reader) {
+            if (settings.reader.global) {
+              setGlobalReaderSettings(settings.reader.global)
             }
 
-            if (parsed.reader.forceDarkMode !== undefined) {
-              setForceDarkMode(parsed.reader.forceDarkMode)
+            if (settings.reader.forceDarkMode !== undefined) {
+              setForceDarkMode(settings.reader.forceDarkMode)
             }
 
-            if (parsed.reader.quality !== undefined) {
-              setImageQuality(parsed.reader.quality)
+            if (settings.reader.quality !== undefined) {
+              setImageQuality(settings.reader.quality)
             }
 
             // Load per-manga overrides
-            if (parsed.reader.manga) {
-              const overrides = await loadPerMangaOverrides(parsed.reader.manga)
+            if (settings.reader.manga) {
+              const overrides = await loadPerMangaOverrides(settings.reader.manga)
               setPerMangaOverrides(overrides)
             }
           }
@@ -194,11 +191,7 @@ export function SettingsView(): JSX.Element {
       }
 
       delete settings.accentColor
-      await globalThis.fileSystem.writeFile(
-        settingsPath,
-        JSON.stringify(settings, null, 2),
-        'utf-8'
-      )
+      await globalThis.electron.ipcRenderer.invoke('settings:save', 'accentColor', undefined)
     } catch (error) {
       // Silently fail - user can see the UI hasn't changed
       console.error('Failed to save system color preference:', error)
@@ -225,11 +218,7 @@ export function SettingsView(): JSX.Element {
       }
 
       settings.accentColor = color
-      await globalThis.fileSystem.writeFile(
-        settingsPath,
-        JSON.stringify(settings, null, 2),
-        'utf-8'
-      )
+      await globalThis.electron.ipcRenderer.invoke('settings:save', 'accentColor', color)
     } catch (error) {
       // Silently fail - user can see the UI hasn't changed
       console.error('Failed to save accent color:', error)
@@ -304,11 +293,7 @@ export function SettingsView(): JSX.Element {
       }
       ;(settings.reader as Record<string, unknown>).global = updatedSettings
 
-      await globalThis.fileSystem.writeFile(
-        settingsPath,
-        JSON.stringify(settings, null, 2),
-        'utf-8'
-      )
+      await globalThis.electron.ipcRenderer.invoke('settings:save', 'reader', settings.reader)
 
       showToast({
         variant: 'success',
@@ -356,11 +341,7 @@ export function SettingsView(): JSX.Element {
       }
       ;(settings.reader as Record<string, unknown>).global = updatedSettings
 
-      await globalThis.fileSystem.writeFile(
-        settingsPath,
-        JSON.stringify(settings, null, 2),
-        'utf-8'
-      )
+      await globalThis.electron.ipcRenderer.invoke('settings:save', 'reader', settings.reader)
 
       showToast({
         variant: 'success',
@@ -397,11 +378,7 @@ export function SettingsView(): JSX.Element {
       }
       ;(settings.reader as Record<string, unknown>).forceDarkMode = enabled
 
-      await globalThis.fileSystem.writeFile(
-        settingsPath,
-        JSON.stringify(settings, null, 2),
-        'utf-8'
-      )
+      await globalThis.electron.ipcRenderer.invoke('settings:save', 'reader', settings.reader)
 
       showToast({
         variant: 'success',
@@ -439,11 +416,7 @@ export function SettingsView(): JSX.Element {
       }
       ;(settings.reader as Record<string, unknown>).quality = selectedQuality
 
-      await globalThis.fileSystem.writeFile(
-        settingsPath,
-        JSON.stringify(settings, null, 2),
-        'utf-8'
-      )
+      await globalThis.electron.ipcRenderer.invoke('settings:save', 'reader', settings.reader)
 
       showToast({
         variant: 'success',
