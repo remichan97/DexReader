@@ -19,6 +19,7 @@
 
 import { create } from 'zustand'
 import { useToastStore } from './toastStore'
+import { ReadingMode } from '../../../main/settings/enum/reading-mode.enum'
 
 // Types are available globally through Window interface (see preload/index.d.ts)
 type MangaProgress = NonNullable<Awaited<ReturnType<Window['progress']['getProgress']>>['data']>
@@ -146,7 +147,8 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
       lastChapterTitle: progressData.lastChapterTitle,
       firstReadAt: existingProgress?.firstReadAt ?? Date.now(),
       lastReadAt: Date.now(),
-      chapters: updatedChapters
+      chapters: updatedChapters,
+      readerSettings: existingProgress?.readerSettings ?? { readingMode: ReadingMode.SinglePage } // Preserve existing reader settings or use default
     }
 
     // Update cache immediately (optimistic)
