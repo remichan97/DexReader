@@ -1,13 +1,12 @@
 import type { JSX } from 'react'
 import { useState, useEffect } from 'react'
-import { Lightbulb16Regular, Delete24Regular } from '@fluentui/react-icons'
-import { Button } from '@renderer/components/Button'
-import { Input } from '@renderer/components/Input'
-import { Select, type SelectOption } from '@renderer/components/Select'
 import { Tabs, TabList, Tab, TabPanel } from '@renderer/components/Tabs'
-import { ErrorLogViewer } from '@renderer/components/ErrorLogViewer'
 import { useToastStore, useAppStore } from '@renderer/stores'
 import type { ReaderSettings } from '../../../../preload/index.d'
+import { AppearanceSettings } from './components/AppearanceSettings'
+import { ReaderSettingsSection } from './components/ReaderSettingsSection'
+import { StorageSettings } from './components/StorageSettings'
+import { AdvancedSettings } from './components/AdvancedSettings'
 
 interface PerMangaOverride {
   mangaId: string
@@ -245,26 +244,6 @@ export function SettingsView(): JSX.Element {
     }
   }
 
-  // Options for theme select
-  const themeModeOptions: SelectOption[] = [
-    { value: 'system', label: 'System Default' },
-    { value: 'light', label: 'Light' },
-    { value: 'dark', label: 'Dark' }
-  ]
-
-  // Options for reading mode select
-  const readingModeOptions: SelectOption[] = [
-    { value: 'single', label: 'Single Page' },
-    { value: 'double', label: 'Double Page' },
-    { value: 'vertical', label: 'Vertical Scroll' }
-  ]
-
-  // Options for image quality select
-  const imageQualityOptions: SelectOption[] = [
-    { value: 'data', label: 'High Quality' },
-    { value: 'data-saver', label: 'Data Saver' }
-  ]
-
   // Handle global reading mode change
   const handleReadingModeChange = async (mode: string | string[]): Promise<void> => {
     // Select component returns string or string[], we only support single selection
@@ -487,395 +466,47 @@ export function SettingsView(): JSX.Element {
 
         {/* Appearance Settings */}
         <TabPanel value="appearance">
-          <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div>
-              <h4 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>Theme</h4>
-              <Select
-                value={themeMode}
-                onChange={(value) => setThemeMode(value as typeof themeMode)}
-                options={themeModeOptions}
-                label="App theme"
-                helperText="Choose between light and dark mode, or follow your system settings"
-              />
-            </div>
-
-            <div>
-              <h4 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
-                Accent Color
-              </h4>
-              <div style={{ marginBottom: '12px' }}>
-                <div
-                  style={{
-                    display: 'block',
-                    fontSize: '14px',
-                    fontWeight: 500,
-                    marginBottom: '8px'
-                  }}
-                >
-                  Primary accent color
-                </div>
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  <input
-                    type="color"
-                    value={accentColor}
-                    onChange={(e) => handleAccentColorChange(e.target.value)}
-                    style={{
-                      width: '60px',
-                      height: '40px',
-                      border: '1px solid var(--win-border-default)',
-                      borderRadius: 'var(--radius-sm)',
-                      cursor: 'pointer'
-                    }}
-                  />
-                  <Input
-                    type="text"
-                    value={accentColor}
-                    onChange={(value) => {
-                      if (typeof value === 'string') {
-                        if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
-                          handleAccentColorChange(value)
-                        } else {
-                          setAccentColor(value)
-                        }
-                      }
-                    }}
-                    style={{ width: '120px', fontFamily: 'monospace' }}
-                    placeholder="#0078d4"
-                  />
-                  <Button variant="secondary" onClick={handleUseSystemColor}>
-                    Use System
-                  </Button>
-                </div>
-                <p
-                  style={{ fontSize: '13px', color: 'var(--win-text-secondary)', marginTop: '8px' }}
-                >
-                  {isUsingSystemColor
-                    ? `Using system accent color (${systemAccentColor})`
-                    : 'Using custom accent color. Click "Use System" to restore system color.'}
-                </p>
-              </div>
-            </div>
-          </div>
+          <AppearanceSettings
+            themeMode={themeMode}
+            onThemeModeChange={setThemeMode}
+            accentColor={accentColor}
+            onAccentColorChange={handleAccentColorChange}
+            isUsingSystemColor={isUsingSystemColor}
+            systemAccentColor={systemAccentColor}
+            onUseSystemColor={handleUseSystemColor}
+          />
         </TabPanel>
 
         {/* Storage Settings */}
         <TabPanel value="storage">
-          <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div>
-              <h4 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
-                Downloads Location
-              </h4>
-              <p
-                style={{
-                  fontSize: '13px',
-                  color: 'var(--win-text-secondary)',
-                  marginBottom: '12px'
-                }}
-              >
-                Where should we save your downloaded chapters?
-              </p>
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr auto',
-                  gap: '12px',
-                  alignItems: 'start'
-                }}
-              >
-                <Input
-                  type="text"
-                  value={isLoadingPath ? 'Loading...' : downloadsPath}
-                  onChange={() => {}}
-                  readOnly
-                  style={{
-                    fontFamily: 'monospace',
-                    fontSize: '13px',
-                    cursor: 'default',
-                    width: '100%'
-                  }}
-                />
-                <Button
-                  variant="secondary"
-                  onClick={handleSelectDownloadsFolder}
-                  loading={isChangingPath}
-                  disabled={isLoadingPath}
-                >
-                  Browse...
-                </Button>
-              </div>
-              <p
-                style={{
-                  fontSize: '12px',
-                  color: 'var(--win-text-tertiary)',
-                  marginTop: '8px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}
-              >
-                <Lightbulb16Regular style={{ flexShrink: 0 }} />
-                <span>
-                  Tip: Choose a location with plenty of free space for your manga collection.
-                </span>
-              </p>
-            </div>
-          </div>
+          <StorageSettings
+            downloadsPath={downloadsPath}
+            isLoadingPath={isLoadingPath}
+            isChangingPath={isChangingPath}
+            onSelectDownloadsFolder={handleSelectDownloadsFolder}
+          />
         </TabPanel>
 
         {/* Reader Settings */}
         <TabPanel value="reader">
-          <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div>
-              <h4 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
-                Reader Display Settings
-              </h4>
-
-              {isLoadingReaderSettings ? (
-                <p style={{ fontSize: '14px', color: 'var(--win-text-secondary)' }}>
-                  Loading settings...
-                </p>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  <label
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '12px',
-                      cursor: 'pointer',
-                      fontSize: '14px'
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={forceDarkMode}
-                      onChange={(e) => handleForceDarkModeChange(e.target.checked)}
-                      style={{ cursor: 'pointer' }}
-                    />{' '}
-                    <div>
-                      <div style={{ fontWeight: 500 }}>Force dark mode in reader</div>
-                      <div style={{ fontSize: '13px', color: 'var(--win-text-secondary)' }}>
-                        Always use dark background when reading, regardless of app theme
-                      </div>
-                    </div>
-                  </label>
-
-                  <Select
-                    value={imageQuality}
-                    onChange={handleImageQualityChange}
-                    options={imageQualityOptions}
-                    label="Image quality"
-                    helperText="High quality uses more bandwidth but looks better"
-                  />
-                </div>
-              )}
-            </div>
-
-            <div
-              style={{
-                borderTop: '1px solid var(--win-border-default)',
-                paddingTop: '20px'
-              }}
-            >
-              <h4 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
-                Global Reader Settings
-              </h4>
-              <p
-                style={{
-                  fontSize: '13px',
-                  color: 'var(--win-text-secondary)',
-                  marginBottom: '16px'
-                }}
-              >
-                These settings apply to all manga by default. You can override them per-manga in the
-                reader.
-              </p>
-
-              {isLoadingReaderSettings ? (
-                <p style={{ fontSize: '14px', color: 'var(--win-text-secondary)' }}>
-                  Loading settings...
-                </p>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  <Select
-                    value={globalReaderSettings.readingMode}
-                    onChange={handleReadingModeChange}
-                    options={readingModeOptions}
-                    label="Default reading mode"
-                    helperText="How pages are displayed when reading manga"
-                  />
-
-                  {globalReaderSettings.readingMode === 'double' && (
-                    <div
-                      style={{
-                        padding: '16px',
-                        background: 'var(--win-bg-subtle)',
-                        borderRadius: 'var(--radius-md)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '12px'
-                      }}
-                    >
-                      <h5 style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>
-                        Double Page Mode Options
-                      </h5>
-                      <label
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          cursor: 'pointer',
-                          fontSize: '14px'
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={globalReaderSettings.doublePageMode?.skipCoverPages ?? true}
-                          onChange={(e) =>
-                            handleDoublePageSettingChange('skipCoverPages', e.target.checked)
-                          }
-                          style={{ cursor: 'pointer' }}
-                        />{' '}
-                        Skip cover pages (show first page alone)
-                      </label>
-                      <label
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          cursor: 'pointer',
-                          fontSize: '14px'
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={globalReaderSettings.doublePageMode?.readRightToLeft ?? true}
-                          onChange={(e) =>
-                            handleDoublePageSettingChange('readRightToLeft', e.target.checked)
-                          }
-                          style={{ cursor: 'pointer' }}
-                        />{' '}
-                        Read right-to-left (manga style)
-                      </label>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            <div
-              style={{
-                borderTop: '1px solid var(--win-border-default)',
-                paddingTop: '20px'
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: '12px'
-                }}
-              >
-                <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>
-                  Per-Manga Overrides
-                </h4>
-                {perMangaOverrides.length > 0 && (
-                  <Button onClick={handleClearAllOverrides} variant="secondary">
-                    Clear All
-                  </Button>
-                )}
-              </div>
-              <p
-                style={{
-                  fontSize: '13px',
-                  color: 'var(--win-text-secondary)',
-                  marginBottom: '16px'
-                }}
-              >
-                Manga with custom reading mode settings. Reset them to use global defaults.
-              </p>
-
-              {isLoadingReaderSettings ? (
-                <p style={{ fontSize: '14px', color: 'var(--win-text-secondary)' }}>
-                  Loading overrides...
-                </p>
-              ) : null}
-
-              {!isLoadingReaderSettings && perMangaOverrides.length === 0 ? (
-                <div
-                  style={{
-                    padding: '24px',
-                    background: 'var(--win-bg-subtle)',
-                    borderRadius: 'var(--radius-md)',
-                    textAlign: 'center'
-                  }}
-                >
-                  <p style={{ fontSize: '14px', color: 'var(--win-text-secondary)', margin: 0 }}>
-                    No custom settings yet. Change reading modes while reading to create overrides.
-                  </p>
-                </div>
-              ) : null}
-
-              {!isLoadingReaderSettings && perMangaOverrides.length > 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {perMangaOverrides.map((override) => {
-                    // Helper function to get readable mode name
-                    const getModeName = (mode: string): string => {
-                      if (mode === 'single') return 'Single Page'
-                      if (mode === 'double') return 'Double Page'
-                      return 'Vertical Scroll'
-                    }
-
-                    return (
-                      <div
-                        key={override.mangaId}
-                        style={{
-                          padding: '12px 16px',
-                          background: 'var(--win-bg-subtle)',
-                          borderRadius: 'var(--radius-md)',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center'
-                        }}
-                      >
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>
-                            {override.mangaTitle}
-                          </div>
-                          <div style={{ fontSize: '13px', color: 'var(--win-text-secondary)' }}>
-                            Mode: {getModeName(override.settings.readingMode)}
-                            {override.settings.readingMode === 'double' &&
-                              override.settings.doublePageMode && (
-                                <>
-                                  {' • '}
-                                  {override.settings.doublePageMode.readRightToLeft ? 'RTL' : 'LTR'}
-                                  {override.settings.doublePageMode.skipCoverPages &&
-                                    ' • Skip covers'}
-                                </>
-                              )}
-                          </div>
-                        </div>
-                        <Button
-                          onClick={() => handleResetMangaOverride(override.mangaId)}
-                          variant="secondary"
-                          icon={<Delete24Regular />}
-                        >
-                          Reset
-                        </Button>
-                      </div>
-                    )
-                  })}
-                </div>
-              ) : null}
-            </div>
-          </div>
+          <ReaderSettingsSection
+            isLoading={isLoadingReaderSettings}
+            forceDarkMode={forceDarkMode}
+            onForceDarkModeChange={handleForceDarkModeChange}
+            imageQuality={imageQuality}
+            onImageQualityChange={handleImageQualityChange}
+            globalReaderSettings={globalReaderSettings}
+            onReadingModeChange={handleReadingModeChange}
+            onDoublePageSettingChange={handleDoublePageSettingChange}
+            perMangaOverrides={perMangaOverrides}
+            onResetMangaOverride={handleResetMangaOverride}
+            onClearAllOverrides={handleClearAllOverrides}
+          />
         </TabPanel>
 
         {/* Advanced Settings */}
         <TabPanel value="advanced">
-          <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <ErrorLogViewer />
-          </div>
+          <AdvancedSettings />
         </TabPanel>
       </Tabs>
     </div>
