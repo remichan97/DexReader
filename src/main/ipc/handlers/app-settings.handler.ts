@@ -1,9 +1,10 @@
 import { AppSettings } from '../../settings/entity/app-settings.entity'
-import { loadSettings, updateSettings } from '../../settings/settingsManager'
+import { loadSettings, updateSettings, updateSettingsField } from '../../settings/settingsManager'
 import {
   isAppearanceSettings,
   isDownloadsSettings,
-  isReaderSettings
+  isReaderSettings,
+  validateSettingsField
 } from '../../settings/validators/types.validator'
 import { wrapIpcHandler } from '../wrapHandler'
 
@@ -13,7 +14,20 @@ export function registerAppSettingsHandlers(): void {
   })
 
   wrapIpcHandler('settings:save', async (_, key: unknown, value: unknown) => {
-    switch (key as keyof AppSettings) {
+    const keyStr = key as string
+
+    // Check if this is a field-level update (e.g., 'accentColor', 'theme')
+    const fieldUpdateResult = validateSettingsField(keyStr, value)
+    if (fieldUpdateResult.isFieldUpdate) {
+      // Field-level update with validation
+      if (!fieldUpdateResult.isValid) {
+        throw new Error(fieldUpdateResult.error || 'Invalid field value')
+      }
+      return await updateSettingsField(keyStr, value)
+    }
+
+    // Section-level update (e.g., 'appearance', 'downloads', 'reader')
+    switch (keyStr as keyof AppSettings) {
       case 'appearance':
         if (!isAppearanceSettings(value)) {
           throw new Error('Invalid appearance settings')
@@ -30,8 +44,8 @@ export function registerAppSettingsHandlers(): void {
         }
         break
       default:
-        throw new Error(`Unknown settings key: ${key as string}`)
+        throw new Error(`Unknown settings key: ${keyStr}`)
     }
-    return await updateSettings(key as keyof AppSettings, value)
+    return await updateSettings(keyStr as keyof AppSettings, value)
   })
 }

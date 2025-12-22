@@ -14,6 +14,10 @@ import { MangaReadingSettings } from './entity/reading-settings.entity'
 
 const SETTINGS_FILE = path.join(getAppDataPath(), 'settings.json')
 
+// Limits to prevent file bloat and save failures
+const MAX_SETTINGS_FILE_SIZE = 2 * 1024 * 1024 // 2MB
+const MAX_MANGA_OVERRIDES = 1000 // Reasonable limit for per-manga settings
+
 export async function loadSettings(): Promise<AppSettings> {
   try {
     const exists = await secureFs.isExists(SETTINGS_FILE)
@@ -24,8 +28,34 @@ export async function loadSettings(): Promise<AppSettings> {
       return defaults
     }
 
+    // Check file size - warn but still load (user data is precious)
+    const stats = await secureFs.stat(SETTINGS_FILE)
+    if (stats.size > MAX_SETTINGS_FILE_SIZE) {
+      console.warn(
+        `Settings file is large (${Math.round(stats.size / 1024)}KB). ` +
+          `Loading anyway, but consider removing unused manga overrides.`
+      )
+    }
+
     const data = (await secureFs.readFile(SETTINGS_FILE, 'utf-8')) as string
-    return JSON.parse(data)
+    const settings = JSON.parse(data)
+
+    // Check if manga overrides exceed limit - auto-trim to keep file manageable
+    if (settings.reader?.manga) {
+      const overrideCount = Object.keys(settings.reader.manga).length
+      if (overrideCount > MAX_MANGA_OVERRIDES) {
+        console.warn(
+          `Too many manga overrides (${overrideCount}), trimming to ${MAX_MANGA_OVERRIDES} most recent`
+        )
+        // Keep only the most recent overrides (slice from end to keep newest)
+        const sortedEntries = Object.entries(settings.reader.manga).slice(-MAX_MANGA_OVERRIDES)
+        settings.reader.manga = Object.fromEntries(sortedEntries)
+        // Save trimmed version to prevent file from growing indefinitely
+        await saveSettings(settings)
+      }
+    }
+
+    return settings
   } catch (error) {
     console.error('Error loading settings:', error)
     console.warn('Reverting to default settings.')
@@ -36,6 +66,16 @@ export async function loadSettings(): Promise<AppSettings> {
 export async function saveSettings(settings: AppSettings): Promise<void> {
   try {
     const data = JSON.stringify(settings, null, 2)
+
+    // Pre-save validation: Check if serialized data would exceed size limit
+    const estimatedSize = Buffer.byteLength(data, 'utf-8')
+    if (estimatedSize > MAX_SETTINGS_FILE_SIZE) {
+      throw new Error(
+        `Settings too large (${Math.round(estimatedSize / 1024)}KB). ` +
+          `Try removing some per-manga reader overrides.`
+      )
+    }
+
     await secureFs.writeFile(SETTINGS_FILE, data, 'utf-8')
   } catch (error) {
     console.error('Error saving settings:', error)
@@ -52,6 +92,31 @@ export async function updateSettings<K extends keyof AppSettings>(
   await saveSettings(settings)
 }
 
+/**
+ * Update a specific field within settings sections
+ * Supports granular updates without requiring full section objects
+ */
+export async function updateSettingsField(field: string, value: unknown): Promise<void> {
+  const settings = await loadSettings()
+
+  switch (field) {
+    case 'accentColor':
+      // Update accent color in appearance section
+      settings.appearance.accentColor = value as string | undefined
+      break
+
+    case 'theme':
+      // Update theme in appearance section
+      settings.appearance.theme = value as AppSettings['appearance']['theme']
+      break
+
+    default:
+      throw new Error(`Unknown settings field: ${field}`)
+  }
+
+  await saveSettings(settings)
+}
+
 export async function getSetting<K extends keyof AppSettings>(key: K): Promise<AppSettings[K]> {
   const settings = await loadSettings()
   return settings[key]
@@ -65,7 +130,7 @@ export async function getConfiguredDownloadsPath(): Promise<string> {
 
 // Set a new downloads path with validation
 export async function setDownloadsPath(newPath: string): Promise<void> {
-  // Sanitize the new path (remove control characters)
+  // Sanitize the new path (remove control characters including null bytes)
   // eslint-disable-next-line no-control-regex
   const sanitizedPath = newPath.replaceAll(/[\u0000-\u001F\u007F]/g, '')
 
@@ -95,6 +160,18 @@ export async function updateMangaReaderSettings(
   newSettings: MangaReadingSettings
 ): Promise<void> {
   const settings = await loadSettings()
+
+  // Check if adding this override would exceed the limit
+  const currentOverrideCount = Object.keys(settings.reader.manga).length
+  const isNewOverride = !settings.reader.manga[mangaId]
+
+  if (isNewOverride && currentOverrideCount >= MAX_MANGA_OVERRIDES) {
+    throw new Error(
+      `Cannot add more manga overrides. Maximum limit of ${MAX_MANGA_OVERRIDES} reached. ` +
+        `Please delete some unused overrides from Settings.`
+    )
+  }
+
   settings.reader.manga[mangaId] = newSettings
   await updateSettings('reader', settings.reader)
 }
