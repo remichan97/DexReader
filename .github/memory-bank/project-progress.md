@@ -927,12 +927,14 @@
 ✅ **Production Ready**: All UI combinations tested, no crashes on network errors
 
 **Theme Fixes Applied:**
+
 - Chapter sidebar: Explicit solid backgrounds for light mode
 - Active chapter: Windows 11 accent colors (--win-accent)
 - Hover states: Darker blue for active chapters (#004A94)
 - Close button: Consistent default styling
 
 **Pagination Improvements:**
+
 - Separate error state for pagination (loadMoreError)
 - Inline error display (subtle, not alarming)
 - Retry mechanism preserves existing results
