@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 22 December 2025
+**Last Updated**: 24 December 2025
 **Current Phase**: Guerilla Refactoring (Before Phase 3) 🔧
-**Session**: Frontend Refactoring Complete
+**Session**: UI Polish & Error Handling Improvements - Complete
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -11,11 +11,206 @@
 ## Current Status Summary
 
 **Phase**: Guerilla Refactoring Task (Between Phase 2 and Phase 3)
-**Progress**: Frontend refactoring complete ✅, backend refactoring pending
-**Current Date**: 22 December 2025
+**Progress**: Frontend refactoring complete ✅, Critical bug fixes complete ✅, backend refactoring pending
+**Current Date**: 23 December 2025
 **Phase 1 Status**: Complete ✅ (9/9 tasks, 100%)
 **Phase 2 Status**: Complete ✅ (11/11 tasks, 100%)
-**Current Task**: Frontend refactoring complete - awaiting regression testing before Phase 3
+**Current Task**: Multiple critical bugs fixed - ready for testing before Phase 3
+
+### 🐛 Critical Bug Fixes (23 Dec 2025) - ✅ COMPLETE
+
+#### 1. System Theme Not Working (FIXED)
+
+**Problem**: When "System Default" theme was selected, the app displayed in a completely broken state with light mode.
+
+**Root Cause**: In [AppShell.tsx](src/renderer/src/layouts/AppShell.tsx#L39-42), the code called `window.api.getTheme()` which returns an IPC wrapped response `{ success, data, error }`, but was passing the entire wrapped object to `setSystemTheme()` instead of unwrapping it first.
+
+**Fix**: Updated to properly unwrap the IPC response:
+
+```typescript
+window.api.getTheme().then((response) => {
+  if (response.success && response.data) {
+    setSystemTheme(response.data as 'light' | 'dark')
+  }
+})
+```
+
+#### 2. Zoom Level Showing 10000% (FIXED)
+
+**Problem**: Zoom controls displayed "10000%" on initial load, and zoom actually started at an absurdly high level.
+
+**Root Cause**: Mixed usage of zoom level as both percentage (100) and decimal (1.0). The `zoomLevel` state was initialized to `100`, but display code multiplied by 100, resulting in 10000%.
+
+**Fix**: Standardized `zoomLevel` to use decimal values throughout [useReaderZoom.ts](src/renderer/src/views/ReaderView/hooks/useReaderZoom.ts):
+
+- Initial: `100` → `1.0`
+- Limits: `25-400` → `0.25-4.0`
+- Comparisons: `<= 100` → `<= 1.0`
+- Display: `Math.round(zoomLevel * 100)` now correctly shows 100%
+
+#### 3. Zoom Controls Covering Header (FIXED)
+
+**Problem**: Zoom controls were togglable inline in the ReaderHeader, covering the chapter name and partially hiding the Chapters button.
+
+**Solution**: Converted zoom controls to use a popover modal pattern (like Reader Settings):
+
+- Created new [ZoomControlsModal](src/renderer/src/components/ZoomControlsModal/) component
+- Removed inline `ZoomControls` component from ReaderView
+- Updated ReaderHeader to use `zoomControlsPopover` prop
+- Zoom controls now appear in a clean popover on click, not overlaying header content
+
+**Files Modified**:
+
+- ✅ [AppShell.tsx](src/renderer/src/layouts/AppShell.tsx) - Fixed theme IPC unwrapping
+- ✅ [useReaderZoom.ts](src/renderer/src/views/ReaderView/hooks/useReaderZoom.ts) - Fixed zoom level to use decimals
+- ✅ [ReaderView.tsx](src/renderer/src/views/ReaderView/ReaderView.tsx) - Integrated ZoomControlsModal, added forceDarkMode loading
+- ✅ New: [ZoomControlsModal](src/renderer/src/components/ZoomControlsModal/) - Popover-based zoom controls
+
+#### 4. Zoom Popover Not Respecting Dark Mode (FIXED)
+
+**Problem**: The new ZoomControlsModal popover didn't respect the "Force Dark Mode in Reader" setting - it always appeared in dark mode regardless of the toggle in Settings.
+
+**Root Cause**: ReaderView had `forceReaderDarkMode` hardcoded to `true` in state initialization and never loaded the actual setting from the backend. While the Popover component correctly detects parent theme via `data-theme` attribute, the ReaderView wasn't applying the correct theme based on user preference.
+
+**Fix**: Added a `useEffect` in [ReaderView.tsx](src/renderer/src/views/ReaderView/ReaderView.tsx#L368-386) to load reader settings on mount:
+
+```typescript
+useEffect(() => {
+  const loadReaderSettings = async (): Promise<void> => {
+    try {
+      const settingsResult = await globalThis.electron.ipcRenderer.invoke('settings:load')
+      if (settingsResult.success && settingsResult.data?.reader?.forceDarkMode !== undefined) {
+        setState((prev) => ({
+          ...prev,
+          forceReaderDarkMode: settingsResult.data.reader.forceDarkMode
+        }))
+      }
+    } catch (error) {
+      console.error('Failed to load reader settings:', error)
+      // Keep default value on error
+    }
+  }
+  loadReaderSettings()
+}, [])
+```
+
+**Result**:
+
+- ReaderView now loads the `forceDarkMode` setting from backend on mount
+- Zoom popover correctly inherits theme from ReaderView's `data-theme` attribute
+- Toggling "Force Dark Mode in Reader" in Settings now properly affects zoom controls
+- Default remains `true` for better reading experience if settings fail to load
+
+#### 5. Vertical Scroll Mode Not Scrollable (FIXED)
+
+**Problem**: When switching to vertical scroll reading mode, the view displayed all pages correctly but scrolling didn't work - neither arrow keys nor scroll wheel could scroll the view.
+
+**Root Causes**:
+
+1. **CSS Issue**: [ReaderView.css](src/renderer/src/views/ReaderView/ReaderView.css#L6-14) had `overflow: hidden` on `.reader-view` container, preventing the vertical scroll container (`overflow-y: auto`) from scrolling
+2. **Keyboard Navigation Issue**: [useReaderKeyboard.ts](src/renderer/src/views/ReaderView/hooks/useReaderKeyboard.ts) was calling `preventDefault()` on arrow keys and calling page navigation functions, blocking native scroll behavior
+
+**Fix**:
+
+1. Changed `.reader-view` overflow from `hidden` to `auto` to allow vertical scrolling
+2. Modified keyboard handler to skip `preventDefault()` for arrow keys (Left/Right/Up/Down) and PageUp/PageDown when in vertical mode, allowing native browser scrolling
+
+**Result**:
+
+- ✅ Vertical scroll mode now scrolls smoothly with mouse wheel
+- ✅ Arrow keys (Up/Down) now scroll the view naturally
+- ✅ PageUp/PageDown keys work for scrolling
+- ✅ IntersectionObserver in VerticalScrollDisplay still tracks current page
+- ✅ Other reading modes (single, double) remain unaffected
+
+**Follow-up Fix (Second Attempt)**:
+After initial fix, vertical scroll still didn't work. The issue was CSS flexbox layout - `.vertical-scroll-container` used `height: 100%` which doesn't work properly in flexbox containers. Changed to `flex: 1` to properly fill remaining space.
+
+#### 6. Zoom Drag Mode Persisting at 100% (FIXED)
+
+**Problem**: When zooming in/out and returning to exactly 100%, the view remained in drag mode, which disabled the click-to-navigate functionality (clicking left/right side of image to go to previous/next page).
+
+**Root Cause**: The `zoomIn()` and `zoomOut()` functions always set `fitMode` to 'custom' when zooming, but didn't reset it back when reaching exactly 1.0 (100%). The `handleImageClick` checked both `fitMode === 'custom'` OR `zoomLevel > 1`, so even at 100% zoom, if fitMode was still 'custom', navigation was disabled.
+
+**Fix**: Modified [useReaderZoom.ts](src/renderer/src/views/ReaderView/hooks/useReaderZoom.ts):
+
+1. When zooming in or out, if the new zoom level is exactly 1.0, reset `fitMode` to 'height' and clear pan offsets
+2. Simplified [handleImageClick](src/renderer/src/views/ReaderView/ReaderView.tsx#L436-451) to only check `zoomLevel > 1.0` instead of also checking fitMode
+
+**Result**:
+
+- ✅ Zooming back to 100% now automatically resets to 'height' fit mode
+- ✅ Click navigation (left 40% / right 60%) works immediately at 100% zoom
+- ✅ Drag/pan mode only activates when actually zoomed in (> 100%)
+- ✅ Pan offsets are cleared when returning to 100%
+
+#### 7. Manga Names and Covers in Settings Overrides (FIXED) ✅
+
+**Problem**: Settings page displayed manga IDs instead of readable titles and had no cover images for per-manga reading overrides, making it difficult to identify which manga had custom settings.
+
+**Backend Implementation** (User completed earlier):
+
+- Created [MangaOverrideSettings](src/main/settings/entity/manga-override-settings.entity.ts) entity with `title`, `coverUrl?`, and `settings`
+- Updated [reader-settings.handler.ts](src/main/ipc/handlers/reader-settings.handler.ts) to accept `title` and `coverUrl` parameters
+- Updated [settingsManager.ts](src/main/settings/settingsManager.ts) to store complete override structure with metadata
+- Added comprehensive validation in [types.validator.ts](src/main/settings/validators/types.validator.ts):
+  - Validates `title` is non-empty string
+  - Validates `coverUrl` is valid URL format if provided
+  - Validates `settings` using `isMangaReadingSettings`
+  - Max 1000 overrides limit, UUID format for manga IDs
+
+**Frontend Implementation** (23 Dec 2025):
+
+- Updated [useReaderSettings.ts](src/renderer/src/views/ReaderView/hooks/useReaderSettings.ts):
+  - Added `mangaTitle` and `coverUrl` parameters to hook signature
+  - Pass title and coverUrl to `updateMangaReaderSettings` IPC call
+  - Updated dependencies to include mangaTitle and coverUrl
+- Updated [ReaderView.tsx](src/renderer/src/views/ReaderView/ReaderView.tsx):
+  - Pass `mangaTitle` from `chapterData` and `coverUrl` from `locationState` to `useReaderSettings` hook
+  - Manga title comes from chapter metadata, cover URL passed via navigation state
+- Updated [SettingsView.tsx](src/renderer/src/views/SettingsView/SettingsView.tsx):
+  - Added `coverUrl?: string` to `PerMangaOverride` interface
+  - Completely rewrote `loadPerMangaOverrides` to read from stored data instead of API fetching
+  - Reads `title` and `coverUrl` directly from `MangaOverrideSettings` structure in settings file
+  - No more API calls needed to load override list (uses cached metadata)
+- Updated [ReaderSettingsSection.tsx](src/renderer/src/views/SettingsView/components/ReaderSettingsSection.tsx):
+  - Added `coverUrl?: string` to `PerMangaOverride` interface
+  - Display cover image thumbnail (40x56px) if `coverUrl` is available
+  - Cover images use mangadex:// protocol for image proxy
+  - Added gap spacing to accommodate cover images
+
+**Result**:
+
+- ✅ Settings page now displays readable manga titles instead of UUIDs
+- ✅ Cover image thumbnails appear next to each override for visual identification
+- ✅ No API calls needed to display override list (instant loading)
+- ✅ Complete data validation ensures integrity of stored metadata
+- ✅ Graceful handling when cover URL is unavailable (just shows title)
+- ✅ Cover images use secure image proxy (mangadex:// protocol)
+
+### 🐛 IPC Response Handling Fix (23 Dec 2025) - ✅ COMPLETE
+
+**Problem Identified**: Frontend code was directly accessing IPC call results without unwrapping the `IpcResponse<T>` wrapper structure `{ success: boolean, data?: T, error?: ISerialiseError }`.
+
+**Root Cause**: All IPC handlers use `wrapIpcHandler()` which wraps responses in `{ success, data, error }` structure, but some frontend code was treating responses as if they were the raw data.
+
+**Files Fixed**:
+
+- ✅ [useAccentColor.ts](src/renderer/src/hooks/useAccentColor.ts) - Fixed `getSystemAccentColor()`, `getAllowedPaths()`, and `readFile()` calls
+- ✅ [SettingsView.tsx](src/renderer/src/views/SettingsView/SettingsView.tsx) - Fixed all `fileSystem.*` calls (getAllowedPaths, readFile, selectDownloadsFolder), `settings:load`, and `reader.*` calls
+- ✅ [NotFoundView.tsx](src/renderer/src/views/NotFoundView/NotFoundView.tsx) - Fixed `showConfirmDialog()` call
+- ✅ [ExternalLinksSection.tsx](src/renderer/src/views/MangaDetailView/components/ExternalLinksSection.tsx) - Fixed `showConfirmDialog()` call
+- ✅ [useReaderSettings.ts](src/renderer/src/views/ReaderView/hooks/useReaderSettings.ts) - Fixed `getMangaReaderSettings()` call
+
+**Files Already Correct**:
+
+- ✅ [useFileSystem.ts](src/renderer/src/hooks/useFileSystem.ts) - Already uses `isIpcSuccess()` helper
+- ✅ [searchStore.ts](src/renderer/src/stores/searchStore.ts) - Already checks `response.success && response.data`
+- ✅ [progressStore.ts](src/renderer/src/stores/progressStore.ts) - Already checks `response.success && response.data`
+- ✅ [MangaDetailView.tsx](src/renderer/src/views/MangaDetailView/MangaDetailView.tsx) - Already checks IPC wrapper
+- ✅ [useChapterData.ts](src/renderer/src/views/ReaderView/hooks/useChapterData.ts) - Already checks IPC wrapper
+
+**Impact**: Prevents runtime errors from attempting to access properties on wrapped IPC responses, ensures proper error handling throughout the application.
 
 ### 🔧 Guerilla Refactoring Planning (20 Dec 2025)
 
@@ -160,6 +355,7 @@
    - All builds pass ✓
 
 **Success Metrics Achieved**:
+
 - ✅ All target files now under 500 lines (753, 439, 448)
 - ✅ Clear separation of concerns with focused components
 - ✅ No TypeScript compilation errors
@@ -217,6 +413,7 @@
    - All builds pass ✓
 
 **Backend Success Metrics Achieved**:
+
 - ✅ All files under 100 lines (main: 78, window: 46, lifecycle: 20, registry: 32)
 - ✅ Clear domain separation (7 IPC handlers, 6 menu files)
 - ✅ All settings validated before saving
@@ -1290,6 +1487,76 @@ zoomIndicatorVisible: boolean
   - Complete IPC registry (37 channels documented)
   - Comprehensive dialogue usage documentation
 - Next: P1-T08 Steps 3-7 (Type safety, validation, monitoring, architecture docs)
+
+---
+
+## Session Summary (24 December 2025)
+
+**Duration**: Full UI polish and error handling session
+**Status**: ✅ All UI Theme Consistency Issues Resolved ✅ Browse Pagination Error Handling Complete
+**Phase Progress**: Guerilla Refactoring ongoing, Phase 2 remains 100% complete
+
+### Major Accomplishments:
+
+**1. UI Theme Consistency Fixes** ✅:
+
+- **Chapter Sidebar Transparency Issues** (Multiple iterations):
+  - Problem: Sidebar transparent/unreadable in light mode due to backdrop-filter blur
+  - Solution 1: Removed backdrop-filter
+  - Problem 2: Fully transparent (CSS variables undefined)
+  - Solution 2: Added explicit solid background colors (#f3f3f3 light, dark uses variables)
+  - Problem 3: Active chapter white background in light mode
+  - Solution 3: Used --win-accent and --win-text-on-accent for proper Windows 11 colors
+  - Problem 4: Active chapter hover turned gray, text blended in
+  - Solution 4: Added explicit hover state (#004A94 darker blue)
+  - Result: ✅ All theme combinations working correctly
+
+- **Chapter Sidebar Close Button**:
+  - Problem: Ghost variant had no border (inconsistent with dark mode)
+  - Solution: Removed variant prop to use default button styling
+  - Result: ✅ Consistent button appearance across themes
+
+- **All Files Modified**:
+  - ReaderView.css: Multiple sidebar styling fixes, explicit colors for light mode
+  - ReaderView.tsx: Updated Close button props
+  - searchStore.ts: Added loadMoreError state and retryLoadMore method
+  - BrowseView.tsx: Added inline error display for pagination failures
+
+**2. Browse Pagination Error Handling** ✅:
+
+- **Problem**: Network errors while loading more results crashed entire view, retry restarted search
+- **Solution Implemented**:
+  - Added separate `loadMoreError` state (distinct from main `error`)
+  - Inline error display below results (subtle gray background)
+  - Friendly message: "Couldn't load more manga. This might be a connection issue."
+  - Retry button calls `retryLoadMore()` (retries pagination only, preserves existing results)
+  - `hasMore` stays true on error to allow retry
+- **Technical Details**:
+  - `loadMore()` sets `loadMoreError` instead of `error` on failure
+  - `retryLoadMore()` clears error and retries the failed batch
+  - Existing results remain visible when pagination fails
+  - No technical error details shown (simplified UX)
+- **Files Modified**:
+  - searchStore.ts: Added loadMoreError state, retryLoadMore method
+  - BrowseView.tsx: Added inline error UI with retry button
+- **Result**: ✅ Graceful pagination error handling, no view crashes
+
+**3. Documentation Updated**:
+- Updated active-context.md with complete session details
+- All theme fixes documented with problem/solution pairs
+- Pagination error handling architecture documented
+
+**Key Technical Decisions**:
+
+- **Explicit Colors**: Used hex colors (#f3f3f3) in light mode instead of undefined CSS variables for reliability
+- **Separate Error States**: `loadMoreError` separate from `error` prevents view crashes on pagination failures  
+- **Simplified Error Messages**: Removed technical details from pagination errors (not serious enough for red highlighting)
+- **Windows 11 Accent Colors**: Used --win-accent tokens for active states to match system theme
+- **Hover State Feedback**: Darker blue (#004A94) for active chapter hover provides clear visual feedback
+
+**Blockers**: None
+
+**Next Session Action**: Ready for Phase 3 or continue guerilla refactoring if needed
 
 ---
 
