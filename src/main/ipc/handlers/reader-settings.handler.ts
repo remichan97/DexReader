@@ -4,6 +4,7 @@ import {
   updateMangaReaderSettings,
   deleteMangaReaderSettings
 } from '../../settings/settingsManager'
+import { isMangaOverrideSettings } from '../../settings/validators/types.validator'
 import { wrapIpcHandler } from '../wrapHandler'
 
 export function registerReaderSettingsHandlers(): void {
@@ -13,8 +14,30 @@ export function registerReaderSettingsHandlers(): void {
 
   wrapIpcHandler(
     'reader:update-manga-settings',
-    async (_, mangaId: unknown, newSettings: unknown) => {
-      return await updateMangaReaderSettings(mangaId as string, newSettings as MangaReadingSettings)
+    async (_, mangaId: unknown, newSettings: unknown, title: unknown, coverUrl?: unknown) => {
+      const globalSettings = await getMangaReaderSettings('') // Get global settings
+
+      // If new settings match global, do nothing
+      if (newSettings && JSON.stringify(newSettings) === JSON.stringify(globalSettings)) {
+        return
+      }
+
+      const newOverrideSettings = {
+        title: title as string,
+        coverUrl: coverUrl as string | undefined,
+        settings: newSettings as MangaReadingSettings
+      }
+
+      if (!isMangaOverrideSettings(newOverrideSettings)) {
+        throw new Error('Invalid manga override settings provided')
+      }
+
+      return await updateMangaReaderSettings(
+        mangaId as string,
+        newSettings as MangaReadingSettings,
+        title as string,
+        coverUrl as string | undefined
+      )
     }
   )
 

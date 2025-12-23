@@ -7,7 +7,7 @@ import type { IpcResponse, FileStats, AllowedPaths, FolderSelectResult } from '.
 import type { MangaProgress } from '../main/progress/entity/manga-progress.entity'
 import type { ProgressDatabase } from '../main/progress/entity/progress-database.entity'
 import type { ReadingStats } from '../main/progress/entity/reading-stats.entity'
-import type { ReaderSettings } from '../main/settings/entity/reading-settings.entity'
+import type { MangaReadingSettings } from '../main/settings/entity/reading-settings.entity'
 
 // Re-export types for renderer use
 export type { ImageUrlResponse } from './../main/api/responses/image-url.response'
@@ -15,7 +15,7 @@ export type { IpcResponse } from './ipc.types'
 export type { MangaProgress } from '../main/progress/entity/manga-progress.entity'
 export type { ProgressDatabase } from '../main/progress/entity/progress-database.entity'
 export type { ReadingStats } from '../main/progress/entity/reading-stats.entity'
-export type { ReaderSettings } from '../main/settings/entity/reading-settings.entity'
+export type { MangaReadingSettings } from '../main/settings/entity/reading-settings.entity'
 
 interface MenuState {
   canAddToFavorites?: boolean
@@ -38,7 +38,12 @@ interface API {
   onNavigate: (callback: (route: string) => void) => void
 
   // Dialog API
-  showConfirmDialog: (message: string, detail?: string) => Promise<boolean>
+  showConfirmDialog: (
+    message: string,
+    detail?: string,
+    confirmLabel?: string,
+    cancelLabel?: string
+  ) => Promise<boolean>
   showDialog: (options: {
     message: string
     detail?: string
@@ -110,8 +115,13 @@ interface Progress {
 }
 
 interface Reader {
-  getMangaReaderSettings: (mangaId: string) => Promise<ReaderSettings>
-  updateMangaReaderSettings: (mangaId: string, settings: ReaderSettings) => Promise<void>
+  getMangaReaderSettings: (mangaId: string) => Promise<MangaReadingSettings>
+  updateMangaReaderSettings: (
+    mangaId: string,
+    settings: MangaReadingSettings,
+    title: string,
+    coverUrl?: string
+  ) => Promise<void>
   resetMangaReaderSettings: (mangaId: string) => Promise<void>
 }
 

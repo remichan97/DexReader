@@ -1,5 +1,6 @@
 import { ImageQuality } from '../../api/enums'
 import { DownloadSettings } from '../entity/downloads-settings.entity'
+import { MangaOverrideSettings } from '../entity/manga-override-settings.entity'
 import { ReaderSettings } from '../entity/reader-settings.entity'
 import { MangaReadingSettings } from '../entity/reading-settings.entity'
 import { ReadingMode } from '../enum/reading-mode.enum'
@@ -116,6 +117,58 @@ export function isDownloadsSettings(values: unknown): values is DownloadSettings
   return true
 }
 
+// Validate manga reader override settings
+
+export function isMangaOverrideSettings(values: unknown): values is MangaOverrideSettings {
+  if (typeof values !== 'object' || values === null) {
+    console.error('Refused to save manga override settings: not an object')
+    return false
+  }
+
+  const mangaOverrideSettings = values as MangaOverrideSettings
+
+  // Validate title
+  if (
+    typeof mangaOverrideSettings.title !== 'string' ||
+    mangaOverrideSettings.title.trim() === ''
+  ) {
+    console.error('Refused to save manga override settings: title must be a non-empty string')
+    return false
+  }
+
+  // Validate coverUrl if present
+  if (
+    mangaOverrideSettings.coverUrl !== undefined &&
+    mangaOverrideSettings.coverUrl !== null &&
+    typeof mangaOverrideSettings.coverUrl !== 'string'
+  ) {
+    console.error('Refused to save manga override settings: coverUrl must be a string if present')
+    return false
+  }
+
+  // Verify that the coverUrl, if provided, must be a valid URL
+  if (mangaOverrideSettings.coverUrl) {
+    try {
+      new URL(mangaOverrideSettings.coverUrl)
+    } catch (error) {
+      console.error('Refused to save manga override settings: coverUrl is not a valid URL: ', error)
+      return false
+    }
+  }
+
+  // Validate settings
+  if (
+    typeof mangaOverrideSettings.settings !== 'object' ||
+    mangaOverrideSettings.settings === null ||
+    !isMangaReadingSettings(mangaOverrideSettings.settings)
+  ) {
+    console.error('Refused to save manga override settings: settings are invalid')
+    return false
+  }
+
+  return isMangaReadingSettings(mangaOverrideSettings.settings)
+}
+
 // Validate manga reading settings
 export function isMangaReadingSettings(values: unknown): values is MangaReadingSettings {
   if (typeof values !== 'object' || values === null) {
@@ -190,7 +243,7 @@ export function isReaderSettings(values: unknown): values is ReaderSettings {
     }
 
     // Validate each manga's settings
-    if (!isMangaReadingSettings(readerSettings.manga[mangaId])) {
+    if (!isMangaOverrideSettings(readerSettings.manga[mangaId])) {
       console.error(`Refused to save reader settings: invalid settings for manga ${mangaId}`)
       return false
     }

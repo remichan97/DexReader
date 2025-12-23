@@ -23,8 +23,12 @@ const api = {
   },
 
   // Dialog API
-  showConfirmDialog: (message: string, detail?: string) =>
-    ipcRenderer.invoke('show-confirm-dialog', message, detail),
+  showConfirmDialog: (
+    message: string,
+    detail?: string,
+    confirmLabel?: string,
+    cancelLabel?: string
+  ) => ipcRenderer.invoke('show-confirm-dialog', message, detail, confirmLabel, cancelLabel),
 
   showDialog: (options: {
     message: string
@@ -183,8 +187,12 @@ const progress = {
 const reader = {
   getMangaReaderSettings: (mangaId: string) =>
     ipcRenderer.invoke('reader:get-manga-settings', mangaId),
-  updateMangaReaderSettings: (mangaId: string, newSettings: unknown) =>
-    ipcRenderer.invoke('reader:update-manga-settings', mangaId, newSettings),
+  updateMangaReaderSettings: (
+    mangaId: string,
+    newSettings: unknown,
+    title: string,
+    coverUrl?: string
+  ) => ipcRenderer.invoke('reader:update-manga-settings', mangaId, newSettings, title, coverUrl),
   resetMangaReaderSettings: (mangaId: string) =>
     ipcRenderer.invoke('reader:reset-manga-settings', mangaId)
 }

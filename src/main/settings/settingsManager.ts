@@ -152,12 +152,16 @@ export async function setDownloadsPath(newPath: string): Promise<void> {
 
 export async function getMangaReaderSettings(mangaId: string): Promise<MangaReadingSettings> {
   const settings = await loadSettings()
-  return settings.reader.manga[mangaId] || settings.reader.global
+  return settings.reader.manga[mangaId]
+    ? settings.reader.manga[mangaId].settings
+    : settings.reader.global
 }
 
 export async function updateMangaReaderSettings(
   mangaId: string,
-  newSettings: MangaReadingSettings
+  newSettings: MangaReadingSettings,
+  title: string,
+  coverUrl?: string
 ): Promise<void> {
   const settings = await loadSettings()
 
@@ -172,7 +176,12 @@ export async function updateMangaReaderSettings(
     )
   }
 
-  settings.reader.manga[mangaId] = newSettings
+  settings.reader.manga[mangaId] = {
+    title: title ?? settings.reader.manga[mangaId]?.title ?? '',
+    coverUrl: coverUrl ?? settings.reader.manga[mangaId]?.coverUrl,
+    settings: newSettings
+  }
+
   await updateSettings('reader', settings.reader)
 }
 
