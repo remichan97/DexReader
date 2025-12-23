@@ -2,7 +2,6 @@ import { BrowserWindow, dialog } from 'electron'
 import { getAppDataPath, getDownloadsPath } from '../../filesystem/pathValidator'
 import { secureFs } from '../../filesystem/secureFs'
 import { setDownloadsPath } from '../../settings/settingsManager'
-import { getSystemAccentColor } from '../../theme'
 import { validateEncoding, validatePath } from '../validators'
 import { wrapIpcHandler } from '../wrapHandler'
 
@@ -97,11 +96,6 @@ export function registerFileSystemHandlers(getWindow: () => BrowserWindow): void
       appData: getAppDataPath(),
       downloads: getDownloadsPath()
     }
-  })
-
-  // Theme IPC handlers
-  wrapIpcHandler('theme:get-system-accent-color', async () => {
-    return getSystemAccentColor()
   })
 
   // Select download folder using native dialog
