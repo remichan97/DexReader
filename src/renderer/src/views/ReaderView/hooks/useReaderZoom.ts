@@ -42,7 +42,7 @@ interface UseReaderZoomReturn {
 export function useReaderZoom(): UseReaderZoomReturn {
   // Zoom state
   const [fitMode, setFitMode] = useState<FitMode>('height')
-  const [zoomLevel, setZoomLevel] = useState<number>(100)
+  const [zoomLevel, setZoomLevel] = useState<number>(1.0)
   const [panX, setPanX] = useState<number>(0)
   const [panY, setPanY] = useState<number>(0)
   const [isDragging, setIsDragging] = useState<boolean>(false)
@@ -62,7 +62,7 @@ export function useReaderZoom(): UseReaderZoomReturn {
   const updateFitMode = useCallback((mode: FitMode): void => {
     setFitMode(mode)
     if (mode !== 'custom') {
-      setZoomLevel(100)
+      setZoomLevel(1.0)
       setPanX(0)
       setPanY(0)
     }
@@ -73,9 +73,16 @@ export function useReaderZoom(): UseReaderZoomReturn {
    */
   const zoomIn = useCallback((originX?: number, originY?: number): void => {
     setZoomLevel((prev) => {
-      const newZoom = Math.min(prev * 1.2, 400)
+      const newZoom = Math.min(prev * 1.2, 4.0)
       if (newZoom !== prev) {
-        setFitMode('custom')
+        // If we're back to 100%, reset to height fit mode to re-enable click navigation
+        if (newZoom === 1.0) {
+          setFitMode('height')
+          setPanX(0)
+          setPanY(0)
+        } else {
+          setFitMode('custom')
+        }
         if (originX !== undefined && originY !== undefined) {
           setTransformOriginX(originX)
           setTransformOriginY(originY)
@@ -90,9 +97,16 @@ export function useReaderZoom(): UseReaderZoomReturn {
    */
   const zoomOut = useCallback((originX?: number, originY?: number): void => {
     setZoomLevel((prev) => {
-      const newZoom = Math.max(prev / 1.2, 25)
+      const newZoom = Math.max(prev / 1.2, 0.25)
       if (newZoom !== prev) {
-        setFitMode('custom')
+        // If we're back to 100%, reset to height fit mode to re-enable click navigation
+        if (newZoom === 1.0) {
+          setFitMode('height')
+          setPanX(0)
+          setPanY(0)
+        } else {
+          setFitMode('custom')
+        }
         if (originX !== undefined && originY !== undefined) {
           setTransformOriginX(originX)
           setTransformOriginY(originY)
@@ -107,7 +121,7 @@ export function useReaderZoom(): UseReaderZoomReturn {
    */
   const resetZoom = useCallback((): void => {
     setFitMode('height')
-    setZoomLevel(100)
+    setZoomLevel(1.0)
     setPanX(0)
     setPanY(0)
     setTransformOriginX(50)
@@ -119,9 +133,9 @@ export function useReaderZoom(): UseReaderZoomReturn {
    */
   const updateZoomLevel = useCallback(
     (level: number): void => {
-      const clampedLevel = Math.max(25, Math.min(400, level))
+      const clampedLevel = Math.max(0.25, Math.min(4.0, level))
       setZoomLevel(clampedLevel)
-      if (clampedLevel !== 100 || fitMode === 'custom') {
+      if (clampedLevel !== 1.0 || fitMode === 'custom') {
         setFitMode('custom')
       }
     },
@@ -155,7 +169,7 @@ export function useReaderZoom(): UseReaderZoomReturn {
    */
   const onMouseDown = useCallback(
     (e: React.MouseEvent<Element>): void => {
-      if (fitMode !== 'custom' || zoomLevel <= 100) return
+      if (fitMode !== 'custom' || zoomLevel <= 1.0) return
 
       setIsDragging(true)
       setDragStartX(e.clientX)

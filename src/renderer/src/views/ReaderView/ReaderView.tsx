@@ -11,7 +11,9 @@ import {
   Settings20Regular
 } from '@fluentui/react-icons'
 import { useProgressStore } from '@renderer/stores/progressStore'
+import { useAppStore } from '@renderer/stores'
 import { ReaderSettingsModal } from '@renderer/components/ReaderSettingsModal'
+import { ZoomControlsModal } from '@renderer/components/ZoomControlsModal'
 import {
   useReaderSettings,
   usePagePairs,
@@ -51,106 +53,6 @@ interface ReaderState {
 }
 
 /**
- * Zoom Controls Component
- */
-interface ZoomControlsProps {
-  readonly fitMode: 'width' | 'height' | 'actual' | 'custom'
-  readonly zoomLevel: number
-  readonly onFitWidth: () => void
-  readonly onFitHeight: () => void
-  readonly onActualSize: () => void
-  readonly onZoomIn: () => void
-  readonly onZoomOut: () => void
-  readonly onReset: () => void
-}
-
-function ZoomControls({
-  fitMode,
-  zoomLevel,
-  onFitWidth,
-  onFitHeight,
-  onActualSize,
-  onZoomIn,
-  onZoomOut,
-  onReset
-}: ZoomControlsProps): JSX.Element {
-  const zoomPercentage = Math.round(zoomLevel * 100)
-
-  return (
-    <div className="zoom-controls">
-      {/* Fit mode buttons */}
-      <div className="zoom-controls__fit-modes">
-        <Button
-          variant={fitMode === 'width' ? 'primary' : 'ghost'}
-          size="small"
-          onClick={onFitWidth}
-          aria-label="Fit to width"
-          title="Fit image to page width"
-        >
-          Width
-        </Button>
-        <Button
-          variant={fitMode === 'height' ? 'primary' : 'ghost'}
-          size="small"
-          onClick={onFitHeight}
-          aria-label="Fit to height"
-          title="Fit image to page height"
-        >
-          Height
-        </Button>
-        <Button
-          variant={fitMode === 'actual' ? 'primary' : 'ghost'}
-          size="small"
-          onClick={onActualSize}
-          aria-label="Actual size"
-          title="Show at 100% size (actual size)"
-        >
-          100%
-        </Button>
-      </div>
-
-      {/* Zoom in/out buttons */}
-      <div className="zoom-controls__zoom-buttons">
-        <Button
-          variant="ghost"
-          size="small"
-          onClick={onZoomOut}
-          disabled={zoomLevel <= 0.25}
-          aria-label="Zoom out"
-          title="Zoom out (Ctrl + -)"
-        >
-          −
-        </Button>
-        <span className="zoom-controls__level" title="Current zoom level">
-          {zoomPercentage}%
-        </span>
-        <Button
-          variant="ghost"
-          size="small"
-          onClick={onZoomIn}
-          disabled={zoomLevel >= 4}
-          aria-label="Zoom in"
-          title="Zoom in (Ctrl + =)"
-        >
-          +
-        </Button>
-      </div>
-
-      {/* Reset button */}
-      <Button
-        variant="ghost"
-        size="small"
-        onClick={onReset}
-        aria-label="Reset zoom"
-        title="Reset to default (fit to height)"
-      >
-        Reset
-      </Button>
-    </div>
-  )
-}
-
-/**
  * Reader Header Component
  */
 interface ReaderHeaderProps {
@@ -160,21 +62,12 @@ interface ReaderHeaderProps {
   readonly onBackClick: () => void
   readonly onToggleChapterList: () => void
   readonly showChapterList: boolean
-  // Zoom controls
-  readonly fitMode: 'width' | 'height' | 'actual' | 'custom'
-  readonly zoomLevel: number
-  readonly showZoomControls: boolean
-  readonly onToggleZoomControls: () => void
-  readonly onFitWidth: () => void
-  readonly onFitHeight: () => void
-  readonly onActualSize: () => void
-  readonly onZoomIn: () => void
-  readonly onZoomOut: () => void
-  readonly onResetZoom: () => void
   // Incognito mode
   readonly isIncognito: boolean
   // Reader settings
   readonly settingsPopover: React.ReactNode
+  // Zoom controls popover
+  readonly zoomControlsPopover: React.ReactNode
   // Reading mode info for page counter
   readonly readingMode: 'single' | 'double' | 'vertical'
   readonly currentPagePair?: [number] | [number, number]
@@ -188,18 +81,9 @@ function ReaderHeader({
   onBackClick,
   onToggleChapterList,
   showChapterList,
-  fitMode,
-  zoomLevel,
-  showZoomControls,
-  onToggleZoomControls,
-  onFitWidth,
-  onFitHeight,
-  onActualSize,
-  onZoomIn,
-  onZoomOut,
-  onResetZoom,
   isIncognito,
   settingsPopover,
+  zoomControlsPopover,
   readingMode,
   currentPagePair,
   readRightToLeft
@@ -227,29 +111,8 @@ function ReaderHeader({
         )}
         {/* Reader settings popover */}
         {settingsPopover}
-        {/* Zoom controls toggle button */}
-        <Button
-          variant="ghost"
-          size="small"
-          onClick={onToggleZoomControls}
-          aria-label={showZoomControls ? 'Hide zoom controls' : 'Show zoom controls'}
-          title="Toggle zoom controls (Z to cycle fit modes)"
-        >
-          {Math.round(zoomLevel * 100)}%
-        </Button>
-
-        {showZoomControls && (
-          <ZoomControls
-            fitMode={fitMode}
-            zoomLevel={zoomLevel}
-            onFitWidth={onFitWidth}
-            onFitHeight={onFitHeight}
-            onActualSize={onActualSize}
-            onZoomIn={onZoomIn}
-            onZoomOut={onZoomOut}
-            onReset={onResetZoom}
-          />
-        )}
+        {/* Zoom controls popover */}
+        {zoomControlsPopover}
 
         <div className="reader-header__page-counter">
           {readingMode === 'double' && currentPagePair && currentPagePair.length === 2
@@ -312,7 +175,7 @@ function ChapterListSidebar({
       <aside className={`chapter-list-sidebar ${isOpen ? 'chapter-list-sidebar--open' : ''}`}>
         <header className="chapter-list-sidebar__header">
           <h2>Chapters</h2>
-          <Button variant="ghost" onClick={onClose} size="small">
+          <Button onClick={onClose} size="small">
             Close
           </Button>
         </header>
@@ -377,6 +240,9 @@ export function ReaderView(): JSX.Element {
   const autoSaveEnabled = useProgressStore((state) => state.autoSaveEnabled)
   const toggleIncognito = useProgressStore((state) => state.toggleIncognito)
 
+  // Get system theme
+  const theme = useAppStore((state) => state.theme)
+
   // Get chapter data from navigation state if available
   const locationState = location.state as {
     chapterNumber?: string
@@ -393,7 +259,7 @@ export function ReaderView(): JSX.Element {
     showChapterList: false,
     zoomIndicatorVisible: false,
     imageQuality: ImageQuality.High, // High quality by default
-    forceReaderDarkMode: true // Force dark mode by default for better reading experience
+    forceReaderDarkMode: true // Default to true for better reading experience, updated from settings on mount
   })
 
   const [showErrorDetails, setShowErrorDetails] = useState(false)
@@ -403,15 +269,6 @@ export function ReaderView(): JSX.Element {
 
   // ========== CUSTOM HOOKS ==========
 
-  // Reader settings hook (manages reading mode, double page settings, modal state)
-  const {
-    readingMode,
-    doublePageSettings,
-    showSettingsModal,
-    toggleSettingsModal,
-    handleSettingsChange: handleReaderSettingsChange
-  } = useReaderSettings(mangaId || null)
-
   // Chapter data hook (manages chapter loading, images, and metadata)
   const chapterData = useChapterData(
     mangaId,
@@ -420,6 +277,15 @@ export function ReaderView(): JSX.Element {
     location.key,
     state.imageQuality
   )
+
+  // Reader settings hook (manages reading mode, double page settings, modal state)
+  const {
+    readingMode,
+    doublePageSettings,
+    showSettingsModal,
+    toggleSettingsModal,
+    handleSettingsChange: handleReaderSettingsChange
+  } = useReaderSettings(mangaId || null, chapterData.mangaTitle, locationState?.coverUrl)
 
   // Page pairs hook (generates page pairs for double page mode)
   const { pagePairs, currentPairIndex } = usePagePairs(
@@ -502,6 +368,26 @@ export function ReaderView(): JSX.Element {
 
   // ========== END CUSTOM HOOKS ==========
 
+  // Load reader settings (forceDarkMode) on mount
+  useEffect(() => {
+    const loadReaderSettings = async (): Promise<void> => {
+      try {
+        const settingsResult = await globalThis.electron.ipcRenderer.invoke('settings:load')
+        if (settingsResult.success && settingsResult.data?.reader?.forceDarkMode !== undefined) {
+          setState((prev) => ({
+            ...prev,
+            forceReaderDarkMode: settingsResult.data.reader.forceDarkMode
+          }))
+        }
+      } catch (error) {
+        console.error('Failed to load reader settings:', error)
+        // Keep default value on error
+      }
+    }
+
+    loadReaderSettings()
+  }, []) // Run once on mount
+
   // Update document title with reading information
   useEffect(() => {
     if (!chapterData.loading && !chapterData.error && chapterData.totalPages > 0) {
@@ -549,12 +435,12 @@ export function ReaderView(): JSX.Element {
   /**
    * Handle image click navigation
    * Left 40% = previous, Right 60% = next
-   * Disabled when in custom zoom mode to avoid interfering with drag
+   * Disabled when zoomed to avoid interfering with drag
    */
   const handleImageClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>): void => {
-      // Don't navigate if in custom zoom mode or if zoomed (to avoid interfering with drag)
-      if (zoom.fitMode === 'custom' || zoom.zoomLevel > 1) {
+      // Don't navigate if zoomed in (to avoid interfering with drag)
+      if (zoom.zoomLevel > 1.0) {
         return
       }
 
@@ -568,7 +454,7 @@ export function ReaderView(): JSX.Element {
         goToNextPage()
       }
     },
-    [goToPreviousPage, goToNextPage, zoom.fitMode, zoom.zoomLevel]
+    [goToPreviousPage, goToNextPage, zoom.zoomLevel]
   )
 
   // Keyboard navigation now handled by useReaderKeyboard hook
@@ -584,8 +470,11 @@ export function ReaderView(): JSX.Element {
 
   // Progress tracking now handled by useProgressTracking hook
 
+  // Compute reader theme: use dark if EITHER forceDarkMode is on OR system theme is dark
+  const readerTheme = state.forceReaderDarkMode || theme === 'dark' ? 'dark' : 'light'
+
   return (
-    <main className="reader-view" data-theme={state.forceReaderDarkMode ? 'dark' : undefined}>
+    <main className="reader-view" data-theme={readerTheme}>
       {chapterData.loading && (
         <div className="reader-view__loading">
           <ProgressRing size="large" aria-label="Loading chapter" />
@@ -653,16 +542,6 @@ export function ReaderView(): JSX.Element {
             onBackClick={handleBackClick}
             onToggleChapterList={toggleChapterList}
             showChapterList={state.showChapterList}
-            fitMode={zoom.fitMode}
-            zoomLevel={zoom.zoomLevel}
-            showZoomControls={zoom.showZoomControls}
-            onToggleZoomControls={zoom.toggleZoomControls}
-            onFitWidth={() => zoom.setFitMode('width')}
-            onFitHeight={() => zoom.setFitMode('height')}
-            onActualSize={() => zoom.setFitMode('actual')}
-            onZoomIn={zoom.zoomIn}
-            onZoomOut={zoom.zoomOut}
-            onResetZoom={zoom.resetZoom}
             isIncognito={!autoSaveEnabled}
             readingMode={readingMode as any}
             currentPagePair={
@@ -695,6 +574,30 @@ export function ReaderView(): JSX.Element {
                   Settings
                 </Button>
               </ReaderSettingsModal>
+            }
+            zoomControlsPopover={
+              <ZoomControlsModal
+                isOpen={zoom.showZoomControls}
+                onOpen={zoom.toggleZoomControls}
+                onClose={zoom.toggleZoomControls}
+                fitMode={zoom.fitMode}
+                zoomLevel={zoom.zoomLevel}
+                onFitWidth={() => zoom.setFitMode('width')}
+                onFitHeight={() => zoom.setFitMode('height')}
+                onActualSize={() => zoom.setFitMode('actual')}
+                onZoomIn={zoom.zoomIn}
+                onZoomOut={zoom.zoomOut}
+                onReset={zoom.resetZoom}
+              >
+                <Button
+                  variant="ghost"
+                  size="small"
+                  aria-label="Zoom controls"
+                  title="Zoom controls (Z to cycle fit modes)"
+                >
+                  {Math.round(zoom.zoomLevel * 100)}%
+                </Button>
+              </ZoomControlsModal>
             }
           />
 

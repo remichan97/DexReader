@@ -131,7 +131,7 @@ function MyComponent() {
       <Button variant="ghost" onClick={handleClose}>
         Cancel
       </Button>
-      <Button variant="destructive" onClick={handleDelete}>
+      <Button variant="danger" onClick={handleDelete}>
         Delete
       </Button>
     </>

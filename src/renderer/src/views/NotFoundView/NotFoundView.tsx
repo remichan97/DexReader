@@ -7,10 +7,14 @@ export function NotFoundView(): JSX.Element {
 
   useEffect(() => {
     const showErrorDialog = async (): Promise<void> => {
-      await globalThis.api.showConfirmDialog(
+      const result = await globalThis.api.showConfirmDialog(
         'Oops! Lost your way?',
         "This page doesn't exist. Let's get you back to browsing manga!"
       )
+
+      if (!result.success) {
+        console.error('Failed to show dialog:', result.error)
+      }
 
       // Navigate to browse regardless of response
       navigate('/browse')

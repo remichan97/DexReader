@@ -48,12 +48,12 @@ export default function ExternalLinksSection({ manga }: ExternalLinksSectionProp
     const url = getExternalUrl(key, value)
     const serviceName = serviceNames[key]
 
-    const confirmed = await globalThis.api.showConfirmDialog(
+    const result = await globalThis.api.showConfirmDialog(
       `Open ${serviceName}?`,
       `You're about to open an external website in your default browser. Just so you know where you're headed:\n\n${url}`
     )
 
-    if (confirmed) {
+    if (result.success && result.data) {
       globalThis.open(url, '_blank', 'noopener,noreferrer')
     }
   }

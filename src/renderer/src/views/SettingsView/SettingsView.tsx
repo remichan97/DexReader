@@ -2,7 +2,7 @@ import type { JSX } from 'react'
 import { useState, useEffect } from 'react'
 import { Tabs, TabList, Tab, TabPanel } from '@renderer/components/Tabs'
 import { useToastStore, useAppStore } from '@renderer/stores'
-import type { ReaderSettings } from '../../../../preload/index.d'
+import type { MangaReadingSettings } from '../../../../preload/index.d'
 import { AppearanceSettings } from './components/AppearanceSettings'
 import { ReaderSettingsSection } from './components/ReaderSettingsSection'
 import { StorageSettings } from './components/StorageSettings'
@@ -11,7 +11,8 @@ import { AdvancedSettings } from './components/AdvancedSettings'
 interface PerMangaOverride {
   mangaId: string
   mangaTitle: string
-  settings: ReaderSettings
+  coverUrl?: string
+  settings: MangaReadingSettings
 }
 
 export function SettingsView(): JSX.Element {
@@ -31,8 +32,8 @@ export function SettingsView(): JSX.Element {
   const [systemAccentColor, setSystemAccentColor] = useState<string>('#0078d4')
 
   // Reader settings state
-  const [globalReaderSettings, setGlobalReaderSettings] = useState<ReaderSettings>({
-    readingMode: 'single' as ReaderSettings['readingMode']
+  const [globalReaderSettings, setGlobalReaderSettings] = useState<MangaReadingSettings>({
+    readingMode: 'single' as MangaReadingSettings['readingMode']
   })
   const [forceDarkMode, setForceDarkMode] = useState<boolean>(true)
   const [imageQuality, setImageQuality] = useState<'data' | 'data-saver'>('data')
@@ -44,20 +45,19 @@ export function SettingsView(): JSX.Element {
     mangaSettings: Record<string, unknown>
   ): Promise<PerMangaOverride[]> => {
     const overrides: PerMangaOverride[] = []
-    for (const [mangaId, settings] of Object.entries(mangaSettings)) {
-      // Try to get manga title from cache or use ID
-      let mangaTitle = mangaId
-      try {
-        const mangaData = await globalThis.api.getManga(mangaId)
-        mangaTitle = mangaData.attributes.title.en || mangaData.attributes.title['ja-ro'] || mangaId
-      } catch {
-        // Failed to get manga title, use ID
+    for (const [mangaId, overrideData] of Object.entries(mangaSettings)) {
+      // Read from stored MangaOverrideSettings structure
+      const override = overrideData as {
+        title: string
+        coverUrl?: string
+        settings: MangaReadingSettings
       }
 
       overrides.push({
         mangaId,
-        mangaTitle,
-        settings: settings as ReaderSettings
+        mangaTitle: override.title || mangaId,
+        coverUrl: override.coverUrl,
+        settings: override.settings
       })
     }
     return overrides
@@ -67,16 +67,28 @@ export function SettingsView(): JSX.Element {
   useEffect(() => {
     async function loadSettings(): Promise<void> {
       try {
-        const paths = await globalThis.fileSystem.getAllowedPaths()
+        const pathsResult = await globalThis.fileSystem.getAllowedPaths()
+        if (!pathsResult.success || !pathsResult.data) {
+          throw new Error('Failed to get allowed paths')
+        }
+        const paths = pathsResult.data
         setDownloadsPath(paths.downloads)
 
         // Get system accent color first
-        const systemAccent = await globalThis.api.getSystemAccentColor()
+        const systemAccentResult = await globalThis.api.getSystemAccentColor()
+        if (!systemAccentResult.success || !systemAccentResult.data) {
+          throw new Error('Failed to get system accent color')
+        }
+        const systemAccent = systemAccentResult.data as string
         setSystemAccentColor(systemAccent)
 
         // Load settings via IPC
         try {
-          const settings = await globalThis.electron.ipcRenderer.invoke('settings:load')
+          const settingsResult = await globalThis.electron.ipcRenderer.invoke('settings:load')
+          if (!settingsResult.success || !settingsResult.data) {
+            throw new Error('Failed to load settings')
+          }
+          const settings = settingsResult.data
 
           if (settings.accentColor) {
             // User has custom color - use it
@@ -178,13 +190,19 @@ export function SettingsView(): JSX.Element {
 
     try {
       // Remove custom color from settings
-      const paths = await globalThis.fileSystem.getAllowedPaths()
+      const pathsResult = await globalThis.fileSystem.getAllowedPaths()
+      if (!pathsResult.success || !pathsResult.data) {
+        throw new Error('Failed to get allowed paths')
+      }
+      const paths = pathsResult.data
       const settingsPath = paths.appData + '/settings.json'
 
       let settings: Record<string, unknown> = {}
       try {
-        const existing = await globalThis.fileSystem.readFile(settingsPath, 'utf-8')
-        settings = JSON.parse(existing as string)
+        const existingResult = await globalThis.fileSystem.readFile(settingsPath, 'utf-8')
+        if (existingResult.success && existingResult.data) {
+          settings = JSON.parse(existingResult.data as string)
+        }
       } catch {
         // File doesn't exist, use empty object
       }
@@ -205,13 +223,19 @@ export function SettingsView(): JSX.Element {
 
     try {
       // Save to settings.json
-      const paths = await globalThis.fileSystem.getAllowedPaths()
+      const pathsResult = await globalThis.fileSystem.getAllowedPaths()
+      if (!pathsResult.success || !pathsResult.data) {
+        throw new Error('Failed to get allowed paths')
+      }
+      const paths = pathsResult.data
       const settingsPath = paths.appData + '/settings.json'
 
       let settings: Record<string, unknown> = {}
       try {
-        const existing = await globalThis.fileSystem.readFile(settingsPath, 'utf-8')
-        settings = JSON.parse(existing as string)
+        const existingResult = await globalThis.fileSystem.readFile(settingsPath, 'utf-8')
+        if (existingResult.success && existingResult.data) {
+          settings = JSON.parse(existingResult.data as string)
+        }
       } catch {
         // File doesn't exist, use empty object
       }
@@ -228,10 +252,14 @@ export function SettingsView(): JSX.Element {
   const handleSelectDownloadsFolder = async (): Promise<void> => {
     setIsChangingPath(true)
     try {
-      const result = await globalThis.fileSystem.selectDownloadsFolder()
+      const response = await globalThis.fileSystem.selectDownloadsFolder()
+      if (!response.success || !response.data) {
+        throw new Error('Failed to select downloads folder')
+      }
+      const result = response.data
 
-      if (!result.cancelled && result.path) {
-        setDownloadsPath(result.path)
+      if (!result.cancelled && result.filePath) {
+        setDownloadsPath(result.filePath)
       }
     } catch (error) {
       showToast({
@@ -249,20 +277,26 @@ export function SettingsView(): JSX.Element {
     // Select component returns string or string[], we only support single selection
     const selectedMode = Array.isArray(mode) ? mode[0] : mode
 
-    const updatedSettings: ReaderSettings = {
+    const updatedSettings: MangaReadingSettings = {
       ...globalReaderSettings,
-      readingMode: selectedMode as ReaderSettings['readingMode']
+      readingMode: selectedMode as MangaReadingSettings['readingMode']
     }
     setGlobalReaderSettings(updatedSettings)
 
     try {
-      const paths = await globalThis.fileSystem.getAllowedPaths()
+      const pathsResult = await globalThis.fileSystem.getAllowedPaths()
+      if (!pathsResult.success || !pathsResult.data) {
+        throw new Error('Failed to get allowed paths')
+      }
+      const paths = pathsResult.data
       const settingsPath = paths.appData + '/settings.json'
 
       let settings: Record<string, unknown> = {}
       try {
-        const existing = await globalThis.fileSystem.readFile(settingsPath, 'utf-8')
-        settings = JSON.parse(existing as string)
+        const existingResult = await globalThis.fileSystem.readFile(settingsPath, 'utf-8')
+        if (existingResult.success && existingResult.data) {
+          settings = JSON.parse(existingResult.data as string)
+        }
       } catch {
         // File doesn't exist, use empty object
       }
@@ -273,12 +307,7 @@ export function SettingsView(): JSX.Element {
       ;(settings.reader as Record<string, unknown>).global = updatedSettings
 
       await globalThis.electron.ipcRenderer.invoke('settings:save', 'reader', settings.reader)
-
-      showToast({
-        variant: 'success',
-        title: 'Settings saved',
-        message: 'Global reading mode updated'
-      })
+      // Success - no toast needed
     } catch (error) {
       showToast({
         variant: 'error',
@@ -293,7 +322,7 @@ export function SettingsView(): JSX.Element {
     key: 'skipCoverPages' | 'readRightToLeft',
     value: boolean
   ): Promise<void> => {
-    const updatedSettings: ReaderSettings = {
+    const updatedSettings: MangaReadingSettings = {
       ...globalReaderSettings,
       doublePageMode: {
         skipCoverPages: globalReaderSettings.doublePageMode?.skipCoverPages ?? true,
@@ -304,13 +333,19 @@ export function SettingsView(): JSX.Element {
     setGlobalReaderSettings(updatedSettings)
 
     try {
-      const paths = await globalThis.fileSystem.getAllowedPaths()
+      const pathsResult = await globalThis.fileSystem.getAllowedPaths()
+      if (!pathsResult.success || !pathsResult.data) {
+        throw new Error('Failed to get allowed paths')
+      }
+      const paths = pathsResult.data
       const settingsPath = paths.appData + '/settings.json'
 
       let settings: Record<string, unknown> = {}
       try {
-        const existing = await globalThis.fileSystem.readFile(settingsPath, 'utf-8')
-        settings = JSON.parse(existing as string)
+        const existingResult = await globalThis.fileSystem.readFile(settingsPath, 'utf-8')
+        if (existingResult.success && existingResult.data) {
+          settings = JSON.parse(existingResult.data as string)
+        }
       } catch {
         // File doesn't exist, use empty object
       }
@@ -321,12 +356,7 @@ export function SettingsView(): JSX.Element {
       ;(settings.reader as Record<string, unknown>).global = updatedSettings
 
       await globalThis.electron.ipcRenderer.invoke('settings:save', 'reader', settings.reader)
-
-      showToast({
-        variant: 'success',
-        title: 'Settings saved',
-        message: 'Double page mode settings updated'
-      })
+      // Success - no toast needed
     } catch (error) {
       showToast({
         variant: 'error',
@@ -341,13 +371,19 @@ export function SettingsView(): JSX.Element {
     setForceDarkMode(enabled)
 
     try {
-      const paths = await globalThis.fileSystem.getAllowedPaths()
+      const pathsResult = await globalThis.fileSystem.getAllowedPaths()
+      if (!pathsResult.success || !pathsResult.data) {
+        throw new Error('Failed to get allowed paths')
+      }
+      const paths = pathsResult.data
       const settingsPath = paths.appData + '/settings.json'
 
       let settings: Record<string, unknown> = {}
       try {
-        const existing = await globalThis.fileSystem.readFile(settingsPath, 'utf-8')
-        settings = JSON.parse(existing as string)
+        const existingResult = await globalThis.fileSystem.readFile(settingsPath, 'utf-8')
+        if (existingResult.success && existingResult.data) {
+          settings = JSON.parse(existingResult.data as string)
+        }
       } catch {
         // File doesn't exist, use empty object
       }
@@ -358,12 +394,7 @@ export function SettingsView(): JSX.Element {
       ;(settings.reader as Record<string, unknown>).forceDarkMode = enabled
 
       await globalThis.electron.ipcRenderer.invoke('settings:save', 'reader', settings.reader)
-
-      showToast({
-        variant: 'success',
-        title: 'Settings saved',
-        message: `Dark mode ${enabled ? 'enabled' : 'disabled'} in reader`
-      })
+      // Success - no toast needed
     } catch (error) {
       showToast({
         variant: 'error',
@@ -379,13 +410,19 @@ export function SettingsView(): JSX.Element {
     setImageQuality(selectedQuality as 'data' | 'data-saver')
 
     try {
-      const paths = await globalThis.fileSystem.getAllowedPaths()
+      const pathsResult = await globalThis.fileSystem.getAllowedPaths()
+      if (!pathsResult.success || !pathsResult.data) {
+        throw new Error('Failed to get allowed paths')
+      }
+      const paths = pathsResult.data
       const settingsPath = paths.appData + '/settings.json'
 
       let settings: Record<string, unknown> = {}
       try {
-        const existing = await globalThis.fileSystem.readFile(settingsPath, 'utf-8')
-        settings = JSON.parse(existing as string)
+        const existingResult = await globalThis.fileSystem.readFile(settingsPath, 'utf-8')
+        if (existingResult.success && existingResult.data) {
+          settings = JSON.parse(existingResult.data as string)
+        }
       } catch {
         // File doesn't exist, use empty object
       }
@@ -396,12 +433,7 @@ export function SettingsView(): JSX.Element {
       ;(settings.reader as Record<string, unknown>).quality = selectedQuality
 
       await globalThis.electron.ipcRenderer.invoke('settings:save', 'reader', settings.reader)
-
-      showToast({
-        variant: 'success',
-        title: 'Settings saved',
-        message: 'Image quality updated'
-      })
+      // Success - no toast needed
     } catch (error) {
       showToast({
         variant: 'error',
@@ -414,14 +446,13 @@ export function SettingsView(): JSX.Element {
   // Reset individual manga override
   const handleResetMangaOverride = async (mangaId: string): Promise<void> => {
     try {
-      await globalThis.reader.resetMangaReaderSettings(mangaId)
-      setPerMangaOverrides((prev) => prev.filter((o) => o.mangaId !== mangaId))
+      const result = await globalThis.reader.resetMangaReaderSettings(mangaId)
+      if (!result.success) {
+        throw new Error(result.error?.message || 'Failed to reset settings')
+      }
 
-      showToast({
-        variant: 'success',
-        title: 'Override reset',
-        message: 'Manga will now use global settings'
-      })
+      setPerMangaOverrides((prev) => prev.filter((o) => o.mangaId !== mangaId))
+      // Success - no toast needed
     } catch (error) {
       showToast({
         variant: 'error',
@@ -435,16 +466,18 @@ export function SettingsView(): JSX.Element {
   const handleClearAllOverrides = async (): Promise<void> => {
     try {
       // Reset all overrides
-      await Promise.all(
+      const results = await Promise.all(
         perMangaOverrides.map((o) => globalThis.reader.resetMangaReaderSettings(o.mangaId))
       )
-      setPerMangaOverrides([])
 
-      showToast({
-        variant: 'success',
-        title: 'All overrides cleared',
-        message: 'All manga will now use global settings'
-      })
+      // Check if any failed
+      const failed = results.filter((r) => !r.success)
+      if (failed.length > 0) {
+        throw new Error(`Failed to reset ${failed.length} override(s)`)
+      }
+
+      setPerMangaOverrides([])
+      // Success - no toast needed
     } catch (error) {
       showToast({
         variant: 'error',

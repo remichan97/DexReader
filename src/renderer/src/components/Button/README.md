@@ -21,7 +21,7 @@ import { Button } from '@renderer/components/Button'
 </Button>
 
 // Destructive button
-<Button variant="destructive" onClick={handleDelete}>
+<Button variant="danger" onClick={handleDelete}>
   Delete
 </Button>
 

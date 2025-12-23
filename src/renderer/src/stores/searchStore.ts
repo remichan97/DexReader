@@ -111,11 +111,13 @@ interface SearchState {
   loading: boolean
   loadingMore: boolean
   error: Error | null
+  loadMoreError: Error | null
   setQuery: (query: string) => void
   setFilters: (filters: Partial<SearchFilters>) => void
   setLimit: (limit: number) => void
   search: () => Promise<void>
   loadMore: () => Promise<void>
+  retryLoadMore: () => Promise<void>
   reset: () => void
 }
 
@@ -133,6 +135,7 @@ export const useSearchStore = create<SearchState>((set, get) => ({
   loading: false,
   loadingMore: false,
   error: null,
+  loadMoreError: null,
 
   setQuery: (query: string) => {
     set({ query })
@@ -160,6 +163,7 @@ export const useSearchStore = create<SearchState>((set, get) => ({
       set({
         loading: true,
         error: null,
+        loadMoreError: null,
         offset: 0,
         results: []
       })
@@ -313,10 +317,17 @@ export const useSearchStore = create<SearchState>((set, get) => ({
     } catch (error) {
       console.error('Load more error:', error)
       set({
-        error: error instanceof Error ? error : new Error(String(error)),
-        loadingMore: false
+        loadMoreError: error instanceof Error ? error : new Error(String(error)),
+        loadingMore: false,
+        hasMore: true // Keep hasMore true so user can retry
       })
     }
+  },
+
+  retryLoadMore: async () => {
+    // Clear the error and retry loading more
+    set({ loadMoreError: null })
+    await get().loadMore()
   },
 
   reset: () => {
@@ -330,7 +341,8 @@ export const useSearchStore = create<SearchState>((set, get) => ({
       hasMore: true,
       loading: false,
       loadingMore: false,
-      error: null
+      error: null,
+      loadMoreError: null
     })
   }
 }))

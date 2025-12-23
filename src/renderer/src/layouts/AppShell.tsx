@@ -37,7 +37,11 @@ export function AppShell({ children }: AppShellProps): JSX.Element {
 
   // Sync system theme from Electron main process
   useEffect(() => {
-    window.api.getTheme().then(setSystemTheme)
+    window.api.getTheme().then((response) => {
+      if (response.success && response.data) {
+        setSystemTheme(response.data as 'light' | 'dark')
+      }
+    })
     window.api.onThemeChanged(setSystemTheme)
   }, [setSystemTheme])
 

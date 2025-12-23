@@ -7,7 +7,7 @@
 .reader-view {
   position: relative;
   width: 100%;
-  min-height: 100vh;
+  height: 100vh; /* Fixed height to constrain flex children */
   background-color: var(--color-bg-primary);
   display: flex;
   flex-direction: column;
@@ -24,6 +24,11 @@
   --color-text-tertiary: #808080;
   --color-border-subtle: #3a3a3a;
   background-color: #1a1a1a;
+  /* Map to win- variables for Button components */
+  --win-text-primary: #ffffff;
+  --win-text-secondary: #b3b3b3;
+  --win-bg-hover: rgba(255, 255, 255, 0.08);
+  --win-bg-active: rgba(255, 255, 255, 0.12);
 }
 
 /* Loading state */
@@ -150,38 +155,6 @@
   border-bottom: 1px solid var(--color-border-subtle);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
-}
-
-/* Dark mode: Make back button more visible */
-.reader-view[data-theme='dark'] .reader-header__left button {
-  background-color: rgba(255, 255, 255, 0.08);
-  color: var(--color-text-primary);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.reader-view[data-theme='dark'] .reader-header__left button:hover {
-  background-color: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.18);
-}
-
-.reader-view[data-theme='dark'] .reader-header__left button:active {
-  background-color: rgba(255, 255, 255, 0.16);
-}
-
-/* Dark mode: Make chapters button more visible */
-.reader-view[data-theme='dark'] .reader-header__right button {
-  background-color: rgba(255, 255, 255, 0.08);
-  color: var(--color-text-primary);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.reader-view[data-theme='dark'] .reader-header__right button:hover {
-  background-color: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.18);
-}
-
-.reader-view[data-theme='dark'] .reader-header__right button:active {
-  background-color: rgba(255, 255, 255, 0.16);
 }
 
 .reader-header__left {
@@ -738,15 +711,13 @@
   width: 400px;
   max-width: 90vw;
   height: 100vh;
-  background: var(--color-bg-secondary);
+  background: #f3f3f3; /* Solid light background */
   border-left: 1px solid var(--color-border-subtle);
   box-shadow: var(--elevation-shadow-8);
   z-index: 201;
   display: flex;
   flex-direction: column;
   transition: right 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
 }
 
 .chapter-list-sidebar--open {
@@ -761,7 +732,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--color-bg-tertiary);
+  background: #e8e8e8; /* Solid light background */
 }
 
 .chapter-list-sidebar__header h2 {
@@ -798,14 +769,19 @@
   margin-bottom: 4px;
   border-radius: 6px;
   cursor: pointer;
-  background: var(--color-bg-primary);
-  border: 1px solid var(--color-border-subtle);
+  background: #ffffff; /* Solid white background */
+  border: 1px solid rgba(0, 0, 0, 0.08);
   transition: all 0.15s ease;
 }
 
 .chapter-list-sidebar__item:hover {
-  background: var(--color-bg-tertiary);
-  border-color: var(--color-border);
+  background: #e8e8e8; /* Solid hover background */
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+.chapter-list-sidebar__item--active:hover {
+  background: #004A94; /* Darker blue for hover in light mode */
+  border-color: #004A94;
 }
 
 .chapter-list-sidebar__item:active {
@@ -813,14 +789,14 @@
 }
 
 .chapter-list-sidebar__item--active {
-  background: var(--color-accent-primary);
-  border-color: var(--color-accent-primary);
+  background: var(--win-accent);
+  border-color: var(--win-accent);
 }
 
 .chapter-list-sidebar__item--active .chapter-list-sidebar__item-number,
 .chapter-list-sidebar__item--active .chapter-list-sidebar__item-title,
 .chapter-list-sidebar__item--active .chapter-list-sidebar__item-meta {
-  color: #ffffff;
+  color: var(--win-text-on-accent);
 }
 
 .chapter-list-sidebar__item-number {
@@ -855,24 +831,22 @@
 
 .reader-view[data-theme='dark'] .chapter-list-sidebar__item {
   background: #1a1a1a;
-  border-color: #3a3a3a;
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .reader-view[data-theme='dark'] .chapter-list-sidebar__item:hover {
   background: #2e2e2e;
-  border-color: #4a4a4a;
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 /* Dark mode: Make close button more visible */
 .reader-view[data-theme='dark'] .chapter-list-sidebar__header button {
   background-color: rgba(255, 255, 255, 0.08);
   color: var(--color-text-primary);
-  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .reader-view[data-theme='dark'] .chapter-list-sidebar__header button:hover {
   background-color: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.18);
 }
 
 .reader-view[data-theme='dark'] .chapter-list-sidebar__header button:active {
@@ -885,10 +859,9 @@
 
 .vertical-scroll-container {
   width: 100%;
-  height: 100%;
+  flex: 1; /* Fill remaining space in flex container */
   overflow-y: auto;
   overflow-x: hidden;
-  scroll-behavior: smooth;
   background: var(--color-bg-primary);
 }
 

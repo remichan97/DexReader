@@ -65,23 +65,8 @@ export function VerticalScrollDisplay({
     return () => observer.disconnect()
   }, [currentPage, onPageChange, images.length])
 
-  // Scroll to specific page programmatically
-  useEffect(() => {
-    const pageElement = pageRefsRef.current.get(currentPage)
-    if (pageElement && containerRef.current) {
-      // Check if page is already visible
-      const rect = pageElement.getBoundingClientRect()
-      const containerRect = containerRef.current.getBoundingClientRect()
-      const isVisible = rect.top >= containerRect.top && rect.bottom <= containerRect.bottom
-
-      if (!isVisible) {
-        pageElement.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        })
-      }
-    }
-  }, [currentPage])
+  // Note: Automatic scrollIntoView disabled for vertical mode to allow free scrolling
+  // The IntersectionObserver tracks page position without fighting user scroll
 
   return (
     <div ref={containerRef} className="vertical-scroll-container">

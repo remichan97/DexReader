@@ -41,22 +41,37 @@ export function useAccentColor(): void {
     async function loadAccentColor(): Promise<void> {
       try {
         // Get system accent color first
-        const systemAccent = await globalThis.api.getSystemAccentColor()
+        const systemAccentResult = await globalThis.api.getSystemAccentColor()
+        if (!systemAccentResult.success) {
+          throw new Error('Failed to get system accent color')
+        }
+        const systemAccent = systemAccentResult.data as string
 
         // Try to load custom color from settings
-        const paths = await globalThis.fileSystem.getAllowedPaths()
+        const pathsResult = await globalThis.fileSystem.getAllowedPaths()
+        if (!pathsResult.success) {
+          throw new Error('Failed to get allowed paths')
+        }
+        const paths = pathsResult.data!
+
         try {
-          const settings = await globalThis.fileSystem.readFile(
+          const settingsResult = await globalThis.fileSystem.readFile(
             paths.appData + '/settings.json',
             'utf-8'
           )
-          const parsed = JSON.parse(settings as string)
-          if (parsed.accentColor) {
-            // User has custom color
-            setIsUsingSystemColor(false)
-            applyAccentColor(parsed.accentColor)
+          if (settingsResult.success && settingsResult.data) {
+            const parsed = JSON.parse(settingsResult.data as string)
+            if (parsed.accentColor) {
+              // User has custom color
+              setIsUsingSystemColor(false)
+              applyAccentColor(parsed.accentColor)
+            } else {
+              // Use system color
+              setIsUsingSystemColor(true)
+              applyAccentColor(systemAccent)
+            }
           } else {
-            // Use system color
+            // No settings file or can't read it - use system color
             setIsUsingSystemColor(true)
             applyAccentColor(systemAccent)
           }

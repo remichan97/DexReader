@@ -101,19 +101,19 @@
   transform: scale(0.98);
 }
 
-/* Destructive Variant (Red/Danger) */
-.button--destructive {
+/* Danger Variant (Red/Destructive Actions) */
+.button--danger {
   background: var(--win-error);
   color: #ffffff;
   border-color: var(--win-error);
 }
 
-.button--destructive:hover:not(.button--disabled):not(.button--loading) {
+.button--danger:hover:not(.button--disabled):not(.button--loading) {
   background: var(--win-error-hover);
   border-color: var(--win-error-hover);
 }
 
-.button--destructive:active:not(.button--disabled):not(.button--loading) {
+.button--danger:active:not(.button--disabled):not(.button--loading) {
   background: var(--win-error-active);
   border-color: var(--win-error-active);
   transform: scale(0.98);

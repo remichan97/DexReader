@@ -100,14 +100,20 @@ export function useReaderKeyboard(props: UseReaderKeyboardProps): void {
         case 'ArrowRight':
         case 'PageDown':
         case 'Enter':
-          e.preventDefault()
-          navigationHandlers.goToNextPage()
+          // In vertical mode, allow native scrolling with arrow keys
+          if (readingMode !== 'vertical') {
+            e.preventDefault()
+            navigationHandlers.goToNextPage()
+          }
           break
 
         case 'ArrowLeft':
         case 'PageUp':
-          e.preventDefault()
-          navigationHandlers.goToPreviousPage()
+          // In vertical mode, allow native scrolling with arrow keys
+          if (readingMode !== 'vertical') {
+            e.preventDefault()
+            navigationHandlers.goToPreviousPage()
+          }
           break
 
         case ' ':

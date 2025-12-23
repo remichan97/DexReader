@@ -24,7 +24,7 @@ import { Tooltip } from '@renderer/components/Tooltip'
 
 // Custom position and delay
 <Tooltip content="Delete this item permanently" position="right" delay={300}>
-  <Button variant="destructive">Delete</Button>
+  <Button variant="danger">Delete</Button>
 </Tooltip>
 
 // Complex content

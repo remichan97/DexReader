@@ -28,6 +28,7 @@ export function BrowseView(): JSX.Element {
     results,
     loading,
     error,
+    loadMoreError,
     hasMore,
     filters,
     limit,
@@ -35,7 +36,8 @@ export function BrowseView(): JSX.Element {
     setFilters,
     setLimit,
     search,
-    loadMore
+    loadMore,
+    retryLoadMore
   } = useSearchStore()
 
   // Hide filters by default - users reveal when needed
@@ -326,8 +328,35 @@ export function BrowseView(): JSX.Element {
           {/* Infinite scroll sentinel */}
           <div ref={sentinelRef} style={{ height: '1px', margin: '24px 0' }} />
 
+          {/* Load more error - inline, doesn't crash the view */}
+          {loadMoreError && (
+            <div
+              style={{
+                textAlign: 'center',
+                padding: '24px',
+                background: 'var(--win-bg-secondary)',
+                borderRadius: '8px',
+                margin: '0 auto',
+                maxWidth: '600px'
+              }}
+            >
+              <p
+                style={{
+                  color: 'var(--win-text-secondary)',
+                  fontSize: '14px',
+                  marginBottom: '16px'
+                }}
+              >
+                Couldn&apos;t load more manga. This might be a connection issue.
+              </p>
+              <Button variant="primary" onClick={retryLoadMore} size="small">
+                Try Again
+              </Button>
+            </div>
+          )}
+
           {/* Loading more indicator */}
-          {loading && hasMore && (
+          {loading && hasMore && !loadMoreError && (
             <div style={{ textAlign: 'center', padding: '24px' }}>
               <p style={{ color: 'var(--win-text-secondary)', fontSize: '14px' }}>
                 Loading more manga...
