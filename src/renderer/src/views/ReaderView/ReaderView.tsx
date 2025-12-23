@@ -440,7 +440,7 @@ export function ReaderView(): JSX.Element {
   const handleImageClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>): void => {
       // Don't navigate if zoomed in (to avoid interfering with drag)
-      if (zoom.zoomLevel > 1.0) {
+      if (zoom.zoomLevel > 1) {
         return
       }
 

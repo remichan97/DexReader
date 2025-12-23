@@ -52,7 +52,7 @@ export function VerticalScrollDisplay({
         }
       },
       {
-        threshold: [0, 0.25, 0.5, 0.75, 1.0], // Multiple thresholds for better tracking
+        threshold: [0, 0.25, 0.5, 0.75, 1], // Multiple thresholds for better tracking
         rootMargin: '-20% 0px -20% 0px' // Center area has priority
       }
     )

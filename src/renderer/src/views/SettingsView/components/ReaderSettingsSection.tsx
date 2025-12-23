@@ -3,13 +3,13 @@ import { Delete24Regular } from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
 import { Select, type SelectOption } from '@renderer/components/Select'
 import { Switch } from '@renderer/components/Switch'
-import type { ReaderSettings } from '../../../../../preload/index.d'
+import type { MangaReadingSettings } from '../../../../../preload/index.d'
 
 interface PerMangaOverride {
   mangaId: string
   mangaTitle: string
   coverUrl?: string
-  settings: ReaderSettings
+  settings: MangaReadingSettings
 }
 
 interface ReaderSettingsSectionProps {
@@ -18,7 +18,7 @@ interface ReaderSettingsSectionProps {
   onForceDarkModeChange: (enabled: boolean) => void
   imageQuality: 'data' | 'data-saver'
   onImageQualityChange: (quality: string | string[]) => void
-  globalReaderSettings: ReaderSettings
+  globalReaderSettings: MangaReadingSettings
   onReadingModeChange: (mode: string | string[]) => void
   onDoublePageSettingChange: (key: 'skipCoverPages' | 'readRightToLeft', value: boolean) => void
   perMangaOverrides: PerMangaOverride[]
