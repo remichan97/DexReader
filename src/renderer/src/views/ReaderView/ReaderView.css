@@ -462,6 +462,7 @@
   transform: translateZ(0);
   backface-visibility: hidden;
   -webkit-font-smoothing: subpixel-antialiased;
+  animation: fadeIn 0.2s var(--spring-easing);
 }
 
 /* Fit modes */
@@ -542,10 +543,6 @@
   to {
     opacity: 1;
   }
-}
-
-.reader-page__image {
-  animation: fadeIn 0.2s var(--spring-easing);
 }
 
 /* ==================== */
@@ -780,8 +777,8 @@
 }
 
 .chapter-list-sidebar__item--active:hover {
-  background: #004A94; /* Darker blue for hover in light mode */
-  border-color: #004A94;
+  background: #004a94; /* Darker blue for hover in light mode */
+  border-color: #004a94;
 }
 
 .chapter-list-sidebar__item:active {

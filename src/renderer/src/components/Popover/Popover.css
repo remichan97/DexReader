@@ -41,11 +41,6 @@
   box-shadow:
     0 8px 24px rgba(0, 0, 0, 0.5),
     0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-/* Override CSS variables for dark mode inside popover */
-/* Must explicitly set accent colors to match :root[data-theme='dark'] since popover is not root */
-.popover[data-theme='dark'] .popover__content {
   --win-bg-subtle: #242424;
   --win-bg-hover: #3a3a3a;
   --win-bg-active: #4a4a4a;
