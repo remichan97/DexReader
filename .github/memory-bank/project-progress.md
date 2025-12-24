@@ -555,7 +555,13 @@
 
 **Key Technical Tasks**:
 
-- [ ] **P3-T01**: Create local library database (favorites, bookmarks)
+- [🔵] **P3-T01**: Create local library database (favorites, bookmarks) - **PLANNING COMPLETE**
+  - Comprehensive implementation plan created (24 Dec 2025)
+  - Duration: 24-32 hours (3-4 days)
+  - Backend: 5 steps (SQLite, LibraryManager, IPC, Preload, Integration)
+  - Frontend: 3 steps (LibraryStore, Add to Library UI, LibraryView enhancements)
+  - Plan location: `.github/copilot-plans/P3-T01-create-local-library-database.md`
+  - Ready for implementation
 - [ ] **P3-T02**: Implement metadata storage for bookmarked manga (covers, titles, descriptions, chapter lists)
 - [ ] **P3-T03**: Implement local reading lists management
 - [ ] **P3-T04**: Add manga to favorites functionality
@@ -920,11 +926,29 @@
 
 ## Notes & Decisions
 
-### 24 December 2025 - UI Polish & Error Handling Complete ✅
+### 24 December 2025 - UI Polish Complete + P3-T01 Planning 🎉
 
 ✅ **UI Theme Consistency**: Fixed all chapter sidebar theme issues (transparency, colors, hover states)
 ✅ **Browse Pagination**: Implemented graceful error handling for load-more failures
 ✅ **Production Ready**: All UI combinations tested, no crashes on network errors
+✅ **P3-T01 Planning Complete**: Comprehensive library database implementation plan created
+
+**P3-T01 Planning Summary:**
+- **Duration Estimate**: 24-32 hours (3-4 days)
+- **Backend Work** (16-20 hours):
+  1. Database Setup: SQLite schema with bookmarks, collections, tags (4-5h)
+  2. Library Manager: Business logic with CRUD operations (5-6h)
+  3. IPC Handlers: Expose library operations to renderer (3-4h)
+  4. Preload API Bridge: window.library namespace (2h)
+  5. Integration & Registration (1-2h)
+- **Frontend Work** (8-12 hours):
+  1. Library Store: Zustand state management (2-3h)
+  2. Add to Library UI: Buttons, badges, favorite toggles (3-4h)
+  3. LibraryView Enhancements: Collections, filtering, tabs (3-5h)
+- **Key Features**: Bookmarks, favorites, collections, tags, search/filter/sort, statistics
+- **Technology**: better-sqlite3 for local database
+- **Plan Location**: `.github/copilot-plans/P3-T01-create-local-library-database.md`
+- **Status**: Ready for implementation (pending user availability)
 
 **Theme Fixes Applied:**
 
