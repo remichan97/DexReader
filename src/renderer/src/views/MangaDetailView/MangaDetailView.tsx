@@ -9,7 +9,7 @@ import { getMangaTitle } from '@renderer/utils/mangaHelpers'
 import MangaHeroSection from './components/MangaHeroSection'
 import DescriptionSection from './components/DescriptionSection'
 import ExternalLinksSection from './components/ExternalLinksSection'
-import TagsSection from './components/TagsSection'
+import AlternativeTitlesSection from './components/AlternativeTitlesSection'
 import ChapterList from './components/ChapterList'
 import './MangaDetailView.css'
 
@@ -404,8 +404,8 @@ export function MangaDetailView(): JSX.Element {
       {/* External Links */}
       <ExternalLinksSection manga={state.manga} />
 
-      {/* Tags section */}
-      <TagsSection manga={state.manga} />
+      {/* Alternative Titles */}
+      <AlternativeTitlesSection manga={state.manga} />
 
       {/* Chapter list */}
       <ChapterList
@@ -445,6 +445,11 @@ function MangaDetailSkeleton(): JSX.Element {
         </div>
         <div className="manga-detail-view__info">
           <Skeleton width="80%" height={32} />
+          <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={`hero-tag-skeleton-${i}`} width={80} height={28} />
+            ))}
+          </div>
           <div style={{ marginTop: '12px' }}>
             <Skeleton width="60%" height={20} />
           </div>
@@ -466,22 +471,12 @@ function MangaDetailSkeleton(): JSX.Element {
         </div>
       </div>
 
-      {/* Tags skeleton */}
-      <div className="manga-detail-view__tags">
-        <Skeleton width={80} height={24} />
-        <div className="tags-container" style={{ marginTop: '12px' }}>
-          {Array.from({ length: 8 }).map((_, i) => (
-            <Skeleton key={`tag-skeleton-${i}`} width={80} height={28} />
-          ))}
-        </div>
-      </div>
-
       {/* Chapter list skeleton */}
       <div className="manga-detail-view__chapters">
         <Skeleton width={150} height={24} />
         <div className="chapter-list-items" style={{ marginTop: '16px' }}>
           {Array.from({ length: 10 }).map((_, i) => (
-            <Skeleton key={`chapter-skeleton-${i}`} width="100%" height={56} />
+            <Skeleton key={`skel-chapter-${i}`} width="100%" height={56} />
           ))}
         </div>
       </div>

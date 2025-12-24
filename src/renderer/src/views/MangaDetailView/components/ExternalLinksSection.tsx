@@ -48,13 +48,31 @@ export default function ExternalLinksSection({ manga }: ExternalLinksSectionProp
     const url = getExternalUrl(key, value)
     const serviceName = serviceNames[key]
 
-    const result = await globalThis.api.showConfirmDialog(
-      `Open ${serviceName}?`,
-      `You're about to open an external website in your default browser. Just so you know where you're headed:\n\n${url}`
-    )
+    const result = await globalThis.api.showDialog({
+      message: `Open ${serviceName}?`,
+      detail: `You're about to open an external website in your default browser. Just so you know where you're headed:\n\n${url}`,
+      buttons: ['Open in Browser', 'Copy Link', 'Cancel'],
+      type: 'question',
+      defaultId: 0,
+      cancelId: 2,
+      noLink: true // Use normal buttons instead of command links (VS Code style)
+    })
 
     if (result.success && result.data) {
-      globalThis.open(url, '_blank', 'noopener,noreferrer')
+      if (result.data.response === 0) {
+        // User clicked "Open in Browser"
+        globalThis.open(url, '_blank', 'noopener,noreferrer')
+      } else if (result.data.response === 1) {
+        // User clicked "Copy Link"
+        try {
+          await navigator.clipboard.writeText(url)
+          // Optional: Show a toast notification that link was copied
+          console.log('Link copied to clipboard:', url)
+        } catch (error) {
+          console.error('Failed to copy link:', error)
+        }
+      }
+      // response === 2 means Cancel, do nothing
     }
   }
 

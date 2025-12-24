@@ -46,6 +46,18 @@ export default function MangaHeroSection({
   const lastVolume = manga.attributes.lastVolume
   const lastChapter = manga.attributes.lastChapter
 
+  // Extract tags from attributes
+  const tags =
+    (
+      manga.attributes as {
+        tags?: Array<{ id: string; attributes: { name: { en?: string }; group: string } }>
+      }
+    )?.tags?.map((tag) => ({
+      id: tag.id,
+      name: tag.attributes.name.en || 'Unknown',
+      group: tag.attributes.group
+    })) || []
+
   const handleReadClick = (): void => {
     if (chapters.length === 0) return
 
@@ -89,6 +101,10 @@ export default function MangaHeroSection({
     console.log('Add to library:', manga.id)
   }
 
+  const handleTagClick = (tagId: string): void => {
+    navigate(`/browse?tag=${tagId}`)
+  }
+
   return (
     <div className="manga-detail-view__hero">
       {/* Cover Image */}
@@ -99,6 +115,22 @@ export default function MangaHeroSection({
       {/* Metadata */}
       <div className="manga-detail-view__info">
         <h1 className="manga-detail-view__title">{title}</h1>
+
+        {/* Tags */}
+        {tags.length > 0 && (
+          <div className="manga-detail-view__tags-row">
+            {tags.map((tag) => (
+              <Button
+                key={tag.id}
+                variant="ghost"
+                className="tag tag--theme"
+                onClick={() => handleTagClick(tag.id)}
+              >
+                {tag.name}
+              </Button>
+            ))}
+          </div>
+        )}
 
         <div className="manga-detail-view__metadata">
           <p className="manga-detail-view__author">

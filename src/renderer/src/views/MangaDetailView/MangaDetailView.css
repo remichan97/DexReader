@@ -102,6 +102,21 @@
   margin-top: auto;
 }
 
+/* Tags Row (in Hero Section) */
+.manga-detail-view__tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.manga-detail-view__tags-row .tag {
+  font-size: 12px;
+  padding: 4px 10px;
+  height: auto;
+  min-height: auto;
+}
+
 /* Progress Badge */
 .manga-detail-view__progress-badge {
   position: absolute;
@@ -273,6 +288,64 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
+}
+
+/* Alternative Titles Section */
+.manga-detail-view__alt-titles {
+  padding: var(--space-4);
+  background: var(--win-bg-card);
+  margin-top: 1px;
+}
+
+.alt-titles-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.alt-title-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--win-font-size-body);
+  line-height: 1.5;
+}
+
+.alt-title-language {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  padding: 4px 8px;
+  background: var(--win-subtle-fill-secondary);
+  color: var(--win-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border-radius: var(--radius-xs);
+  cursor: help;
+  transition: var(--transition-all-fast);
+  flex-shrink: 0;
+}
+
+.alt-title-language:hover {
+  background: var(--win-subtle-fill-tertiary);
+  color: var(--win-text-primary);
+}
+
+.alt-title-text {
+  color: var(--win-text-primary);
+  font-weight: 500;
+}
+
+.alt-titles-toggle {
+  margin-top: var(--space-3);
+  font-size: var(--win-font-size-body);
+  color: var(--win-accent);
+}
+
+.alt-titles-toggle:hover {
+  color: var(--win-accent);
 }
 
 .tag {
