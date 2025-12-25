@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 24 December 2025
-**Current Phase**: Guerilla Refactoring (Before Phase 3) 🔧
-**Session**: UI Polish & Error Handling Improvements - Complete
+**Last Updated**: 25 December 2025
+**Current Phase**: Guerilla Refactoring (All Refactoring COMPLETE ✅)
+**Session**: Database Migration Planning - Complete ✅
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -10,14 +10,86 @@
 
 ## Current Status Summary
 
-**Phase**: Guerilla Refactoring Task (Between Phase 2 and Phase 3)
-**Progress**: Frontend refactoring complete ✅, Critical bug fixes complete ✅, backend refactoring pending
-**Current Date**: 23 December 2025
+**Phase**: Guerilla Refactoring Tasks (Between Phase 2 and Phase 3)
+**Progress**: All refactoring complete ✅, Database migration plan complete ✅
+**Current Date**: 25 December 2025
 **Phase 1 Status**: Complete ✅ (9/9 tasks, 100%)
 **Phase 2 Status**: Complete ✅ (11/11 tasks, 100%)
-**Current Task**: Multiple critical bugs fixed - ready for testing before Phase 3
+**Current Task**: Database migration plan finalized - ready for implementation when user decides to proceed
 
-### 🐛 Critical Bug Fixes (23 Dec 2025) - ✅ COMPLETE
+### �️ Database Migration Planning (25 Dec 2025) - ✅ COMPLETE
+
+**Context**: Before Phase 3, we need to migrate from JSON-based storage (settings.json, progress.json) to SQLite database with Drizzle ORM. This eliminates JSON limitations (2MB file size, 1000 override cap, manual validation) and provides foundation for Phase 3 library features.
+
+**Plan Document**: `.github/copilot-plans/guerilla-database-migration-plan.md` (2,344 lines)
+
+**Key Decisions Made**:
+
+1. **Table Naming**: `manga_cache` → `manga`
+   - Rationale: Table stores metadata permanently, "cache" is just a convenience aspect
+   - Dual-purpose: Favorites (`is_favorite=1`) + Read manga (`is_read=1`) + Temporary cache (`is_favorite=0, is_read=0`)
+
+2. **Chapter Metadata Storage**: Added `chapter` table
+   - Stores chapter metadata (title, pages, language, scanlation group) separate from progress
+   - `chapter_progress` table remains sparse (only chapters user has read)
+   - Prevents repeated API calls for chapter lists
+
+3. **Staleness Criteria**: Three-tier system
+   - **Permanent**: `is_favorite = 1` (never deleted)
+   - **Semi-permanent**: `is_read = 1` (user has read chapters, kept 90 days)
+   - **Temporary**: `is_favorite = 0 AND is_read = 0` (just browsed, purged after 90 days)
+
+4. **Statistics Storage**: Keep all 4 statistics with trigger-based updates
+   - `total_manga_read` - Count of distinct manga in progress
+   - `total_chapters_read` - Count of completed chapters
+   - `total_pages_read` - Sum of `current_page` for completed chapters
+   - `total_estimated_minutes` - Calculated as `(total_pages * 20) / 60`
+   - Auto-updated by `update_reading_statistics` trigger on chapter progress changes
+
+5. **Performance Optimizations**:
+   - Composite indexes for common queries (e.g., `idx_chapter_progress_manga_completed`)
+   - Partial indexes for favorited manga (smaller index size)
+   - Database pragmas (WAL mode, 64MB cache, memory-mapped I/O)
+   - Automatic cleanup triggers for stale data
+   - Cached statistics with trigger-based updates
+
+**Schema Highlights**:
+
+- **Tables**: 9 total (app_settings, manga_reader_overrides, manga_progress, chapter_progress, reading_statistics, manga, chapter, collections, collection_items)
+- **Triggers**: 3 (cleanup_stale_metadata_cache, update_reading_statistics, cleanup_orphaned_chapters)
+- **Indexes**: 15+ including partial and composite indexes
+- **Foreign Keys**: All relationships enforced with cascading deletes
+
+**Implementation Plan** (12-16 hours, 4 phases):
+
+- **Phase 1**: Database Infrastructure (3-4 hours)
+  - Install Drizzle ORM + better-sqlite3
+  - Create schema definitions
+  - Database connection manager with pragmas
+  - Migration system
+
+- **Phase 2**: Settings Migration (4-5 hours)
+  - Replace SettingsManager with SettingsRepository
+  - Migrate settings.json data
+  - Update IPC handlers
+  - Test all settings operations
+
+- **Phase 3**: Progress Migration (4-5 hours)
+  - Replace ProgressManager with ProgressRepository
+  - Migrate progress.json data
+  - Cache chapter/manga metadata
+  - Update IPC handlers
+
+- **Phase 4**: Cleanup & Testing (1-2 hours)
+  - Remove old JSON files (with backup)
+  - Integration testing
+  - Documentation updates
+
+**Next Steps**: Implementation awaiting user decision. Plan is complete and ready for execution.
+
+---
+
+### �🐛 Critical Bug Fixes (23 Dec 2025) - ✅ COMPLETE
 
 #### 1. System Theme Not Working (FIXED)
 

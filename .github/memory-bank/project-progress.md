@@ -1,8 +1,8 @@
 # DexReader Project Progress & Timeline
 
 **Project Start**: 23 November 2025
-**Current Phase**: Guerilla Refactoring (Frontend COMPLETE ✅)
-**Last Updated**: 22 December 2025
+**Current Phase**: Guerilla Refactoring (All Refactoring COMPLETE ✅)
+**Last Updated**: 25 December 2025
 
 ---
 
@@ -149,7 +149,40 @@
 
 **Testing Status**: Regression testing scheduled for next session.
 
-**Backend Refactoring**: Not yet started (main/index.ts, IPC handlers, menu organization). Optional before Phase 3.
+---
+
+### Guerilla Database Migration Planning: COMPLETE ✅
+
+**Duration**: Planning complete (25 December 2025)
+**Implementation**: Not yet started (estimated 12-16 hours)
+**Rationale**: Migrate from JSON storage to SQLite database with Drizzle ORM before Phase 3. Eliminates JSON pain points (2MB limit, manual validation, 1000 override cap) and establishes foundation for Phase 3 library features.
+
+- [✅] **Planning**: Database Migration Plan - **COMPLETE**
+  - **Document**: `.github/copilot-plans/guerilla-database-migration-plan.md` (2,344 lines)
+  - **Scope**:
+    - Migrate settings.json → SQLite (app_settings, manga_reader_overrides)
+    - Migrate progress.json → SQLite (manga_progress, chapter_progress, reading_statistics)
+    - Create Phase 3 library tables upfront (manga, chapter, collections, collection_items)
+  - **Schema Design**:
+    - `manga` table: Dual-purpose bookmarks + metadata cache with `is_favorite` and `is_read` flags
+    - `chapter` table: Chapter metadata cache (title, pages, language, scanlation group)
+    - `chapter_progress`: Sparse table for chapters actually read (current_page, completed flag)
+    - `reading_statistics`: Auto-updated aggregate stats (manga/chapters/pages/minutes read)
+    - Key-value pattern for app_settings (flexible, no schema changes needed)
+  - **Performance Optimizations**:
+    - Automatic triggers for statistics updates and cache cleanup
+    - Composite indexes for common queries (chapters per manga, library view)
+    - Partial indexes for favorited manga (smaller, faster)
+    - Database pragmas (WAL mode, 64MB cache, memory-mapped I/O)
+    - Cached statistics table with trigger-based updates
+  - **Implementation Plan** (4 phases, 12-16 hours):
+    - Phase 1: Database infrastructure (Drizzle + better-sqlite3, schema, connection, migrations)
+    - Phase 2: Settings migration (SettingsManager → SettingsRepository)
+    - Phase 3: Progress migration (ProgressManager → ProgressRepository)
+    - Phase 4: Cleanup and testing
+  - **Status**: Plan complete, ready for implementation
+
+**Implementation Status**: Not yet started. Awaiting user decision to proceed with implementation.
 
 ---
 
