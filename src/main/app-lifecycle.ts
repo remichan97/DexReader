@@ -1,5 +1,6 @@
 import { app, BrowserWindow } from 'electron'
 import { createWindow } from './window'
+import { databaseConnection } from './database/connection'
 
 export function setupAppLifecycle(): void {
   app.on('activate', function () {
@@ -10,6 +11,7 @@ export function setupAppLifecycle(): void {
 
   app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
+      databaseConnection.close()
       app.quit()
     }
   })
@@ -18,6 +20,7 @@ export function setupAppLifecycle(): void {
   app.on('before-quit', async (event) => {
     event.preventDefault()
     await new Promise((resolve) => setTimeout(resolve, 1000)) // Wait a second for everything to settle
+    databaseConnection.close()
     app.exit(0)
   })
 }

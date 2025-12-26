@@ -9,6 +9,8 @@ import { ImageProxy } from './api/imageProxy'
 import { createWindow } from './window'
 import { setupAppLifecycle } from './app-lifecycle'
 import { registerAllHandlers } from './ipc/registry'
+import { databaseConnection } from './database/connection'
+import { runMigrations } from './database/migrations/migrations'
 
 const imageProxy = new ImageProxy()
 
@@ -70,6 +72,10 @@ app.whenReady().then(async () => {
   await initFileSystem()
 
   registerAllHandlers()
+
+  databaseConnection.init()
+
+  runMigrations()
 
   createWindow()
 
