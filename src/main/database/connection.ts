@@ -9,7 +9,12 @@ class DatabaseConnection {
   private drizzle: ReturnType<typeof drizzle> | undefined = undefined
 
   init(): void {
-    const dbPath = path.join(getAppDataPath(), 'dexreader.db')
+    // Development: Use project root (easy to find, reset, inspect with DataGrip)
+    // Production: Use AppData (proper user data storage location)
+    const dbPath =
+      process.env.NODE_ENV_ELECTRON_VITE === 'development'
+        ? path.join(process.cwd(), 'dexreader-dev.db') // Project root: D:\Projects\DexReader\dexreader-dev.db
+        : path.join(getAppDataPath(), 'dexreader.db') // AppData: %APPDATA%\DexReader\dexreader.db
 
     this.db = new Database(dbPath)
 
