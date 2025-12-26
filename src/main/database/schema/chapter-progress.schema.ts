@@ -17,6 +17,7 @@ export const chapterProgress = sqliteTable(
   (table) => [
     unique('un_manga_chapter').on(table.mangaId, table.chapterId),
     index('idx_chapter_progress_manga').on(table.mangaId),
-    index('idx_chapter_progress_last_read').on(desc(table.lastReadAt))
+    index('idx_chapter_progress_last_read').on(desc(table.lastReadAt)),
+    index('idx_chapter_progress_manga_completed').on(table.mangaId, table.completed)
   ]
 )

@@ -15,6 +15,7 @@ export const manga = sqliteTable(
     addedAt: integer('added_at', { mode: 'timestamp' }).notNull(), // When manga was added to the database
     updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(), // When manga was last updated
     lastAccessedAt: integer('last_accessed_at', { mode: 'timestamp' }).notNull(), // When manga was last accessed
+    externalLinks: text('external_links', { mode: 'json' }).$type<Record<string, string>>(), // JSON object of external links from MangaDex API (optional: {"al": "30416", "ap": "sidooh", ...})
 
     // Official publication info only. Do NOT use for any progress calculations.
     lastVolume: text('last_volume'),

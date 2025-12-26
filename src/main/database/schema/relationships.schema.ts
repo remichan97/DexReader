@@ -5,22 +5,38 @@ import { mangaProgress } from './manga-progress.schema'
 import { manga } from './manga.schema'
 import { chapter } from './chapter.schema'
 import { chapterProgress } from './chapter-progress.schema'
+import { mangaReaderOverrides } from './manga-reader-overrides.schema'
 
+// Collection Relations
 export const collectionRelations = relations(collections, ({ many }) => ({
   items: many(collectionItems)
 }))
 
-export const collecitonItemsRelations = relations(collectionItems, ({ one }) => ({
+export const collectionItemsRelations = relations(collectionItems, ({ one }) => ({
   collection: one(collections, {
     fields: [collectionItems.collectionId],
     references: [collections.id]
   }),
-  manga: one(collections, {
+  manga: one(manga, {
     fields: [collectionItems.mangaId],
-    references: [collections.id]
+    references: [manga.mangaId]
   })
 }))
 
+// Manga Relations
+export const mangaRelations = relations(manga, ({ many, one }) => ({
+  chapters: many(chapter),
+  progress: one(mangaProgress, {
+    fields: [manga.mangaId],
+    references: [mangaProgress.mangaId]
+  }),
+  readerOverride: one(mangaReaderOverrides, {
+    fields: [manga.mangaId],
+    references: [mangaReaderOverrides.mangaId]
+  })
+}))
+
+// Manga Progress Relations
 export const mangaProgressRelations = relations(mangaProgress, ({ one }) => ({
   manga: one(manga, {
     fields: [mangaProgress.mangaId],
@@ -32,13 +48,6 @@ export const mangaProgressRelations = relations(mangaProgress, ({ one }) => ({
   })
 }))
 
-export const chapterRelations = relations(chapter, ({ one }) => ({
-  manga: one(manga, {
-    fields: [chapter.mangaId],
-    references: [manga.mangaId]
-  })
-}))
-
 export const chapterProgressRelations = relations(chapterProgress, ({ one }) => ({
   manga: one(mangaProgress, {
     fields: [chapterProgress.mangaId],
@@ -47,5 +56,13 @@ export const chapterProgressRelations = relations(chapterProgress, ({ one }) => 
   chapter: one(chapter, {
     fields: [chapterProgress.chapterId],
     references: [chapter.chapterId]
+  })
+}))
+
+// Chapter Relations
+export const chapterRelations = relations(chapter, ({ one }) => ({
+  manga: one(manga, {
+    fields: [chapter.mangaId],
+    references: [manga.mangaId]
   })
 }))

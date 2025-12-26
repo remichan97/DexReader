@@ -9,7 +9,9 @@ export const readingStatistics = sqliteTable(
     totalChaptersRead: integer('total_chapters_read').notNull().default(0),
     totalPagesRead: integer('total_pages_read').notNull().default(0),
     totalEstimatedMinutes: integer('total_estimated_minutes').notNull().default(0),
-    lastCalculatedAt: integer('last_calculated_at', { mode: 'timestamp' }).notNull()
+    lastCalculatedAt: integer('last_calculated_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`)
   },
   (table) => [check('chk_reading_statistics_id', sql`"${table.id}" = 1`)]
 )
