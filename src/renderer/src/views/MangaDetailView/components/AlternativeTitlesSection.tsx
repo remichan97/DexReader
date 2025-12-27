@@ -65,11 +65,7 @@ export default function AlternativeTitlesSection({
         ))}
       </div>
       {hasMore && (
-        <Button
-          variant="ghost"
-          onClick={() => setShowAll(!showAll)}
-          className="alt-titles-toggle"
-        >
+        <Button variant="ghost" onClick={() => setShowAll(!showAll)} className="alt-titles-toggle">
           {showAll ? 'Show Less' : `Show ${titles.length - INITIAL_DISPLAY_COUNT} More`}
         </Button>
       )}

@@ -221,33 +221,5 @@ export function isReaderSettings(values: unknown): values is ReaderSettings {
     return false
   }
 
-  // Validate manga-specific overrides
-  if (typeof readerSettings.manga !== 'object' || readerSettings.manga === null) {
-    console.error('Refused to save reader settings: manga overrides is not an object')
-    return false
-  }
-
-  // Validate manga overrides don't exceed reasonable limit
-  const mangaIds = Object.keys(readerSettings.manga)
-  if (mangaIds.length > 1000) {
-    console.error('Refused to save reader settings: too many manga overrides (max 1000)')
-    return false
-  }
-
-  // Validate each manga ID is a valid UUID format and its settings are valid
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-  for (const mangaId of mangaIds) {
-    if (!uuidRegex.test(mangaId)) {
-      console.error(`Refused to save reader settings: invalid manga ID format: ${mangaId}`)
-      return false
-    }
-
-    // Validate each manga's settings
-    if (!isMangaOverrideSettings(readerSettings.manga[mangaId])) {
-      console.error(`Refused to save reader settings: invalid settings for manga ${mangaId}`)
-      return false
-    }
-  }
-
   return true
 }

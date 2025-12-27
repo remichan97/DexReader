@@ -285,7 +285,7 @@ export function ReaderView(): JSX.Element {
     showSettingsModal,
     toggleSettingsModal,
     handleSettingsChange: handleReaderSettingsChange
-  } = useReaderSettings(mangaId || null, chapterData.mangaTitle, locationState?.coverUrl)
+  } = useReaderSettings(mangaId || null)
 
   // Page pairs hook (generates page pairs for double page mode)
   const { pagePairs, currentPairIndex } = usePagePairs(

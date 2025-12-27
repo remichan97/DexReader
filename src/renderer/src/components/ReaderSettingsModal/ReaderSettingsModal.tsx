@@ -1,14 +1,14 @@
 import type { JSX, ReactElement } from 'react'
 import { Popover } from '@renderer/components/Popover'
 import { Select, type SelectOption } from '@renderer/components/Select'
-import type { ReaderSettings } from '../../../../preload/index.d'
+import type { MangaReadingSettings } from '../../../../preload/index.d'
 
 interface ReaderSettingsModalProps {
   readonly isOpen: boolean
   readonly onOpen: () => void
   readonly onClose: () => void
-  readonly settings: ReaderSettings
-  readonly onSettingsChange: (settings: ReaderSettings) => void
+  readonly settings: MangaReadingSettings
+  readonly onSettingsChange: (settings: MangaReadingSettings) => void
   readonly children: ReactElement
 }
 
@@ -32,7 +32,7 @@ export function ReaderSettingsModal({
     // Only include doublePageMode when mode is 'double'
     if (selectedMode === 'double') {
       onSettingsChange({
-        readingMode: selectedMode as ReaderSettings['readingMode'],
+        readingMode: selectedMode as MangaReadingSettings['readingMode'],
         doublePageMode: settings.doublePageMode ?? {
           skipCoverPages: true,
           readRightToLeft: true
@@ -40,7 +40,7 @@ export function ReaderSettingsModal({
       })
     } else {
       onSettingsChange({
-        readingMode: selectedMode as ReaderSettings['readingMode']
+        readingMode: selectedMode as MangaReadingSettings['readingMode']
       })
     }
   }
