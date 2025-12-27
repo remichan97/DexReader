@@ -187,12 +187,8 @@ const progress = {
 const reader = {
   getMangaReaderSettings: (mangaId: string) =>
     ipcRenderer.invoke('reader:get-manga-settings', mangaId),
-  updateMangaReaderSettings: (
-    mangaId: string,
-    newSettings: unknown,
-    title: string,
-    coverUrl?: string
-  ) => ipcRenderer.invoke('reader:update-manga-settings', mangaId, newSettings, title, coverUrl),
+  updateMangaReaderSettings: (mangaId: string, newSettings: unknown) =>
+    ipcRenderer.invoke('reader:update-manga-settings', mangaId, newSettings),
   resetMangaReaderSettings: (mangaId: string) =>
     ipcRenderer.invoke('reader:reset-manga-settings', mangaId)
 }

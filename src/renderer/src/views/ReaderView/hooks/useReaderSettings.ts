@@ -20,11 +20,7 @@ interface UseReaderSettingsReturn {
  * Custom hook for managing reader settings (reading mode, double page settings)
  * Handles loading per-manga settings from backend and saving changes
  */
-export function useReaderSettings(
-  mangaId: string | null,
-  mangaTitle: string,
-  coverUrl?: string
-): UseReaderSettingsReturn {
+export function useReaderSettings(mangaId: string | null): UseReaderSettingsReturn {
   const [readingMode, setReadingMode] = useState<ReadingMode>('single')
   const [doublePageSettings, setDoublePageSettings] = useState<DoublePageSettings>({
     skipCoverPages: true,
@@ -107,14 +103,12 @@ export function useReaderSettings(
         }
 
         // Save override to backend (only if different from global)
-        globalThis.reader
-          .updateMangaReaderSettings(mangaId, newSettings, mangaTitle, coverUrl)
-          .catch((error) => {
-            console.error('Failed to save reader settings:', error)
-          })
+        globalThis.reader.updateMangaReaderSettings(mangaId, newSettings).catch((error) => {
+          console.error('Failed to save reader settings:', error)
+        })
       })()
     },
-    [mangaId, mangaTitle, coverUrl]
+    [mangaId]
   )
 
   return {

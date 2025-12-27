@@ -116,12 +116,7 @@ interface Progress {
 
 interface Reader {
   getMangaReaderSettings: (mangaId: string) => Promise<MangaReadingSettings>
-  updateMangaReaderSettings: (
-    mangaId: string,
-    settings: MangaReadingSettings,
-    title: string,
-    coverUrl?: string
-  ) => Promise<void>
+  updateMangaReaderSettings: (mangaId: string, settings: MangaReadingSettings) => Promise<void>
   resetMangaReaderSettings: (mangaId: string) => Promise<void>
 }
 
