@@ -127,35 +127,6 @@ export function isMangaOverrideSettings(values: unknown): values is MangaOverrid
 
   const mangaOverrideSettings = values as MangaOverrideSettings
 
-  // Validate title
-  if (
-    typeof mangaOverrideSettings.title !== 'string' ||
-    mangaOverrideSettings.title.trim() === ''
-  ) {
-    console.error('Refused to save manga override settings: title must be a non-empty string')
-    return false
-  }
-
-  // Validate coverUrl if present
-  if (
-    mangaOverrideSettings.coverUrl !== undefined &&
-    mangaOverrideSettings.coverUrl !== null &&
-    typeof mangaOverrideSettings.coverUrl !== 'string'
-  ) {
-    console.error('Refused to save manga override settings: coverUrl must be a string if present')
-    return false
-  }
-
-  // Verify that the coverUrl, if provided, must be a valid URL
-  if (mangaOverrideSettings.coverUrl) {
-    try {
-      new URL(mangaOverrideSettings.coverUrl)
-    } catch (error) {
-      console.error('Refused to save manga override settings: coverUrl is not a valid URL: ', error)
-      return false
-    }
-  }
-
   // Validate settings
   if (
     typeof mangaOverrideSettings.settings !== 'object' ||
