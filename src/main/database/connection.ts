@@ -13,7 +13,7 @@ class DatabaseConnection {
     // Production: Use AppData (proper user data storage location)
     const dbPath =
       process.env.NODE_ENV_ELECTRON_VITE === 'development'
-        ? path.join(process.cwd(), 'dexreader-dev.db') // Project root: D:\Projects\DexReader\dexreader-dev.db
+        ? path.join(process.cwd(), 'dexreader-dev.db') // Project root: .\dexreader-dev.db
         : path.join(getAppDataPath(), 'dexreader.db') // AppData: %APPDATA%\DexReader\dexreader.db
 
     this.db = new Database(dbPath)
@@ -37,6 +37,13 @@ class DatabaseConnection {
 
   close(): void {
     if (this.db) {
+      try {
+        // Ensure WAL checkpoint completes before closing
+        this.db.pragma('wal_checkpoint(TRUNCATE)')
+      } catch (error) {
+        console.error('Error during WAL checkpoint:', error)
+      }
+      
       this.db.close()
       this.db = undefined
       this.drizzle = undefined

@@ -16,11 +16,9 @@ export function setupAppLifecycle(): void {
     }
   })
 
-  // Before stopping the app, save all reading progress
-  app.on('before-quit', async (event) => {
-    event.preventDefault()
-    await new Promise((resolve) => setTimeout(resolve, 1000)) // Wait a second for everything to settle
+  // Graceful shutdown: close database connection before quitting
+  // Synchronous operation completes immediately before app exits
+  app.on('before-quit', () => {
     databaseConnection.close()
-    app.exit(0)
   })
 }

@@ -11,12 +11,11 @@ import { AppTheme } from './enum/theme-mode.enum'
 import { ReadingMode } from './enum/reading-mode.enum'
 import { AppSettings } from './entity/app-settings.entity'
 import { MangaReadingSettings } from './entity/reading-settings.entity'
+import { databaseConnection } from '../database/connection'
+import { mangaReaderOverrides } from '../database/schema'
+import { eq } from 'drizzle-orm'
 
 const SETTINGS_FILE = path.join(getAppDataPath(), 'settings.json')
-
-// Limits to prevent file bloat and save failures
-const MAX_SETTINGS_FILE_SIZE = 2 * 1024 * 1024 // 2MB
-const MAX_MANGA_OVERRIDES = 1000 // Reasonable limit for per-manga settings
 
 export async function loadSettings(): Promise<AppSettings> {
   try {
@@ -28,32 +27,8 @@ export async function loadSettings(): Promise<AppSettings> {
       return defaults
     }
 
-    // Check file size - warn but still load (user data is precious)
-    const stats = await secureFs.stat(SETTINGS_FILE)
-    if (stats.size > MAX_SETTINGS_FILE_SIZE) {
-      console.warn(
-        `Settings file is large (${Math.round(stats.size / 1024)}KB). ` +
-          `Loading anyway, but consider removing unused manga overrides.`
-      )
-    }
-
     const data = (await secureFs.readFile(SETTINGS_FILE, 'utf-8')) as string
     const settings = JSON.parse(data)
-
-    // Check if manga overrides exceed limit - auto-trim to keep file manageable
-    if (settings.reader?.manga) {
-      const overrideCount = Object.keys(settings.reader.manga).length
-      if (overrideCount > MAX_MANGA_OVERRIDES) {
-        console.warn(
-          `Too many manga overrides (${overrideCount}), trimming to ${MAX_MANGA_OVERRIDES} most recent`
-        )
-        // Keep only the most recent overrides (slice from end to keep newest)
-        const sortedEntries = Object.entries(settings.reader.manga).slice(-MAX_MANGA_OVERRIDES)
-        settings.reader.manga = Object.fromEntries(sortedEntries)
-        // Save trimmed version to prevent file from growing indefinitely
-        await saveSettings(settings)
-      }
-    }
 
     return settings
   } catch (error) {
@@ -66,15 +41,6 @@ export async function loadSettings(): Promise<AppSettings> {
 export async function saveSettings(settings: AppSettings): Promise<void> {
   try {
     const data = JSON.stringify(settings, null, 2)
-
-    // Pre-save validation: Check if serialized data would exceed size limit
-    const estimatedSize = Buffer.byteLength(data, 'utf-8')
-    if (estimatedSize > MAX_SETTINGS_FILE_SIZE) {
-      throw new Error(
-        `Settings too large (${Math.round(estimatedSize / 1024)}KB). ` +
-          `Try removing some per-manga reader overrides.`
-      )
-    }
 
     await secureFs.writeFile(SETTINGS_FILE, data, 'utf-8')
   } catch (error) {
@@ -151,44 +117,51 @@ export async function setDownloadsPath(newPath: string): Promise<void> {
 }
 
 export async function getMangaReaderSettings(mangaId: string): Promise<MangaReadingSettings> {
+  const db = databaseConnection.getDb()
+
+  const override = db
+    .select()
+    .from(mangaReaderOverrides)
+    .where(eq(mangaReaderOverrides.mangaId, mangaId))
+    .get()
+
+  if (override) {
+    return override.settings
+  }
+
   const settings = await loadSettings()
-  return settings.reader.manga[mangaId]
-    ? settings.reader.manga[mangaId].settings
-    : settings.reader.global
+  return settings.reader.global
 }
 
 export async function updateMangaReaderSettings(
   mangaId: string,
-  newSettings: MangaReadingSettings,
-  title: string,
-  coverUrl?: string
+  newSettings: MangaReadingSettings
 ): Promise<void> {
-  const settings = await loadSettings()
+  const db = databaseConnection.getDb()
 
-  // Check if adding this override would exceed the limit
-  const currentOverrideCount = Object.keys(settings.reader.manga).length
-  const isNewOverride = !settings.reader.manga[mangaId]
+  const now = new Date()
 
-  if (isNewOverride && currentOverrideCount >= MAX_MANGA_OVERRIDES) {
-    throw new Error(
-      `Cannot add more manga overrides. Maximum limit of ${MAX_MANGA_OVERRIDES} reached. ` +
-        `Please delete some unused overrides from Settings.`
-    )
-  }
-
-  settings.reader.manga[mangaId] = {
-    title: title ?? settings.reader.manga[mangaId]?.title ?? '',
-    coverUrl: coverUrl ?? settings.reader.manga[mangaId]?.coverUrl,
-    settings: newSettings
-  }
-
-  await updateSettings('reader', settings.reader)
+  db.insert(mangaReaderOverrides)
+    .values({
+      mangaId,
+      settings: newSettings,
+      createdAt: now,
+      updatedAt: now
+    })
+    .onConflictDoUpdate({
+      target: mangaReaderOverrides.mangaId,
+      set: {
+        settings: newSettings,
+        updatedAt: now
+      }
+    })
+    .run()
 }
 
 export async function deleteMangaReaderSettings(mangaId: string): Promise<void> {
-  const settings = await loadSettings()
-  delete settings.reader.manga[mangaId]
-  await updateSettings('reader', settings.reader)
+  const db = databaseConnection.getDb()
+
+  db.delete(mangaReaderOverrides).where(eq(mangaReaderOverrides.mangaId, mangaId)).run()
 }
 
 // Initialize downloads path from settings on app startup
@@ -223,8 +196,7 @@ function getDefaultSettings(): AppSettings {
       quality: ImageQuality.High,
       global: {
         readingMode: ReadingMode.SinglePage
-      },
-      manga: {}
+      }
     }
   }
 }
