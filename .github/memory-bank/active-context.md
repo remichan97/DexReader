@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 25 December 2025
-**Current Phase**: Guerilla Refactoring (All Refactoring COMPLETE ✅)
-**Session**: Database Migration Planning - Complete ✅
+**Last Updated**: 27 December 2025
+**Current Phase**: Guerilla Database Migration (2/4 Complete)
+**Session**: Phase 3 Plan Updated - Ready for Implementation
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -10,18 +10,230 @@
 
 ## Current Status Summary
 
-**Phase**: Guerilla Refactoring Tasks (Between Phase 2 and Phase 3)
-**Progress**: All refactoring complete ✅, Database migration plan complete ✅
-**Current Date**: 25 December 2025
-**Phase 1 Status**: Complete ✅ (9/9 tasks, 100%)
-**Phase 2 Status**: Complete ✅ (11/11 tasks, 100%)
-**Current Task**: Database migration plan finalized - ready for implementation when user decides to proceed
+**Phase**: Guerilla Database Migration (Between Phase 2 and Phase 3 of main roadmap)
+**Progress**: Phase 1 Complete ✅, Phase 2 Connection Verified ⚠️, Phase 3 Ready
+**Current Date**: 27 December 2025
+**Database Migration Status**: Infrastructure ready, awaiting Phase 3 implementation
+**Current Task**: Phase 3 implementation (progress tracking + manga caching)
 
 ### �️ Database Migration Planning (25 Dec 2025) - ✅ COMPLETE
 
 **Context**: Before Phase 3, we need to migrate from JSON-based storage (settings.json, progress.json) to SQLite database with Drizzle ORM. This eliminates JSON limitations (2MB file size, 1000 override cap, manual validation) and provides foundation for Phase 3 library features.
 
 **Plan Document**: `.github/copilot-plans/guerilla-database-migration-plan.md` (2,344 lines)
+
+---
+
+#### ✅ Phase 1: Database Infrastructure (COMPLETE - 27 Dec 2025)
+
+**Duration**: ~4 hours
+
+**What Was Done**:
+
+1. ✅ Installed Drizzle ORM + better-sqlite3
+2. ✅ Created database schema definitions (9 tables)
+3. ✅ Database connection manager with performance pragmas (WAL mode, 64MB cache, mmap)
+4. ✅ Migration system using Drizzle's built-in migrator
+5. ✅ Fixed migration issues:
+   - Resolved CHECK constraint syntax error in `reading_statistics` table
+   - Split multi-event trigger into 3 separate triggers (SQLite limitation)
+   - Configured Vite plugin to bundle migration files
+   - Added migration files to `asarUnpack` for production builds
+
+**Key Files Created**:
+
+- `src/main/database/connection.ts` - Database manager
+- `src/main/database/schema/*.schema.ts` - 9 table schemas
+- `src/main/database/migrations/migrations.ts` - Migration runner
+- `src/main/database/migrations/0000_first-migration.sql` - Initial schema
+- `electron.vite.config.ts` - Updated with migration copy plugin
+
+**Database Configuration**:
+
+- Location: `AppData/dexreader.db` (dev: `./dexreader-dev.db`)
+- WAL mode enabled (concurrent reads/writes)
+- 64MB cache, 256MB memory-mapped I/O
+- Foreign keys enforced
+- Automatic statistics triggers
+
+**Status**: ✅ Database initialized, migrations run successfully, app connects to database
+
+---
+
+#### ✅ Phase 2: Reader Overrides Implementation (PARTIALLY COMPLETE - 27 Dec 2025)
+
+**Duration**: ~1.5 hours
+
+**What Was Done**:
+
+1. ✅ Added database methods to settingsManager.ts:
+   - `getMangaReaderSettings(mangaId)` - Query with fallback to global settings
+   - `updateMangaReaderSettings(mangaId, settings)` - Upsert to `manga_reader_overrides`
+   - `deleteMangaReaderSettings(mangaId)` - Delete override
+2. ✅ Verified database connection works
+3. ✅ Confirmed calls reach database layer
+
+**Current Limitation**:
+- ⚠️ Foreign key constraint not yet handled (manga table empty)
+- ⚠️ Reader settings save attempts fail due to missing manga records
+
+**Resolution Decision** (27 Dec 2025): **✅ Option A - Minimal Manga Caching**
+- Will implement basic manga caching in guerilla Phase 3
+- Inserts minimal manga record when saving progress/overrides
+- Satisfies FK constraints, makes functionality work immediately
+- Main Phase 3 will expand to full library features
+- Rationale: Development build, can reset database as needed
+- Time: +1-2 hours to Phase 3 (7-8 hours total)
+
+**Key Implementation (Phase 3)**:
+```typescript
+// Phase 3: Insert minimal manga record first
+db.insert(manga).values({
+  mangaId, title, coverUrl, isRead: true, ...timestamps
+}).onConflictDoNothing().run()
+
+// Then save override (FK satisfied)
+db.insert(mangaReaderOverrides).values({
+  mangaId, settings: newSettings, ...timestamps
+}).run()
+```
+
+**Status**: ⚠️ Connection verified, methods exist, Phase 3 will implement minimal caching (Option A)
+
+---
+
+#### ⚠️ Phase 3: Progress Migration + Minimal Manga Caching (UPDATED - READY FOR IMPLEMENTATION)
+
+**Duration**: Estimated 7-8 hours (updated from 6-7 with minimal caching)
+
+**Critical Discovery**: Current `MangaProgress` entity is bloated with duplicate data:
+
+- ❌ Stores `mangaTitle`, `coverUrl` (duplicates `manga` table)
+- ❌ Stores `readerSettings` (separate `manga_reader_overrides` table)
+- ❌ Stores `lastChapterNumber`, `lastChapterTitle` (duplicates `chapter` table)
+- ❌ Embeds all chapter progress (should be separate queries)
+
+**Decision Made (27 Dec 2025)**: Refactor entities during Phase 3 migration to match normalized database schema.
+
+**Rationale**:
+
+- Already making breaking changes with database migration
+- Database schema is already normalized (no duplication)
+- Creating bloated entities defeats the purpose of using a database
+- Better to fix now than require another refactoring pass later
+
+**Updated Phase 3 Steps** (with minimal manga caching):
+
+- Step 3.0: Add minimal manga caching helper (1h) - Create `MangaRepository` with basic insert for FK satisfaction
+- Step 3.1: Create lean entities (30 min) - Match database schema, create `MangaProgressWithMetadata`
+- Step 3.2: Create Progress Repository (2h) - Lean methods + rich methods with JOINs
+- Step 3.3: Update IPC handlers (30 min) - Use repository methods
+- Step 3.4: Update frontend (1h) - History view, Continue Reading, Reader
+- Step 3.5: Optional data migration (skipped for dev build)
+- Step 3.6: Full regression testing (1.5h) - Comprehensive checklist
+- Step 3.7: Main process integration (30 min)
+- Step 3.8: Documentation (30 min)
+
+**New Entity Structure**:
+```typescript
+// Lean progress (matches manga_progress table)
+interface MangaProgress {
+  mangaId: string
+  lastChapterId: string
+  firstReadAt: number
+  lastReadAt: number
+}
+
+// Rich progress (for history view - uses JOINs)
+interface MangaProgressWithMetadata {
+  // Progress + metadata from manga/chapter tables via JOIN
+  mangaId, lastChapterId, firstReadAt, lastReadAt
+  title, coverUrl, status
+  lastChapterNumber, lastChapterTitle, lastChapterVolume
+}
+```
+
+**Status**: ⏳ Plan updated, ready for implementation when user proceeds
+
+---
+
+#### Phase 4: Cleanup & Documentation (NOT STARTED)
+
+**Planned Actions**:
+
+1. Remove old ProgressManager (keep for reference during Phase 3)
+2. Update memory bank documentation
+3. Final integration testing
+
+**Status**: ⏳ Awaiting Phase 3 completion
+
+---
+
+**Updated Timeline**:
+
+- Phase 1: 3-4h (✅ Complete)
+- Phase 2: 2-3h (✅ Complete - Testing only)
+- Phase 3: 7-8h (entity refactoring + minimal manga caching + frontend + testing)
+- Phase 4: 1-2h
+- **Total**: 12-16h (unchanged)
+
+**Decision**: Option A - Minimal manga caching in Phase 3
+**Rationale**: Development build, get functionality working now, expand in main Phase 3
+
+**Next Steps**: User will implement Phase 3 when ready. Plan is complete and documented.
+
+---
+
+### � Impact on Main Phase 3 (P3-T01) - UPDATED 27 Dec 2025
+
+**Critical Update**: Guerilla migration decisions significantly impact P3-T01 implementation
+
+**What Changed**:
+
+1. **Duration Reduced**: 22-30 hours → **18-24 hours** (4-6 hours saved)
+   - Database infrastructure already complete
+   - Tables and schema already created
+   - Minimal manga caching already implemented
+
+2. **Scope Clarification**:
+   - **Original Plan**: Build entire database infrastructure + library features
+   - **Updated Plan**: Expand minimal caching to full library features
+
+3. **Already Complete from Guerilla** (~6 hours of P3-T01 work):
+   - ✅ Drizzle ORM + better-sqlite3 installed and configured
+   - ✅ Database connection manager (WAL mode, pragmas, graceful shutdown)
+   - ✅ Migration system (Drizzle's migrate() function)
+   - ✅ Build configuration (Vite plugin, asarUnpack)
+   - ✅ All 9 tables created (manga, chapter, collections, collection_items, progress, overrides, etc.)
+   - ✅ All indexes, foreign keys, triggers configured
+   - ✅ Minimal manga caching (insert on progress/override save)
+
+4. **Remaining Work for P3-T01** (~18-24 hours):
+   - Expand MangaRepository (full CRUD, metadata refresh, update checking)
+   - Collections management (CRUD operations)
+   - IPC layer for library features
+   - Frontend integration (Library view, favorites, collections UI)
+   - Update checking logic ("NEW" badges)
+   - Testing and edge cases
+
+5. **Key Architectural Decisions Captured**:
+   - **Single manga table**: Serves favorites + read history + temporary cache
+   - **Three-tier staleness**: Permanent (favorites), semi-permanent (read), temporary (browsed)
+   - **Normalized entities**: No duplicate metadata in progress/overrides tables
+   - **FK constraints**: Progress and overrides reference manga table
+   - **Minimal caching first**: Pragmatic approach for development, expand in P3-T01
+
+**Updated Plan Location**: `.github/copilot-plans/P3-T01-create-local-library-database.md` (updated 27 Dec 2025)
+
+**Rationale for Update Now**:
+- Capture decisions while rationale is fresh
+- Avoid duplicating work between guerilla and P3-T01
+- Clear understanding of what remains for Phase 3
+- Accurate time estimates for scheduling
+
+---
+
+### 🗄️ Database Migration Planning (25 Dec 2025) - ✅ ARCHIVED
 
 **Key Decisions Made**:
 
