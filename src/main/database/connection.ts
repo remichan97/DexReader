@@ -43,7 +43,7 @@ class DatabaseConnection {
       } catch (error) {
         console.error('Error during WAL checkpoint:', error)
       }
-      
+
       this.db.close()
       this.db = undefined
       this.drizzle = undefined

@@ -105,5 +105,66 @@ CREATE TABLE `reading_statistics` (
 	`total_pages_read` integer DEFAULT 0 NOT NULL,
 	`total_estimated_minutes` integer DEFAULT 0 NOT NULL,
 	`last_calculated_at` integer DEFAULT (unixepoch()) NOT NULL,
-	CONSTRAINT "chk_reading_statistics_id" CHECK(""reading_statistics"."id"" = 1)
+	CONSTRAINT `chk_reading_statistics_id` CHECK(`reading_statistics`.`id` = 1)
 );
+--> statement-breakpoint
+CREATE TRIGGER IF NOT EXISTS cleanup_stale_metadata_cache
+AFTER INSERT ON manga_progress
+BEGIN
+  DELETE FROM manga
+  WHERE is_favorite = 0
+    AND is_read = 0
+    AND last_accessed_at < (strftime('%s', 'now') - 7776000);
+END;
+--> statement-breakpoint
+CREATE TRIGGER IF NOT EXISTS update_reading_statistics_insert
+AFTER INSERT ON chapter_progress
+FOR EACH ROW
+BEGIN
+  UPDATE reading_statistics SET
+    total_mangas_read = (SELECT COUNT(DISTINCT manga_id) FROM manga_progress),
+    total_chapters_read = (SELECT COUNT(*) FROM chapter_progress WHERE completed = 1),
+    total_pages_read = COALESCE((SELECT SUM(current_page) FROM chapter_progress WHERE completed = 1), 0),
+    total_estimated_minutes = ROUND(COALESCE((SELECT SUM(current_page) FROM chapter_progress WHERE completed = 1), 0) * 20.0 / 60.0),
+    last_calculated_at = strftime('%s', 'now')
+  WHERE id = 1;
+END;
+--> statement-breakpoint
+CREATE TRIGGER IF NOT EXISTS update_reading_statistics_update
+AFTER UPDATE ON chapter_progress
+FOR EACH ROW
+BEGIN
+  UPDATE reading_statistics SET
+    total_mangas_read = (SELECT COUNT(DISTINCT manga_id) FROM manga_progress),
+    total_chapters_read = (SELECT COUNT(*) FROM chapter_progress WHERE completed = 1),
+    total_pages_read = COALESCE((SELECT SUM(current_page) FROM chapter_progress WHERE completed = 1), 0),
+    total_estimated_minutes = ROUND(COALESCE((SELECT SUM(current_page) FROM chapter_progress WHERE completed = 1), 0) * 20.0 / 60.0),
+    last_calculated_at = strftime('%s', 'now')
+  WHERE id = 1;
+END;
+--> statement-breakpoint
+CREATE TRIGGER IF NOT EXISTS update_reading_statistics_delete
+AFTER DELETE ON chapter_progress
+FOR EACH ROW
+BEGIN
+  UPDATE reading_statistics SET
+    total_mangas_read = (SELECT COUNT(DISTINCT manga_id) FROM manga_progress),
+    total_chapters_read = (SELECT COUNT(*) FROM chapter_progress WHERE completed = 1),
+    total_pages_read = COALESCE((SELECT SUM(current_page) FROM chapter_progress WHERE completed = 1), 0),
+    total_estimated_minutes = ROUND(COALESCE((SELECT SUM(current_page) FROM chapter_progress WHERE completed = 1), 0) * 20.0 / 60.0),
+    last_calculated_at = strftime('%s', 'now')
+  WHERE id = 1;
+END;
+--> statement-breakpoint
+CREATE TRIGGER IF NOT EXISTS cleanup_orphaned_chapters
+AFTER DELETE ON chapter_progress
+BEGIN
+  DELETE FROM chapter
+  WHERE chapter_id = OLD.chapter_id
+    AND chapter_id NOT IN (SELECT chapter_id FROM chapter_progress)
+    AND manga_id NOT IN (SELECT manga_id FROM manga WHERE is_favorite = 1)
+    AND updated_at < strftime('%s', 'now') - 7776000;
+END;
+--> statement-breakpoint
+INSERT INTO reading_statistics (id, total_mangas_read, total_chapters_read, total_pages_read, total_estimated_minutes, last_calculated_at)
+VALUES (1, 0, 0, 0, 0, strftime('%s', 'now'));
