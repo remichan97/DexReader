@@ -8,6 +8,13 @@
       "when": 1766828416526,
       "tag": "0000_first-migration",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1766895149380,
+      "tag": "0001_update-manga-schema",
+      "breakpoints": true
     }
   ]
 }

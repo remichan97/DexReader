@@ -1,5 +1,6 @@
 import { desc, sql } from 'drizzle-orm'
-import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { check, index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { MangaStatus } from '../../api/enums/manga-status.enum'
 
 export const manga = sqliteTable(
   'manga',
@@ -7,7 +8,7 @@ export const manga = sqliteTable(
     mangaId: text('manga_id').primaryKey(), // UUID from MangaDex API
     title: text('title').notNull(), // Main title
     description: text('description'), // Full description
-    status: text('status'), // ongoing, completed, hiatus, cancelled
+    status: text('status').$type<MangaStatus>(), // ongoing, completed, hiatus, cancelled
     coverUrl: text('cover_url'), // URL to cover image
     year: integer('year'), // Year of publication
     isFavourite: integer('is_favourite', { mode: 'boolean' }).notNull().default(false), // Whether user has marked this manga as a favorite in their library, will be the candidate for erasure if false
@@ -36,6 +37,10 @@ export const manga = sqliteTable(
     index('idx_last_accessed').on(desc(table.lastAccessedAt)),
     index('idx_manga_library')
       .on(desc(table.addedAt), desc(table.lastAccessedAt))
-      .where(sql`${table.isFavourite} = 1`)
+      .where(sql`${table.isFavourite} = 1`),
+    check(
+      'chk_manga_status',
+      sql`${table.status} IN ('ongoing', 'completed', 'hiatus', 'cancelled')`
+    )
   ]
 )
