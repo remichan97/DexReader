@@ -1,4 +1,6 @@
 PRAGMA foreign_keys=OFF;--> statement-breakpoint
+DROP TRIGGER IF EXISTS cleanup_stale_metadata_cache;--> statement-breakpoint
+DROP TRIGGER IF EXISTS cleanup_orphaned_chapters;--> statement-breakpoint
 CREATE TABLE `__new_manga` (
 	`manga_id` text PRIMARY KEY NOT NULL,
 	`title` text NOT NULL,
@@ -27,8 +29,25 @@ ALTER TABLE `__new_manga` RENAME TO `manga`;--> statement-breakpoint
 PRAGMA foreign_keys=ON;--> statement-breakpoint
 CREATE INDEX `idx_manga_favourite` ON `manga` (`is_favourite`);--> statement-breakpoint
 CREATE INDEX `idx_manga_read` ON `manga` (`is_read`);--> statement-breakpoint
-CREATE INDEX `idx_manga_added` ON `manga` (`"added_at" desc`);--> statement-breakpoint
+CREATE INDEX `idx_manga_added` ON `manga` (`added_at` DESC);--> statement-breakpoint
 CREATE INDEX `idx_manga_status` ON `manga` (`status`);--> statement-breakpoint
 CREATE INDEX `idx_last_check_for_updates` ON `manga` (`last_check_for_updates`);--> statement-breakpoint
-CREATE INDEX `idx_last_accessed` ON `manga` (`"last_accessed_at" desc`);--> statement-breakpoint
-CREATE INDEX `idx_manga_library` ON `manga` (`"added_at" desc`,`"last_accessed_at" desc`) WHERE "manga"."is_favourite" = 1;
+CREATE INDEX `idx_last_accessed` ON `manga` (`last_accessed_at` DESC);--> statement-breakpoint
+CREATE INDEX `idx_manga_library` ON `manga` (`added_at` DESC, `last_accessed_at` DESC) WHERE `manga`.`is_favourite` = 1;--> statement-breakpoint
+CREATE TRIGGER IF NOT EXISTS cleanup_stale_metadata_cache
+AFTER INSERT ON manga_progress
+BEGIN
+  DELETE FROM manga
+  WHERE is_favorite = 0
+    AND is_read = 0
+    AND last_accessed_at < (strftime('%s', 'now') - 7776000);
+END;--> statement-breakpoint
+CREATE TRIGGER IF NOT EXISTS cleanup_orphaned_chapters
+AFTER DELETE ON chapter_progress
+BEGIN
+  DELETE FROM chapter
+  WHERE chapter_id = OLD.chapter_id
+    AND chapter_id NOT IN (SELECT chapter_id FROM chapter_progress)
+    AND manga_id NOT IN (SELECT manga_id FROM manga WHERE is_favorite = 1)
+    AND updated_at < strftime('%s', 'now') - 7776000;
+END;

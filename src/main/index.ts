@@ -71,11 +71,11 @@ app.whenReady().then(async () => {
 
   await initFileSystem()
 
-  registerAllHandlers()
-
   databaseConnection.init()
 
   runMigrations()
+
+  registerAllHandlers()
 
   createWindow()
 
