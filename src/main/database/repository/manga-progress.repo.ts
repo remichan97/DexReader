@@ -11,7 +11,7 @@ import { SaveProgressCommand } from '../commands/save-progress.command'
 export class MangaProgressRepository {
   private readonly db = databaseConnection.getDb()
 
-  async getProgressByMangaId(mangaId: string): Promise<MangaProgress | undefined> {
+  getProgressByMangaId(mangaId: string): MangaProgress | undefined {
     const manga = this.db
       .select()
       .from(mangaProgress)
@@ -30,11 +30,11 @@ export class MangaProgressRepository {
     }
   }
 
-  async deleteProgress(mangaId: string): Promise<void> {
+  deleteProgress(mangaId: string): void {
     this.db.delete(mangaProgress).where(eq(mangaProgress.mangaId, mangaId)).run()
   }
 
-  async getProgressWithMetadata(mangaId: string): Promise<MangaProgressMetadata | undefined> {
+  getProgressWithMetadata(mangaId: string): MangaProgressMetadata | undefined {
     const result = this.db
       .select({
         mangaId: mangaProgress.mangaId,
@@ -72,7 +72,7 @@ export class MangaProgressRepository {
     }
   }
 
-  async getAllProgressWithMetadata(): Promise<MangaProgressMetadata[]> {
+  getAllProgressWithMetadata(): MangaProgressMetadata[] {
     const results = this.db
       .select({
         mangaId: mangaProgress.mangaId,
@@ -105,7 +105,7 @@ export class MangaProgressRepository {
     }))
   }
 
-  async saveProgress(progress: SaveProgressCommand[]): Promise<void> {
+  saveProgress(progress: SaveProgressCommand[]): void {
     const now = new Date()
 
     for (const item of progress) {
@@ -169,10 +169,7 @@ export class MangaProgressRepository {
     }
   }
 
-  async getChapterProgress(
-    mangaId: string,
-    chapterId: string
-  ): Promise<ChapterProgress | undefined> {
+  getChapterProgress(mangaId: string, chapterId: string): ChapterProgress | undefined {
     const result = this.db
       .select()
       .from(chapterProgress)
@@ -192,7 +189,7 @@ export class MangaProgressRepository {
     }
   }
 
-  async getAllChapterProgress(mangaId: string): Promise<ChapterProgress[]> {
+  getAllChapterProgress(mangaId: string): ChapterProgress[] {
     const results = this.db
       .select()
       .from(chapterProgress)
@@ -212,7 +209,7 @@ export class MangaProgressRepository {
     }))
   }
 
-  async getStats(): Promise<ReadingStats> {
+  getStats(): ReadingStats {
     const cached = this.db.select().from(readingStatistics).where(eq(readingStatistics.id, 1)).get()
 
     if (cached && Date.now() - this.dateToUnixTimestamp(cached.lastCalculatedAt) < 3600000) {
