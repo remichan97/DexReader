@@ -110,63 +110,62 @@ export class MangaProgressRepository {
 
     for (const item of progress) {
       // Insert/update in transaction to satisfy FK constraints
-      this.db.transaction(() => {
-        // 1. CRITICAL: Insert minimal manga record first (satisfies FK constraint)
-        // This is "minimal caching" - just enough to make progress work
-        this.db
-          .insert(manga)
-          .values({
-            mangaId: item.mangaId,
-            title: 'Unknown', // Will be updated when user visits manga detail
-            isRead: true, // Mark as read since user is reading it
-            isFavourite: false,
-            addedAt: now,
-            updatedAt: now,
-            lastAccessedAt: now
-          })
-          .onConflictDoUpdate({
-            target: manga.mangaId,
-            set: {
-              isRead: true, // Ensure read flag is set
-              lastAccessedAt: now // Update last access time
-            }
-          })
-
-        // 2. Insert/update manga progress (now FK constraint is satisfied)
-        this.db
-          .insert(mangaProgress)
-          .values({
-            mangaId: item.mangaId,
-            lastChapterId: item.chapterId,
-            firstReadAt: now,
-            lastReadAt: now
-          })
-          .onConflictDoUpdate({
-            target: mangaProgress.mangaId,
-            set: {
+      this.db.transaction((tx) => {
+        return [
+          // Upsert manga entry (ensure it exists)
+          tx
+            .insert(manga)
+            .values({
+              mangaId: item.mangaId,
+              title: 'Unknown', // Will be updated when user visits manga detail
+              isRead: true, // Mark as read since user is reading it
+              isFavourite: false,
+              addedAt: now,
+              updatedAt: now,
+              lastAccessedAt: now
+            })
+            .onConflictDoUpdate({
+              target: manga.mangaId,
+              set: {
+                isRead: true, // Ensure read flag is set
+                lastAccessedAt: now // Update last access time
+              }
+            }),
+          // Upsert manga progress entry
+          tx
+            .insert(mangaProgress)
+            .values({
+              mangaId: item.mangaId,
               lastChapterId: item.chapterId,
+              firstReadAt: now,
               lastReadAt: now
-            }
-          })
-
-        // 3. Insert/update chapter progress
-        this.db
-          .insert(chapterProgress)
-          .values({
-            mangaId: item.mangaId,
-            chapterId: item.chapterId,
-            currentPage: item.currentPage,
-            completed: item.completed,
-            lastReadAt: now
-          })
-          .onConflictDoUpdate({
-            target: [chapterProgress.mangaId, chapterProgress.chapterId],
-            set: {
+            })
+            .onConflictDoUpdate({
+              target: mangaProgress.mangaId,
+              set: {
+                lastChapterId: item.chapterId,
+                lastReadAt: now
+              }
+            }),
+          // Upsert chapter progress entry
+          tx
+            .insert(chapterProgress)
+            .values({
+              mangaId: item.mangaId,
+              chapterId: item.chapterId,
               currentPage: item.currentPage,
               completed: item.completed,
               lastReadAt: now
-            }
-          })
+            })
+            .onConflictDoUpdate({
+              target: [chapterProgress.mangaId, chapterProgress.chapterId],
+              set: {
+                currentPage: item.currentPage,
+                completed: item.completed,
+                lastReadAt: now
+              }
+            })
+        ]
       })
     }
   }
