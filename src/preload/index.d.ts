@@ -4,17 +4,17 @@ import { Manga } from './../main/api/entities/manga.entity'
 import { CollectionResponse } from './../main/api/responses/collection.response'
 import { ElectronAPI } from '@electron-toolkit/preload'
 import type { IpcResponse, FileStats, AllowedPaths, FolderSelectResult } from './ipc.types'
-import type { MangaProgress } from '../main/database/entities/manga-progress.entity'
-import type { ProgressDatabase } from '../main/database/entities/progress-database.entity'
-import type { ReadingStats } from '../main/database/entities/reading-stats.entity'
+import type { MangaProgress } from '../main/database/queries/manga-progress.query'
+import type { ProgressDatabase } from '../main/database/queries/progress-database.query'
+import type { ReadingStats } from '../main/database/queries/reading-stats.entity'
 import type { MangaReadingSettings } from '../main/settings/entity/reading-settings.entity'
 
 // Re-export types for renderer use
 export type { ImageUrlResponse } from './../main/api/responses/image-url.response'
 export type { IpcResponse } from './ipc.types'
-export type { MangaProgress } from '../main/database/entities/manga-progress.entity'
-export type { ProgressDatabase } from '../main/database/entities/progress-database.entity'
-export type { ReadingStats } from '../main/database/entities/reading-stats.entity'
+export type { MangaProgress } from '../main/database/queries/manga-progress.query'
+export type { ProgressDatabase } from '../main/database/queries/progress-database.query'
+export type { ReadingStats } from '../main/database/queries/reading-stats.entity'
 export type { MangaReadingSettings } from '../main/settings/entity/reading-settings.entity'
 
 interface MenuState {

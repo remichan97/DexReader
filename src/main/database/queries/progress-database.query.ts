@@ -1,4 +1,4 @@
-import { MangaProgress } from './manga-progress.entity'
+import { MangaProgress } from './manga-progress.query'
 
 export interface ProgressDatabase {
   version: number

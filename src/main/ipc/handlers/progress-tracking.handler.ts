@@ -1,4 +1,4 @@
-import { MangaProgress } from '../../database/entities/manga-progress.entity'
+import { MangaProgress } from '../../database/queries/manga-progress.query'
 import { MangaProgressRepository } from '../../database/repository/manga-progress.repo'
 import { wrapIpcHandler } from '../wrapHandler'
 
