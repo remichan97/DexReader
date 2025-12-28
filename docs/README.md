@@ -26,6 +26,8 @@ System architecture, navigation patterns, and layout specifications.
 - **routing-decision.md** - React Router v6 evaluation and configuration with hooks documentation
 - **reader-layout-specification.md** - 3 reading modes (single/double/vertical) with controls, interactions, preloading strategy
 - **menu-bar-structure.md** - Native Electron menu bar with 5 menus, 30+ items, keyboard accelerators, implementation code
+- **database-architecture.md** - 🗄️ **SQLite database design** with Drizzle ORM, 9 tables, CQRS pattern, migration strategy (Guerilla Migration 27-28 Dec 2025)
+- **state-management.md** - Zustand stores with SQLite integration for progress tracking
 
 ### 🧩 `/components`
 
@@ -82,6 +84,8 @@ All documents in this folder are **implementation-ready specifications** and **l
 **Tech Stack**: React 19.1.1 + TypeScript 5.9.2 + Electron 38.1.2
 **Routing**: React Router v6.28.0
 **Icons**: @fluentui/react-icons 2.0 (Official Microsoft Fluent UI)
+**State Management**: Zustand v5.0.3 + SQLite (via Drizzle ORM)
+**Database**: SQLite + Drizzle ORM (9 tables, WAL mode, CQRS pattern)
 **Design System**: Windows 11 (Mica, Acrylic, Segoe UI Variable)
 **Animations**: Spring easing `cubic-bezier(0.34, 1.56, 0.64, 1)` for indicators
 **Reading Modes**: Single page, Double page (R-L), Vertical scroll

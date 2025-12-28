@@ -32,6 +32,7 @@ src/renderer/src/stores/
 ├── appStore.ts                 # Theme & global UI state
 ├── toastStore.ts               # Notification system
 ├── userPreferencesStore.ts     # User settings & preferences
+├── progressStore.ts            # Reading progress (SQLite-backed)
 └── libraryStore.ts             # Bookmarks & collections (Phase 3)
 ```
 
@@ -865,25 +866,96 @@ function App() {
 
 ---
 
+## Database Integration (Post-Migration)
+
+### Progress Store
+
+**File**: `src/renderer/src/stores/progressStore.ts`
+**Purpose**: Frontend state management for manga/chapter progress
+**Backend**: SQLite database via IPC handlers (see [database-architecture.md](./database-architecture.md))
+
+#### State Schema
+
+```typescript
+interface ProgressState {
+  // Lean progress map (for updates)
+  progressMap: Map<string, MangaProgress>
+  
+  // Rich metadata map (for history view)
+  progressMetadataMap: Map<string, MangaProgressMetadata>
+  
+  // Loading states
+  isLoading: boolean
+  lastFetched: Date | null
+  
+  // Actions
+  loadAllProgress: () => Promise<void>
+  saveProgress: (data: {
+    mangaId: string
+    chapterId: string
+    currentPage: number
+    completed: boolean
+  }) => Promise<void>
+  deleteProgress: (mangaId: string) => Promise<void>
+  clearAllProgress: () => Promise<void>
+}
+```
+
+**Architecture**: Dual-map pattern
+- `progressMap`: Lean entities for mutations
+- `progressMetadataMap`: Rich entities with JOINs for display
+
+#### Database Types
+
+```typescript
+// Extracted from Window interface
+type MangaProgress = Window['api']['Progress']['MangaProgress']
+type MangaProgressMetadata = Window['api']['Progress']['MangaProgressMetadata']
+type SaveProgressCommand = Parameters<Window['api']['progress']['saveProgress']>[0][0]
+```
+
+#### IPC Bridge
+
+```typescript
+// Preload types
+interface ProgressAPI {
+  getAllProgress: () => Promise<MangaProgress[]>
+  getAllProgressWithMetadata: () => Promise<MangaProgressMetadata[]>
+  saveProgress: (commands: SaveProgressCommand[]) => Promise<void>
+  deleteProgress: (mangaId: string) => Promise<void>
+  clearAllProgress: () => Promise<void>
+}
+```
+
+**Backend**: Main process `MangaProgressRepository` (CQRS pattern)
+
+### No Zustand Persistence for Progress
+
+**Rationale**: Progress is stored in SQLite database (main process), not localStorage
+**Pattern**: Always fetch from database on app start via `loadAllProgress()`
+**Benefit**: Single source of truth, no synchronization issues
+
+---
+
 ## Future Enhancements
 
 ### Planned for Phase 2
 
 - **Download Queue Store**: Manage download jobs, progress tracking
-- **Reading History Store**: Track read chapters, progress percentages
 - **Search Store**: Cache search results, recent searches
 
 ### Planned for Phase 3
 
+- **Library Store**: Collections, bookmarks (backed by SQLite)
 - **Sync Store**: Cloud synchronisation of bookmarks/progress
 - **Offline Store**: Manage offline-available chapters
-- **Statistics Store**: Reading stats, time tracking
+- **Statistics Store**: Reading stats, time tracking (backed by SQLite)
 
 ### Potential Optimisations
 
-- **Indexed DB**: For large datasets (chapter images, metadata)
-- **Worker Threads**: Move persistence to background thread
+- **Worker Threads**: Move IPC-heavy operations to background thread
 - **Partial Hydration**: Lazy-load non-critical stores
+- **Optimistic Updates**: Update UI immediately, sync to DB in background
 
 ---
 
