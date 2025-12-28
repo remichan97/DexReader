@@ -15,6 +15,13 @@
       "when": 1766895149380,
       "tag": "0001_update-manga-schema",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1766938011641,
+      "tag": "0002_adding-new-manga-column",
+      "breakpoints": true
     }
   ]
 }
