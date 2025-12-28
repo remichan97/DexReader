@@ -15,6 +15,6 @@ export interface FeedParams {
   createdAtSince?: string
   updatedAtSince?: string
   publishedAtSince?: string
-  order?: Record<ChapterOrderOptions, OrderDirection>
+  order?: Partial<Record<ChapterOrderOptions, OrderDirection>>
   includes?: ChapterIncludes[]
 }
