@@ -1,4 +1,4 @@
-import { MangaProgress } from '../../database/queries/manga-progress.query'
+import { SaveProgressCommand } from '../../database/commands/save-progress.command'
 import { MangaProgressRepository } from '../../database/repository/manga-progress.repo'
 import { wrapIpcHandler } from '../wrapHandler'
 
@@ -10,7 +10,7 @@ export function registerProgressTrackingHandlers(): void {
   })
 
   wrapIpcHandler('progress:save-progress', async (_, progressData: unknown) => {
-    return await progressRepo.saveProgress(progressData as MangaProgress[])
+    return await progressRepo.saveProgress(progressData as SaveProgressCommand[])
   })
 
   wrapIpcHandler('progress:delete-progress', async (_, id: unknown) => {
@@ -23,10 +23,5 @@ export function registerProgressTrackingHandlers(): void {
 
   wrapIpcHandler('progress:get-all-progress', async () => {
     return await progressRepo.getAllProgressWithMetadata()
-  })
-
-  wrapIpcHandler('progress:load-progress', async () => {
-    // TODO: Phase 3 - This was for loading from JSON, no longer needed with database
-    throw new Error('Not implemented - database loads automatically')
   })
 }

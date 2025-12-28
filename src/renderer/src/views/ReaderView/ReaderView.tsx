@@ -353,10 +353,6 @@ export function ReaderView(): JSX.Element {
   useProgressTracking({
     mangaId,
     chapterId,
-    chapterTitle: chapterData.chapterTitle,
-    chapterNumber: chapterData.chapterNumber,
-    mangaTitle: chapterData.mangaTitle,
-    coverUrl: locationState?.coverUrl,
     currentPage: state.currentPage,
     totalPages: chapterData.totalPages,
     loading: chapterData.loading,

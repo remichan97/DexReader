@@ -2,26 +2,15 @@ import { useEffect, useRef } from 'react'
 
 interface ProgressData {
   mangaId: string
-  mangaTitle: string
-  coverUrl?: string
-  lastChapterId: string
-  lastChapterNumber?: number
-  lastChapterTitle: string
+  chapterId: string
   currentPage: number
-  totalPages: number
-  markComplete: boolean
+  completed: boolean
 }
 
 interface UseProgressTrackingParams {
   // IDs
   mangaId: string | undefined
   chapterId: string | undefined
-
-  // Chapter data
-  chapterTitle: string
-  chapterNumber: string | null
-  mangaTitle: string
-  coverUrl?: string
 
   // Page info
   currentPage: number
@@ -49,10 +38,6 @@ interface UseProgressTrackingParams {
 export function useProgressTracking({
   mangaId,
   chapterId,
-  chapterTitle,
-  chapterNumber,
-  mangaTitle,
-  coverUrl,
   currentPage,
   totalPages,
   loading,
@@ -80,14 +65,9 @@ export function useProgressTracking({
       // Save current page progress (don't mark as complete yet)
       void saveProgress({
         mangaId,
-        mangaTitle,
-        coverUrl,
-        lastChapterId: chapterId,
-        lastChapterNumber: chapterNumber ? Number(chapterNumber) : undefined,
-        lastChapterTitle: chapterTitle,
+        chapterId,
         currentPage,
-        totalPages,
-        markComplete: false
+        completed: false
       })
     }, 1000) // 1 second debounce
 
@@ -95,16 +75,12 @@ export function useProgressTracking({
   }, [
     currentPage,
     totalPages,
-    mangaTitle,
-    chapterTitle,
-    chapterNumber,
     loading,
     error,
     mangaId,
     chapterId,
     autoSaveEnabled,
-    saveProgress,
-    coverUrl
+    saveProgress
   ])
 
   // Auto-save progress on chapter change (immediate, no debounce)
@@ -124,28 +100,18 @@ export function useProgressTracking({
     if (shouldMarkPreviousComplete && mangaId) {
       void saveProgress({
         mangaId,
-        mangaTitle,
-        coverUrl,
-        lastChapterId: prevChapter.id,
-        lastChapterNumber: undefined, // We don't have this info for previous chapter
-        lastChapterTitle: '',
-        currentPage: 0, // Not relevant for completed chapters
-        totalPages: 1, // Not relevant for completed chapters
-        markComplete: true
+        chapterId: prevChapter.id,
+        currentPage: totalPages - 1, // Last page
+        completed: true
       })
     }
 
     // Save progress for new chapter (starting at page 0, not complete)
     void saveProgress({
       mangaId,
-      mangaTitle,
-      coverUrl,
-      lastChapterId: chapterId,
-      lastChapterNumber: chapterNumber ? Number(chapterNumber) : undefined,
-      lastChapterTitle: chapterTitle,
+      chapterId,
       currentPage: 0,
-      totalPages,
-      markComplete: false
+      completed: false
     })
 
     // Update ref for new chapter
@@ -157,11 +123,7 @@ export function useProgressTracking({
     loading,
     error,
     totalPages,
-    mangaTitle,
-    chapterNumber,
-    chapterTitle,
-    saveProgress,
-    coverUrl
+    saveProgress
   ]) // Only trigger on chapter change
 
   // Auto-save progress on component unmount
@@ -173,14 +135,9 @@ export function useProgressTracking({
         // Only mark complete when navigating to another chapter
         void saveProgress({
           mangaId,
-          mangaTitle,
-          coverUrl,
-          lastChapterId: chapterId,
-          lastChapterNumber: chapterNumber ? Number(chapterNumber) : undefined,
-          lastChapterTitle: chapterTitle,
+          chapterId,
           currentPage,
-          totalPages,
-          markComplete: false
+          completed: false
         })
       }
     }
@@ -192,12 +149,8 @@ export function useProgressTracking({
     loading,
     error,
     totalPages,
-    mangaTitle,
-    chapterNumber,
-    chapterTitle,
     currentPage,
-    saveProgress,
-    coverUrl
+    saveProgress
   ])
 
   // Listen for menu-triggered incognito toggle

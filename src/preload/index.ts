@@ -174,7 +174,6 @@ const progress = {
   getAllProgress: () => ipcRenderer.invoke('progress:get-all-progress'),
   deleteProgress: (mangaId: string) => ipcRenderer.invoke('progress:delete-progress', mangaId),
   getStatistics: () => ipcRenderer.invoke('progress:get-statistics'),
-  loadProgress: () => ipcRenderer.invoke('progress:load-progress'),
   onIncognitoToggle: (callback: () => void) => {
     ipcRenderer.on('progress:toggle-incognito', callback)
     // Return cleanup function to remove listener

@@ -7,10 +7,13 @@ import { ProgressRing } from '@renderer/components/ProgressRing'
 import { useProgressStore } from '@renderer/stores/progressStore'
 import './HistoryView.css'
 
-type MangaProgress = NonNullable<Awaited<ReturnType<Window['progress']['getProgress']>>['data']>
+// Type extracted from IPC response - includes metadata via JOINs
+type MangaProgressMetadata = NonNullable<
+  Awaited<ReturnType<typeof window.progress.getAllProgress>>['data']
+>[number]
 
 interface ReadingHistoryCardProps {
-  readonly progress: MangaProgress
+  readonly progress: MangaProgressMetadata
   readonly onContinueReading: () => void
   readonly onRemove: () => void
 }
@@ -42,18 +45,12 @@ function ReadingHistoryCard({
     }
   }
 
-  // Get page progress from current chapter
-  const chapterProgress = progress.chapters?.[progress.lastChapterId]
-  const pageInfo = chapterProgress
-    ? `Page ${chapterProgress.currentPage + 1} of ${chapterProgress.totalPages}`
-    : 'No page info'
-
   return (
     <div className="reading-history-card">
       {/* Cover Image */}
       <div className="reading-history-card__cover">
         {progress.coverUrl ? (
-          <img src={progress.coverUrl} alt={`${progress.mangaTitle} cover`} />
+          <img src={progress.coverUrl} alt={`${progress.title} cover`} />
         ) : (
           <div className="reading-history-card__cover-placeholder">
             <History24Regular />
@@ -63,12 +60,10 @@ function ReadingHistoryCard({
 
       {/* Info */}
       <div className="reading-history-card__info">
-        <h3 className="reading-history-card__title">{progress.mangaTitle}</h3>
+        <h3 className="reading-history-card__title">{progress.title}</h3>
         <p className="reading-history-card__progress">
           Ch. {progress.lastChapterNumber || '?'}
           {progress.lastChapterTitle && `: ${progress.lastChapterTitle}`}
-          {' • '}
-          {pageInfo}
         </p>
         <p className="reading-history-card__meta">
           Last read {getRelativeTime(progress.lastReadAt)}
@@ -104,7 +99,7 @@ export function HistoryView(): JSX.Element {
   const loadAllProgress = useProgressStore((state) => state.loadAllProgress)
   const loadStatistics = useProgressStore((state) => state.loadStatistics)
   const deleteProgress = useProgressStore((state) => state.deleteProgress)
-  const progressMap = useProgressStore((state) => state.progressMap)
+  const progressMetadataMap = useProgressStore((state) => state.progressMetadataMap)
   const statistics = useProgressStore((state) => state.statistics)
   const loading = useProgressStore((state) => state.loading)
 
@@ -121,25 +116,24 @@ export function HistoryView(): JSX.Element {
     document.title = 'Reading History - DexReader'
   }, [])
 
-  // Convert progress map to sorted array
-  const allProgress = Array.from(progressMap.values()).sort((a, b) => b.lastReadAt - a.lastReadAt)
+  // Convert progress metadata map to sorted array
+  const allProgress = Array.from(progressMetadataMap.values()).sort(
+    (a, b) => b.lastReadAt - a.lastReadAt
+  )
 
   // Filter by search query
   const filteredProgress = searchQuery
-    ? allProgress.filter((p) => p.mangaTitle.toLowerCase().includes(searchQuery.toLowerCase()))
+    ? allProgress.filter((p) => p.title.toLowerCase().includes(searchQuery.toLowerCase()))
     : allProgress
 
-  const handleContinueReading = (progress: MangaProgress): void => {
-    // Get current page from chapter progress
-    const chapterProgress = progress.chapters?.[progress.lastChapterId]
-    const startPage = chapterProgress?.currentPage ?? 0
-
+  const handleContinueReading = (progress: MangaProgressMetadata): void => {
+    // Start from beginning of last chapter (current page tracking handled by reader)
     navigate(`/reader/${progress.mangaId}/${progress.lastChapterId}`, {
       state: {
         chapterNumber: progress.lastChapterNumber?.toString(),
         chapterTitle: progress.lastChapterTitle,
-        mangaTitle: progress.mangaTitle,
-        startPage
+        mangaTitle: progress.title,
+        startPage: 0
       }
     })
   }

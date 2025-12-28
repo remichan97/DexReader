@@ -19,15 +19,26 @@
 
 import { create } from 'zustand'
 import { useToastStore } from './toastStore'
-import { ReadingMode } from '../../../main/settings/enum/reading-mode.enum'
 
 // Types are available globally through Window interface (see preload/index.d.ts)
 type MangaProgress = NonNullable<Awaited<ReturnType<Window['progress']['getProgress']>>['data']>
+type MangaProgressMetadata = NonNullable<
+  Awaited<ReturnType<Window['progress']['getAllProgress']>>['data']
+>[number]
 type ReadingStats = NonNullable<Awaited<ReturnType<Window['progress']['getStatistics']>>['data']>
+
+// Command type for saving progress
+interface SaveProgressCommand {
+  mangaId: string
+  chapterId: string
+  currentPage: number
+  completed: boolean
+}
 
 interface ProgressState {
   // State
-  progressMap: Map<string, MangaProgress>
+  progressMap: Map<string, MangaProgress> // Lean progress (just IDs)
+  progressMetadataMap: Map<string, MangaProgressMetadata> // Rich metadata (for history view)
   statistics: ReadingStats | null
   autoSaveEnabled: boolean
   loading: boolean
@@ -37,14 +48,9 @@ interface ProgressState {
   loadProgress: (mangaId: string) => Promise<void>
   saveProgress: (progressData: {
     mangaId: string
-    mangaTitle: string
-    coverUrl?: string // Optional cover image URL
-    lastChapterId: string
-    lastChapterNumber?: number
-    lastChapterTitle: string
+    chapterId: string
     currentPage: number
-    totalPages: number
-    markComplete?: boolean // Optional flag to mark chapter as complete
+    completed: boolean
   }) => Promise<void>
   loadAllProgress: () => Promise<void>
   loadStatistics: () => Promise<void>
@@ -62,6 +68,7 @@ const RETRY_DELAYS = [1000, 2000, 4000] // Exponential backoff: 1s, 2s, 4s
 
 export const useProgressStore = create<ProgressState>((set, get) => ({
   progressMap: new Map(),
+  progressMetadataMap: new Map(),
   statistics: null,
   autoSaveEnabled: true,
   loading: false,
@@ -113,42 +120,14 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
       return
     }
 
-    const {
-      mangaId,
-      lastChapterId,
-      currentPage,
-      totalPages,
-      markComplete = false,
-      coverUrl
-    } = progressData
+    const { mangaId, chapterId, currentPage, completed } = progressData
 
-    // Get existing progress to preserve other chapters
-    const existingProgress = progressMap.get(mangaId)
-    const existingChapters = existingProgress?.chapters || {}
-
-    // Update current chapter progress
-    const updatedChapters = {
-      ...existingChapters,
-      [lastChapterId]: {
-        currentPage,
-        totalPages,
-        lastReadAt: Date.now(),
-        completed: markComplete || (existingChapters[lastChapterId]?.completed ?? false)
-      }
-    }
-
-    // Build updated progress object
+    // Build updated progress object (lean, just IDs and timestamps)
     const updatedProgress: MangaProgress = {
       mangaId,
-      mangaTitle: progressData.mangaTitle,
-      coverUrl: coverUrl ?? existingProgress?.coverUrl ?? '',
-      lastChapterId,
-      lastChapterNumber: progressData.lastChapterNumber,
-      lastChapterTitle: progressData.lastChapterTitle,
-      firstReadAt: existingProgress?.firstReadAt ?? Date.now(),
-      lastReadAt: Date.now(),
-      chapters: updatedChapters,
-      readerSettings: existingProgress?.readerSettings ?? { readingMode: ReadingMode.SinglePage } // Preserve existing reader settings or use default
+      lastChapterId: chapterId,
+      firstReadAt: progressMap.get(mangaId)?.firstReadAt ?? Math.floor(Date.now() / 1000),
+      lastReadAt: Math.floor(Date.now() / 1000)
     }
 
     // Update cache immediately (optimistic)
@@ -170,7 +149,13 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
       let lastError: Error | null = null
       for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
         try {
-          const response = await globalThis.progress.saveProgress([updatedProgress])
+          const command: SaveProgressCommand = {
+            mangaId,
+            chapterId,
+            currentPage,
+            completed
+          }
+          const response = await globalThis.progress.saveProgress([command])
 
           if (response.success) {
             // Success! Silent save - no toast notification
@@ -209,6 +194,7 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
   /**
    * Load all progress (for history view)
    * Sorted by lastReadAt descending (most recent first)
+   * Uses MangaProgressMetadata which includes rich data via JOINs
    */
   loadAllProgress: async () => {
     try {
@@ -217,11 +203,11 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
       const response = await globalThis.progress.getAllProgress()
 
       if (response.success && response.data) {
-        const newMap = new Map<string, MangaProgress>()
+        const newMap = new Map<string, MangaProgressMetadata>()
         response.data.forEach((progress) => {
           newMap.set(progress.mangaId, progress)
         })
-        set({ progressMap: newMap, loading: false })
+        set({ progressMetadataMap: newMap, loading: false })
       } else {
         set({ loading: false })
       }
@@ -254,10 +240,12 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
     try {
       set({ loading: true, error: null })
 
-      // Optimistic delete
-      const newMap = new Map(get().progressMap)
-      newMap.delete(mangaId)
-      set({ progressMap: newMap })
+      // Optimistic delete from both maps
+      const newProgressMap = new Map(get().progressMap)
+      const newMetadataMap = new Map(get().progressMetadataMap)
+      newProgressMap.delete(mangaId)
+      newMetadataMap.delete(mangaId)
+      set({ progressMap: newProgressMap, progressMetadataMap: newMetadataMap })
 
       const response = await globalThis.progress.deleteProgress(mangaId)
 

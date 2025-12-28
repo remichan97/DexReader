@@ -173,19 +173,13 @@ export default function ChapterList({
           !error &&
           displayChapters.length > 0 &&
           displayChapters.map((chapter) => {
-            // Get chapter progress from new per-chapter structure
-            const chapterProgress = progress?.chapters?.[chapter.id]
-
             // Check if this chapter is in progress (currently reading)
             const isInProgress = progress?.lastChapterId === chapter.id
 
-            // Check if this chapter is completed
-            const isRead = chapterProgress?.completed ?? false
-
-            // Get page progress (use chapter-specific data)
-            const pageProgress = chapterProgress
-              ? { currentPage: chapterProgress.currentPage, totalPages: chapterProgress.totalPages }
-              : undefined
+            // TODO: Fetch chapter progress separately via getAllChapterProgress
+            // For now, only show in-progress indicator
+            const isRead = false
+            const pageProgress = undefined // Will be populated when chapter progress is fetched
 
             return (
               <ChapterItem

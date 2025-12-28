@@ -3,7 +3,6 @@ export interface ChapterProgress {
   mangaId: string
   chapterId: string
   currentPage: number
-  totalPages: number
   lastReadAt: number
   completed: boolean
 }

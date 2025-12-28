@@ -65,9 +65,9 @@ export default function MangaHeroSection({
     if (progress) {
       const lastChapter = chapters.find((ch) => ch.id === progress.lastChapterId)
       if (lastChapter) {
-        // Get chapter-specific progress
-        const chapterProgress = progress.chapters?.[progress.lastChapterId]
-        const startPage = chapterProgress?.currentPage ?? 0
+        // TODO: Query chapter progress to get exact page
+        // For now, start from beginning of last chapter
+        const startPage = 0
 
         navigate(`/reader/${manga.id}/${lastChapter.id}`, {
           state: {

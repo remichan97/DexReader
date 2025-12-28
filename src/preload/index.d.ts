@@ -6,15 +6,17 @@ import { ElectronAPI } from '@electron-toolkit/preload'
 import type { IpcResponse, FileStats, AllowedPaths, FolderSelectResult } from './ipc.types'
 import type { MangaProgress } from '../main/database/queries/manga-progress.query'
 import type { ProgressDatabase } from '../main/database/queries/progress-database.query'
-import type { ReadingStats } from '../main/database/queries/reading-stats.entity'
+import type { ReadingStats } from '../main/database/queries/reading-stats.query'
+import type { MangaProgressMetadata } from '../main/database/queries/manga-progress-metadata.query'
 import type { MangaReadingSettings } from '../main/settings/entity/reading-settings.entity'
 
 // Re-export types for renderer use
 export type { ImageUrlResponse } from './../main/api/responses/image-url.response'
 export type { IpcResponse } from './ipc.types'
 export type { MangaProgress } from '../main/database/queries/manga-progress.query'
+export type { MangaProgressMetadata } from '../main/database/queries/manga-progress-metadata.query'
 export type { ProgressDatabase } from '../main/database/queries/progress-database.query'
-export type { ReadingStats } from '../main/database/queries/reading-stats.entity'
+export type { ReadingStats } from '../main/database/queries/reading-stats.query'
 export type { MangaReadingSettings } from '../main/settings/entity/reading-settings.entity'
 
 interface MenuState {
@@ -106,8 +108,8 @@ interface MangaDexApi {
 
 interface Progress {
   getProgress: (mangaId: string) => Promise<IpcResponse<MangaProgress | undefined>>
-  saveProgress: (progressData: MangaProgress[]) => Promise<IpcResponse<void>>
-  getAllProgress: () => Promise<IpcResponse<MangaProgress[]>>
+  saveProgress: (progressData: unknown) => Promise<IpcResponse<void>>
+  getAllProgress: () => Promise<IpcResponse<MangaProgressMetadata[]>>
   deleteProgress: (mangaId: string) => Promise<IpcResponse<void>>
   getStatistics: () => Promise<IpcResponse<ReadingStats>>
   loadProgress: () => Promise<IpcResponse<ProgressDatabase>>
