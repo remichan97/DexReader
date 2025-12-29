@@ -1,4 +1,4 @@
-import { MangaStatus } from '../../api/enums/manga-status.enum'
+import { MangaStatus } from '../../../api/enums/manga-status.enum'
 
 export interface MangaProgressMetadata {
   mangaId: string

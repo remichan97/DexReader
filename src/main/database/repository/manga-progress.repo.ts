@@ -1,12 +1,13 @@
-import { ChapterProgress } from '../queries/chapter-progress.query'
+import { ChapterProgress } from '../queries/progress/chapter-progress.query'
 import { databaseConnection } from './../connection'
-import { MangaProgressMetadata } from '../queries/manga-progress-metadata.query'
+import { MangaProgressMetadata } from '../queries/progress/manga-progress-metadata.query'
 import { and, eq, sql } from 'drizzle-orm'
 import { chapter, chapterProgress, manga, mangaProgress, readingStatistics } from '../schema'
-import { MangaStatus } from '../../api/enums/manga-status.enum'
-import { MangaProgress } from '../queries/manga-progress.query'
-import { ReadingStats } from '../queries/reading-stats.query'
+import { MangaProgress } from '../queries/progress/manga-progress.query'
+import { ReadingStats } from '../queries/reading-stats/reading-stats.query'
 import { SaveProgressCommand } from '../commands/save-progress.command'
+import { MangaMapper } from '../mappers/manga.mapper'
+import { dateToUnixTimestamp } from '../utils/helpers.utils'
 
 export class MangaProgressRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
@@ -27,8 +28,8 @@ export class MangaProgressRepository {
     return {
       mangaId: manga.mangaId,
       lastChapterId: manga.lastChapterId,
-      firstReadAt: this.dateToUnixTimestamp(manga.firstReadAt),
-      lastReadAt: this.dateToUnixTimestamp(manga.lastReadAt)
+      firstReadAt: dateToUnixTimestamp(manga.firstReadAt),
+      lastReadAt: dateToUnixTimestamp(manga.lastReadAt)
     }
   }
 
@@ -56,22 +57,7 @@ export class MangaProgressRepository {
       .where(eq(mangaProgress.mangaId, mangaId))
       .get()
 
-    if (!result) {
-      return undefined
-    }
-
-    return {
-      mangaId: result.mangaId,
-      lastChapterId: result.lastChapterId,
-      firstReadAt: this.dateToUnixTimestamp(result.firstReadAt),
-      lastReadAt: this.dateToUnixTimestamp(result.lastReadAt),
-      title: result.title,
-      coverUrl: result.coverUrl ?? undefined,
-      status: result.status as MangaStatus,
-      lastChapterNumber: result.lastChapterNumber ?? undefined,
-      lastChapterTitle: result.lastChapterTitle ?? undefined,
-      lastChapterVolume: result.lastChapterVolume ?? undefined
-    }
+    return result ? MangaMapper.toMangaProgressWithMetadata(result) : undefined
   }
 
   getAllProgressWithMetadata(): MangaProgressMetadata[] {
@@ -93,18 +79,7 @@ export class MangaProgressRepository {
       .leftJoin(chapter, eq(mangaProgress.lastChapterId, chapter.chapterId))
       .all()
 
-    return results.map((result) => ({
-      mangaId: result.mangaId,
-      lastChapterId: result.lastChapterId,
-      firstReadAt: this.dateToUnixTimestamp(result.firstReadAt),
-      lastReadAt: this.dateToUnixTimestamp(result.lastReadAt),
-      title: result.title,
-      coverUrl: result.coverUrl ?? undefined,
-      status: result.status as MangaStatus,
-      lastChapterNumber: result.lastChapterNumber ?? undefined,
-      lastChapterTitle: result.lastChapterTitle ?? undefined,
-      lastChapterVolume: result.lastChapterVolume ?? undefined
-    }))
+    return results.map(MangaMapper.toMangaProgressWithMetadata)
   }
 
   saveProgress(progress: SaveProgressCommand[]): void {
@@ -187,7 +162,7 @@ export class MangaProgressRepository {
       chapterId: result.chapterId,
       currentPage: result.currentPage,
       completed: result.completed,
-      lastReadAt: this.dateToUnixTimestamp(result.lastReadAt)
+      lastReadAt: dateToUnixTimestamp(result.lastReadAt)
     }
   }
 
@@ -207,14 +182,14 @@ export class MangaProgressRepository {
       chapterId: result.chapterId,
       currentPage: result.currentPage,
       completed: result.completed,
-      lastReadAt: this.dateToUnixTimestamp(result.lastReadAt)
+      lastReadAt: dateToUnixTimestamp(result.lastReadAt)
     }))
   }
 
   getStats(): ReadingStats {
     const cached = this.db.select().from(readingStatistics).where(eq(readingStatistics.id, 1)).get()
 
-    if (cached && Date.now() - this.dateToUnixTimestamp(cached.lastCalculatedAt) < 3600000) {
+    if (cached && Date.now() - dateToUnixTimestamp(cached.lastCalculatedAt) < 3600000) {
       return {
         totalMangaRead: cached.totalMangasRead,
         totalChaptersRead: cached.totalChaptersRead,
@@ -240,9 +215,5 @@ export class MangaProgressRepository {
       totalPagesRead: stats?.totalPages || 0,
       totalEstimatedMinutesRead: (stats?.totalPages || 0) * 2 // Assuming average 2 minutes per page
     }
-  }
-
-  private dateToUnixTimestamp(timestamp: Date): number {
-    return Math.floor(timestamp.getTime() / 1000)
   }
 }
