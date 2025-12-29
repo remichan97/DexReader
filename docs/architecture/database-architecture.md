@@ -35,11 +35,11 @@ DexReader uses **SQLite** with **Drizzle ORM** for persistent data storage in th
 
 ```typescript
 // src/main/database/connection.ts
-db.pragma('journal_mode = WAL')         // Write-Ahead Logging
-db.pragma('cache_size = -64000')        // 64MB cache
-db.pragma('mmap_size = 268435456')      // 256MB memory-mapped I/O
-db.pragma('foreign_keys = ON')          // Enforce FK constraints
-db.pragma('busy_timeout = 5000')        // 5s lock timeout
+db.pragma('journal_mode = WAL') // Write-Ahead Logging
+db.pragma('cache_size = -64000') // 64MB cache
+db.pragma('mmap_size = 268435456') // 256MB memory-mapped I/O
+db.pragma('foreign_keys = ON') // Enforce FK constraints
+db.pragma('busy_timeout = 5000') // 5s lock timeout
 ```
 
 **Build Configuration**:
@@ -84,16 +84,16 @@ Migration files bundled via Vite plugin, automatically applied on startup.
 
 ### Table Summary
 
-| Table | Purpose | Records | Indexes | Triggers |
-|-------|---------|---------|---------|----------|
-| `manga` | Cached manga metadata | ~100s | 1 | 1 (cleanup stale) |
-| `manga_reader_overrides` | Per-manga reader settings | ~10s | 1 | - |
-| `manga_progress` | Last read chapter per manga | ~100s | 1 | - |
-| `chapter_progress` | Reading progress per chapter | ~1000s | 2 | 1 (update statistics) |
-| `reading_statistics` | Aggregated reading stats | ~100s | 1 | 1 (cleanup orphans) |
-| `collections` | User-created bookmark folders | ~10s | - | - |
-| `collection_items` | Manga in collections | ~100s | 3 | - |
-| `chapter` | Cached chapter metadata | ~1000s | 2 | - |
+| Table                    | Purpose                       | Records | Indexes | Triggers              |
+| ------------------------ | ----------------------------- | ------- | ------- | --------------------- |
+| `manga`                  | Cached manga metadata         | ~100s   | 1       | 1 (cleanup stale)     |
+| `manga_reader_overrides` | Per-manga reader settings     | ~10s    | 1       | -                     |
+| `manga_progress`         | Last read chapter per manga   | ~100s   | 1       | -                     |
+| `chapter_progress`       | Reading progress per chapter  | ~1000s  | 2       | 1 (update statistics) |
+| `reading_statistics`     | Aggregated reading stats      | ~100s   | 1       | 1 (cleanup orphans)   |
+| `collections`            | User-created bookmark folders | ~10s    | -       | -                     |
+| `collection_items`       | Manga in collections          | ~100s   | 3       | -                     |
+| `chapter`                | Cached chapter metadata       | ~1000s  | 2       | -                     |
 
 ---
 
@@ -156,7 +156,9 @@ END;
 export const mangaReaderOverrides = sqliteTable(
   'manga_reader_overrides',
   {
-    mangaId: text('manga_id').primaryKey().references(() => manga.id, { onDelete: 'cascade' }),
+    mangaId: text('manga_id')
+      .primaryKey()
+      .references(() => manga.id, { onDelete: 'cascade' }),
     readerMode: text('reader_mode', { enum: ['single', 'double', 'webtoon'] }),
     readingDirection: text('reading_direction', { enum: ['ltr', 'rtl'] }),
     preloadPages: integer('preload_pages'),
@@ -184,11 +186,12 @@ export const mangaReaderOverrides = sqliteTable(
 
 ```typescript
 // Query with fallback to global settings
-const settings = await db
-  .select()
-  .from(mangaReaderOverrides)
-  .where(eq(mangaReaderOverrides.mangaId, mangaId))
-  .get() ?? globalSettings
+const settings =
+  (await db
+    .select()
+    .from(mangaReaderOverrides)
+    .where(eq(mangaReaderOverrides.mangaId, mangaId))
+    .get()) ?? globalSettings
 ```
 
 ---
@@ -203,7 +206,9 @@ const settings = await db
 export const mangaProgress = sqliteTable(
   'manga_progress',
   {
-    mangaId: text('manga_id').primaryKey().references(() => manga.id, { onDelete: 'cascade' }),
+    mangaId: text('manga_id')
+      .primaryKey()
+      .references(() => manga.id, { onDelete: 'cascade' }),
     lastChapterId: text('last_chapter_id').notNull(),
     firstReadAt: integer('first_read_at', { mode: 'timestamp' })
       .notNull()
@@ -237,7 +242,9 @@ export const chapterProgress = sqliteTable(
   'chapter_progress',
   {
     id: integer('id').primaryKey({ autoIncrement: true }),
-    mangaId: text('manga_id').notNull().references(() => manga.id, { onDelete: 'cascade' }),
+    mangaId: text('manga_id')
+      .notNull()
+      .references(() => manga.id, { onDelete: 'cascade' }),
     chapterId: text('chapter_id').notNull(),
     currentPage: integer('current_page').notNull().default(0),
     totalPages: integer('total_pages'),
@@ -295,7 +302,9 @@ END;
 export const readingStatistics = sqliteTable(
   'reading_statistics',
   {
-    mangaId: text('manga_id').primaryKey().references(() => manga.id, { onDelete: 'cascade' }),
+    mangaId: text('manga_id')
+      .primaryKey()
+      .references(() => manga.id, { onDelete: 'cascade' }),
     totalChaptersRead: integer('total_chapters_read').notNull().default(0),
     totalPagesRead: integer('total_pages_read').notNull().default(0),
     totalReadingTime: integer('total_reading_time').notNull().default(0), // seconds
@@ -674,12 +683,14 @@ describe('MangaProgressRepository', () => {
   })
 
   it('should save progress with minimal manga caching', async () => {
-    await repo.saveProgress([{
-      mangaId: 'manga-1',
-      chapterId: 'chapter-1',
-      currentPage: 5,
-      completed: false
-    }])
+    await repo.saveProgress([
+      {
+        mangaId: 'manga-1',
+        chapterId: 'chapter-1',
+        currentPage: 5,
+        completed: false
+      }
+    ])
 
     const progress = await repo.getProgressByMangaId('manga-1')
     expect(progress).toMatchObject({

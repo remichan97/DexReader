@@ -880,14 +880,14 @@ function App() {
 interface ProgressState {
   // Lean progress map (for updates)
   progressMap: Map<string, MangaProgress>
-  
+
   // Rich metadata map (for history view)
   progressMetadataMap: Map<string, MangaProgressMetadata>
-  
+
   // Loading states
   isLoading: boolean
   lastFetched: Date | null
-  
+
   // Actions
   loadAllProgress: () => Promise<void>
   saveProgress: (data: {
@@ -902,6 +902,7 @@ interface ProgressState {
 ```
 
 **Architecture**: Dual-map pattern
+
 - `progressMap`: Lean entities for mutations
 - `progressMetadataMap`: Rich entities with JOINs for display
 

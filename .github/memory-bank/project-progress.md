@@ -252,7 +252,10 @@
     ```typescript
     // Lean (matches manga_progress table)
     interface MangaProgress {
-      mangaId, lastChapterId, firstReadAt, lastReadAt
+      mangaId
+      lastChapterId
+      firstReadAt
+      lastReadAt
     }
 
     // Rich (for history view - uses JOINs)
@@ -273,6 +276,7 @@
 
 **Implementation Status**: 2/4 phases complete. Phase 3 ready for implementation.
 Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progress tracking)
+
 ---
 
 ## Phase 2 COMPLETE ✅

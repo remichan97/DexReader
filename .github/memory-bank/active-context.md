@@ -74,10 +74,12 @@
 3. ✅ Confirmed calls reach database layer
 
 **Current Limitation**:
+
 - ⚠️ Foreign key constraint not yet handled (manga table empty)
 - ⚠️ Reader settings save attempts fail due to missing manga records
 
 **Resolution Decision** (27 Dec 2025): **✅ Option A - Minimal Manga Caching**
+
 - Will implement basic manga caching in guerilla Phase 3
 - Inserts minimal manga record when saving progress/overrides
 - Satisfies FK constraints, makes functionality work immediately
@@ -86,16 +88,28 @@
 - Time: +1-2 hours to Phase 3 (7-8 hours total)
 
 **Key Implementation (Phase 3)**:
+
 ```typescript
 // Phase 3: Insert minimal manga record first
-db.insert(manga).values({
-  mangaId, title, coverUrl, isRead: true, ...timestamps
-}).onConflictDoNothing().run()
+db.insert(manga)
+  .values({
+    mangaId,
+    title,
+    coverUrl,
+    isRead: true,
+    ...timestamps
+  })
+  .onConflictDoNothing()
+  .run()
 
 // Then save override (FK satisfied)
-db.insert(mangaReaderOverrides).values({
-  mangaId, settings: newSettings, ...timestamps
-}).run()
+db.insert(mangaReaderOverrides)
+  .values({
+    mangaId,
+    settings: newSettings,
+    ...timestamps
+  })
+  .run()
 ```
 
 **Status**: ⚠️ Connection verified, methods exist, Phase 3 will implement minimal caching (Option A)
@@ -143,17 +157,17 @@ db.insert(mangaReaderOverrides).values({
    - Removed old JSON-based loading
 
 6. ✅ **Frontend Migration** - All views updated
-   - **progressStore**: 
+   - **progressStore**:
      - Dual maps (lean `progressMap` + rich `progressMetadataMap`)
      - `saveProgress()` uses simplified SaveProgressCommand
      - Type extraction from Window interface
-   - **HistoryView**: 
+   - **HistoryView**:
      - Uses `MangaProgressMetadata` with full metadata
      - All fields available via JOINs (title, cover, chapter details)
-   - **MangaDetailView**: 
+   - **MangaDetailView**:
      - Removed `.chapters` property references
      - Added TODOs for chapter progress queries
-   - **ReaderView**: 
+   - **ReaderView**:
      - Updated `useProgressTracking` hook
      - Simplified save signature (4 fields instead of 9)
      - Removed unused dependencies from effects
@@ -184,7 +198,7 @@ db.insert(mangaReaderOverrides).values({
 - ✅ **FK Constraints**: Properly handled with minimal caching
 - ✅ **Performance**: JOINs only when needed (metadata queries)
 - ✅ **Build**: No TypeScript errors, clean compilation
-📊 Impact on Main Phase 3 (P3-T01) - UPDATED 28 Dec 2025
+  📊 Impact on Main Phase 3 (P3-T01) - UPDATED 28 Dec 2025
 
 **Critical Update**: Guerilla migration completed - significantly impacts P3-T01 scope
 
@@ -242,6 +256,7 @@ db.insert(mangaReaderOverrides).values({
 **Updated P3-T01 Duration**: 22-30 hours → **10-15 hours** (12-15 hours saved)
 
 **Key Architectural Decisions Captured**:
+
 - ✅ Single manga table: Serves favorites + read history + temporary cache
 - ✅ Three-tier staleness: Permanent (favorites), semi-permanent (read), temporary (browsed)
 - ✅ Normalized entities: No duplicate metadata
@@ -249,6 +264,7 @@ db.insert(mangaReaderOverrides).values({
 - ✅ Minimal caching: Satisfies FKs, expands in P3-T01
 
 ---
+
 **Status**: ⏳ Awaiting user testing
 
 ---
@@ -307,6 +323,7 @@ db.insert(mangaReaderOverrides).values({
 **Updated Plan Location**: `.github/copilot-plans/P3-T01-create-local-library-database.md` (updated 27 Dec 2025)
 
 **Rationale for Update Now**:
+
 - Capture decisions while rationale is fresh
 - Avoid duplicating work between guerilla and P3-T01
 - Clear understanding of what remains for Phase 3

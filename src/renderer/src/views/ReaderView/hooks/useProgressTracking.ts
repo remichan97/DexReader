@@ -72,16 +72,7 @@ export function useProgressTracking({
     }, 1000) // 1 second debounce
 
     return () => clearTimeout(timer)
-  }, [
-    currentPage,
-    totalPages,
-    loading,
-    error,
-    mangaId,
-    chapterId,
-    autoSaveEnabled,
-    saveProgress
-  ])
+  }, [currentPage, totalPages, loading, error, mangaId, chapterId, autoSaveEnabled, saveProgress])
 
   // Auto-save progress on chapter change (immediate, no debounce)
   useEffect(() => {
@@ -116,15 +107,7 @@ export function useProgressTracking({
 
     // Update ref for new chapter
     previousChapterRef.current = { id: chapterId, wasOnLastPage: false }
-  }, [
-    chapterId,
-    autoSaveEnabled,
-    mangaId,
-    loading,
-    error,
-    totalPages,
-    saveProgress
-  ]) // Only trigger on chapter change
+  }, [chapterId, autoSaveEnabled, mangaId, loading, error, totalPages, saveProgress]) // Only trigger on chapter change
 
   // Auto-save progress on component unmount
   useEffect(() => {
@@ -142,16 +125,7 @@ export function useProgressTracking({
       }
     }
     // Include all dependencies so cleanup captures current values
-  }, [
-    autoSaveEnabled,
-    mangaId,
-    chapterId,
-    loading,
-    error,
-    totalPages,
-    currentPage,
-    saveProgress
-  ])
+  }, [autoSaveEnabled, mangaId, chapterId, loading, error, totalPages, currentPage, saveProgress])
 
   // Listen for menu-triggered incognito toggle
   useEffect(() => {
