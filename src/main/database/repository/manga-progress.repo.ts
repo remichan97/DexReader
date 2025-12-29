@@ -9,7 +9,9 @@ import { ReadingStats } from '../queries/reading-stats.query'
 import { SaveProgressCommand } from '../commands/save-progress.command'
 
 export class MangaProgressRepository {
-  private readonly db = databaseConnection.getDb()
+  private get db(): ReturnType<typeof databaseConnection.getDb> {
+    return databaseConnection.getDb()
+  }
 
   getProgressByMangaId(mangaId: string): MangaProgress | undefined {
     const manga = this.db
