@@ -78,26 +78,40 @@ CREATE TABLE `manga` (
 	`cover_url` text,
 	`year` integer,
 	`is_favourite` integer DEFAULT false NOT NULL,
-	`is_read` integer DEFAULT false NOT NULL,
 	`added_at` integer NOT NULL,
 	`updated_at` integer NOT NULL,
 	`last_accessed_at` integer NOT NULL,
 	`external_links` text,
+	`tags` text,
+	`authors` text,
+	`artists` text,
+	`alternative_titles` text,
 	`last_volume` text,
 	`last_chapter` text,
 	`last_known_chapter_id` text,
 	`last_known_chapter_number` text,
 	`last_check_for_updates` integer,
-	`has_new_chapters` integer DEFAULT false NOT NULL
+	`has_new_chapters` integer DEFAULT false NOT NULL,
+	CONSTRAINT "chk_manga_status" CHECK("manga"."status" IN ('ongoing', 'completed', 'hiatus', 'cancelled'))
 );
 --> statement-breakpoint
 CREATE INDEX `idx_manga_favourite` ON `manga` (`is_favourite`);--> statement-breakpoint
-CREATE INDEX `idx_manga_read` ON `manga` (`is_read`);--> statement-breakpoint
 CREATE INDEX `idx_manga_added` ON `manga` ("added_at" desc);--> statement-breakpoint
 CREATE INDEX `idx_manga_status` ON `manga` (`status`);--> statement-breakpoint
 CREATE INDEX `idx_last_check_for_updates` ON `manga` (`last_check_for_updates`);--> statement-breakpoint
 CREATE INDEX `idx_last_accessed` ON `manga` ("last_accessed_at" desc);--> statement-breakpoint
 CREATE INDEX `idx_manga_library` ON `manga` ("added_at" desc,"last_accessed_at" desc) WHERE "manga"."is_favourite" = 1;--> statement-breakpoint
+CREATE TABLE `read_history` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`manga_id` text NOT NULL,
+	`chapter_id` text NOT NULL,
+	`read_at` integer NOT NULL,
+	FOREIGN KEY (`manga_id`) REFERENCES `manga`(`manga_id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE INDEX `idx_read_history_manga` ON `read_history` (`manga_id`);--> statement-breakpoint
+CREATE INDEX `idx_read_history_timestamp` ON `read_history` ("read_at" desc);--> statement-breakpoint
+CREATE INDEX `idx_read_history_manga_chapter` ON `read_history` (`manga_id`,"chapter_id" desc);--> statement-breakpoint
 CREATE TABLE `reading_statistics` (
 	`id` integer PRIMARY KEY DEFAULT 1 NOT NULL,
 	`total_mangas_read` integer DEFAULT 0 NOT NULL,
@@ -105,66 +119,5 @@ CREATE TABLE `reading_statistics` (
 	`total_pages_read` integer DEFAULT 0 NOT NULL,
 	`total_estimated_minutes` integer DEFAULT 0 NOT NULL,
 	`last_calculated_at` integer DEFAULT (unixepoch()) NOT NULL,
-	CONSTRAINT `chk_reading_statistics_id` CHECK(`reading_statistics`.`id` = 1)
+	CONSTRAINT "chk_reading_statistics_id" CHECK(""reading_statistics"."id"" = 1)
 );
---> statement-breakpoint
-CREATE TRIGGER IF NOT EXISTS cleanup_stale_metadata_cache
-AFTER INSERT ON manga_progress
-BEGIN
-  DELETE FROM manga
-  WHERE is_favorite = 0
-    AND is_read = 0
-    AND last_accessed_at < (strftime('%s', 'now') - 7776000);
-END;
---> statement-breakpoint
-CREATE TRIGGER IF NOT EXISTS update_reading_statistics_insert
-AFTER INSERT ON chapter_progress
-FOR EACH ROW
-BEGIN
-  UPDATE reading_statistics SET
-    total_mangas_read = (SELECT COUNT(DISTINCT manga_id) FROM manga_progress),
-    total_chapters_read = (SELECT COUNT(*) FROM chapter_progress WHERE completed = 1),
-    total_pages_read = COALESCE((SELECT SUM(current_page) FROM chapter_progress WHERE completed = 1), 0),
-    total_estimated_minutes = ROUND(COALESCE((SELECT SUM(current_page) FROM chapter_progress WHERE completed = 1), 0) * 20.0 / 60.0),
-    last_calculated_at = strftime('%s', 'now')
-  WHERE id = 1;
-END;
---> statement-breakpoint
-CREATE TRIGGER IF NOT EXISTS update_reading_statistics_update
-AFTER UPDATE ON chapter_progress
-FOR EACH ROW
-BEGIN
-  UPDATE reading_statistics SET
-    total_mangas_read = (SELECT COUNT(DISTINCT manga_id) FROM manga_progress),
-    total_chapters_read = (SELECT COUNT(*) FROM chapter_progress WHERE completed = 1),
-    total_pages_read = COALESCE((SELECT SUM(current_page) FROM chapter_progress WHERE completed = 1), 0),
-    total_estimated_minutes = ROUND(COALESCE((SELECT SUM(current_page) FROM chapter_progress WHERE completed = 1), 0) * 20.0 / 60.0),
-    last_calculated_at = strftime('%s', 'now')
-  WHERE id = 1;
-END;
---> statement-breakpoint
-CREATE TRIGGER IF NOT EXISTS update_reading_statistics_delete
-AFTER DELETE ON chapter_progress
-FOR EACH ROW
-BEGIN
-  UPDATE reading_statistics SET
-    total_mangas_read = (SELECT COUNT(DISTINCT manga_id) FROM manga_progress),
-    total_chapters_read = (SELECT COUNT(*) FROM chapter_progress WHERE completed = 1),
-    total_pages_read = COALESCE((SELECT SUM(current_page) FROM chapter_progress WHERE completed = 1), 0),
-    total_estimated_minutes = ROUND(COALESCE((SELECT SUM(current_page) FROM chapter_progress WHERE completed = 1), 0) * 20.0 / 60.0),
-    last_calculated_at = strftime('%s', 'now')
-  WHERE id = 1;
-END;
---> statement-breakpoint
-CREATE TRIGGER IF NOT EXISTS cleanup_orphaned_chapters
-AFTER DELETE ON chapter_progress
-BEGIN
-  DELETE FROM chapter
-  WHERE chapter_id = OLD.chapter_id
-    AND chapter_id NOT IN (SELECT chapter_id FROM chapter_progress)
-    AND manga_id NOT IN (SELECT manga_id FROM manga WHERE is_favorite = 1)
-    AND updated_at < strftime('%s', 'now') - 7776000;
-END;
---> statement-breakpoint
-INSERT INTO reading_statistics (id, total_mangas_read, total_chapters_read, total_pages_read, total_estimated_minutes, last_calculated_at)
-VALUES (1, 0, 0, 0, 0, strftime('%s', 'now'));
