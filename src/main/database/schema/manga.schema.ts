@@ -12,7 +12,6 @@ export const manga = sqliteTable(
     coverUrl: text('cover_url'), // URL to cover image
     year: integer('year'), // Year of publication
     isFavourite: integer('is_favourite', { mode: 'boolean' }).notNull().default(false), // Whether user has marked this manga as a favorite in their library, will be the candidate for erasure if false
-    isRead: integer('is_read', { mode: 'boolean' }).notNull().default(false), // Whether user has read this manga, will be the candidate for erasure if false
     addedAt: integer('added_at', { mode: 'timestamp' }).notNull(), // When manga was added to the database
     updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(), // When manga was last updated
     lastAccessedAt: integer('last_accessed_at', { mode: 'timestamp' }).notNull(), // When manga was last accessed
@@ -34,7 +33,6 @@ export const manga = sqliteTable(
   },
   (table) => [
     index('idx_manga_favourite').on(table.isFavourite),
-    index('idx_manga_read').on(table.isRead),
     index('idx_manga_added').on(desc(table.addedAt)),
     index('idx_manga_status').on(table.status),
     index('idx_last_check_for_updates').on(table.lastCheckForUpdates),

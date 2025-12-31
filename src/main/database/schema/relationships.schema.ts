@@ -6,6 +6,7 @@ import { manga } from './manga.schema'
 import { chapter } from './chapter.schema'
 import { chapterProgress } from './chapter-progress.schema'
 import { mangaReaderOverrides } from './manga-reader-overrides.schema'
+import { readHistory } from './read-history.schema'
 
 // Collection Relations
 export const collectionRelations = relations(collections, ({ many }) => ({
@@ -33,6 +34,15 @@ export const mangaRelations = relations(manga, ({ many, one }) => ({
   readerOverride: one(mangaReaderOverrides, {
     fields: [manga.mangaId],
     references: [mangaReaderOverrides.mangaId]
+  }),
+  readHistory: many(readHistory)
+}))
+
+// Read History Relations
+export const readHistoryRelations = relations(readHistory, ({ one }) => ({
+  manga: one(manga, {
+    fields: [readHistory.mangaId],
+    references: [manga.mangaId]
   })
 }))
 
