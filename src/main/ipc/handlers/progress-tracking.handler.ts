@@ -1,8 +1,6 @@
-import { SaveProgressCommand } from '../../database/commands/save-progress.command'
-import { MangaProgressRepository } from '../../database/repository/manga-progress.repo'
+import { SaveProgressCommand } from '../../database/commands/progress/save-progress.command'
+import { progressRepo } from '../../database/repository/manga-progress.repo'
 import { wrapIpcHandler } from '../wrapHandler'
-
-const progressRepo = new MangaProgressRepository()
 
 export function registerProgressTrackingHandlers(): void {
   wrapIpcHandler('progress:get-progress', async (_, id: unknown) => {
