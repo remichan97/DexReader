@@ -5,8 +5,8 @@ import { desc } from 'drizzle-orm'
 export const readHistory = sqliteTable(
   'read_history',
   {
-    id: integer('id').primaryKey({ autoIncrement: true }),
     mangaId: text('manga_id')
+      .primaryKey()
       .notNull()
       .references(() => manga.mangaId, { onDelete: 'cascade' }),
     chapterId: text('chapter_id').notNull(),

@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "45b94a53-3e75-440a-a0e5-52f38079f69d",
+  "id": "34dcb0ca-6111-4e2a-958d-c3855ca1e90d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "chapter_progress": {
@@ -701,17 +701,10 @@
     "read_history": {
       "name": "read_history",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": true
-        },
         "manga_id": {
           "name": "manga_id",
           "type": "text",
-          "primaryKey": false,
+          "primaryKey": true,
           "notNull": true,
           "autoincrement": false
         },

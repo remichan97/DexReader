@@ -102,8 +102,7 @@ CREATE INDEX `idx_last_check_for_updates` ON `manga` (`last_check_for_updates`);
 CREATE INDEX `idx_last_accessed` ON `manga` ("last_accessed_at" desc);--> statement-breakpoint
 CREATE INDEX `idx_manga_library` ON `manga` ("added_at" desc,"last_accessed_at" desc) WHERE "manga"."is_favourite" = 1;--> statement-breakpoint
 CREATE TABLE `read_history` (
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`manga_id` text NOT NULL,
+	`manga_id` text PRIMARY KEY NOT NULL,
 	`chapter_id` text NOT NULL,
 	`read_at` integer NOT NULL,
 	FOREIGN KEY (`manga_id`) REFERENCES `manga`(`manga_id`) ON UPDATE no action ON DELETE cascade
