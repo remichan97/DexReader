@@ -1,13 +1,14 @@
 import { ChapterProgress } from '../queries/progress/chapter-progress.query'
 import { databaseConnection } from './../connection'
 import { MangaProgressMetadata } from '../queries/progress/manga-progress-metadata.query'
-import { and, eq, sql } from 'drizzle-orm'
-import { chapter, chapterProgress, manga, mangaProgress, readingStatistics } from '../schema'
+import { and, eq } from 'drizzle-orm'
+import { chapter, chapterProgress, manga, mangaProgress } from '../schema'
 import { MangaProgress } from '../queries/progress/manga-progress.query'
-import { ReadingStats } from '../queries/reading-stats/reading-stats.query'
-import { SaveProgressCommand } from '../commands/save-progress.command'
+import { SaveProgressCommand } from '../commands/progress/save-progress.command'
 import { MangaMapper } from '../mappers/manga.mapper'
 import { dateToUnixTimestamp } from '../utils/helpers.utils'
+import { mangaRepository } from './manga.repo'
+import { readingRepo } from './reading-stats.repo'
 
 export class MangaProgressRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
@@ -88,26 +89,6 @@ export class MangaProgressRepository {
     for (const item of progress) {
       // Insert/update in transaction to satisfy FK constraints
       this.db.transaction((tx) => {
-        // Upsert manga entry (ensure it exists)
-        tx.insert(manga)
-          .values({
-            mangaId: item.mangaId,
-            title: 'Unknown', // Will be updated when user visits manga detail
-            isRead: true, // Mark as read since user is reading it
-            isFavourite: false,
-            addedAt: now,
-            updatedAt: now,
-            lastAccessedAt: now
-          })
-          .onConflictDoUpdate({
-            target: manga.mangaId,
-            set: {
-              isRead: true, // Ensure read flag is set
-              lastAccessedAt: now // Update last access time
-            }
-          })
-          .run()
-
         // Upsert manga progress entry
         tx.insert(mangaProgress)
           .values({
@@ -142,6 +123,9 @@ export class MangaProgressRepository {
             }
           })
           .run()
+
+        readingRepo.calculateStatistics()
+        mangaRepository.cleanupMangaCache()
       })
     }
   }
@@ -185,35 +169,6 @@ export class MangaProgressRepository {
       lastReadAt: dateToUnixTimestamp(result.lastReadAt)
     }))
   }
-
-  getStats(): ReadingStats {
-    const cached = this.db.select().from(readingStatistics).where(eq(readingStatistics.id, 1)).get()
-
-    if (cached && Date.now() - dateToUnixTimestamp(cached.lastCalculatedAt) < 3600000) {
-      return {
-        totalMangaRead: cached.totalMangasRead,
-        totalChaptersRead: cached.totalChaptersRead,
-        totalPagesRead: cached.totalPagesRead,
-        totalEstimatedMinutesRead: cached.totalEstimatedMinutes
-      }
-    }
-
-    // Recalculate stats when needed (usually don't hit this often but sometimes it stales)
-    const stats = this.db
-      .select({
-        totalManga: sql<number>`COUNT(DISTINCT ${mangaProgress.mangaId})`,
-        totalChapters: sql<number>`SUM(CASE WHEN ${chapterProgress.completed} THEN 1 ELSE 0 END)`,
-        totalPages: sql<number>`COALESCE(SUM(CASE WHEN ${chapterProgress.completed} THEN ${chapterProgress.currentPage} ELSE 0 END), 0)`
-      })
-      .from(mangaProgress)
-      .leftJoin(chapterProgress, eq(mangaProgress.mangaId, chapterProgress.mangaId))
-      .get()
-
-    return {
-      totalMangaRead: stats?.totalManga || 0,
-      totalChaptersRead: stats?.totalChapters || 0,
-      totalPagesRead: stats?.totalPages || 0,
-      totalEstimatedMinutesRead: (stats?.totalPages || 0) * 2 // Assuming average 2 minutes per page
-    }
-  }
 }
+
+export const progressRepo = new MangaProgressRepository()

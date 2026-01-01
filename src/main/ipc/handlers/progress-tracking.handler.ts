@@ -1,5 +1,6 @@
 import { SaveProgressCommand } from '../../database/commands/progress/save-progress.command'
 import { progressRepo } from '../../database/repository/manga-progress.repo'
+import { readingRepo } from '../../database/repository/reading-stats.repo'
 import { wrapIpcHandler } from '../wrapHandler'
 
 export function registerProgressTrackingHandlers(): void {
@@ -16,7 +17,7 @@ export function registerProgressTrackingHandlers(): void {
   })
 
   wrapIpcHandler('progress:get-statistics', async () => {
-    return progressRepo.getStats()
+    return readingRepo.getStats()
   })
 
   wrapIpcHandler('progress:get-all-progress', async () => {

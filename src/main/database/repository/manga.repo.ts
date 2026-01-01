@@ -1,19 +1,15 @@
-import { ChapterOrderOptions } from './../../api/enums/chapter-order-options.enum'
-import { and, eq, like, sql, SQL } from 'drizzle-orm'
-import { UpsertMangaCommand } from '../commands/upsert-manga.command'
+import { and, eq, like, lt, sql, SQL } from 'drizzle-orm'
+import { UpsertMangaCommand } from '../commands/collections/upsert-manga.command'
 import { databaseConnection } from '../connection'
 import { collections, manga } from '../schema'
-import { GetLibraryMangaCommand } from '../commands/get-library-manga.command'
+import { GetLibraryMangaCommand } from '../commands/manga/get-library-manga.command'
 import { MangaWithMetadata } from '../queries/manga/manga-with-metadata.query'
 import { MangaMapper } from '../mappers/manga.mapper'
-import { MangaDexClient } from '../../api/mangadexClient'
-import { OrderDirection } from '../../api/enums'
 
 export class MangaRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
     return databaseConnection.getDb()
   }
-  private readonly mangadexClient = new MangaDexClient()
 
   upsertManga(mangaData: UpsertMangaCommand): void {
     const now: Date = new Date()
@@ -103,57 +99,38 @@ export class MangaRepository {
     return results.map(MangaMapper.toMangaWithMetadata)
   }
 
-  // Query the API for new chapter of a manga and see if there is an update available
-  // If there is, update tracking info in the database and return true, else note down the last check time and return false
-  async checkForUpdate(mangaId: string): Promise<boolean> {
-    const existing = this.db.select().from(manga).where(eq(manga.mangaId, mangaId)).get()
+  getMangaById(mangaId: string): MangaWithMetadata | undefined {
+    const result = this.db.select().from(manga).where(eq(manga.mangaId, mangaId)).get()
 
-    if (!existing) return false
-
-    const chapterList = await this.mangadexClient.getMangaFeed(mangaId, {
-      limit: 1,
-      order: { [ChapterOrderOptions.CHAPTER]: OrderDirection.Desc }
-    })
-
-    const hasNewChapter =
-      chapterList.data && chapterList.data.length > 0
-        ? chapterList.data[0].attributes.chapter !== existing.lastChapter
-        : false
-
-    if (hasNewChapter) {
-      this.db
-        .update(manga)
-        .set({
-          lastKnownChapterId: chapterList.data[0].attributes.chapter || '',
-          lastKnownChapterNumber: chapterList.data[0].attributes.chapter || '',
-          hasNewChapters: true,
-          updatedAt: new Date(),
-          lastCheckForUpdates: new Date()
-        })
-        .where(eq(manga.mangaId, mangaId))
-        .run()
-    } else {
-      this.db
-        .update(manga)
-        .set({
-          lastCheckForUpdates: new Date()
-        })
-        .where(eq(manga.mangaId, mangaId))
-        .run()
+    if (!result) {
+      return undefined
     }
 
-    return hasNewChapter
+    return MangaMapper.toMangaWithMetadata(result)
   }
 
-  // We already have a database level trigger that deletes non-favourite and non-read manga that does the same as what this method does.
-  // This is for those who wants an immediate cleanup without waiting for that.
-  cleanupMangaCache(): number {
-    const result = this.db
-      .delete(manga)
-      .where(and(eq(manga.isFavourite, false), eq(manga.isRead, false)))
-      .run()
+  // Cleanup the manga table, can be explicitly or on a schedule
+  cleanupMangaCache(immediate?: boolean): number {
+    const now = new Date()
 
-    return result.changes
+    // Build delete condition
+    // If immediate is true, delete all non-favourite regardless of last accessed time
+    // Else, only delete non-favourite manga that hasn't been accessed in the last 90 days
+    const condition: SQL[] = []
+
+    condition.push(eq(manga.isFavourite, false))
+
+    if (!immediate) {
+      const thresholdDate = new Date()
+      thresholdDate.setDate(now.getDate() - 90)
+      condition.push(lt(manga.lastAccessedAt, thresholdDate))
+    }
+
+    const deleteQuery = this.db.delete(manga).where(and(...condition))
+
+    const result = deleteQuery.run()
+
+    return result.changes || 0
   }
 }
 
