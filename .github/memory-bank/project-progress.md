@@ -1,8 +1,8 @@
 # DexReader Project Progress & Timeline
 
 **Project Start**: 23 November 2025
-**Current Phase**: Guerilla Database Migration (COMPLETE ✅)
-**Last Updated**: 28 December 2025
+**Current Phase**: Phase 3 - User Experience Enhancement (P3-T01 Planning Complete ✅)
+**Last Updated**: 1 January 2026
 
 ---
 
@@ -21,11 +21,45 @@
 
 ---
 
-## Current Status: Guerilla Database Migration (COMPLETE ✅)
+## Current Status: P3-T01 Planning Complete ✅
 
-**Progress**: All 3 phases complete, migration operational
-**Next**: Manual testing, then P3-T01 (Library features - reduced from 22-30h to 10-15h)
-**Status**: Fully migrated from JSON to SQLite, ready for production use
+**Progress**: Phase 2 Complete (11/11 tasks) | Guerilla Refactoring Complete | P3-T01 Ready to Start
+**Next**: Begin P3-T01 Step 1 (Expand MangaRepository - 1 hour)
+**Status**: Comprehensive 12-step implementation plan finalized with all UI/UX decisions made
+
+### P3-T01 Library Features Planning: Complete (1 Jan 2026) ✅
+
+**Plan Document**: `.github/copilot-plans/P3-T01-library-features-REVISED.md` (823 lines)
+
+**Duration Estimate**: 11-15 hours (realistic: 12-13 hours)
+**Original Estimate**: 22-30 hours → **Saved 10-16 hours** due to completed infrastructure
+
+**Status**: **Ready for Implementation** ✅
+
+**Key Decisions Finalized**:
+- ✅ Update indicator design: Colored dot (10px, top-right) with tooltip
+- ✅ Simplified library: No "Recently Added" tab (schema limitation)
+- ✅ Method consolidation: Removed redundant methods (cacheMangaMetadata, getFavouriteManga, getRecentlyAdded)
+- ✅ Implicit "Default" collection: All favorites shown by default
+- ✅ Opportunistic caching: Use existing upsertManga() from detail view
+
+**Implementation Steps** (12 steps):
+1. Expand MangaRepository (1h)
+2. Expand ReadHistoryRepository (1h)
+3. Expand CollectionRepository (0.5h)
+4. Update Checker Service (2-3h)
+5. IPC Handlers (1h)
+6. Preload Types (0.5h)
+7. Library Store (1h)
+8. Library View UI (2-3h)
+9. Opportunistic Caching (0.5h)
+10. Update Indicator Component (0.5h)
+11. Collections UI (1h)
+12. Testing & Polish (1-2h)
+
+---
+
+## Completed Milestones
 
 ### Guerilla Database Migration: 3/3 Phases Complete (100%) 🎉
 
@@ -1054,6 +1088,55 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 ---
 
 ## Notes & Decisions
+
+### 1 January 2026 - P3-T01 Planning Finalized & UI Design Complete
+
+✅ **P3-T01 Planning Complete**: Comprehensive library features implementation plan finalized (823 lines)
+✅ **Update Indicator Design**: Colored dot indicator design finalized after evaluating 3 options
+✅ **Library Simplification**: Removed "Recently Added" tab, simplified to implicit "Default" collection
+✅ **Method Consolidation**: Identified and removed 3 redundant methods
+
+**Plan Status**: Ready for Implementation
+**Location**: `.github/copilot-plans/P3-T01-library-features-REVISED.md`
+**Duration**: 11-15 hours (realistic: 12-13 hours)
+**Time Saved**: 10-16 hours (original: 22-30h) due to completed guerilla migration
+
+**Key Decisions**:
+
+1. **Update Indicator Design** (Finalized):
+   - **Choice**: Colored dot (10px, top-right corner)
+   - **Rejected**: Chapter number badge (confusion risk), "NEW" text badge (lacks info)
+   - **Implementation**: Accent color, 2px white border, subtle shadow, tooltip with chapter details
+   - **Component**: `UpdateIndicator.tsx`
+   - **Rationale**: Grid view space constraints, clear visual hierarchy, follows standard app patterns (right-side indicators)
+
+2. **Library Simplification**:
+   - **Dropped**: "Recently Added" tab
+   - **Reason**: Schema doesn't track `addedToLibraryAt` (only has `isFavourite` and `lastAccessedAt`)
+   - **Alternative**: Use implicit "Default" collection showing all favorites
+   - **Impact**: Reduced scope by 1-2 hours, cleaner UX
+
+3. **Method Consolidation**:
+   - **Removed**: `cacheMangaMetadata()` → Use existing `upsertManga()` with `onConflictDoUpdate`
+   - **Removed**: `getFavouriteManga()` → Use existing `getLibraryManga()` (returns favorites when no options)
+   - **Removed**: `getRecentlyAdded()` → Not supported by current schema
+   - **Principle**: Check existing implementations before adding new methods
+
+4. **Opportunistic Caching**:
+   - Call `upsertManga()` from frontend on manga detail view
+   - Leverages existing conflict resolution
+   - No separate IPC handler needed
+
+**Implementation Plan** (12 steps total):
+- **Backend** (5 steps, 3.5-5h): Expand repositories, Update Checker Service, IPC handlers, preload types
+- **Frontend** (5 steps, 6.5-9h): Library store, Library UI, Opportunistic caching, Update indicator, Collections UI
+- **Testing** (2 steps, 1-2h): Integration testing, polish
+
+**Status**: Ready for Step 1 (Expand MangaRepository - 1 hour)
+
+**See**: `active-context.md` for detailed session notes
+
+---
 
 ### 24 December 2025 - UI Polish Complete + P3-T01 Planning 🎉
 

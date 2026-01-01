@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 28 December 2025
-**Current Phase**: Guerilla Database Migration (COMPLETE ✅)
-**Session**: Phase 3 Implementation Complete
+**Last Updated**: 1 January 2026
+**Current Phase**: P3-T01 Planning Complete ✅
+**Session**: Library Features Planning & Design Finalized
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -1872,6 +1872,72 @@ zoomIndicatorVisible: boolean
 
 ---
 
+## Session Summary (1 January 2026)
+
+**Duration**: Full planning session
+**Status**: ✅ P3-T01 Planning Complete + Update Indicator Design Finalized
+**Phase Progress**: Ready to begin Phase 3 implementation
+
+### Major Accomplishments:
+
+**1. P3-T01 Complete Plan Review & Refinement** ✅:
+- Started with comprehensive 823-line implementation plan
+- Identified opportunities for simplification
+- Removed redundant methods in favor of existing implementations
+- Finalized library design decisions
+
+**2. Library Design Simplification** ✅:
+- **Decision**: Drop "Recently Added" feature (schema doesn't track addition date)
+- **Decision**: Use implicit "Default" collection (all favorites, no explicit collection)
+- **Rationale**: Current schema tracks `isFavourite` boolean and `lastAccessedAt`, but no `addedToLibraryAt`
+- **Benefit**: Simpler implementation, cleaner UX, no database changes needed
+- **Impact**: Reduced scope by ~1-2 hours
+
+**3. Update Indicator UI Design** ✅:
+- **Problem**: Grid view space constraints + confusion risk with chapter numbers
+- **Options Considered**:
+  - Chapter number badge (e.g., "Ch. 45") - Too similar to chapter buttons, clutters UI
+  - "NEW" text badge - Generic, doesn't provide chapter info
+  - Colored dot indicator - Minimal, clear, uses tooltip for details
+- **Final Choice**: **Colored dot (Option B)**
+  - Small (~10px) colored dot, top-right corner of manga cover
+  - Accent color with white border (2px) and subtle shadow
+  - Tooltip on hover: "New chapters available (Ch. [number])"
+  - Component: `UpdateIndicator.tsx` (not UpdateBadge.tsx)
+- **Rationale**:
+  - Grid view doesn't have space for text badges
+  - Chapter numbers would confuse users (looks like chapter buttons)
+  - Dot is minimal, unobtrusive, follows standard app conventions (right-side indicators)
+  - Tooltip provides details without cluttering UI
+
+**4. Method Consolidation** ✅:
+- Identified redundant methods in draft plan:
+  - `cacheMangaMetadata()` → Already covered by existing `upsertManga()` with `onConflictDoUpdate`
+  - `getFavouriteManga()` → Already covered by existing `getLibraryManga()` (returns favorites when called without options)
+  - `getRecentlyAdded()` → Removed (not supported by current schema)
+- **Result**: Cleaner API, no duplicate implementations
+
+**5. Documentation Updates** ✅:
+- Updated P3-T01 plan with:
+  - New Step 10: Update Indicator Component (0.5h)
+  - Component specifications (TypeScript + CSS + usage example)
+  - Detailed implementation notes
+  - Updated step numbering (11 → 12 steps)
+  - Updated time estimate (10.5-14.5h → 11-15h)
+- Updated active-context.md with session summary
+
+**Key Technical Decisions**:
+- **Opportunistic Caching Pattern**: Call `upsertManga()` from frontend on manga detail view, no separate IPC handler needed
+- **Existing Methods First**: Always check if functionality already exists before adding new methods
+- **UI Simplicity**: Prefer minimal indicators (dots) over text badges in space-constrained views
+- **Tooltip Strategy**: Use tooltips for detailed information, not inline text
+
+**Blockers**: None
+
+**Next Session Action**: Begin P3-T01 Step 1 - Expand MangaRepository (1 hour)
+
+---
+
 ## Session Summary (24 December 2025)
 
 **Duration**: Full UI polish and error handling session
@@ -3401,6 +3467,82 @@ npm run typecheck   # Validate types only
 - Library export (native DexReader + Tachiyomi formats)
 - User-configurable downloads directory
 - Windows 11 native design with system theme sync
+
+---
+
+## Current Work Focus
+
+**Now Working On**: P3-T01 (Library Features) - Planning complete, ready for implementation
+**Phase**: Phase 3 - User Experience Enhancement (Ready to start)
+**Recent Completions**: Phase 2 Complete (11/11 tasks), Guerilla Database Migration Complete, P3-T01 Planning Complete
+
+---
+
+## Session Notes (Recent Sessions)
+
+### 1 January 2026 - P3-T01 Planning & Design Finalized
+
+**Duration**: Full planning session
+**Status**: ✅ P3-T01 Planning Complete + Update Indicator Design Finalized
+**Phase Progress**: Ready to begin Phase 3 implementation
+
+**Major Accomplishments**:
+
+**1. P3-T01 Complete Plan Review & Refinement** ✅:
+- Started with comprehensive 823-line implementation plan
+- Identified opportunities for simplification
+- Removed redundant methods in favor of existing implementations
+- Finalized library design decisions
+
+**2. Library Design Simplification** ✅:
+- **Decision**: Drop "Recently Added" feature (schema doesn't track addition date)
+- **Decision**: Use implicit "Default" collection (all favorites, no explicit collection)
+- **Rationale**: Current schema tracks `isFavourite` boolean and `lastAccessedAt`, but no `addedToLibraryAt`
+- **Benefit**: Simpler implementation, cleaner UX, no database changes needed
+- **Impact**: Reduced scope by ~1-2 hours
+
+**3. Update Indicator UI Design** ✅:
+- **Problem**: Grid view space constraints + confusion risk with chapter numbers
+- **Options Considered**:
+  - Chapter number badge (e.g., "Ch. 45") - Too similar to chapter buttons, clutters UI
+  - "NEW" text badge - Generic, doesn't provide chapter info
+  - Colored dot indicator - Minimal, clear, uses tooltip for details
+- **Final Choice**: **Colored dot (Option B)**
+  - Small (~10px) colored dot, top-right corner of manga cover
+  - Accent color with white border (2px) and subtle shadow
+  - Tooltip on hover: "New chapters available (Ch. [number])"
+  - Component: `UpdateIndicator.tsx` (not UpdateBadge.tsx)
+- **Rationale**:
+  - Grid view doesn't have space for text badges
+  - Chapter numbers would confuse users (looks like chapter buttons)
+  - Dot is minimal, unobtrusive, follows standard app conventions (right-side indicators)
+  - Tooltip provides details without cluttering UI
+
+**4. Method Consolidation** ✅:
+- Identified redundant methods in draft plan:
+  - `cacheMangaMetadata()` → Already covered by existing `upsertManga()` with `onConflictDoUpdate`
+  - `getFavouriteManga()` → Already covered by existing `getLibraryManga()` (returns favorites when called without options)
+  - `getRecentlyAdded()` → Removed (not supported by current schema)
+- **Result**: Cleaner API, no duplicate implementations
+
+**5. Plan Documentation Updates** ✅:
+- Updated P3-T01 plan with:
+  - New Step 10: Update Indicator Component (0.5h)
+  - Component specifications (TypeScript + CSS + usage example)
+  - Detailed implementation notes
+  - Updated step numbering (11 → 12 steps)
+  - Updated time estimate (10.5-14.5h → 11-15h)
+- Updated active-context.md with session summary
+
+**Key Technical Decisions**:
+- **Opportunistic Caching Pattern**: Call `upsertManga()` from frontend on manga detail view, no separate IPC handler needed
+- **Existing Methods First**: Always check if functionality already exists before adding new methods
+- **UI Simplicity**: Prefer minimal indicators (dots) over text badges in space-constrained views
+- **Tooltip Strategy**: Use tooltips for detailed information, not inline text
+
+**Blockers**: None
+
+**Next Session Action**: Begin P3-T01 Step 1 - Expand MangaRepository (1 hour)
 
 ---
 
