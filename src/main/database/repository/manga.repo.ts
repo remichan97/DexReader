@@ -5,6 +5,7 @@ import { collections, manga } from '../schema'
 import { GetLibraryMangaCommand } from '../commands/manga/get-library-manga.command'
 import { MangaWithMetadata } from '../queries/manga/manga-with-metadata.query'
 import { MangaMapper } from '../mappers/manga.mapper'
+import { MarkMangaNewChapterCommand } from '../commands/manga/mark-new-chapter.command'
 
 export class MangaRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
@@ -52,6 +53,18 @@ export class MangaRepository {
       .run()
 
     return newStatus
+  }
+
+  markHasNewChapter(command: MarkMangaNewChapterCommand): void {
+    this.db
+      .update(manga)
+      .set({
+        hasNewChapters: command.hasNew ?? true,
+        updatedAt: new Date(),
+        lastCheckForUpdates: new Date()
+      })
+      .where(eq(manga.mangaId, command.mangaId))
+      .run()
   }
 
   getLibraryManga(options?: GetLibraryMangaCommand): MangaWithMetadata[] {
@@ -107,6 +120,15 @@ export class MangaRepository {
     }
 
     return MangaMapper.toMangaWithMetadata(result)
+  }
+
+  getLibraryMangaWithNewChapters(): MangaWithMetadata[] {
+    const results = this.db
+      .select()
+      .from(manga)
+      .where(and(eq(manga.isFavourite, true), eq(manga.hasNewChapters, true)))
+      .all()
+    return results.map(MangaMapper.toMangaWithMetadata)
   }
 
   // Cleanup the manga table, can be explicitly or on a schedule

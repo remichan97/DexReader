@@ -13,4 +13,6 @@ export interface MangaWithMetadata {
   externalLinks?: Record<string, string>
   lastVolume?: string
   lastChapter?: string
+  hasNewChapters: boolean
+  lastCheckForUpdate: Date
 }

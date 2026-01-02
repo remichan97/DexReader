@@ -8,7 +8,8 @@ import { AddToCollectionCommand } from '../commands/collections/add-to-collectio
 import { RemoveFromCollectionCommand } from '../commands/collections/remove-from-collection.command'
 import { UpdateCollectionCommand } from '../commands/collections/update-collection.command'
 import { CollectionMetadataQuery } from '../queries/collections/collection-metadata.query'
-import { CollectioinMapper } from '../mappers/collection.mapper'
+import { CollectionMapper } from '../mappers/collection.mapper'
+import { ReorderMangaInCollectionCommand } from '../commands/collections/reorder-manga-collection.command'
 
 export class CollectionRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
@@ -42,7 +43,7 @@ export class CollectionRepository {
       .groupBy(collections.id)
       .all()
 
-    return result.map(CollectioinMapper.toCollectionWithMetadata)
+    return result.map(CollectionMapper.toCollectionWithMetadata)
   }
 
   getMangaInCollection(collectionId: number): string[] {
@@ -112,6 +113,35 @@ export class CollectionRepository {
         )
       )
       .run()
+  }
+
+  getCollectionByManga(mangaId: string): CollectionQuery[] {
+    const results = this.db
+      .select()
+      .from(collectionItems)
+      .innerJoin(
+        collections,
+        and(eq(collections.id, collectionItems.collectionId), eq(collectionItems.mangaId, mangaId))
+      )
+      .all()
+
+    return results.map(CollectionMapper.toCollectionQuery)
+  }
+
+  reorderMangaInCollection(command: ReorderMangaInCollectionCommand): void {
+    this.db.transaction((tx) => {
+      command.mangaIds.forEach((mangaId, index) => {
+        tx.update(collectionItems)
+          .set({ position: index })
+          .where(
+            and(
+              eq(collectionItems.collectionId, command.collectionId),
+              eq(collectionItems.mangaId, mangaId)
+            )
+          )
+          .run()
+      })
+    })
   }
 }
 export const collectionRepo = new CollectionRepository()
