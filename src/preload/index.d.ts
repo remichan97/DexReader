@@ -1,4 +1,4 @@
-import { UpdateResult } from './../main/services/results/update.result';
+import { UpdateResult } from './../main/services/results/update.result'
 import { ImageUrlResponse } from './../main/api/responses/image-url.response'
 import { ApiResponse } from './../main/api/responses/api.response'
 import { Manga } from './../main/api/entities/manga.entity'

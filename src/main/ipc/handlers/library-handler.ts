@@ -20,7 +20,7 @@ export function registerLibraryHandlers(): void {
     return mangaRepository.toggleFavourite(mangaId)
   })
 
-  wrapIpcHandler('library:check-for-updates', async (__dirname, mangaIds: unknown) => {
+  wrapIpcHandler('library:check-for-updates', async (_, mangaIds: unknown) => {
     return libraryUpdate.checkForUpdates(mangaIds as string[])
   })
 
@@ -32,19 +32,19 @@ export function registerLibraryHandlers(): void {
     return collectionRepo.getAllCollections()
   })
 
-  wrapIpcHandler('collections:create', async (__dirname, command: unknown) => {
+  wrapIpcHandler('collections:create', async (_, command: unknown) => {
     return collectionRepo.createCollection(command as CreateCollectionCommand)
   })
 
-  wrapIpcHandler('collections:update', async (__dirname, command: unknown) => {
+  wrapIpcHandler('collections:update', async (_, command: unknown) => {
     return collectionRepo.updateCollection(command as UpdateCollectionCommand)
   })
 
-  wrapIpcHandler('collections:delete', async (__dirname, collectionId: unknown) => {
+  wrapIpcHandler('collections:delete', async (_, collectionId: unknown) => {
     return collectionRepo.deleteCollection(collectionId as number)
   })
 
-  wrapIpcHandler('collections:add-manga', async (__dirname, command: unknown) => {
+  wrapIpcHandler('collections:add-manga', async (_, command: unknown) => {
     return collectionRepo.addToCollection(command as AddToCollectionCommand)
   })
 
@@ -52,7 +52,7 @@ export function registerLibraryHandlers(): void {
     return collectionRepo.removeFromCollection(command as RemoveFromCollectionCommand)
   })
 
-  wrapIpcHandler('collections:reorder', async (__dirname, command: unknown) => {
+  wrapIpcHandler('collections:reorder', async (_, command: unknown) => {
     return collectionRepo.reorderMangaInCollection(command as ReorderMangaInCollectionCommand)
   })
 
@@ -60,11 +60,11 @@ export function registerLibraryHandlers(): void {
     return readHistoryRepo.getHistory()
   })
 
-  wrapIpcHandler('history:get-recently-read', async (__dirname, limit: unknown) => {
+  wrapIpcHandler('history:get-recently-read', async (_, limit: unknown) => {
     return readHistoryRepo.getRecentlyRead(limit as number)
   })
 
-  wrapIpcHandler('history:record-read', async (__dirname, command: unknown) => {
+  wrapIpcHandler('history:record-read', async (_, command: unknown) => {
     return readHistoryRepo.recordRead(command as RecordReadCommand)
   })
 

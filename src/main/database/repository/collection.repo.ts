@@ -17,11 +17,13 @@ export class CollectionRepository {
   }
 
   getAllCollections(): CollectionQuery[] {
-    return this.db.select().from(collections).all()
+    const query = this.db.select().from(collections).all()
+    return query.map(CollectionMapper.toCollectionQuery)
   }
 
   getCollectionById(collectionId: number): CollectionQuery | undefined {
-    return this.db.select().from(collections).where(eq(collections.id, collectionId)).get()
+    const result = this.db.select().from(collections).where(eq(collections.id, collectionId)).get()
+    return result ? CollectionMapper.toCollectionQuery(result) : undefined
   }
 
   // Rich query with metadata (manga counts, cover urls)

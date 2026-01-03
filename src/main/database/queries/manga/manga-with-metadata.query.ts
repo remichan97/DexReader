@@ -18,6 +18,4 @@ export interface MangaWithMetadata {
   lastCheckForUpdate: Date
   lastKnownChapterId?: string
   lastKnownChapterNumber?: string
-
-  [key: string]: unknown // indexing signature for dynamic access
 }

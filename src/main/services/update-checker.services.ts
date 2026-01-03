@@ -31,68 +31,63 @@ export class UpdateCheckerService {
         continue
       }
 
-      // First, query for metadata changes
-      const newMetadata = await this.client.getManga(mangaId, DEFAULT_MANGA_INCLUDES)
+      try {
+        // First, query for metadata changes
+        const newMetadata = await this.client.getManga(mangaId, DEFAULT_MANGA_INCLUDES)
 
-      // If the updatedAt is the same, skip
-      if (newMetadata.data.attributes.updatedAt === cachedMangaData.updatedAt.toISOString()) {
-        continue
-      }
+        // If no changes (indicated by same updateAt), skip
+        if (newMetadata.data.attributes.updatedAt === cachedMangaData.updatedAt.toISOString()) {
+          continue
+        }
 
-      // Build update command for metadata changes
-      const mangaUpdateCommand = this.buildUpdateCommand(cachedMangaData, newMetadata.data)
-
-      if (mangaUpdateCommand) {
-        updates.push({
-          hasNewChapters: false,
-          data: mangaUpdateCommand
-        })
-      }
-
-      // Then, fetch the latest chapter
-      const latestChapter = await this.fetchLatestChapter(mangaId)
-      if (!latestChapter) {
-        continue
-      }
-
-      if (
-        this.isNewerChapter(
-          latestChapter,
-          cachedMangaData.lastKnownChapterId,
-          cachedMangaData.lastKnownChapterNumber
-        )
-      ) {
-        // Build update command
+        // Build the update command based on changes
         const updateCommand = this.buildUpdateCommand(cachedMangaData, newMetadata.data)
-        if (updateCommand) {
-          updates.push({
+
+        // If no changes, proceed to next one on the list
+        if (!updateCommand) continue
+
+        // Then, fetch the latest chapter to see if there's a new one
+        const latestChapter = await this.fetchLatestChapter(mangaId)
+        const hasNewChapter =
+          latestChapter &&
+          this.isNewerChapter(
+            latestChapter,
+            cachedMangaData.lastKnownChapterId,
+            cachedMangaData.lastKnownChapterNumber
+          )
+
+        // Push the chapter check result
+        updates.push({
+          hasNewChapters: hasNewChapter ?? false,
+          data: updateCommand
+        })
+
+        // Add to the final result set only if there's a new chapter
+        if (hasNewChapter) {
+          result.push({
+            mangaId,
             hasNewChapters: true,
-            data: {
-              ...updateCommand
+            latestChapter: {
+              chapterId: latestChapter.id,
+              number: latestChapter.attributes.chapter ?? undefined,
+              title: latestChapter.attributes.title ?? undefined
             }
           })
         }
-
-        // Add to result
+      } catch (error) {
+        console.error(`Error checking updates for manga ID ${mangaId}:`, error)
+        // Log the error but continue with other manga
         result.push({
-          mangaId: mangaId,
-          hasNewChapters: true,
-          latestChapter: {
-            chapterId: latestChapter.id,
-            number: latestChapter.attributes.chapter ?? undefined,
-            title: latestChapter.attributes.title ?? undefined
-          }
+          mangaId,
+          hasNewChapters: false,
+          error: (error as Error).message
         })
-      }
-
-      // Finally, commit any metadata updates if needed
-      if (updates.length > 0) {
-        for (const update of updates) {
-          mangaRepository.upsertManga(update.data)
-        }
-        updates.length = 0
+        continue
       }
     }
+    // Finally, commit any metadata updates if needed
+    const commands = updates.map((i) => i.data)
+    mangaRepository.batchUpsertManga(commands)
     return result
   }
 
@@ -122,23 +117,20 @@ export class UpdateCheckerService {
     }
 
     // Normalize API data to comparable structure
-    const normalized = {
-      mangaId: apiData.id,
-      title: apiData.attributes.title.en || Object.values(apiData.attributes.title)[0] || '',
-      description: apiData.attributes.description?.en,
-      status: apiData.attributes.status,
-      tags: apiData.attributes.tags.map((tag) => tag.id),
-      lastChapter: apiData.attributes.lastChapter,
-      lastVolume: apiData.attributes.lastVolume,
-      updatedAt: apiUpdatedAt
-    }
+    const normalized = this.normalizeApiMangaData(apiData, cached)
 
     // Use reusable comparison utility
-    const changes = getChangedFields(
-      cached as Record<string, unknown>,
-      normalized as Record<string, unknown>,
-      ['title', 'description', 'status', 'tags', 'lastChapter', 'lastVolume', 'updatedAt']
-    )
+    const changes = getChangedFields(cached, normalized, [
+      'title',
+      'description',
+      'status',
+      'tags',
+      'lastChapter',
+      'lastVolume',
+      'updatedAt',
+      'year',
+      'coverUrl'
+    ])
 
     if (!changes) {
       return undefined
@@ -168,6 +160,43 @@ export class UpdateCheckerService {
     }
 
     return true
+  }
+
+  private normalizeApiMangaData(apiData: Manga, cached: MangaWithMetadata): MangaWithMetadata {
+    const coverRelationship = apiData.relationships.find((rel) => rel.type === 'cover_art')
+    const coverFileName =
+      coverRelationship &&
+      'attributes' in coverRelationship &&
+      coverRelationship.attributes &&
+      typeof coverRelationship.attributes.fileName === 'string'
+        ? coverRelationship.attributes.fileName
+        : undefined
+
+    const newCoverUrl = coverFileName
+      ? `https://uploads.mangadex.org/covers/${apiData.id}/${coverFileName}`
+      : undefined
+
+    return {
+      mangaId: apiData.id,
+      title: apiData.attributes.title.en || Object.values(apiData.attributes.title)[0] || '',
+      description: apiData.attributes.description?.en,
+      status: apiData.attributes.status,
+      tags: apiData.attributes.tags.map((tag) => tag.id),
+      lastChapter: apiData.attributes.lastChapter ?? undefined, // Adding here for completeness, but likely unchanged, since this is the officially known last chapter
+      lastVolume: apiData.attributes.lastVolume ?? undefined, // Adding here for completeness, but likely unchanged, since this is the officially known last volume
+      updatedAt: new Date(apiData.attributes.updatedAt),
+      coverUrl: newCoverUrl,
+      lastCheckForUpdate: new Date(),
+      year: apiData.attributes.year ?? undefined, // Adding here for completeness, but likely unchanged
+      externalLinks: apiData.attributes.links,
+
+      // Copy other fields as it is
+      authors: cached.authors,
+      artists: cached.artists,
+      lastKnownChapterId: cached.lastKnownChapterId,
+      lastKnownChapterNumber: cached.lastKnownChapterNumber,
+      hasNewChapters: cached.hasNewChapters ?? false
+    }
   }
 }
 export const libraryUpdate = new UpdateCheckerService()

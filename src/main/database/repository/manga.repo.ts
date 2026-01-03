@@ -1,7 +1,7 @@
-import { and, eq, like, lt, sql, SQL } from 'drizzle-orm'
+import { and, eq, like, lt, SQL } from 'drizzle-orm'
 import { UpsertMangaCommand } from '../commands/collections/upsert-manga.command'
 import { databaseConnection } from '../connection'
-import { collections, manga } from '../schema'
+import { collectionItems, manga } from '../schema'
 import { GetLibraryMangaCommand } from '../commands/manga/get-library-manga.command'
 import { MangaWithMetadata } from '../queries/manga/manga-with-metadata.query'
 import { MangaMapper } from '../mappers/manga.mapper'
@@ -10,6 +10,42 @@ import { MarkMangaNewChapterCommand } from '../commands/manga/mark-new-chapter.c
 export class MangaRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
     return databaseConnection.getDb()
+  }
+
+  batchUpsertManga(mangaData: UpsertMangaCommand[]): void {
+    const now: Date = new Date()
+
+    // If no data, skip
+    if (mangaData.length === 0) {
+      return
+    }
+
+    // If only one item, might as well use the single upsert method
+    if (mangaData.length === 1) {
+      this.upsertManga(mangaData[0])
+      return
+    }
+
+    this.db.transaction((tx) => {
+      for (const data of mangaData) {
+        tx.insert(manga)
+          .values({
+            ...data,
+            addedAt: now,
+            updatedAt: now,
+            lastAccessedAt: now
+          })
+          .onConflictDoUpdate({
+            target: manga.mangaId,
+            set: {
+              ...data,
+              updatedAt: now,
+              lastAccessedAt: now
+            }
+          })
+          .run()
+      }
+    })
   }
 
   upsertManga(mangaData: UpsertMangaCommand): void {
@@ -77,7 +113,7 @@ export class MangaRepository {
     // Now build query based on provided filters
     const condition: SQL[] = []
 
-    // Always only return favourited manga
+    // Always return favourited manga regardless of other filters
     condition.push(eq(manga.isFavourite, true))
 
     if (options.collectionId) {
@@ -86,10 +122,10 @@ export class MangaRepository {
           manga.mangaId,
           this.db
             .select({
-              collectionName: collections.name
+              mangaId: collectionItems.mangaId
             })
-            .from(collections)
-            .where(eq(collections.id, options.collectionId))
+            .from(collectionItems)
+            .where(eq(collectionItems.collectionId, options.collectionId))
         )
       )
     }
@@ -98,21 +134,16 @@ export class MangaRepository {
       condition.push(like(manga.title, `%${options.search}%`))
     }
 
-    if (options.limit) {
-      condition.push(sql`LIMIT ${options.limit}`)
-    }
-
-    if (options.offset) {
-      condition.push(sql`OFFSET ${options.offset}`)
-    }
-
-    const results = this.db
+    const query = this.db
       .select()
       .from(manga)
       .where(and(...condition))
+      .$dynamic()
+      .limit(options.limit ?? 100)
+      .offset(options.offset ?? 0)
       .all()
 
-    return results.map(MangaMapper.toMangaWithMetadata)
+    return query.map(MangaMapper.toMangaWithMetadata)
   }
 
   getMangaById(mangaId: string): MangaWithMetadata | undefined {

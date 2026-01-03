@@ -1,5 +1,6 @@
 import { CollectionMetadataQuery } from '../queries/collections/collection-metadata.query'
 import { CollectionQuery } from '../queries/collections/collection.query'
+import { collections } from '../schema'
 
 type CollectionMetadataRow = {
   id: number
@@ -28,6 +29,8 @@ type CollectionJoinRow = {
   }
 }
 
+type CollectionRow = typeof collections.$inferSelect
+
 export class CollectionMapper {
   static toCollectionWithMetadata(row: CollectionMetadataRow): CollectionMetadataQuery {
     return {
@@ -41,13 +44,27 @@ export class CollectionMapper {
     }
   }
 
-  static toCollectionQuery(row: CollectionJoinRow): CollectionQuery {
-    return {
-      id: row.collections.id,
-      name: row.collections.name,
-      description: row.collections.description ?? undefined,
-      createdAt: row.collections.createdAt,
-      updatedAt: row.collections.updatedAt
+  static toCollectionQuery(row: CollectionJoinRow): CollectionQuery
+  static toCollectionQuery(row: CollectionRow): CollectionQuery
+  static toCollectionQuery(row: CollectionJoinRow | CollectionRow): CollectionQuery {
+    // Type guard: Check if it's a JOIN result
+    if ('collections' in row) {
+      return {
+        id: row.collections.id,
+        name: row.collections.name,
+        description: row.collections.description ?? undefined,
+        createdAt: row.collections.createdAt,
+        updatedAt: row.collections.updatedAt
+      }
+    } else {
+      // Simple row from collections table
+      return {
+        id: row.id,
+        name: row.name,
+        description: row.description ?? undefined,
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt
+      }
     }
   }
 }
