@@ -1,3 +1,4 @@
+import { UpdateResult } from './../main/services/results/update.result';
 import { ImageUrlResponse } from './../main/api/responses/image-url.response'
 import { ApiResponse } from './../main/api/responses/api.response'
 import { Manga } from './../main/api/entities/manga.entity'
@@ -122,6 +123,30 @@ interface Reader {
   resetMangaReaderSettings: (mangaId: string) => Promise<void>
 }
 
+interface Library {
+  getLibraryManga: (command: GetLibraryMangaCommand) => Promise<IpcResponse<MangaWithMetadata[]>>
+  toggleFavourite: (mangaId: string) => Promise<IpcResponse<void>>
+  checkForUpdates: (mangaIds: string[]) => Promise<IpcResponse<UpdateResult[]>>
+  getMangaWithUpdates: () => Promise<IpcResponse<MangaWithMetadata[]>>
+}
+
+interface Collections {
+  getAllCollections: () => Promise<IpcResponse<CollectionEntity[]>>
+  createCollection: (command: CreateCollectionCommand) => Promise<IpcResponse<CollectionEntity>>
+  updateCollection: (command: UpdateCollectionCommand) => Promise<IpcResponse<CollectionEntity>>
+  deleteCollection: (collectionId: number) => Promise<IpcResponse<void>>
+  addToCollection: (command: AddToCollectionCommand) => Promise<IpcResponse<void>>
+  removeFromCollection: (command: RemoveFromCollectionCommand) => Promise<IpcResponse<void>>
+  reorderMangaInCollection: (command: ReorderMangaInCollectionCommand) => Promise<IpcResponse<void>>
+}
+
+interface ReadHistory {
+  getHistory: () => Promise<IpcResponse<ReadHistoryEntry[]>>
+  getRecentlyRead: (limit: number) => Promise<IpcResponse<ReadHistoryEntry[]>>
+  recordRead: (command: RecordReadCommand) => Promise<IpcResponse<void>>
+  clearAllHistory: () => Promise<IpcResponse<void>>
+}
+
 declare global {
   interface Window {
     electron: ElectronAPI
@@ -130,5 +155,8 @@ declare global {
     mangadex: MangaDexApi
     progress: Progress
     reader: Reader
+    library: Library
+    collections: Collections
+    readHistory: ReadHistory
   }
 }

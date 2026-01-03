@@ -1,7 +1,7 @@
 export interface CollectionQuery {
   id: number
   name: string
-  descriptions?: string
+  description?: string
   createdAt: Date
   updatedAt: Date
 }

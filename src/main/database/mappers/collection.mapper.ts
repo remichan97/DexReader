@@ -33,7 +33,7 @@ export class CollectionMapper {
     return {
       id: row.id,
       name: row.name,
-      descriptions: row.description ?? undefined,
+      description: row.description ?? undefined,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
       mangaCount: row.mangaCount,
@@ -45,7 +45,7 @@ export class CollectionMapper {
     return {
       id: row.collections.id,
       name: row.collections.name,
-      descriptions: row.collections.description ?? undefined,
+      description: row.collections.description ?? undefined,
       createdAt: row.collections.createdAt,
       updatedAt: row.collections.updatedAt
     }

@@ -4,6 +4,13 @@ import { IpcResponse, FileStats, AllowedPaths, FolderSelectResult } from './ipc.
 import { MangaSearchParams } from '../main/api/searchparams/manga.searchparam'
 import { FeedParams } from '../main/api/searchparams/feed.searchparam'
 import { ImageQuality } from '../main/api/enums'
+import { GetLibraryMangaCommand } from '../main/database/commands/manga/get-library-manga.command'
+import { CreateCollectionCommand } from '../main/database/commands/collections/create-collection.command'
+import { UpdateCollectionCommand } from '../main/database/commands/collections/update-collection.command'
+import { AddToCollectionCommand } from '../main/database/commands/collections/add-to-collection.command'
+import { RemoveFromCollectionCommand } from '../main/database/commands/collections/remove-from-collection.command'
+import { ReorderMangaInCollectionCommand } from '../main/database/commands/collections/reorder-manga-collection.command'
+import { RecordReadCommand } from '../main/database/commands/history/record-read.command'
 
 // Custom APIs for renderer
 const api = {
@@ -192,6 +199,38 @@ const reader = {
     ipcRenderer.invoke('reader:reset-manga-settings', mangaId)
 }
 
+const library = {
+  getLibraryManga: (command: GetLibraryMangaCommand) =>
+    ipcRenderer.invoke('library:get-manga', command),
+  toggleFavourite: (mangaId: string) => ipcRenderer.invoke('library:toggle-favourite', mangaId),
+  checkForUpdates: (mangaIds: string[]) =>
+    ipcRenderer.invoke('library:check-for-updates', mangaIds),
+  getMangaWithUpdates: () => ipcRenderer.invoke('library:get-manga-with-updates')
+}
+
+const collections = {
+  getAllCollections: () => ipcRenderer.invoke('collections:get-all'),
+  createCollection: (command: CreateCollectionCommand) =>
+    ipcRenderer.invoke('collections:create', command),
+  updateCollection: (command: UpdateCollectionCommand) =>
+    ipcRenderer.invoke('collections:update', command),
+  deleteCollection: (collectionId: number) =>
+    ipcRenderer.invoke('collections:delete', collectionId),
+  addToCollection: (command: AddToCollectionCommand) =>
+    ipcRenderer.invoke('collections:add-manga', command),
+  removeFromCollection: (command: RemoveFromCollectionCommand) =>
+    ipcRenderer.invoke('collections:remove-manga', command),
+  reorderMangaInCollection: (command: ReorderMangaInCollectionCommand) =>
+    ipcRenderer.invoke('collections:reorder', command)
+}
+
+const readHistory = {
+  getHistory: () => ipcRenderer.invoke('history:get-all'),
+  getRecentlyRead: (limit: number) => ipcRenderer.invoke('history:get-recently-read', limit),
+  recordRead: (command: RecordReadCommand) => ipcRenderer.invoke('history:record-read', command),
+  clearAllHistory: () => ipcRenderer.invoke('history:clear-history')
+}
+
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
@@ -203,6 +242,9 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('mangadex', mangadexApi)
     contextBridge.exposeInMainWorld('progress', progress)
     contextBridge.exposeInMainWorld('reader', reader)
+    contextBridge.exposeInMainWorld('library', library)
+    contextBridge.exposeInMainWorld('collections', collections)
+    contextBridge.exposeInMainWorld('readHistory', readHistory)
   } catch (error) {
     console.error(error)
   }
@@ -217,4 +259,12 @@ if (process.contextIsolated) {
   globalThis.mangadex = mangadexApi
   // @ts-ignore (define in dts)
   globalThis.progress = progress
+  // @ts-ignore (define in dts)
+  globalThis.reader = reader
+  // @ts-ignore (define in dts)
+  globalThis.library = library
+  // @ts-ignore (define in dts)
+  globalThis.collections = collections
+  // @ts-ignore (define in dts)
+  globalThis.readHistory = readHistory
 }

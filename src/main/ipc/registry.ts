@@ -7,6 +7,7 @@ import { registerReaderSettingsHandlers } from './handlers/reader-settings.handl
 import { getMainWindow } from '../window'
 import { BrowserWindow } from 'electron'
 import { registerAdditionalDialogHandlers } from './handlers/dialogs.handler'
+import { registerLibraryHandlers } from './handlers/library-handler'
 
 /**
  * Register all IPC handlers
@@ -20,6 +21,7 @@ export function registerAllHandlers(): void {
   registerProgressTrackingHandlers()
   registerReaderSettingsHandlers()
   registerAdditionalDialogHandlers()
+  registerLibraryHandlers()
 
   // File system handlers need window for dialogs
   // Get window reference when handlers are actually called

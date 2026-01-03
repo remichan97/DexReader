@@ -110,3 +110,4 @@ export class ReadHistoryRepository {
     return deleteResult.changes
   }
 }
+export const readHistoryRepo = new ReadHistoryRepository()

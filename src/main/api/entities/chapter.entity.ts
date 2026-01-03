@@ -5,13 +5,13 @@ export interface Chapter {
   id: string
   type: MangaEntityType.Chapter
   attributes: {
-    title: string | null
-    volume: string | null
-    chapter: string | null
+    title?: string
+    volume?: string
+    chapter?: string
     pages: number
     translatedLanguage: string
     uploader: string
-    externalUrl: string | null
+    externalUrl?: string
     version: number
     createdAt: string
     updatedAt: string

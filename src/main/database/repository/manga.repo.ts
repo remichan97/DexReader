@@ -77,6 +77,9 @@ export class MangaRepository {
     // Now build query based on provided filters
     const condition: SQL[] = []
 
+    // Always only return favourited manga
+    condition.push(eq(manga.isFavourite, true))
+
     if (options.collectionId) {
       condition.push(
         eq(

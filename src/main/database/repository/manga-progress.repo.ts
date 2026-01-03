@@ -6,7 +6,7 @@ import { chapter, chapterProgress, manga, mangaProgress } from '../schema'
 import { MangaProgress } from '../queries/progress/manga-progress.query'
 import { SaveProgressCommand } from '../commands/progress/save-progress.command'
 import { MangaMapper } from '../mappers/manga.mapper'
-import { dateToUnixTimestamp } from '../utils/helpers.utils'
+import { dateToUnixTimestamp } from '../../utils/timestamps.util'
 import { mangaRepository } from './manga.repo'
 import { readingRepo } from './reading-stats.repo'
 

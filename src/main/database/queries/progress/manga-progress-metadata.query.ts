@@ -1,4 +1,4 @@
-import { MangaStatus } from '../../../api/enums/manga-status.enum'
+import { PublicationStatus } from '../../../api/enums'
 
 export interface MangaProgressMetadata {
   mangaId: string
@@ -9,7 +9,7 @@ export interface MangaProgressMetadata {
   // Joined properties from manga entity
   title: string
   coverUrl?: string
-  status: MangaStatus
+  status: PublicationStatus
 
   // Joined properties from chapter entity
   lastChapterNumber?: string

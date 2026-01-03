@@ -1,8 +1,8 @@
-import { MangaStatus } from '../../api/enums/manga-status.enum'
 import { MangaProgressMetadata } from '../queries/progress/manga-progress-metadata.query'
 import { MangaWithMetadata } from '../queries/manga/manga-with-metadata.query'
 import { manga } from '../schema'
-import { dateToUnixTimestamp } from '../utils/helpers.utils'
+import { dateToUnixTimestamp } from '../../utils/timestamps.util'
+import { PublicationStatus } from '../../api/enums'
 
 type MangaRow = typeof manga.$inferSelect
 
@@ -26,15 +26,18 @@ export class MangaMapper {
       title: row.title,
       description: row.description ?? undefined,
       coverUrl: row.coverUrl ?? undefined,
-      status: row.status as MangaStatus,
+      status: row.status as PublicationStatus,
       authors: row.authors ?? [],
       artists: row.artists ?? [],
       year: row.year ?? undefined,
       tags: row.tags ?? [],
+      updatedAt: row.updatedAt,
       externalLinks: row.externalLinks ?? undefined,
       lastVolume: row.lastVolume ?? undefined,
       lastChapter: row.lastChapter ?? undefined,
       hasNewChapters: row.hasNewChapters ?? false,
+      lastKnownChapterId: row.lastKnownChapterId ?? undefined,
+      lastKnownChapterNumber: row.lastKnownChapterNumber ?? undefined,
       lastCheckForUpdate: row.lastCheckForUpdates ?? new Date()
     }
   }
@@ -47,7 +50,7 @@ export class MangaMapper {
       lastReadAt: dateToUnixTimestamp(row.lastReadAt),
       title: row.title,
       coverUrl: row.coverUrl ?? undefined,
-      status: row.status as MangaStatus,
+      status: row.status as PublicationStatus,
       lastChapterNumber: row.lastChapterNumber ?? undefined,
       lastChapterTitle: row.lastChapterTitle ?? undefined,
       lastChapterVolume: row.lastChapterVolume ?? undefined
