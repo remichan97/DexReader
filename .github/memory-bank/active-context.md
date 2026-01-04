@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 1 January 2026
-**Current Phase**: P3-T01 Planning Complete ✅
-**Session**: Library Features Planning & Design Finalized
+**Last Updated**: 5 January 2026
+**Current Phase**: P3-T01 Ready to Begin
+**Session**: Progress Tracking Regression Fixes Complete ✅
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -10,11 +10,84 @@
 
 ## Current Status Summary
 
-**Phase**: Guerilla Database Migration (COMPLETE)
-**Progress**: All 3 Phases Complete ✅
-**Current Date**: 28 December 2025
+**Phase**: Progress Tracking Regression Fixes (COMPLETE)
+**Progress**: All Issues Resolved ✅
+**Current Date**: 5 January 2026
 **Database Migration Status**: Fully migrated and operational
-**Current Task**: Ready for manual testing and P3-T01 (Library features)
+**Current Task**: Ready to begin P3-T01 (Library features)
+
+---
+
+## 🔧 Progress Tracking Regression Fixes = P3-T01 Foundation (3-5 Jan 2026) - ✅ COMPLETE
+
+**Context**: After guerilla database migration, several progress tracking issues emerged during testing. While fixing these "regressions", we actually completed significant foundational work for P3-T01 Library Features.
+
+**Realization**: The work done here directly corresponds to P3-T01 repository expansion, IPC handlers, and data infrastructure. This wasn't just bug fixes - it was the first phase of library implementation.
+
+**Issues Fixed**:
+
+1. ✅ **Progress Not Refreshing** - Detail view showing cached state after reading
+   - **Solution**: Added useEffect watching `location.pathname` to reload progress on navigation
+   - **File**: `MangaDetailView.tsx`
+
+2. ✅ **Reader Not Respecting Saved Progress** - Always starting at page 0
+   - **Solution**: Modified useState to use `locationState?.startPage ?? 0` and added chapter change detection
+   - **File**: `ReaderView.tsx`
+
+3. ✅ **Chapter List Missing Progress** - Per-chapter progress not displaying
+   - **Solution**: Extended MangaProgress with `currentPage` and `completed`, created `getAllChapterProgress` IPC endpoint
+   - **Files**: `manga-progress.query.ts`, `manga-progress.repo.ts`, `progress-tracking.handler.ts`, `ChapterList.tsx`
+
+4. ✅ **Network Retry Resets Progress** - Completed state lost when retrying failed chapter load
+   - **Solution**: Removed loading/error from useProgressTracking dependencies, added conditional check before initial save
+   - **File**: `useProgressTracking.ts`
+
+5. ✅ **History View Missing Chapter Metadata** - Showing "Ch. ?" instead of chapter details
+   - **Solution**: Implemented chapter metadata caching system - saves chapters to database when reading starts
+   - **Files**: `chapter.schema.ts`, `manga-progress.repo.ts`, `ReaderView.tsx`, `progress-tracking.handler.ts`
+
+6. ✅ **Statistics Showing Zero** - All reading stats displaying 0 despite reading activity
+   - **Solution**: Fixed aggregation query - removed completed-only filter, changed to `SUM(currentPage + 1)`
+   - **File**: `reading-stats.repo.ts`
+
+7. ✅ **History Missing Language Info** - No indication of which translation was read
+   - **Solution**: Added language badge to history cards with accent color pill styling
+   - **Files**: `HistoryView.tsx`, `HistoryView.css`, `manga-progress-metadata.query.ts`
+
+8. ✅ **TypeScript Import Error** - ChapterProgress type not found
+   - **Solution**: Changed import from 'src/preload' to relative path '../../../preload/index.d'
+   - **File**: `MangaDetailView.tsx`
+
+9. ✅ **Empty State Icons Too Small** - 24px variants not prominent enough
+   - **Solution**: Upgraded to 48px variants (BookOpen48Regular, Search48Regular, Warning48Regular)
+   - **File**: `LibraryView.tsx`
+
+**Key Changes**:
+
+- **Database Schema**: Extended `chapterProgress` with currentPage and completed fields
+- **Chapter Caching**: Automatic saving of chapter metadata (title, number, volume, language, scanlationGroup) to database when reading
+- **Statistics**: Now include all progress (not just completed), accurate page count formula
+- **UI Polish**: Larger empty state icons, language badges with localized names
+- **Type Safety**: Proper type extraction pattern for preload types
+
+**Impact on P3-T01**: None - all regressions resolved, foundation solid for next phase
+
+**Status**: ✅ All progress tracking working correctly, ready to proceed with library features
+
+**P3-T01 Work Completed During "Regression Fixes"**:
+
+- ✅ **Partial Step 1 (MangaRepository)**: Extended with chapter metadata caching
+- ✅ **Partial Step 2 (ReadHistoryRepository)**: Enhanced with language tracking and metadata queries
+- ✅ **Partial Step 5 (IPC Handlers)**: Created progress and chapter tracking handlers
+- ✅ **Partial Step 6 (Preload Types)**: Added ChapterProgress, saveChapters, getAllChapterProgress types
+- ✅ **Partial Step 9 (Opportunistic Caching)**: Implemented chapter caching when reading starts
+- ✅ **Partial Step 12 (Testing & Polish)**: UI polish with language badges and proper icon sizing
+
+**Remaining P3-T01 Work**: Library UI, update checker service, collections management (~6-8 hours)
+
+---
+
+## Previous Context: Guerilla Database Migration
 
 ### �️ Database Migration Planning (25 Dec 2025) - ✅ COMPLETE
 
