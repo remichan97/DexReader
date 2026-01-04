@@ -5,11 +5,12 @@ import { History24Regular, PlayCircle24Regular, Delete24Regular } from '@fluentu
 import { Button } from '@renderer/components/Button'
 import { ProgressRing } from '@renderer/components/ProgressRing'
 import { useProgressStore } from '@renderer/stores/progressStore'
+import { getLanguageName } from '@renderer/constants/language-list.constant'
 import './HistoryView.css'
 
 // Type extracted from IPC response - includes metadata via JOINs
 type MangaProgressMetadata = NonNullable<
-  Awaited<ReturnType<typeof window.progress.getAllProgress>>['data']
+  Awaited<ReturnType<typeof globalThis.progress.getAllProgress>>['data']
 >[number]
 
 interface ReadingHistoryCardProps {
@@ -64,6 +65,11 @@ function ReadingHistoryCard({
         <p className="reading-history-card__progress">
           Ch. {progress.lastChapterNumber || '?'}
           {progress.lastChapterTitle && `: ${progress.lastChapterTitle}`}
+          {progress.language && (
+            <span className="reading-history-card__language">
+              {getLanguageName(progress.language)}
+            </span>
+          )}
         </p>
         <p className="reading-history-card__meta">
           Last read {getRelativeTime(progress.lastReadAt)}

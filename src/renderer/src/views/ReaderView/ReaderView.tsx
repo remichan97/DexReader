@@ -255,7 +255,7 @@ export function ReaderView(): JSX.Element {
   } | null
 
   const [state, setState] = useState<ReaderState>({
-    currentPage: 0,
+    currentPage: locationState?.startPage ?? 0, // Start from saved progress if available
     showChapterList: false,
     zoomIndicatorVisible: false,
     imageQuality: ImageQuality.High, // High quality by default
@@ -383,6 +383,54 @@ export function ReaderView(): JSX.Element {
 
     loadReaderSettings()
   }, []) // Run once on mount
+
+  // Cache chapters to database when chapters are available
+  useEffect(() => {
+    if (mangaId && locationState?.chapters && locationState.chapters.length > 0) {
+      const chaptersToSave = locationState.chapters.map((ch) => {
+        // Get scanlation group from relationships
+        const scanlationGroup = ch.relationships.find((r) => r.type === 'scanlation_group')
+
+        return {
+          chapterId: ch.id,
+          mangaId: mangaId,
+          title: ch.attributes.title || undefined,
+          chapterNumber: ch.attributes.chapter || undefined,
+          volume: ch.attributes.volume || undefined,
+          language: ch.attributes.translatedLanguage,
+          publishAt: new Date(ch.attributes.publishAt),
+          scanlationGroup: scanlationGroup?.attributes?.name || undefined,
+          externalUrl: ch.attributes.externalUrl || undefined
+        }
+      })
+
+      // Save chapters in background (non-blocking)
+      void globalThis.progress.saveChapters(chaptersToSave)
+    }
+  }, [mangaId, locationState?.chapters])
+
+  // Reset page when chapter changes
+  useEffect(() => {
+    if (chapterId) {
+      // Determine starting page based on location state
+      let startPage = 0
+
+      if (locationState?.startAtLastPage && chapterData.totalPages > 0) {
+        // Start at last page when navigating from previous chapter
+        startPage = chapterData.totalPages - 1
+      } else if (locationState?.startPage !== undefined) {
+        // Start at specified page (from Continue Reading)
+        startPage = locationState.startPage
+      }
+
+      // Ensure page is within bounds
+      if (startPage >= chapterData.totalPages && chapterData.totalPages > 0) {
+        startPage = 0
+      }
+
+      setState((prev) => ({ ...prev, currentPage: startPage }))
+    }
+  }, [chapterId, locationState?.startAtLastPage, locationState?.startPage, chapterData.totalPages])
 
   // Update document title with reading information
   useEffect(() => {
@@ -642,7 +690,7 @@ export function ReaderView(): JSX.Element {
             />
           ) : (
             <PageDisplay
-              imageUrl={chapterData.images[state.currentPage].url}
+              imageUrl={chapterData.images[state.currentPage]?.url || ''}
               pageNumber={state.currentPage}
               totalPages={chapterData.totalPages}
               fitMode={zoom.fitMode}

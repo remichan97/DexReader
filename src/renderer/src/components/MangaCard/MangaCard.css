@@ -137,6 +137,57 @@
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
 }
 
+/* Update Badge (new chapters indicator) */
+.manga-card__update-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  border-radius: var(--radius-xs);
+  z-index: 2;
+  pointer-events: none;
+  cursor: help;
+}
+
+[data-theme='dark'] .manga-card__update-badge {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.manga-card__update-badge-dot {
+  width: 10px;
+  height: 10px;
+  background: var(--win-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--win-accent-glow), 0 1px 2px rgba(0, 0, 0, 0.3);
+  animation: manga-card-pulse 2s ease-in-out infinite;
+}
+
+[data-theme='dark'] .manga-card__update-badge-dot {
+  box-shadow: 0 0 10px var(--win-accent-glow), 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes manga-card-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(0.95);
+  }
+}
+
+/* When both favorite and update badges are present, adjust positioning */
+.manga-card__favorite-badge + .manga-card__update-badge {
+  right: 30px; /* Position to the left of favorite badge */
+}
+
 /* Favorite Button */
 .manga-card__favorite-button {
   display: flex;

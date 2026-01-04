@@ -9,6 +9,7 @@
 export { useAppStore } from './appStore'
 export { useToastStore, useToast } from './toastStore'
 export { useUserPreferencesStore } from './userPreferencesStore'
+export { useProgressStore } from './progressStore'
 export { useLibraryStore } from './libraryStore'
 export { useConnectivityStore } from './connectivityStore'
 export {

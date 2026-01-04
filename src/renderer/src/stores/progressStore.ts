@@ -52,6 +52,7 @@ interface ProgressState {
     currentPage: number
     completed: boolean
   }) => Promise<void>
+  flushPendingSaves: () => Promise<void> // Flush all pending debounced saves
   loadAllProgress: () => Promise<void>
   loadStatistics: () => Promise<void>
   deleteProgress: (mangaId: string) => Promise<void>
@@ -59,12 +60,9 @@ interface ProgressState {
   clearError: () => void
 }
 
-// Debounce timers per manga
+// Debounce timers and pending save data per manga
 const saveTimers = new Map<string, NodeJS.Timeout>()
-
-// Retry configuration
-const MAX_RETRIES = 3
-const RETRY_DELAYS = [1000, 2000, 4000] // Exponential backoff: 1s, 2s, 4s
+const pendingSaves = new Map<string, SaveProgressCommand>()
 
 export const useProgressStore = create<ProgressState>((set, get) => ({
   progressMap: new Map(),
@@ -122,12 +120,14 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
 
     const { mangaId, chapterId, currentPage, completed } = progressData
 
-    // Build updated progress object (lean, just IDs and timestamps)
+    // Build updated progress object with all fields
     const updatedProgress: MangaProgress = {
       mangaId,
       lastChapterId: chapterId,
       firstReadAt: progressMap.get(mangaId)?.firstReadAt ?? Math.floor(Date.now() / 1000),
-      lastReadAt: Math.floor(Date.now() / 1000)
+      lastReadAt: Math.floor(Date.now() / 1000),
+      currentPage,
+      completed
     }
 
     // Update cache immediately (optimistic)
@@ -141,54 +141,72 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
       clearTimeout(existingTimer)
     }
 
+    // Store pending save data
+    const command: SaveProgressCommand = {
+      mangaId,
+      chapterId,
+      currentPage,
+      completed
+    }
+    pendingSaves.set(mangaId, command)
+
     // Debounce: wait 1s before actually saving
     const timer = setTimeout(async () => {
       saveTimers.delete(mangaId)
+      const cmd = pendingSaves.get(mangaId)
+      if (!cmd) return
 
-      // Retry logic
-      let lastError: Error | null = null
-      for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-        try {
-          const command: SaveProgressCommand = {
-            mangaId,
-            chapterId,
-            currentPage,
-            completed
-          }
-          const response = await globalThis.progress.saveProgress([command])
+      pendingSaves.delete(mangaId)
 
-          if (response.success) {
-            // Success! Silent save - no toast notification
-            return
-          } else {
-            lastError = new Error(
-              typeof response.error === 'string' ? response.error : 'Unknown error'
-            )
-          }
-        } catch (error) {
-          lastError = error as Error
+      try {
+        const response = await globalThis.progress.saveProgress([cmd])
+
+        if (!response.success) {
+          throw new Error(
+            typeof response.error === 'string' ? response.error : 'Failed to save progress'
+          )
         }
-
-        // Wait before retrying (exponential backoff)
-        if (attempt < MAX_RETRIES - 1) {
-          await new Promise((resolve) => setTimeout(resolve, RETRY_DELAYS[attempt]))
-        }
-      }
-
-      // All retries failed - show error toast
-      if (lastError) {
-        console.error('Failed to save progress after retries:', lastError)
+        // Success! Silent save - no toast notification
+      } catch (error) {
+        console.error('Failed to save progress:', error)
         useToastStore.getState().show({
           variant: 'error',
           title: 'Failed to save progress',
-          message: 'Your reading progress could not be saved. Please try again later.',
+          message: 'Your reading progress could not be saved.',
           duration: 5000
         })
-        set({ error: lastError })
+        set({ error: error as Error })
       }
     }, 1000) // 1 second debounce
 
     saveTimers.set(mangaId, timer)
+  },
+
+  /**
+   * Flush all pending debounced saves immediately
+   * Should be called before app closes to ensure no progress is lost
+   */
+  flushPendingSaves: async () => {
+    // Clear all timers
+    for (const timer of saveTimers.values()) {
+      clearTimeout(timer)
+    }
+    saveTimers.clear()
+
+    // Save all pending progress immediately
+    if (pendingSaves.size === 0) return
+
+    try {
+      const commands = Array.from(pendingSaves.values())
+      pendingSaves.clear()
+
+      const response = await globalThis.progress.saveProgress(commands)
+      if (!response.success) {
+        console.error('Failed to flush pending saves:', response.error)
+      }
+    } catch (error) {
+      console.error('Failed to flush pending saves:', error)
+    }
   },
 
   /**

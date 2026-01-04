@@ -32,9 +32,9 @@ export interface ButtonProps
   icon?: React.ReactNode
 
   /**
-   * Button content
+   * Button content (optional for icon-only buttons)
    */
-  children: React.ReactNode
+  children?: React.ReactNode
 
   /**
    * Button type
@@ -109,7 +109,7 @@ export function Button({
           {icon}
         </span>
       )}
-      <span className="button__content">{children}</span>
+      {children && <span className="button__content">{children}</span>}
     </button>
   )
 }

@@ -1,17 +1,19 @@
 import type { JSX } from 'react'
 import { useState, useEffect, useRef } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { ArrowLeftRegular, Warning48Regular } from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
 import { Skeleton } from '@renderer/components/Skeleton'
 import { useProgressStore } from '@renderer/stores/progressStore'
 import { getMangaTitle } from '@renderer/utils/mangaHelpers'
+import { cacheMangaMetadata } from '@renderer/utils/mangaCache'
 import MangaHeroSection from './components/MangaHeroSection'
 import DescriptionSection from './components/DescriptionSection'
 import ExternalLinksSection from './components/ExternalLinksSection'
 import AlternativeTitlesSection from './components/AlternativeTitlesSection'
 import ChapterList from './components/ChapterList'
 import './MangaDetailView.css'
+import type { ChapterProgress } from '../../../../preload/index.d'
 
 // Extract types from global window interface
 type MangaEntity = Awaited<ReturnType<Window['mangadex']['getManga']>>['data']
@@ -38,6 +40,10 @@ interface MangaDetailViewState {
   chaptersLoading: boolean
   chaptersError: Error | null
   progress: NonNullable<Awaited<ReturnType<Window['progress']['getProgress']>>['data']> | null
+  chapterProgress: Map<
+    string,
+    NonNullable<Awaited<ReturnType<Window['progress']['getAllChapterProgress']>>['data']>[number]
+  >
 }
 
 /**
@@ -49,6 +55,7 @@ interface MangaDetailViewState {
 export function MangaDetailView(): JSX.Element {
   const { mangaId } = useParams<{ mangaId: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
 
   // Initialize state from cache if available
   const cachedData = mangaId ? mangaCache.get(mangaId) : null
@@ -61,7 +68,8 @@ export function MangaDetailView(): JSX.Element {
     chapterSort: cachedData?.chapterSort || 'asc',
     chaptersLoading: false,
     chaptersError: null,
-    progress: null
+    progress: null,
+    chapterProgress: new Map()
   })
   const [showMainErrorDetails, setShowMainErrorDetails] = useState<boolean>(false)
   const [showChapterErrorDetails, setShowChapterErrorDetails] = useState<boolean>(false)
@@ -97,6 +105,23 @@ export function MangaDetailView(): JSX.Element {
     }
   }, [mangaId, progressMap])
 
+  // Refresh progress when navigating back to this view (e.g., from reader)
+  useEffect(() => {
+    if (mangaId && location.pathname === `/browse/${mangaId}`) {
+      // Reload manga progress and all chapter progress
+      void loadProgress(mangaId)
+      void loadChapterProgress(mangaId)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname])
+
+  // Load chapter progress on mount
+  useEffect(() => {
+    if (mangaId) {
+      void loadChapterProgress(mangaId)
+    }
+  }, [mangaId])
+
   // Update document title with manga name
   useEffect(() => {
     if (state.manga) {
@@ -127,6 +152,24 @@ export function MangaDetailView(): JSX.Element {
   }, [state.manga])
 
   /**
+   * Load chapter progress for all chapters of this manga
+   */
+  const loadChapterProgress = async (id: string): Promise<void> => {
+    try {
+      const response = await globalThis.progress.getAllChapterProgress(id)
+      if (response.success && response.data) {
+        // Convert array to map for easy lookup
+        const progressMap = new Map<string, ChapterProgress>(
+          response.data.map((p) => [p.chapterId, p])
+        )
+        setState((prev) => ({ ...prev, chapterProgress: progressMap }))
+      }
+    } catch (error) {
+      console.error('Failed to load chapter progress:', error)
+    }
+  }
+
+  /**
    * Fetch manga details and chapter list from API
    */
   const loadMangaDetails = async (id: string): Promise<void> => {
@@ -151,6 +194,15 @@ export function MangaDetailView(): JSX.Element {
       }
 
       const manga = mangaResponse.data.data
+
+      // Opportunistic caching: Save minimal manga metadata to database
+      // This ensures manga records exist for FK constraints when saving progress/favorites
+      try {
+        await cacheMangaMetadata(manga)
+      } catch (cacheError) {
+        // Non-critical: Log error but don't block UI
+        console.warn('Failed to cache manga metadata:', cacheError)
+      }
 
       // Get available languages from manga
       const availableLanguages =
@@ -418,6 +470,7 @@ export function MangaDetailView(): JSX.Element {
         error={state.chaptersError}
         showErrorDetails={showChapterErrorDetails}
         progress={state.progress}
+        chapterProgress={state.chapterProgress}
         onLanguageChange={loadChaptersForLanguage}
         onSortChange={(order) => setState((prev) => ({ ...prev, chapterSort: order }))}
         onRetry={() => loadChaptersForLanguage(state.selectedLanguage)}

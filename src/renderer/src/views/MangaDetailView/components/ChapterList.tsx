@@ -23,6 +23,7 @@ interface ChapterListProps {
   readonly progress: NonNullable<
     Awaited<ReturnType<Window['progress']['getProgress']>>['data']
   > | null
+  readonly chapterProgress: Map<string, NonNullable<Awaited<ReturnType<Window['progress']['getAllChapterProgress']>>['data']>[number]>
   readonly onLanguageChange: (lang: string) => void
   readonly onSortChange: (order: 'asc' | 'desc') => void
   readonly onRetry: () => void
@@ -42,6 +43,7 @@ export default function ChapterList({
   error,
   showErrorDetails,
   progress,
+  chapterProgress,
   onLanguageChange,
   onSortChange,
   onRetry,
@@ -176,10 +178,12 @@ export default function ChapterList({
             // Check if this chapter is in progress (currently reading)
             const isInProgress = progress?.lastChapterId === chapter.id
 
-            // TODO: Fetch chapter progress separately via getAllChapterProgress
-            // For now, only show in-progress indicator
-            const isRead = false
-            const pageProgress = undefined // Will be populated when chapter progress is fetched
+            // Get chapter progress from map
+            const chapterProg = chapterProgress.get(chapter.id)
+            const isRead = chapterProg?.completed ?? false
+            const pageProgress = chapterProg
+              ? { currentPage: chapterProg.currentPage, totalPages: chapter.attributes.pages }
+              : undefined
 
             return (
               <ChapterItem

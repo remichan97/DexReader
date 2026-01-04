@@ -1,7 +1,13 @@
 import type { JSX } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BookOpenRegular, PlayCircle24Regular, StarRegular } from '@fluentui/react-icons'
+import {
+  BookOpenRegular,
+  PlayCircle24Regular,
+  Heart24Regular,
+  Heart24Filled
+} from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
+import { useLibraryStore, useToastStore } from '@renderer/stores'
 import {
   getCoverImageUrl,
   getMangaTitle,
@@ -35,6 +41,8 @@ export default function MangaHeroSection({
   progress
 }: MangaHeroSectionProps): JSX.Element {
   const navigate = useNavigate()
+  const { isFavourite, toggleFavourite } = useLibraryStore()
+  const showToast = useToastStore((state) => state.show)
   const coverUrl = getCoverImageUrl(manga, CoverSize.Large)
   const title = getMangaTitle(manga)
   const author = getAuthorName(manga)
@@ -65,9 +73,8 @@ export default function MangaHeroSection({
     if (progress) {
       const lastChapter = chapters.find((ch) => ch.id === progress.lastChapterId)
       if (lastChapter) {
-        // TODO: Query chapter progress to get exact page
-        // For now, start from beginning of last chapter
-        const startPage = 0
+        // Continue from last read page
+        const startPage = progress.currentPage
 
         navigate(`/reader/${manga.id}/${lastChapter.id}`, {
           state: {
@@ -96,9 +103,25 @@ export default function MangaHeroSection({
     })
   }
 
-  const handleAddToLibrary = (): void => {
-    // TODO: Implement in Phase 3 (Library Management)
-    console.log('Add to library:', manga.id)
+  const handleAddToLibrary = async (): Promise<void> => {
+    try {
+      const newStatus = await toggleFavourite(manga.id)
+
+      showToast({
+        title: newStatus ? 'Added to Library!' : 'Removed from Library!',
+        message: getMangaTitle(manga),
+        variant: 'info',
+        duration: 3000
+      })
+    } catch (error) {
+      console.error('Error toggling favourite:', error)
+      showToast({
+        title: 'Error',
+        message: 'Failed to update library',
+        variant: 'error',
+        duration: 3000
+      })
+    }
   }
 
   const handleTagClick = (tagId: string): void => {
@@ -186,8 +209,12 @@ export default function MangaHeroSection({
               Start Reading
             </Button>
           )}
-          <Button variant="secondary" onClick={handleAddToLibrary} icon={<StarRegular />}>
-            Add to Library
+          <Button
+            variant="secondary"
+            onClick={handleAddToLibrary}
+            icon={isFavourite(manga.id) ? <Heart24Filled /> : <Heart24Regular />}
+          >
+            {isFavourite(manga.id) ? 'Remove from Library' : 'Add to Library'}
           </Button>
         </div>
       </div>

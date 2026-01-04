@@ -90,11 +90,11 @@ export function SettingsView(): JSX.Element {
           }
           const settings = settingsResult.data
 
-          if (settings.accentColor) {
+          if (settings.appearance.accentColor) {
             // User has custom color - use it
-            setAccentColor(settings.accentColor)
+            setAccentColor(settings.appearance.accentColor)
             setIsUsingSystemColor(false)
-            applyAccentColor(settings.accentColor)
+            applyAccentColor(settings.appearance.accentColor)
           } else {
             // No custom color - use system color
             setAccentColor(systemAccent)

@@ -196,6 +196,22 @@
   font-size: var(--font-size-body);
   color: var(--win-text-secondary);
   margin: 0 0 var(--space-1) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.reading-history-card__language {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: var(--win-accent-subtle);
+  color: var(--win-accent-default);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
 }
 
 .reading-history-card__meta {

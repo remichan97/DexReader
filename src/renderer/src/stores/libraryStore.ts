@@ -1,120 +1,83 @@
 /**
- * Library Store - User's manga library data (Phase 3 skeleton)
+ * Library Store - User's manga library data (Database-backed)
  *
- * This is a placeholder store for future Phase 3 development.
- * Currently implements basic bookmark functionality to demonstrate the pattern.
- *
- * Future features (Phase 3):
- * - Full manga metadata storage
- * - Collections/reading lists
- * - Reading progress tracking
- * - Recently read history
- * - Favourites with notes/ratings
+ * Manages user's favorited manga and collections with database persistence.
+ * Replaced localStorage-based bookmarks with direct database integration.
  */
 
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-import type { Collection } from './types'
+import type { MangaWithMetadata } from '@preload/index'
 
-interface LibraryState {
-  // Bookmarks - Simple array of manga IDs for now
-  bookmarks: string[]
-
-  // Collections - Placeholder for Phase 3
-  collections: Collection[]
-
-  // Actions
-  addBookmark: (mangaId: string) => void
-  removeBookmark: (mangaId: string) => void
-  isBookmarked: (mangaId: string) => boolean
-
-  // Collection actions (placeholder)
-  addCollection: (name: string) => string // Returns collection ID
-  removeCollection: (collectionId: string) => void
-  addToCollection: (collectionId: string, mangaId: string) => void
-  removeFromCollection: (collectionId: string, mangaId: string) => void
+export interface LibraryManga {
+  mangaId: string
+  title: string
+  coverUrl?: string
+  authors: string[]
+  status: string
+  lastChapter?: string
+  hasNewChapters: boolean
 }
 
-export const useLibraryStore = create<LibraryState>()(
-  persist(
-    (set, get) => ({
-      bookmarks: [],
-      collections: [],
+interface LibraryState {
+  // Data
+  favourites: MangaWithMetadata[]
+  loading: boolean
+  error: string | null
 
-      // Bookmark management
-      addBookmark: (mangaId) =>
-        set((state) => {
-          // Prevent duplicates
-          if (state.bookmarks.includes(mangaId)) {
-            return state
-          }
-          return {
-            bookmarks: [...state.bookmarks, mangaId]
-          }
-        }),
+  // Actions
+  loadFavourites: () => Promise<void>
+  toggleFavourite: (mangaId: string) => Promise<boolean>
+  isFavourite: (mangaId: string) => boolean
+  refreshLibrary: () => Promise<void>
+}
 
-      removeBookmark: (mangaId) =>
-        set((state) => ({
-          bookmarks: state.bookmarks.filter((id) => id !== mangaId)
-        })),
+export const useLibraryStore = create<LibraryState>()((set, get) => ({
+  favourites: [],
+  loading: false,
+  error: null,
 
-      isBookmarked: (mangaId) => {
-        return get().bookmarks.includes(mangaId)
-      },
-
-      // Collection management (placeholder for Phase 3)
-      addCollection: (name) => {
-        const collectionId = `col-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
-        const newCollection: Collection = {
-          id: collectionId,
-          name,
-          mangaIds: [],
-          createdAt: Date.now(),
-          updatedAt: Date.now()
-        }
-
-        set((state) => ({
-          collections: [...state.collections, newCollection]
-        }))
-
-        return collectionId
-      },
-
-      removeCollection: (collectionId) =>
-        set((state) => ({
-          collections: state.collections.filter((col) => col.id !== collectionId)
-        })),
-
-      addToCollection: (collectionId, mangaId) =>
-        set((state) => ({
-          collections: state.collections.map((col) => {
-            if (col.id === collectionId && !col.mangaIds.includes(mangaId)) {
-              return {
-                ...col,
-                mangaIds: [...col.mangaIds, mangaId],
-                updatedAt: Date.now()
-              }
-            }
-            return col
-          })
-        })),
-
-      removeFromCollection: (collectionId, mangaId) =>
-        set((state) => ({
-          collections: state.collections.map((col) => {
-            if (col.id === collectionId) {
-              return {
-                ...col,
-                mangaIds: col.mangaIds.filter((id) => id !== mangaId),
-                updatedAt: Date.now()
-              }
-            }
-            return col
-          })
-        }))
-    }),
-    {
-      name: 'dexreader-library' // localStorage key
+  // Load favourites from database
+  loadFavourites: async () => {
+    set({ loading: true, error: null })
+    try {
+      const result = await window.library.getLibraryManga({})
+      if (result.success && result.data) {
+        set({ favourites: result.data, loading: false })
+      } else {
+        set({ error: result.error || 'Failed to load library', loading: false })
+      }
+    } catch (error) {
+      console.error('Error loading favourites:', error)
+      set({ error: 'Failed to load library', loading: false })
     }
-  )
-)
+  },
+
+  // Toggle favourite status (add/remove from favourites)
+  toggleFavourite: async (mangaId: string) => {
+    try {
+      const result = await window.library.toggleFavourite(mangaId)
+      if (result.success) {
+        // Refresh the library after toggling
+        await get().loadFavourites()
+        return result.data ?? false
+      } else {
+        set({ error: result.error || 'Failed to toggle favourite' })
+        return false
+      }
+    } catch (error) {
+      console.error('Error toggling favourite:', error)
+      set({ error: 'Failed to toggle favourite' })
+      return false
+    }
+  },
+
+  // Check if a manga is in favourites
+  isFavourite: (mangaId: string) => {
+    return get().favourites.some((manga) => manga.mangaId === mangaId)
+  },
+
+  // Refresh library data
+  refreshLibrary: async () => {
+    await get().loadFavourites()
+  }
+}))

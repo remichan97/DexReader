@@ -1,11 +1,19 @@
 import type { JSX } from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Tabs, TabList, Tab, TabPanel } from '@renderer/components/Tabs'
 import { MangaCard } from '@renderer/components/MangaCard'
 import { SearchBar } from '@renderer/components/SearchBar'
 import { Badge } from '@renderer/components/Badge'
-import { useToastStore } from '@renderer/stores'
-import { BookQuestionMark24Regular, Search24Regular } from '@fluentui/react-icons'
+import { Button } from '@renderer/components/Button'
+import { SkeletonGrid } from '@renderer/components/Skeleton'
+import { useLibraryStore, useToastStore } from '@renderer/stores'
+import {
+  BookOpen48Regular,
+  Search48Regular,
+  Warning48Regular,
+  ArrowClockwise24Regular
+} from '@fluentui/react-icons'
 import './LibraryView.css'
 
 // Helper Components (moved outside parent to prevent re-renders)
@@ -17,9 +25,9 @@ interface EmptyStateProps {
 const EmptyState = ({ message, isSearchResult = false }: EmptyStateProps): JSX.Element => (
   <div className="library__empty">
     {isSearchResult ? (
-      <Search24Regular style={{ fontSize: '48px', opacity: 0.3, marginBottom: '12px' }} />
+      <Search48Regular style={{ opacity: 0.3, marginBottom: '12px' }} />
     ) : (
-      <BookQuestionMark24Regular style={{ fontSize: '48px', opacity: 0.3, marginBottom: '12px' }} />
+      <BookOpen48Regular style={{ opacity: 0.3, marginBottom: '12px' }} />
     )}
     <div>{message}</div>
   </div>
@@ -27,87 +35,39 @@ const EmptyState = ({ message, isSearchResult = false }: EmptyStateProps): JSX.E
 
 interface MangaGridProps {
   readonly items: Array<{
-    readonly id: string
-    readonly coverUrl: string
+    readonly mangaId: string
+    readonly coverUrl?: string
     readonly title: string
-    readonly author: string
-    readonly status: 'ongoing' | 'completed' | 'hiatus'
-    readonly chaptersRead: number
-    readonly totalChapters: number
+    readonly authors: string[]
+    readonly status: string
+    readonly lastChapter?: string
+    readonly hasNewChapters?: boolean
   }>
   readonly onFavourite?: (id: string) => void
+  readonly onClick?: (id: string) => void
 }
 
-const MangaGrid = ({ items, onFavourite }: MangaGridProps): JSX.Element => (
+const MangaGrid = ({ items, onFavourite, onClick }: MangaGridProps): JSX.Element => (
   <div className="library__grid">
     {items.map((manga) => (
       <MangaCard
-        key={manga.id}
-        id={manga.id}
-        coverUrl={manga.coverUrl}
+        key={manga.mangaId}
+        id={manga.mangaId}
+        coverUrl={manga.coverUrl || ''}
         title={manga.title}
-        author={manga.author}
-        status={manga.status}
-        chaptersRead={manga.chaptersRead}
-        totalChapters={manga.totalChapters}
+        author={manga.authors[0] || 'Unknown'}
+        status={manga.status as 'ongoing' | 'completed' | 'hiatus'}
         isFavourite={true}
         showFavouriteBadge={false}
+        hasNewChapters={manga.hasNewChapters}
         onFavourite={onFavourite}
+        onClick={onClick}
       />
     ))}
   </div>
 )
 
-// Mock data for demonstration
-const mockAllManga = [
-  {
-    id: '1',
-    coverUrl: 'https://picsum.photos/seed/manga1/300/450',
-    title: 'One Piece',
-    author: 'Oda Eiichiro',
-    status: 'ongoing' as const,
-    chaptersRead: 1050,
-    totalChapters: 1100
-  },
-  {
-    id: '3',
-    coverUrl: 'https://picsum.photos/seed/manga3/300/450',
-    title: 'Hunter × Hunter',
-    author: 'Togashi Yoshihiro',
-    status: 'hiatus' as const,
-    chaptersRead: 350,
-    totalChapters: 400
-  },
-  {
-    id: '4',
-    coverUrl: 'https://picsum.photos/seed/manga4/300/450',
-    title: 'My Hero Academia',
-    author: 'Horikoshi Kohei',
-    status: 'ongoing' as const,
-    chaptersRead: 120,
-    totalChapters: 400
-  },
-  {
-    id: '2',
-    coverUrl: 'https://picsum.photos/seed/manga2/300/450',
-    title: 'Attack on Titan',
-    author: 'Hajime Isayama',
-    status: 'completed' as const,
-    chaptersRead: 139,
-    totalChapters: 139
-  },
-  {
-    id: '5',
-    coverUrl: 'https://picsum.photos/seed/manga5/300/450',
-    title: 'Demon Slayer',
-    author: 'Gotouge Koyoharu',
-    status: 'completed' as const,
-    chaptersRead: 205,
-    totalChapters: 205
-  }
-]
-
-// Mock user categories - empty by default
+// Mock user categories - empty by default (collections feature in next phase)
 const mockCategories: Array<{
   id: string
   name: string
@@ -115,43 +75,77 @@ const mockCategories: Array<{
 }> = []
 
 export function LibraryView(): JSX.Element {
+  const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState('')
 
-  // Zustand stores
+  // Stores
+  const { favourites, loading, error, loadFavourites, toggleFavourite } = useLibraryStore()
   const show = useToastStore((state) => state.show)
-  // Library store hooks ready for Phase 3:
-  // const addBookmark = useLibraryStore((state) => state.addBookmark)
-  // const removeBookmark = useLibraryStore((state) => state.removeBookmark)
-  // const isBookmarked = useLibraryStore((state) => state.isBookmarked)
+
+  // Load favourites on mount
+  useEffect(() => {
+    loadFavourites()
+  }, [loadFavourites])
 
   const handleSearch = (query: string): void => {
     setSearchQuery(query)
-    console.log('Library search:', query)
   }
 
-  const handleRemoveFromLibrary = (id: string): void => {
-    const manga = mockAllManga.find((m) => m.id === id)
-    console.log('Remove from library:', id, manga?.title)
+  const handleMangaClick = (id: string): void => {
+    navigate(`/browse/${id}`)
+  }
 
-    // Show toast notification
+  const handleCheckUpdates = async (): Promise<void> => {
     show({
-      title: 'Removed!',
-      message: manga ? `${manga.title} is gone` : 'Manga removed',
+      title: 'Checking for updates...',
+      message: 'This may take a moment',
       variant: 'info',
-      duration: 3000
+      duration: 2000
     })
 
-    // NOTE: Actual remove from library functionality will be implemented in P1-T04
+    // TODO: Implement update check logic in next phase
+    // For now, just show a placeholder message
+    setTimeout(() => {
+      show({
+        title: 'Update check complete',
+        message: 'Your library is up to date',
+        variant: 'success',
+        duration: 3000
+      })
+    }, 2000)
+  }
+
+  const handleRemoveFromLibrary = async (id: string): Promise<void> => {
+    const manga = favourites.find((m) => m.mangaId === id)
+
+    try {
+      const newStatus = await toggleFavourite(id)
+
+      // Show toast notification
+      show({
+        title: newStatus ? 'Added to Library!' : 'Removed from Library!',
+        message: manga ? manga.title : 'Manga updated',
+        variant: 'info',
+        duration: 3000
+      })
+    } catch (error) {
+      console.error('Error toggling favourite:', error)
+      show({
+        title: 'Error',
+        message: 'Failed to update library',
+        variant: 'error',
+        duration: 3000
+      })
+    }
   }
 
   interface MangaItem {
-    id: string
-    coverUrl: string
+    mangaId: string
+    coverUrl?: string
     title: string
-    author: string
-    status: 'ongoing' | 'completed' | 'hiatus'
-    chaptersRead: number
-    totalChapters: number
+    authors: string[]
+    status: string
+    lastChapter?: string
   }
 
   const filterManga = (manga: MangaItem[]): MangaItem[] => {
@@ -159,87 +153,130 @@ export function LibraryView(): JSX.Element {
     return manga.filter((m) => m.title.toLowerCase().includes(searchQuery.toLowerCase()))
   }
 
-  const filteredAll = filterManga(mockAllManga)
+  const filteredAll = filterManga(favourites)
   const hasCategories = mockCategories.length > 0
 
   return (
     <div style={{ padding: '24px' }}>
-      {/* Search Bar */}
-      <div style={{ marginBottom: '24px' }}>
-        <SearchBar value={searchQuery} onChange={handleSearch} placeholder="Search your library" />
+      {/* Search Bar with Actions */}
+      <div style={{ marginBottom: '24px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+        <div style={{ flex: 1 }}>
+          <SearchBar
+            value={searchQuery}
+            onChange={handleSearch}
+            placeholder="Search your library"
+          />
+        </div>
+        <Button
+          variant="primary"
+          size="medium"
+          icon={<ArrowClockwise24Regular />}
+          onClick={handleCheckUpdates}
+          aria-label="Check for updates"
+          title="Check for updates (Ctrl+R)"
+          style={{ height: '35px' }}
+        />
       </div>
 
-      {/* Category Tabs - only shown when user has categories */}
-      {hasCategories ? (
-        <Tabs defaultValue="all">
-          <TabList>
-            <Tab value="all">
-              All{' '}
-              <Badge variant="default" size="small">
-                {mockAllManga.length}
-              </Badge>
-            </Tab>
-            {mockCategories.map((category) => (
-              <Tab key={category.id} value={category.id}>
-                {category.name}{' '}
-                <Badge variant="info" size="small">
-                  {category.mangaIds.length}
-                </Badge>
-              </Tab>
-            ))}
-          </TabList>
+      {/* Loading State */}
+      {loading && <SkeletonGrid count={12} />}
 
-          <TabPanel value="all">
-            {filteredAll.length === 0 ? (
-              <EmptyState
-                message={
-                  searchQuery
-                    ? "Can't find what you're looking for..."
-                    : 'Nothing here yet! Start adding some manga from Browse.'
-                }
-                isSearchResult={!!searchQuery}
-              />
-            ) : (
-              <MangaGrid items={filteredAll} onFavourite={handleRemoveFromLibrary} />
-            )}
-          </TabPanel>
+      {/* Error State */}
+      {error && !loading && (
+        <div className="library__empty">
+          <Warning48Regular style={{ opacity: 0.3, marginBottom: '12px' }} />
+          <div>{error}</div>
+        </div>
+      )}
 
-          {mockCategories.map((category) => {
-            const categoryManga = filteredAll.filter((manga) =>
-              category.mangaIds.includes(manga.id)
-            )
-            return (
-              <TabPanel key={category.id} value={category.id}>
-                {categoryManga.length === 0 ? (
+      {/* Content - Only show if not loading and no error */}
+      {!loading && !error && (
+        <>
+          {/* Category Tabs - only shown when user has categories */}
+          {hasCategories ? (
+            <Tabs defaultValue="all">
+              <TabList>
+                <Tab value="all">
+                  All{' '}
+                  <Badge variant="default" size="small">
+                    {favourites.length}
+                  </Badge>
+                </Tab>
+                {mockCategories.map((category) => (
+                  <Tab key={category.id} value={category.id}>
+                    {category.name}{' '}
+                    <Badge variant="info" size="small">
+                      {category.mangaIds.length}
+                    </Badge>
+                  </Tab>
+                ))}
+              </TabList>
+
+              <TabPanel value="all">
+                {filteredAll.length === 0 ? (
                   <EmptyState
                     message={
                       searchQuery
-                        ? `Nothing in "${category.name}" matches that...`
-                        : `Your "${category.name}" shelf is empty!`
+                        ? "Can't find what you're looking for..."
+                        : 'Nothing here yet! Start adding some manga from Browse.'
                     }
                     isSearchResult={!!searchQuery}
                   />
                 ) : (
-                  <MangaGrid items={categoryManga} onFavourite={handleRemoveFromLibrary} />
+                  <MangaGrid
+                    items={filteredAll}
+                    onFavourite={handleRemoveFromLibrary}
+                    onClick={handleMangaClick}
+                  />
                 )}
               </TabPanel>
-            )
-          })}
-        </Tabs>
-      ) : (
-        // No categories - show all manga in a simple grid
-        <>
-          {filteredAll.length === 0 ? (
-            <EmptyState
-              message={
-                searchQuery
-                  ? "Can't find what you're looking for..."
-                  : 'Nothing here yet! Start adding some manga from Browse.'
-              }
-              isSearchResult={!!searchQuery}
-            />
+
+              {mockCategories.map((category) => {
+                const categoryManga = filteredAll.filter((manga) =>
+                  category.mangaIds.includes(manga.mangaId)
+                )
+                return (
+                  <TabPanel key={category.id} value={category.id}>
+                    {categoryManga.length === 0 ? (
+                      <EmptyState
+                        message={
+                          searchQuery
+                            ? `Nothing in "${category.name}" matches that...`
+                            : `Your "${category.name}" shelf is empty!`
+                        }
+                        isSearchResult={!!searchQuery}
+                      />
+                    ) : (
+                      <MangaGrid
+                        items={categoryManga}
+                        onFavourite={handleRemoveFromLibrary}
+                        onClick={handleMangaClick}
+                      />
+                    )}
+                  </TabPanel>
+                )
+              })}
+            </Tabs>
           ) : (
-            <MangaGrid items={filteredAll} onFavourite={handleRemoveFromLibrary} />
+            // No categories - show all manga in a simple grid
+            <>
+              {filteredAll.length === 0 ? (
+                <EmptyState
+                  message={
+                    searchQuery
+                      ? "Can't find what you're looking for..."
+                      : 'Nothing here yet! Start adding some manga from Browse.'
+                  }
+                  isSearchResult={!!searchQuery}
+                />
+              ) : (
+                <MangaGrid
+                  items={filteredAll}
+                  onFavourite={handleRemoveFromLibrary}
+                  onClick={handleMangaClick}
+                />
+              )}
+            </>
           )}
         </>
       )}

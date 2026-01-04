@@ -58,16 +58,19 @@ export function useProgressTracking({
 
     // Debounce: wait 1 second after page change before saving
     const timer = setTimeout(() => {
-      // Update ref to track if we're on last page (for potential completion on navigation)
+      // Check if chapter is completed (on last page)
       const isOnLastPage = currentPage === totalPages - 1
+      const completed = isOnLastPage
+
+      // Update ref to track if we're on last page (for potential completion on navigation)
       previousChapterRef.current = { id: chapterId, wasOnLastPage: isOnLastPage }
 
-      // Save current page progress (don't mark as complete yet)
+      // Save current page progress
       void saveProgress({
         mangaId,
         chapterId,
         currentPage,
-        completed: false
+        completed
       })
     }, 1000) // 1 second debounce
 
@@ -76,8 +79,8 @@ export function useProgressTracking({
 
   // Auto-save progress on chapter change (immediate, no debounce)
   useEffect(() => {
-    // Skip if not reading or incognito mode active
-    if (!autoSaveEnabled || !mangaId || !chapterId || loading || error || totalPages === 0) {
+    // Skip if not ready
+    if (!autoSaveEnabled || !mangaId || !chapterId || totalPages === 0) {
       return
     }
 
@@ -97,17 +100,21 @@ export function useProgressTracking({
       })
     }
 
-    // Save progress for new chapter (starting at page 0, not complete)
-    void saveProgress({
-      mangaId,
-      chapterId,
-      currentPage: 0,
-      completed: false
-    })
+    // Only save initial progress if this is actually a new chapter
+    // (Don't reset progress when retrying after errors)
+    if (!prevChapter || prevChapter.id !== chapterId) {
+      // Save progress for new chapter (starting at page 0, not complete)
+      void saveProgress({
+        mangaId,
+        chapterId,
+        currentPage: 0,
+        completed: false
+      })
+    }
 
     // Update ref for new chapter
     previousChapterRef.current = { id: chapterId, wasOnLastPage: false }
-  }, [chapterId, autoSaveEnabled, mangaId, loading, error, totalPages, saveProgress]) // Only trigger on chapter change
+  }, [chapterId, autoSaveEnabled, mangaId, totalPages, saveProgress]) // Only trigger on actual chapter change
 
   // Auto-save progress on component unmount
   useEffect(() => {

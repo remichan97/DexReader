@@ -8,7 +8,7 @@ import { MangaCard } from '@renderer/components/MangaCard'
 import { SkeletonGrid } from '@renderer/components/Skeleton'
 import { Button } from '@renderer/components/Button'
 import { InfoBar } from '@renderer/components/InfoBar'
-import { useSearchStore } from '@renderer/stores'
+import { useSearchStore, useLibraryStore, useToastStore } from '@renderer/stores'
 import { PublicationStatus, DEFAULT_FILTERS } from '@renderer/stores/searchStore'
 import {
   getCoverImageUrl,
@@ -17,6 +17,7 @@ import {
   mapPublicationStatus,
   getAvailableLanguages
 } from '@renderer/utils/mangaHelpers'
+import { cacheMangaMetadata } from '@renderer/utils/mangaCache'
 import './BrowseView.css'
 
 export function BrowseView(): JSX.Element {
@@ -40,9 +41,12 @@ export function BrowseView(): JSX.Element {
     retryLoadMore
   } = useSearchStore()
 
+  // Library store for favorite management
+  const { isFavourite, toggleFavourite } = useLibraryStore()
+  const showToast = useToastStore((state) => state.show)
+
   // Hide filters by default - users reveal when needed
   const [showFilters, setShowFilters] = useState(false)
-  const [favourites, setFavourites] = useState<Set<string>>(new Set())
   const [showFilterBar, setShowFilterBar] = useState(false) // Show info bar when filters out of view
   const filterPanelRef = useRef<HTMLDivElement>(null)
 
@@ -144,17 +148,42 @@ export function BrowseView(): JSX.Element {
     navigate(`/browse/${id}`)
   }
 
-  const handleFavouriteToggle = (id: string): void => {
-    setFavourites((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) {
-        next.delete(id)
-      } else {
-        next.add(id)
+  const handleFavouriteToggle = async (id: string): Promise<void> => {
+    try {
+      // Find the manga for caching and toast message
+      const manga = results.find((m) => m.id === id)
+
+      if (!manga) {
+        throw new Error('Manga not found in results')
       }
-      return next
-    })
-    // TODO: Persist to library store
+
+      // Cache manga metadata before toggling favorite (required for new favorites)
+      try {
+        await cacheMangaMetadata(manga)
+      } catch (cacheError) {
+        console.warn('Failed to cache manga metadata:', cacheError)
+        // Continue with toggle - metadata might already exist
+      }
+
+      // Toggle favorite status in database
+      const newStatus = await toggleFavourite(id)
+
+      // Show toast notification
+      showToast({
+        title: newStatus ? 'Added to Library!' : 'Removed from Library!',
+        message: getMangaTitle(manga),
+        variant: 'info',
+        duration: 3000
+      })
+    } catch (error) {
+      console.error('Error toggling favourite:', error)
+      showToast({
+        title: 'Error',
+        message: 'Failed to update library',
+        variant: 'error',
+        duration: 3000
+      })
+    }
   }
 
   const handleFilterClick = (): void => {
@@ -289,7 +318,7 @@ export function BrowseView(): JSX.Element {
             padding: '48px 24px',
             color: 'var(--win-text-secondary)'
           }}
-        >
+        >isFavourite
           <p style={{ fontSize: '16px', marginBottom: '8px' }}>No manga found</p>
           <p style={{ fontSize: '14px' }}>
             {query ? 'Try different search terms or filters' : 'Start searching to discover manga'}
@@ -318,7 +347,7 @@ export function BrowseView(): JSX.Element {
                   (manga.attributes as { status: PublicationStatus }).status
                 )}
                 languages={getAvailableLanguages(manga)}
-                isFavourite={favourites.has(manga.id)}
+                isFavourite={isFavourite(manga.id)}
                 onClick={handleMangaClick}
                 onFavourite={handleFavouriteToggle}
               />
