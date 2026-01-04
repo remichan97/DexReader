@@ -30,6 +30,7 @@
 ### P3-T01 Detailed Status
 
 **Completed** (~10-12 hours of 11-15 hour estimate):
+
 - ✅ **Step 1**: MangaRepository - COMPLETE (all methods: upsertManga, toggleFavourite, getLibraryManga, markHasNewChapter, etc.)
 - ✅ **Step 2**: ReadHistoryRepository - COMPLETE (getHistory, getRecentlyRead, recordRead, clearAllHistory)
 - ✅ **Step 3**: CollectionRepository - COMPLETE (full CRUD with metadata queries)
@@ -42,6 +43,7 @@
 - ✅ **Partial Step 12**: Testing & Polish - Initial polish done (icons, language badges)
 
 **Remaining** (~2-2.5 hours):
+
 - ⏳ **Wire Update Checker**: Connect `handleCheckUpdates` to actual IPC call (15 min)
 - ⏳ **Step 10**: Update Indicator Component - "NEW" badge dots on manga covers (30 min)
 - ⏳ **Step 11**: Collections UI - Tabs, create dialog, add to collection action (1 hour)
@@ -57,6 +59,7 @@
 **Status**: **Ready for Implementation** ✅
 
 **Key Decisions Finalized**:
+
 - ✅ Update indicator design: Colored dot (10px, top-right) with tooltip
 - ✅ Simplified library: No "Recently Added" tab (schema limitation)
 - ✅ Method consolidation: Removed redundant methods (cacheMangaMetadata, getFavouriteManga, getRecentlyAdded)
@@ -64,6 +67,7 @@
 - ✅ Opportunistic caching: Use existing upsertManga() from detail view
 
 **Implementation Steps** (12 steps):
+
 1. Expand MangaRepository (1h)
 2. Expand ReadHistoryRepository (1h)
 3. Expand CollectionRepository (0.5h)
@@ -1226,6 +1230,7 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
    - No separate IPC handler needed
 
 **Implementation Plan** (12 steps total):
+
 - **Backend** (5 steps, 3.5-5h): Expand repositories, Update Checker Service, IPC handlers, preload types
 - **Frontend** (5 steps, 6.5-9h): Library store, Library UI, Opportunistic caching, Update indicator, Collections UI
 - **Testing** (2 steps, 1-2h): Integration testing, polish

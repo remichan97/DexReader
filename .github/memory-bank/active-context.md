@@ -92,6 +92,7 @@
 ### ✅ Complete (Steps 1-10, ~10-12 hours)
 
 **Backend (100% Complete)**:
+
 - ✅ **Step 1: MangaRepository** - All methods implemented:
   - `upsertManga`, `batchUpsertManga`
   - `toggleFavourite`, `getMangaById`
@@ -122,6 +123,7 @@
 - ✅ **Step 6: Preload Types** - All types defined and wired up
 
 **Frontend (90% Complete)**:
+
 - ✅ **Step 7: LibraryStore** - Exists at `libraryStore.ts` with all actions
 - ✅ **Step 8: LibraryView UI** - Fully implemented:
   - Favorites grid with MangaCard components
@@ -134,18 +136,21 @@
 ### ⏳ Remaining Work (~2-2.5 hours)
 
 **1. Wire Update Checker to UI** (~15 minutes)
+
 - **File**: `LibraryView.tsx` - `handleCheckUpdates` function
 - **Current**: Shows placeholder toast
 - **Needed**: Call `window.library.checkForUpdates()` with manga IDs
 - **Impact**: Enables "Check for Updates" button functionality
 
 **2. Update Indicator Component** (~30 minutes)
+
 - **File**: New component `UpdateIndicator.tsx` or inline in MangaCard
 - **Current**: `hasNewChapters` flag exists in data but not displayed
 - **Needed**: Small colored dot (10px) at top-right of cover when `hasNewChapters === true`
 - **Design**: Accent-colored dot with tooltip showing chapter number
 
 **3. Collections UI** (~1 hour)
+
 - **Current**: Backend complete, no frontend UI
 - **Needed**:
   - Collection tabs in LibraryView (conditionally shown when collections exist)
@@ -154,6 +159,7 @@
   - Collections filtering (already supported by backend)
 
 **4. Testing & Final Polish** (~30 minutes)
+
 - Test update checking with real manga
 - Verify collections functionality end-to-end
 - Edge case handling (empty collections, API errors)
@@ -2037,12 +2043,14 @@ zoomIndicatorVisible: boolean
 ### Major Accomplishments:
 
 **1. P3-T01 Complete Plan Review & Refinement** ✅:
+
 - Started with comprehensive 823-line implementation plan
 - Identified opportunities for simplification
 - Removed redundant methods in favor of existing implementations
 - Finalized library design decisions
 
 **2. Library Design Simplification** ✅:
+
 - **Decision**: Drop "Recently Added" feature (schema doesn't track addition date)
 - **Decision**: Use implicit "Default" collection (all favorites, no explicit collection)
 - **Rationale**: Current schema tracks `isFavourite` boolean and `lastAccessedAt`, but no `addedToLibraryAt`
@@ -2050,6 +2058,7 @@ zoomIndicatorVisible: boolean
 - **Impact**: Reduced scope by ~1-2 hours
 
 **3. Update Indicator UI Design** ✅:
+
 - **Problem**: Grid view space constraints + confusion risk with chapter numbers
 - **Options Considered**:
   - Chapter number badge (e.g., "Ch. 45") - Too similar to chapter buttons, clutters UI
@@ -2067,6 +2076,7 @@ zoomIndicatorVisible: boolean
   - Tooltip provides details without cluttering UI
 
 **4. Method Consolidation** ✅:
+
 - Identified redundant methods in draft plan:
   - `cacheMangaMetadata()` → Already covered by existing `upsertManga()` with `onConflictDoUpdate`
   - `getFavouriteManga()` → Already covered by existing `getLibraryManga()` (returns favorites when called without options)
@@ -2074,6 +2084,7 @@ zoomIndicatorVisible: boolean
 - **Result**: Cleaner API, no duplicate implementations
 
 **5. Documentation Updates** ✅:
+
 - Updated P3-T01 plan with:
   - New Step 10: Update Indicator Component (0.5h)
   - Component specifications (TypeScript + CSS + usage example)
@@ -2083,6 +2094,7 @@ zoomIndicatorVisible: boolean
 - Updated active-context.md with session summary
 
 **Key Technical Decisions**:
+
 - **Opportunistic Caching Pattern**: Call `upsertManga()` from frontend on manga detail view, no separate IPC handler needed
 - **Existing Methods First**: Always check if functionality already exists before adding new methods
 - **UI Simplicity**: Prefer minimal indicators (dots) over text badges in space-constrained views
@@ -3645,12 +3657,14 @@ npm run typecheck   # Validate types only
 **Major Accomplishments**:
 
 **1. P3-T01 Complete Plan Review & Refinement** ✅:
+
 - Started with comprehensive 823-line implementation plan
 - Identified opportunities for simplification
 - Removed redundant methods in favor of existing implementations
 - Finalized library design decisions
 
 **2. Library Design Simplification** ✅:
+
 - **Decision**: Drop "Recently Added" feature (schema doesn't track addition date)
 - **Decision**: Use implicit "Default" collection (all favorites, no explicit collection)
 - **Rationale**: Current schema tracks `isFavourite` boolean and `lastAccessedAt`, but no `addedToLibraryAt`
@@ -3658,6 +3672,7 @@ npm run typecheck   # Validate types only
 - **Impact**: Reduced scope by ~1-2 hours
 
 **3. Update Indicator UI Design** ✅:
+
 - **Problem**: Grid view space constraints + confusion risk with chapter numbers
 - **Options Considered**:
   - Chapter number badge (e.g., "Ch. 45") - Too similar to chapter buttons, clutters UI
@@ -3675,6 +3690,7 @@ npm run typecheck   # Validate types only
   - Tooltip provides details without cluttering UI
 
 **4. Method Consolidation** ✅:
+
 - Identified redundant methods in draft plan:
   - `cacheMangaMetadata()` → Already covered by existing `upsertManga()` with `onConflictDoUpdate`
   - `getFavouriteManga()` → Already covered by existing `getLibraryManga()` (returns favorites when called without options)
@@ -3682,6 +3698,7 @@ npm run typecheck   # Validate types only
 - **Result**: Cleaner API, no duplicate implementations
 
 **5. Plan Documentation Updates** ✅:
+
 - Updated P3-T01 plan with:
   - New Step 10: Update Indicator Component (0.5h)
   - Component specifications (TypeScript + CSS + usage example)
@@ -3691,6 +3708,7 @@ npm run typecheck   # Validate types only
 - Updated active-context.md with session summary
 
 **Key Technical Decisions**:
+
 - **Opportunistic Caching Pattern**: Call `upsertManga()` from frontend on manga detail view, no separate IPC handler needed
 - **Existing Methods First**: Always check if functionality already exists before adding new methods
 - **UI Simplicity**: Prefer minimal indicators (dots) over text badges in space-constrained views

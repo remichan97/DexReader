@@ -318,7 +318,8 @@ export function BrowseView(): JSX.Element {
             padding: '48px 24px',
             color: 'var(--win-text-secondary)'
           }}
-        >isFavourite
+        >
+          isFavourite
           <p style={{ fontSize: '16px', marginBottom: '8px' }}>No manga found</p>
           <p style={{ fontSize: '14px' }}>
             {query ? 'Try different search terms or filters' : 'Start searching to discover manga'}

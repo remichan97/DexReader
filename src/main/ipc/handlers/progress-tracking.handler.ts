@@ -34,16 +34,18 @@ export function registerProgressTrackingHandlers(): void {
   })
 
   wrapIpcHandler('progress:save-chapters', async (_, chapters: unknown) => {
-    return progressRepo.saveChapters(chapters as Array<{
-      chapterId: string
-      mangaId: string
-      title?: string
-      chapterNumber?: string
-      volume?: string
-      language: string
-      publishAt: Date
-      scanlationGroup?: string
-      externalUrl?: string
-    }>)
+    return progressRepo.saveChapters(
+      chapters as Array<{
+        chapterId: string
+        mangaId: string
+        title?: string
+        chapterNumber?: string
+        volume?: string
+        language: string
+        publishAt: Date
+        scanlationGroup?: string
+        externalUrl?: string
+      }>
+    )
   })
 }

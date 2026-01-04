@@ -23,7 +23,10 @@ interface ChapterListProps {
   readonly progress: NonNullable<
     Awaited<ReturnType<Window['progress']['getProgress']>>['data']
   > | null
-  readonly chapterProgress: Map<string, NonNullable<Awaited<ReturnType<Window['progress']['getAllChapterProgress']>>['data']>[number]>
+  readonly chapterProgress: Map<
+    string,
+    NonNullable<Awaited<ReturnType<Window['progress']['getAllChapterProgress']>>['data']>[number]
+  >
   readonly onLanguageChange: (lang: string) => void
   readonly onSortChange: (order: 'asc' | 'desc') => void
   readonly onRetry: () => void
