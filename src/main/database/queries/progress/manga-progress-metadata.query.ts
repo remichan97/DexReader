@@ -15,4 +15,5 @@ export interface MangaProgressMetadata {
   lastChapterNumber?: string
   lastChapterTitle?: string
   lastChapterVolume?: string
+  language?: string
 }

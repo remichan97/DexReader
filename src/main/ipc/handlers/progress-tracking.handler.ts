@@ -23,4 +23,27 @@ export function registerProgressTrackingHandlers(): void {
   wrapIpcHandler('progress:get-all-progress', async () => {
     return progressRepo.getAllProgressWithMetadata()
   })
+
+  wrapIpcHandler('progress:get-chapter-progress', async (_, params: unknown) => {
+    const { mangaId, chapterId } = params as { mangaId: string; chapterId: string }
+    return progressRepo.getChapterProgress(mangaId, chapterId)
+  })
+
+  wrapIpcHandler('progress:get-all-chapter-progress', async (_, mangaId: unknown) => {
+    return progressRepo.getAllChapterProgress(mangaId as string)
+  })
+
+  wrapIpcHandler('progress:save-chapters', async (_, chapters: unknown) => {
+    return progressRepo.saveChapters(chapters as Array<{
+      chapterId: string
+      mangaId: string
+      title?: string
+      chapterNumber?: string
+      volume?: string
+      language: string
+      publishAt: Date
+      scanlationGroup?: string
+      externalUrl?: string
+    }>)
+  })
 }

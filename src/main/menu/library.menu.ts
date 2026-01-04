@@ -33,6 +33,14 @@ export function buildLibraryMenu(
       },
       { type: 'separator' },
       {
+        label: 'Check for Updates',
+        accelerator: 'CmdOrCtrl+R',
+        click: () => {
+          mainWindow.webContents.send('library-check-updates')
+        }
+      },
+      { type: 'separator' },
+      {
         id: 'download-chapter',
         label: state.chapterTitle ? `Download ${state.chapterTitle}` : 'Download Chapter',
         accelerator: 'CmdOrCtrl+Shift+D',

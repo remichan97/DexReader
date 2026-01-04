@@ -9,6 +9,7 @@ import type { MangaProgress } from '../main/database/queries/progress/manga-prog
 import type { ProgressDatabase } from '../main/database/queries/progress/progress-database.query'
 import type { ReadingStats } from '../main/database/queries/reading-stats/reading-stats.query'
 import type { MangaProgressMetadata } from '../main/database/queries/progress/manga-progress-metadata.query'
+import type { ChapterProgress } from '../main/database/queries/progress/chapter-progress.query'
 import type { MangaReadingSettings } from '../main/settings/entity/reading-settings.entity'
 
 // Re-export types for renderer use
@@ -16,6 +17,7 @@ export type { ImageUrlResponse } from './../main/api/responses/image-url.respons
 export type { IpcResponse } from './ipc.types'
 export type { MangaProgress } from '../main/database/queries/progress/manga-progress.query'
 export type { MangaProgressMetadata } from '../main/database/queries/progress/manga-progress-metadata.query'
+export type { ChapterProgress } from '../main/database/queries/progress/chapter-progress.query'
 export type { ProgressDatabase } from '../main/database/queries/progress/progress-database.query'
 export type { ReadingStats } from '../main/database/queries/reading-stats/reading-stats.query'
 export type { MangaReadingSettings } from '../main/settings/entity/reading-settings.entity'
@@ -115,6 +117,24 @@ interface Progress {
   getStatistics: () => Promise<IpcResponse<ReadingStats>>
   loadProgress: () => Promise<IpcResponse<ProgressDatabase>>
   onIncognitoToggle: (callback: () => void) => () => void // Returns cleanup function
+  getChapterProgress: (
+    mangaId: string,
+    chapterId: string
+  ) => Promise<IpcResponse<ChapterProgress | undefined>>
+  getAllChapterProgress: (mangaId: string) => Promise<IpcResponse<ChapterProgress[]>>
+  saveChapters: (
+    chapters: Array<{
+      chapterId: string
+      mangaId: string
+      title?: string
+      chapterNumber?: string
+      volume?: string
+      language: string
+      publishAt: Date
+      scanlationGroup?: string
+      externalUrl?: string
+    }>
+  ) => Promise<IpcResponse<void>>
 }
 
 interface Reader {
@@ -126,6 +146,7 @@ interface Reader {
 interface Library {
   getLibraryManga: (command: GetLibraryMangaCommand) => Promise<IpcResponse<MangaWithMetadata[]>>
   toggleFavourite: (mangaId: string) => Promise<IpcResponse<void>>
+  upsertManga: (command: UpsertMangaCommand) => Promise<IpcResponse<void>>
   checkForUpdates: (mangaIds: string[]) => Promise<IpcResponse<UpdateResult[]>>
   getMangaWithUpdates: () => Promise<IpcResponse<MangaWithMetadata[]>>
 }

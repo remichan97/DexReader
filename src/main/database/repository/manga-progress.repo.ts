@@ -16,21 +16,37 @@ export class MangaProgressRepository {
   }
 
   getProgressByMangaId(mangaId: string): MangaProgress | undefined {
-    const manga = this.db
-      .select()
+    const result = this.db
+      .select({
+        mangaId: mangaProgress.mangaId,
+        lastChapterId: mangaProgress.lastChapterId,
+        firstReadAt: mangaProgress.firstReadAt,
+        lastReadAt: mangaProgress.lastReadAt,
+        currentPage: chapterProgress.currentPage,
+        completed: chapterProgress.completed
+      })
       .from(mangaProgress)
+      .leftJoin(
+        chapterProgress,
+        and(
+          eq(mangaProgress.mangaId, chapterProgress.mangaId),
+          eq(mangaProgress.lastChapterId, chapterProgress.chapterId)
+        )
+      )
       .where(eq(mangaProgress.mangaId, mangaId))
       .get()
 
-    if (!manga) {
+    if (!result) {
       return undefined
     }
 
     return {
-      mangaId: manga.mangaId,
-      lastChapterId: manga.lastChapterId,
-      firstReadAt: dateToUnixTimestamp(manga.firstReadAt),
-      lastReadAt: dateToUnixTimestamp(manga.lastReadAt)
+      mangaId: result.mangaId,
+      lastChapterId: result.lastChapterId,
+      firstReadAt: dateToUnixTimestamp(result.firstReadAt),
+      lastReadAt: dateToUnixTimestamp(result.lastReadAt),
+      currentPage: result.currentPage ?? 0,
+      completed: result.completed ?? false
     }
   }
 
@@ -50,7 +66,8 @@ export class MangaProgressRepository {
         status: manga.status,
         lastChapterNumber: chapter.chapterNumber,
         lastChapterTitle: chapter.title,
-        lastChapterVolume: chapter.volume
+        lastChapterVolume: chapter.volume,
+        language: chapter.language
       })
       .from(mangaProgress)
       .innerJoin(manga, eq(mangaProgress.mangaId, manga.mangaId))
@@ -73,7 +90,8 @@ export class MangaProgressRepository {
         status: manga.status,
         lastChapterNumber: chapter.chapterNumber,
         lastChapterTitle: chapter.title,
-        lastChapterVolume: chapter.volume
+        lastChapterVolume: chapter.volume,
+        language: chapter.language
       })
       .from(mangaProgress)
       .innerJoin(manga, eq(mangaProgress.mangaId, manga.mangaId))
@@ -86,9 +104,9 @@ export class MangaProgressRepository {
   saveProgress(progress: SaveProgressCommand[]): void {
     const now = new Date()
 
-    for (const item of progress) {
-      // Insert/update in transaction to satisfy FK constraints
-      this.db.transaction((tx) => {
+    // Use a single transaction for all progress items
+    this.db.transaction((tx) => {
+      for (const item of progress) {
         // Upsert manga progress entry
         tx.insert(mangaProgress)
           .values({
@@ -123,11 +141,57 @@ export class MangaProgressRepository {
             }
           })
           .run()
+      }
 
-        readingRepo.calculateStatistics()
-        mangaRepository.cleanupMangaCache()
-      })
-    }
+      // Calculate statistics and cleanup once after all items
+      readingRepo.calculateStatistics()
+      mangaRepository.cleanupMangaCache()
+    })
+  }
+
+  saveChapters(
+    chapters: Array<{
+      chapterId: string
+      mangaId: string
+      title?: string
+      chapterNumber?: string
+      volume?: string
+      language: string
+      publishAt: Date
+      scanlationGroup?: string
+      externalUrl?: string
+    }>
+  ): void {
+    const now = new Date()
+
+    this.db.transaction((tx) => {
+      for (const ch of chapters) {
+        tx.insert(chapter)
+          .values({
+            chapterId: ch.chapterId,
+            mangaId: ch.mangaId,
+            title: ch.title,
+            chapterNumber: ch.chapterNumber,
+            volume: ch.volume,
+            language: ch.language,
+            publishAt: ch.publishAt,
+            createdAt: now,
+            updatedAt: now,
+            scanlationGroup: ch.scanlationGroup,
+            externalUrl: ch.externalUrl
+          })
+          .onConflictDoUpdate({
+            target: chapter.chapterId,
+            set: {
+              title: ch.title,
+              chapterNumber: ch.chapterNumber,
+              volume: ch.volume,
+              updatedAt: now
+            }
+          })
+          .run()
+      }
+    })
   }
 
   getChapterProgress(mangaId: string, chapterId: string): ChapterProgress | undefined {

@@ -1,4 +1,4 @@
-import { count, eq, sql, sumDistinct } from 'drizzle-orm'
+import { countDistinct, eq, sql } from 'drizzle-orm'
 import { databaseConnection } from '../connection'
 import { chapterProgress, readingStatistics } from '../schema'
 import { ReadingStats } from '../queries/reading-stats/reading-stats.query'
@@ -11,26 +11,36 @@ export class ReadingStatisticRepository {
   calculateStatistics(): void {
     const stats = this.db
       .select({
-        totalMangaRead: count(sumDistinct(chapterProgress.mangaId)),
-        totalChaptersRead: count(sumDistinct(chapterProgress.chapterId)),
-        totalPagesRead: sql<number>`SUM(${chapterProgress.currentPage})`
+        totalMangaRead: countDistinct(chapterProgress.mangaId),
+        totalChaptersRead: countDistinct(chapterProgress.chapterId),
+        // Sum of currentPage + 1 (since currentPage is 0-indexed)
+        totalPagesRead: sql<number>`CAST(SUM(${chapterProgress.currentPage} + 1) AS INTEGER)`
       })
       .from(chapterProgress)
-      .where(eq(chapterProgress.completed, true))
-      .get()
+      .get() // Remove the .where() filter - count all progress, not just completed
 
     const estimatedMinutes = Math.round(((stats?.totalPagesRead || 0) * 20) / 60) // Assuming 20 seconds per page
 
     this.db
-      .update(readingStatistics)
-      .set({
+      .insert(readingStatistics)
+      .values({
+        id: 1,
         totalMangasRead: stats?.totalMangaRead || 0,
         totalChaptersRead: stats?.totalChaptersRead || 0,
         totalPagesRead: stats?.totalPagesRead || 0,
         totalEstimatedMinutes: estimatedMinutes,
         lastCalculatedAt: new Date()
       })
-      .where(eq(readingStatistics.id, 1))
+      .onConflictDoUpdate({
+        target: readingStatistics.id,
+        set: {
+          totalMangasRead: stats?.totalMangaRead,
+          totalChaptersRead: stats?.totalChaptersRead,
+          totalPagesRead: stats?.totalPagesRead,
+          totalEstimatedMinutes: estimatedMinutes,
+          lastCalculatedAt: new Date()
+        }
+      })
       .run()
   }
 

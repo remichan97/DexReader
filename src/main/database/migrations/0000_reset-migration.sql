@@ -118,5 +118,5 @@ CREATE TABLE `reading_statistics` (
 	`total_pages_read` integer DEFAULT 0 NOT NULL,
 	`total_estimated_minutes` integer DEFAULT 0 NOT NULL,
 	`last_calculated_at` integer DEFAULT (unixepoch()) NOT NULL,
-	CONSTRAINT "chk_reading_statistics_id" CHECK(""reading_statistics"."id"" = 1)
+	CONSTRAINT "chk_reading_statistics_id" CHECK("reading_statistics"."id" = 1)
 );

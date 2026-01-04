@@ -17,6 +17,7 @@ type MangaProgressWithMetadataRow = {
   lastChapterNumber: string | null
   lastChapterTitle: string | null
   lastChapterVolume: string | null
+  language: string | null
 }
 
 export class MangaMapper {
@@ -53,7 +54,8 @@ export class MangaMapper {
       status: row.status as PublicationStatus,
       lastChapterNumber: row.lastChapterNumber ?? undefined,
       lastChapterTitle: row.lastChapterTitle ?? undefined,
-      lastChapterVolume: row.lastChapterVolume ?? undefined
+      lastChapterVolume: row.lastChapterVolume ?? undefined,
+      language: row.language ?? undefined
     }
   }
 }

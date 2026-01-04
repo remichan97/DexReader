@@ -5,6 +5,7 @@ import { MangaSearchParams } from '../main/api/searchparams/manga.searchparam'
 import { FeedParams } from '../main/api/searchparams/feed.searchparam'
 import { ImageQuality } from '../main/api/enums'
 import { GetLibraryMangaCommand } from '../main/database/commands/manga/get-library-manga.command'
+import { UpsertMangaCommand } from '../main/database/commands/collections/upsert-manga.command'
 import { CreateCollectionCommand } from '../main/database/commands/collections/create-collection.command'
 import { UpdateCollectionCommand } from '../main/database/commands/collections/update-collection.command'
 import { AddToCollectionCommand } from '../main/database/commands/collections/add-to-collection.command'
@@ -187,7 +188,12 @@ const progress = {
     return () => {
       ipcRenderer.removeListener('progress:toggle-incognito', callback)
     }
-  }
+  },
+  getChapterProgress: (mangaId: string, chapterId: string) =>
+    ipcRenderer.invoke('progress:get-chapter-progress', { mangaId, chapterId }),
+  getAllChapterProgress: (mangaId: string) =>
+    ipcRenderer.invoke('progress:get-all-chapter-progress', mangaId),
+  saveChapters: (chapters: unknown) => ipcRenderer.invoke('progress:save-chapters', chapters)
 }
 
 const reader = {
@@ -203,6 +209,7 @@ const library = {
   getLibraryManga: (command: GetLibraryMangaCommand) =>
     ipcRenderer.invoke('library:get-manga', command),
   toggleFavourite: (mangaId: string) => ipcRenderer.invoke('library:toggle-favourite', mangaId),
+  upsertManga: (command: UpsertMangaCommand) => ipcRenderer.invoke('library:upsert-manga', command),
   checkForUpdates: (mangaIds: string[]) =>
     ipcRenderer.invoke('library:check-for-updates', mangaIds),
   getMangaWithUpdates: () => ipcRenderer.invoke('library:get-manga-with-updates')
