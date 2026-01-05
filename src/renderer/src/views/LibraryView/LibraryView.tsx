@@ -414,7 +414,7 @@ export function LibraryView(): JSX.Element {
           icon={<ArrowClockwise24Regular />}
           onClick={handleCheckUpdates}
           aria-label="Check for updates"
-          title="Check for updates (Ctrl+R)"
+          title="Check for updates (Ctrl+Shift+U)"
           style={{ height: '35px' }}
         />
       </div>

@@ -99,7 +99,9 @@ export function CollectionPickerDialog({
         .map((c) => ({ collectionId: c.id, mangaId }))
 
       const removePromise =
-        collectionsToRemove.length > 0 ? removeFromCollection(collectionsToRemove) : Promise.resolve()
+        collectionsToRemove.length > 0
+          ? removeFromCollection(collectionsToRemove)
+          : Promise.resolve()
 
       await Promise.all([...addPromises, removePromise])
 

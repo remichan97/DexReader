@@ -23,14 +23,12 @@ interface CollectionsState {
   // Actions
   loadCollections: () => Promise<void>
   createCollection: (command: { name: string; description?: string }) => Promise<Collection | null>
-  updateCollection: (command: {
-    id: number
-    name?: string
-    description?: string
-  }) => Promise<void>
+  updateCollection: (command: { id: number; name?: string; description?: string }) => Promise<void>
   deleteCollection: (collectionId: number) => Promise<void>
   addToCollection: (command: { collectionId: number; mangaId: string }) => Promise<void>
-  removeFromCollection: (commands: Array<{ collectionId: number; mangaId: string }>) => Promise<void>
+  removeFromCollection: (
+    commands: Array<{ collectionId: number; mangaId: string }>
+  ) => Promise<void>
 }
 
 export const useCollectionsStore = create<CollectionsState>()((set, get) => ({
@@ -117,9 +115,7 @@ export const useCollectionsStore = create<CollectionsState>()((set, get) => ({
       const result = await globalThis.collections.addToCollection(command)
       if (!result.success) {
         const errorMsg =
-          typeof result.error === 'string'
-            ? result.error
-            : 'Failed to add manga to collection'
+          typeof result.error === 'string' ? result.error : 'Failed to add manga to collection'
         set({ error: errorMsg })
       }
       // Note: We don't reload collections here as it doesn't change the collection list
@@ -135,9 +131,7 @@ export const useCollectionsStore = create<CollectionsState>()((set, get) => ({
       const result = await globalThis.collections.removeFromCollection(commands)
       if (!result.success) {
         const errorMsg =
-          typeof result.error === 'string'
-            ? result.error
-            : 'Failed to remove manga from collection'
+          typeof result.error === 'string' ? result.error : 'Failed to remove manga from collection'
         set({ error: errorMsg })
       }
       // Note: We don't reload collections here as it doesn't change the collection list

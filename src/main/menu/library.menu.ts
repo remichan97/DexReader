@@ -33,8 +33,8 @@ export function buildLibraryMenu(
       },
       { type: 'separator' },
       {
-        label: 'Check for Updates',
-        accelerator: 'CmdOrCtrl+R',
+        label: 'Check Library for Updates',
+        accelerator: 'CmdOrCtrl+Shift+U',
         click: () => {
           mainWindow.webContents.send('library-check-updates')
         }

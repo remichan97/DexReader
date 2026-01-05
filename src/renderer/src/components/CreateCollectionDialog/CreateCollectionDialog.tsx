@@ -160,19 +160,20 @@ export function CreateCollectionDialog({
           Cancel
         </Button>
         <Button type="submit" variant="primary" disabled={isSubmitting || !name.trim()}>
-          {isSubmitting ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update' : 'Create')}
+          {isSubmitting
+            ? isEditMode
+              ? 'Updating...'
+              : 'Creating...'
+            : isEditMode
+              ? 'Update'
+              : 'Create'}
         </Button>
       </div>
     </form>
   )
 
   return (
-    <Popover
-      open={isOpen}
-      onOpenChange={updateOpen}
-      position="bottom"
-      content={popoverContent}
-    >
+    <Popover open={isOpen} onOpenChange={updateOpen} position="bottom" content={popoverContent}>
       {trigger}
     </Popover>
   )
