@@ -6,13 +6,21 @@ import { MangaCard } from '@renderer/components/MangaCard'
 import { SearchBar } from '@renderer/components/SearchBar'
 import { Badge } from '@renderer/components/Badge'
 import { Button } from '@renderer/components/Button'
+import { Modal } from '@renderer/components/Modal'
+import { Input } from '@renderer/components/Input'
 import { SkeletonGrid } from '@renderer/components/Skeleton'
-import { useLibraryStore, useToastStore } from '@renderer/stores'
+import { CreateCollectionDialog } from '@renderer/components/CreateCollectionDialog'
+import { CollectionPickerDialog } from '@renderer/components/CollectionPickerDialog'
+import { ContextMenu } from '@renderer/components/ContextMenu'
+import { useLibraryStore, useCollectionsStore, useToastStore } from '@renderer/stores'
 import {
   BookOpen48Regular,
   Search48Regular,
   Warning48Regular,
-  ArrowClockwise24Regular
+  ArrowClockwise24Regular,
+  Add24Regular,
+  Edit20Regular,
+  Delete20Regular
 } from '@fluentui/react-icons'
 import './LibraryView.css'
 
@@ -45,47 +53,116 @@ interface MangaGridProps {
   }>
   readonly onFavourite?: (id: string) => void
   readonly onClick?: (id: string) => void
+  readonly onAddToCollection?: (id: string) => void
 }
 
-const MangaGrid = ({ items, onFavourite, onClick }: MangaGridProps): JSX.Element => (
+const MangaGrid = ({
+  items,
+  onFavourite,
+  onClick,
+  onAddToCollection
+}: MangaGridProps): JSX.Element => (
   <div className="library__grid">
     {items.map((manga) => (
-      <MangaCard
+      <ContextMenu
         key={manga.mangaId}
-        id={manga.mangaId}
-        coverUrl={manga.coverUrl || ''}
-        title={manga.title}
-        author={manga.authors[0] || 'Unknown'}
-        status={manga.status as 'ongoing' | 'completed' | 'hiatus'}
-        isFavourite={true}
-        showFavouriteBadge={false}
-        hasNewChapters={manga.hasNewChapters}
-        onFavourite={onFavourite}
-        onClick={onClick}
+        trigger={
+          <div>
+            <MangaCard
+              id={manga.mangaId}
+              coverUrl={manga.coverUrl || ''}
+              title={manga.title}
+              author={manga.authors[0] || 'Unknown'}
+              status={manga.status as 'ongoing' | 'completed' | 'hiatus'}
+              isFavourite={true}
+              showFavouriteBadge={false}
+              hasNewChapters={manga.hasNewChapters}
+              onFavourite={onFavourite}
+              onClick={onClick}
+            />
+          </div>
+        }
+        items={[
+          {
+            label: 'Go to Detail',
+            onClick: () => onClick?.(manga.mangaId)
+          },
+          { type: 'separator' },
+          {
+            label: 'Add to Collection...',
+            onClick: () => onAddToCollection?.(manga.mangaId)
+          },
+          { type: 'separator' },
+          {
+            label: 'Remove from Library',
+            onClick: () => onFavourite?.(manga.mangaId)
+          }
+        ]}
       />
     ))}
   </div>
 )
 
-// Mock user categories - empty by default (collections feature in next phase)
-const mockCategories: Array<{
-  id: string
-  name: string
-  mangaIds: string[]
-}> = []
-
 export function LibraryView(): JSX.Element {
   const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState('')
+  const [pickerDialogOpen, setPickerDialogOpen] = useState(false)
+  const [createDialogOpen, setCreateDialogOpen] = useState(false)
+  const [selectedMangaForCollection, setSelectedMangaForCollection] = useState<string | null>(null)
+  const [editingCollection, setEditingCollection] = useState<{
+    id: number
+    name: string
+    description?: string
+  } | null>(null)
+  const [editName, setEditName] = useState('')
+  const [editDescription, setEditDescription] = useState('')
+  const [isSubmittingEdit, setIsSubmittingEdit] = useState(false)
+  const [contextMenuCollection, setContextMenuCollection] = useState<{
+    id: number
+    name: string
+  } | null>(null)
+  const [contextMenuPosition, setContextMenuPosition] = useState<{
+    top: number
+    left: number
+  } | null>(null)
+  // Track manga IDs for each collection
+  const [collectionMangaMap, setCollectionMangaMap] = useState<Record<number, string[]>>({})
 
   // Stores
   const { favourites, loading, error, loadFavourites, toggleFavourite } = useLibraryStore()
+  const { collections, loadCollections, createCollection, updateCollection, deleteCollection } =
+    useCollectionsStore()
   const show = useToastStore((state) => state.show)
 
-  // Load favourites on mount
+  // Load manga IDs for all collections
+  const loadCollectionManga = async (): Promise<void> => {
+    const mangaMap: Record<number, string[]> = {}
+    for (const collection of collections) {
+      const result = await globalThis.collections.getMangaInCollection(collection.id)
+      if (result.success && result.data) {
+        mangaMap[collection.id] = result.data
+      } else {
+        mangaMap[collection.id] = []
+      }
+    }
+    setCollectionMangaMap(mangaMap)
+  }
+
+  // Load favourites and collections on mount
   useEffect(() => {
     loadFavourites()
-  }, [loadFavourites])
+    loadCollections()
+  }, [loadFavourites, loadCollections])
+
+  // Load manga IDs for all collections when collections change
+  useEffect(() => {
+    if (collections.length > 0) {
+      void loadCollectionManga()
+    } else {
+      setCollectionMangaMap({})
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [collections])
 
   const handleSearch = (query: string): void => {
     setSearchQuery(query)
@@ -95,24 +172,169 @@ export function LibraryView(): JSX.Element {
     navigate(`/browse/${id}`)
   }
 
+  const handleAddToCollection = (mangaId: string): void => {
+    setSelectedMangaForCollection(mangaId)
+    if (collections.length === 0) {
+      // No collections - automatically open create dialog
+      setCreateDialogOpen(true)
+    } else {
+      // Has collections - show picker
+      setPickerDialogOpen(true)
+    }
+  }
+
+  const handleCreateCollection = async (name: string, description?: string): Promise<void> => {
+    const newCollection = await createCollection({ name, description })
+
+    if (newCollection) {
+      show({
+        title: 'Collection Created',
+        message: `"${name}" has been created`,
+        variant: 'success',
+        duration: 3000
+      })
+
+      // If we have a manga waiting to be added, show the picker
+      if (selectedMangaForCollection) {
+        setPickerDialogOpen(true)
+      } else {
+        // Clear the selectedMangaForCollection if no manga is waiting
+        setSelectedMangaForCollection(null)
+      }
+    } else {
+      // Failed to create collection, clear the selected manga
+      setSelectedMangaForCollection(null)
+    }
+  }
+
+  const handleEditCollection = (collection: {
+    id: number
+    name: string
+    description?: string
+  }): void => {
+    setEditingCollection(collection)
+    setEditName(collection.name)
+    setEditDescription(collection.description || '')
+  }
+
+  const handleUpdateCollection = async (): Promise<void> => {
+    if (!editingCollection || !editName.trim()) return
+
+    setIsSubmittingEdit(true)
+    try {
+      await updateCollection({
+        id: editingCollection.id,
+        name: editName.trim(),
+        description: editDescription.trim() || undefined
+      })
+
+      show({
+        title: 'Collection Updated',
+        message: `"${editName}" has been updated`,
+        variant: 'success',
+        duration: 3000
+      })
+
+      setEditingCollection(null)
+      setEditName('')
+      setEditDescription('')
+    } catch (error) {
+      console.error('Error updating collection:', error)
+      show({
+        title: 'Update Failed',
+        message: 'Could not update collection',
+        variant: 'error',
+        duration: 3000
+      })
+    } finally {
+      setIsSubmittingEdit(false)
+    }
+  }
+
+  const handleDeleteCollection = async (
+    collectionId: number,
+    collectionName: string
+  ): Promise<void> => {
+    // Use Electron's native dialog
+    const result = await globalThis.api.showConfirmDialog(
+      `Delete "${collectionName}"?`,
+      'This will not delete the manga, only the collection.',
+      'Delete',
+      'Cancel'
+    )
+
+    // Check if user confirmed (result should be wrapped in IpcResponse)
+    if (result.success && !result.data) return
+
+    try {
+      await deleteCollection(collectionId)
+
+      show({
+        title: 'Collection Deleted',
+        message: `"${collectionName}" has been removed`,
+        variant: 'success',
+        duration: 3000
+      })
+    } catch (error) {
+      console.error('Error deleting collection:', error)
+      show({
+        title: 'Delete Failed',
+        message: 'Could not delete collection',
+        variant: 'error',
+        duration: 3000
+      })
+    }
+  }
+
   const handleCheckUpdates = async (): Promise<void> => {
+    if (favourites.length === 0) {
+      show({
+        title: 'No manga in library',
+        message: 'Add some manga to your library first',
+        variant: 'info',
+        duration: 3000
+      })
+      return
+    }
+
     show({
       title: 'Checking for updates...',
-      message: 'This may take a moment',
+      message: `Checking ${favourites.length} manga...`,
       variant: 'info',
       duration: 2000
     })
 
-    // TODO: Implement update check logic in next phase
-    // For now, just show a placeholder message
-    setTimeout(() => {
+    try {
+      const mangaIds = favourites.map((m) => m.mangaId)
+      const response = await globalThis.library.checkForUpdates(mangaIds)
+
+      if (response.success && response.data) {
+        const updatedCount = response.data.filter((r) => r.hasNewChapters).length
+
+        show({
+          title: 'Update check complete',
+          message:
+            updatedCount > 0
+              ? `Found updates for ${updatedCount} manga!`
+              : 'Your library is up to date',
+          variant: updatedCount > 0 ? 'success' : 'info',
+          duration: 3000
+        })
+
+        // Reload library to show update indicators
+        await loadFavourites()
+      } else {
+        throw new Error(response.error || 'Unknown error')
+      }
+    } catch (error) {
+      console.error('Error checking for updates:', error)
       show({
-        title: 'Update check complete',
-        message: 'Your library is up to date',
-        variant: 'success',
+        title: 'Update check failed',
+        message: 'Could not check for updates. Please try again.',
+        variant: 'error',
         duration: 3000
       })
-    }, 2000)
+    }
   }
 
   const handleRemoveFromLibrary = async (id: string): Promise<void> => {
@@ -154,7 +376,7 @@ export function LibraryView(): JSX.Element {
   }
 
   const filteredAll = filterManga(favourites)
-  const hasCategories = mockCategories.length > 0
+  const hasCollections = collections.length > 0
 
   return (
     <div style={{ padding: '24px' }}>
@@ -167,6 +389,25 @@ export function LibraryView(): JSX.Element {
             placeholder="Search your library"
           />
         </div>
+        <CreateCollectionDialog
+          onCreate={handleCreateCollection}
+          onClose={() => setSelectedMangaForCollection(null)}
+          open={createDialogOpen}
+          onOpenChange={setCreateDialogOpen}
+          autoAddMangaId={selectedMangaForCollection || undefined}
+          trigger={
+            <Button
+              variant="secondary"
+              size="medium"
+              icon={<Add24Regular />}
+              aria-label="Create collection"
+              title="Create a new collection"
+              style={{ height: '35px' }}
+            >
+              Collection
+            </Button>
+          }
+        />
         <Button
           variant="primary"
           size="medium"
@@ -177,6 +418,61 @@ export function LibraryView(): JSX.Element {
           style={{ height: '35px' }}
         />
       </div>
+
+      {/* Edit Collection Modal */}
+      {editingCollection && (
+        <Modal
+          open={!!editingCollection}
+          onClose={() => {
+            setEditingCollection(null)
+            setEditName('')
+            setEditDescription('')
+          }}
+          title="Edit Collection"
+          size="small"
+          footer={
+            <>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setEditingCollection(null)
+                  setEditName('')
+                  setEditDescription('')
+                }}
+                disabled={isSubmittingEdit}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleUpdateCollection}
+                disabled={isSubmittingEdit || !editName.trim()}
+              >
+                {isSubmittingEdit ? 'Updating...' : 'Update'}
+              </Button>
+            </>
+          }
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <Input
+              label="Collection Name"
+              value={editName}
+              onChange={setEditName}
+              placeholder="e.g., Reading, Want to Read"
+              disabled={isSubmittingEdit}
+              autoFocus
+              required
+            />
+            <Input
+              label="Description (Optional)"
+              value={editDescription}
+              onChange={setEditDescription}
+              placeholder="Add a description"
+              disabled={isSubmittingEdit}
+            />
+          </div>
+        </Modal>
+      )}
 
       {/* Loading State */}
       {loading && <SkeletonGrid count={12} />}
@@ -192,8 +488,8 @@ export function LibraryView(): JSX.Element {
       {/* Content - Only show if not loading and no error */}
       {!loading && !error && (
         <>
-          {/* Category Tabs - only shown when user has categories */}
-          {hasCategories ? (
+          {/* Collection Tabs - only shown when user has collections */}
+          {hasCollections ? (
             <Tabs defaultValue="all">
               <TabList>
                 <Tab value="all">
@@ -202,15 +498,92 @@ export function LibraryView(): JSX.Element {
                     {favourites.length}
                   </Badge>
                 </Tab>
-                {mockCategories.map((category) => (
-                  <Tab key={category.id} value={category.id}>
-                    {category.name}{' '}
-                    <Badge variant="info" size="small">
-                      {category.mangaIds.length}
+                {collections.map((collection) => (
+                  <Tab
+                    key={collection.id}
+                    value={String(collection.id)}
+                    onContextMenu={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      setContextMenuCollection(collection)
+                      setContextMenuPosition({ top: e.clientY, left: e.clientX })
+                    }}
+                  >
+                    {collection.name}{' '}
+                    <Badge variant="default" size="small">
+                      {collectionMangaMap[collection.id]?.length || 0}
                     </Badge>
                   </Tab>
                 ))}
               </TabList>
+
+              {/* Context Menu Portal */}
+              {contextMenuCollection && contextMenuPosition && (
+                <>
+                  {/* Backdrop to close menu */}
+                  <div
+                    style={{
+                      position: 'fixed',
+                      inset: 0,
+                      zIndex: 9998
+                    }}
+                    onClick={() => {
+                      setContextMenuCollection(null)
+                      setContextMenuPosition(null)
+                    }}
+                    onContextMenu={(e) => {
+                      e.preventDefault()
+                      setContextMenuCollection(null)
+                      setContextMenuPosition(null)
+                    }}
+                  />
+                  {/* Menu */}
+                  <div
+                    className="context-menu__dropdown"
+                    style={{
+                      position: 'fixed',
+                      top: `${contextMenuPosition.top}px`,
+                      left: `${contextMenuPosition.left}px`,
+                      zIndex: 9999
+                    }}
+                  >
+                    <div className="context-menu__list">
+                      <button
+                        type="button"
+                        className="context-menu__item"
+                        onClick={() => {
+                          handleEditCollection(contextMenuCollection)
+                          setContextMenuCollection(null)
+                          setContextMenuPosition(null)
+                        }}
+                      >
+                        <span className="context-menu__item-icon">
+                          <Edit20Regular />
+                        </span>
+                        <span className="context-menu__item-label">Edit Collection</span>
+                      </button>
+                      <div className="context-menu__separator" />
+                      <button
+                        type="button"
+                        className="context-menu__item"
+                        onClick={() => {
+                          void handleDeleteCollection(
+                            contextMenuCollection.id,
+                            contextMenuCollection.name
+                          )
+                          setContextMenuCollection(null)
+                          setContextMenuPosition(null)
+                        }}
+                      >
+                        <span className="context-menu__item-icon">
+                          <Delete20Regular />
+                        </span>
+                        <span className="context-menu__item-label">Delete Collection</span>
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
 
               <TabPanel value="all">
                 {filteredAll.length === 0 ? (
@@ -227,30 +600,35 @@ export function LibraryView(): JSX.Element {
                     items={filteredAll}
                     onFavourite={handleRemoveFromLibrary}
                     onClick={handleMangaClick}
+                    onAddToCollection={handleAddToCollection}
                   />
                 )}
               </TabPanel>
 
-              {mockCategories.map((category) => {
-                const categoryManga = filteredAll.filter((manga) =>
-                  category.mangaIds.includes(manga.mangaId)
+              {collections.map((collection) => {
+                // Get manga IDs that belong to this collection
+                const collectionMangaIds = collectionMangaMap[collection.id] || []
+                // Filter favourites to only show manga in this collection
+                const collectionManga = filterManga(
+                  favourites.filter((manga) => collectionMangaIds.includes(manga.mangaId))
                 )
                 return (
-                  <TabPanel key={category.id} value={category.id}>
-                    {categoryManga.length === 0 ? (
+                  <TabPanel key={collection.id} value={String(collection.id)}>
+                    {collectionManga.length === 0 ? (
                       <EmptyState
                         message={
                           searchQuery
-                            ? `Nothing in "${category.name}" matches that...`
-                            : `Your "${category.name}" shelf is empty!`
+                            ? `Nothing in "${collection.name}" matches that...`
+                            : `Your "${collection.name}" collection is empty!`
                         }
                         isSearchResult={!!searchQuery}
                       />
                     ) : (
                       <MangaGrid
-                        items={categoryManga}
+                        items={collectionManga}
                         onFavourite={handleRemoveFromLibrary}
                         onClick={handleMangaClick}
+                        onAddToCollection={handleAddToCollection}
                       />
                     )}
                   </TabPanel>
@@ -258,7 +636,7 @@ export function LibraryView(): JSX.Element {
               })}
             </Tabs>
           ) : (
-            // No categories - show all manga in a simple grid
+            // No collections - show all manga in a simple grid
             <>
               {filteredAll.length === 0 ? (
                 <EmptyState
@@ -274,11 +652,31 @@ export function LibraryView(): JSX.Element {
                   items={filteredAll}
                   onFavourite={handleRemoveFromLibrary}
                   onClick={handleMangaClick}
+                  onAddToCollection={handleAddToCollection}
                 />
               )}
             </>
           )}
         </>
+      )}
+
+      {/* Collection Picker Dialog */}
+      {selectedMangaForCollection && (
+        <CollectionPickerDialog
+          isOpen={pickerDialogOpen}
+          onClose={() => {
+            setPickerDialogOpen(false)
+            setSelectedMangaForCollection(null)
+            // Refresh collection manga after adding
+            void loadCollectionManga()
+          }}
+          mangaId={selectedMangaForCollection}
+          onCreateNew={() => {
+            setPickerDialogOpen(false)
+            // Automatically open the Create Collection dialog
+            setCreateDialogOpen(true)
+          }}
+        />
       )}
     </div>
   )

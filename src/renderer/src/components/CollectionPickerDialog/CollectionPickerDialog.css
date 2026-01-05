@@ -1,0 +1,99 @@
+/**
+ * CollectionPickerDialog Component Styles
+ * Following Windows 11 Fluent Design principles
+ */
+
+.collection-picker-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.collection-picker-dialog__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+}
+
+.collection-picker-dialog__empty p {
+  margin: 0;
+  color: var(--win-text-secondary);
+}
+
+.collection-picker-dialog__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-height: 400px;
+  overflow-y: auto;
+  padding: var(--space-1);
+}
+
+/* Custom scrollbar */
+.collection-picker-dialog__list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.collection-picker-dialog__list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.collection-picker-dialog__list::-webkit-scrollbar-thumb {
+  background: var(--win-bg-subtle);
+  border-radius: 4px;
+}
+
+.collection-picker-dialog__list::-webkit-scrollbar-thumb:hover {
+  background: var(--win-bg-hover);
+}
+
+.collection-picker-dialog__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  transition: var(--transition-all-fast);
+}
+
+.collection-picker-dialog__item:hover {
+  background: var(--win-bg-hover);
+}
+
+.collection-picker-dialog__description {
+  margin: 0 0 0 28px;
+  font-size: var(--win-font-size-caption);
+  color: var(--win-text-tertiary);
+}
+
+.collection-picker-dialog__create-new {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: var(--space-2);
+  background: var(--win-bg-subtle);
+  border: 1px dashed var(--win-border-default);
+  border-radius: var(--radius-sm);
+  font-family: var(--win-font-body);
+  font-size: var(--win-font-size-body);
+  color: var(--win-accent);
+  cursor: pointer;
+  transition: var(--transition-all-fast);
+}
+
+.collection-picker-dialog__create-new:hover {
+  background: var(--win-accent-subtle);
+  border-color: var(--win-accent);
+}
+
+.collection-picker-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--win-border-subtle);
+}

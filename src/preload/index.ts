@@ -217,6 +217,10 @@ const library = {
 
 const collections = {
   getAllCollections: () => ipcRenderer.invoke('collections:get-all'),
+  getMangaInCollection: (collectionId: number) =>
+    ipcRenderer.invoke('collections:get-manga', collectionId),
+  getCollectionsByManga: (mangaId: string) =>
+    ipcRenderer.invoke('collections:get-by-manga', mangaId),
   createCollection: (command: CreateCollectionCommand) =>
     ipcRenderer.invoke('collections:create', command),
   updateCollection: (command: UpdateCollectionCommand) =>
@@ -225,7 +229,7 @@ const collections = {
     ipcRenderer.invoke('collections:delete', collectionId),
   addToCollection: (command: AddToCollectionCommand) =>
     ipcRenderer.invoke('collections:add-manga', command),
-  removeFromCollection: (command: RemoveFromCollectionCommand) =>
+  removeFromCollection: (command: RemoveFromCollectionCommand[]) =>
     ipcRenderer.invoke('collections:remove-manga', command),
   reorderMangaInCollection: (command: ReorderMangaInCollectionCommand) =>
     ipcRenderer.invoke('collections:reorder', command)

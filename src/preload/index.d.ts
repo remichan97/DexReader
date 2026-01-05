@@ -21,6 +21,10 @@ export type { ChapterProgress } from '../main/database/queries/progress/chapter-
 export type { ProgressDatabase } from '../main/database/queries/progress/progress-database.query'
 export type { ReadingStats } from '../main/database/queries/reading-stats/reading-stats.query'
 export type { MangaReadingSettings } from '../main/settings/entity/reading-settings.entity'
+export type { CreateCollectionCommand } from '../main/database/commands/collections/create-collection.command'
+export type { UpdateCollectionCommand } from '../main/database/commands/collections/update-collection.command'
+export type { AddToCollectionCommand } from '../main/database/commands/collections/add-to-collection.command'
+export type { RemoveFromCollectionCommand } from '../main/database/commands/collections/remove-from-collection.command'
 
 interface MenuState {
   canAddToFavorites?: boolean
@@ -153,11 +157,13 @@ interface Library {
 
 interface Collections {
   getAllCollections: () => Promise<IpcResponse<CollectionEntity[]>>
+  getMangaInCollection: (collectionId: number) => Promise<IpcResponse<string[]>>
+  getCollectionsByManga: (mangaId: string) => Promise<IpcResponse<CollectionEntity[]>>
   createCollection: (command: CreateCollectionCommand) => Promise<IpcResponse<CollectionEntity>>
   updateCollection: (command: UpdateCollectionCommand) => Promise<IpcResponse<CollectionEntity>>
   deleteCollection: (collectionId: number) => Promise<IpcResponse<void>>
   addToCollection: (command: AddToCollectionCommand) => Promise<IpcResponse<void>>
-  removeFromCollection: (command: RemoveFromCollectionCommand) => Promise<IpcResponse<void>>
+  removeFromCollection: (command: RemoveFromCollectionCommand[]) => Promise<IpcResponse<void>>
   reorderMangaInCollection: (command: ReorderMangaInCollectionCommand) => Promise<IpcResponse<void>>
 }
 

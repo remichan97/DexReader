@@ -1,0 +1,51 @@
+/**
+ * CreateCollectionDialog Component Styles
+ * Following Windows 11 Fluent Design principles
+ * Now using Popover instead of Modal for less intrusive UX
+ */
+
+.create-collection-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 320px;
+  max-width: 400px;
+  padding: var(--space-3);
+}
+
+.create-collection-dialog__header {
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--win-border-subtle);
+}
+
+.create-collection-dialog__title {
+  margin: 0;
+  font-family: var(--win-font-body);
+  font-size: var(--win-font-size-subtitle);
+  font-weight: 600;
+  color: var(--win-text-primary);
+}
+
+.create-collection-dialog__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.create-collection-dialog__hint {
+  padding: var(--space-2) var(--space-3);
+  background: var(--win-accent-subtle);
+  border-left: 3px solid var(--win-accent);
+  border-radius: var(--radius-sm);
+  font-size: var(--win-font-size-caption);
+  color: var(--win-text-secondary);
+  margin: 0;
+}
+
+.create-collection-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--win-border-subtle);
+}

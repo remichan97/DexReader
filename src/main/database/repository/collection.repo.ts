@@ -105,16 +105,19 @@ export class CollectionRepository {
       .run()
   }
 
-  removeFromCollection(command: RemoveFromCollectionCommand): void {
-    this.db
-      .delete(collectionItems)
-      .where(
-        and(
-          eq(collectionItems.collectionId, command.collectionId),
-          eq(collectionItems.mangaId, command.mangaId)
-        )
-      )
-      .run()
+  removeFromCollection(command: RemoveFromCollectionCommand[]): void {
+    this.db.transaction((tx) => {
+      command.forEach((cmd) => {
+        tx.delete(collectionItems)
+          .where(
+            and(
+              eq(collectionItems.collectionId, cmd.collectionId),
+              eq(collectionItems.mangaId, cmd.mangaId)
+            )
+          )
+          .run()
+      })
+    })
   }
 
   getCollectionByManga(mangaId: string): CollectionQuery[] {

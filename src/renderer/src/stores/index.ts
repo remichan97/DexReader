@@ -11,6 +11,7 @@ export { useToastStore, useToast } from './toastStore'
 export { useUserPreferencesStore } from './userPreferencesStore'
 export { useProgressStore } from './progressStore'
 export { useLibraryStore } from './libraryStore'
+export { useCollectionsStore } from './collectionsStore'
 export { useConnectivityStore } from './connectivityStore'
 export {
   useSearchStore,

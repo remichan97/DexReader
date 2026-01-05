@@ -37,6 +37,14 @@ export function registerLibraryHandlers(): void {
     return collectionRepo.getAllCollections()
   })
 
+  wrapIpcHandler('collections:get-manga', async (_, collectionId: unknown) => {
+    return collectionRepo.getMangaInCollection(collectionId as number)
+  })
+
+  wrapIpcHandler('collections:get-by-manga', async (_, mangaId: unknown) => {
+    return collectionRepo.getCollectionByManga(mangaId as string)
+  })
+
   wrapIpcHandler('collections:create', async (_, command: unknown) => {
     return collectionRepo.createCollection(command as CreateCollectionCommand)
   })
@@ -54,7 +62,7 @@ export function registerLibraryHandlers(): void {
   })
 
   wrapIpcHandler('collections:remove-manga', async (_, command: unknown) => {
-    return collectionRepo.removeFromCollection(command as RemoveFromCollectionCommand)
+    return collectionRepo.removeFromCollection(command as RemoveFromCollectionCommand[])
   })
 
   wrapIpcHandler('collections:reorder', async (_, command: unknown) => {

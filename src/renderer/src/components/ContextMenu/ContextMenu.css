@@ -1,0 +1,125 @@
+/**
+ * ContextMenu Component Styles
+ * Following Windows 11 Fluent Design principles
+ * Based on Select component's dropdown pattern
+ */
+
+/* Container */
+.context-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.context-menu__trigger-wrapper {
+  display: inline-flex;
+}
+
+/* Dropdown */
+.context-menu__dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  z-index: 1000;
+  min-width: 180px;
+  background: var(--win-bg-card);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--win-shadow-lg);
+  animation: context-menu-scale-in 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+/* Alignment */
+.context-menu--align-left .context-menu__dropdown {
+  left: 0;
+}
+
+.context-menu--align-right .context-menu__dropdown {
+  right: 0;
+}
+
+@keyframes context-menu-scale-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* List */
+.context-menu__list {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-1);
+  margin: 0;
+}
+
+/* Item */
+.context-menu__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-1-5) var(--space-2);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--win-font-body);
+  font-size: var(--win-font-size-body);
+  color: var(--win-text-primary);
+  cursor: pointer;
+  transition: var(--transition-all-fast);
+  user-select: none;
+  position: relative;
+  text-align: left;
+}
+
+.context-menu__item:hover:not(.context-menu__item--disabled) {
+  background: var(--win-bg-hover);
+}
+
+.context-menu__item--focused:not(.context-menu__item--disabled) {
+  background: var(--win-accent-subtle);
+  color: var(--win-accent);
+}
+
+.context-menu__item--focused:not(.context-menu__item--disabled)::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 16px;
+  background: var(--win-accent);
+  border-radius: 0 2px 2px 0;
+}
+
+.context-menu__item--disabled {
+  color: var(--win-text-disabled);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.context-menu__item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+.context-menu__item-label {
+  flex: 1;
+  white-space: nowrap;
+}
+
+/* Separator */
+.context-menu__separator {
+  height: 1px;
+  margin: var(--space-1) 0;
+  background: var(--win-border-subtle);
+}

@@ -149,6 +149,11 @@ export interface TabProps extends BaseComponentProps {
    * Tab label content
    */
   children: React.ReactNode
+
+  /**
+   * Context menu handler
+   */
+  onContextMenu?: (e: React.MouseEvent<HTMLButtonElement>) => void
 }
 
 /**
@@ -159,6 +164,7 @@ export function Tab({
   disabled = false,
   children,
   className = '',
+  onContextMenu,
   'aria-label': ariaLabel
 }: Readonly<TabProps>): React.JSX.Element {
   const { activeValue, setActiveValue } = useTabsContext()
@@ -225,6 +231,7 @@ export function Tab({
       disabled={disabled}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
+      onContextMenu={onContextMenu}
     >
       {children}
     </button>
