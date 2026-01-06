@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 5 January 2026
-**Current Phase**: P3-T01 Library Features - COMPLETE ✅
-**Session**: Collections & Update Indicators Complete
+**Last Updated**: 6 January 2026
+**Current Phase**: Phase 3 - User Experience Enhancement
+**Session**: P3-T11 Keyboard Shortcuts Help Dialog - COMPLETE ✅
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -10,11 +10,116 @@
 
 ## Current Status Summary
 
-**Phase**: P3-T01 Library Features - COMPLETE ✅ (100%)
-**Progress**: All features implemented and working
-**Current Date**: 5 January 2026
+**Phase**: Phase 3 - User Experience Enhancement (14/19 tasks, 73.7%)
+**Progress**: P3-T11 just completed
+**Current Date**: 6 January 2026
 **Database Migration Status**: Fully migrated and operational
-**Current Task**: Ready for P3-T02 or user testing
+**Current Task**: Ready for P3-T12 (Library Import/Export) or other Phase 3 tasks
+
+---
+
+## ✅ P3-T11 Keyboard Shortcuts Help Dialog - COMPLETE (6 Jan 2026)
+
+**Duration**: ~2 hours (as estimated)
+**Status**: All implementation steps complete ✅
+
+### What Was Implemented
+
+**1. KeyboardShortcutsDialog Component** (3 files created):
+
+- Main component with all 38 shortcuts categorized
+- Categories: Global, Navigation, Library, Reader (with subsections), Search, Accessibility
+- Responsive grid layout (auto-fit minmax(300px, 1fr))
+- Keyboard key styling with `<kbd>` elements
+- Windows 11 Fluent Design styling
+- Files: `KeyboardShortcutsDialog.tsx` (309 lines), `KeyboardShortcutsDialog.css` (78 lines), `index.ts`
+
+**2. Accessibility Features**:
+
+- Unicode arrow symbols (←↑→↓) for visual clarity
+- `ariaLabel` property on shortcuts with symbols
+- Screen readers announce "Arrow Right: Next page" instead of just symbols
+- Best of both worlds: Visual symbols + proper accessibility
+
+**3. Integration**:
+
+- Added state management in `AppShell.tsx`
+- IPC listener for `show-shortcuts` event from Help menu
+- Custom event listener for keyboard shortcut (`Ctrl+/`)
+- Dialog renders at app shell level (always available)
+
+**4. Dual Trigger Methods**:
+
+- **Menu**: Help → Keyboard Shortcuts
+- **Hotkey**: Ctrl+/ (added to `useKeyboardShortcuts.ts`)
+
+### Key Technical Decisions
+
+**Unicode Symbols with Accessibility**:
+
+- Initial concern: Unicode rendering inconsistency across Windows versions
+- Resolution: Electron 38 bundles Chromium, guarantees consistent rendering
+- Solution: Use unicode arrows (compact, visual) + aria-labels (accessible)
+- Result: `{ key: '→', description: 'Next page', ariaLabel: 'Arrow Right: Next page' }`
+
+**Modal Integration**:
+
+- Uses existing Modal component with `open` prop (not `isOpen`)
+- Modal provides title, close button, and Escape key handling
+- Removed custom header/footer since Modal handles it
+
+**Code Quality**:
+
+- All TypeScript errors resolved
+- Proper readonly props on component interfaces
+- Linting issues fixed (globalThis over window, dataset over setAttribute)
+- Prettier formatting applied
+
+### Files Modified (2)
+
+**AppShell.tsx**:
+
+- Added `KeyboardShortcutsDialog` import
+- Added `showKeyboardShortcuts` state
+- Added useEffect for IPC and custom event listeners
+- Renders dialog at root level
+
+**useKeyboardShortcuts.ts**:
+
+- Added Ctrl+/ handler
+- Dispatches `show-keyboard-shortcuts` custom event
+- Prevents default browser behavior
+
+### Testing & Validation
+
+✅ All shortcuts display correctly in categorized sections
+✅ Opens via Help → Keyboard Shortcuts menu
+✅ Opens via Ctrl+/ keyboard shortcut
+✅ Modal closes with Close button
+✅ Modal closes with Escape key
+✅ Scrollable content (max-height: 70vh)
+✅ Dark/light theme support
+✅ Responsive grid layout
+✅ No TypeScript compilation errors
+✅ No linting warnings
+
+### Unicode Decision Context
+
+**Original Concern**: Unicode symbols might render inconsistently
+**Analysis**:
+
+- Electron 38 requires Windows 10+ (Segoe UI fonts guaranteed)
+- Basic unicode symbols (BMP, Unicode 1.0) universally supported
+- VS Code, Slack, Discord all use unicode symbols without issues
+- Arrow symbols are NOT emoji—they're typographic characters
+
+**Final Approach**:
+
+- Keep unicode arrows for visual users (←↑→↓)
+- Add aria-label for screen readers ("Arrow Left: Previous page")
+- Best UX: Visual + Accessible + Consistent rendering in Electron
+
+**Status**: ✅ Ready for production, all 38 shortcuts documented and accessible
 
 ---
 

@@ -820,7 +820,7 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 - [✅] **P3-T08**: Theme system (light/dark) - **COMPLETE** (Pre-Phase 3)
 - [✅] **P3-T09**: Settings/preferences UI - **COMPLETE** (Pre-Phase 3)
 - [✅] **P3-T10**: Downloads directory configuration - **COMPLETE** (Pre-Phase 3)
-- [🔵] **P3-T11**: Keyboard Shortcuts Help Dialog - **READY TO IMPLEMENT** (Plan complete, 6 Jan 2026)
+- [✅] **P3-T11**: Keyboard Shortcuts Help Dialog - **COMPLETE** (6 Jan 2026, 2 hours)
 - [ ] **P3-T12**: Implement library import from Tachiyomi backup
 - [ ] **P3-T13**: Implement library export to native DexReader format (JSON)
 - [ ] **P3-T14**: Implement library export to Tachiyomi format (cross-compatibility)
@@ -830,7 +830,7 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 - [ ] **P3-T18**: Improve accessibility (ARIA labels, etc.)
 - [✅] **P3-T19**: Fluent UI icons - **COMPLETE** (Pre-Phase 3)
 
-**Phase 3 Progress**: 13/19 tasks complete (68.4%) ✅
+**Phase 3 Progress**: 14/19 tasks complete (73.7%) ✅
 
 **Notes**:
 
@@ -841,7 +841,7 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 - P3-T06: FilterPanel has content rating checkboxes (Safe, Suggestive, Erotica, Pornographic)
 - P3-T07: BrowseView loads popular manga by default (sorted by follows)
 - P3-T08-T10, P3-T19: Already implemented during Phase 2 refactoring
-- P3-T11: All 38 shortcuts implemented and working. Help dialog planned (2-3h implementation), fixed Ctrl+R conflict (library updates now Ctrl+Shift+U)
+- P3-T11: COMPLETE - All 38 shortcuts implemented and working. Help dialog implemented with unicode arrows + aria-labels for accessibility. Triggered via Help menu or Ctrl+/
 - P3-T12-T17: Library import/export and backup/restore features planned but not yet implemented
 - P3-T18: Some ARIA labels present (reader, buttons, selects), comprehensive audit pending
 - Additional UX features complete but not in original task list: Zoom/fit modes (ZoomControlsModal), progress indicators (ProgressRing/ProgressBar), error/empty states (ErrorBoundary), context menus (LibraryView), download UI (DownloadsView), history UI (HistoryView)
