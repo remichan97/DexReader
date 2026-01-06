@@ -39,12 +39,18 @@ export function useKeyboardShortcuts(): void {
         navigate('/settings')
         return
       }
+
+      // Ctrl+/: Show keyboard shortcuts
+      if (isCtrl && event.key === '/') {
+        event.preventDefault()
+        globalThis.window.dispatchEvent(new CustomEvent('show-keyboard-shortcuts'))
+      }
     }
 
-    window.addEventListener('keydown', handleKeyDown)
+    globalThis.window.addEventListener('keydown', handleKeyDown)
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown)
+      globalThis.window.removeEventListener('keydown', handleKeyDown)
     }
   }, [navigate])
 }

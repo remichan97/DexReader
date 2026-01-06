@@ -1,0 +1,89 @@
+.keyboard-shortcuts-dialog {
+  display: flex;
+  flex-direction: column;
+  max-height: 70vh;
+}
+
+.keyboard-shortcuts-dialog__subtitle {
+  margin: 0 0 24px;
+  font-size: 13px;
+  color: var(--win-text-secondary);
+}
+
+.keyboard-shortcuts-dialog__content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Section Styles */
+.shortcut-section {
+  margin-bottom: 32px;
+}
+
+.shortcut-section:last-child {
+  margin-bottom: 0;
+}
+
+.shortcut-section__title {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--win-text-primary);
+}
+
+.shortcut-subsection__title {
+  margin: 16px 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--win-text-secondary);
+}
+
+.shortcut-section__note {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--win-text-tertiary);
+  font-style: italic;
+}
+
+.shortcut-section--muted {
+  opacity: 0.7;
+}
+
+/* Shortcut List - Grid Layout */
+.shortcut-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 8px 16px;
+}
+
+.shortcut-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+}
+
+/* Keyboard Key Styling */
+.shortcut-item__key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+  padding: 4px 8px;
+  background: var(--win-bg-elevated);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-xs);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--win-text-primary);
+  text-align: center;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.shortcut-item__description {
+  flex: 1;
+  font-size: 13px;
+  color: var(--win-text-secondary);
+}
