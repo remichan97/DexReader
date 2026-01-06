@@ -18,6 +18,43 @@
 
 ---
 
+## ⚠️ Known Issues & Strategic Decisions
+
+### drizzle-kit esbuild Vulnerability (Moderate Severity)
+
+**Issue**: drizzle-kit@0.31.8 has transitive dependency on vulnerable esbuild@0.18.20 via @esbuild-kit/core-utils
+
+- **CVE**: GHSA-67mh-4wv8-2f99 (esbuild dev server vulnerability)
+- **Severity**: Moderate (CVSS 5.3)
+- **Scope**: Development dependency only (not shipped to users)
+- **Attack Vector**: Requires malicious website to exploit local dev server while drizzle-kit is running
+
+**Decision**: **Accept risk, await drizzle-kit v1.0 stable release**
+
+**Rationale**:
+
+1. **Dev-only**: drizzle-kit is devDependency, never bundled into production app
+2. **Low exploitability**: Requires active attack on local dev machine during drizzle-kit execution
+3. **Strategic timing**: v1.0 is in beta, will likely fix this + introduce breaking changes
+4. **Efficiency**: Bundling vulnerability fix with v1.0 migration work (avoid double work)
+
+**Mitigation**:
+
+- Created `.npmrc` with `audit-level=high` to suppress moderate warnings
+- Documented decision for future reference
+- Not running public-facing esbuild dev servers
+
+**Action Plan**:
+
+- Monitor: [Drizzle ORM Issues page](https://github.com/drizzle-team/drizzle-orm/issues)
+- Upgrade to v1.0.0 when stable (TBD)
+- Address breaking changes and vulnerability in single migration
+- Re-test all migration workflows post-upgrade
+
+**Date Logged**: 6 January 2026
+
+---
+
 ## ✅ P3-T11 Keyboard Shortcuts Help Dialog - COMPLETE (6 Jan 2026)
 
 **Duration**: ~2 hours (as estimated)
