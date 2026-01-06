@@ -31,4 +31,4 @@ When creating the plan, consider the following guidelines:
 
 If there is anything unclear, ambiguous, or if you need more information about the task, feature, or bug fix, **immediately stop** and **ask the user for clarification** before proceeding.
 
-Once the plan is complete, save the plan to a folder named `copilot-plans/` in the project root as a markdown file with a descriptive name (taskid-feature-name-plan.md) and present the plan to the user for review.
+Once the plan is complete, save the plan to a folder named `copilot-plans` in the `.github` directory as a markdown file with a descriptive name (taskid-feature-name-plan.md) and present the plan to the user for review.
