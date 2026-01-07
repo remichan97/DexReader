@@ -110,10 +110,10 @@ Library
 ├─ ──────────────────────          (separator)
 ├─ Import Library                   ▶
 │  ├─ From DexReader Backup...
-│  └─ From Tachiyomi Backup...
+│  └─ From Mihon/Tachiyomi Backup...
 └─ Export Library                   ▶
    ├─ To DexReader Backup...        Ctrl+Shift+E
-   └─ To Tachiyomi Format...
+   └─ To Mihon/Tachiyomi Format...
 ```
 
 **Items**:
@@ -140,7 +140,7 @@ Library
      - No accelerator
      - Always enabled
 
-   - **From Tachiyomi Backup...**
+   - **From Mihon/Tachiyomi Backup...**
      - Opens file picker for `.proto.gz` or `.tachibk` files
      - No accelerator
      - Always enabled
@@ -151,8 +151,8 @@ Library
      - Accelerator: `Ctrl+Shift+E`
      - Always enabled
 
-   - **To Tachiyomi Format...**
-     - Opens save dialog for Tachiyomi-compatible file
+   - **To Mihon/Tachiyomi Format...**
+     - Opens save dialog for Mihon/Tachiyomi-compatible file
      - No accelerator
      - Always enabled
 
@@ -429,11 +429,11 @@ const menuTemplate: MenuItemConstructorOptions[] = [
             }
           },
           {
-            label: 'From Tachiyomi Backup...',
+            label: 'From Mihon/Tachiyomi Backup...',
             click: async () => {
               const result = await dialog.showOpenDialog(mainWindow, {
-                title: 'Import Tachiyomi Backup',
-                filters: [{ name: 'Tachiyomi Backup', extensions: ['proto.gz', 'tachibk'] }],
+                title: 'Import Mihon/Tachiyomi Backup',
+                filters: [{ name: 'Mihon/Tachiyomi Backup', extensions: ['proto.gz', 'tachibk'] }],
                 properties: ['openFile']
               })
               if (!result.canceled) {
@@ -461,12 +461,12 @@ const menuTemplate: MenuItemConstructorOptions[] = [
             }
           },
           {
-            label: 'To Tachiyomi Format...',
+            label: 'To Mihon/Tachiyomi Format...',
             click: async () => {
               const result = await dialog.showSaveDialog(mainWindow, {
-                title: 'Export to Tachiyomi',
-                defaultPath: 'tachiyomi-backup.proto.gz',
-                filters: [{ name: 'Tachiyomi Backup', extensions: ['proto.gz'] }]
+                title: 'Export to Mihon/Tachiyomi',
+                defaultPath: 'mihon-backup.proto.gz',
+                filters: [{ name: 'Mihon/Tachiyomi Backup', extensions: ['proto.gz'] }]
               })
               if (!result.canceled) {
                 mainWindow.webContents.send('export-tachiyomi', result.filePath)

@@ -576,7 +576,7 @@ const result = await dialog.showOpenDialog(mainWindow, {
   title: 'Import Library Backup',
   filters: [
     { name: 'DexReader Library', extensions: ['json'] },
-    { name: 'Tachiyomi Backup', extensions: ['json', 'proto.gz'] }
+    { name: 'Mihon/Tachiyomi Backup', extensions: ['json', 'proto.gz'] }
   ],
   properties: ['openFile']
 })

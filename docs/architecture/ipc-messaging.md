@@ -561,9 +561,9 @@ flowchart TD
 | `create-collection`  | on   | Create collection menu item clicked  | (none)             | (none)   |
 | `manage-collections` | on   | Manage collections menu item clicked | (none)             | (none)   |
 | `import-library`     | on   | Import library menu item clicked     | (none)             | (none)   |
-| `import-tachiyomi`   | on   | Import Tachiyomi menu item clicked   | (none)             | (none)   |
+| `import-tachiyomi`   | on   | Import Mihon/Tachiyomi menu item clicked   | (none)             | (none)   |
 | `export-library`     | on   | Export library menu item clicked     | (none)             | (none)   |
-| `export-tachiyomi`   | on   | Export Tachiyomi menu item clicked   | (none)             | (none)   |
+| `export-tachiyomi`   | on   | Export Mihon/Tachiyomi menu item clicked   | (none)             | (none)   |
 | `download-chapter`   | on   | Download chapter menu item clicked   | (none)             | (none)   |
 | `download-manga`     | on   | Download manga menu item clicked     | (none)             | (none)   |
 | `clear-cache`        | on   | Clear cache menu item clicked        | (none)             | (none)   |

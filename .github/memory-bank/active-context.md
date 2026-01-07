@@ -3755,7 +3755,7 @@ npm run typecheck   # Validate types only
   - Restricted filesystem (AppData + user-configured downloads only)
   - Path validation on all file operations
   - Network restricted to MangaDex domains
-- Added library import/export feature (native + Tachiyomi formats)
+- Added library import/export feature (native + Mihon/Tachiyomi formats)
 - Created detailed P1-T01 plan (main application layout)
 
 **Key Insights**:
@@ -3773,8 +3773,8 @@ npm run typecheck   # Validate types only
 - Personal library with collections
 - Explicit chapter/manga downloads
 - Check for updates on demand or startup
-- Library import from Tachiyomi backups
-- Library export (native DexReader + Tachiyomi formats)
+- Library import from Mihon/Tachiyomi backups
+- Library export (native DexReader + Mihon/Tachiyomi formats)
 - User-configurable downloads directory
 - Windows 11 native design with system theme sync
 

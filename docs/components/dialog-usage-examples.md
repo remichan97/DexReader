@@ -118,7 +118,7 @@ const result = await window.api.showDialog({
   detail: 'Select where to import your library from',
   buttons: [
     'Import from DexReader backup', // Command link with arrow
-    'Import from Tachiyomi backup', // Command link with arrow
+    'Import from Mihon/Tachiyomi backup', // Command link with arrow
     'Import from another source', // Command link with arrow
     'Cancel' // Regular button
   ],
@@ -129,7 +129,7 @@ const result = await window.api.showDialog({
 if (result.response === 0) {
   importFromDexReader()
 } else if (result.response === 1) {
-  importFromTachiyomi()
+  importFromMihon()
 } else if (result.response === 2) {
   showCustomImportDialog()
 }
@@ -298,7 +298,7 @@ if (result.response === 0 && result.checkboxChecked) {
 const result = await window.api.showDialog({
   message: 'Export library',
   detail: 'Choose the export format',
-  buttons: ['DexReader format (full backup)', 'Tachiyomi format (cross-platform)', 'Cancel'],
+  buttons: ['DexReader format (full backup)', 'Mihon/Tachiyomi format (cross-platform)', 'Cancel'],
   type: 'question',
   noLink: false // Use command links on Windows
 })

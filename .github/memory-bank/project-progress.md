@@ -796,7 +796,7 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 - Add theming support (light/dark mode)
 - Implement keyboard shortcuts and user preferences
 - Add downloads directory configuration
-- Add library import/export (Tachiyomi compatibility)
+- Add library import/export (Mihon/Tachiyomi compatibility)
 
 **Deliverables**:
 
@@ -806,7 +806,7 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 - Polished UI with theme support (light/dark mode)
 - Comprehensive keyboard shortcuts
 - Settings/preferences panel with downloads directory configuration
-- Library import/export functionality (native DexReader + Tachiyomi formats)
+- Library import/export functionality (native DexReader + Mihon/Tachiyomi formats)
 
 **Key Technical Tasks**:
 
@@ -821,9 +821,9 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 - [✅] **P3-T09**: Settings/preferences UI - **COMPLETE** (Pre-Phase 3)
 - [✅] **P3-T10**: Downloads directory configuration - **COMPLETE** (Pre-Phase 3)
 - [✅] **P3-T11**: Keyboard Shortcuts Help Dialog - **COMPLETE** (6 Jan 2026, 2 hours)
-- [ ] **P3-T12**: Implement library import from Tachiyomi backup (protobuf)
+- [ ] **P3-T12**: Implement library import from Mihon/Tachiyomi backup (protobuf)
 - [ ] **P3-T13**: Implement library export to native DexReader format (protobuf)
-- [ ] **P3-T14**: Implement library export to Tachiyomi format (cross-compatibility, protobuf)
+- [ ] **P3-T14**: Implement library export to Mihon/Tachiyomi format (cross-compatibility, protobuf)
 - [ ] **P3-T15**: Add native DexReader backup restore functionality (protobuf)
 - [ ] **P3-T16**: Add backup/restore for app settings (JSON - small, user-editable)
 - [ ] **P3-T17**: Implement date format settings
@@ -843,7 +843,7 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 - P3-T08-T10, P3-T19: Already implemented during Phase 2 refactoring
 - P3-T11: COMPLETE - All 38 shortcuts implemented and working. Help dialog implemented with unicode arrows + aria-labels for accessibility. Triggered via Help menu or Ctrl+/
 - P3-T12: Protobuf tooling (protobufjs, pako) will be added as dependencies. Schema reusable across P3-T13/T14/T15
-- P3-T13-T15: Using protobuf format (.dexreader file extension) for library backups due to: (a) large library support (1000+ manga), (b) file size efficiency (50-70% smaller than JSON), (c) schema validation, (d) version compatibility. Protobuf dependency already needed for Tachiyomi import (P3-T12)
+- P3-T13-T15: Using protobuf format (.dexreader file extension) for library backups due to: (a) large library support (1000+ manga), (b) file size efficiency (50-70% smaller than JSON), (c) schema validation, (d) version compatibility. Protobuf dependency already needed for Mihon/Tachiyomi import (P3-T12)
 - P3-T16: App settings will use JSON format (.json) since files are small (<10KB), user-editable, and human-readable for troubleshooting
 - P3-T17: Date format settings - planned but not yet implemented
 - P3-T18: Some ARIA labels present (reader, buttons, selects), comprehensive audit pending

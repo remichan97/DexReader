@@ -79,12 +79,12 @@ export function buildLibraryMenu(
             }
           },
           {
-            label: 'From Tachiyomi Backup...',
+            label: 'From Mihon/Tachiyomi Backup...',
             click: () => {
               dialog
                 .showOpenDialog(mainWindow, {
-                  title: 'Import Tachiyomi Backup',
-                  filters: [{ name: 'Tachiyomi Backup', extensions: ['proto.gz', 'tachibk'] }],
+                  title: 'Import Mihon/Tachiyomi Backup',
+                  filters: [{ name: 'Mihon/Tachiyomi Backup', extensions: ['proto.gz', 'tachibk'] }],
                   properties: ['openFile']
                 })
                 .then((result) => {
@@ -117,13 +117,13 @@ export function buildLibraryMenu(
             }
           },
           {
-            label: 'To Tachiyomi Format...',
+            label: 'To Mihon/Tachiyomi Format...',
             click: () => {
               dialog
                 .showSaveDialog(mainWindow, {
-                  title: 'Export to Tachiyomi',
-                  defaultPath: 'tachiyomi-backup.proto.gz',
-                  filters: [{ name: 'Tachiyomi Backup', extensions: ['proto.gz'] }]
+                  title: 'Export to Mihon/Tachiyomi',
+                  defaultPath: 'mihon-backup.proto.gz',
+                  filters: [{ name: 'Mihon/Tachiyomi Backup', extensions: ['proto.gz'] }]
                 })
                 .then((result) => {
                   if (!result.canceled && result.filePath) {
