@@ -84,7 +84,9 @@ export function buildLibraryMenu(
               dialog
                 .showOpenDialog(mainWindow, {
                   title: 'Import Mihon/Tachiyomi Backup',
-                  filters: [{ name: 'Mihon/Tachiyomi Backup', extensions: ['proto.gz', 'tachibk'] }],
+                  filters: [
+                    { name: 'Mihon/Tachiyomi Backup', extensions: ['proto.gz', 'tachibk'] }
+                  ],
                   properties: ['openFile']
                 })
                 .then((result) => {

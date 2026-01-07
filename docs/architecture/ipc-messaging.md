@@ -553,22 +553,22 @@ flowchart TD
 
 #### Menu (14 channels)
 
-| Channel              | Type | Description                          | Request            | Response |
-| -------------------- | ---- | ------------------------------------ | ------------------ | -------- |
-| `update-menu-state`  | send | Update dynamic menu item states      | `MenuState` object | (none)   |
-| `check-for-updates`  | on   | Check for updates menu item clicked  | (none)             | (none)   |
-| `add-to-favorites`   | on   | Add to favourites menu item clicked  | (none)             | (none)   |
-| `create-collection`  | on   | Create collection menu item clicked  | (none)             | (none)   |
-| `manage-collections` | on   | Manage collections menu item clicked | (none)             | (none)   |
-| `import-library`     | on   | Import library menu item clicked     | (none)             | (none)   |
-| `import-tachiyomi`   | on   | Import Mihon/Tachiyomi menu item clicked   | (none)             | (none)   |
-| `export-library`     | on   | Export library menu item clicked     | (none)             | (none)   |
-| `export-tachiyomi`   | on   | Export Mihon/Tachiyomi menu item clicked   | (none)             | (none)   |
-| `download-chapter`   | on   | Download chapter menu item clicked   | (none)             | (none)   |
-| `download-manga`     | on   | Download manga menu item clicked     | (none)             | (none)   |
-| `clear-cache`        | on   | Clear cache menu item clicked        | (none)             | (none)   |
-| `clear-history`      | on   | Clear history menu item clicked      | (none)             | (none)   |
-| `show-shortcuts`     | on   | Show shortcuts menu item clicked     | (none)             | (none)   |
+| Channel              | Type | Description                              | Request            | Response |
+| -------------------- | ---- | ---------------------------------------- | ------------------ | -------- |
+| `update-menu-state`  | send | Update dynamic menu item states          | `MenuState` object | (none)   |
+| `check-for-updates`  | on   | Check for updates menu item clicked      | (none)             | (none)   |
+| `add-to-favorites`   | on   | Add to favourites menu item clicked      | (none)             | (none)   |
+| `create-collection`  | on   | Create collection menu item clicked      | (none)             | (none)   |
+| `manage-collections` | on   | Manage collections menu item clicked     | (none)             | (none)   |
+| `import-library`     | on   | Import library menu item clicked         | (none)             | (none)   |
+| `import-tachiyomi`   | on   | Import Mihon/Tachiyomi menu item clicked | (none)             | (none)   |
+| `export-library`     | on   | Export library menu item clicked         | (none)             | (none)   |
+| `export-tachiyomi`   | on   | Export Mihon/Tachiyomi menu item clicked | (none)             | (none)   |
+| `download-chapter`   | on   | Download chapter menu item clicked       | (none)             | (none)   |
+| `download-manga`     | on   | Download manga menu item clicked         | (none)             | (none)   |
+| `clear-cache`        | on   | Clear cache menu item clicked            | (none)             | (none)   |
+| `clear-history`      | on   | Clear history menu item clicked          | (none)             | (none)   |
+| `show-shortcuts`     | on   | Show shortcuts menu item clicked         | (none)             | (none)   |
 
 #### Dialogue (2 channels)
 
