@@ -2,6 +2,10 @@ export interface ImportResult {
   importedMangaCount: number
   skippedMangaCount: number
   failedMangaCount: number
-  errors?: string[]
+  errors?: {
+    mangaId: string
+    title: string
+    reason: string
+  }[]
   importedMangaIds?: string[]
 }

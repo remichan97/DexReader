@@ -6,6 +6,7 @@ import { GetLibraryMangaCommand } from '../commands/manga/get-library-manga.comm
 import { MangaWithMetadata } from '../queries/manga/manga-with-metadata.query'
 import { MangaMapper } from '../mappers/manga.mapper'
 import { MarkMangaNewChapterCommand } from '../commands/manga/mark-new-chapter.command'
+import { SearchMangaCommand } from '../commands/manga/search-manga.command'
 
 export class MangaRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
@@ -141,6 +142,37 @@ export class MangaRepository {
       .$dynamic()
       .limit(options.limit ?? 100)
       .offset(options.offset ?? 0)
+      .all()
+
+    return query.map(MangaMapper.toMangaWithMetadata)
+  }
+
+  getMangaByCustomCondition(command: SearchMangaCommand): MangaWithMetadata[] {
+    const condition: SQL[] = []
+
+    if (command.title) {
+      condition.push(like(manga.title, `%${command.title}%`))
+    }
+
+    if (command.author) {
+      condition.push(like(manga.authors, `%${command.author}%`))
+    }
+
+    if (command.artist) {
+      condition.push(like(manga.artists, `%${command.artist}%`))
+    }
+
+    if (command.tag) {
+      condition.push(like(manga.tags, `%${command.tag}%`))
+    }
+
+    const query = this.db
+      .select()
+      .from(manga)
+      .where(and(...condition))
+      .$dynamic()
+      .limit(command.limit ?? 100)
+      .offset(command.offset ?? 0)
       .all()
 
     return query.map(MangaMapper.toMangaWithMetadata)
