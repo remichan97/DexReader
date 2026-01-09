@@ -8,6 +8,7 @@ import { getMainWindow } from '../window'
 import { BrowserWindow } from 'electron'
 import { registerAdditionalDialogHandlers } from './handlers/dialogs.handler'
 import { registerLibraryHandlers } from './handlers/library-handler'
+import { registerMihonHandlers } from './handlers/mihon.handler'
 
 /**
  * Register all IPC handlers
@@ -22,6 +23,7 @@ export function registerAllHandlers(): void {
   registerReaderSettingsHandlers()
   registerAdditionalDialogHandlers()
   registerLibraryHandlers()
+  registerMihonHandlers()
 
   // File system handlers need window for dialogs
   // Get window reference when handlers are actually called
