@@ -92,6 +92,30 @@ export class CollectionRepository {
     this.db.delete(collections).where(eq(collections.id, collectionId)).run()
   }
 
+  batchAddToCollection(command: AddToCollectionCommand[]): void {
+    const now = new Date()
+
+    if (command.length === 0) {
+      return
+    }
+
+    if (command.length === 1) {
+      this.addToCollection(command[0])
+    }
+
+    this.db.transaction((tx) => {
+      for (const cmd of command) {
+        tx.insert(collectionItems)
+          .values({
+            collectionId: cmd.collectionId,
+            mangaId: cmd.mangaId,
+            addedAt: now
+          })
+          .run()
+      }
+    })
+  }
+
   addToCollection(command: AddToCollectionCommand): void {
     const now = new Date()
 
