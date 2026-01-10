@@ -32,6 +32,27 @@ export default defineConfig({
             }
           })
         }
+      },
+      {
+        name: 'copy-protobuf-schema',
+        async writeBundle() {
+          const src = path.resolve(__dirname, 'src/main/services/protobuf/schema')
+          const dest = path.resolve(__dirname, 'out/main/services/protobuf/schema')
+
+          await fs.mkdir(dest, { recursive: true })
+
+          const files = await fs.readdir(src, { recursive: true })
+          files.forEach(async (file: string) => {
+            const srcPath = path.join(src, file)
+            const destPath = path.join(dest, file)
+
+            if ((await fs.stat(srcPath)).isDirectory()) {
+              fs.cp(srcPath, destPath, { recursive: true })
+            } else if (file.endsWith('.proto')) {
+              fs.copyFile(srcPath, destPath)
+            }
+          })
+        }
       }
     ]
   },
