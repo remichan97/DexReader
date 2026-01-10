@@ -7,7 +7,7 @@ export function registerMihonHandlers(): void {
       throw new TypeError('Invalid file path')
     }
 
-    await mihonService.importFromBackup(filePath)
+    return await mihonService.importFromBackup(filePath)
   })
 
   wrapIpcHandler('mihon:cancel-import', async () => {

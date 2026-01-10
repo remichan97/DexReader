@@ -1,5 +1,6 @@
 export interface SearchMangaCommand {
-  // Possible search fields, minus the ID here
+  // Possible search fields
+  mangaId?: string
   title?: string
   author?: string
   artist?: string
