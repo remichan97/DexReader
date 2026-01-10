@@ -8,25 +8,14 @@ import protobuf from 'protobufjs'
 import { Backup } from './types/mihon/backup.type'
 import { collectionRepo } from '../database/repository/collection.repo'
 import { mangaRepository } from '../database/repository/manga.repo'
-import { PublicationStatus } from '../api/enums'
 import { AddToCollectionCommand } from '../database/commands/collections/add-to-collection.command'
 import path from 'node:path'
-import { mapCategoriesToCollections } from './helpers/mihon-backup.helper'
+import { mihonBackup } from './helpers/mihon-backup.helper'
 
 export class MihonService {
   // MangaDex source ID from Tachiyomi extension
   // See: https://github.com/tachiyomiorg/tachiyomi-extensions
   private static readonly MangaDexSourceId = 2499283573021220255n
-
-  private static readonly StatusMap: Record<number, PublicationStatus> = {
-    0: PublicationStatus.Ongoing,
-    1: PublicationStatus.Ongoing,
-    2: PublicationStatus.Completed,
-    3: PublicationStatus.Ongoing,
-    4: PublicationStatus.Completed,
-    5: PublicationStatus.Cancelled,
-    6: PublicationStatus.Hiatus
-  } as const
 
   private abortController?: AbortController
   private readonly schemaPath = path.join(
@@ -36,8 +25,6 @@ export class MihonService {
     'schemas',
     'mihon.proto'
   )
-
-  private static readonly MANGADEX_URL_PATTERN = /\/(?:manga|title)\/([a-f0-9-]{36})(?:\/|$)/i
 
   async importFromBackup(filePath: string): Promise<ImportResult> {
     this.abortController?.abort()
@@ -85,7 +72,7 @@ export class MihonService {
     const addToCollectionsCommands: AddToCollectionCommand[] = []
 
     // First, create categories
-    const categoryMap = mapCategoriesToCollections(categories)
+    const categoryMap = mihonBackup.mapCategoriesToCollections(categories)
 
     // Then, import manga
     for (const manga of mangaList) {
@@ -96,7 +83,7 @@ export class MihonService {
       }
 
       try {
-        const mangaId = this.extractMangaIdFromUrl(manga.url)
+        const mangaId = mihonBackup.extractMangaIdFromUrl(manga.url)
 
         if (!mangaId) {
           // Unable to extract manga ID from URL, skip
@@ -118,17 +105,7 @@ export class MihonService {
         }
 
         // Create manga entry
-        upsertCommand.push({
-          mangaId: mangaId,
-          title: manga.title || 'Unknown Title',
-          authors: manga.author ? [manga.author] : [],
-          artists: manga.artist ? [manga.artist] : [],
-          description: manga.description,
-          tags: manga.genre ?? [],
-          coverUrl: manga.thumbnailUrl ?? '',
-          status: manga.status ? MihonService.StatusMap[manga.status] : PublicationStatus.Ongoing,
-          isFavourite: manga.favorite
-        })
+        upsertCommand.push(mihonBackup.processMangaCommand(manga))
 
         // Finally, assign to collection if category exists
         for (const categoryId of manga.categories) {
@@ -161,17 +138,6 @@ export class MihonService {
 
   cancelImport(): void {
     this.abortController?.abort()
-  }
-
-  private extractMangaIdFromUrl(url: string): string | undefined {
-    // MangaDex URLs: /manga/{uuid} or https://mangadex.org/title/{uuid}
-    const match = MihonService.MANGADEX_URL_PATTERN.exec(url)
-
-    if (!match?.[1]) {
-      return undefined
-    }
-
-    return match[1]
   }
 }
 export const mihonService = new MihonService()
