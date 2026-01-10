@@ -242,6 +242,11 @@ const readHistory = {
   clearAllHistory: () => ipcRenderer.invoke('history:clear-history')
 }
 
+const mihon = {
+  importBackup: (filePath: string) => ipcRenderer.invoke('mihon:import-backup', filePath),
+  cancelImport: () => ipcRenderer.invoke('mihon:cancel-import')
+}
+
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
@@ -256,6 +261,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('library', library)
     contextBridge.exposeInMainWorld('collections', collections)
     contextBridge.exposeInMainWorld('readHistory', readHistory)
+    contextBridge.exposeInMainWorld('mihon', mihon)
   } catch (error) {
     console.error(error)
   }
@@ -278,4 +284,6 @@ if (process.contextIsolated) {
   globalThis.collections = collections
   // @ts-ignore (define in dts)
   globalThis.readHistory = readHistory
+  // @ts-ignore (define in dts)
+  globalThis.mihon = mihon
 }

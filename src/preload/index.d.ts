@@ -174,6 +174,11 @@ interface ReadHistory {
   clearAllHistory: () => Promise<IpcResponse<void>>
 }
 
+interface Mihon {
+  importFromBackup: (filePath: string) => Promise<IpcResponse<void>>
+  cancelImport: () => Promise<IpcResponse<void>>
+}
+
 declare global {
   interface Window {
     electron: ElectronAPI
@@ -185,5 +190,6 @@ declare global {
     library: Library
     collections: Collections
     readHistory: ReadHistory
+    mihon: Mihon
   }
 }
