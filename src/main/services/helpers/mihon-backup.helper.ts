@@ -41,7 +41,7 @@ export class MihonBackupHelper {
   processMangaCommand(manga: BackupManga): UpsertMangaCommand {
     // Create manga entry
     return {
-      mangaId: this.extractMangaIdFromUrl(manga.url)!,
+      mangaId: this.extractMangaIdFromUrl(manga.url)!, // We already validated this before calling the method
       title: manga.title || 'Unknown Title',
       authors: manga.author ? [manga.author] : [],
       artists: manga.artist ? [manga.artist] : [],
