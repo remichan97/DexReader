@@ -36,8 +36,8 @@ export default defineConfig({
       {
         name: 'copy-protobuf-schema',
         async writeBundle() {
-          const src = path.resolve(__dirname, 'src/main/services/protobuf/schema')
-          const dest = path.resolve(__dirname, 'out/main/services/protobuf/schema')
+          const src = path.resolve(__dirname, 'src/main/services/protobuf/schemas')
+          const dest = path.resolve(__dirname, 'out/main/services/protobuf/schemas')
 
           await fs.mkdir(dest, { recursive: true })
 

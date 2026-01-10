@@ -11,6 +11,7 @@ import { mangaRepository } from '../database/repository/manga.repo'
 import { PublicationStatus } from '../api/enums'
 import { AddToCollectionCommand } from '../database/commands/collections/add-to-collection.command'
 import path from 'node:path'
+import { mapCategoriesToCollections } from './helpers/mihon-backup.helper'
 
 export class MihonService {
   // MangaDex source ID from Tachiyomi extension
@@ -73,7 +74,6 @@ export class MihonService {
     categories: BackupCategory[],
     signal: AbortSignal
   ): Promise<ImportResult> {
-    const categoryMap = new Map<number, number>() // Tachiyomi/Mihon -> Our app ID
     const result: ImportResult = {
       importedMangaCount: 0,
       skippedMangaCount: 0,
@@ -85,21 +85,7 @@ export class MihonService {
     const addToCollectionsCommands: AddToCollectionCommand[] = []
 
     // First, create categories
-    const existing = collectionRepo.getAllCollections()
-    let fallbackKey = -1
-    for (const category of categories) {
-      const match = existing.find((col) => col.name === category.name)
-
-      if (match) {
-        categoryMap.set(category.id ?? fallbackKey--, match.id)
-      } else {
-        const created = collectionRepo.createCollection({
-          name: category.name,
-          description: 'Import from Tachiyomi/Mihon backup'
-        })
-        categoryMap.set(category.id ?? fallbackKey--, created)
-      }
-    }
+    const categoryMap = mapCategoriesToCollections(categories)
 
     // Then, import manga
     for (const manga of mangaList) {
@@ -179,7 +165,7 @@ export class MihonService {
 
   private extractMangaIdFromUrl(url: string): string | undefined {
     // MangaDex URLs: /manga/{uuid} or https://mangadex.org/title/{uuid}
-    const match = new RegExp(/\/(?:manga|title)\/([a-f0-9-]{36})(?:\/|$)/i).exec(url)
+    const match = MihonService.MANGADEX_URL_PATTERN.exec(url)
 
     if (!match?.[1]) {
       return undefined
