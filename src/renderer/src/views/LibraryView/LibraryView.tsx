@@ -12,7 +12,21 @@ import { SkeletonGrid } from '@renderer/components/Skeleton'
 import { CreateCollectionDialog } from '@renderer/components/CreateCollectionDialog'
 import { CollectionPickerDialog } from '@renderer/components/CollectionPickerDialog'
 import { ContextMenu } from '@renderer/components/ContextMenu'
+import { ImportProgressDialog } from '@renderer/components/ImportProgressDialog'
+import { ImportResultDialog } from '@renderer/components/ImportResultDialog'
 import { useLibraryStore, useCollectionsStore, useToastStore } from '@renderer/stores'
+
+// ImportResult interface matches src/main/services/results/import.result.ts
+interface ImportResult {
+  imported: number
+  skipped: number
+  failed: number
+  errors: Array<{
+    mangaId?: string
+    title?: string
+    message: string
+  }>
+}
 import {
   BookOpen48Regular,
   Search48Regular,
@@ -128,6 +142,10 @@ export function LibraryView(): JSX.Element {
   // Track manga IDs for each collection
   const [collectionMangaMap, setCollectionMangaMap] = useState<Record<number, string[]>>({})
 
+  // Import state
+  const [isImporting, setIsImporting] = useState(false)
+  const [importResult, setImportResult] = useState<ImportResult | null>(null)
+
   // Stores
   const { favourites, loading, error, loadFavourites, toggleFavourite } = useLibraryStore()
   const { collections, loadCollections, createCollection, updateCollection, deleteCollection } =
@@ -163,6 +181,55 @@ export function LibraryView(): JSX.Element {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collections])
+
+  // Listen for import events from main process
+  useEffect(() => {
+    const removeListener = globalThis.api.onImportTachiyomi(async (filePath: string) => {
+      // Start import
+      setIsImporting(true)
+      setImportResult(null)
+
+      try {
+        const response = await globalThis.mihon.importBackup(filePath)
+
+        if (response.success && response.data) {
+          setImportResult(response.data)
+
+          // Reload library to show imported manga
+          await loadFavourites()
+          await loadCollections()
+
+          // Show toast notification
+          show({
+            title: 'Import Complete',
+            message: `Imported ${response.data.imported} manga, skipped ${response.data.skipped}, failed ${response.data.failed}`,
+            variant: response.data.failed > 0 ? 'warning' : 'success',
+            duration: 4000
+          })
+        } else {
+          // Import failed
+          show({
+            title: 'Import Failed',
+            message: response.error || 'Could not import backup file',
+            variant: 'error',
+            duration: 4000
+          })
+        }
+      } catch (error) {
+        console.error('Error importing backup:', error)
+        show({
+          title: 'Import Failed',
+          message: 'An error occurred during import',
+          variant: 'error',
+          duration: 4000
+        })
+      } finally {
+        setIsImporting(false)
+      }
+    })
+
+    return removeListener
+  }, [loadFavourites, loadCollections, show])
 
   const handleSearch = (query: string): void => {
     setSearchQuery(query)
@@ -334,6 +401,22 @@ export function LibraryView(): JSX.Element {
         variant: 'error',
         duration: 3000
       })
+    }
+  }
+
+  const handleCancelImport = async (): Promise<void> => {
+    try {
+      const response = await globalThis.mihon.cancelImport()
+      if (response.success) {
+        show({
+          title: 'Import Cancelled',
+          message: 'The import has been cancelled',
+          variant: 'info',
+          duration: 3000
+        })
+      }
+    } catch (error) {
+      console.error('Error cancelling import:', error)
     }
   }
 
@@ -675,6 +758,28 @@ export function LibraryView(): JSX.Element {
             setPickerDialogOpen(false)
             // Automatically open the Create Collection dialog
             setCreateDialogOpen(true)
+          }}
+        />
+      )}
+
+      {/* Import Progress Dialog */}
+      <ImportProgressDialog
+        open={isImporting}
+        current={0}
+        total={0}
+        onCancel={handleCancelImport}
+      />
+
+      {/* Import Result Dialog */}
+      {importResult && (
+        <ImportResultDialog
+          open={!!importResult}
+          result={importResult}
+          onClose={() => setImportResult(null)}
+          onViewLibrary={() => {
+            setImportResult(null)
+            // Already in library, just scroll to top
+            globalThis.scrollTo({ top: 0, behavior: 'smooth' })
           }}
         />
       )}

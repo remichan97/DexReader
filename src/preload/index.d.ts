@@ -1,3 +1,4 @@
+import { MangaWithMetadata } from './../main/database/queries/manga/manga-with-metadata.query'
 import { ImportResult } from './../main/services/results/import.result'
 import { UpdateResult } from './../main/services/results/update.result'
 import { ImageUrlResponse } from './../main/api/responses/image-url.response'
@@ -27,6 +28,7 @@ export type { UpdateCollectionCommand } from '../main/database/commands/collecti
 export type { AddToCollectionCommand } from '../main/database/commands/collections/add-to-collection.command'
 export type { RemoveFromCollectionCommand } from '../main/database/commands/collections/remove-from-collection.command'
 export type { ImportResult } from './../main/services/results/import.result'
+export type { MangaWithMetadata } from './../main/database/queries/manga/manga-with-metadata.query'
 
 interface MenuState {
   canAddToFavorites?: boolean

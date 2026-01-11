@@ -1,0 +1,52 @@
+.import-progress-dialog {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 12px 0;
+  min-width: 400px;
+}
+
+.import-progress-dialog__ring {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.import-progress-dialog__status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.import-progress-dialog__progress {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.import-progress-dialog__current-title {
+  font-size: 14px;
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 350px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.import-progress-dialog__message {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  text-align: center;
+  max-width: 350px;
+  line-height: 1.5;
+}
+
+.import-progress-dialog__footer {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
