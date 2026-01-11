@@ -38,7 +38,7 @@ export class MihonService {
     const backup = root.lookupType('Backup').decode(decompressed) as unknown as Backup
 
     const mangadexManga = backup.backupManga.filter(
-      (manga) => manga.source === MihonService.MangaDexSourceId
+      (it) => BigInt(it.source) === MihonService.MangaDexSourceId
     )
 
     // No MangaDex manga found in backup, return early
@@ -98,9 +98,9 @@ export class MihonService {
         }
 
         // Check if manga already exists
-        const existing = mangaRepository.getMangaByCustomCondition({ mangaId: mangaId })
+        const existing = mangaRepository.getLibraryMangaByCustomCondition({ mangaId: mangaId })
 
-        if (existing) {
+        if (existing.length > 0) {
           result.skippedMangaCount++
           continue
         }

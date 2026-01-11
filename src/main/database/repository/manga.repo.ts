@@ -147,11 +147,17 @@ export class MangaRepository {
     return query.map(MangaMapper.toMangaWithMetadata)
   }
 
-  getMangaByCustomCondition(command: SearchMangaCommand): MangaWithMetadata[] {
+  getLibraryMangaByCustomCondition(command: SearchMangaCommand): MangaWithMetadata[] {
     const condition: SQL[] = []
+    // Always return favourited manga
+    condition.push(eq(manga.isFavourite, true))
+
+    if (command.mangaId) {
+      condition.push(eq(manga.mangaId, command.mangaId))
+    }
 
     if (command.title) {
-      condition.push(like(manga.title, `%${command.title}%`))
+      condition.push(eq(manga.title, command.title))
     }
 
     if (command.author) {
