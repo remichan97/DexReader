@@ -1,6 +1,6 @@
+import fs from 'node:fs/promises'
 import { UpsertMangaCommand } from './../database/commands/collections/upsert-manga.command'
 import Pako from 'pako'
-import { secureFs } from '../filesystem/secureFs'
 import { ImportResult } from './results/import.result'
 import { BackupCategory } from './types/mihon/backup-category.type'
 import { BackupManga } from './types/mihon/backup-manga.type'
@@ -29,7 +29,8 @@ export class MihonService {
   async importFromBackup(filePath: string): Promise<ImportResult> {
     this.abortController?.abort()
     this.abortController = new AbortController()
-    const buffer = (await secureFs.readFile(filePath)) as Buffer
+    // Use node's fs instead of our secureFs since this is what users provide themselves using the file picker, not an external file.
+    const buffer = await fs.readFile(filePath)
 
     const decompressed = Pako.ungzip(buffer)
 

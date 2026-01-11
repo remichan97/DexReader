@@ -7,6 +7,10 @@ export function registerMihonHandlers(): void {
       throw new TypeError('Invalid file path')
     }
 
+    if (!filePath.endsWith('.tachibk') && !filePath.endsWith('.proto.gz')) {
+      throw new Error("Selected file isn't a valid Tachiyomi/Mihon backup file")
+    }
+
     return await mihonService.importFromBackup(filePath)
   })
 
