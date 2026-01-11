@@ -1,3 +1,4 @@
+import { ImportResult } from './../main/services/results/import.result'
 import { UpdateResult } from './../main/services/results/update.result'
 import { ImageUrlResponse } from './../main/api/responses/image-url.response'
 import { ApiResponse } from './../main/api/responses/api.response'
@@ -25,6 +26,7 @@ export type { CreateCollectionCommand } from '../main/database/commands/collecti
 export type { UpdateCollectionCommand } from '../main/database/commands/collections/update-collection.command'
 export type { AddToCollectionCommand } from '../main/database/commands/collections/add-to-collection.command'
 export type { RemoveFromCollectionCommand } from '../main/database/commands/collections/remove-from-collection.command'
+export type { ImportResult } from './../main/services/results/import.result'
 
 interface MenuState {
   canAddToFavorites?: boolean
@@ -175,7 +177,7 @@ interface ReadHistory {
 }
 
 interface Mihon {
-  importFromBackup: (filePath: string) => Promise<IpcResponse<void>>
+  importBackup: (filePath: string) => Promise<IpcResponse<ImportResult>>
   cancelImport: () => Promise<IpcResponse<void>>
 }
 
