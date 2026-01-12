@@ -40,6 +40,9 @@ export class MihonService {
     const mangadexManga = backup.backupManga.filter((it) => {
       const isMangaDex = BigInt(it.source) === MihonService.MangaDexSourceId
 
+      // The favorite flag doesn't exists if the backup is library only
+      // so we assume all manga are favourites in that case
+      // This is just an assumption, may need to be revised later
       const isFavourite = it.history ? it.favorite : true
 
       return isMangaDex && isFavourite
