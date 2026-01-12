@@ -37,9 +37,13 @@ export class MihonService {
     const root = await protobuf.load(this.schemaPath)
     const backup = root.lookupType('Backup').decode(decompressed) as unknown as Backup
 
-    const mangadexManga = backup.backupManga.filter(
-      (it) => BigInt(it.source) === MihonService.MangaDexSourceId
-    )
+    const mangadexManga = backup.backupManga.filter((it) => {
+      const isMangaDex = BigInt(it.source) === MihonService.MangaDexSourceId
+
+      const isFavourite = it.history ? it.favorite : true
+
+      return isMangaDex && isFavourite
+    })
 
     // No MangaDex manga found in backup, return early
     // Probably error out on the UI side?

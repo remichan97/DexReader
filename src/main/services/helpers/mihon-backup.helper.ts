@@ -49,7 +49,7 @@ export class MihonBackupHelper {
       tags: manga.genre ?? [],
       coverUrl: manga.thumbnailUrl ?? '',
       status: manga.status ? StatusMap[manga.status] : PublicationStatus.Ongoing,
-      isFavourite: manga.favorite ?? true
+      isFavourite: true
     }
   }
 
