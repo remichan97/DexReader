@@ -1,3 +1,4 @@
+import { SaveChapterCommand } from './../../database/commands/progress/save-chapter.command';
 import { mihonBackup } from './../helpers/mihon-backup.helper'
 import fs from 'node:fs/promises'
 import { UpsertMangaCommand } from '../../database/commands/collections/upsert-manga.command'
@@ -79,6 +80,7 @@ export class MihonService {
     const upsertCommand: UpsertMangaCommand[] = []
     const addToCollectionsCommands: AddToCollectionCommand[] = []
     const progressCommands: SaveProgressCommand[] = []
+    const chapterMetadata: SaveChapterCommand[] = []
 
     // First, create categories
     const categoryMap = mihonBackup.mapCategoriesToCollections(categories)
@@ -124,6 +126,9 @@ export class MihonService {
         )
         addToCollectionsCommands.push(...categoryCommands)
 
+        const chapterCommands = mihonBackup.processChapterMetadata(manga.chapters, mangaId)
+        chapterMetadata.push(...chapterCommands)
+
         // Process reading progress
         const mangaProgressCommands = mihonBackup.processProgressCommands(
           manga.chapters,
@@ -144,6 +149,7 @@ export class MihonService {
     // Now we batch everything we have built
     mangaRepository.batchUpsertManga(upsertCommand)
     collectionRepo.batchAddToCollection(addToCollectionsCommands)
+    progressRepo.saveChapters(chapterMetadata)
     progressRepo.saveProgress(progressCommands)
 
     result.importedMangaCount = upsertCommand.length

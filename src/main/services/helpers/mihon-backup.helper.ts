@@ -8,6 +8,8 @@ import { BackupManga } from '../types/mihon/backup-manga.type'
 import { BackupChapter } from '../types/mihon/backup-chapter.type'
 import { SaveProgressCommand } from '../../database/commands/progress/save-progress.command'
 import { BackupHistory } from '../types/mihon/backup-history.type'
+import { SaveChapterCommand } from '../../database/commands/progress/save-chapter.command'
+import { unixTimestampToDate } from '../../utils/timestamps.util'
 
 const MANGADEX_URL_PATTERN = /\/(?:manga|title)\/([a-f0-9-]{36})(?:\/|$)/i
 const MANGADEX_CHAPTER_URL_PATTERN = /\/chapter\/([a-f0-9-]{36})(?:\/|$)/i
@@ -146,6 +148,34 @@ export class MihonBackupHelper {
     }
 
     return progressCommands
+  }
+
+  processChapterMetadata(chapters: BackupChapter[], mangaId: string): SaveChapterCommand[] {
+    const chapterCommands: SaveChapterCommand[] = []
+
+    for (const ch of chapters || []) {
+      const chapterId = this.extractIdFromUrl(ch.url, 'chapter')
+      if (!chapterId) {
+        // Unable to extract chapter ID, skip this chapter
+        continue
+      }
+
+      chapterCommands.push({
+        chapterId,
+        mangaId,
+        title: ch.name || 'Untitled Chapter',
+        chapterNumber: ch.chapterNumber?.toString() || 'Unknown',
+        language: 'en', // Assuming English, as Mihon backup does not store language info
+        publishAt:
+          ch.dateUpload || ch.dateFetch
+            ? unixTimestampToDate(ch.dateUpload || ch.dateFetch!)
+            : new Date(),
+        scanlationGroup: ch.scanlator || 'Unknown',
+        externalUrl: ch.url
+      })
+    }
+
+    return chapterCommands
   }
 
   extractIdFromUrl(url: string, extractType: 'manga' | 'chapter'): string | undefined {

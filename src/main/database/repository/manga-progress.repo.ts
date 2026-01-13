@@ -9,6 +9,7 @@ import { MangaMapper } from '../mappers/manga.mapper'
 import { dateToUnixTimestamp, unixTimestampToDate } from '../../utils/timestamps.util'
 import { mangaRepository } from './manga.repo'
 import { readingRepo } from './reading-stats.repo'
+import { SaveChapterCommand } from '../commands/progress/save-chapter.command'
 
 export class MangaProgressRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
@@ -147,19 +148,7 @@ export class MangaProgressRepository {
     })
   }
 
-  saveChapters(
-    chapters: Array<{
-      chapterId: string
-      mangaId: string
-      title?: string
-      chapterNumber?: string
-      volume?: string
-      language: string
-      publishAt: Date
-      scanlationGroup?: string
-      externalUrl?: string
-    }>
-  ): void {
+  saveChapters(chapters: SaveChapterCommand[]): void {
     const now = new Date()
 
     this.db.transaction((tx) => {
