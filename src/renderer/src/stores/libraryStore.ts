@@ -6,7 +6,7 @@
  */
 
 import { create } from 'zustand'
-import type { MangaWithMetadata } from '@preload/index'
+import type { MangaWithMetadata } from '../../../preload/index.d'
 
 export interface LibraryManga {
   mangaId: string
@@ -40,7 +40,7 @@ export const useLibraryStore = create<LibraryState>()((set, get) => ({
   loadFavourites: async () => {
     set({ loading: true, error: null })
     try {
-      const result = await window.library.getLibraryManga({})
+      const result = await globalThis.library.getLibraryManga({})
       if (result.success && result.data) {
         set({ favourites: result.data, loading: false })
       } else {
@@ -55,7 +55,7 @@ export const useLibraryStore = create<LibraryState>()((set, get) => ({
   // Toggle favourite status (add/remove from favourites)
   toggleFavourite: async (mangaId: string) => {
     try {
-      const result = await window.library.toggleFavourite(mangaId)
+      const result = await globalThis.library.toggleFavourite(mangaId)
       if (result.success) {
         // Refresh the library after toggling
         await get().loadFavourites()
