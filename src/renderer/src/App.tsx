@@ -40,13 +40,13 @@ function AppContent(): React.JSX.Element {
     const handleFlushRequest = async (): Promise<void> => {
       setIsClosing(true)
       // Signal main process that flush is complete
-      window.electron?.ipcRenderer.send('flush-complete')
+      globalThis.electron?.ipcRenderer.send('flush-complete')
     }
 
-    window.electron?.ipcRenderer.on('flush-pending-saves', handleFlushRequest)
+    globalThis.electron?.ipcRenderer.on('flush-pending-saves', handleFlushRequest)
 
     return () => {
-      window.electron?.ipcRenderer.removeListener('flush-pending-saves', handleFlushRequest)
+      globalThis.electron?.ipcRenderer.removeListener('flush-pending-saves', handleFlushRequest)
     }
   }, [flushPendingSaves])
 
