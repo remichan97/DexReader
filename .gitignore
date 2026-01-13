@@ -6,3 +6,6 @@ out
 *.log*
 copilot-plans/
 *.db
+# SQLite database files (WAL and SHM)
+*.db-wal
+*.db-shm
