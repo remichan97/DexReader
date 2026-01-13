@@ -13,14 +13,15 @@ import './ImportResultDialog.css'
 
 // ImportResult interface matches src/main/services/results/import.result.ts
 interface ImportResult {
-  imported: number
-  skipped: number
-  failed: number
-  errors: Array<{
+  importedMangaCount: number
+  skippedMangaCount: number
+  failedMangaCount: number
+  errors?: Array<{
     mangaId?: string
     title?: string
-    message: string
+    reason: string
   }>
+  importedMangaIds?: string[]
 }
 
 export interface ImportResultDialogProps {
@@ -70,8 +71,8 @@ export function ImportResultDialog({
     return <></>
   }
 
-  const { imported, skipped, failed, errors } = result
-  const total = imported + skipped + failed
+  const { importedMangaCount, skippedMangaCount, failedMangaCount, errors } = result
+  const total = importedMangaCount + skippedMangaCount + failedMangaCount
   const hasErrors = errors && errors.length > 0
 
   // Determine dialog status
@@ -79,11 +80,11 @@ export function ImportResultDialog({
   let StatusIcon = CheckmarkCircle48Regular
   let statusText = 'Import Successful'
 
-  if (failed > 0) {
+  if (failedMangaCount > 0) {
     status = 'error'
     StatusIcon = ErrorCircle48Regular
     statusText = 'Import Completed with Errors'
-  } else if (skipped > 0) {
+  } else if (skippedMangaCount > 0) {
     status = 'warning'
     StatusIcon = Warning48Regular
     statusText = 'Import Completed with Warnings'
@@ -100,7 +101,7 @@ export function ImportResultDialog({
           <Button variant="secondary" onClick={onClose} icon={<Dismiss24Regular />}>
             Close
           </Button>
-          {onViewLibrary && imported > 0 && (
+          {onViewLibrary && importedMangaCount > 0 && (
             <Button variant="primary" onClick={onViewLibrary}>
               View Library
             </Button>
@@ -115,29 +116,29 @@ export function ImportResultDialog({
 
         <div className="import-result-dialog__stats">
           <div className="import-result-dialog__stat import-result-dialog__stat--success">
-            <div className="import-result-dialog__stat-value">{imported}</div>
+            <div className="import-result-dialog__stat-value">{importedMangaCount}</div>
             <div className="import-result-dialog__stat-label">Imported</div>
           </div>
 
           <div className="import-result-dialog__stat import-result-dialog__stat--warning">
-            <div className="import-result-dialog__stat-value">{skipped}</div>
+            <div className="import-result-dialog__stat-value">{skippedMangaCount}</div>
             <div className="import-result-dialog__stat-label">Skipped</div>
           </div>
 
           <div className="import-result-dialog__stat import-result-dialog__stat--error">
-            <div className="import-result-dialog__stat-value">{failed}</div>
+            <div className="import-result-dialog__stat-value">{failedMangaCount}</div>
             <div className="import-result-dialog__stat-label">Failed</div>
           </div>
         </div>
 
         <div className="import-result-dialog__summary">
           <p>
-            Successfully imported {imported} out of {total} manga from your backup.
+            Successfully imported {importedMangaCount} out of {total} manga from your backup.
           </p>
 
-          {skipped > 0 && (
+          {skippedMangaCount > 0 && (
             <p className="import-result-dialog__note">
-              {skipped} manga were skipped (already in library or not from MangaDex).
+              {skippedMangaCount} manga were skipped (already in library or not from MangaDex).
             </p>
           )}
         </div>
@@ -165,7 +166,7 @@ export function ImportResultDialog({
                     <div className="import-result-dialog__error-title">
                       {error.title || 'Unknown Manga'}
                     </div>
-                    <div className="import-result-dialog__error-message">{error.message}</div>
+                    <div className="import-result-dialog__error-message">{error.reason}</div>
                   </div>
                 ))}
               </div>

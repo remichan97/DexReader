@@ -1,4 +1,4 @@
-import { mihonService } from '../../services/mihon/mihon.-backup.services'
+import { mihonService } from '../../services/mihon/mihon-backup.services'
 import { wrapIpcHandler } from '../wrapHandler'
 
 export function registerMihonHandlers(): void {

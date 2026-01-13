@@ -18,14 +18,15 @@ import { useLibraryStore, useCollectionsStore, useToastStore } from '@renderer/s
 
 // ImportResult interface matches src/main/services/results/import.result.ts
 interface ImportResult {
-  imported: number
-  skipped: number
-  failed: number
-  errors: Array<{
+  importedMangaCount: number
+  skippedMangaCount: number
+  failedMangaCount: number
+  errors?: Array<{
     mangaId?: string
     title?: string
-    message: string
+    reason: string
   }>
+  importedMangaIds?: string[]
 }
 import {
   BookOpen48Regular,
@@ -185,6 +186,12 @@ export function LibraryView(): JSX.Element {
   // Listen for import events from main process
   useEffect(() => {
     const removeListener = globalThis.api.onImportTachiyomi(async (filePath: string) => {
+      // Prevent concurrent imports
+      if (isImporting) {
+        console.warn('Import already in progress, ignoring duplicate request')
+        return
+      }
+
       // Start import
       setIsImporting(true)
       setImportResult(null)
@@ -202,8 +209,8 @@ export function LibraryView(): JSX.Element {
           // Show toast notification
           show({
             title: 'Import Complete',
-            message: `Imported ${response.data.imported} manga, skipped ${response.data.skipped}, failed ${response.data.failed}`,
-            variant: response.data.failed > 0 ? 'warning' : 'success',
+            message: `Imported ${response.data.importedMangaCount} manga, skipped ${response.data.skippedMangaCount}, failed ${response.data.failedMangaCount}`,
+            variant: response.data.failedMangaCount > 0 ? 'warning' : 'success',
             duration: 4000
           })
         } else {
@@ -229,7 +236,8 @@ export function LibraryView(): JSX.Element {
     })
 
     return removeListener
-  }, [loadFavourites, loadCollections, show])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleSearch = (query: string): void => {
     setSearchQuery(query)

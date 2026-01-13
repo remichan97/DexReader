@@ -3,4 +3,5 @@ export interface SaveProgressCommand {
   chapterId: string
   currentPage: number
   completed: boolean
+  lastReadAt?: number
 }

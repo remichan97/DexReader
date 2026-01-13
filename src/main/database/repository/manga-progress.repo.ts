@@ -6,7 +6,7 @@ import { chapter, chapterProgress, manga, mangaProgress } from '../schema'
 import { MangaProgress } from '../queries/progress/manga-progress.query'
 import { SaveProgressCommand } from '../commands/progress/save-progress.command'
 import { MangaMapper } from '../mappers/manga.mapper'
-import { dateToUnixTimestamp } from '../../utils/timestamps.util'
+import { dateToUnixTimestamp, unixTimestampToDate } from '../../utils/timestamps.util'
 import { mangaRepository } from './manga.repo'
 import { readingRepo } from './reading-stats.repo'
 
@@ -102,8 +102,6 @@ export class MangaProgressRepository {
   }
 
   saveProgress(progress: SaveProgressCommand[]): void {
-    const now = new Date()
-
     // Use a single transaction for all progress items
     this.db.transaction((tx) => {
       for (const item of progress) {
@@ -112,14 +110,14 @@ export class MangaProgressRepository {
           .values({
             mangaId: item.mangaId,
             lastChapterId: item.chapterId,
-            firstReadAt: now,
-            lastReadAt: now
+            firstReadAt: item.lastReadAt ? unixTimestampToDate(item.lastReadAt) : new Date(),
+            lastReadAt: item.lastReadAt ? unixTimestampToDate(item.lastReadAt) : new Date()
           })
           .onConflictDoUpdate({
             target: mangaProgress.mangaId,
             set: {
               lastChapterId: item.chapterId,
-              lastReadAt: now
+              lastReadAt: item.lastReadAt ? unixTimestampToDate(item.lastReadAt) : new Date()
             }
           })
           .run()
@@ -130,14 +128,14 @@ export class MangaProgressRepository {
             chapterId: item.chapterId,
             currentPage: item.currentPage,
             completed: item.completed,
-            lastReadAt: now
+            lastReadAt: item.lastReadAt ? unixTimestampToDate(item.lastReadAt) : new Date()
           })
           .onConflictDoUpdate({
             target: [chapterProgress.mangaId, chapterProgress.chapterId],
             set: {
               currentPage: item.currentPage,
               completed: item.completed,
-              lastReadAt: now
+              lastReadAt: item.lastReadAt ? unixTimestampToDate(item.lastReadAt) : new Date()
             }
           })
           .run()

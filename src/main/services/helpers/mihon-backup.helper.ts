@@ -5,8 +5,12 @@ import { collectionRepo } from '../../database/repository/collection.repo'
 import { TagList } from '../../api/constants/tag-list.constant'
 import { BackupCategory } from '../types/mihon/backup-category.type'
 import { BackupManga } from '../types/mihon/backup-manga.type'
+import { BackupChapter } from '../types/mihon/backup-chapter.type'
+import { SaveProgressCommand } from '../../database/commands/progress/save-progress.command'
+import { BackupHistory } from '../types/mihon/backup-history.type'
 
 const MANGADEX_URL_PATTERN = /\/(?:manga|title)\/([a-f0-9-]{36})(?:\/|$)/i
+const MANGADEX_CHAPTER_URL_PATTERN = /\/chapter\/([a-f0-9-]{36})(?:\/|$)/i
 
 const StatusMap: Record<number, PublicationStatus> = {
   0: PublicationStatus.Ongoing,
@@ -69,7 +73,7 @@ export class MihonBackupHelper {
 
     // Create manga entry
     return {
-      mangaId: this.extractMangaIdFromUrl(manga.url)!, // We already validated this before calling the method
+      mangaId: this.extractIdFromUrl(manga.url, 'manga')!, // We already validated this before calling the method
       title: manga.title || 'Unknown Title',
       authors: manga.author ? [manga.author] : [],
       artists: manga.artist ? [manga.artist] : [],
@@ -105,9 +109,50 @@ export class MihonBackupHelper {
     return commands
   }
 
-  extractMangaIdFromUrl(url: string): string | undefined {
+  processProgressCommands(
+    chapters: BackupChapter[],
+    history: BackupHistory[],
+    mangaId: string
+  ): SaveProgressCommand[] {
+    const progressCommands: SaveProgressCommand[] = []
+    const historyMap = new Map<string, BackupHistory>()
+
+    // Map history by chapter URL for quick lookup
+    for (const entry of history || []) {
+      historyMap.set(entry.url, entry)
+    }
+
+    // Process each chapter to create progress commands
+    for (const items of chapters || []) {
+      if (items.lastPageRead && items.lastPageRead > 0) {
+        // First, extract chapter ID from URL
+        const chapterId = this.extractIdFromUrl(items.url, 'chapter')
+        if (!chapterId) {
+          // Unable to extract chapter ID, skip this chapter
+          continue
+        }
+
+        // Find corresponding history entry
+        const historyEntry = historyMap.get(items.url)
+
+        progressCommands.push({
+          mangaId: mangaId,
+          chapterId: chapterId,
+          currentPage: items.lastPageRead,
+          completed: items.read ?? false,
+          lastReadAt: historyEntry ? historyEntry.lastRead : undefined
+        })
+      }
+    }
+
+    return progressCommands
+  }
+
+  extractIdFromUrl(url: string, extractType: 'manga' | 'chapter'): string | undefined {
     // MangaDex URLs: /manga/{uuid} or https://mangadex.org/title/{uuid}
-    const match = MANGADEX_URL_PATTERN.exec(url)
+    const match = (
+      extractType === 'manga' ? MANGADEX_URL_PATTERN : MANGADEX_CHAPTER_URL_PATTERN
+    ).exec(url)
 
     if (!match?.[1]) {
       return undefined

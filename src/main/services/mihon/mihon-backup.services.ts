@@ -1,3 +1,4 @@
+import { mihonBackup } from './../helpers/mihon-backup.helper'
 import fs from 'node:fs/promises'
 import { UpsertMangaCommand } from '../../database/commands/collections/upsert-manga.command'
 import Pako from 'pako'
@@ -10,7 +11,8 @@ import { collectionRepo } from '../../database/repository/collection.repo'
 import { mangaRepository } from '../../database/repository/manga.repo'
 import { AddToCollectionCommand } from '../../database/commands/collections/add-to-collection.command'
 import path from 'node:path'
-import { mihonBackup } from '../helpers/mihon-backup.helper'
+import { SaveProgressCommand } from '../../database/commands/progress/save-progress.command'
+import { progressRepo } from '../../database/repository/manga-progress.repo'
 
 export class MihonService {
   // MangaDex source ID from Tachiyomi extension
@@ -76,6 +78,7 @@ export class MihonService {
     }
     const upsertCommand: UpsertMangaCommand[] = []
     const addToCollectionsCommands: AddToCollectionCommand[] = []
+    const progressCommands: SaveProgressCommand[] = []
 
     // First, create categories
     const categoryMap = mihonBackup.mapCategoriesToCollections(categories)
@@ -89,7 +92,7 @@ export class MihonService {
       }
 
       try {
-        const mangaId = mihonBackup.extractMangaIdFromUrl(manga.url)
+        const mangaId = mihonBackup.extractIdFromUrl(manga.url, 'manga')
 
         if (!mangaId) {
           // Unable to extract manga ID from URL, skip
@@ -120,6 +123,14 @@ export class MihonService {
           categoryMap
         )
         addToCollectionsCommands.push(...categoryCommands)
+
+        // Process reading progress
+        const mangaProgressCommands = mihonBackup.processProgressCommands(
+          manga.chapters,
+          manga.history,
+          mangaId
+        )
+        progressCommands.push(...mangaProgressCommands)
       } catch (error) {
         result.failedMangaCount++
         result.errors?.push({
@@ -133,6 +144,7 @@ export class MihonService {
     // Now we batch everything we have built
     mangaRepository.batchUpsertManga(upsertCommand)
     collectionRepo.batchAddToCollection(addToCollectionsCommands)
+    progressRepo.saveProgress(progressCommands)
 
     result.importedMangaCount = upsertCommand.length
     result.importedMangaIds = upsertCommand.map((cmd) => cmd.mangaId)
