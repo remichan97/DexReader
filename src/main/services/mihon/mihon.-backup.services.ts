@@ -1,16 +1,16 @@
 import fs from 'node:fs/promises'
-import { UpsertMangaCommand } from './../database/commands/collections/upsert-manga.command'
+import { UpsertMangaCommand } from '../../database/commands/collections/upsert-manga.command'
 import Pako from 'pako'
-import { ImportResult } from './results/import.result'
-import { BackupCategory } from './types/mihon/backup-category.type'
-import { BackupManga } from './types/mihon/backup-manga.type'
+import { ImportResult } from '../results/import.result'
+import { BackupCategory } from '../types/mihon/backup-category.type'
+import { BackupManga } from '../types/mihon/backup-manga.type'
 import protobuf from 'protobufjs'
-import { Backup } from './types/mihon/backup.type'
-import { collectionRepo } from '../database/repository/collection.repo'
-import { mangaRepository } from '../database/repository/manga.repo'
-import { AddToCollectionCommand } from '../database/commands/collections/add-to-collection.command'
+import { Backup } from '../types/mihon/backup.type'
+import { collectionRepo } from '../../database/repository/collection.repo'
+import { mangaRepository } from '../../database/repository/manga.repo'
+import { AddToCollectionCommand } from '../../database/commands/collections/add-to-collection.command'
 import path from 'node:path'
-import { mihonBackup } from './helpers/mihon-backup.helper'
+import { mihonBackup } from '../helpers/mihon-backup.helper'
 
 export class MihonService {
   // MangaDex source ID from Tachiyomi extension
@@ -35,15 +35,13 @@ export class MihonService {
     const decompressed = Pako.ungzip(buffer)
 
     const root = await protobuf.load(this.schemaPath)
-    const backup = root.lookupType('Backup').decode(decompressed) as unknown as Backup
+    const backup = root.lookupType('Backup').decode(decompressed).toJSON() as Backup
 
     const mangadexManga = backup.backupManga.filter((it) => {
       const isMangaDex = BigInt(it.source) === MihonService.MangaDexSourceId
 
-      // The favorite field is omitted in library-only backups (no history)
-      // In full backups (with history), the favorite field is present and accurate
-      const hasHistory = it.history && it.history.length > 0
-      const isFavourite = hasHistory ? it.favorite === true : true
+      // Assume all manga in backup are favourite, unless explicitly marked otherwise
+      const isFavourite = it.favorite ?? true
 
       return isMangaDex && isFavourite
     })
@@ -115,16 +113,13 @@ export class MihonService {
         // Create manga entry
         upsertCommand.push(mihonBackup.processMangaCommand(manga))
 
-        // Finally, assign to collection if category exists
-        for (const categoryId of manga.categories) {
-          const collectionId = categoryMap.get(categoryId)
-          if (collectionId) {
-            addToCollectionsCommands.push({
-              collectionId: collectionId,
-              mangaId: mangaId
-            })
-          }
-        }
+        // Assign to collections based on categories
+        const categoryCommands = mihonBackup.processCategoryAssignments(
+          manga.categories,
+          mangaId,
+          categoryMap
+        )
+        addToCollectionsCommands.push(...categoryCommands)
       } catch (error) {
         result.failedMangaCount++
         result.errors?.push({
