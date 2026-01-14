@@ -1,5 +1,5 @@
-import { SaveChapterCommand } from './../../database/commands/progress/save-chapter.command'
-import { mihonBackup } from './../helpers/mihon-backup.helper'
+import { SaveChapterCommand } from '../../database/commands/progress/save-chapter.command'
+import { mihonBackup } from '../helpers/mihon-backup.helper'
 import fs from 'node:fs/promises'
 import { UpsertMangaCommand } from '../../database/commands/collections/upsert-manga.command'
 import Pako from 'pako'
@@ -15,7 +15,7 @@ import path from 'node:path'
 import { SaveProgressCommand } from '../../database/commands/progress/save-progress.command'
 import { progressRepo } from '../../database/repository/manga-progress.repo'
 
-export class MihonService {
+export class MihonBackupService {
   // MangaDex source ID from Tachiyomi extension
   // See: https://github.com/tachiyomiorg/tachiyomi-extensions
   private static readonly MangaDexSourceId = 2499283573021220255n
@@ -41,7 +41,7 @@ export class MihonService {
     const backup = root.lookupType('Backup').decode(decompressed).toJSON() as Backup
 
     const mangadexManga = backup.backupManga.filter((it) => {
-      const isMangaDex = BigInt(it.source) === MihonService.MangaDexSourceId
+      const isMangaDex = BigInt(it.source) === MihonBackupService.MangaDexSourceId
 
       // Assume all manga in backup are favourite, unless explicitly marked otherwise
       const isFavourite = it.favorite ?? true
@@ -161,4 +161,4 @@ export class MihonService {
     this.abortController?.abort()
   }
 }
-export const mihonService = new MihonService()
+export const mihonBackupService = new MihonBackupService()

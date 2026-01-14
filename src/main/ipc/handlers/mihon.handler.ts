@@ -1,4 +1,4 @@
-import { mihonService } from '../../services/mihon/mihon-backup.services'
+import { mihonBackupService } from '../../services/mihon/mihon-backup.service'
 import { wrapIpcHandler } from '../wrapHandler'
 
 export function registerMihonHandlers(): void {
@@ -11,10 +11,10 @@ export function registerMihonHandlers(): void {
       throw new Error("Selected file isn't a valid Tachiyomi/Mihon backup file")
     }
 
-    return await mihonService.importFromBackup(filePath)
+    return await mihonBackupService.importFromBackup(filePath)
   })
 
   wrapIpcHandler('mihon:cancel-import', async () => {
-    mihonService.cancelImport()
+    mihonBackupService.cancelImport()
   })
 }
