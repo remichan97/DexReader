@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Tabs, TabList, Tab, TabPanel } from '@renderer/components/Tabs'
 import { MangaCard } from '@renderer/components/MangaCard'
@@ -146,6 +146,7 @@ export function LibraryView(): JSX.Element {
   // Import state
   const [isImporting, setIsImporting] = useState(false)
   const [importResult, setImportResult] = useState<ImportResult | null>(null)
+  const importingRef = useRef(false) // Synchronous guard against double imports
 
   // Stores
   const { favourites, loading, error, loadFavourites, toggleFavourite } = useLibraryStore()
@@ -186,13 +187,14 @@ export function LibraryView(): JSX.Element {
   // Listen for import events from main process
   useEffect(() => {
     const removeListener = globalThis.api.onImportTachiyomi(async (filePath: string) => {
-      // Prevent concurrent imports
-      if (isImporting) {
+      // Prevent concurrent imports with synchronous ref check
+      if (importingRef.current) {
         console.warn('Import already in progress, ignoring duplicate request')
         return
       }
 
       // Start import
+      importingRef.current = true
       setIsImporting(true)
       setImportResult(null)
 
@@ -231,6 +233,7 @@ export function LibraryView(): JSX.Element {
           duration: 4000
         })
       } finally {
+        importingRef.current = false
         setIsImporting(false)
       }
     })

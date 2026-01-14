@@ -1,4 +1,4 @@
-import { SaveChapterCommand } from './../../database/commands/progress/save-chapter.command';
+import { SaveChapterCommand } from './../../database/commands/progress/save-chapter.command'
 import { mihonBackup } from './../helpers/mihon-backup.helper'
 import fs from 'node:fs/promises'
 import { UpsertMangaCommand } from '../../database/commands/collections/upsert-manga.command'
@@ -125,7 +125,7 @@ export class MihonService {
           categoryMap
         )
         addToCollectionsCommands.push(...categoryCommands)
-
+        // Small bit of chapter metadata here to make sure we at least got the history show up properly
         const chapterCommands = mihonBackup.processChapterMetadata(manga.chapters, mangaId)
         chapterMetadata.push(...chapterCommands)
 
