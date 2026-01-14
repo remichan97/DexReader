@@ -1,8 +1,8 @@
 # DexReader Project Progress & Timeline
 
 **Project Start**: 23 November 2025
-**Current Phase**: Phase 3 - User Experience Enhancement (P3-T01 Planning Complete ✅)
-**Last Updated**: 1 January 2026
+**Current Phase**: Phase 3 - User Experience Enhancement (P3-T12 Complete ✅)
+**Last Updated**: 14 January 2026
 
 ---
 
@@ -21,11 +21,11 @@
 
 ---
 
-## Current Status: Phase 3 In Progress (68.4% Complete)
+## Current Status: Phase 3 In Progress (78.9% Complete)
 
-**Progress**: Phase 2 Complete (11/11 tasks) | Guerilla Refactoring Complete | P3-T01 COMPLETE ✅
-**Next**: P3-T11 (Keyboard Shortcuts Help) ready to implement OR P3-T12-T17 (Import/Export)
-**Status**: 13/19 Phase 3 tasks complete, P3-T11 planned and ready
+**Progress**: Phase 2 Complete (11/11 tasks) | Guerilla Refactoring Complete | P3-T01 COMPLETE ✅ | P3-T12 COMPLETE ✅
+**Next**: P3-T13-T15 (Native DexReader backup/restore) OR P3-T16 (Settings backup) OR P3-T17-T18
+**Status**: 15/19 Phase 3 tasks complete, ready for remaining tasks
 
 ### P3-T01 Library Features: COMPLETE ✅ (100%)
 
@@ -821,16 +821,16 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 - [✅] **P3-T09**: Settings/preferences UI - **COMPLETE** (Pre-Phase 3)
 - [✅] **P3-T10**: Downloads directory configuration - **COMPLETE** (Pre-Phase 3)
 - [✅] **P3-T11**: Keyboard Shortcuts Help Dialog - **COMPLETE** (6 Jan 2026, 2 hours)
-- [ ] **P3-T12**: Implement library import from Mihon/Tachiyomi backup (protobuf)
+- [✅] **P3-T12**: Implement library import from Mihon/Tachiyomi backup (protobuf) - **COMPLETE** (14 Jan 2026, ~6 hours)
 - [ ] **P3-T13**: Implement library export to native DexReader format (protobuf)
-- [ ] **P3-T14**: Implement library export to Mihon/Tachiyomi format (cross-compatibility, protobuf)
+- [📋] **P3-T14**: Implement library export to Mihon/Tachiyomi format (cross-compatibility, protobuf) - **PLANNED** (Est. 4-6 hours)
 - [ ] **P3-T15**: Add native DexReader backup restore functionality (protobuf)
-- [ ] **P3-T16**: Add backup/restore for app settings (JSON - small, user-editable)
+- [ ] **P3-T16**: Add "Danger Zone" settings section (Open Settings, Reset to Default, Clear Data)
 - [ ] **P3-T17**: Implement date format settings
 - [ ] **P3-T18**: Improve accessibility (ARIA labels, etc.)
 - [✅] **P3-T19**: Fluent UI icons - **COMPLETE** (Pre-Phase 3)
 
-**Phase 3 Progress**: 14/19 tasks complete (73.7%) ✅
+**Phase 3 Progress**: 15/19 tasks complete (78.9%) ✅
 
 **Notes**:
 
@@ -842,9 +842,10 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 - P3-T07: BrowseView loads popular manga by default (sorted by follows)
 - P3-T08-T10, P3-T19: Already implemented during Phase 2 refactoring
 - P3-T11: COMPLETE - All 38 shortcuts implemented and working. Help dialog implemented with unicode arrows + aria-labels for accessibility. Triggered via Help menu or Ctrl+/
-- P3-T12: Protobuf tooling (protobufjs, pako) will be added as dependencies. Schema reusable across P3-T13/T14/T15
+- P3-T12: COMPLETE - Full Mihon/Tachiyomi import working. Imports manga metadata, collections, reading progress (with timestamps), chapter metadata for history view. Tag name→ID conversion, BigInt/Long handling, favorite field detection, double-import prevention. UI with progress dialog, result dialog, and toast notifications
 - P3-T13-T15: Using protobuf format (.dexreader file extension) for library backups due to: (a) large library support (1000+ manga), (b) file size efficiency (50-70% smaller than JSON), (c) schema validation, (d) version compatibility. Protobuf dependency already needed for Mihon/Tachiyomi import (P3-T12)
-- P3-T16: App settings will use JSON format (.json) since files are small (<10KB), user-editable, and human-readable for troubleshooting
+- P3-T14: PLANNED - Complete implementation plan ready (`.github/copilot-plans/P3-T14-mihon-export-plan.md`). Reuses P3-T12 infrastructure (protobuf, pako, schema). 6 implementation steps: (1) Export helper with tag ID→name conversion, (2) Export service with batch processing, (3) IPC handler, (4) Menu integration with pre-export info dialog, (5) Frontend integration, (6) Testing. Includes pre-export dialog to set expectations about what gets exported (library data only, not app settings)
+- P3-T16: Changed from "backup/restore system" to "Danger Zone" section with utilities: Open Settings Folder button, Reset to Default button, Clear Data & Reset App button. Settings are JSON files (user-editable), so manual backup is sufficient. Estimated 1-2 hours (UI + confirmation dialogs)
 - P3-T17: Date format settings - planned but not yet implemented
 - P3-T18: Some ARIA labels present (reader, buttons, selects), comprehensive audit pending
 - Additional UX features complete but not in original task list: Zoom/fit modes (ZoomControlsModal), progress indicators (ProgressRing/ProgressBar), error/empty states (ErrorBoundary), context menus (LibraryView), download UI (DownloadsView), history UI (HistoryView)

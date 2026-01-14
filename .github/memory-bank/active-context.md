@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 6 January 2026
+**Last Updated**: 14 January 2026
 **Current Phase**: Phase 3 - User Experience Enhancement
-**Session**: P3-T11 Keyboard Shortcuts Help Dialog - COMPLETE ✅
+**Session**: P3-T14 Implementation Plan Complete - Ready for Implementation
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -10,11 +10,11 @@
 
 ## Current Status Summary
 
-**Phase**: Phase 3 - User Experience Enhancement (14/19 tasks, 73.7%)
-**Progress**: P3-T11 just completed
-**Current Date**: 6 January 2026
+**Phase**: Phase 3 - User Experience Enhancement (15/19 tasks, 78.9%)
+**Progress**: P3-T12 complete, P3-T14 planned
+**Current Date**: 14 January 2026
 **Database Migration Status**: Fully migrated and operational
-**Current Task**: Ready for P3-T12 (Library Import/Export) or other Phase 3 tasks
+**Current Task**: P3-T14 ready for implementation (4-6 hours estimated)
 
 ---
 
@@ -52,6 +52,191 @@
 - Re-test all migration workflows post-upgrade
 
 **Date Logged**: 6 January 2026
+
+---
+
+## ✅ P3-T12 Mihon/Tachiyomi Library Import - COMPLETE (14 Jan 2026)
+
+**Duration**: ~6 hours (14 January 2026)
+**Status**: All implementation complete, fully tested ✅
+
+### What Was Implemented
+
+**1. Backend Import Service** (MihonService + MihonBackupHelper):
+
+- Protobuf parsing with `protobufjs` and gzip decompression via `pako`
+- MangaDex source filtering (source ID: `2499283573021220255n`)
+- Batch manga upsert with tag name→ID conversion using `TagNameToIdMap`
+- Collection mapping with fallback keys for uncategorized manga
+- Chapter progress import with actual reading timestamps from `BackupHistory`
+- Chapter metadata import for History view (title, number, scanlationGroup)
+- BigInt/Long comparison handling for protobuf source field
+- Favorite field detection via `toJSON()` with `?? true` fallback
+- URL-based ID extraction for manga and chapters
+
+**2. IPC Integration**:
+
+- `mihon:import-backup` handler with AbortController support
+- `mihon:cancel-import` for cancellation
+- Preload type definitions with local `ImportResult` interface
+- Event system: `import-tachiyomi` triggered from File menu
+
+**3. Frontend UI Components** (3 new components):
+
+- **ImportProgressDialog**: Shows indeterminate progress, manga counts, cancel button
+- **ImportResultDialog**: Success/warning/error states, stats cards, expandable error list
+- **LibraryView integration**: Event listener, state management, ref-based double-import prevention
+
+**4. Build Configuration**:
+
+- Vite plugin to copy `mihon.proto` schema to build output
+- Dependencies: `protobufjs@7.4.0`, `pako@2.1.0`
+
+**5. Data Imported**:
+
+- ✅ Manga metadata (title, author, cover, description, status, tags)
+- ✅ Collections/categories (creates new collections, maps manga to them)
+- ✅ Reading progress (currentPage, completed status)
+- ✅ Reading history timestamps (preserves actual lastRead dates)
+- ✅ Chapter metadata (title, number, scanlationGroup for History view)
+
+### Key Technical Solutions
+
+**Tag Conversion**:
+
+- Created `TagNameToIdMap` from `TagList` constant
+- Supports both PascalCase ("SliceOfLife") and space-separated ("Slice of Life")
+- Filters out undefined IDs with type guard
+
+**Timestamp Handling**:
+
+- History Map lookup: O(1) chapter URL → lastRead timestamp
+- Falls back to `new Date()` if history entry missing
+- Uses `unixTimestampToDate()` util for conversion
+
+**Double-Import Prevention**:
+
+- `useRef` for synchronous guard (not `useState` batching)
+- `importingRef.current` checked/set immediately
+- Prevents race conditions from rapid event firing
+
+**Field Name Alignment**:
+
+- Backend: `importedMangaCount`, `skippedMangaCount`, `failedMangaCount`
+- Frontend interfaces updated to match
+- Error field: `reason` (not `message`)
+
+**Page Tracking**:
+
+- Both systems use 0-based array indexing
+- Direct mapping: `BackupChapter.lastPageRead` → `chapter_progress.currentPage`
+- Display adds +1 for human-readable page numbers
+
+### Files Created/Modified
+
+**Backend**:
+
+- `mihon.services.ts` - Main import orchestration
+- `mihon-backup.helper.ts` - Business logic (4 methods)
+- `mihon.handler.ts` - IPC handlers
+- `import.result.ts` - Result type
+- `save-progress.command.ts` - Added optional `lastReadAt` field
+- `manga-progress.repo.ts` - Updated to handle timestamps
+- `tag-list.constant.ts` - Complete MangaDex tag UUID list
+- `mihon.proto` - Protobuf schema (copied)
+
+**Frontend**:
+
+- `ImportProgressDialog.tsx` (96 lines) + CSS
+- `ImportResultDialog.tsx` (180 lines) + CSS
+- `LibraryView.tsx` - Event integration with ref guard
+
+**Build**:
+
+- `electron.vite.config.ts` - Copy protobuf schema plugin
+
+### Testing & Edge Cases
+
+✅ **Tested Scenarios**:
+
+- Large library import (23+ manga)
+- Manga already in library (skip logic)
+- Missing chapter IDs (graceful skip)
+- Empty history array (falls back to now)
+- Protobuf Long vs BigInt comparison
+- Optional favorite field (library-only backups)
+- Tag name variations (PascalCase, spaces)
+- Double toast prevention (ref guard)
+
+### Result
+
+Complete Mihon/Tachiyomi import functionality. Users can migrate their entire library including reading progress and collections. History view shows correct chapter info and timestamps. All edge cases handled gracefully.
+
+---
+
+## 📋 P3-T14 Mihon/Tachiyomi Library Export - PLANNED (14 Jan 2026)
+
+**Status**: Implementation plan complete and ready
+**Plan Document**: `.github/copilot-plans/P3-T14-mihon-export-plan.md`
+**Estimated Duration**: 4-6 hours
+**Dependencies**: P3-T12 infrastructure (protobuf, pako, schema) ✅
+
+### Implementation Overview
+
+**Objective**: Export DexReader library to Mihon/Tachiyomi backup format (`.proto.gz`), enabling users to migrate their library TO Tachiyomi for cross-app compatibility.
+
+**Scope**:
+- ✅ Export manga metadata (title, author, description, status, tags, cover URL)
+- ✅ Export collections as Tachiyomi categories
+- ✅ Export reading progress (last read chapter, page numbers)
+- ✅ Export reading history (timestamps per chapter)
+- ✅ Generate valid protobuf backup file with gzip compression
+- ✅ File save dialog for choosing export location
+- ✅ Pre-export info dialog to set user expectations
+- ✅ Success/error feedback
+
+**Out of Scope**:
+- ❌ Exporting non-MangaDex manga (we only have MangaDex data)
+- ❌ Exporting reader settings/preferences (Mihon-specific)
+- ❌ Exporting downloaded chapters (metadata only)
+
+### Technical Approach
+
+**Infrastructure Reuse**: All P3-T12 infrastructure available (protobufjs, pako, mihon.proto schema, MangaDex source ID constant, TagList)
+
+**Key Transformations**:
+1. **Tag Mapping**: Create reverse mapping (ID → name) from existing TagList
+2. **URL Construction**: Build Mihon-compatible URLs (`/manga/{id}`, `/chapter/{id}`)
+3. **Status Mapping**: Convert DexReader status enum to Mihon integer codes
+4. **Data Flow**: Database → Transform → Protobuf encode → Gzip → Write file
+
+**Implementation Steps** (6 steps, 4-6 hours total):
+1. **Step 1**: Create `mihon-export.helper.ts` with 7 conversion methods (1.5-2h)
+2. **Step 2**: Implement `exportToBackup` method in MihonService (2-2.5h)
+3. **Step 3**: Add IPC handler `mihon:export-backup` (30min)
+4. **Step 4**: Menu integration with pre-export info dialog (45min)
+5. **Step 5**: Frontend integration in LibraryView (1h)
+6. **Step 6**: Testing and validation (30min)
+
+### Key Decisions
+
+**Pre-Export Info Dialog**: Added to Step 4 to inform users before export about what gets included (library data) and what doesn't (app settings like themes/preferences). This prevents confusion and sets clear expectations. Dialog includes:
+- List of exported data (metadata, collections, progress, history)
+- Note about DexReader-specific settings not being exportable
+- Cancel and Export buttons
+
+**File Format**: `.proto.gz` with date-based default filename (`dexreader-backup-YYYY-MM-DD.proto.gz`)
+
+**Keyboard Shortcut**: Ctrl+Shift+E for quick access
+
+**Result Type**: `ExportResult` interface with exported manga count and success/error messages
+
+### Next Steps
+
+1. Ready for implementation when user decides to proceed
+2. All code examples and data mappings documented in plan
+3. Test cases identified for validation
+4. Error handling patterns defined
 
 ---
 
