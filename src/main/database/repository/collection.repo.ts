@@ -10,6 +10,7 @@ import { UpdateCollectionCommand } from '../commands/collections/update-collecti
 import { CollectionMetadataQuery } from '../queries/collections/collection-metadata.query'
 import { CollectionMapper } from '../mappers/collection.mapper'
 import { ReorderMangaInCollectionCommand } from '../commands/collections/reorder-manga-collection.command'
+import { CollectionItemQuery } from '../queries/collections/collection-item.query'
 
 export class CollectionRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
@@ -55,6 +56,11 @@ export class CollectionRepository {
       .where(eq(collectionItems.collectionId, collectionId))
       .all()
     return results.map((result) => result.mangaId)
+  }
+
+  getAllCollectionItems(): CollectionItemQuery[] {
+    const results = this.db.select().from(collectionItems).all()
+    return results.map(CollectionMapper.toCollectionItemQuery)
   }
 
   createCollection(command: CreateCollectionCommand): number {

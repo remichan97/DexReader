@@ -1,6 +1,7 @@
+import { CollectionItemQuery } from '../queries/collections/collection-item.query'
 import { CollectionMetadataQuery } from '../queries/collections/collection-metadata.query'
 import { CollectionQuery } from '../queries/collections/collection.query'
-import { collections } from '../schema'
+import { collectionItems, collections } from '../schema'
 
 type CollectionMetadataRow = {
   id: number
@@ -30,6 +31,7 @@ type CollectionJoinRow = {
 }
 
 type CollectionRow = typeof collections.$inferSelect
+type CollectionItemsRow = typeof collectionItems.$inferSelect
 
 export class CollectionMapper {
   static toCollectionWithMetadata(row: CollectionMetadataRow): CollectionMetadataQuery {
@@ -65,6 +67,15 @@ export class CollectionMapper {
         createdAt: row.createdAt,
         updatedAt: row.updatedAt
       }
+    }
+  }
+
+  static toCollectionItemQuery(row: CollectionItemsRow): CollectionItemQuery {
+    return {
+      id: row.id,
+      collectionId: row.collectionId,
+      mangaId: row.mangaId,
+      addedAt: row.addedAt
     }
   }
 }
