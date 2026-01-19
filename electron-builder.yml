@@ -42,5 +42,7 @@ npmRebuild: false
 publish:
   provider: generic
   url: https://example.com/auto-updates
-electronDownload:
-  mirror: https://npmmirror.com/mirrors/electron/
+# electronDownload mirror removed - using official GitHub releases
+# Users in regions with slow GitHub access can add local mirror config:
+# electronDownload:
+#   mirror: https://npmmirror.com/mirrors/electron/
