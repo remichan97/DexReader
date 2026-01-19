@@ -236,12 +236,20 @@ class MangaDexNetworkError extends Error {
 
 ### Package Mirror Configuration
 
-**`.npmrc`** - Using npmmirror for faster downloads in certain regions:
+**`.npmrc`** - Configuration removed to use official sources:
 
+The project previously used `npmmirror.com` mirrors for faster downloads in certain regions. These have been removed because:
+- Not required for builds to work
+- Can cause failures when mirror is inaccessible
+- Official sources (GitHub, npm) are more reliable and widely accessible
+
+Users in regions with slow access to GitHub can optionally configure local mirrors by creating a `.npmrc` file (gitignored):
 ```properties
 electron_mirror=https://npmmirror.com/mirrors/electron/
 electron_builder_binaries_mirror=https://npmmirror.com/mirrors/electron-builder-binaries/
 ```
+
+**`electron-builder.yml`** - Uses default download behavior (official GitHub releases)
 
 ---
 
