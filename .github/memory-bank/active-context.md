@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 14 January 2026
+**Last Updated**: 20 January 2026
 **Current Phase**: Phase 3 - User Experience Enhancement
-**Session**: P3-T14 Implementation Plan Complete - Ready for Implementation
+**Session**: Dependency Vulnerability Management
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -12,13 +12,48 @@
 
 **Phase**: Phase 3 - User Experience Enhancement (15/19 tasks, 78.9%)
 **Progress**: P3-T12 complete, P3-T14 planned
-**Current Date**: 14 January 2026
+**Current Date**: 20 January 2026
 **Database Migration Status**: Fully migrated and operational
-**Current Task**: P3-T14 ready for implementation (4-6 hours estimated)
+**Current Task**: Dependency vulnerability assessment complete
 
 ---
 
 ## ⚠️ Known Issues & Strategic Decisions
+
+### electron-builder tar Vulnerability (High Severity)
+
+**Issue**: electron-builder@26.5.0 has transitive dependency on vulnerable tar@6.2.1 via @electron/rebuild@4.0.1
+
+- **CVE**: GHSA-8qq5-rm4j-mr97 (path traversal/arbitrary file overwrite)
+- **Severity**: High
+- **Scope**: Development dependency only (not shipped to users)
+- **Attack Vector**: Requires malicious tarball extraction during build process
+
+**Decision**: **Accept risk, continue with electron-builder@26.5.0**
+
+**Rationale**:
+
+1. **Dev-only**: electron-builder is devDependency, never bundled into production app
+2. **Upstream dependency issue**: Nested dependency (@electron/rebuild) controlled by electron-builder maintainers
+3. **Workarounds ineffective**: npm overrides reported as ineffective by community (GitHub issues)
+4. **Latest version**: Already on electron-builder@26.5.0 (latest); downgrading loses Electron 38 compatibility
+5. **Low exploitability**: Requires malicious tarball to be processed during build
+
+**Mitigation**:
+
+- Only build from trusted sources/repositories
+- Document decision for future reference
+
+**Action Plan**:
+
+- Monitor: [electron-builder Issues](https://github.com/electron-userland/electron-builder/issues)
+- Wait for @electron/rebuild to update tar dependency
+- Re-evaluate when electron-builder v27+ is released
+- Check periodically for upstream fixes
+
+**Date Logged**: 20 January 2026
+
+---
 
 ### drizzle-kit esbuild Vulnerability (Moderate Severity)
 
