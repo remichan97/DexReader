@@ -242,6 +242,42 @@ export function LibraryView(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Listen for export events from main process
+  useEffect(() => {
+    const removeListener = globalThis.api.onExportTachiyomi(async (filePath: string) => {
+      try {
+        const response = await globalThis.mihon.exportBackup(filePath)
+
+        if (response.success && response.data) {
+          show({
+            title: 'Export Complete',
+            message: `Exported ${response.data.exportedCount} manga to Mihon backup`,
+            variant: 'success',
+            duration: 4000
+          })
+        } else {
+          show({
+            title: 'Export Failed',
+            message: response.error || 'Could not export library',
+            variant: 'error',
+            duration: 4000
+          })
+        }
+      } catch (error) {
+        console.error('Error exporting backup:', error)
+        show({
+          title: 'Export Failed',
+          message: 'An error occurred during export',
+          variant: 'error',
+          duration: 4000
+        })
+      }
+    })
+
+    return removeListener
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const handleSearch = (query: string): void => {
     setSearchQuery(query)
   }
