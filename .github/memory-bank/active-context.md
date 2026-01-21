@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 20 January 2026
+**Last Updated**: 21 January 2026
 **Current Phase**: Phase 3 - User Experience Enhancement
-**Session**: Dependency Vulnerability Management
+**Session**: P3-T14 Mihon Export - Implementation Complete, Testing Pending
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -11,10 +11,10 @@
 ## Current Status Summary
 
 **Phase**: Phase 3 - User Experience Enhancement (15/19 tasks, 78.9%)
-**Progress**: P3-T12 complete, P3-T14 planned
-**Current Date**: 20 January 2026
+**Progress**: P3-T12 complete, P3-T14 implemented (testing pending)
+**Current Date**: 21 January 2026
 **Database Migration Status**: Fully migrated and operational
-**Current Task**: Dependency vulnerability assessment complete
+**Current Task**: P3-T14 Mihon/Tachiyomi Export - Code complete, awaiting regression testing
 
 ---
 
@@ -209,73 +209,137 @@ Complete Mihon/Tachiyomi import functionality. Users can migrate their entire li
 
 ---
 
-## 📋 P3-T14 Mihon/Tachiyomi Library Export - PLANNED (14 Jan 2026)
+## ✅ P3-T14 Mihon/Tachiyomi Library Export - IMPLEMENTED (21 Jan 2026)
 
-**Status**: Implementation plan complete and ready
+**Status**: Implementation complete, awaiting testing ⚠️
+**Duration**: ~5-6 hours (21 January 2026)
 **Plan Document**: `.github/copilot-plans/P3-T14-mihon-export-plan.md`
-**Estimated Duration**: 4-6 hours
-**Dependencies**: P3-T12 infrastructure (protobuf, pako, schema) ✅
 
-### Implementation Overview
+### Implementation Summary
 
-**Objective**: Export DexReader library to Mihon/Tachiyomi backup format (`.proto.gz`), enabling users to migrate their library TO Tachiyomi for cross-app compatibility.
+**All code implemented** - export feature is functionally complete but **not tested yet**.
 
-**Scope**:
-- ✅ Export manga metadata (title, author, description, status, tags, cover URL)
-- ✅ Export collections as Tachiyomi categories
-- ✅ Export reading progress (last read chapter, page numbers)
-- ✅ Export reading history (timestamps per chapter)
-- ✅ Generate valid protobuf backup file with gzip compression
-- ✅ File save dialog for choosing export location
-- ✅ Pre-export info dialog to set user expectations
-- ✅ Success/error feedback
+**What Was Built**:
 
-**Out of Scope**:
-- ❌ Exporting non-MangaDex manga (we only have MangaDex data)
-- ❌ Exporting reader settings/preferences (Mihon-specific)
-- ❌ Exporting downloaded chapters (metadata only)
+1. **Backend Export Service** (`mihon-export.service.ts`):
+   - Gathers all library manga from database
+   - Retrieves collections and collection memberships
+   - Gets chapter progress and metadata per manga
+   - Builds protobuf backup structure
+   - Encodes with protobufjs and compresses with gzip
+   - Writes `.proto.gz` file to user-selected location
 
-### Technical Approach
+2. **Export Helper** (`mihon-export.helper.ts`):
+   - `buildMangaUrl()` - Constructs `/manga/{id}` URLs
+   - `buildChapterUrl()` - Constructs `/chapter/{id}` URLs
+   - `mapStatus()` - Converts DexReader status → Mihon status codes
+   - `buildBackupChapter()` - Transforms chapter progress with Unix timestamps
+   - `buildBackupHistory()` - Creates history entries with timestamps
+   - `buildBackupCategory()` - Maps collections to Mihon categories
+   - `buildBackupManga()` - Assembles complete manga backup object
+   - **Tag conversion**: Created `TagIdToNameMap` to convert MangaDex UUIDs → readable tag names
 
-**Infrastructure Reuse**: All P3-T12 infrastructure available (protobufjs, pako, mihon.proto schema, MangaDex source ID constant, TagList)
+3. **IPC Integration** (`mihon.handler.ts`):
+   - `mihon:export-backup` handler registered
+   - Path validation (string type check)
+   - Returns `ExportResult` with exported count and messages
 
-**Key Transformations**:
-1. **Tag Mapping**: Create reverse mapping (ID → name) from existing TagList
-2. **URL Construction**: Build Mihon-compatible URLs (`/manga/{id}`, `/chapter/{id}`)
-3. **Status Mapping**: Convert DexReader status enum to Mihon integer codes
-4. **Data Flow**: Database → Transform → Protobuf encode → Gzip → Write file
+4. **Menu Integration** (`library.menu.ts`):
+   - "Export Library > To Mihon/Tachiyomi Format..." menu item
+   - Pre-export warning dialog explaining what gets exported
+   - Save file dialog with `.proto.gz` and `.tachibk` filters
+   - Default filename: `dexreader-backup-YYYY-MM-DD.proto.gz`
+   - Sends `export-tachiyomi` IPC event with file path
 
-**Implementation Steps** (6 steps, 4-6 hours total):
-1. **Step 1**: Create `mihon-export.helper.ts` with 7 conversion methods (1.5-2h)
-2. **Step 2**: Implement `exportToBackup` method in MihonService (2-2.5h)
-3. **Step 3**: Add IPC handler `mihon:export-backup` (30min)
-4. **Step 4**: Menu integration with pre-export info dialog (45min)
-5. **Step 5**: Frontend integration in LibraryView (1h)
-6. **Step 6**: Testing and validation (30min)
+5. **Frontend Integration** (`LibraryView.tsx`):
+   - Added `onExportTachiyomi` event listener
+   - Calls `globalThis.mihon.exportBackup(filePath)`
+   - Shows success toast with exported manga count
+   - Shows error toast with failure message
+   - Error logging for debugging
 
-### Key Decisions
+### Key Implementation Details
 
-**Pre-Export Info Dialog**: Added to Step 4 to inform users before export about what gets included (library data) and what doesn't (app settings like themes/preferences). This prevents confusion and sets clear expectations. Dialog includes:
-- List of exported data (metadata, collections, progress, history)
-- Note about DexReader-specific settings not being exportable
-- Cancel and Export buttons
+**Fixed Repository Method**: Renamed `getChpaterById` → `getChapterById` (typo fix)
 
-**File Format**: `.proto.gz` with date-based default filename (`dexreader-backup-YYYY-MM-DD.proto.gz`)
+**Tag Conversion Implementation**:
 
-**Keyboard Shortcut**: Ctrl+Shift+E for quick access
+```typescript
+const TagIdToNameMap: Record<string, string> = Object.entries(TagList).reduce(
+  (acc, [name, id]) => {
+    const spacedName = name.replaceAll(/([A-Z])/g, ' $1').trim()
+    acc[id] = spacedName
+    return acc
+  }, {} as Record<string, string>
+)
+```
 
-**Result Type**: `ExportResult` interface with exported manga count and success/error messages
+- Converts UUIDs like `"391b0423-..."` → `"Action"`
+- Handles PascalCase → spaces: `"SliceOfLife"` → `"Slice Of Life"`
 
-### Next Steps
+**Dialog Flow Fix**: Corrected menu implementation so save dialog only appears if user clicks "Proceed" (not "Cancel")
 
-1. Ready for implementation when user decides to proceed
-2. All code examples and data mappings documented in plan
-3. Test cases identified for validation
-4. Error handling patterns defined
+**Timestamp Handling**: Using Unix seconds format (not milliseconds) to match Mihon expectations
+
+- Chapter dates: `dateToUnixTimestamp(metadata.publishedAt)`
+- History timestamps: `chapterProgress.lastReadAt` (already in seconds from DB)
+
+**Data Exported**:
+
+- ✅ Manga metadata (title, author, artist, description, status, tags, cover)
+- ✅ Collections mapped to Mihon categories (by name)
+- ✅ Reading progress (current page, completed status per chapter)
+- ✅ Reading history (last read timestamps)
+- ✅ Chapter metadata (title, number, scanlation group)
+
+**Not Exported** (as designed):
+
+- ❌ App settings (themes, preferences - DexReader-specific)
+- ❌ Downloaded chapters (metadata only)
+- ❌ Non-MangaDex manga (we only have MangaDex data)
+
+### Testing Status: NOT TESTED ⚠️
+
+**Backend**: 100% implemented, 0% tested
+**Frontend**: 100% implemented, 0% tested
+
+**Needs Testing**:
+
+- [ ] Export empty library (0 manga)
+- [ ] Export library with single manga
+- [ ] Export library with multiple manga
+- [ ] Tag ID → name conversion verification
+- [ ] Collection name mapping verification
+- [ ] Timestamp format verification
+- [ ] File format validation (decompress + decode)
+- [ ] **Integration test**: Export from DexReader → Import to Mihon → Verify data
+
+### Files Created/Modified
+
+**Backend**:
+
+- ✅ `mihon-export.service.ts` - Main export orchestration
+- ✅ `mihon-export.helper.ts` - Business logic transformations
+- ✅ `mihon.handler.ts` - Added `export-backup` handler
+- ✅ `chapter.repo.ts` - Fixed method name typo
+- ✅ `library.menu.ts` - Fixed dialog flow logic
+
+**Frontend**:
+
+- ✅ `LibraryView.tsx` - Added export event listener
+
+**No New Dependencies**: Reused all P3-T12 infrastructure (protobufjs, pako, mihon.proto)
+
+### Next Actions
+
+1. **Regression Testing Session** - Test all export scenarios
+2. **Integration Validation** - Verify exported backup can be imported into Mihon
+3. **Edge Case Testing** - Empty collections, missing metadata, etc.
+4. **Update Memory Bank** - Mark as complete once testing passes
 
 ---
 
-## ✅ P3-T11 Keyboard Shortcuts Help Dialog - COMPLETE (6 Jan 2026)
+## 📋 P3-T13-T15 Native DexReader Backup/Restore - PLANNED
 
 **Duration**: ~2 hours (as estimated)
 **Status**: All implementation steps complete ✅
@@ -2402,7 +2466,7 @@ zoomIndicatorVisible: boolean
 **Status**: ✅ P3-T01 Planning Complete + Update Indicator Design Finalized
 **Phase Progress**: Ready to begin Phase 3 implementation
 
-### Major Accomplishments:
+### Major Accomplishments
 
 **1. P3-T01 Complete Plan Review & Refinement** ✅:
 
@@ -2474,7 +2538,7 @@ zoomIndicatorVisible: boolean
 **Status**: ✅ All UI Theme Consistency Issues Resolved ✅ Browse Pagination Error Handling Complete
 **Phase Progress**: Guerilla Refactoring ongoing, Phase 2 remains 100% complete
 
-### Major Accomplishments:
+### Major Accomplishments
 
 **1. UI Theme Consistency Fixes** ✅:
 
@@ -2545,7 +2609,7 @@ zoomIndicatorVisible: boolean
 **Status**: ✅ P2-T10 COMPLETE (with major refactor + bug fixes), ✅ P2-T11 Planning Complete
 **Phase Progress**: 10 of 11 tasks (91%) - One final task remaining
 
-### Major Accomplishments:
+### Major Accomplishments
 
 **1. P2-T10 Complete** ✅:
 
