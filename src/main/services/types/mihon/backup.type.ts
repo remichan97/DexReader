@@ -6,6 +6,6 @@ import { BackupSource } from './backup-source.type'
 export interface Backup {
   backupManga: BackupManga[]
   backupCategories: BackupCategory[]
-  backupSources: BackupSource[]
+  backupSources?: BackupSource[]
   backupPreferences?: BackupPreference[]
 }
