@@ -1,8 +1,10 @@
+import { TagList } from '../../api/constants/tag-list.constant'
 import { PublicationStatus } from '../../api/enums'
 import { CollectionQuery } from '../../database/queries/collections/collection.query'
 import { ChapterWithMetadata } from '../../database/queries/manga/chapter-with-metadata.query'
 import { MangaWithMetadata } from '../../database/queries/manga/manga-with-metadata.query'
 import { ChapterProgress } from '../../database/queries/progress/chapter-progress.query'
+import { dateToUnixTimestamp } from '../../utils/timestamps.util'
 import { BackupCategory } from '../types/mihon/backup-category.type'
 import { BackupChapter } from '../types/mihon/backup-chapter.type'
 import { BackupHistory } from '../types/mihon/backup-history.type'
@@ -20,13 +22,25 @@ const StatusMap: Record<number, PublicationStatus> = {
 
 const MangaDexSourceId = 2499283573021220255n
 
+// Create mapping, tag Id -> tag name (Mihon uses names, MangaDex uses IDs)
+const TagIdToNameMap: Record<string, string> = Object.entries(TagList).reduce(
+  (acc, [name, id]) => {
+    // Convert PascalCase to space-separated (e.g., "SliceOfLife" -> "Slice of Life")
+    const spacedName = name.replaceAll(/([A-Z])/g, ' $1').trim()
+    acc[id] = spacedName
+    acc[id.toLowerCase()] = spacedName.toLowerCase() // Also support lowercase version
+    return acc
+  },
+  {} as Record<string, string>
+)
+
 export class MihonExportHelper {
   buildMangaUrl(mangaId: string): string {
-    return `manga/${mangaId}`
+    return `/manga/${mangaId}`
   }
 
   buildChapterUrl(chapterId: string): string {
-    return `chapter/${chapterId}`
+    return `/chapter/${chapterId}`
   }
 
   mapStatus(status: PublicationStatus): number {
@@ -47,8 +61,8 @@ export class MihonExportHelper {
       scanlator: metadata?.scanlatorGroup,
       read: chapterProgress.completed,
       lastPageRead: chapterProgress.currentPage,
-      dateFetch: metadata ? metadata.publishedAt.getTime() : undefined,
-      dateUpload: metadata ? metadata.createdAt.getTime() : undefined,
+      dateFetch: metadata ? dateToUnixTimestamp(metadata.publishedAt) : undefined,
+      dateUpload: metadata ? dateToUnixTimestamp(metadata.createdAt) : undefined,
       chapterNumber: metadata ? Number(metadata.chapterNumber) : undefined
     }
   }
@@ -62,7 +76,7 @@ export class MihonExportHelper {
 
   buildBackupCategory(collection: CollectionQuery, index: number): BackupCategory {
     return {
-      name: collection.id.toString(),
+      name: collection.name,
       order: index,
       id: collection.id
     }
@@ -81,7 +95,7 @@ export class MihonExportHelper {
       description: manga.description,
       status: this.mapStatus(manga.status),
       thumbnailUrl: manga.coverUrl,
-      genre: manga.tags,
+      genre: manga.tags.map((tag) => TagIdToNameMap[tag.toLowerCase()] || tag),
       categories: categories ?? [],
       chapters: backupChapters,
       history: backupHistory,

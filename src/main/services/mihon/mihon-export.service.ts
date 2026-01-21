@@ -59,7 +59,7 @@ export class MihonExportService {
 
         // Grab chapters metadata
         for (const chProgress of chapterProgressList) {
-          const metadata = chapterRepo.getChpaterById(chProgress.chapterId)
+          const metadata = chapterRepo.getChapterById(chProgress.chapterId)
           if (metadata) {
             chapterMetadataMap.set(chProgress.chapterId, metadata)
           }

@@ -144,22 +144,21 @@ export function buildLibraryMenu(
                   if (res.response === 0) {
                     return
                   }
-                })
-
-              // Show save file dialog
-              dialog
-                .showSaveDialog(mainWindow, {
-                  title: 'Export Library to Mihon/Tachiyomi',
-                  defaultPath: `dexreader-backup-${new Date().toISOString().split('T')[0]}.proto.gz`,
-                  filters: [
-                    { name: 'Tachiyomi Backup', extensions: ['proto.gz', 'tachibk'] },
-                    { name: 'All Files', extensions: ['*'] }
-                  ]
-                })
-                .then((result) => {
-                  if (!result.canceled && result.filePath) {
-                    mainWindow.webContents.send('export-tachiyomi', result.filePath)
-                  }
+                  // Show save file dialog
+                  return dialog
+                    .showSaveDialog(mainWindow, {
+                      title: 'Export Library to Mihon/Tachiyomi',
+                      defaultPath: `dexreader-backup-${new Date().toISOString().split('T')[0]}.proto.gz`,
+                      filters: [
+                        { name: 'Nihon/Tachiyomi Backup', extensions: ['proto.gz', 'tachibk'] },
+                        { name: 'All Files', extensions: ['*'] }
+                      ]
+                    })
+                    .then((result) => {
+                      if (!result.canceled && result.filePath) {
+                        mainWindow.webContents.send('export-tachiyomi', result.filePath)
+                      }
+                    })
                 })
             }
           }

@@ -43,7 +43,7 @@ export class ChapterRepository {
     })
   }
 
-  getChpaterById(chapterId: string): ChapterWithMetadata {
+  getChapterById(chapterId: string): ChapterWithMetadata {
     const result = this.db
       .select()
       .from(chapter)
