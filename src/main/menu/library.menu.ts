@@ -121,11 +121,40 @@ export function buildLibraryMenu(
           {
             label: 'To Mihon/Tachiyomi Format...',
             click: () => {
+              // Warn the user that we don't export some data for Mihon/Tachiyomi
+              dialog
+                .showMessageBox(mainWindow, {
+                  type: 'warning',
+                  title: 'Export to Mihon/Tachiyomi',
+                  message:
+                    'Before you proceed, this action will export your manga library including:',
+                  detail:
+                    '• Manga metadata and covers\n' +
+                    '• Collections (as categories)\n' +
+                    '• Reading progress and history\n' +
+                    '• Chapter metadata\n\n' +
+                    'Please note: App settings (themes, preferences) are DexReader-specific ' +
+                    'and cannot be exported to Tachiyomi/Mihon.',
+                  buttons: ['Cancel', 'Proceed...'],
+                  defaultId: 1,
+                  cancelId: 0,
+                  noLink: true
+                })
+                .then((res) => {
+                  if (res.response === 0) {
+                    return
+                  }
+                })
+
+              // Show save file dialog
               dialog
                 .showSaveDialog(mainWindow, {
-                  title: 'Export to Mihon/Tachiyomi',
-                  defaultPath: 'mihon-backup.proto.gz',
-                  filters: [{ name: 'Mihon/Tachiyomi Backup', extensions: ['proto.gz'] }]
+                  title: 'Export Library to Mihon/Tachiyomi',
+                  defaultPath: `dexreader-backup-${new Date().toISOString().split('T')[0]}.proto.gz`,
+                  filters: [
+                    { name: 'Tachiyomi Backup', extensions: ['proto.gz', 'tachibk'] },
+                    { name: 'All Files', extensions: ['*'] }
+                  ]
                 })
                 .then((result) => {
                   if (!result.canceled && result.filePath) {

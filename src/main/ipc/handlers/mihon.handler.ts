@@ -1,4 +1,5 @@
 import { mihonBackupService } from '../../services/mihon/mihon-backup.service'
+import { mihonExportService } from '../../services/mihon/mihon-export.service'
 import { wrapIpcHandler } from '../wrapHandler'
 
 export function registerMihonHandlers(): void {
@@ -16,5 +17,13 @@ export function registerMihonHandlers(): void {
 
   wrapIpcHandler('mihon:cancel-import', async () => {
     mihonBackupService.cancelImport()
+  })
+
+  wrapIpcHandler('mihon:export-backup', async (_, savePath: unknown) => {
+    if (typeof savePath !== 'string') {
+      throw new TypeError('Invalid save path')
+    }
+
+    return await mihonExportService.exportMihonData(savePath)
   })
 }

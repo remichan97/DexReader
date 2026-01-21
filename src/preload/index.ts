@@ -244,7 +244,8 @@ const readHistory = {
 
 const mihon = {
   importBackup: (filePath: string) => ipcRenderer.invoke('mihon:import-backup', filePath),
-  cancelImport: () => ipcRenderer.invoke('mihon:cancel-import')
+  cancelImport: () => ipcRenderer.invoke('mihon:cancel-import'),
+  exportBackup: (savePath: string) => ipcRenderer.invoke('mihon:export-backup', savePath)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
