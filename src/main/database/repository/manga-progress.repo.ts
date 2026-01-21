@@ -9,7 +9,6 @@ import { MangaMapper } from '../mappers/manga.mapper'
 import { dateToUnixTimestamp, unixTimestampToDate } from '../../utils/timestamps.util'
 import { mangaRepository } from './manga.repo'
 import { readingRepo } from './reading-stats.repo'
-import { SaveChapterCommand } from '../commands/progress/save-chapter.command'
 
 export class MangaProgressRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
@@ -145,39 +144,6 @@ export class MangaProgressRepository {
       // Calculate statistics and cleanup once after all items
       readingRepo.calculateStatistics()
       mangaRepository.cleanupMangaCache()
-    })
-  }
-
-  saveChapters(chapters: SaveChapterCommand[]): void {
-    const now = new Date()
-
-    this.db.transaction((tx) => {
-      for (const ch of chapters) {
-        tx.insert(chapter)
-          .values({
-            chapterId: ch.chapterId,
-            mangaId: ch.mangaId,
-            title: ch.title,
-            chapterNumber: ch.chapterNumber,
-            volume: ch.volume,
-            language: ch.language,
-            publishAt: ch.publishAt,
-            createdAt: now,
-            updatedAt: now,
-            scanlationGroup: ch.scanlationGroup,
-            externalUrl: ch.externalUrl
-          })
-          .onConflictDoUpdate({
-            target: chapter.chapterId,
-            set: {
-              title: ch.title,
-              chapterNumber: ch.chapterNumber,
-              volume: ch.volume,
-              updatedAt: now
-            }
-          })
-          .run()
-      }
     })
   }
 

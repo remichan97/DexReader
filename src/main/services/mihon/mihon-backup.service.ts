@@ -14,6 +14,7 @@ import { AddToCollectionCommand } from '../../database/commands/collections/add-
 import path from 'node:path'
 import { SaveProgressCommand } from '../../database/commands/progress/save-progress.command'
 import { progressRepo } from '../../database/repository/manga-progress.repo'
+import { chapterRepo } from '../../database/repository/chapter.repo'
 
 export class MihonBackupService {
   // MangaDex source ID from Tachiyomi extension
@@ -149,7 +150,7 @@ export class MihonBackupService {
     // Now we batch everything we have built
     mangaRepository.batchUpsertManga(upsertCommand)
     collectionRepo.batchAddToCollection(addToCollectionsCommands)
-    progressRepo.saveChapters(chapterMetadata)
+    chapterRepo.saveChapters(chapterMetadata)
     progressRepo.saveProgress(progressCommands)
 
     result.importedMangaCount = upsertCommand.length

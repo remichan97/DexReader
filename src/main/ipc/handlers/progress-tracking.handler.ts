@@ -1,4 +1,5 @@
 import { SaveProgressCommand } from '../../database/commands/progress/save-progress.command'
+import { chapterRepo } from '../../database/repository/chapter.repo'
 import { progressRepo } from '../../database/repository/manga-progress.repo'
 import { readingRepo } from '../../database/repository/reading-stats.repo'
 import { wrapIpcHandler } from '../wrapHandler'
@@ -34,7 +35,7 @@ export function registerProgressTrackingHandlers(): void {
   })
 
   wrapIpcHandler('progress:save-chapters', async (_, chapters: unknown) => {
-    return progressRepo.saveChapters(
+    return chapterRepo.saveChapters(
       chapters as Array<{
         chapterId: string
         mangaId: string
