@@ -1,6 +1,6 @@
 # DexReader Technical Context
 
-**Last Updated**: 12 December 2025
+**Last Updated**: 22 January 2026
 **Project Version**: 1.0.1
 **Type**: Desktop Application (Electron)
 
@@ -1427,6 +1427,71 @@ if (error) return <ErrorRecovery error={error} onRetry={retry} isRetrying={isLoa
   - Best practices
   - Testing strategies
   - Troubleshooting
+
+---
+
+## Protobuf Schema & Backup System
+
+### Protocol Buffers
+
+**Version**: protobuf.js 7.4.0
+**Purpose**: Binary serialization for library backups (native and Mihon/Tachiyomi compatibility)
+**Compression**: gzip via pako 2.1.0
+
+### Schemas
+
+| Schema File          | Purpose                         | Status    | Format  |
+| -------------------- | ------------------------------- | --------- | ------- |
+| **mihon.proto**      | Mihon/Tachiyomi import/export   | Complete ✅ | Proto2  |
+| **dexreader.proto**  | Native DexReader backup/restore | Complete ✅ | Proto3  |
+
+### DexReader Native Backup Schema (Proto3)
+
+**Location**: `src/main/services/protobuf/schemas/dexreader.proto`
+**File Extension**: `.dexreader`
+**Encoding**: Protobuf (binary) + gzip compression
+**Schema Version**: 1
+
+**Top-Level Structure**:
+```protobuf
+message DexReaderBackup {
+  int32 schema_version = 1;           // Version 1
+  int64 exported_at = 2;              // Unix timestamp (ms)
+  string app_version = 3;             // DexReader version
+  LibraryData library = 4;            // Required
+  CollectionsData collections = 5;     // Optional
+  ProgressData progress = 6;           // Optional
+  ReaderSettingsData reader_settings = 7; // Optional
+}
+```
+
+**Data Sections**:
+- **LibraryData**: Manga metadata (title, description, status, tags, authors, etc.) + cached chapters
+- **CollectionsData**: Collections + collection items (many-to-many relationships)
+- **ProgressData**: Manga progress + chapter progress (per-chapter tracking with completion flags)
+- **ReaderSettingsData**: Per-manga reader overrides (reading mode, double-page settings)
+
+**Key Features**:
+- Proto3 `optional` keyword for presence detection (15 fields)
+- All timestamps as int64 (Unix milliseconds)
+- Maps for key-value data (external_links, alternative_titles)
+- Nested messages (DoublePageMode within MangaReaderOverride)
+
+**What's NOT Included**:
+- Reading Statistics (recalculated on import from chapter_progress)
+- App Settings (backed up separately via settings.json)
+
+### Mihon/Tachiyomi Compatibility
+
+**Location**: `src/main/services/protobuf/schemas/mihon.proto`
+**File Extensions**: `.tachibk`, `.proto.gz`
+**Format**: Proto2 (required/optional keywords)
+
+**Services**:
+- **Import**: `MihonBackupService` - Decode Mihon backups, filter MangaDex manga, import to library
+- **Export**: `MihonExportService` - Export library to Mihon format with tag ID→name conversion
+
+**Source ID**: MangaDex source = `'2499283573021220255'` (string, not BigInt - protobuf.js limitation)
 
 ---
 

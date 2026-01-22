@@ -1,8 +1,8 @@
 # DexReader Project Progress & Timeline
 
 **Project Start**: 23 November 2025
-**Current Phase**: Phase 3 - User Experience Enhancement (P3-T12 Complete ✅, P3-T14 Complete ✅)
-**Last Updated**: 21 January 2026
+**Current Phase**: Phase 3 - User Experience Enhancement (P3-T12 Complete ✅, P3-T14 Complete ✅, P3-T16 Complete ✅, P3-T13 & P3-T15 Planned ✅)
+**Last Updated**: 22 January 2026
 
 ---
 
@@ -822,15 +822,15 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 - [✅] **P3-T10**: Downloads directory configuration - **COMPLETE** (Pre-Phase 3)
 - [✅] **P3-T11**: Keyboard Shortcuts Help Dialog - **COMPLETE** (6 Jan 2026, 2 hours)
 - [✅] **P3-T12**: Implement library import from Mihon/Tachiyomi backup (protobuf) - **COMPLETE** (14 Jan 2026, ~6 hours)
-- [ ] **P3-T13**: Implement library export to native DexReader format (protobuf)
+- [ ] **P3-T13**: Implement library export to native DexReader format (protobuf) - **PLANNED** (Est. 6-8 hours)
 - [✅] **P3-T14**: Implement library export to Mihon/Tachiyomi format (cross-compatibility, protobuf) - **COMPLETE** (22 Jan 2026, ~7 hours)
-- [ ] **P3-T15**: Add native DexReader backup restore functionality (protobuf)
+- [ ] **P3-T15**: Add native DexReader backup restore functionality (protobuf) - **PLANNED** (Est. 6-8 hours)
 - [✅] **P3-T16**: Add "Danger Zone" settings section (Open Settings, Reset to Default, Clear Data) - **COMPLETE** (22 Jan 2026, ~2 hours)
 - [ ] **P3-T17**: Implement date format settings
 - [ ] **P3-T18**: Improve accessibility (ARIA labels, etc.)
 - [✅] **P3-T19**: Fluent UI icons - **COMPLETE** (Pre-Phase 3)
 
-**Phase 3 Progress**: 16/19 tasks complete (84.2%)
+**Phase 3 Progress**: 17/19 tasks complete (89.5%)
 
 **Notes**:
 
@@ -843,9 +843,10 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 - P3-T08-T10, P3-T19: Already implemented during Phase 2 refactoring
 - P3-T11: COMPLETE - All 38 shortcuts implemented and working. Help dialog implemented with unicode arrows + aria-labels for accessibility. Triggered via Help menu or Ctrl+/
 - P3-T12: COMPLETE - Full Mihon/Tachiyomi import working. Imports manga metadata, collections, reading progress (with timestamps), chapter metadata for history view. Tag name→ID conversion, BigInt/Long handling, favorite field detection, double-import prevention. UI with progress dialog, result dialog, and toast notifications
-- P3-T13-T15: Using protobuf format (.dexreader file extension) for library backups due to: (a) large library support (1000+ manga), (b) file size efficiency (50-70% smaller than JSON), (c) schema validation, (d) version compatibility. Protobuf dependency already needed for Mihon/Tachiyomi import (P3-T12)
+- P3-T13: PLANNED ✅ (22 Jan 2026) - Native DexReader export with proto3 schema. Selective backup (collections, progress, reader settings optional, library always included). Export dialog with checkboxes, file save dialog, .dexreader format (protobuf + gzip). Backend: export service + helper, IPC handlers. Frontend: export dialog component, menu integration (Ctrl+Shift+E). **Protobuf schema**: dexreader.proto created and validated against DB schema (proto3 with optional keywords for presence detection). Comprehensive plan document: `.github/copilot-plans/P3-T13-T15-native-backup-restore-plan.md`. Estimated: 6-8 hours. Ready for implementation.
 - P3-T14: COMPLETE ✅ - Full Mihon/Tachiyomi export working. Backend service with protobuf encoding/gzip compression, tag ID→name conversion, Unix timestamp format, collection mapping. Frontend with toast notifications. Fixed: BigInt serialization issue (protobuf.js requires string for int64), duplicate toast bug (IPC listener cleanup), type definition corrections. All features tested and verified working. Estimated time: ~7 hours (22 Jan 2026)
-- P3-T16: COMPLETE ✅ - "Danger Zone" settings section implemented in Advanced tab with 3 operations: (1) Open Settings File (shell.openPath to settings.json), (2) Reset to Default (restores defaults + page reload), (3) Clear All Data (destructionRepo clears DB + resets settings + app restart). Backend uses DestructionRepository with transaction safety, FK constraint handling, sqlite_sequence reset, and VACUUM. Native Electron dialogs for confirmation. Dev mode handling (exit vs relaunch). Button states with separate loading indicators. Uses app's Button component with accent (orange) and danger (red) variants. Estimated time: ~2 hours (22 Jan 2026)
+- P3-T15: PLANNED ✅ (22 Jan 2026) - Native DexReader import with auto-detection. Import confirmation dialog shows backup contents (no user selection needed). Merge strategy: skip duplicates, add new data. Collection ID mapping handles conflicts. Backend: import service + helper with validation, IPC handlers, cancellation support. Frontend: import confirmation dialog, menu integration (Ctrl+Shift+I). Schema versioning for compatibility. Comprehensive plan document: `.github/copilot-plans/P3-T13-T15-native-backup-restore-plan.md`. Estimated: 6-8 hours. Ready for implementation.
+- P3-T16: COMPLETE ✅ - "Danger Zone" settings section implemented in Advanced tab with 3 operations: (1) Open Settings File (shell.openPath to settings.json), (2) Reset to Default (restores defaults + page reload), (3) Clear All Data (destructionRepo clears DB + resets settings + app restart). Backend uses DestructionRepository with transaction safety, FK constraint handling, sqlite_sequence reset, and VACUUM. Native Electron dialogs for confirmation. Dev mode handling (exit vs relaunch). Button states with separate loading indicators. Uses app's Button component with accent (orange) and danger (red) variants. **Post-implementation improvements**: (1) IPC wrapper consistency - added settings.load() and settings.save() to preload bridge, (2) IpcResponse handling - fixed 10 calls (7 in SettingsView, 3 in DangerZoneSettings) to properly check .success and extract .data, (3) Theme persistence migration - moved from localStorage to settings.json for single source of truth, (4) Zustand store cleanup - removed persist middleware (redundant layer). Architectural pattern established: all IPC calls use wrapped handlers returning IpcResponse<T>. Estimated time: ~2 hours (22 Jan 2026)
 - P3-T17: Date format settings - planned but not yet implemented
 - P3-T18: Some ARIA labels present (reader, buttons, selects), comprehensive audit pending
 - Additional UX features complete but not in original task list: Zoom/fit modes (ZoomControlsModal), progress indicators (ProgressRing/ProgressBar), error/empty states (ErrorBoundary), context menus (LibraryView), download UI (DownloadsView), history UI (HistoryView)

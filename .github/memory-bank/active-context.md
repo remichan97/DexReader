@@ -2,7 +2,7 @@
 
 **Last Updated**: 22 January 2026
 **Current Phase**: Phase 3 - User Experience Enhancement
-**Session**: P3-T16 Danger Zone Settings - COMPLETE ✅
+**Session**: P3-T13 & P3-T15 Planning Complete - Native Backup/Restore
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -11,10 +11,11 @@
 ## Current Status Summary
 
 **Phase**: Phase 3 - User Experience Enhancement (17/19 tasks, 89.5%)
-**Progress**: P3-T16 complete ✅
+**Progress**: P3-T16 complete ✅, P3-T13 & P3-T15 planned ✅
 **Current Date**: 22 January 2026
 **Database Migration Status**: Fully migrated and operational
-**Current Task**: Ready for next task (P3-T13/P3-T15/P3-T17/P3-T18)
+**Current Task**: Ready to implement P3-T13/P3-T15, or tackle P3-T17/P3-T18
+**Plan Document**: `.github/copilot-plans/P3-T13-T15-native-backup-restore-plan.md`
 
 ---
 
@@ -247,24 +248,81 @@ Complete "Danger Zone" settings section with three destructive operations, integ
 ### Critical Issues Fixed (22 Jan 2026)
 
 **1. IPC Response Handling** ✅
+
 - **Problem**: Dialog confirmation treated as plain boolean instead of IpcResponse object
 - **Solution**: Changed from `if (!confirmed)` to `if (!result.success || !result.data)`
 
 **2. Button Visibility** ✅
+
 - **Problem**: Custom native buttons blended with background, didn't match app design
 - **Solution**: Replaced custom buttons with app's standard Button component
 
 **3. Dev Mode App Restart** ✅
+
 - **Problem**: `app.relaunch()` causes blank page in dev mode (npm run dev)
 - **Solution**: Added `is.dev` check - only relaunch in production, exit cleanly in dev
 
 **4. Shared Button State** ✅
+
 - **Problem**: Both buttons showed loading state when one was clicked
 - **Solution**: Split into separate states (isResetting/isClearing)
 
+### Post-Implementation Improvements (22 Jan 2026)
+
+After P3-T16 completion, several architectural inconsistencies were discovered and fixed:
+
+**1. IPC Wrapper Consistency** ✅
+
+- **Problem**: `SettingsView.tsx` called `settings:load` and `settings:save` directly via `globalThis.electron.ipcRenderer.invoke()`, bypassing the wrapped handler pattern used elsewhere
+- **Solution**: Added `settings.load()` and `settings.save(key, value)` to preload bridge (matching wrapped pattern)
+- **Files Modified**: `src/preload/index.ts`, `src/preload/index.d.ts`
+- **Impact**: All settings operations now use consistent IpcResponse wrapper pattern
+
+**2. IpcResponse Handling** ✅
+
+- **Problem**: 7 direct IPC calls in SettingsView treated responses as raw values instead of checking IpcResponse.success
+- **Solution**: Updated all 7 settings operations to check `result.success` and extract `result.data`
+- **Files Modified**: `src/renderer/src/views/SettingsView/SettingsView.tsx` (7 calls), `src/renderer/src/components/SettingsView/DangerZoneSettings.tsx` (3 calls)
+- **Impact**: Proper error handling for all settings operations (10 total calls fixed)
+
+**3. Theme Persistence Migration** ✅
+
+- **Problem**: Theme persisted to localStorage while accent color used settings.json (inconsistent)
+- **Solution**:
+  - Migrated theme persistence from localStorage to settings.json file
+  - Theme now loads from `settings.appearance.theme` on mount
+  - `handleThemeModeChange()` saves theme via `settings.save('appearance.theme', value)`
+- **Files Modified**: `src/renderer/src/views/SettingsView/SettingsView.tsx`
+- **Impact**: Single source of truth for all settings (settings.json), no localStorage conflicts
+
+**4. Zustand Store Cleanup** ✅
+
+- **Problem**: Zustand persist middleware created duplicate persistence layer alongside settings.json
+- **Solution**:
+  - Removed persist middleware from appStore
+  - Settings file is now the sole persistence mechanism
+  - Store is runtime-only, settings.json handles disk persistence
+- **Files Modified**: `src/renderer/src/stores/appStore.ts`
+- **Impact**: Cleaner architecture, removed redundant persistence layer
+
+### Architectural Rationale
+
+**Why These Changes Matter**:
+
+1. **Consistency**: All IPC calls follow same pattern (wrapped handlers returning IpcResponse<T>)
+2. **Error Handling**: Proper success checking prevents silent failures
+3. **Single Source of Truth**: Settings.json is authoritative, no localStorage conflicts
+4. **Maintainability**: Removed redundant persistence layer (Zustand persist middleware)
+
+**Pattern Established**: All IPC handlers should:
+
+1. Be wrapped in preload bridge with type-safe methods
+2. Return IpcResponse<T> objects
+3. Be consumed with `.success` check and `.data` extraction
+
 ### Result
 
-Fully functional Danger Zone with safe destructive operations. All three functions tested and working correctly in both dev and production modes.
+Fully functional Danger Zone with safe destructive operations. All three functions tested and working correctly in both dev and production modes. Post-implementation improvements ensure architectural consistency across entire settings system.
 
 ---
 
@@ -349,12 +407,157 @@ Complete and working Mihon/Tachiyomi export. Users can export entire library wit
 
 ---
 
-## 📋 P3-T13-T15 Native DexReader Backup/Restore - PLANNED
+## 📋 P3-T13 & P3-T15: Native DexReader Backup/Restore - PLANNING COMPLETE (22 Jan 2026)
 
-**Duration**: ~2 hours (as estimated)
-**Status**: All implementation steps complete ✅
+**Status**: Planning complete, ready for implementation ✅
+**Duration Estimated**: 12-16 hours total (Export: 6-8h, Import: 6-8h)
+**Plan Document**: `.github/copilot-plans/P3-T13-T15-native-backup-restore-plan.md`
 
-### What Was Implemented
+### Planning Session Summary
+
+Complete planning session for native `.dexreader` backup and restore functionality using Protocol Buffers (proto3).
+
+### Protobuf Schema Completed
+
+**1. Schema Design** (`src/main/services/protobuf/schemas/dexreader.proto`):
+- ✅ Proto3 syntax with `optional` keywords for presence detection
+- ✅ Schema validated against current database schema
+- ✅ Matched MangaReadingSettings structure exactly
+- ✅ Fixed MangaReaderOverride to match DB (removed image_quality, force_dark_mode, nested DoublePageMode)
+- ✅ Applied `optional` to 15 fields where null vs empty/zero matters
+
+**2. Schema Scope Decisions**:
+- **Library data**: Always included (manga + cached chapters) - MANDATORY
+- **Collections**: Optional (organization)
+- **Reading Progress**: Optional (history and page tracking)
+- **Reader Settings**: Optional (per-manga preferences)
+- **Reading Statistics**: NOT included (recalculated on import)
+- **App Settings**: NOT included (settings.json backed up separately via "Open Settings File")
+
+**3. Schema Version 1 Structure**:
+```protobuf
+message DexReaderBackup {
+  int32 schema_version = 1;           // Version 1
+  int64 exported_at = 2;              // Unix timestamp (ms)
+  string app_version = 3;             // DexReader version
+  LibraryData library = 4;            // Required (manga + chapters)
+  CollectionsData collections = 5;     // Optional
+  ProgressData progress = 6;           // Optional
+  ReaderSettingsData reader_settings = 7; // Optional
+}
+```
+
+### Export Features (P3-T13)
+
+- Selective backup with checkboxes (collections, progress, reader settings)
+- Export dialog UI with clear "Library always included" indicator
+- File save dialog integration
+- `.dexreader` file format (protobuf + gzip compression)
+- Menu integration: Library → Export DexReader Backup (Ctrl+Shift+E)
+- Toast notifications on success/error
+
+### Import Features (P3-T15)
+
+- Auto-detect backup contents (reads schema to determine what's present)
+- Import confirmation dialog shows what will be imported (no user selection needed)
+- Merge strategy: skip duplicates, add new data
+- Collection ID mapping (handles ID conflicts via Map<oldId, newId>)
+- Schema versioning for future compatibility
+- Menu integration: Library → Import DexReader Backup (Ctrl+Shift+I)
+- Cancellable import operation with AbortController
+- Comprehensive validation before import
+
+### Implementation Plan (7 steps each)
+
+**Export (P3-T13)**:
+1. Backend Helper (transform DB → protobuf) - 2-3h
+2. Export Service (orchestrate, encode, compress) - 2-3h
+3. IPC Handler + registration - 30min
+4. Preload Bridge (window.dexreader.exportBackup) - 30min
+5. Frontend Export Dialog with checkboxes - 2-3h
+6. Menu integration - 30min
+7. Testing (empty library, selective options, file validation) - 1-2h
+
+**Import (P3-T15)**:
+1. Backend Helper (transform protobuf → DB) - 2-3h
+2. Import Service (decode, validate, merge) - 2-3h
+3. IPC Handler + cancellation support - 15min
+4. Preload Bridge (window.dexreader.importBackup) - 15min
+5. Frontend Import Confirmation Dialog - 2-3h
+6. Menu integration - 30min
+7. Testing (duplicates, FK constraints, schema versioning) - 1-2h
+
+### New Repository Methods Needed
+
+```typescript
+// chapter.repo.ts
+getChaptersByMangaIds(mangaIds: string[]): Chapter[]
+
+// manga-progress.repo.ts
+getAllMangaProgress(): MangaProgress[]
+getAllChapterProgressForAllManga(): ChapterProgress[]
+
+// reader-settings.repo.ts (NEW FILE needed)
+getAllOverrides(): ReaderOverride[]
+saveOverride(command: SaveReaderOverrideCommand): void
+```
+
+### Files to Create (20 new files)
+
+**Backend Types** (7 files):
+- `src/main/services/types/dexreader/dexreader-backup.type.ts`
+- `src/main/services/types/dexreader/library-data.type.ts`
+- `src/main/services/types/dexreader/collections-data.type.ts`
+- `src/main/services/types/dexreader/progress-data.type.ts`
+- `src/main/services/types/dexreader/reader-settings-data.type.ts`
+
+**Backend Services** (8 files):
+- `src/main/services/helpers/dexreader-export.helper.ts`
+- `src/main/services/helpers/dexreader-import.helper.ts`
+- `src/main/services/helpers/dexreader-validation.helper.ts`
+- `src/main/services/dexreader/dexreader-export.service.ts`
+- `src/main/services/dexreader/dexreader-import.service.ts`
+- `src/main/services/results/dexreader-export.result.ts`
+- `src/main/services/results/dexreader-import.result.ts`
+- `src/main/ipc/handlers/dexreader.handler.ts`
+
+**Frontend Components** (2 directories):
+- `src/renderer/src/components/DexReaderExportDialog/` (3 files)
+- `src/renderer/src/components/DexReaderImportDialog/` (3 files)
+
+### Key Technical Decisions
+
+**Proto3 Field Presence**:
+- Decision: Use `optional` keyword for nullable fields
+- Applied to: description, coverUrl, year, lastVolume, chapter title, scanlationGroup, collection description
+- Benefit: Can check `manga.hasDescription()` instead of checking for empty string
+
+**Mandatory Library Data**:
+- Decision: Library always included (can't uncheck)
+- Rationale: Progress/settings depend on manga (FK constraints), file is "library backup"
+- Alternative: Settings-only backup via "Open Settings File" button (already exists)
+
+**Collection ID Mapping**:
+- Decision: Map old IDs to new IDs during import
+- Implementation: `Map<number, number>` for oldId → newId
+- Handles: Target already has collection with same ID, or same name (reuse existing)
+
+**Schema Versioning**:
+- Decision: schema_version field for compatibility checking
+- Implementation: Throw error if backup.schemaVersion > currentSchemaVersion
+- Message: "Backup schema version X not supported. Please update DexReader."
+
+### Status
+
+✅ Protobuf schema complete and validated
+✅ Comprehensive implementation plan created (823 lines)
+✅ All technical decisions documented
+✅ All files and methods identified
+✅ Ready for implementation
+
+**Next Step**: Begin P3-T13 Step 1 (Backend Export Helper) when ready
+
+---
 
 **1. KeyboardShortcutsDialog Component** (3 files created):
 
