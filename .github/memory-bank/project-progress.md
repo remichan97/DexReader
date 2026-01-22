@@ -1,7 +1,7 @@
 # DexReader Project Progress & Timeline
 
 **Project Start**: 23 November 2025
-**Current Phase**: Phase 3 - User Experience Enhancement (P3-T12 Complete ✅, P3-T14 Implemented ⚠️)
+**Current Phase**: Phase 3 - User Experience Enhancement (P3-T12 Complete ✅, P3-T14 Complete ✅)
 **Last Updated**: 21 January 2026
 
 ---
@@ -23,9 +23,9 @@
 
 ## Current Status: Phase 3 In Progress (78.9% Complete)
 
-**Progress**: Phase 2 Complete (11/11 tasks) | Guerilla Refactoring Complete | P3-T01 COMPLETE ✅ | P3-T12 COMPLETE ✅ | P3-T14 IMPLEMENTED ⚠️
-**Next**: P3-T14 Testing, then P3-T13-T15 (Native DexReader backup/restore) OR P3-T16 (Settings backup) OR P3-T17-T18
-**Status**: 15/19 Phase 3 tasks complete, P3-T14 awaiting testing
+**Progress**: Phase 2 Complete (11/11 tasks) | Guerilla Refactoring Complete | P3-T01 COMPLETE ✅ | P3-T12 COMPLETE ✅ | P3-T14 COMPLETE ✅
+**Next**: P3-T13-T15 (Native DexReader backup/restore) OR P3-T16 (Settings backup) OR P3-T17-T18
+**Status**: 16/19 Phase 3 tasks complete (84.2%)
 
 ### P3-T01 Library Features: COMPLETE ✅ (100%)
 
@@ -823,14 +823,14 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 - [✅] **P3-T11**: Keyboard Shortcuts Help Dialog - **COMPLETE** (6 Jan 2026, 2 hours)
 - [✅] **P3-T12**: Implement library import from Mihon/Tachiyomi backup (protobuf) - **COMPLETE** (14 Jan 2026, ~6 hours)
 - [ ] **P3-T13**: Implement library export to native DexReader format (protobuf)
-- [⚠️] **P3-T14**: Implement library export to Mihon/Tachiyomi format (cross-compatibility, protobuf) - **IMPLEMENTED** (21 Jan 2026, ~5-6 hours, awaiting testing)
+- [✅] **P3-T14**: Implement library export to Mihon/Tachiyomi format (cross-compatibility, protobuf) - **COMPLETE** (22 Jan 2026, ~7 hours)
 - [ ] **P3-T15**: Add native DexReader backup restore functionality (protobuf)
 - [ ] **P3-T16**: Add "Danger Zone" settings section (Open Settings, Reset to Default, Clear Data)
 - [ ] **P3-T17**: Implement date format settings
 - [ ] **P3-T18**: Improve accessibility (ARIA labels, etc.)
 - [✅] **P3-T19**: Fluent UI icons - **COMPLETE** (Pre-Phase 3)
 
-**Phase 3 Progress**: 15/19 tasks complete (78.9%), 1 awaiting testing ⚠️
+**Phase 3 Progress**: 16/19 tasks complete (84.2%)
 
 **Notes**:
 
@@ -844,7 +844,7 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 - P3-T11: COMPLETE - All 38 shortcuts implemented and working. Help dialog implemented with unicode arrows + aria-labels for accessibility. Triggered via Help menu or Ctrl+/
 - P3-T12: COMPLETE - Full Mihon/Tachiyomi import working. Imports manga metadata, collections, reading progress (with timestamps), chapter metadata for history view. Tag name→ID conversion, BigInt/Long handling, favorite field detection, double-import prevention. UI with progress dialog, result dialog, and toast notifications
 - P3-T13-T15: Using protobuf format (.dexreader file extension) for library backups due to: (a) large library support (1000+ manga), (b) file size efficiency (50-70% smaller than JSON), (c) schema validation, (d) version compatibility. Protobuf dependency already needed for Mihon/Tachiyomi import (P3-T12)
-- P3-T14: IMPLEMENTED - All code complete (backend service, export helper, IPC handler, menu integration, frontend listener). Features: Tag ID→name conversion, Unix timestamp format, collection name mapping, protobuf encoding, gzip compression. Pre-export warning dialog explains what gets exported. Fixed repository typo (`getChapterById`). Dialog flow corrected to properly handle Cancel/Proceed. **Status: Code complete, regression testing pending**. See active-context.md for detailed implementation notes
+- P3-T14: COMPLETE ✅ - Full Mihon/Tachiyomi export working. Backend service with protobuf encoding/gzip compression, tag ID→name conversion, Unix timestamp format, collection mapping. Frontend with toast notifications. Fixed: BigInt serialization issue (protobuf.js requires string for int64), duplicate toast bug (IPC listener cleanup), type definition corrections. All features tested and verified working. Estimated time: ~7 hours (22 Jan 2026)
 - P3-T16: Changed from "backup/restore system" to "Danger Zone" section with utilities: Open Settings Folder button, Reset to Default button, Clear Data & Reset App button. Settings are JSON files (user-editable), so manual backup is sufficient. Estimated 1-2 hours (UI + confirmation dialogs)
 - P3-T17: Date format settings - planned but not yet implemented
 - P3-T18: Some ARIA labels present (reader, buttons, selects), comprehensive audit pending
