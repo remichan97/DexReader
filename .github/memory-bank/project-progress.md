@@ -21,11 +21,11 @@
 
 ---
 
-## Current Status: Phase 3 In Progress (78.9% Complete)
+## Current Status: Phase 3 In Progress (89.5% Complete)
 
-**Progress**: Phase 2 Complete (11/11 tasks) | Guerilla Refactoring Complete | P3-T01 COMPLETE ✅ | P3-T12 COMPLETE ✅ | P3-T14 COMPLETE ✅
-**Next**: P3-T13-T15 (Native DexReader backup/restore) OR P3-T16 (Settings backup) OR P3-T17-T18
-**Status**: 16/19 Phase 3 tasks complete (84.2%)
+**Progress**: Phase 2 Complete (11/11 tasks) | Guerilla Refactoring Complete | P3-T01 COMPLETE ✅ | P3-T12 COMPLETE ✅ | P3-T14 COMPLETE ✅ | P3-T16 COMPLETE ✅
+**Next**: P3-T13-T15 (Native DexReader backup/restore) OR P3-T17-T18 (Date format/accessibility)
+**Status**: 17/19 Phase 3 tasks complete (89.5%)
 
 ### P3-T01 Library Features: COMPLETE ✅ (100%)
 
@@ -825,7 +825,7 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 - [ ] **P3-T13**: Implement library export to native DexReader format (protobuf)
 - [✅] **P3-T14**: Implement library export to Mihon/Tachiyomi format (cross-compatibility, protobuf) - **COMPLETE** (22 Jan 2026, ~7 hours)
 - [ ] **P3-T15**: Add native DexReader backup restore functionality (protobuf)
-- [ ] **P3-T16**: Add "Danger Zone" settings section (Open Settings, Reset to Default, Clear Data)
+- [✅] **P3-T16**: Add "Danger Zone" settings section (Open Settings, Reset to Default, Clear Data) - **COMPLETE** (22 Jan 2026, ~2 hours)
 - [ ] **P3-T17**: Implement date format settings
 - [ ] **P3-T18**: Improve accessibility (ARIA labels, etc.)
 - [✅] **P3-T19**: Fluent UI icons - **COMPLETE** (Pre-Phase 3)
@@ -845,7 +845,7 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 - P3-T12: COMPLETE - Full Mihon/Tachiyomi import working. Imports manga metadata, collections, reading progress (with timestamps), chapter metadata for history view. Tag name→ID conversion, BigInt/Long handling, favorite field detection, double-import prevention. UI with progress dialog, result dialog, and toast notifications
 - P3-T13-T15: Using protobuf format (.dexreader file extension) for library backups due to: (a) large library support (1000+ manga), (b) file size efficiency (50-70% smaller than JSON), (c) schema validation, (d) version compatibility. Protobuf dependency already needed for Mihon/Tachiyomi import (P3-T12)
 - P3-T14: COMPLETE ✅ - Full Mihon/Tachiyomi export working. Backend service with protobuf encoding/gzip compression, tag ID→name conversion, Unix timestamp format, collection mapping. Frontend with toast notifications. Fixed: BigInt serialization issue (protobuf.js requires string for int64), duplicate toast bug (IPC listener cleanup), type definition corrections. All features tested and verified working. Estimated time: ~7 hours (22 Jan 2026)
-- P3-T16: Changed from "backup/restore system" to "Danger Zone" section with utilities: Open Settings Folder button, Reset to Default button, Clear Data & Reset App button. Settings are JSON files (user-editable), so manual backup is sufficient. Estimated 1-2 hours (UI + confirmation dialogs)
+- P3-T16: COMPLETE ✅ - "Danger Zone" settings section implemented in Advanced tab with 3 operations: (1) Open Settings File (shell.openPath to settings.json), (2) Reset to Default (restores defaults + page reload), (3) Clear All Data (destructionRepo clears DB + resets settings + app restart). Backend uses DestructionRepository with transaction safety, FK constraint handling, sqlite_sequence reset, and VACUUM. Native Electron dialogs for confirmation. Dev mode handling (exit vs relaunch). Button states with separate loading indicators. Uses app's Button component with accent (orange) and danger (red) variants. Estimated time: ~2 hours (22 Jan 2026)
 - P3-T17: Date format settings - planned but not yet implemented
 - P3-T18: Some ARIA labels present (reader, buttons, selects), comprehensive audit pending
 - Additional UX features complete but not in original task list: Zoom/fit modes (ZoomControlsModal), progress indicators (ProgressRing/ProgressBar), error/empty states (ErrorBoundary), context menus (LibraryView), download UI (DownloadsView), history UI (HistoryView)

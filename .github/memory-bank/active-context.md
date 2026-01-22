@@ -2,7 +2,7 @@
 
 **Last Updated**: 22 January 2026
 **Current Phase**: Phase 3 - User Experience Enhancement
-**Session**: P3-T14 Mihon Export - COMPLETE ✅
+**Session**: P3-T16 Danger Zone Settings - COMPLETE ✅
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -10,11 +10,11 @@
 
 ## Current Status Summary
 
-**Phase**: Phase 3 - User Experience Enhancement (16/19 tasks, 84.2%)
-**Progress**: P3-T14 complete ✅
+**Phase**: Phase 3 - User Experience Enhancement (17/19 tasks, 89.5%)
+**Progress**: P3-T16 complete ✅
 **Current Date**: 22 January 2026
 **Database Migration Status**: Fully migrated and operational
-**Current Task**: Ready for next task (P3-T13/P3-T15/P3-T16/P3-T17/P3-T18)
+**Current Task**: Ready for next task (P3-T13/P3-T15/P3-T17/P3-T18)
 
 ---
 
@@ -209,6 +209,65 @@ Complete Mihon/Tachiyomi import functionality. Users can migrate their entire li
 
 ---
 
+## ✅ P3-T16 Danger Zone Settings - COMPLETE (22 Jan 2026)
+
+**Status**: Complete and tested ✅
+**Duration**: ~2 hours (22 January 2026)
+
+### Implementation Summary
+
+Complete "Danger Zone" settings section with three destructive operations, integrated into Advanced tab.
+
+**What Was Built**:
+
+1. **Backend IPC Handlers** (`app-settings.handler.ts`)
+   - `settings:open-settings-file` - Opens settings.json in default editor via shell.openPath()
+   - `settings:reset-to-defaults` - Resets settings to defaults, triggers page reload
+   - `settings:clear-all` - Clears database + resets settings + app restart/exit
+
+2. **Database Destruction Service** (`destruction-repo.ts`)
+   - Transaction-based clearing of all 8 tables (collections, manga, chapters, progress, etc.)
+   - Temporarily disables FK constraints during deletion
+   - Resets auto-increment counters via `DELETE FROM sqlite_sequence`
+   - Runs VACUUM to reclaim disk space
+
+3. **Preload Bridge** (`preload/index.ts` + `index.d.ts`)
+   - Added `globalThis.settings` namespace with 3 methods
+   - Proper IPC channel mapping with type safety
+
+4. **Frontend Component** (`DangerZoneSettings.tsx`)
+   - Three operations with confirmation dialogs (native Electron dialogs via `showConfirmDialog`)
+   - Separate loading states per button (isResetting/isClearing)
+   - Uses app's Button component with accent (orange) and danger (red) variants
+
+5. **Styling** (`DangerZoneSettings.css`)
+   - Red border/background for critical "Clear All Data" item
+   - Integrated into Advanced tab with proper spacing
+
+### Critical Issues Fixed (22 Jan 2026)
+
+**1. IPC Response Handling** ✅
+- **Problem**: Dialog confirmation treated as plain boolean instead of IpcResponse object
+- **Solution**: Changed from `if (!confirmed)` to `if (!result.success || !result.data)`
+
+**2. Button Visibility** ✅
+- **Problem**: Custom native buttons blended with background, didn't match app design
+- **Solution**: Replaced custom buttons with app's standard Button component
+
+**3. Dev Mode App Restart** ✅
+- **Problem**: `app.relaunch()` causes blank page in dev mode (npm run dev)
+- **Solution**: Added `is.dev` check - only relaunch in production, exit cleanly in dev
+
+**4. Shared Button State** ✅
+- **Problem**: Both buttons showed loading state when one was clicked
+- **Solution**: Split into separate states (isResetting/isClearing)
+
+### Result
+
+Fully functional Danger Zone with safe destructive operations. All three functions tested and working correctly in both dev and production modes.
+
+---
+
 ## ✅ P3-T14 Mihon/Tachiyomi Library Export - COMPLETE (22 Jan 2026)
 
 **Status**: Complete and tested ✅
@@ -229,15 +288,17 @@ Complete Mihon/Tachiyomi export functionality with all features working and test
 ### Critical Bugs Fixed (22 Jan 2026)
 
 **1. BigInt Serialization Issue** ✅
+
 - **Problem**: `source` field (BigInt constant) serialized as 0 in protobuf
 - **Root Cause**: protobuf.js doesn't support JavaScript BigInt for int64 fields
 - **Solution**: Changed `MangaDexSourceId` from `2499283573021220255n` (BigInt) to `'2499283573021220255'` (string), updated `BackupManga.source` type from `bigint` to `string`
 - **Files**: `mihon-export.helper.ts`, `backup-manga.type.ts`
 
 **2. Duplicate Toast Notifications** ✅
+
 - **Problem**: 4 toasts shown on export completion
 - **Root Cause**: IPC event listeners in preload script didn't return cleanup functions, causing listener accumulation on component re-renders
-- **Solution**: 
+- **Solution**:
   - Added cleanup functions to all IPC event listeners (`onExportTachiyomi`, `onImportTachiyomi`, `onThemeChanged`, etc.)
   - Fixed useEffect dependencies in `LibraryView.tsx` (added `show`, `loadFavourites`, `loadCollections`)
   - Updated type definitions in `index.d.ts` to reflect `() => void` return types
