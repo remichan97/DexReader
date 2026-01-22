@@ -7,6 +7,7 @@ import { AppearanceSettings } from './components/AppearanceSettings'
 import { ReaderSettingsSection } from './components/ReaderSettingsSection'
 import { StorageSettings } from './components/StorageSettings'
 import { AdvancedSettings } from './components/AdvancedSettings'
+import { DangerZoneSettings } from '../../components/SettingsView/DangerZoneSettings'
 
 interface PerMangaOverride {
   mangaId: string
@@ -540,6 +541,7 @@ export function SettingsView(): JSX.Element {
         {/* Advanced Settings */}
         <TabPanel value="advanced">
           <AdvancedSettings />
+          <DangerZoneSettings />
         </TabPanel>
       </Tabs>
     </div>

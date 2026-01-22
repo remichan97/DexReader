@@ -88,6 +88,10 @@ export async function getSetting<K extends keyof AppSettings>(key: K): Promise<A
   return settings[key]
 }
 
+export function getSettingsFilePath(): string {
+  return SETTINGS_FILE
+}
+
 // Get the current downloads path (from settings or default)
 export async function getConfiguredDownloadsPath(): Promise<string> {
   const settings = await loadSettings()
@@ -181,7 +185,7 @@ export async function initializeDownloadsPath(): Promise<void> {
   }
 }
 
-function getDefaultSettings(): AppSettings {
+export function getDefaultSettings(): AppSettings {
   return {
     downloads: {
       downloadPath: null,

@@ -10,7 +10,8 @@ import { ProgressRing } from '../ProgressRing'
 import './Button.css'
 
 export interface ButtonProps
-  extends BaseComponentProps,
+  extends
+    BaseComponentProps,
     DisableableProps,
     LoadableProps,
     Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className'> {

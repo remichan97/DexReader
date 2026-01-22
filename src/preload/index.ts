@@ -271,6 +271,12 @@ const mihon = {
   exportBackup: (savePath: string) => ipcRenderer.invoke('mihon:export-backup', savePath)
 }
 
+const settings = {
+  openFile: () => ipcRenderer.invoke('settings:open-settings-file'),
+  resetToDefaults: () => ipcRenderer.invoke('settings:reset-to-defaults'),
+  clearAllData: () => ipcRenderer.invoke('settings:clear-all')
+}
+
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
@@ -286,6 +292,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('collections', collections)
     contextBridge.exposeInMainWorld('readHistory', readHistory)
     contextBridge.exposeInMainWorld('mihon', mihon)
+    contextBridge.exposeInMainWorld('settings', settings)
   } catch (error) {
     console.error(error)
   }
@@ -310,4 +317,6 @@ if (process.contextIsolated) {
   globalThis.readHistory = readHistory
   // @ts-ignore (define in dts)
   globalThis.mihon = mihon
+  // @ts-ignore (define in dts)
+  globalThis.settings = settings
 }

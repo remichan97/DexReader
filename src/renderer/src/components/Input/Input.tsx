@@ -3,7 +3,8 @@ import { InputType, BaseComponentProps, DisableableProps } from '@renderer/types
 import './Input.css'
 
 export interface InputProps
-  extends BaseComponentProps,
+  extends
+    BaseComponentProps,
     DisableableProps,
     Omit<InputHTMLAttributes<HTMLInputElement>, 'className' | 'type' | 'onChange'> {
   /**

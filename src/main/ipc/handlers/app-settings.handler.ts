@@ -1,5 +1,14 @@
+import { app, shell } from 'electron'
+import { is } from '@electron-toolkit/utils'
 import { AppSettings } from '../../settings/entity/app-settings.entity'
-import { loadSettings, updateSettings, updateSettingsField } from '../../settings/settingsManager'
+import {
+  getDefaultSettings,
+  getSettingsFilePath,
+  loadSettings,
+  saveSettings,
+  updateSettings,
+  updateSettingsField
+} from '../../settings/settingsManager'
 import {
   isAppearanceSettings,
   isDownloadsSettings,
@@ -7,6 +16,7 @@ import {
   validateSettingsField
 } from '../../settings/validators/types.validator'
 import { wrapIpcHandler } from '../wrapHandler'
+import { destructionRepo } from '../../database/repository/destruction-repo'
 
 export function registerAppSettingsHandlers(): void {
   wrapIpcHandler('settings:load', async () => {
@@ -47,5 +57,33 @@ export function registerAppSettingsHandlers(): void {
         throw new Error(`Unknown settings key: ${keyStr}`)
     }
     return await updateSettings(keyStr as keyof AppSettings, value)
+  })
+
+  wrapIpcHandler('settings:open-settings-file', async () => {
+    const settingsPath = getSettingsFilePath()
+
+    await shell.openPath(settingsPath)
+    return true
+  })
+
+  wrapIpcHandler('settings:reset-to-defaults', async () => {
+    const defaultSettings = getDefaultSettings()
+
+    await saveSettings(defaultSettings)
+    return true
+  })
+
+  wrapIpcHandler('settings:clear-all', async () => {
+    destructionRepo.clearAllData()
+
+    const defaultSettings = getDefaultSettings()
+    await saveSettings(defaultSettings)
+
+    // In dev mode, just exit. In production, relaunch the app
+    if (!is.dev) {
+      app.relaunch()
+    }
+    app.exit(0)
+    return true
   })
 }

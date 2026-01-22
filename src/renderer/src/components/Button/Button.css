@@ -119,6 +119,24 @@
   transform: scale(0.98);
 }
 
+/* Accent Variant (Warning/Caution Actions) */
+.button--accent {
+  background: var(--win-warning);
+  color: #ffffff;
+  border-color: var(--win-warning);
+}
+
+.button--accent:hover:not(.button--disabled):not(.button--loading) {
+  background: var(--win-warning-hover);
+  border-color: var(--win-warning-hover);
+}
+
+.button--accent:active:not(.button--disabled):not(.button--loading) {
+  background: var(--win-warning-hover);
+  border-color: var(--win-warning-hover);
+  transform: scale(0.98);
+}
+
 /* Disabled State */
 .button--disabled {
   cursor: not-allowed;

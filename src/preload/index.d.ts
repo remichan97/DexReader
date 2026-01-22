@@ -186,6 +186,12 @@ interface Mihon {
   exportBackup: (savePath: string) => Promise<IpcResponse<ExportResult>>
 }
 
+interface Settings {
+  openFile: () => Promise<boolean>
+  resetToDefaults: () => Promise<void>
+  clearAllData: () => Promise<void>
+}
+
 declare global {
   interface Window {
     electron: ElectronAPI
@@ -198,5 +204,6 @@ declare global {
     collections: Collections
     readHistory: ReadHistory
     mihon: Mihon
+    settings: Settings
   }
 }
