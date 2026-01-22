@@ -1,0 +1,170 @@
+syntax = "proto3";
+
+package dexreader;
+
+// =============================================================================
+// DexReader Backup Format
+// =============================================================================
+// This schema defines the native backup format for DexReader library data.
+// File extension: .dexreader
+// Encoding: Protobuf (binary)
+// Compression: gzip
+// =============================================================================
+
+// Main backup container
+message DexReaderBackup {
+  // Metadata (always present)
+  int32 schema_version = 1; // Schema version for compatibility checking
+  int64 exported_at = 2; // Unix timestamp (milliseconds)
+  string app_version = 3; // DexReader version (e.g., "1.0.0")
+
+  // Library data (always present)
+  LibraryData library = 4;
+
+  // Optional sections (based on export selection)
+  CollectionsData collections = 5; // Collections & organization
+  ProgressData progress = 6; // Reading progress
+  ReaderSettingsData reader_settings = 7; // Per-manga reader settings
+}
+
+// =============================================================================
+// Library Data (Core manga metadata)
+// =============================================================================
+
+message LibraryData {
+  repeated Manga manga_list = 1;
+  repeated Chapter chapter_list = 2;
+}
+
+message Manga {
+  // Core identifiers
+  string manga_id = 1; // UUID from MangaDex API
+  string title = 2; // Main title
+
+  // Metadata
+  optional string description = 3; // Full description (can be null)
+  string status = 4; // "ongoing", "completed", "hiatus", "cancelled"
+  optional string cover_url = 5; // URL to cover image (can be null)
+  optional int32 year = 6; // Year of publication (0 vs not set)
+
+  // User flags
+  bool is_favourite = 7; // Whether marked as favorite
+
+  // Timestamps (Unix milliseconds)
+  int64 added_at = 8; // When manga was added to database
+  int64 updated_at = 9; // When manga was last updated
+  int64 last_accessed_at = 10; // When manga was last accessed
+
+  // JSON-serialized fields
+  map<string, string> external_links = 11; // External links (e.g., {"al": "30416", "ap": "sidooh"})
+  repeated string tags = 12; // Tags/genres (array of UUIDs or names)
+  repeated string authors = 13; // Authors
+  repeated string artists = 14; // Artists
+  map<string, string> alternative_titles = 15; // Alternative titles by language
+
+  // Publication info (for display only, not for progress tracking)
+  optional string last_volume = 16; // Last known volume (can be null)
+  optional string last_chapter = 17; // Last known chapter (can be null)
+
+  // Update tracking (optional, for library UI indicators)
+  optional string last_known_chapter_id = 18; // Last chapter ID we got from API
+  optional string last_known_chapter_number = 19; // Latest chapter number we know of
+  optional int64 last_check_for_updates = 20; // When we last checked for updates (0 vs not set)
+  bool has_new_chapters = 21; // Whether to show "new" indicator
+}
+
+message Chapter {
+  // Core identifiers
+  string chapter_id = 1; // UUID from MangaDex API
+  string manga_id = 2; // Parent manga UUID
+
+  // Metadata
+  optional string title = 3; // Chapter title (can be null)
+  optional string chapter_number = 4; // Chapter number (can be null)
+  optional string volume = 5; // Volume number (can be null)
+  string language = 6; // Language code (e.g., "en", "ja")
+
+  // Timestamps (Unix milliseconds)
+  int64 publish_at = 7; // When chapter was published
+  int64 created_at = 8; // When cached in database
+  int64 updated_at = 9; // When last updated in database
+
+  // Additional info
+  optional string scanlation_group = 10; // Scanlation group name (can be null)
+  optional string external_url = 11; // External URL (can be null)
+}
+
+// =============================================================================
+// Collections Data (Organization)
+// =============================================================================
+
+message CollectionsData {
+  repeated Collection collection_list = 1;
+  repeated CollectionItem collection_items = 2;
+}
+
+message Collection {
+  int32 id = 1; // Collection ID (NOT auto-increment on import)
+  string name = 2; // Collection name (unique)
+  optional string description = 3; // Description (can be null)
+  int64 created_at = 4; // Unix timestamp (milliseconds)
+  int64 updated_at = 5; // Unix timestamp (milliseconds)
+}
+
+message CollectionItem {
+  int32 collection_id = 1; // Collection ID
+  string manga_id = 2; // Manga UUID
+  int64 added_at = 3; // Unix timestamp (milliseconds)
+  int32 position = 4; // Position in collection (for sorting)
+}
+
+// =============================================================================
+// Progress Data (Reading progress)
+// =============================================================================
+
+message ProgressData {
+  repeated MangaProgress manga_progress = 1;
+  repeated ChapterProgress chapter_progress = 2;
+}
+
+message MangaProgress {
+  string manga_id = 1; // Manga UUID
+  string last_chapter_id = 2; // Last chapter read
+  int64 first_read_at = 3; // Unix timestamp (milliseconds)
+  int64 last_read_at = 4; // Unix timestamp (milliseconds)
+}
+
+message ChapterProgress {
+  string manga_id = 1; // Manga UUID
+  string chapter_id = 2; // Chapter UUID
+  int32 current_page = 3; // Current page (0-based index)
+  bool completed = 4; // Whether chapter is completed
+  int64 last_read_at = 5; // Unix timestamp (milliseconds)
+}
+
+// =============================================================================
+// Reader Settings Data (Per-manga reader preferences)
+// =============================================================================
+
+message ReaderSettingsData {
+  repeated MangaReaderOverride overrides = 1;
+}
+
+message MangaReaderOverride {
+  string manga_id = 1; // Manga UUID
+
+  // Reader settings (matches MangaReadingSettings entity)
+  string reading_mode = 2; // "single-page", "double-page", "vertical-scroll"
+
+  // Double-page specific settings (optional, only present for double-page mode)
+  optional DoublePageMode double_page_mode = 3;
+
+  // Timestamps
+  int64 created_at = 4; // Unix timestamp (milliseconds)
+  int64 updated_at = 5; // Unix timestamp (milliseconds)
+}
+
+message DoublePageMode {
+  bool skip_cover_pages = 1; // Skip cover pages in double-page layout
+  bool read_right_to_left = 2; // Right-to-left reading order
+}
