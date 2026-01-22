@@ -187,9 +187,11 @@ interface Mihon {
 }
 
 interface Settings {
-  openFile: () => Promise<boolean>
-  resetToDefaults: () => Promise<void>
-  clearAllData: () => Promise<void>
+  load: () => Promise<IpcResponse<AppSettings>>
+  save: (key: string, value: unknown) => Promise<IpcResponse<void>>
+  openFile: () => Promise<IpcResponse<boolean>>
+  resetToDefaults: () => Promise<IpcResponse<boolean>>
+  clearAllData: () => Promise<IpcResponse<boolean>>
 }
 
 declare global {

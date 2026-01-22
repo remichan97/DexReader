@@ -85,11 +85,16 @@ export function SettingsView(): JSX.Element {
 
         // Load settings via IPC
         try {
-          const settingsResult = await globalThis.electron.ipcRenderer.invoke('settings:load')
+          const settingsResult = await globalThis.settings.load()
           if (!settingsResult.success || !settingsResult.data) {
             throw new Error('Failed to load settings')
           }
           const settings = settingsResult.data
+
+          // Load theme from settings
+          if (settings.appearance.theme) {
+            setThemeMode(settings.appearance.theme)
+          }
 
           if (settings.appearance.accentColor) {
             // User has custom color - use it
@@ -209,7 +214,10 @@ export function SettingsView(): JSX.Element {
       }
 
       delete settings.accentColor
-      await globalThis.electron.ipcRenderer.invoke('settings:save', 'accentColor', undefined)
+      const result = await globalThis.settings.save('accentColor', undefined)
+      if (!result.success) {
+        throw new Error('Failed to save settings')
+      }
     } catch (error) {
       // Silently fail - user can see the UI hasn't changed
       console.error('Failed to save system color preference:', error)
@@ -242,10 +250,27 @@ export function SettingsView(): JSX.Element {
       }
 
       settings.accentColor = color
-      await globalThis.electron.ipcRenderer.invoke('settings:save', 'accentColor', color)
+      const result = await globalThis.settings.save('accentColor', color)
+      if (!result.success) {
+        throw new Error('Failed to save settings')
+      }
     } catch (error) {
       // Silently fail - user can see the UI hasn't changed
       console.error('Failed to save accent color:', error)
+    }
+  }
+
+  // Handle theme mode change
+  const handleThemeModeChange = async (mode: string): Promise<void> => {
+    setThemeMode(mode as 'system' | 'light' | 'dark')
+
+    try {
+      const result = await globalThis.settings.save('theme', mode)
+      if (!result.success) {
+        throw new Error('Failed to save theme setting')
+      }
+    } catch (error) {
+      console.error('Failed to save theme:', error)
     }
   }
 
@@ -307,7 +332,10 @@ export function SettingsView(): JSX.Element {
       }
       ;(settings.reader as Record<string, unknown>).global = updatedSettings
 
-      await globalThis.electron.ipcRenderer.invoke('settings:save', 'reader', settings.reader)
+      const result = await globalThis.settings.save('reader', settings.reader)
+      if (!result.success) {
+        throw new Error('Failed to save reader settings')
+      }
       // Success - no toast needed
     } catch (error) {
       showToast({
@@ -356,7 +384,10 @@ export function SettingsView(): JSX.Element {
       }
       ;(settings.reader as Record<string, unknown>).global = updatedSettings
 
-      await globalThis.electron.ipcRenderer.invoke('settings:save', 'reader', settings.reader)
+      const result = await globalThis.settings.save('reader', settings.reader)
+      if (!result.success) {
+        throw new Error('Failed to save reader settings')
+      }
       // Success - no toast needed
     } catch (error) {
       showToast({
@@ -394,7 +425,10 @@ export function SettingsView(): JSX.Element {
       }
       ;(settings.reader as Record<string, unknown>).forceDarkMode = enabled
 
-      await globalThis.electron.ipcRenderer.invoke('settings:save', 'reader', settings.reader)
+      const result = await globalThis.settings.save('reader', settings.reader)
+      if (!result.success) {
+        throw new Error('Failed to save reader settings')
+      }
       // Success - no toast needed
     } catch (error) {
       showToast({
@@ -433,7 +467,10 @@ export function SettingsView(): JSX.Element {
       }
       ;(settings.reader as Record<string, unknown>).quality = selectedQuality
 
-      await globalThis.electron.ipcRenderer.invoke('settings:save', 'reader', settings.reader)
+      const result = await globalThis.settings.save('reader', settings.reader)
+      if (!result.success) {
+        throw new Error('Failed to save reader settings')
+      }
       // Success - no toast needed
     } catch (error) {
       showToast({
@@ -502,7 +539,7 @@ export function SettingsView(): JSX.Element {
         <TabPanel value="appearance">
           <AppearanceSettings
             themeMode={themeMode}
-            onThemeModeChange={setThemeMode}
+            onThemeModeChange={handleThemeModeChange}
             accentColor={accentColor}
             onAccentColorChange={handleAccentColorChange}
             isUsingSystemColor={isUsingSystemColor}

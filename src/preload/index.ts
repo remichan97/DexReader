@@ -272,6 +272,8 @@ const mihon = {
 }
 
 const settings = {
+  load: () => ipcRenderer.invoke('settings:load'),
+  save: (key: string, value: unknown) => ipcRenderer.invoke('settings:save', key, value),
   openFile: () => ipcRenderer.invoke('settings:open-settings-file'),
   resetToDefaults: () => ipcRenderer.invoke('settings:reset-to-defaults'),
   clearAllData: () => ipcRenderer.invoke('settings:clear-all')

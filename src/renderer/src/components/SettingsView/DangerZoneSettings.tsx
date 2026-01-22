@@ -9,7 +9,10 @@ export const DangerZoneSettings: React.FC = () => {
 
   const handleOpenFile = async (): Promise<void> => {
     try {
-      await globalThis.settings.openFile()
+      const result = await globalThis.settings.openFile()
+      if (!result.success) {
+        throw new Error('Failed to open settings file')
+      }
     } catch (error) {
       console.error('Failed to open settings file:', error)
     }
@@ -28,7 +31,10 @@ export const DangerZoneSettings: React.FC = () => {
 
     setIsResetting(true)
     try {
-      await globalThis.settings.resetToDefaults()
+      const result = await globalThis.settings.resetToDefaults()
+      if (!result.success) {
+        throw new Error('Failed to reset settings')
+      }
       // Reload page to reflect new settings
       globalThis.location.reload()
     } catch (error) {
@@ -50,7 +56,10 @@ export const DangerZoneSettings: React.FC = () => {
 
     setIsClearing(true)
     try {
-      await globalThis.settings.clearAllData()
+      const result = await globalThis.settings.clearAllData()
+      if (!result.success) {
+        throw new Error('Failed to clear data')
+      }
       // App will restart automatically
     } catch (error) {
       console.error('Failed to clear data:', error)
