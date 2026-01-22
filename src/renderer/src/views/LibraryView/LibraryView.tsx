@@ -239,8 +239,7 @@ export function LibraryView(): JSX.Element {
     })
 
     return removeListener
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [show, loadFavourites, loadCollections])
 
   // Listen for export events from main process
   useEffect(() => {
@@ -275,8 +274,7 @@ export function LibraryView(): JSX.Element {
     })
 
     return removeListener
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [show])
 
   const handleSearch = (query: string): void => {
     setSearchQuery(query)

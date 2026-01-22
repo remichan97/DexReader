@@ -3,7 +3,7 @@ import { BackupHistory } from './backup-history.type'
 import { BackupTracking } from './backup-tracking.type'
 
 export interface BackupManga {
-  source: bigint
+  source: string
   url: string
   title?: string
   artist?: string

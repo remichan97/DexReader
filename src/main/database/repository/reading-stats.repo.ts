@@ -34,9 +34,9 @@ export class ReadingStatisticRepository {
       .onConflictDoUpdate({
         target: readingStatistics.id,
         set: {
-          totalMangasRead: stats?.totalMangaRead,
-          totalChaptersRead: stats?.totalChaptersRead,
-          totalPagesRead: stats?.totalPagesRead,
+          totalMangasRead: stats?.totalMangaRead || 0,
+          totalChaptersRead: stats?.totalChaptersRead || 0,
+          totalPagesRead: stats?.totalPagesRead || 0,
           totalEstimatedMinutes: estimatedMinutes,
           lastCalculatedAt: new Date()
         }

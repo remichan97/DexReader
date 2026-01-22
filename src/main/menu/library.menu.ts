@@ -148,11 +148,8 @@ export function buildLibraryMenu(
                   return dialog
                     .showSaveDialog(mainWindow, {
                       title: 'Export Library to Mihon/Tachiyomi',
-                      defaultPath: `dexreader-backup-${new Date().toISOString().split('T')[0]}.proto.gz`,
-                      filters: [
-                        { name: 'Nihon/Tachiyomi Backup', extensions: ['proto.gz', 'tachibk'] },
-                        { name: 'All Files', extensions: ['*'] }
-                      ]
+                      defaultPath: `dexreader-backup-${new Date().toISOString().split('T')[0]}.tachibk`,
+                      filters: [{ name: 'Mihon/Tachiyomi Backup', extensions: ['tachibk'] }]
                     })
                     .then((result) => {
                       if (!result.canceled && result.filePath) {

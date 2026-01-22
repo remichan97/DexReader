@@ -17,17 +17,23 @@ import { RecordReadCommand } from '../main/database/commands/history/record-read
 const api = {
   // Theme API
   onThemeChanged: (callback: (theme: 'light' | 'dark') => void) => {
-    ipcRenderer.on('theme-changed', (_, theme) => callback(theme))
+    const listener = (_: unknown, theme: 'light' | 'dark'): void => callback(theme)
+    ipcRenderer.on('theme-changed', listener)
+    return () => ipcRenderer.removeListener('theme-changed', listener)
   },
   onAccentColorChanged: (callback: (color: string) => void) => {
-    ipcRenderer.on('accent-color-changed', (_, color) => callback(color))
+    const listener = (_: unknown, color: string): void => callback(color)
+    ipcRenderer.on('accent-color-changed', listener)
+    return () => ipcRenderer.removeListener('accent-color-changed', listener)
   },
   getTheme: () => ipcRenderer.invoke('get-theme'),
   getSystemAccentColor: () => ipcRenderer.invoke('theme:get-system-accent-color'),
 
   // Navigation API
   onNavigate: (callback: (route: string) => void) => {
-    ipcRenderer.on('navigate', (_, route) => callback(route))
+    const listener = (_: unknown, route: string): void => callback(route)
+    ipcRenderer.on('navigate', listener)
+    return () => ipcRenderer.removeListener('navigate', listener)
   },
 
   // Dialog API
@@ -66,42 +72,59 @@ const api = {
   // Menu action handlers
   onCheckForUpdates: (callback: () => void) => {
     ipcRenderer.on('check-for-updates', callback)
+    return () => ipcRenderer.removeListener('check-for-updates', callback)
   },
   onAddToFavorites: (callback: () => void) => {
     ipcRenderer.on('add-to-favorites', callback)
+    return () => ipcRenderer.removeListener('add-to-favorites', callback)
   },
   onCreateCollection: (callback: () => void) => {
     ipcRenderer.on('create-collection', callback)
+    return () => ipcRenderer.removeListener('create-collection', callback)
   },
   onManageCollections: (callback: () => void) => {
     ipcRenderer.on('manage-collections', callback)
+    return () => ipcRenderer.removeListener('manage-collections', callback)
   },
   onImportLibrary: (callback: (filePath: string) => void) => {
-    ipcRenderer.on('import-library', (_, filePath) => callback(filePath))
+    const listener = (_: unknown, filePath: string): void => callback(filePath)
+    ipcRenderer.on('import-library', listener)
+    return () => ipcRenderer.removeListener('import-library', listener)
   },
   onImportTachiyomi: (callback: (filePath: string) => void) => {
-    ipcRenderer.on('import-tachiyomi', (_, filePath) => callback(filePath))
+    const listener = (_: unknown, filePath: string): void => callback(filePath)
+    ipcRenderer.on('import-tachiyomi', listener)
+    return () => ipcRenderer.removeListener('import-tachiyomi', listener)
   },
   onExportLibrary: (callback: (filePath: string) => void) => {
-    ipcRenderer.on('export-library', (_, filePath) => callback(filePath))
+    const listener = (_: unknown, filePath: string): void => callback(filePath)
+    ipcRenderer.on('export-library', listener)
+    return () => ipcRenderer.removeListener('export-library', listener)
   },
   onExportTachiyomi: (callback: (filePath: string) => void) => {
-    ipcRenderer.on('export-tachiyomi', (_, filePath) => callback(filePath))
+    const listener = (_: unknown, filePath: string): void => callback(filePath)
+    ipcRenderer.on('export-tachiyomi', listener)
+    return () => ipcRenderer.removeListener('export-tachiyomi', listener)
   },
   onDownloadChapter: (callback: () => void) => {
     ipcRenderer.on('download-chapter', callback)
+    return () => ipcRenderer.removeListener('download-chapter', callback)
   },
   onDownloadManga: (callback: () => void) => {
     ipcRenderer.on('download-manga', callback)
+    return () => ipcRenderer.removeListener('download-manga', callback)
   },
   onClearMetadata: (callback: () => void) => {
     ipcRenderer.on('clear-metadata', callback)
+    return () => ipcRenderer.removeListener('clear-metadata', callback)
   },
   onClearHistory: (callback: () => void) => {
     ipcRenderer.on('clear-history', callback)
+    return () => ipcRenderer.removeListener('clear-history', callback)
   },
   onShowShortcuts: (callback: () => void) => {
     ipcRenderer.on('show-shortcuts', callback)
+    return () => ipcRenderer.removeListener('show-shortcuts', callback)
   }
 }
 

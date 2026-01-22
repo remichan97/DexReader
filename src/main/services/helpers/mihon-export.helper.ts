@@ -20,7 +20,7 @@ const StatusMap: Record<number, PublicationStatus> = {
   6: PublicationStatus.Hiatus
 } as const
 
-const MangaDexSourceId = 2499283573021220255n
+const MangaDexSourceId = '2499283573021220255'
 
 // Create mapping, tag Id -> tag name (Mihon uses names, MangaDex uses IDs)
 const TagIdToNameMap: Record<string, string> = Object.entries(TagList).reduce(
