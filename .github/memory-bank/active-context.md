@@ -420,6 +420,7 @@ Complete planning session for native `.dexreader` backup and restore functionali
 ### Protobuf Schema Completed
 
 **1. Schema Design** (`src/main/services/protobuf/schemas/dexreader.proto`):
+
 - ✅ Proto3 syntax with `optional` keywords for presence detection
 - ✅ Schema validated against current database schema
 - ✅ Matched MangaReadingSettings structure exactly
@@ -427,6 +428,7 @@ Complete planning session for native `.dexreader` backup and restore functionali
 - ✅ Applied `optional` to 15 fields where null vs empty/zero matters
 
 **2. Schema Scope Decisions**:
+
 - **Library data**: Always included (manga + cached chapters) - MANDATORY
 - **Collections**: Optional (organization)
 - **Reading Progress**: Optional (history and page tracking)
@@ -435,6 +437,7 @@ Complete planning session for native `.dexreader` backup and restore functionali
 - **App Settings**: NOT included (settings.json backed up separately via "Open Settings File")
 
 **3. Schema Version 1 Structure**:
+
 ```protobuf
 message DexReaderBackup {
   int32 schema_version = 1;           // Version 1
@@ -470,6 +473,7 @@ message DexReaderBackup {
 ### Implementation Plan (7 steps each)
 
 **Export (P3-T13)**:
+
 1. Backend Helper (transform DB → protobuf) - 2-3h
 2. Export Service (orchestrate, encode, compress) - 2-3h
 3. IPC Handler + registration - 30min
@@ -479,6 +483,7 @@ message DexReaderBackup {
 7. Testing (empty library, selective options, file validation) - 1-2h
 
 **Import (P3-T15)**:
+
 1. Backend Helper (transform protobuf → DB) - 2-3h
 2. Import Service (decode, validate, merge) - 2-3h
 3. IPC Handler + cancellation support - 15min
@@ -505,6 +510,7 @@ saveOverride(command: SaveReaderOverrideCommand): void
 ### Files to Create (20 new files)
 
 **Backend Types** (7 files):
+
 - `src/main/services/types/dexreader/dexreader-backup.type.ts`
 - `src/main/services/types/dexreader/library-data.type.ts`
 - `src/main/services/types/dexreader/collections-data.type.ts`
@@ -512,6 +518,7 @@ saveOverride(command: SaveReaderOverrideCommand): void
 - `src/main/services/types/dexreader/reader-settings-data.type.ts`
 
 **Backend Services** (8 files):
+
 - `src/main/services/helpers/dexreader-export.helper.ts`
 - `src/main/services/helpers/dexreader-import.helper.ts`
 - `src/main/services/helpers/dexreader-validation.helper.ts`
@@ -522,27 +529,32 @@ saveOverride(command: SaveReaderOverrideCommand): void
 - `src/main/ipc/handlers/dexreader.handler.ts`
 
 **Frontend Components** (2 directories):
+
 - `src/renderer/src/components/DexReaderExportDialog/` (3 files)
 - `src/renderer/src/components/DexReaderImportDialog/` (3 files)
 
 ### Key Technical Decisions
 
 **Proto3 Field Presence**:
+
 - Decision: Use `optional` keyword for nullable fields
 - Applied to: description, coverUrl, year, lastVolume, chapter title, scanlationGroup, collection description
 - Benefit: Can check `manga.hasDescription()` instead of checking for empty string
 
 **Mandatory Library Data**:
+
 - Decision: Library always included (can't uncheck)
 - Rationale: Progress/settings depend on manga (FK constraints), file is "library backup"
 - Alternative: Settings-only backup via "Open Settings File" button (already exists)
 
 **Collection ID Mapping**:
+
 - Decision: Map old IDs to new IDs during import
 - Implementation: `Map<number, number>` for oldId → newId
 - Handles: Target already has collection with same ID, or same name (reuse existing)
 
 **Schema Versioning**:
+
 - Decision: schema_version field for compatibility checking
 - Implementation: Throw error if backup.schemaVersion > currentSchemaVersion
 - Message: "Backup schema version X not supported. Please update DexReader."

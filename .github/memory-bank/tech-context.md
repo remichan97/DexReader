@@ -1440,10 +1440,10 @@ if (error) return <ErrorRecovery error={error} onRetry={retry} isRetrying={isLoa
 
 ### Schemas
 
-| Schema File          | Purpose                         | Status    | Format  |
-| -------------------- | ------------------------------- | --------- | ------- |
-| **mihon.proto**      | Mihon/Tachiyomi import/export   | Complete ✅ | Proto2  |
-| **dexreader.proto**  | Native DexReader backup/restore | Complete ✅ | Proto3  |
+| Schema File         | Purpose                         | Status      | Format |
+| ------------------- | ------------------------------- | ----------- | ------ |
+| **mihon.proto**     | Mihon/Tachiyomi import/export   | Complete ✅ | Proto2 |
+| **dexreader.proto** | Native DexReader backup/restore | Complete ✅ | Proto3 |
 
 ### DexReader Native Backup Schema (Proto3)
 
@@ -1453,6 +1453,7 @@ if (error) return <ErrorRecovery error={error} onRetry={retry} isRetrying={isLoa
 **Schema Version**: 1
 
 **Top-Level Structure**:
+
 ```protobuf
 message DexReaderBackup {
   int32 schema_version = 1;           // Version 1
@@ -1466,18 +1467,21 @@ message DexReaderBackup {
 ```
 
 **Data Sections**:
+
 - **LibraryData**: Manga metadata (title, description, status, tags, authors, etc.) + cached chapters
 - **CollectionsData**: Collections + collection items (many-to-many relationships)
 - **ProgressData**: Manga progress + chapter progress (per-chapter tracking with completion flags)
 - **ReaderSettingsData**: Per-manga reader overrides (reading mode, double-page settings)
 
 **Key Features**:
+
 - Proto3 `optional` keyword for presence detection (15 fields)
 - All timestamps as int64 (Unix milliseconds)
 - Maps for key-value data (external_links, alternative_titles)
 - Nested messages (DoublePageMode within MangaReaderOverride)
 
 **What's NOT Included**:
+
 - Reading Statistics (recalculated on import from chapter_progress)
 - App Settings (backed up separately via settings.json)
 
@@ -1488,6 +1492,7 @@ message DexReaderBackup {
 **Format**: Proto2 (required/optional keywords)
 
 **Services**:
+
 - **Import**: `MihonBackupService` - Decode Mihon backups, filter MangaDex manga, import to library
 - **Export**: `MihonExportService` - Export library to Mihon format with tag ID→name conversion
 
