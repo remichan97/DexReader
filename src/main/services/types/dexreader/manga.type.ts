@@ -1,4 +1,4 @@
-export interface Manga {
+export interface DexReaderManga {
   // Core identifiers
   mangaId: string // UUID from MangaDex API
   title: string // Main title

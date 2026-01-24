@@ -1,4 +1,4 @@
-export interface ChapterProgressData {
+export interface DexReaderChapterProgress {
   mangaId: string // Manga UUID
   chapterId: string // Chapter UUID
   currentPage: number // Current page (0-based index)

@@ -1,7 +1,7 @@
-import { Chapter } from './chapter.type'
-import { Manga } from './manga.type'
+import { DexReaderChapter } from './chapter.type'
+import { DexReaderManga } from './manga.type'
 
 export interface LibraryData {
-  mangaList: Manga[]
-  chapterList: Chapter[]
+  mangaList: DexReaderManga[]
+  chapterList: DexReaderChapter[]
 }

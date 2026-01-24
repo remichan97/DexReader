@@ -1,4 +1,4 @@
-export interface CollectionItem {
+export interface DexReaderCollectionItem {
   collectionId: number // Collection ID
   mangaId: string // Manga UUID
   addedAt: number // Unix timestamp (milliseconds)

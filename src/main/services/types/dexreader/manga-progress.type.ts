@@ -1,4 +1,4 @@
-export interface MangaProgressData {
+export interface DexReaderMangaProgress {
   mangaId: string // Manga UUID
   lastChapterId: string // Last chapter read
   firstReadAt: number // Unix timestamp (milliseconds)

@@ -32,11 +32,11 @@ message DexReaderBackup {
 // =============================================================================
 
 message LibraryData {
-  repeated Manga manga_list = 1;
-  repeated Chapter chapter_list = 2;
+  repeated DexReaderManga manga_list = 1;
+  repeated DexReaderChapter chapter_list = 2;
 }
 
-message Manga {
+message DexReaderManga {
   // Core identifiers
   string manga_id = 1; // UUID from MangaDex API
   string title = 2; // Main title
@@ -73,7 +73,7 @@ message Manga {
   bool has_new_chapters = 21; // Whether to show "new" indicator
 }
 
-message Chapter {
+message DexReaderChapter {
   // Core identifiers
   string chapter_id = 1; // UUID from MangaDex API
   string manga_id = 2; // Parent manga UUID
@@ -99,11 +99,11 @@ message Chapter {
 // =============================================================================
 
 message CollectionsData {
-  repeated Collection collection_list = 1;
-  repeated CollectionItem collection_items = 2;
+  repeated DexReaderCollection collection_list = 1;
+  repeated DexReaderCollectionItem collection_items = 2;
 }
 
-message Collection {
+message DexReaderCollection {
   int32 id = 1; // Collection ID (NOT auto-increment on import)
   string name = 2; // Collection name (unique)
   optional string description = 3; // Description (can be null)
@@ -111,7 +111,7 @@ message Collection {
   int64 updated_at = 5; // Unix timestamp (milliseconds)
 }
 
-message CollectionItem {
+message DexReaderCollectionItem {
   int32 collection_id = 1; // Collection ID
   string manga_id = 2; // Manga UUID
   int64 added_at = 3; // Unix timestamp (milliseconds)
@@ -123,18 +123,18 @@ message CollectionItem {
 // =============================================================================
 
 message ProgressData {
-  repeated MangaProgress manga_progress = 1;
-  repeated ChapterProgress chapter_progress = 2;
+  repeated DexReaderMangaProgress manga_progress = 1;
+  repeated DexReaderChapterProgress chapter_progress = 2;
 }
 
-message MangaProgress {
+message DexReaderMangaProgress {
   string manga_id = 1; // Manga UUID
   string last_chapter_id = 2; // Last chapter read
   int64 first_read_at = 3; // Unix timestamp (milliseconds)
   int64 last_read_at = 4; // Unix timestamp (milliseconds)
 }
 
-message ChapterProgress {
+message DexReaderChapterProgress {
   string manga_id = 1; // Manga UUID
   string chapter_id = 2; // Chapter UUID
   int32 current_page = 3; // Current page (0-based index)
@@ -147,24 +147,24 @@ message ChapterProgress {
 // =============================================================================
 
 message ReaderSettingsData {
-  repeated MangaReaderOverride overrides = 1;
+  repeated DexReaderMangaReaderOverride overrides = 1;
 }
 
-message MangaReaderOverride {
+message DexReaderMangaReaderOverride {
   string manga_id = 1; // Manga UUID
 
   // Reader settings (matches MangaReadingSettings entity)
   string reading_mode = 2; // "single-page", "double-page", "vertical-scroll"
 
   // Double-page specific settings (optional, only present for double-page mode)
-  optional DoublePageMode double_page_mode = 3;
+  optional DexReaderDoublePageMode double_page_mode = 3;
 
   // Timestamps
   int64 created_at = 4; // Unix timestamp (milliseconds)
   int64 updated_at = 5; // Unix timestamp (milliseconds)
 }
 
-message DoublePageMode {
+message DexReaderDoublePageMode {
   bool skip_cover_pages = 1; // Skip cover pages in double-page layout
   bool read_right_to_left = 2; // Right-to-left reading order
 }

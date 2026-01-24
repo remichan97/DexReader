@@ -1,7 +1,7 @@
-import { Collection } from './collection.type'
-import { CollectionItem } from './collection-item.type'
+import { DexReaderCollection } from './collection.type'
+import { DexReaderCollectionItem } from './collection-item.type'
 
 export interface CollectionsData {
-  collectionList: Collection[]
-  collectionItems: CollectionItem[]
+  collectionList: DexReaderCollection[]
+  collectionItems: DexReaderCollectionItem[]
 }
