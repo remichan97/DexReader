@@ -1,5 +1,5 @@
 export interface DexreaderExportOption {
   includeCollections: boolean
-  inlcludeProgress: boolean
+  includeProgress: boolean
   includeReaderSettings: boolean
 }

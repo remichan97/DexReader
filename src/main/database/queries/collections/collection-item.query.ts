@@ -3,4 +3,5 @@ export interface CollectionItemQuery {
   collectionId: number
   mangaId: string
   addedAt: Date
+  position: number
 }

@@ -13,6 +13,7 @@ import { ProgressData } from '../types/dexreader/progress.type'
 import { progressRepo } from '../../database/repository/manga-progress.repo'
 import { ReaderSettingsData } from '../types/dexreader/reader-settings.type'
 import { dateToUnixTimestamp } from '../../utils/timestamps.util'
+import { version } from '../../../../package.json'
 import protobuf from 'protobufjs'
 import Pako from 'pako'
 
@@ -44,7 +45,7 @@ export class DexReaderExportService {
       const backup: DexReaderBackup = {
         schemaVersion: 1,
         exportedAt: Date.now(),
-        appVersion: '1.0.0',
+        appVersion: version,
         library: libraryData
       }
 
@@ -53,14 +54,9 @@ export class DexReaderExportService {
         backup.collections = collectionsData
       }
 
-      if (options.inlcludeProgress) {
+      if (options.includeProgress) {
         const progressData: ProgressData = this.fetchProgressData()
         backup.progress = progressData
-      }
-
-      if (options.includeReaderSettings) {
-        const readerSettingsData: ReaderSettingsData = this.fetchReaderSettingsData()
-        backup.readerSettings = readerSettingsData
       }
 
       if (options.includeReaderSettings) {
@@ -100,12 +96,10 @@ export class DexReaderExportService {
   }
 
   private fetchLibraryData(): LibraryData {
-    const mangaList = mangaRepository.getLibraryManga()
+    const mangaList = mangaRepository.getLibraryMangaForExport()
 
     const mangaIDs = mangaList.map((it) => it.mangaId)
-    const chapterList = mangaIDs.flatMap((mangaId) => {
-      return chapterRepo.getChaptersByMangaId(mangaId)
-    })
+    const chapterList = chapterRepo.getChaptersByMangaIds(mangaIDs)
     return {
       mangaList: mangaList.map((it) => dexreaderExport.buildMangaData(it)),
       chapterList: chapterList.map((it) => dexreaderExport.buildChapterData(it))
@@ -137,7 +131,7 @@ export class DexReaderExportService {
       overrides: overrides.map((it) => ({
         mangaId: it.mangaId,
         readingMode: it.readerSettings.readingMode,
-        settings: it.readerSettings,
+        doublePageMode: it.readerSettings.doublePageMode || undefined,
         createdAt: dateToUnixTimestamp(it.createdAt),
         updatedAt: dateToUnixTimestamp(it.updatedAt)
       }))

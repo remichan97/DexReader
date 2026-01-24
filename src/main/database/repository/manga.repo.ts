@@ -9,6 +9,8 @@ import { MarkMangaNewChapterCommand } from '../commands/manga/mark-new-chapter.c
 import { SearchMangaCommand } from '../commands/manga/search-manga.command'
 import { MangaOverrideQuery } from '../queries/manga/manga-override.query'
 
+type MangaRow = typeof manga.$inferSelect
+
 export class MangaRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
     return databaseConnection.getDb()
@@ -237,6 +239,11 @@ export class MangaRepository {
       createdAt: item.createdAt,
       updatedAt: item.updatedAt
     }))
+  }
+
+  // For native export functionality, return raw data from the manga table
+  getLibraryMangaForExport(): MangaRow[] {
+    return this.db.select().from(manga).where(eq(manga.isFavourite, true)).all()
   }
 }
 
