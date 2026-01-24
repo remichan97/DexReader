@@ -1,4 +1,4 @@
-export interface ChapterProgress {
+export interface ChapterProgressQuery {
   id?: number // Optional, as it may be auto-generated
   mangaId: string
   chapterId: string

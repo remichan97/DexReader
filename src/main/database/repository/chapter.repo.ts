@@ -43,6 +43,12 @@ export class ChapterRepository {
     })
   }
 
+  getChaptersByMangaId(mangaId: string): ChapterWithMetadata[] {
+    const results = this.db.select().from(chapter).where(eq(chapter.mangaId, mangaId)).all()
+
+    return results.map(ChapterMapper.toChapterMetadata)
+  }
+
   getChapterById(chapterId: string): ChapterWithMetadata {
     const result = this.db
       .select()

@@ -1,4 +1,4 @@
-export interface ChapterProgress {
+export interface ChapterProgressData {
   mangaId: string // Manga UUID
   chapterId: string // Chapter UUID
   currentPage: number // Current page (0-based index)

@@ -2,6 +2,7 @@ import { MangaWithMetadata } from './../main/database/queries/manga/manga-with-m
 import { ImportResult } from './../main/services/results/import.result'
 import { UpdateResult } from './../main/services/results/update.result'
 import { ExportResult } from './../main/services/results/export.result'
+import { DexReaderExportResult } from './../main/services/results/dexreader/export.result'
 import { ImageUrlResponse } from './../main/api/responses/image-url.response'
 import { ApiResponse } from './../main/api/responses/api.response'
 import { Manga } from './../main/api/entities/manga.entity'
@@ -14,6 +15,7 @@ import type { ReadingStats } from '../main/database/queries/reading-stats/readin
 import type { MangaProgressMetadata } from '../main/database/queries/progress/manga-progress-metadata.query'
 import type { ChapterProgress } from '../main/database/queries/progress/chapter-progress.query'
 import type { MangaReadingSettings } from '../main/settings/entity/reading-settings.entity'
+import type { DexreaderExportOption } from './../main/services/options/dexreader-export.option'
 
 // Re-export types for renderer use
 export type { ImageUrlResponse } from './../main/api/responses/image-url.response'
@@ -31,7 +33,8 @@ export type { RemoveFromCollectionCommand } from '../main/database/commands/coll
 export type { ImportResult } from './../main/services/results/import.result'
 export type { ExportResult } from './../main/services/results/export.result'
 export type { MangaWithMetadata } from './../main/database/queries/manga/manga-with-metadata.query'
-
+export type { DexreaderExportOption } from './../main/services/options/dexreader-export.option'
+export type { DexReaderExportResult } from './../main/services/results/dexreader/export.result'
 interface MenuState {
   canAddToFavorites?: boolean
   isFavorited?: boolean
@@ -194,6 +197,13 @@ interface Settings {
   clearAllData: () => Promise<IpcResponse<boolean>>
 }
 
+interface DexReader {
+  exportData: (
+    savePath: string,
+    options: DexreaderExportOption
+  ) => Promise<IpcResponse<DexReaderExportResult>>
+}
+
 declare global {
   interface Window {
     electron: ElectronAPI
@@ -207,5 +217,6 @@ declare global {
     readHistory: ReadHistory
     mihon: Mihon
     settings: Settings
+    dexreader: DexReader
   }
 }

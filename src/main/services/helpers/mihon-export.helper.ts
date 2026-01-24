@@ -3,7 +3,7 @@ import { PublicationStatus } from '../../api/enums'
 import { CollectionQuery } from '../../database/queries/collections/collection.query'
 import { ChapterWithMetadata } from '../../database/queries/manga/chapter-with-metadata.query'
 import { MangaWithMetadata } from '../../database/queries/manga/manga-with-metadata.query'
-import { ChapterProgress } from '../../database/queries/progress/chapter-progress.query'
+import { ChapterProgressQuery } from '../../database/queries/progress/chapter-progress.query'
 import { dateToUnixTimestamp } from '../../utils/timestamps.util'
 import { BackupCategory } from '../types/mihon/backup-category.type'
 import { BackupChapter } from '../types/mihon/backup-chapter.type'
@@ -52,7 +52,7 @@ export class MihonExportHelper {
   }
 
   buildBackupChapter(
-    chapterProgress: ChapterProgress,
+    chapterProgress: ChapterProgressQuery,
     metadata: ChapterWithMetadata | undefined
   ): BackupChapter {
     return {
@@ -67,7 +67,7 @@ export class MihonExportHelper {
     }
   }
 
-  buildBackupHistory(chapterProgress: ChapterProgress): BackupHistory {
+  buildBackupHistory(chapterProgress: ChapterProgressQuery): BackupHistory {
     return {
       url: this.buildChapterUrl(chapterProgress.chapterId),
       lastRead: chapterProgress.lastReadAt

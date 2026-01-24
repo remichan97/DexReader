@@ -1,9 +1,9 @@
-import { ChapterProgress } from '../queries/progress/chapter-progress.query'
+import { ChapterProgressQuery } from '../queries/progress/chapter-progress.query'
 import { databaseConnection } from './../connection'
 import { MangaProgressMetadata } from '../queries/progress/manga-progress-metadata.query'
 import { and, eq } from 'drizzle-orm'
 import { chapter, chapterProgress, manga, mangaProgress } from '../schema'
-import { MangaProgress } from '../queries/progress/manga-progress.query'
+import { MangaProgressQuery } from '../queries/progress/manga-progress.query'
 import { SaveProgressCommand } from '../commands/progress/save-progress.command'
 import { MangaMapper } from '../mappers/manga.mapper'
 import { dateToUnixTimestamp, unixTimestampToDate } from '../../utils/timestamps.util'
@@ -15,7 +15,7 @@ export class MangaProgressRepository {
     return databaseConnection.getDb()
   }
 
-  getProgressByMangaId(mangaId: string): MangaProgress | undefined {
+  getProgressByMangaId(mangaId: string): MangaProgressQuery | undefined {
     const result = this.db
       .select({
         mangaId: mangaProgress.mangaId,
@@ -147,7 +147,7 @@ export class MangaProgressRepository {
     })
   }
 
-  getChapterProgress(mangaId: string, chapterId: string): ChapterProgress | undefined {
+  getChapterProgress(mangaId: string, chapterId: string): ChapterProgressQuery | undefined {
     const result = this.db
       .select()
       .from(chapterProgress)
@@ -167,7 +167,7 @@ export class MangaProgressRepository {
     }
   }
 
-  getAllChapterProgress(mangaId: string): ChapterProgress[] {
+  getAllChapterProgress(mangaId: string): ChapterProgressQuery[] {
     const results = this.db
       .select()
       .from(chapterProgress)
@@ -184,6 +184,56 @@ export class MangaProgressRepository {
       currentPage: result.currentPage,
       completed: result.completed,
       lastReadAt: dateToUnixTimestamp(result.lastReadAt)
+    }))
+  }
+
+  getAllChapterProgressForAllManga(): ChapterProgressQuery[] {
+    const results = this.db.select().from(chapterProgress).all()
+
+    if (results.length === 0) {
+      return []
+    }
+
+    return results.map((result) => ({
+      mangaId: result.mangaId,
+      chapterId: result.chapterId,
+      currentPage: result.currentPage,
+      completed: result.completed,
+      lastReadAt: dateToUnixTimestamp(result.lastReadAt)
+    }))
+  }
+
+  getAllMangaProgress(): MangaProgressQuery[] {
+    const results = this.db
+      .select({
+        mangaId: mangaProgress.mangaId,
+        lastChapterId: mangaProgress.lastChapterId,
+        firstReadAt: mangaProgress.firstReadAt,
+        lastReadAt: mangaProgress.lastReadAt,
+        currentPage: chapterProgress.currentPage,
+        completed: chapterProgress.completed
+      })
+      .from(mangaProgress)
+      .leftJoin(
+        chapterProgress,
+        and(
+          eq(mangaProgress.mangaId, chapterProgress.mangaId),
+          eq(mangaProgress.lastChapterId, chapterProgress.chapterId)
+        )
+      )
+      .all()
+
+    if (results.length === 0) {
+      return []
+    }
+
+    return results.map((result) => ({
+      mangaId: result.mangaId,
+      lastChapterId: result.lastChapterId,
+      firstReadAt: dateToUnixTimestamp(result.firstReadAt),
+      lastReadAt: dateToUnixTimestamp(result.lastReadAt),
+      currentPage: result.currentPage ?? 0,
+      completed: result.completed ?? false
     }))
   }
 }
