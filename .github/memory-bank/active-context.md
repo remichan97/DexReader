@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 22 January 2026
+**Last Updated**: 26 January 2026
 **Current Phase**: Phase 3 - User Experience Enhancement
-**Session**: P3-T13 & P3-T15 Planning Complete - Native Backup/Restore
+**Session**: P3-T13 Complete, P3-T15 Ready - Native Export Done
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -10,11 +10,11 @@
 
 ## Current Status Summary
 
-**Phase**: Phase 3 - User Experience Enhancement (17/19 tasks, 89.5%)
-**Progress**: P3-T16 complete ✅, P3-T13 & P3-T15 planned ✅
-**Current Date**: 22 January 2026
+**Phase**: Phase 3 - User Experience Enhancement (16/19 tasks, 84.2%)
+**Progress**: P3-T13 complete ✅, P3-T15 ready ✅, P3-T16 complete ✅
+**Current Date**: 26 January 2026
 **Database Migration Status**: Fully migrated and operational
-**Current Task**: Ready to implement P3-T13/P3-T15, or tackle P3-T17/P3-T18
+**Current Task**: Ready to implement P3-T15 (Native import), or tackle P3-T17/P3-T18
 **Plan Document**: `.github/copilot-plans/P3-T13-T15-native-backup-restore-plan.md`
 
 ---
@@ -364,23 +364,20 @@ Complete Mihon/Tachiyomi export functionality with all features working and test
 
 ### Result
 
-Complete and working Mihon/Tachiyomi export. Users can export entire library with metadata, collections, progress, and history. All bugs fixed and tested.
+Complete and working Mihon/Tachiyomi export. Users can export entire library with metadata, collections, progress, and history. All bugs fixed and thoroughly tested.
 
-### Testing Status: NOT TESTED ⚠️
+### Testing Completed ✅
 
-**Backend**: 100% implemented, 0% tested
-**Frontend**: 100% implemented, 0% tested
+**All scenarios tested and verified**:
 
-**Needs Testing**:
-
-- [ ] Export empty library (0 manga)
-- [ ] Export library with single manga
-- [ ] Export library with multiple manga
-- [ ] Tag ID → name conversion verification
-- [ ] Collection name mapping verification
-- [ ] Timestamp format verification
-- [ ] File format validation (decompress + decode)
-- [ ] **Integration test**: Export from DexReader → Import to Mihon → Verify data
+- ✅ Export empty library (0 manga)
+- ✅ Export library with single manga
+- ✅ Export library with multiple manga
+- ✅ Tag ID → name conversion working correctly
+- ✅ Collection name mapping verified
+- ✅ Timestamp format correct (Unix ms)
+- ✅ File format validated (decompress + decode successful)
+- ✅ **Integration test**: Export from DexReader → Import to Mihon → Data verified correct
 
 ### Files Created/Modified
 
@@ -398,66 +395,145 @@ Complete and working Mihon/Tachiyomi export. Users can export entire library wit
 
 **No New Dependencies**: Reused all P3-T12 infrastructure (protobufjs, pako, mihon.proto)
 
-### Next Actions
+---
 
-1. **Regression Testing Session** - Test all export scenarios
-2. **Integration Validation** - Verify exported backup can be imported into Mihon
-3. **Edge Case Testing** - Empty collections, missing metadata, etc.
-4. **Update Memory Bank** - Mark as complete once testing passes
+## ✅ P3-T13 Native DexReader Export - COMPLETE (25 Jan 2026)
+
+**Duration**: ~5 hours (25 January 2026)
+**Status**: Complete and tested ✅
+
+### What Was Implemented
+
+Complete native `.dexreader` export functionality with selective backup options and protobuf schema.
+
+**1. Backend Audit & Critical Fixes** (Pre-Implementation):
+
+- Fixed 10 critical issues discovered during export service implementation:
+  - Typo: `exporterd_at` → `exported_at` (dexreader.proto)
+  - Typo: `favourites` → `favorites` (dexreader.proto)
+  - Typo: `scanlataion_group` → `scanlation_group` (dexreader.proto)
+  - Duplicate `lastVolume` field (dexreader.proto)
+  - Removed `imageFit` field (doesn't exist in DB, was in legacy reader-override.command.ts)
+  - Added missing `currentPage` field (reader-override.command.ts)
+  - Fixed `ZoomPanState` typo → `ZoomAndPanState` (collection.repo.ts, dexreader.proto, reader-override.entity.ts)
+  - Fixed IPC handler routing: `settings:clear-all` → `destruction:clear-all` (app-settings.handler.ts)
+  - Fixed import path typo: `'..utils/diff.util'` → `'../utils/diffs.util'` (app-settings.handler.ts)
+  - Added missing `externalUrl` field (dexreader-backup.type.ts)
+
+**2. Protobuf Schema Renaming** (Critical Change):
+
+- Renamed all 8 protobuf message types: `Backup*` → `DexReader*`
+- **Reason**: Mihon uses identical `Backup*` prefix, causes naming conflicts when both imported
+- **Types Renamed**:
+  - `Backup` → `DexReaderBackup`
+  - `BackupManga` → `DexReaderManga`
+  - `BackupChapter` → `DexReaderChapter`
+  - `BackupCollection` → `DexReaderCollection`
+  - `BackupCollectionItem` → `DexReaderCollectionItem`
+  - `BackupMangaProgress` → `DexReaderMangaProgress`
+  - `BackupChapterProgress` → `DexReaderChapterProgress`
+  - `BackupMangaReaderOverride` → `DexReaderMangaReaderOverride`
+- **Impact**: Clear separation between native and Mihon backup formats
+
+**3. Reader Settings Consolidation** (MAJOR FIX):
+
+- **Problem Discovered**: Reader settings stored in TWO places (database + settings.json), causing inconsistency
+- **Solution**: Made database the single source of truth
+- Created `MangaOverride` query type with full manga metadata (title, coverUrl, mangaId)
+- Updated Settings page to query database via IPC instead of reading JSON file
+- Export service now reads from database with metadata
+- **Impact**: Eliminated dual-source problem, Settings page now shows correct data, exports include all overrides
+
+**4. Backend Export Service** (dexreader-export.service.ts + helper):
+
+- Export service orchestration with AbortController support
+- Helper transforms DB entities → protobuf types
+- Protobuf encoding + gzip compression
+- Selective backup: Library (always), Collections (optional), Progress (optional), Reader Settings (optional)
+- File format: `.dexreader` (protobuf proto3 + gzip)
+
+**5. IPC Integration**:
+
+- `dexreader:export-backup` handler with options parameter
+- `dexreader:cancel-export` for cancellation
+- Preload bridge: `window.dexreader.exportBackup(options)`, `window.dexreader.cancelExport()`
+- Type definitions in preload/index.d.ts
+
+**6. Frontend Export Dialog** (DexReaderExportDialog.tsx):
+
+- Modal wrapper with focus trapping
+- Fluent UI icons: Library20Regular, Folder20Regular, BookOpen20Regular, Settings20Regular
+- Windows 11 design tokens (borders, backgrounds, typography)
+- Checkbox options for Collections, Progress, Reader Settings
+- "Library always included" indicator
+- Export button triggers file save dialog
+
+**7. LibraryView Integration**:
+
+- Menu event listener for `export-library` event
+- File save dialog with `.dexreader` extension and filters
+- Loading state management during export
+- Toast notifications for success/error
+
+**8. Settings Page Improvements**:
+
+- Removed duplicate `getImageFitLabel()` helper (was defined twice)
+- Database query replaces JSON file reading
+- "Clear All Overrides" now uses single IPC call (not loop)
+- Shows manga title and cover in override list
+
+### Files Created/Modified
+
+**Backend Services** (14 files):
+
+- `dexreader-export.service.ts` - Main export orchestration
+- `dexreader-export.helper.ts` - DB → protobuf transformation
+- `dexreader-export.result.ts` - Result type
+- `dexreader.handler.ts` - IPC handlers
+- `dexreader-backup.type.ts` - TypeScript type definitions
+- `dexreader.proto` - Protobuf schema (renamed from Backup* to DexReader*)
+- `chapter.repo.ts` - Added `getChaptersByMangaIds()`
+- `collection.repo.ts` - Fixed ZoomPanState typo
+- `manga-progress.repo.ts` - Added `getAllMangaProgress()`, `getAllChapterProgressForAllManga()`
+- `reader-settings.repo.ts` - Added `getAllOverrides()` with JOIN query
+- `manga-override.query.ts` - NEW query type with manga metadata
+- `reader-override.entity.ts` - Fixed ZoomAndPanState typo
+- `reader-override.command.ts` - Added currentPage field
+- `app-settings.handler.ts` - Fixed IPC routing and import path
+
+**Frontend Components** (3 files):
+
+- `DexReaderExportDialog.tsx` (122 lines) - Export dialog with checkboxes
+- `DexReaderExportDialog.css` (136 lines) - Windows 11 styling
+- `LibraryView.tsx` - Menu integration with file save dialog
+
+**Settings Page** (1 file):
+
+- `ReaderSettingsSection.tsx` - Database queries replace JSON reading, Clear All uses IPC
+
+### Testing & Validation
+
+✅ **Tested Scenarios**:
+
+- Export with all options (collections + progress + reader settings)
+- Export with selective options (only library, only progress, etc.)
+- File save dialog integration
+- Keyboard shortcut (Ctrl+Shift+E)
+- Toast notifications on success/error
+- Settings page shows correct overrides from database
+- Clear All Overrides works correctly
+
+### Result
+
+Complete native DexReader export system with selective backup, proper schema naming, and consolidated reader settings. Export creates `.dexreader` files with protobuf + gzip compression. Settings page now queries database for reader overrides. All 10 backend issues fixed during implementation.
 
 ---
 
-## 📋 P3-T13 & P3-T15: Native DexReader Backup/Restore - PLANNING COMPLETE (22 Jan 2026)
+## 📋 P3-T15: Native DexReader Import - READY FOR IMPLEMENTATION
 
-**Status**: Planning complete, ready for implementation ✅
-**Duration Estimated**: 12-16 hours total (Export: 6-8h, Import: 6-8h)
+**Status**: Planning complete, export done, ready for implementation ✅
+**Duration Estimated**: 6-8 hours
 **Plan Document**: `.github/copilot-plans/P3-T13-T15-native-backup-restore-plan.md`
-
-### Planning Session Summary
-
-Complete planning session for native `.dexreader` backup and restore functionality using Protocol Buffers (proto3).
-
-### Protobuf Schema Completed
-
-**1. Schema Design** (`src/main/services/protobuf/schemas/dexreader.proto`):
-
-- ✅ Proto3 syntax with `optional` keywords for presence detection
-- ✅ Schema validated against current database schema
-- ✅ Matched MangaReadingSettings structure exactly
-- ✅ Fixed MangaReaderOverride to match DB (removed image_quality, force_dark_mode, nested DoublePageMode)
-- ✅ Applied `optional` to 15 fields where null vs empty/zero matters
-
-**2. Schema Scope Decisions**:
-
-- **Library data**: Always included (manga + cached chapters) - MANDATORY
-- **Collections**: Optional (organization)
-- **Reading Progress**: Optional (history and page tracking)
-- **Reader Settings**: Optional (per-manga preferences)
-- **Reading Statistics**: NOT included (recalculated on import)
-- **App Settings**: NOT included (settings.json backed up separately via "Open Settings File")
-
-**3. Schema Version 1 Structure**:
-
-```protobuf
-message DexReaderBackup {
-  int32 schema_version = 1;           // Version 1
-  int64 exported_at = 2;              // Unix timestamp (ms)
-  string app_version = 3;             // DexReader version
-  LibraryData library = 4;            // Required (manga + chapters)
-  CollectionsData collections = 5;     // Optional
-  ProgressData progress = 6;           // Optional
-  ReaderSettingsData reader_settings = 7; // Optional
-}
-```
-
-### Export Features (P3-T13)
-
-- Selective backup with checkboxes (collections, progress, reader settings)
-- Export dialog UI with clear "Library always included" indicator
-- File save dialog integration
-- `.dexreader` file format (protobuf + gzip compression)
-- Menu integration: Library → Export DexReader Backup (Ctrl+Shift+E)
-- Toast notifications on success/error
 
 ### Import Features (P3-T15)
 
@@ -470,19 +546,7 @@ message DexReaderBackup {
 - Cancellable import operation with AbortController
 - Comprehensive validation before import
 
-### Implementation Plan (7 steps each)
-
-**Export (P3-T13)**:
-
-1. Backend Helper (transform DB → protobuf) - 2-3h
-2. Export Service (orchestrate, encode, compress) - 2-3h
-3. IPC Handler + registration - 30min
-4. Preload Bridge (window.dexreader.exportBackup) - 30min
-5. Frontend Export Dialog with checkboxes - 2-3h
-6. Menu integration - 30min
-7. Testing (empty library, selective options, file validation) - 1-2h
-
-**Import (P3-T15)**:
+### Implementation Steps
 
 1. Backend Helper (transform protobuf → DB) - 2-3h
 2. Import Service (decode, validate, merge) - 2-3h
@@ -492,84 +556,8 @@ message DexReaderBackup {
 6. Menu integration - 30min
 7. Testing (duplicates, FK constraints, schema versioning) - 1-2h
 
-### New Repository Methods Needed
-
-```typescript
-// chapter.repo.ts
-getChaptersByMangaIds(mangaIds: string[]): Chapter[]
-
-// manga-progress.repo.ts
-getAllMangaProgress(): MangaProgress[]
-getAllChapterProgressForAllManga(): ChapterProgress[]
-
-// reader-settings.repo.ts (NEW FILE needed)
-getAllOverrides(): ReaderOverride[]
-saveOverride(command: SaveReaderOverrideCommand): void
-```
-
-### Files to Create (20 new files)
-
-**Backend Types** (7 files):
-
-- `src/main/services/types/dexreader/dexreader-backup.type.ts`
-- `src/main/services/types/dexreader/library-data.type.ts`
-- `src/main/services/types/dexreader/collections-data.type.ts`
-- `src/main/services/types/dexreader/progress-data.type.ts`
-- `src/main/services/types/dexreader/reader-settings-data.type.ts`
-
-**Backend Services** (8 files):
-
-- `src/main/services/helpers/dexreader-export.helper.ts`
-- `src/main/services/helpers/dexreader-import.helper.ts`
-- `src/main/services/helpers/dexreader-validation.helper.ts`
-- `src/main/services/dexreader/dexreader-export.service.ts`
-- `src/main/services/dexreader/dexreader-import.service.ts`
-- `src/main/services/results/dexreader-export.result.ts`
-- `src/main/services/results/dexreader-import.result.ts`
-- `src/main/ipc/handlers/dexreader.handler.ts`
-
-**Frontend Components** (2 directories):
-
-- `src/renderer/src/components/DexReaderExportDialog/` (3 files)
-- `src/renderer/src/components/DexReaderImportDialog/` (3 files)
-
-### Key Technical Decisions
-
-**Proto3 Field Presence**:
-
-- Decision: Use `optional` keyword for nullable fields
-- Applied to: description, coverUrl, year, lastVolume, chapter title, scanlationGroup, collection description
-- Benefit: Can check `manga.hasDescription()` instead of checking for empty string
-
-
-**Mandatory Library Data**:
-
-- Decision: Library always included (can't uncheck)
-- Rationale: Progress/settings depend on manga (FK constraints), file is "library backup"
-- Alternative: Settings-only backup via "Open Settings File" button (already exists)
-
-**Collection ID Mapping**:
-
-- Decision: Map old IDs to new IDs during import
-- Implementation: `Map<number, number>` for oldId → newId
-- Handles: Target already has collection with same ID, or same name (reuse existing)
-
-**Schema Versioning**:
-
-- Decision: schema_version field for compatibility checking
-- Implementation: Throw error if backup.schemaVersion > currentSchemaVersion
-- Message: "Backup schema version X not supported. Please update DexReader."
-
-### Status
-
-✅ Protobuf schema complete and validated
-✅ Comprehensive implementation plan created (823 lines)
-✅ All technical decisions documented
-✅ All files and methods identified
-✅ Ready for implementation
-
-**Next Step**: Begin P3-T13 Step 1 (Backend Export Helper) when ready
+**Next Step**: Begin P3-T15 Step 1 (Backend Import Helper) when ready
 
 ---
 
-**Last Updated**: 25 January 2026 | **Next**: P3-T15 Implementation or P3-T17/P3-T18
+**Last Updated**: 26 January 2026 | **Next**: P3-T15 Implementation or P3-T17/P3-T18

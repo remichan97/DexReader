@@ -581,7 +581,7 @@ During implementation, discovered and fixed 10 issues in export service:
 ### Protobuf Schema Renaming
 
 - All 8 types: `Backup*` → `DexReader*` prefix
-- Prevents naming conflicts with Mihon format (also uses Backup* prefix)
+- Prevents naming conflicts with Mihon format (also uses Backup\* prefix)
 - Types: DexReaderBackup, DexReaderManga, DexReaderChapter, DexReaderCollection, DexReaderCollectionItem, DexReaderMangaProgress, DexReaderChapterProgress, DexReaderMangaReaderOverride
 
 ### Export Features
@@ -610,7 +610,7 @@ During implementation, discovered and fixed 10 issues in export service:
 - `manga.mapper.ts` - Added `toMangaOverrideQuery()` mapper
 - `LibraryView.tsx` - Export dialog integration
 - `SettingsView.tsx` - Database queries replace JSON parsing
-- All protobuf type files - Renamed Backup* → DexReader*
+- All protobuf type files - Renamed Backup*→ DexReader*
 
 **Result**: Complete native export system. Database is single source of truth for settings. Import (P3-T15) ready for implementation.
 
