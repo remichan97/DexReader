@@ -1,137 +1,134 @@
 # DexReader Project Progress & Timeline
 
+**Purpose**: This file tracks completed milestones with concise summaries. For detailed implementation notes, see [archived-milestones.md](./archived-milestones.md).
+
 **Project Start**: 23 November 2025
-**Current Phase**: Phase 3 - User Experience Enhancement (P3-T12 Complete ✅, P3-T14 Complete ✅, P3-T16 Complete ✅, P3-T13 & P3-T15 Planned ✅)
-**Last Updated**: 22 January 2026
+**Current Phase**: Phase 3 - User Experience Enhancement (P3-T13 Complete ✅, P3-T15 Ready)
+**Last Updated**: 25 January 2026
 
 ---
 
 ## Project Overview
 
-**DexReader** is a desktop application for reading manga from MangaDex. It focuses on providing an optimal image viewing experience for manga readers. The project is built on Electron + React + TypeScript and follows a phased development approach.
+**DexReader** is a desktop manga reader for MangaDex built with Electron + React + TypeScript.
 
-**Content Source**: MangaDex public API (no authentication required)
-**Primary Format**: Image files (JPG, PNG, WebP)
-**API Access**: Public read-only endpoints for manga, chapters, and images
-**Caching Strategy**:
-
-- Cover images: Automatic caching for bookmarked manga
-- Chapter images: Explicit downloads only (user-initiated)
-- Online reading: No local chapter caching (streaming only)
+**Core Technologies**: Electron 34, React 19, TypeScript 5.7, Drizzle ORM, SQLite
+**Content Source**: MangaDex public API (read-only, no auth required)
+**Storage Strategy**: SQLite database (AppData), user-configured downloads directory
 
 ---
 
-## Current Status: Phase 3 In Progress (89.5% Complete)
+## Current Status: Phase 3 In Progress (84.2% Complete)
 
-**Progress**: Phase 2 Complete (11/11 tasks) | Guerilla Refactoring Complete | P3-T01 COMPLETE ✅ | P3-T12 COMPLETE ✅ | P3-T14 COMPLETE ✅ | P3-T16 COMPLETE ✅
-**Next**: P3-T13-T15 (Native DexReader backup/restore) OR P3-T17-T18 (Date format/accessibility)
-**Status**: 17/19 Phase 3 tasks complete (89.5%)
-
-### P3-T01 Library Features: COMPLETE ✅ (100%)
-
-**Duration**: ~12-13 hours (3-5 January 2026)
-**Plan Document**: Completed and archived
-**Status**: **ALL FEATURES IMPLEMENTED AND WORKING** ✅
-
-**Completed Features** (12/12 steps):
-
-- ✅ **Step 1**: MangaRepository - All methods implemented
-- ✅ **Step 2**: ReadHistoryRepository - All query methods working
-- ✅ **Step 3**: CollectionRepository - Full CRUD with metadata
-- ✅ **Step 4**: UpdateCheckerService - Fully implemented with rate limiting
-- ✅ **Step 5**: IPC Handlers - All library/collections/history handlers
-- ✅ **Step 6**: Preload Types - Complete type safety
-- ✅ **Step 7**: Library Store - Working with all actions
-- ✅ **Step 8**: Library View UI - Complete with tabs, search, context menus
-- ✅ **Step 9**: Opportunistic Caching - Auto-caches on detail view
-- ✅ **Step 10**: Update Indicator Component - Animated dot badges on covers
-- ✅ **Step 11**: Collections UI - Full CRUD with "Manage Collections" dialog
-- ✅ **Step 12**: Testing & Polish - Fully tested and working
-
-**Key Implementations**:
-
-1. **Collections System**:
-   - Create/edit/delete collections
-   - Add/remove manga (batch operations)
-   - Collection tabs with badge counts
-   - Right-click context menus
-   - Pre-populated selection states
-   - Tab indicator follows active collection
-
-2. **Update Checker**:
-   - Backend service with rate limiting
-   - "Check for Updates" button in Library
-   - Visual indicators (animated dot) on manga covers
-   - Batch processing of library
-   - Chapter comparison logic
-
-3. **Library Features**:
-   - Favorites management (toggle on/off)
-   - Search functionality
-   - Grid layout with context menus
-   - Empty states
-   - Opportunistic metadata caching
-
-**Result**: Complete library management system with collections, favorites, and update tracking.
+**Phase Progress**: Phase 2 Complete (11/11) | Guerilla Refactoring Complete | 16/19 Phase 3 tasks
+**Next Tasks**: P3-T15 (Native import) OR P3-T17-T18 (Date format/accessibility)
+**Current Focus**: Native DexReader export COMPLETE ✅, import ready to implement
 
 ---
 
-## Completed Milestones
+## Recent Milestones
 
-### Progress Tracking Fixes = P3-T01 Foundation: Complete (100%) ✅
+### P3-T13 Native DexReader Export (25 January 2026) ✅
 
-**Duration**: ~4-5 hours (3-5 January 2026)
-**Rationale**: Resolve regressions discovered during post-migration testing - turned out to be foundational P3-T01 work
-**Result**: All progress tracking features working correctly, UI polished, ~40% of P3-T01 repository/IPC infrastructure complete
+**Duration**: ~5 hours | **Status**: Complete
 
-**Context**: What started as "regression fixes" actually implemented significant portions of P3-T01's data layer. We completed repository expansions, IPC handlers, type definitions, and opportunistic caching - all planned for P3-T01 Steps 1, 2, 5, 6, 9, and 12.
+**Summary**: Implemented native export functionality with protobuf schema and selective backup options.
 
-**Issues Resolved** (9 total):
+**Key Outcomes**:
 
-1. ✅ **Progress Display Not Refreshing** - Detail view showing stale data after returning from reader
-   - **Root Cause**: React Router component caching, no dependency on navigation changes
-   - **Fix**: Added useEffect watching `location.pathname` to reload progress
-   - **Files**: MangaDetailView.tsx
+- Backend audit revealed and fixed 10 critical issues (typos, duplicates, missing fields)
+- Protobuf schema renamed: Backup* → DexReader* (8 types) to avoid Mihon conflicts
+- **Critical Fix**: Consolidated reader settings - database now single source of truth (was stored in JSON + database)
+- Export dialog with Modal wrapper, Fluent UI icons, Windows 11 styling
+- LibraryView integration with menu events (Ctrl+Shift+E), file save dialog, toast notifications
+- Settings page optimized: database queries replace JSON parsing, batch operations for Clear All
 
-2. ✅ **Reader Ignoring Saved Progress** - Always starting at page 0 despite saved currentPage
-   - **Root Cause**: useState initialization not checking locationState
-   - **Fix**: Changed to `locationState?.startPage ?? 0`, added chapter change detection with startPage/startAtLastPage handling
-   - **Files**: ReaderView.tsx
+**Export Options**: Library (always), Collections (optional), Progress (optional), Reader Settings (optional)
+**File Format**: .dexreader (protobuf proto3 + gzip compression)
 
-3. ✅ **Chapter List Missing Progress Indicators** - No per-chapter progress display in detail view
-   - **Root Cause**: Database schema incomplete (MangaProgress missing currentPage/completed), no IPC endpoint for chapter queries
-   - **Fix**: Extended MangaProgress interface, created `getAllChapterProgress` IPC handler, updated ChapterList component
-   - **Files**: manga-progress.query.ts, manga-progress.repo.ts, progress-tracking.handler.ts, ChapterList.tsx, MangaDetailView.tsx
+**Technical Debt Eliminated**: Dual-source reader settings problem, Settings page inefficiency, missing metadata in exports
 
-4. ✅ **Network Retry Resetting Completion Status** - Completed chapters marked incomplete after retry
-   - **Root Cause**: useProgressTracking re-initializing on loading/error state changes
-   - **Fix**: Removed loading/error from effect dependencies, added conditional check before initial save
-   - **Files**: useProgressTracking.ts
+---
 
-5. ✅ **History View Missing Chapter Metadata** - Showing "Ch. ?" instead of chapter numbers/titles
-   - **Root Cause**: Chapter metadata not cached in database during reading
-   - **Fix**: Implemented chapter caching system - saves chapter metadata when reading starts
-   - **Files**: chapter.schema.ts, manga-progress.repo.ts, progress-tracking.handler.ts, ReaderView.tsx, preload files
+- Prevents naming conflicts with Mihon backup format
+- Types: DexReaderBackup, DexReaderManga, DexReaderChapter, DexReaderCollection, DexReaderCollectionItem, DexReaderMangaProgress, DexReaderChapterProgress, DexReaderMangaReaderOverride
 
-6. ✅ **Statistics Showing Zero** - All reading stats displaying 0 despite active reading
-   - **Root Cause**: Query filtering only completed chapters, incorrect page count formula
-   - **Fix**: Removed `.where(eq(completed, true))` filter, changed to `SUM(currentPage + 1)`
-   - **Files**: reading-stats.repo.ts
+3. ✅ **Reader Settings Data Consolidation**:
+   - **Problem Solved**: Reader settings were stored in TWO places (JSON + database), causing inconsistency
+   - Created `MangaOverride` query type with full metadata
+   - Database now single source of truth for reader overrides
+   - Settings page loads from database via IPC
+   - Export service reads from database with metadata
 
-7. ✅ **History Missing Language Information** - No indication which translation was read
-   - **Root Cause**: Language data not exposed in metadata, no UI component for display
-   - **Fix**: Added `language?: string` to MangaProgressMetadata, created language badge with localized names
-   - **Files**: manga-progress-metadata.query.ts, HistoryView.tsx, HistoryView.css
+4. ✅ **Export Dialog (Frontend)**:
+   - Modal wrapper with full focus trapping
+   - Fluent UI icons (Library20Regular, Folder20Regular, BookOpen20Regular, Settings20Regular)
+   - Windows 11 design tokens
+   - Checkbox options for optional sections
+   - Toast notifications for success/failure
 
-8. ✅ **TypeScript Import Error** - "Module 'src/preload' has no exported member 'ChapterProgress'"
-   - **Root Cause**: Incorrect module path resolution in renderer
-   - **Fix**: Changed import from 'src/preload' to relative path '../../../preload/index.d'
-   - **Files**: MangaDetailView.tsx
+5. ✅ **LibraryView Integration**:
+   - Menu event listener for `export-library`
+   - File save dialog with `.dexreader` extension
+   - Loading state management
 
-9. ✅ **Empty State Icons Too Small** - 24px variants not visually prominent
-   - **Root Cause**: Using smaller icon variants, some icon families lacking 48px versions
-   - **Fix**: Upgraded to 48px variants (BookOpen48Regular, Search48Regular, Warning48Regular)
-   - **Files**: LibraryView.tsx
+6. ✅ **Settings Page Improvements**:
+   - Removed duplicate helper function
+   - Database query replaces JSON file reading
+   - "Clear All Overrides" uses single IPC call (not loop)
+
+**Technical Implementation**:
+
+- Format: Protobuf + gzip compression
+- File extension: `.dexreader`
+- Always includes: Library (manga + chapters)
+- Optional: Collections, Progress, Reader Settings
+- Backend: Complete service + helpers + repository methods
+- Frontend: Modal dialog + LibraryView integration
+
+**Files Modified/Created**:
+
+- Backend: Export service, helpers, repositories, queries, mappers
+- Frontend: DexReaderExportDialog component, LibraryView integration
+- Protobuf: 8 schema files renamed
+- Database: New query methods with metadata joins
+
+**Result**: Complete native export system ready for production use. Import (P3-T15) ready for implementation.
+
+---
+
+### P3-T01 Library Features (3-5 January 2026) ✅
+
+**Duration**: ~12-13 hours | **Status**: Complete
+
+**Summary**: Implemented complete library management system with collections, favorites, and update checking.
+
+**Key Features**:
+
+- Collections system: Create/edit/delete, batch add/remove, context menus, pre-populated states
+- Update checker: Rate-limited service, visual indicators (animated dots), batch processing
+- Library UI: Favorites toggle, search, grid layout, opportunistic metadata caching
+- Progress tracking fixes: 9 regression issues resolved (display refresh, reader position, chapter indicators, statistics accuracy)
+
+**Technical Foundation**: Repositories (Manga, ReadHistory, Collection), IPC handlers, preload types, library store, chapter caching system
+
+**Result**: Complete library management with ~40% of infrastructure work enabling future Phase 3 tasks.
+
+---
+
+### Progress Tracking Foundation (3-5 January 2026) ✅
+
+**Summary**: Resolved 9 progress tracking regressions that turned into foundational P3-T01 data layer work.
+
+**Key Fixes**:
+
+- Progress display refresh, reader position persistence, chapter list indicators
+- Chapter metadata caching system, reading statistics accuracy
+- Language badges in history view, larger empty state icons (48px)
+
+**Outcome**: All progress tracking features working correctly, infrastructure for P3-T01 established.
+
+---
 
 **Technical Improvements**:
 
@@ -156,587 +153,166 @@
 
 ---
 
-### Guerilla Database Migration: 3/3 Phases Complete (100%) 🎉
+### Guerilla Database Migration (27-28 December 2025) ✅
 
-**Duration**: ~13.5 hours (27-28 December 2025)
-**Rationale**: Eliminate JSON limitations (2MB cap, 1000 override limit), enable Phase 3 library features
-**Result**: Complete migration from JSON to SQLite with normalized schema
+**Duration**: ~13.5 hours | **Status**: Complete (3/3 phases)
 
-- [✅] **Phase 1**: Database Infrastructure (4 hours) - **COMPLETE**
-  - **Result**: Drizzle ORM + SQLite setup, 9 tables with indexes and triggers
-  - **Database**: WAL mode, 64MB cache, 256MB mmap, foreign keys enforced
-  - **Tables**: app_settings, manga_reader_overrides, manga_progress, chapter_progress, reading_statistics, manga, chapter, collections, collection_items
-  - **Triggers**: 3 triggers (cleanup stale cache, update statistics, cleanup orphaned chapters)
-  - **Build**: Migration files bundled via Vite plugin, asarUnpack configured
-  - **Location**: AppData/dexreader.db (dev: ./dexreader-dev.db)
-  - **Status**: ✅ Database operational
+**Summary**: Migrated from JSON storage to SQLite with Drizzle ORM, eliminating 2MB limit and 1000 override cap.
 
-- [✅] **Phase 2**: Reader Settings Migration (1.5 hours) - **COMPLETE**
-  - **Result**: Settings migrated to database, FK constraints working
-  - **Methods**: getMangaReaderSettings, updateMangaReaderSettings, deleteMangaReaderSettings
-  - **Pattern**: Query with fallback to global settings, upsert to manga_reader_overrides
-  - **Status**: ✅ Reader overrides functional
+**Key Achievements**:
 
-- [✅] **Phase 3**: Progress Migration + Folder Reorganization (8 hours) - **COMPLETE**
-  - **Result**: Complete migration from JSON to database with normalized entities
-  - **Folder Structure**: CQRS-inspired (`database/queries/` + `database/commands/`)
-  - **Entities**: Lean queries (MangaProgress, ChapterProgress) + Rich metadata (MangaProgressMetadata)
-  - **Repository**: MangaProgressRepository with full CRUD + JOINs + statistics
-  - **Minimal Caching**: Inserts minimal manga records to satisfy FK constraints
-  - **Frontend**: All views updated (Store, HistoryView, MangaDetailView, ReaderView)
-  - **IPC**: Handlers switched from ProgressManager to repository
-  - **Removed**: Old ProgressManager and progress/ folder
-  - **Status**: ✅ Fully operational, compiles without errors
+- **Phase 1** (4h): Database infrastructure - 9 tables, WAL mode, migrations, build integration
+- **Phase 2** (1.5h): Reader settings migration with FK constraints
+- **Phase 3** (8h): Progress migration with CQRS-inspired structure, lean entities, repository pattern
 
-**Work Saved for P3-T01**: ~13 hours (Database infrastructure, repositories, progress tracking)
+**Technical Foundation**: SQLite database (AppData), Drizzle ORM, normalized schema, CRUD repositories, minimal manga caching
 
-### Guerilla Backend Refactoring: 4/4 Phases Complete (100%) 🎉
-
-**Duration**: ~12 hours (Before 22 December 2025)
-**Rationale**: Backend needed proper organization - main/index.ts (357 lines), menu.ts (313 lines), registry.ts (347 lines), plus settings needed validation.
-**Completion**: All backend refactoring completed BEFORE frontend refactoring began.
-
-- [✅] **Backend Phase 0**: Settings IPC Integration - **COMPLETE**
-  - **Result**: Created proper IPC handlers for settings operations
-  - **Files Created**: app-settings.handler.ts
-  - **Handlers**: settings:load, settings:save with validation
-  - **Validation**: Field-level (accentColor, theme) and section-level (appearance, downloads, reader)
-  - **Impact**: Frontend can no longer bypass SettingsManager, all operations validated
-  - **Build Status**: Passes ✓
-
-- [✅] **Backend Phase 1**: main/index.ts Refactoring - **COMPLETE**
-  - **Result**: 357 lines → 78 lines (78% reduction, -279 lines)
-  - **Files Created**:
-    - window.ts (46 lines) - createWindow, getMainWindow, window management
-    - app-lifecycle.ts (20 lines) - setupAppLifecycle with app events
-  - **Pattern**: Extract window and lifecycle logic, keep main as orchestrator
-  - **Build Status**: Passes ✓
-
-- [✅] **Backend Phase 2**: IPC Handler Organization - **COMPLETE**
-  - **Result**: 347 lines → 32 lines registry (91% reduction, -315 lines)
-  - **Files Created** (7 domain handlers):
-    - app-settings.handler.ts - settings operations
-    - dialogs.handler.ts - dialog operations
-    - file-systems.handler.ts - filesystem operations
-    - mangadex.handler.ts - MangaDex API operations
-    - progress-tracking.handler.ts - progress tracking
-    - reader-settings.handler.ts - per-manga settings
-    - theme.handler.ts - theme operations
-  - **Pattern**: Split by domain, registry.ts becomes orchestrator calling registration functions
-  - **Build Status**: Passes ✓
-
-- [✅] **Backend Phase 3**: menu.ts Refactoring - **COMPLETE**
-  - **Result**: Extracted into 6 menu files + orchestrator
-  - **Files Created**:
-    - file.menu.ts (41 lines) - File menu
-    - help.menu.ts (42 lines) - Help menu
-    - library.menu.ts (130 lines) - Library menu
-    - tools.menu.ts (38 lines) - Tools menu
-    - view.menu.ts (57 lines) - View menu
-    - menu-state.ts (9 lines) - MenuState interface
-    - index.ts (21 lines) - Menu orchestrator
-  - **Pattern**: Extract by menu section, support state-based building
-  - **Build Status**: Passes ✓
-
-- [✅] **Backend Phase 4**: Settings Validation - **COMPLETE**
-  - **Result**: Created types.validator.ts (201 lines)
-  - **Validation Types**:
-    - Field-level: accentColor (hex format), theme (enum)
-    - Section-level: appearance, downloads, reader settings
-    - Type guards: isAppearanceSettings, isDownloadsSettings, isReaderSettings
-    - Enum validation: AppTheme, ReadingMode, ImageQuality
-  - **Pattern**: Comprehensive validation before any settings write
-  - **Build Status**: Passes ✓
-
-- [⏳] **Backend Phase 5**: General Improvements - **DEFERRED**
-  - Additional type safety improvements
-  - Enhanced documentation
-  - Code consistency improvements
-  - **Status**: Not critical, can be addressed during Phase 3 development
-
-**Backend Success Metrics**:
-
-- ✅ All files under 100 lines (78, 46, 20, 32)
-- ✅ Clear domain separation (7 handlers, 6 menu files)
-- ✅ All settings validated before writing
-- ✅ No TypeScript errors
-- ✅ Builds pass successfully
-
-**Timeline**: Backend completed (~12 hours) BEFORE frontend refactoring began (coordination requirement met).
+**Outcome**: Foundation for Phase 3 library features, ~13 hours work saved for P3-T01.
 
 ---
 
-### Guerilla Frontend Refactoring: 3/3 Phases Complete (100%) 🎉
+### Guerilla Backend Refactoring (Before 22 December 2025) ✅
 
-**Duration**: ~20 hours (22 December 2025)
-**Rationale**: Phase 2 created large files (ReaderView: 2,189 lines, MangaDetailView: 1,104 lines, SettingsView: 803 lines) that needed refactoring before Phase 3.
+**Duration**: ~12 hours | **Status**: Complete (4/4 phases)
 
-- [✅] **Frontend Phase 1**: ReaderView Refactoring - **COMPLETE**
-  - **Result**: 2,189 lines → 753 lines (68.6% reduction, -1,436 lines)
-  - **Components Created**:
-    - 8 custom hooks: useReaderSettings, usePagePairs, useReaderNavigation, useReaderKeyboard, useReaderZoom, useImagePreload, useChapterData, useProgressTracking
-    - 4 display components: PageDisplay, DoublePageDisplay, VerticalScrollDisplay, EndOfChapterOverlay
-  - **Pattern**: Extract logic into hooks, extract UI into components, main file orchestrates
-  - **Build Status**: Passes ✓
+**Summary**: Organized backend into maintainable domain modules with proper validation.
 
-- [✅] **Frontend Phase 2**: MangaDetailView Refactoring - **COMPLETE**
-  - **Result**: 1,104 lines → 439 lines (60.2% reduction, -665 lines)
-  - **Components Created**:
-    - MangaHeroSection.tsx (193 lines) - cover image, metadata, action buttons, StatusBadge, DemographicBadge
-    - DescriptionSection.tsx (45 lines) - description with expand/collapse
-    - ExternalLinksSection.tsx (88 lines) - external service links with confirmation
-    - TagsSection.tsx (55 lines) - genre tags with navigation
-    - ChapterList.tsx (288 lines) - language filter, sorting, progress tracking, ChapterItem
-  - **Pattern**: Extract sections into focused components, maintain cache and state in main file
-  - **Build Status**: Passes ✓
+**Key Results**:
 
-- [✅] **Frontend Phase 3**: SettingsView Refactoring - **COMPLETE**
-  - **Result**: 803 lines → 448 lines (44.2% reduction, -355 lines)
-  - **Components Created**:
-    - AppearanceSettings.tsx (92 lines) - theme mode, accent color picker, system color
-    - ReaderSettingsSection.tsx (275 lines) - force dark mode, image quality, reading mode, per-manga overrides
-    - StorageSettings.tsx (77 lines) - downloads folder location
-    - AdvancedSettings.tsx (9 lines) - error log viewer wrapper
-  - **Pattern**: Extract settings sections, keep state management and handlers in main file
-  - **Build Status**: Passes ✓
+- **Phase 0**: Settings IPC with validation
+- **Phase 1**: main/index.ts - 357 → 78 lines (78% reduction)
+- **Phase 2**: IPC handlers - 347 → 32 lines registry (91% reduction), 7 domain handlers
+- **Phase 3**: menu.ts - 6 menu files + orchestrator
+- **Phase 4**: Settings validation - 201 lines validator with type guards
 
-- [⏳] **Frontend Phase 4**: General Improvements - **DEFERRED**
-  - Type safety improvements (reduce `any` by 80%)
-  - Common components (LoadingState, ErrorState, EmptyState)
-  - Documentation and import organization
-  - **Status**: Not critical, can be addressed during Phase 3 development
-
-**Success Metrics**:
-
-- ✅ All files under 500 lines (753, 439, 448)
-- ✅ Clear separation of concerns
-- ✅ No TypeScript errors
-- ✅ All functionality preserved
-- ✅ Builds pass successfully
-
-**Testing Status**: Regression testing scheduled for next session.
+**Outcome**: Clean separation of concerns, all files under 100 lines, comprehensive validation.
 
 ---
 
-### Guerilla Database Migration: Infrastructure Ready 🚧
+### Guerilla Frontend Refactoring (22 December 2025) ✅
 
-**Duration**: Planning complete (25 Dec 2025), Infrastructure implemented (27 Dec 2025)
-**Estimated Remaining**: 6-8 hours (Phase 3: 6-7h, Phase 4: 1-2h)
-**Rationale**: Migrate from JSON storage to SQLite database with Drizzle ORM before Phase 3. Eliminates JSON pain points (2MB limit, manual validation, 1000 override cap) and establishes foundation for Phase 3 library features.
+**Duration**: ~20 hours | **Status**: Complete (3/3 phases)
 
-- [✅] **Phase 1**: Database Infrastructure - **COMPLETE** (27 Dec 2025)
-  - **Duration**: ~4 hours
-  - **What Was Done**:
-    - ✅ Installed Drizzle ORM + better-sqlite3
-    - ✅ Created database schema definitions (9 tables)
-    - ✅ Database connection manager with performance pragmas (WAL mode, 64MB cache, mmap)
-    - ✅ Migration system using Drizzle's built-in migrator
-    - ✅ Fixed migration SQL syntax errors (CHECK constraint, triggers)
+**Summary**: Extracted large view files into focused components and custom hooks.
+
+**Key Results**:
+
+- **Phase 1**: ReaderView - 2,189 → 753 lines (68.6% reduction) - 8 hooks, 4 display components
+- **Phase 2**: MangaDetailView - 1,104 → 439 lines (60.2% reduction) - 5 section components
+- **Phase 3**: SettingsView - 803 → 448 lines (44.2% reduction) - 4 settings sections
+
+**Outcome**: All files under 500 lines, clear separation of concerns, maintainable codebase.
+
+---
+
     - ✅ Configured build system to bundle migrations (Vite plugin, asarUnpack)
-  - **Files Created**:
-    - `src/main/database/connection.ts` - Database manager
-    - `src/main/database/schema/*.schema.ts` - 9 table schemas
-    - `src/main/database/migrations/migrations.ts` - Migration runner
-    - `src/main/database/migrations/0000_first-migration.sql` - Initial schema
-    - `electron.vite.config.ts` - Updated with migration copy plugin
-  - **Database Configuration**:
-    - Location: `AppData/dexreader.db` (dev: `./dexreader-dev.db`)
-    - WAL mode enabled (concurrent reads/writes)
-    - 64MB cache, 256MB memory-mapped I/O
-    - Foreign keys enforced
-    - Automatic statistics triggers
-  - **Build Status**: Passes ✓, migrations run successfully ✓
 
-- [⚠️] **Phase 2**: Testing the Waters - **CONNECTION VERIFIED** (27 Dec 2025)
-  - **Duration**: ~1.5 hours
-  - **What Was Done**:
-    - ✅ Added database methods to settingsManager.ts
-    - ✅ Verified database connection works
-    - ✅ Confirmed method calls reach database layer
-  - **Current Status**:
-    - ⚠️ Reader override saves fail due to empty manga table (FK constraint)
-    - ✅ **Decision Made**: Option A - Minimal manga caching in Phase 3 (+1-2 hours)
-    - Rationale: Development build, get functionality working now, expand in main Phase 3
-    - This phase was "testing the waters" - infrastructure works, ready for Phase 3
-  - **Files Modified**:
-    - `src/main/settings/settingsManager.ts` - Added 3 database methods
-  - **Build Status**: Passes ✓, connection verified ✓, FK issue expected ✓
+- **Files Created**:
 
-- [⏳] **Phase 3**: Progress Migration with Lean Entities - **UPDATED, NOT STARTED**
-  - **Duration**: Estimated 6-7 hours (+2h for entity refactor + frontend updates)
-  - **Updated Plan** (27 Dec 2025):
-    - **Decision**: Refactor bloated `MangaProgress` entity during migration
-    - **Rationale**: Current entity duplicates data (title, cover, reader settings, chapter metadata). Database schema is already normalized. Better to fix now than require another refactoring pass.
-  - **Steps**:
-    - Step 3.1: Create lean entities (30 min) - Match database schema, create `MangaProgressWithMetadata`
-    - Step 3.2: Create Progress Repository (2h) - Lean methods + rich methods with JOINs
-    - Step 3.3: Update IPC handlers (30 min) - Use repository methods
-    - Step 3.4: Update frontend (1h) - History view, Continue Reading, Reader
-    - Step 3.5: Optional data migration (skipped for dev build)
-    - Step 3.6: Full regression testing (1.5h) - Comprehensive checklist
-    - Step 3.7: Main process integration (30 min)
-    - Step 3.8: Documentation (30 min)
-  - **New Entity Structure**:
+### P3-T12 Mihon Import (14 January 2026) ✅
 
-    ```typescript
-    // Lean (matches manga_progress table)
-    interface MangaProgress {
-      mangaId
-      lastChapterId
-      firstReadAt
-      lastReadAt
-    }
+**Duration**: ~6 hours | **Status**: Complete
 
-    // Rich (for history view - uses JOINs)
-    interface MangaProgressWithMetadata {
-      // Progress + metadata from manga/chapter tables
-    }
-    ```
+**Summary**: Implemented complete Mihon/Tachiyomi backup import functionality.
 
-  - **Status**: Plan updated, ready for implementation when user proceeds
+**Key Features**: Protobuf decoding with BigInt/Long handling, tag name→ID conversion (76 mappings), favorite field detection, timestamp conversion, double-import prevention, batch operations, progress tracking with chapter metadata caching
 
-- [⏳] **Phase 4**: Cleanup & Documentation - **NOT STARTED**
-  - Remove old ProgressManager
-  - Update memory bank documentation
-  - Final integration testing
-  - **Status**: Awaiting Phase 3 completion
+**UI Components**: ImportProgressDialog (ProgressRing), ImportResultDialog (stats), toast notifications, menu integration
 
-**Plan Document**: `.github/copilot-plans/guerilla-database-migration-plan.md` (updated 27 Dec 2025)
-
-**Implementation Status**: 2/4 phases complete. Phase 3 ready for implementation.
-Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progress tracking)
+**Outcome**: Full compatibility with Mihon backups, allows users to migrate from Tachiyomi/Mihon to DexReader.
 
 ---
 
-## Phase 2 COMPLETE ✅
+### P3-T14 Mihon Export (22 January 2026) ✅
 
-### Phase 2 Progress: 11/11 Tasks Complete (100%) 🎉
+**Duration**: ~7 hours | **Status**: Complete
 
-- [✅] **P2-T01**: Implement MangaDex public API client - **COMPLETE**
-  - All 9 implementation steps finished
-  - 8 critical bug fixes applied (API URL, rate limiter, LRU cache, etc.)
-  - Documentation complete (800+ lines in mangadex-api.md)
-  - Ready for integration testing
+**Summary**: Implemented export to Mihon/Tachiyomi backup format for cross-compatibility.
 
-- [✅] **P2-T02**: Create manga search interface - **COMPLETE**
-  - All 8 implementation steps finished (17 hours)
-  - Components: searchStore, FilterPanel, InfiniteScroll, mangaHelpers
-  - Tag filtering (76 tags with include/exclude + AND/OR mode)
-  - Language filtering (34 languages with badges on cards)
-  - Results per page control (20-100, increments of 5)
-  - Infinite scroll with MangaDex 10K limit enforcement
-  - Multiple bug fixes (SearchBar clear, layout alignment, button colors)
-  - Full API integration with error handling and loading states
+**Key Features**: Protobuf encoding, tag ID→name reverse mapping, Unix timestamp format, collection→category mapping, gzip compression
 
-- [✅] **P2-T03**: Implement Manga Detail View - **COMPLETE**
-  - All 8 implementation steps finished (~12 hours)
-  - MangaDetailView component (877 lines) with routing and state management
-  - Hero section: large cover, metadata, status/demographic badges, action buttons
-  - Description section with expand/collapse (300 char truncation)
-  - External links section with GlobeRegular icon
-  - Tags section with color-coding and click navigation
-  - Complete chapter list with language filter, sort toggle, scanlation groups
-  - Loading skeletons matching layout
-  - Casual error handling with expandable technical details
-  - Navigation: Browse → Detail → Reader
-  - Responsive design with media queries
-  - Additional enhancements: InfoBar component, filter UX improvements
-  - All Fluent UI icons, no emojis
+**Technical Fixes**: BigInt serialization (protobuf.js requires string for int64), duplicate toast bug (IPC listener cleanup), type definition corrections
 
-- [✅] **P2-T07**: Create online manga reader with streaming - **COMPLETE**
-  - All 8 core implementation steps finished (~10 hours)
-  - ReaderView component (937 lines) with full functionality
-  - Core Features:
-    - Image fetching from MangaDex at-home server via mangadex:// protocol
-    - Page-by-page navigation with keyboard shortcuts (arrows, space, home, end, escape)
-    - Click zones for navigation (left 40% = previous, right 60% = next)
-    - Reader header with back button, chapter title, and page counter
-    - Loading states with ProgressRing spinner
-    - Error recovery with friendly messages and technical details
-    - Dark theme enforcement for better reading experience
-  - Advanced Features (Beyond Plan):
-    - Next/Previous chapter navigation with end-of-chapter overlay
-    - Collapsible chapter list sidebar for quick chapter jumping
-    - Seamless chapter transitions (next/previous at page boundaries)
-    - Chapter data optimization (reuses chapter list from detail view)
-    - Image preloading (2 pages ahead, 1 page back) for smooth navigation
-    - Navigation indicators on hover
-    - Proper state management with location state handling
-  - Dark Mode UI:
-    - All buttons styled for dark theme (header, sidebar, overlays)
-    - Windows 11 Fluent Design with acrylic effects
-    - Consistent styling across all interactive elements
-  - Keyboard Shortcuts:
-    - Arrow keys, Space, Enter for page navigation
-    - Home/End for first/last page
-    - Escape for back or close sidebar
-    - 'L' key to toggle chapter list
-  - Performance optimizations ready for future enhancement
-
-- [✅] **P2-T08**: Add zoom/pan/fit controls - **COMPLETE** ✅
-  - All 10 implementation steps finished (~8 hours)
-  - ReaderView updated with full zoom/pan functionality (1,483 lines)
-  - Core Features:
-    - Three fit modes: width, height, actual size, custom zoom
-    - Zoom range: 25%-400% with smooth scaling
-    - Pan/drag support with boundary constraints
-    - ZoomControls component with collapsible toolbar
-    - Keyboard shortcuts (Z, Ctrl+0, Ctrl+=, Ctrl+-)
-    - Ctrl+Wheel zoom with cursor-based transform origin
-    - GPU-accelerated transforms for smooth performance
-  - UX Enhancements (Beyond Plan):
-    - Auto-reset to fit-height mode when zoom returns to 100%
-    - Tooltips on all zoom control buttons
-    - Hidden by default (toggle with percentage button)
-    - Zoom indicator overlay during Ctrl+Wheel zoom (debounced)
-    - Click navigation disabled when zoomed (prevents interference with dragging)
-    - Navigation arrows (◀ ▶) remain clickable even when zoomed
-  - State Management:
-    - fitMode, zoomLevel, panX, panY, isDragging, transformOrigin
-    - showZoomControls, zoomIndicatorVisible flags
-  - Implementation ready for regression testing
-
-- [✅] **P2-T10**: Add local reading progress tracking - **COMPLETE** ✅
-  - **Duration**: ~24 hours total (15-18 Dec 2025)
-  - **Status**: All 8 frontend steps complete + complete data structure refactor + bug fixes
-  - **Major Refactor (18 Dec 2025)**: Complete per-chapter progress tracking system
-    - **Problem**: Original approach couldn't distinguish "reading last page" vs "fully complete", couldn't track multiple in-progress chapters
-    - **Solution**: Per-chapter progress with explicit completion flag
-    - **New Data Structure**: `chapters: Record<string, ChapterProgress>` with `currentPage`, `totalPages`, `lastReadAt`, `completed` flag
-    - **Backend**: ChapterProgress entity, MangaProgress updated, statistics calculation from per-chapter data
-    - **Frontend**: progressStore saveProgress rewrite, ReaderView auto-save updates, MangaDetailView reads from chapters object
-  - **Bug Fixes (18 Dec 2025)**:
-    - Fixed infinite loop in ReaderView (progressMap reference changes causing effect re-triggers)
-    - Fixed menu label not updating ("Go Incognito" / "Leave Incognito" now builds menu with correct label)
-    - Added cover images to HistoryView with placeholder fallback
-    - Fixed HistoryView document title (was showing "DexReader - DexReader")
-    - Removed incognito toggle from Settings (mode is temporary, menu-controlled only)
-  - **UI Polish (18 Dec 2025)**:
-    - Incognito status bar: "**You've gone Incognito** — Progress tracking is disabled" (bold title, one-liner)
-    - Menu integration: File menu "Go Incognito" / "Leave Incognito" with Ctrl+Shift+N shortcut
-    - All debug logs removed from production code
-  - Core Features Implemented:
-    - **Preload Bridge**: 6 IPC methods + onIncognitoToggle listener
-    - **Progress Store**: Zustand with optimistic updates, retry logic, 1s debounced saves
-    - **Incognito Status Bar**: Persistent notification when tracking disabled (polished messaging)
-    - **ReaderView Auto-Save**: Page change (1s debounce), chapter change (immediate), unmount
-    - **MangaDetailView**: "Continue Reading" button + progress badge on cover
-    - **HistoryView**: Full reading history with statistics, search, delete, cover images
-    - **Menu Integration**: "Go Incognito" in File menu (temporary mode, no persistence)
-  - Technical Implementation:
-    - Per-chapter progress with explicit completion tracking
-    - Type-safe with global Window interface (no explicit imports)
-    - Silent save pattern (error-only notifications)
-    - 3-retry exponential backoff for failed saves
-    - Optimistic updates for instant UI feedback
-    - Debouncing prevents excessive IPC calls
-    - Respects autoSaveEnabled flag throughout
-  - Files Modified (17 files total):
-    - Backend: manga-progress.entity.ts, chapter-progress.entity.ts (NEW), progressManager.ts
-    - Preload: index.ts, index.d.ts (IPC bridge)
-    - Store: progressStore.ts (296 lines, NEW)
-    - Components: IncognitoStatusBar/ (3 files, NEW)
-    - Layouts: AppShell.tsx (status bar integration)
-    - Views: ReaderView (auto-save), MangaDetailView (Continue Reading), HistoryView (cover images, title fix), SettingsView (removed Privacy tab)
-    - Menu: menu.ts (MenuState interface, state-based label building), index.ts (menu state management)
-    - Router: router.tsx (added /history route)
-    - Navigation: Sidebar.tsx (added History item)
-    - Styles: ReaderView.css, MangaDetailView.css, HistoryView.css (NEW)
-  - Testing: Per-chapter tracking ready for comprehensive user testing
-
-### Phase 1 Completed Tasks (9/9 - 100%)
-
-- [✅] **P1-T01**: Design main application layout
-- [✅] **P1-T02**: Implement menu bar and navigation
-- [✅] **P1-T03**: Create base UI component library (17 components)
-- [✅] **P1-T04**: Set up state management (Zustand, 4 stores)
-- [✅] **P1-T05**: Implement restricted filesystem access model
-- [✅] **P1-T06**: Path validation (merged into P1-T05)
-- [✅] **P1-T07**: File system handlers (merged into P1-T05)
-- [✅] **P1-T08**: Create IPC messaging architecture
-- [✅] **P1-T09**: Implement basic error handling
-  - Error boundaries (app/page/component levels)
-  - Global error handlers (uncaught exceptions, promise rejections)
-  - Offline status bar (3 connectivity states)
-  - Error recovery utilities (retry with exponential backoff)
-  - Error message catalog (~20 patterns, casual tone)
-  - Error log viewer (Settings → Advanced)
-  - Comprehensive documentation (900+ lines)
-
-### Foundation Complete
-
-- [x] Project scaffolding with electron-vite template
-- [x] Development environment setup
-- [x] Initial dependency installation
-- [x] Core documentation structure created
-- [x] System patterns documented
-- [x] Technical context established
-- [x] Project progress tracking initialized
-- [x] Define core application features and requirements
-- [x] Establish project goals and target audience
-- [x] Create project brief document
-- [x] Set up Git repository and initial commit
-- [x] Phase 1 milestones completed
+**Outcome**: Users can export DexReader library to Mihon-compatible .proto.gz format.
 
 ---
 
-## Development Timeline
+### P3-T16 Danger Zone (22 January 2026) ✅
 
-### Phase 0: Foundation ✅
+**Duration**: ~2 hours | **Status**: Complete
+
+**Summary**: Implemented "Danger Zone" settings section with three critical operations.
+
+**Features**: Open Settings File (shell.openPath), Reset to Default (restores defaults + reload), Clear All Data (DB clear + settings reset + restart)
+
+**Backend**: DestructionRepository with transaction safety, FK constraint handling, sqlite_sequence reset, VACUUM
+
+**Post-Implementation Improvements**: IPC wrapper consistency (10 calls fixed), theme persistence migration (localStorage → settings.json), Zustand persist middleware removed
+
+**Architectural Pattern**: Established IpcResponse<T> pattern for all IPC calls.
+
+---
+
+### P2-T11 Reading Modes (20 December 2025) ✅
+
+**Summary**: Implemented three reading modes with per-manga override settings.
+
+**Modes**: Single Page, Double Page, Vertical Scroll
+**Features**: Per-manga overrides, mode toggle in reader, settings persistence
+
+**Outcome**: Flexible reading experience tailored to manga content type.
+
+---
+
+## Historical Timeline Summary
+
+### Phase 2 Complete (6-24 December 2025) ✅
+
+**Duration**: 4-5 weeks | **Tasks**: 11/11 complete (100%)
+
+**Key Milestones**:
+
+- P2-T01: MangaDex API client (9 steps, 8 critical fixes, 800+ lines documentation)
+- P2-T02: Search interface (FilterPanel, InfiniteScroll, 76 tag system)
+- P2-T03: Manga Detail View (hero section, chapter list, external links)
+- P2-T07: Online reader with streaming (937 lines, image fetching via mangadex:// protocol)
+- P2-T08: Zoom/pan/fit controls (fit modes, 25%-400% zoom, GPU transforms)
+- P2-T10: Progress tracking (~24h total, complete refactor for per-chapter tracking)
+- P2-T11: Reading modes (single, double, vertical scroll)
+
+**Outcome**: Complete manga reading experience with MangaDex integration.
+
+---
+
+### Phase 1 Complete (24 November - 6 December 2025) ✅
+
+**Duration**: 2 weeks | **Tasks**: 9/9 complete (100%)
+
+**Key Deliverables**:
+
+- Application layout and menu system
+- Base UI component library (17 components)
+- State management (Zustand, 4 stores)
+- Restricted filesystem access (AppData + downloads directory)
+- IPC messaging architecture
+- Error handling system (boundaries, offline status, error catalog)
+
+**Outcome**: Core application architecture established.
+
+---
+
+### Phase 0 Foundation (23 November 2025) ✅
 
 **Duration**: 1 day
-**Status**: Complete
-**Start Date**: 23 November 2025
-**Completion Date**: 23 November 2025
 
-**Objectives**:
+**Deliverables**: Project structure, build tools, documentation system, coding standards, Git repository
 
-- ✅ Set up project structure
-- ✅ Configure build and development tools
-- ✅ Establish documentation system
-- ✅ Define project scope and requirements
-- ✅ Create project brief
-- ✅ Set up version control workflow
-- ✅ Establish coding standards and guidelines (Prettier + ESLint configured)
-
-**Deliverables**:
-
-- Initialized project repository
-- Complete memory bank documentation
-- Project requirements document
-- Development workflow established
+**Outcome**: Development environment ready.
 
 ---
 
-### Phase 1: Core Architecture (Complete) ✅
-
-**Duration**: 2 weeks
-**Status**: Complete - 9 of 9 tasks (100%)
-**Start Date**: 24 November 2025
-**Completion Date**: 6 December 2025
-
-**Objectives**:
-
-- Design application architecture
-- Implement main window structure
-- Set up state management
-- Create base UI components
-- Establish IPC communication patterns
-- Implement restricted filesystem access (AppData + user-configurable downloads)
-- Set up path validation and security model
-
-**Deliverables**:
-
-- Main application window with menu system
-- Restricted filesystem access implementation
-- Path validation system (AppData + downloads only)
-- Component library foundation
-- IPC communication layer
-- Secure file operations handlers
-
-**Key Technical Tasks**:
-
-- [✅] **P1-T01**: Design main application layout (COMPLETE)
-- [✅] **P1-T02**: Implement menu bar and navigation (COMPLETE)
-- [✅] **P1-T03**: Create base UI component library (COMPLETE)
-- [✅] **P1-T04**: Set up state management (Zustand) (COMPLETE)
-- [✅] **P1-T05**: Implement restricted filesystem access model (COMPLETE)
-- [✅] **P1-T06**: Create path validation for AppData and downloads directories (merged into P1-T05)
-- [✅] **P1-T07**: Implement file system handlers (with path restrictions) (merged into P1-T05)
-- [✅] **P1-T08**: Create IPC messaging architecture (COMPLETE)
-- [✅] **P1-T09**: Implement basic error handling (COMPLETE)
-
----
-
-### Phase 2: Content Display (Complete) ✅
-
-**Duration**: 4-5 weeks
-**Status**: COMPLETE ✅ - 11/11 tasks complete (100%)
-**Start Date**: 6 December 2025
-**Completion Date**: 24 December 2025
-**Final Task**: P2-T11 (Reading Modes) + UI Polish & Error Handling - All fixes complete
-
-**Objectives**:
-
-- Implement MangaDex public API client ✅
-- Add manga search and browse functionality ✅
-- Implement manga image rendering system (online streaming) ✅
-- Create manga viewer with page navigation ✅
-- Add zoom and pan controls ✅
-- Implement local reading progress tracking ✅
-- Support multiple reading modes (single, double, vertical) ✅
-
-**Deliverables**:
-
-- Working MangaDex public API client ✅
-- Manga search and browse interface ✅
-- Online manga image viewer with streaming ✅
-- Page-by-page navigation from API ✅
-- Chapter navigation with seamless transitions ✅
-- Zoom, pan, and fit-to-screen controls ✅
-- Reading progress tracking with per-chapter progress ✅
-- Three reading modes with per-manga override ✅
-
-**Key Technical Tasks**:
-
-- [✅] **P2-T01**: Implement MangaDex public API client - **COMPLETE** (12 Dec 2025)
-- [✅] **P2-T02**: Create manga search interface - **COMPLETE** (13-14 Dec 2025)
-- [✅] **P2-T03**: Implement manga detail view - **COMPLETE** (14 Dec 2025)
-- [✅] **P2-T04**: Cover image fetching and in-memory caching - **COMPLETE** (P2-T01, persistent caching in Phase 3)
-- [✅] **P2-T05**: Chapter list fetching from API - **COMPLETE** (P2-T03)
-- [✅] **P2-T06**: Image URL fetching from at-home server - **COMPLETE** (P2-T01)
-- [✅] **P2-T07**: Create online manga reader with streaming - **COMPLETE** (14 Dec 2025)
-- [✅] **P2-T08**: Add zoom/pan/fit controls (fit-width, fit-height, actual size) - **COMPLETE** (15 Dec 2025)
-- [✅] **P2-T09**: Implement image preloading for smooth page transitions - **COMPLETE** (14 Dec 2025)
-- [✅] **P2-T10**: Add local reading progress tracking (stored locally) - **COMPLETE** ✅ (15-17 Dec 2025)
-- [✅] **P2-T11**: Support reading modes (single page, double page, vertical scroll) - **COMPLETE** ✅ (20 Dec 2025)
-
----
-
-### Guerilla Task: Codebase Refactoring (Current) 🔧
-
-**Duration**: ~1 week (frontend: 3-4 days, backend: 2 days, can run in parallel)
-**Status**: Planning Complete, Ready for Implementation
-**Start Date**: 20 December 2025 (planning)
-**Target Start**: 21 December 2025 (implementation)
-**Target Completion**: 27 December 2025
-**Priority**: HIGH - Must complete before Phase 3
-
-**Objectives**:
-
-- Fix critical architectural issue: SettingsView bypassing backend validation
-- Break down large files into focused, maintainable modules
-- Improve code organization and separation of concerns
-- Reduce technical debt before Phase 3 work begins
-- Enhance type safety across codebase
-- Add comprehensive input validation to backend
-
-**Deliverables**:
-
-- Settings IPC integration (frontend uses backend, not direct file writes)
-- ReaderView refactored from 2,189 → ~350 lines (custom hooks + components)
-- MangaDetailView refactored from 993 → ~400 lines (component extraction)
-- SettingsView refactored from 831 → ~300 lines (section components)
-- Backend entry point refactored from 357 → ~100 lines (module extraction)
-- IPC handlers organized by domain (5 handler files)
-- Comprehensive settings validation (types, ranges, enums, sanitization)
-- Common components extracted (LoadingState, ErrorState, EmptyState)
-- Type safety improved (`any` usage reduced by 80%)
-- Inline documentation added
-
-**Key Technical Tasks**:
-
-**Phase 0 (CRITICAL - Coordination Required)** - ✅ COMPLETE:
-
-- [✅] **Backend**: Implement settings IPC handlers (~2 hours) - **COMPLETE**
-  - Created app-settings.handler.ts with settings:load and settings:save
-  - Field-level and section-level validation
-  - Appearance, downloads, and reader settings validation
-  - All operations use SettingsManager
-- [✅] **Frontend**: Replace direct file writes with IPC calls (~2 hours) - **COMPLETE**
-  - SettingsView uses window.settings.save() IPC calls
-  - No more direct fileSystem.writeFile() calls
-  - All settings go through validated backend
+- No more direct fileSystem.writeFile() calls
+- All settings go through validated backend
 - [✅] **Testing**: Verify settings integration works correctly - **COMPLETE**
 
 **Frontend Refactoring** - ✅ COMPLETE:
@@ -780,11 +356,11 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 
 ---
 
-### Phase 3: User Experience Enhancement (Planned) ⚪
+### Phase 3: User Experience Enhancement 🔵
 
 **Duration**: 3-4 weeks
-**Status**: Not Started (Pending Guerilla Refactoring Completion)
-**Target Start**: January 2026 (after refactoring)
+**Status**: In Progress (16/19 tasks complete)
+**Started**: January 2026
 **Target Completion**: February 2026
 
 **Objectives**:
@@ -822,15 +398,15 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 - [✅] **P3-T10**: Downloads directory configuration - **COMPLETE** (Pre-Phase 3)
 - [✅] **P3-T11**: Keyboard Shortcuts Help Dialog - **COMPLETE** (6 Jan 2026, 2 hours)
 - [✅] **P3-T12**: Implement library import from Mihon/Tachiyomi backup (protobuf) - **COMPLETE** (14 Jan 2026, ~6 hours)
-- [ ] **P3-T13**: Implement library export to native DexReader format (protobuf) - **PLANNED** (Est. 6-8 hours)
+- [✅] **P3-T13**: Implement library export to native DexReader format (protobuf) - **COMPLETE** (25 Jan 2026, ~5 hours)
 - [✅] **P3-T14**: Implement library export to Mihon/Tachiyomi format (cross-compatibility, protobuf) - **COMPLETE** (22 Jan 2026, ~7 hours)
-- [ ] **P3-T15**: Add native DexReader backup restore functionality (protobuf) - **PLANNED** (Est. 6-8 hours)
+- [⏳] **P3-T15**: Add native DexReader backup restore functionality (protobuf) - **PLANNED** (Est. 6-8 hours)
 - [✅] **P3-T16**: Add "Danger Zone" settings section (Open Settings, Reset to Default, Clear Data) - **COMPLETE** (22 Jan 2026, ~2 hours)
-- [ ] **P3-T17**: Implement date format settings
-- [ ] **P3-T18**: Improve accessibility (ARIA labels, etc.)
+- [⏳] **P3-T17**: Implement date format settings - **PENDING**
+- [⏳] **P3-T18**: Improve accessibility (ARIA labels, etc.) - **PENDING**
 - [✅] **P3-T19**: Fluent UI icons - **COMPLETE** (Pre-Phase 3)
 
-**Phase 3 Progress**: 17/19 tasks complete (89.5%)
+**Phase 3 Progress**: 16/19 tasks complete (84.2%)
 
 **Notes**:
 
@@ -843,9 +419,9 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 - P3-T08-T10, P3-T19: Already implemented during Phase 2 refactoring
 - P3-T11: COMPLETE - All 38 shortcuts implemented and working. Help dialog implemented with unicode arrows + aria-labels for accessibility. Triggered via Help menu or Ctrl+/
 - P3-T12: COMPLETE - Full Mihon/Tachiyomi import working. Imports manga metadata, collections, reading progress (with timestamps), chapter metadata for history view. Tag name→ID conversion, BigInt/Long handling, favorite field detection, double-import prevention. UI with progress dialog, result dialog, and toast notifications
-- P3-T13: PLANNED ✅ (22 Jan 2026) - Native DexReader export with proto3 schema. Selective backup (collections, progress, reader settings optional, library always included). Export dialog with checkboxes, file save dialog, .dexreader format (protobuf + gzip). Backend: export service + helper, IPC handlers. Frontend: export dialog component, menu integration (Ctrl+Shift+E). **Protobuf schema**: dexreader.proto created and validated against DB schema (proto3 with optional keywords for presence detection). Comprehensive plan document: `.github/copilot-plans/P3-T13-T15-native-backup-restore-plan.md`. Estimated: 6-8 hours. Ready for implementation.
+- P3-T13: COMPLETE ✅ (25 Jan 2026, ~5 hours) - Native DexReader export implemented with protobuf schema and selective backup options. Backend audit fixed 10 critical issues. Protobuf schema renamed (Backup* → DexReader*) to avoid Mihon conflicts. **Major Fix**: Consolidated reader settings - database now single source of truth. Export dialog with Modal wrapper, Fluent UI icons, Windows 11 styling. Settings page optimized with database queries replacing JSON parsing. File format: .dexreader (protobuf proto3 + gzip). See recent milestones section for full implementation details.
 - P3-T14: COMPLETE ✅ - Full Mihon/Tachiyomi export working. Backend service with protobuf encoding/gzip compression, tag ID→name conversion, Unix timestamp format, collection mapping. Frontend with toast notifications. Fixed: BigInt serialization issue (protobuf.js requires string for int64), duplicate toast bug (IPC listener cleanup), type definition corrections. All features tested and verified working. Estimated time: ~7 hours (22 Jan 2026)
-- P3-T15: PLANNED ✅ (22 Jan 2026) - Native DexReader import with auto-detection. Import confirmation dialog shows backup contents (no user selection needed). Merge strategy: skip duplicates, add new data. Collection ID mapping handles conflicts. Backend: import service + helper with validation, IPC handlers, cancellation support. Frontend: import confirmation dialog, menu integration (Ctrl+Shift+I). Schema versioning for compatibility. Comprehensive plan document: `.github/copilot-plans/P3-T13-T15-native-backup-restore-plan.md`. Estimated: 6-8 hours. Ready for implementation.
+- P3-T15: PLANNED ⏳ (22 Jan 2026) - Native DexReader import with auto-detection. Import confirmation dialog shows backup contents (no user selection needed). Merge strategy: skip duplicates, add new data. Collection ID mapping handles conflicts. Backend: import service + helper with validation, IPC handlers, cancellation support. Frontend: import confirmation dialog, menu integration (Ctrl+Shift+I). Schema versioning for compatibility. Comprehensive plan document: `.github/copilot-plans/P3-T13-T15-native-backup-restore-plan.md`. Estimated: 6-8 hours. Ready for implementation.
 - P3-T16: COMPLETE ✅ - "Danger Zone" settings section implemented in Advanced tab with 3 operations: (1) Open Settings File (shell.openPath to settings.json), (2) Reset to Default (restores defaults + page reload), (3) Clear All Data (destructionRepo clears DB + resets settings + app restart). Backend uses DestructionRepository with transaction safety, FK constraint handling, sqlite_sequence reset, and VACUUM. Native Electron dialogs for confirmation. Dev mode handling (exit vs relaunch). Button states with separate loading indicators. Uses app's Button component with accent (orange) and danger (red) variants. **Post-implementation improvements**: (1) IPC wrapper consistency - added settings.load() and settings.save() to preload bridge, (2) IpcResponse handling - fixed 10 calls (7 in SettingsView, 3 in DangerZoneSettings) to properly check .success and extract .data, (3) Theme persistence migration - moved from localStorage to settings.json for single source of truth, (4) Zustand store cleanup - removed persist middleware (redundant layer). Architectural pattern established: all IPC calls use wrapped handlers returning IpcResponse<T>. Estimated time: ~2 hours (22 Jan 2026)
 - P3-T17: Date format settings - planned but not yet implemented
 - P3-T18: Some ARIA labels present (reader, buttons, selects), comprehensive audit pending
@@ -882,18 +458,18 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 
 **Key Technical Tasks**:
 
-- [ ] **P4-T01**: Implement explicit download system (user-initiated only)
-- [ ] **P4-T02**: Create download queue manager for chapters
-- [ ] **P4-T03**: Add local image storage system (user-configured downloads directory)
-- [ ] **P4-T04**: Implement library database in AppData (SQLite/IndexedDB)
-- [ ] **P4-T05**: Create download progress tracking (per-chapter and bulk)
-- [ ] **P4-T06**: Build download management UI (download chapter/manga buttons)
-- [ ] **P4-T07**: Add batch downloads (entire manga or selected chapters)
-- [ ] **P4-T08**: Implement offline mode detection and switching
-- [ ] **P4-T09**: Create storage management for downloaded chapters and covers
-- [ ] **P4-T10**: Add reading statistics database (AppData)
-- [ ] **P4-T11**: Implement storage quota management and cleanup
-- [ ] **P4-T12**: Validate all file operations respect path restrictions
+- [⚪] **P4-T01**: Implement explicit download system (user-initiated only)
+- [⚪] **P4-T02**: Create download queue manager for chapters
+- [⚪] **P4-T03**: Add local image storage system (user-configured downloads directory)
+- [⚪] **P4-T04**: Implement library database in AppData (SQLite/IndexedDB)
+- [⚪] **P4-T05**: Create download progress tracking (per-chapter and bulk)
+- [⚪] **P4-T06**: Build download management UI (download chapter/manga buttons)
+- [⚪] **P4-T07**: Add batch downloads (entire manga or selected chapters)
+- [⚪] **P4-T08**: Implement offline mode detection and switching
+- [⚪] **P4-T09**: Create storage management for downloaded chapters and covers
+- [⚪] **P4-T10**: Add reading statistics database (AppData)
+- [⚪] **P4-T11**: Implement storage quota management and cleanup
+- [⚪] **P4-T12**: Validate all file operations respect path restrictions
 
 ---
 
@@ -923,14 +499,14 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 
 **Key Technical Tasks**:
 
-- [ ] **P5-T01**: Set up Vitest for unit testing
-- [ ] **P5-T02**: Implement React Testing Library tests
-- [ ] **P5-T03**: Add Playwright E2E tests
-- [ ] **P5-T04**: Performance profiling and optimization
-- [ ] **P5-T05**: Memory leak detection
-- [ ] **P5-T06**: Cross-platform testing (Win/Mac/Linux)
-- [ ] **P5-T07**: Accessibility testing
-- [ ] **P5-T08**: Security audit
+- [⚪] **P5-T01**: Set up Vitest for unit testing
+- [⚪] **P5-T02**: Implement React Testing Library tests
+- [⚪] **P5-T03**: Add Playwright E2E tests
+- [⚪] **P5-T04**: Performance profiling and optimization
+- [⚪] **P5-T05**: Memory leak detection
+- [⚪] **P5-T06**: Cross-platform testing (Win/Mac/Linux)
+- [⚪] **P5-T07**: Accessibility testing
+- [⚪] **P5-T08**: Security audit
 
 ---
 
@@ -960,14 +536,14 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 
 **Key Technical Tasks**:
 
-- [ ] **P6-T01**: Configure electron-updater
-- [ ] **P6-T02**: Set up update server
-- [ ] **P6-T03**: Create release signing process
-- [ ] **P6-T04**: Implement crash reporting (Sentry, etc.)
-- [ ] **P6-T05**: Set up CI/CD (GitHub Actions)
-- [ ] **P6-T06**: Create beta distribution channel
-- [ ] **P6-T07**: Implement feedback collection
-- [ ] **P6-T08**: Write release notes
+- [⚪] **P6-T01**: Configure electron-updater
+- [⚪] **P6-T02**: Set up update server
+- [⚪] **P6-T03**: Create release signing process
+- [⚪] **P6-T04**: Implement crash reporting (Sentry, etc.)
+- [⚪] **P6-T05**: Set up CI/CD (GitHub Actions)
+- [⚪] **P6-T06**: Create beta distribution channel
+- [⚪] **P6-T07**: Implement feedback collection
+- [⚪] **P6-T08**: Write release notes
 
 ---
 
@@ -996,14 +572,14 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 
 **Key Technical Tasks**:
 
-- [ ] **P7-T01**: Final bug fixes from beta
-- [ ] **P7-T02**: Write user documentation
-- [ ] **P7-T03**: Create tutorial/onboarding
-- [ ] **P7-T04**: Prepare release packages
-- [ ] **P7-T05**: Set up distribution (website, store)
-- [ ] **P7-T06**: Create promotional materials
-- [ ] **P7-T07**: Official release announcement
-- [ ] **P7-T08**: Monitor initial user feedback
+- [⚪] **P7-T01**: Final bug fixes from beta
+- [⚪] **P7-T02**: Write user documentation
+- [⚪] **P7-T03**: Create tutorial/onboarding
+- [⚪] **P7-T04**: Prepare release packages
+- [⚪] **P7-T05**: Set up distribution (website, store)
+- [⚪] **P7-T06**: Create promotional materials
+- [⚪] **P7-T07**: Official release announcement
+- [⚪] **P7-T08**: Monitor initial user feedback
 
 ---
 
@@ -1039,31 +615,31 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 - **Status**: Complete
 - **Achievements**: Project initialized, development environment ready, documentation structure established
 
-### M1: Core Architecture Complete (Planned)
+### M1: Core Architecture Complete ✅
 
-- **Target Date**: January 2026
-- **Status**: Not Started
-- **Goals**: Functional application window, basic file operations, IPC communication
+- **Date**: December 2025
+- **Status**: Complete
+- **Achievements**: Functional application with IPC communication, file operations, complete UI component library
 
-### M2: Content Display Ready (Planned)
+### M2: Content Display Ready ✅
+
+- **Date**: December 2025
+- **Status**: Complete
+- **Achievements**: Working manga reader, MangaDex integration, search with filters, reading modes
+
+### M3: Feature Complete (Planned) 🔵
 
 - **Target Date**: February 2026
-- **Status**: Not Started
-- **Goals**: Working content viewer, multiple format support, search functionality
+- **Status**: In Progress (Phase 3: 16/19 tasks)
+- **Goals**: Library management, import/export, accessibility improvements
 
-### M3: Feature Complete (Planned)
-
-- **Target Date**: April 2026
-- **Status**: Not Started
-- **Goals**: All planned features implemented, ready for testing
-
-### M4: Beta Release (Planned)
+### M4: Beta Release (Planned) ⚪
 
 - **Target Date**: June 2026
 - **Status**: Not Started
 - **Goals**: Stable beta version, auto-updates working, ready for user testing
 
-### M5: v1.0.0 Public Release (Planned)
+### M5: v1.0.0 Public Release (Planned) ⚪
 
 - **Target Date**: June 2026
 - **Status**: Not Started
@@ -1109,22 +685,6 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 
 ---
 
-## Known Issues & Blockers
-
-### Current Blockers
-
-- None (Foundation phase)
-
-### Known Issues
-
-- None (fresh project)
-
-### Technical Debt
-
-- None yet (will track as project progresses)
-
----
-
 ## Success Metrics
 
 ### Development Metrics
@@ -1149,456 +709,121 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 
 ---
 
-## Version History
+## Key Implementation Notes
 
-### v1.0.0 (Planned - June 2026)
+### Phase 1: Foundation (23 Nov - 6 Dec 2025)
 
-- Initial public release
-- Core reading functionality
-- Multi-format support
-- Library management
-- Auto-updates
+**P1-T01 Design Documents** (24 Nov 2025)
 
-### v0.1.0 (Current - 23 November 2025)
+- Created 11 comprehensive design documents (~110KB total)
+- Established Windows 11 design system with complete token library
+- Documented all UI patterns, component specifications, and loading states
 
-- Project initialized
-- Development environment setup
-- Documentation framework
+**P1-T02 Menu Bar & Navigation** (25 Nov 2025)
+
+- Menu bar and navigation system with Windows 11 design
+- Fixed multiple state management and IPC handler issues
+
+**P1-T03 UI Component Library** (25 Nov - 2 Dec 2025)
+
+- 17 production-ready components (~8,500 lines)
+- Windows 11 Fluent Design with official @fluentui/react-icons
+- 3 implementation waves: Must-have → Should-have → Polish pass
+- See [archived-milestones.md](archived-milestones.md) for detailed implementation notes
+
+**P1-T04 State Management** (2 Dec 2025)
+
+- Zustand v5.0.3 with 4 domain stores (app, toast, preferences, library)
+- Global toast system and theme management
+- Complete documentation in state-management.md
+
+**P1-T05 Filesystem Security** (2-3 Dec 2025)
+
+- Path validation with AppData + Downloads restrictions
+- Secure filesystem wrapper with 12 validated operations
+- Settings manager with persistence to AppData/settings.json
+- Accent color system with Windows BGR→RGB conversion
+
+**Phase 1 Complete** (6 Dec 2025): 9/9 tasks, 2 weeks duration, production-ready foundation
+
+### Phase 2: Content Display (6-20 Dec 2025)
+
+**P2-T01 through P2-T09** (6-15 Dec 2025)
+
+- MangaDex API client with token bucket rate limiter
+- Search UI with pagination and filters
+- Manga detail view with chapter lists
+- Online reader with image streaming and zoom/pan controls
+- Initial progress tracking implementation
+
+**P2-T10 Progress Tracking** (15-18 Dec 2025)
+
+- Major refactor: Per-chapter progress with explicit completion flags
+- Fixed 5 critical bugs (infinite loops, menu labels, cover images)
+- Incognito mode with Ctrl+Shift+N
+- See [archived-milestones.md](archived-milestones.md) for detailed refactor notes
+
+**P2-T11 Reading Modes** (20 Dec 2025)
+
+- Three modes: Single page, Double page (RTL support), Vertical scroll
+- Per-manga settings override with `M` keyboard shortcut
+- Fixed 4 critical bugs (IPC wrappers, RTL display, race conditions)
+
+**Phase 2 Complete** (20 Dec 2025): 11/11 tasks, 14 days duration, zero compilation errors
+
+### Guerilla Refactoring (Before 22 Dec 2025)
+
+**Backend**: main/index.ts (357→78 lines), IPC handlers split into 7 domain files, menu split into 5 files, comprehensive validation system
+
+**Frontend**: ReaderView (2,189→753 lines), MangaDetailView (1,104→439 lines), SettingsView (803→448 lines)
+
+**Impact**: Fixed SettingsView security flaw (direct file writes), reduced technical debt, improved maintainability
+
+See [archived-milestones.md](archived-milestones.md) for complete refactoring details
+
+### Phase 3: Library Management (27 Dec 2025 - Present)
+
+**Database Migration** (27-28 Dec 2025)
+
+- Drizzle ORM + better-sqlite3 with 9 tables
+- WAL mode, 64MB cache, migration system
+- Major entity refactor: Lean MangaProgress with rich queries via JOINs
+- CQRS-inspired folder structure (queries/, commands/)
+
+**P3-T01 Library Features** (3-5 Jan 2026)
+
+- Fixed 9 issues during implementation (progress display, chapter metadata, statistics)
+- Repository expansions and IPC handlers
+- Opportunistic caching system
+- Update indicators with chapter progress
+
+**P3-T12 Mihon Import** (14 Jan 2026)
+
+- Protobuf decoding with BigInt/Long handling
+- 76 tag mappings, duplicate prevention
+- Progress tracking with chapter metadata caching
+
+**P3-T13 Native DexReader Export** (25 Jan 2026)
+
+- Fixed 10 critical issues in export service during implementation
+- **Major Fix**: Reader settings consolidated - database now single source of truth
+- Protobuf schema renamed (Backup* → DexReader* to prevent Mihon conflicts)
+- Export with optional sections (collections, progress, reader settings)
+
+**P3-T14 Mihon Export** (22 Jan 2026)
+
+- Protobuf encoding with tag ID→name reverse mapping
+- Collection mapping and gzip compression
+
+**P3-T16 Danger Zone** (22 Jan 2026)
+
+- Three operations: Open settings folder, Reset to defaults, Clear all data
+- Post-implementation: IPC wrapper consistency fixes (10 calls updated)
+- Theme persistence migrated from localStorage to settings.json
 
 ---
 
-## Next Steps (Immediate Actions)
-
-1. **P2-T01 Implementation** (Priority: High, Ready to Start)
-   - Follow 8-step implementation plan in `.github/copilot-plans/P2-T01-implement-mangadex-api-client.md`
-   - Step 1: API Constants & Configuration (2 hours)
-   - Step 2: TypeScript Interfaces (4 hours)
-   - Step 3: Rate Limiter Implementation (4 hours)
-   - Step 4: Core API Client (8 hours)
-   - Step 5: IPC Bridge for Renderer (4 hours)
-   - Step 6: Documentation (4 hours)
-   - Step 7: Memory Bank Updates (2 hours)
-   - Step 8: Basic Testing (4 hours)
-   - Estimated duration: 32 hours (4 days)
-
-2. **P2-T02 - Manga Search Interface** (Priority: High, After P2-T01)
-   - Build search UI using MangaDex API client
-   - Implement filters (tags, content rating, status)
-   - Add pagination controls
-   - Display search results with MangaCard components
-
-3. **Continue Phase 2 Tasks** (Priority: Medium)
-   - P2-T03: Manga detail view
-   - P2-T04: Cover image caching
-   - P2-T05: Chapter list fetching
-
----
-
-## Notes & Decisions
-
-### 1 January 2026 - P3-T01 Planning Finalized & UI Design Complete
-
-✅ **P3-T01 Planning Complete**: Comprehensive library features implementation plan finalized (823 lines)
-✅ **Update Indicator Design**: Colored dot indicator design finalized after evaluating 3 options
-✅ **Library Simplification**: Removed "Recently Added" tab, simplified to implicit "Default" collection
-✅ **Method Consolidation**: Identified and removed 3 redundant methods
-
-**Plan Status**: Ready for Implementation
-**Location**: `.github/copilot-plans/P3-T01-library-features-REVISED.md`
-**Duration**: 11-15 hours (realistic: 12-13 hours)
-**Time Saved**: 10-16 hours (original: 22-30h) due to completed guerilla migration
-
-**Key Decisions**:
-
-1. **Update Indicator Design** (Finalized):
-   - **Choice**: Colored dot (10px, top-right corner)
-   - **Rejected**: Chapter number badge (confusion risk), "NEW" text badge (lacks info)
-   - **Implementation**: Accent color, 2px white border, subtle shadow, tooltip with chapter details
-   - **Component**: `UpdateIndicator.tsx`
-   - **Rationale**: Grid view space constraints, clear visual hierarchy, follows standard app patterns (right-side indicators)
-
-2. **Library Simplification**:
-   - **Dropped**: "Recently Added" tab
-   - **Reason**: Schema doesn't track `addedToLibraryAt` (only has `isFavourite` and `lastAccessedAt`)
-   - **Alternative**: Use implicit "Default" collection showing all favorites
-   - **Impact**: Reduced scope by 1-2 hours, cleaner UX
-
-3. **Method Consolidation**:
-   - **Removed**: `cacheMangaMetadata()` → Use existing `upsertManga()` with `onConflictDoUpdate`
-   - **Removed**: `getFavouriteManga()` → Use existing `getLibraryManga()` (returns favorites when no options)
-   - **Removed**: `getRecentlyAdded()` → Not supported by current schema
-   - **Principle**: Check existing implementations before adding new methods
-
-4. **Opportunistic Caching**:
-   - Call `upsertManga()` from frontend on manga detail view
-   - Leverages existing conflict resolution
-   - No separate IPC handler needed
-
-**Implementation Plan** (12 steps total):
-
-- **Backend** (5 steps, 3.5-5h): Expand repositories, Update Checker Service, IPC handlers, preload types
-- **Frontend** (5 steps, 6.5-9h): Library store, Library UI, Opportunistic caching, Update indicator, Collections UI
-- **Testing** (2 steps, 1-2h): Integration testing, polish
-
-**Status**: Ready for Step 1 (Expand MangaRepository - 1 hour)
-
-**See**: `active-context.md` for detailed session notes
-
----
-
-### 24 December 2025 - UI Polish Complete + P3-T01 Planning 🎉
-
-✅ **UI Theme Consistency**: Fixed all chapter sidebar theme issues (transparency, colors, hover states)
-✅ **Browse Pagination**: Implemented graceful error handling for load-more failures
-✅ **Production Ready**: All UI combinations tested, no crashes on network errors
-✅ **P3-T01 Planning Complete**: Comprehensive library database implementation plan created
-
-**P3-T01 Planning Summary:**
-
-- **Duration Estimate**: 24-32 hours (3-4 days)
-- **Backend Work** (16-20 hours):
-  1. Database Setup: SQLite schema with bookmarks, collections, tags (4-5h)
-  2. Library Manager: Business logic with CRUD operations (5-6h)
-  3. IPC Handlers: Expose library operations to renderer (3-4h)
-  4. Preload API Bridge: window.library namespace (2h)
-  5. Integration & Registration (1-2h)
-- **Frontend Work** (8-12 hours):
-  1. Library Store: Zustand state management (2-3h)
-  2. Add to Library UI: Buttons, badges, favorite toggles (3-4h)
-  3. LibraryView Enhancements: Collections, filtering, tabs (3-5h)
-- **Key Features**: Bookmarks, favorites, collections, tags, search/filter/sort, statistics
-- **Technology**: better-sqlite3 for local database
-- **Plan Location**: `.github/copilot-plans/P3-T01-create-local-library-database.md`
-- **Status**: Ready for implementation (pending user availability)
-
-**Theme Fixes Applied:**
-
-- Chapter sidebar: Explicit solid backgrounds for light mode
-- Active chapter: Windows 11 accent colors (--win-accent)
-- Hover states: Darker blue for active chapters (#004A94)
-- Close button: Consistent default styling
-
-**Pagination Improvements:**
-
-- Separate error state for pagination (loadMoreError)
-- Inline error display (subtle, not alarming)
-- Retry mechanism preserves existing results
-- Friendly messaging without technical details
-
-**Files Modified**: ReaderView.css, ReaderView.tsx, searchStore.ts, BrowseView.tsx
-
-### 20 December 2025 - P2-T11 Complete + Phase 2 COMPLETE + Guerilla Refactoring Planning 🎉
-
-✅ **P2-T11 COMPLETE**: Reading modes fully implemented (~6 hours, 20 Dec 2025)
-✅ **Phase 2 COMPLETE**: All 11 tasks finished (100%) 🎉
-🔧 **Guerilla Refactoring Planning COMPLETE**: Comprehensive cleanup plans created before Phase 3
-
-**P2-T11 Implementation Summary:**
-
-- **Three Reading Modes Working**:
-  - Single page (existing, enhanced)
-  - Double page (side-by-side with RTL support)
-  - Vertical scroll (webtoon style with IntersectionObserver)
-- **Per-Manga Settings Override**: Each manga can save its preferred reading mode
-- **Keyboard Shortcut**: Press `M` to cycle through modes
-- **Responsive Design**: Double page falls back to single column on narrow screens
-- **Critical Bug Fixes**:
-  - IPC response wrapper extraction (accessing `.data` property)
-  - RTL page display (removed double reversal)
-  - Page counter showing correct order in RTL mode
-  - Settings loading race condition (settings now load BEFORE images)
-
-**Phase 2 Achievement Summary:**
-
-- Duration: 14 days (6 Dec - 20 Dec 2025)
-- Tasks: 11/11 complete (100%)
-- Key deliverables: MangaDex API client, search interface, detail view, online reader with streaming, zoom/pan controls, progress tracking with per-chapter data, three reading modes
-- Documentation: Complete API docs, architecture docs, memory bank updates
-- Production ready: Zero compilation errors, full TypeScript type safety
-
-**Guerilla Refactoring Planning Summary:**
-
-**Decision Rationale**:
-
-- Phase 2 created technical debt (large files, mixed concerns)
-- **CRITICAL ISSUE**: SettingsView bypasses backend by writing directly to files (security/integrity risk)
-- Better to clean up now before Phase 3 adds more complexity
-
-**Plans Created**:
-
-1. **Frontend Plan** (25-34 hours): ReaderView, MangaDetailView, SettingsView extraction + general improvements
-2. **Backend Plan** (11-15 hours): Settings IPC integration, module extraction, validation, organization
-
-**Phase 0 Priority** (CRITICAL):
-
-- Fix SettingsView architectural flaw
-- Backend: Create proper settings IPC handlers
-- Frontend: Replace direct file writes with IPC calls
-- Coordination required between frontend and backend
-
-**Key Improvements**:
-
-- Settings validation: Types, ranges, enums, path traversal prevention, sanitization
-- File size reduction: ReaderView 2,189→350 lines, MangaDetailView 993→400 lines, SettingsView 831→300 lines
-- Backend organization: Split by domain, clear separation of concerns
-- Type safety: Reduce `any` usage by 80%
-- Common components: LoadingState, ErrorState, EmptyState
-
-**Timeline**: ~1 week (can run frontend/backend in parallel after Phase 0)
-
-🔧 **Next**: Begin Guerilla Refactoring - Phase 0 (Settings IPC Integration)
-
-**See `active-context.md` for detailed session notes and `.github/copilot-plans/` for complete refactoring plans**
-
-### 18 December 2025 - P2-T10 Complete + P2-T11 Planning
-
-✅ **P2-T10 COMPLETE**: Reading progress tracking fully implemented with major refactor and bug fixes (~24 hours, 15-18 Dec 2025)
-✅ **P2-T11 Planning Complete**: Comprehensive reading modes implementation plan created (16-20 hours estimated)
-🔵 **Phase 2 Progress**: 10/11 tasks (91%), one final task remaining
-
-**See `active-context.md` for detailed session notes including:**
-
-- Complete per-chapter progress refactor details
-- All bug fixes and UI polish
-- P2-T11 reading modes architecture and features
-- Technical decisions and implementation notes
-
-### 6 December 2025 - Phase 2 Started: P2-T01 Planning Complete
-
-- ✅ **Phase 1 Complete**: All 9 tasks finished (100%)
-  - Duration: 2 weeks (24 Nov - 6 Dec 2025)
-  - Deliverables: App shell, routing, 17 UI components, 4 Zustand stores, IPC architecture (37 channels), filesystem security, error handling system (25 files)
-  - Documentation: 4 architecture docs, 4 memory bank files updated
-  - Zero compilation errors, production-ready foundation
-
-- ✅ **P2-T01 Planning Complete**: Comprehensive MangaDex API client implementation plan
-  - **Plan Location**: `.github/copilot-plans/P2-T01-implement-mangadex-api-client.md`
-  - **Duration Estimate**: 32 hours (4 days)
-  - **8 Implementation Steps**: Constants, interfaces, rate limiter, API client, IPC bridge, documentation, memory bank updates, testing
-  - **Architecture**: TypeScript client with token bucket rate limiter (5 req/s global, endpoint-specific limits)
-  - **Key Features**: Type-safe interfaces, automatic retry on 429, error handling, image URL fetching, cover CDN support
-  - **MangaDex API Research**: Documented base URLs, rate limits, pagination constraints, image distribution workflow
-  - **No Dependencies**: Uses native fetch API (Node.js 18+, bundled with Electron)
-  - **Integration**: Uses existing error handling (P1-T09) and IPC patterns (P1-T08)
-  - Ready for implementation when user is available
-
-- 🔵 **Phase 2 In Progress**: Content Display phase started
-  - First task: P2-T01 (MangaDex API client)
-  - Target completion: January 2026
-  - Next tasks: Search UI, manga detail view, chapter viewer
-
-### 2 December 2025 (Evening) - P1-T05 Planning Complete + Development Approach Established
-
-- ✅ **P1-T05 Planning Complete**: Comprehensive filesystem security implementation plan created
-  - **Plan Location**: `.github/copilot-plans/P1-T05-implement-restricted-filesystem-access.md`
-  - **Duration Estimate**: 16-24 hours (2-3 days)
-  - **9 Implementation Steps**: Path validator, secure FS wrapper, settings manager, IPC handlers, preload API, initialization, settings UI, documentation, testing
-  - **Security Model**: 2 allowed directories (AppData + Downloads)
-  - **Default Downloads**: Changed from `~/Downloads/DexReader` to `AppData/downloads` for better security and out-of-the-box experience
-  - **Architecture**: 3 core modules, 10 IPC handlers, full TypeScript types
-  - **Key Files**: `pathValidator.ts`, `secureFS.ts`, `settingsManager.ts` + IPC integration
-  - Ready for Step 1 implementation
-
-- ✅ **Development Approach Documented**: Hands-on backend development philosophy established
-  - **Backend Code**: Developer implements directly, Copilot reviews and guides
-  - **Copilot's Role**: Review for mistakes/security/optimization, point out issues, suggest fixes
-  - **No Direct Implementation**: Copilot avoids writing backend code unless explicitly requested
-  - **Applies To**: All main process code, filesystem modules, IPC handlers, preload scripts, security-critical code
-  - **Frontend Exception**: Normal collaborative implementation for renderer/UI components
-  - **Rationale**: Security-critical backend code benefits from hands-on learning and deep understanding
-  - **Documented In**: `system-pattern.md` (new "Development Approach" section at top of architecture)
-
-### 2 December 2025 (Afternoon) - P1-T04 State Management Complete
-
-- ✅ **P1-T04 COMPLETE**: Zustand state management fully implemented
-  - **Duration**: 1 day (all 12 steps executed successfully)
-  - **Zustand v5.0.3 installed**: Lightweight state management (~1.4kb)
-  - **4 Stores Created**:
-    - `appStore.ts`: Theme management with system sync, fullscreen state
-    - `toastStore.ts`: Global notification system with auto-dismiss timers
-    - `userPreferencesStore.ts`: All user settings with validation and persistence
-    - `libraryStore.ts`: Bookmarks and collections (Phase 3 skeleton)
-  - **Component Migrations**: AppShell, SettingsView, LibraryView all using Zustand
-  - **Global Toast System**: Single ToastContainer in App.tsx, accessible from any view
-  - **Type System Fixed**: Added 'loading' variant to ToastVariant for ProgressRing integration
-  - **Documentation Created**: 900+ line state-management.md guide in docs/architecture/
-  - **Memory Bank Updated**: tech-context.md and system-pattern.md include state management sections
-  - **TypeScript Compilation**: All checks passing, dev server running without errors
-  - Ready for P1-T05 Restricted Filesystem Access
-
-### 02 December 2025 - P1-T03 Complete
-
-- ✅ **P1-T03 Step 20 completed**: Final integration, testing, and fixes
-  - Added `productName: "DexReader"` to package.json for native dialog titles
-  - Fixed CSP to allow HTTPS images: `img-src 'self' data: https:`
-  - All components rendering correctly with no errors
-  - Native dialogs showing proper app name
-- ✅ **Documentation Updates**: Corrected design docs to remove sidebar collapse functionality
-  - Sidebar is fixed 240px (no hamburger menu, no Ctrl+B toggle)
-  - Updated wireframes.md, layout-specification.md, menu-bar-structure.md, responsive-behavior-guide.md
-  - Removed "Toggle Sidebar" menu item and keyboard shortcut from docs
-  - All documentation now matches actual implementation
-- ✅ **P1-T03 COMPLETE**: All 17 components + 20 steps done, ~8,500 lines of code
-  - Ready to proceed with P1-T04 State Management
-
-### 03 December 2025
-
-- ✅ **P1-T05 COMPLETE**: Filesystem Security fully implemented (all 9 steps + documentation)
-  - **Path Validator** (`src/main/filesystem/pathValidator.ts`): Path normalization, validation against AppData + Downloads, path traversal prevention, symlink resolution
-  - **Secure Filesystem** (`src/main/filesystem/secureFs.ts`): 12 operations with automatic path validation (readFile, writeFile, appendFile, copyFile, rename, mkdir, ensureDir, deleteFile, deleteDir, isExists, stat, readDir)
-  - **Settings Manager** (`src/main/filesystem/settingsManager.ts`): Persists to AppData/settings.json, schema includes downloadsPath/theme/accentColor, graceful fallback to defaults
-  - **IPC Handlers** (13 handlers in `src/main/index.ts`): All filesystem operations + fs:get-allowed-paths + fs:select-downloads-folder + theme:get-system-accent-color
-  - **Preload API** (`src/preload/index.ts` + `index.d.ts`): window.fileSystem namespace exposed via contextBridge with full TypeScript definitions
-  - **Filesystem Initialization** (`initFileSystem()` in main/index.ts): Creates AppData structure (metadata/, logs/, downloads/), loads settings, runs before window creation
-  - **Settings UI** (`SettingsView.tsx`): 2 tabs (Appearance + Storage), theme selector, accent color picker (system + custom), downloads path selector with native folder picker, responsive layout for 2K monitors
-  - **Accent Color System** (bonus): System color detection (Windows BGR→RGB, macOS RGB), custom hex color input, real-time system color change listener, CSS variable injection (--win-accent/-hover/-active), useAccentColor hook for app-wide initialization
-  - **UI Polish**: Removed toast spam from settings, removed duplicate header, responsive layout, Fluent UI icons (replaced unicode emoji with Lightbulb16Regular), fixed accent color not applying on launch
-  - **Documentation Created**: `docs/architecture/filesystem-security.md` (600+ lines with architecture diagrams, usage examples, security guarantees, troubleshooting)
-  - **Memory Bank Updated**: Added Filesystem Security sections to system-pattern.md and tech-context.md with implementation details
-  - All TypeScript compilation passing, manual testing complete, automated tests deferred to Phase 5
-- ✅ **System Pattern Updated**: Added guideline "Always use Fluent UI icons, never unicode emoji" (rendering inconsistent across systems)
-- ✅ **Bug Fixes**: Windows accent color BGR→RGB conversion, API namespace fix (electron → api), accent color initialization on app startup via useAccentColor hook
-- ✅ **Phase 1 Progress**: 7 of 9 tasks complete (78%), P1-T06 and P1-T07 merged into P1-T05
-
-### 02 December 2025 (Afternoon Session - P1-T04 & P1-T05 Planning)
-
-- ✅ **P1-T05 Planning Complete**: Comprehensive 9-step implementation plan for restricted filesystem access
-  - Security model defined: 2 allowed directories (AppData + user-configurable Downloads)
-  - Default downloads location: AppData/downloads (secure default, user can override via Settings)
-  - 3 core modules: pathValidator.ts, secureFS.ts, settingsManager.ts
-  - 10+ IPC handlers for filesystem operations
-  - Native folder picker integration for downloads path selection
-  - Complete documentation plan (filesystem-security.md + memory bank updates)
-  - 28 hours estimated (2-3 days implementation)
-  - Plan saved to `.github/copilot-plans/P1-T05-implement-restricted-filesystem-access.md`
-  - Implementation approach documented: Developer implements backend hands-on, Copilot reviews and guides
-  - Ready for implementation (completed 3 Dec 2025)
-- ✅ **P1-T04 Planning Complete**: Comprehensive implementation plan created
-  - **Plan saved to**: `.github/copilot-plans/P1-T04-setup-state-management.md`
-  - **12 implementation steps** defined with detailed acceptance criteria
-  - **Duration**: 24-32 hours (3-4 days estimated)
-  - **Architecture**: 4 Zustand stores (appStore, toastStore, userPreferencesStore, libraryStore)
-  - **Migrations**: AppShell, SettingsView, LibraryView to use Zustand
-  - **Documentation**: New state-management.md guide + updates to system patterns
-  - **Technology Choice**: Zustand selected over Redux (1.4kb, TypeScript-first, built-in persistence)
-  - **Store Structure**: Multiple domain-specific stores for clear separation of concerns
-  - **Persistence Strategy**: localStorage for preferences, theme mode, and bookmarks
-  - **UI Tone**: Casual, friendly messaging examples included ("You're all set! ✨")
-  - Ready for execution when starting next session
-
-### 01 December 2025 (Evening Session - Final Polish)
-
-- ✅ **P1-T03 Steps 16-18 completed**: Tooltip, Popover, and ViewTransition components fully implemented
-  - **Tooltip Component**: Hover-based information tooltips with 4 position variants (top/right/bottom/left), auto-flip near viewport edges, portal rendering to document.body, configurable delay (default 500ms), arrow pointer, fade/scale animation, Windows 11 card styling
-  - **Popover Component**: Contextual menus and overlays with 4 position variants, dual triggers (click/hover), click-outside-to-close, Escape key support, portal rendering, controlled/uncontrolled modes, direction-aware slide animations (200ms), focus management returns to trigger on close
-  - **ViewTransition Component**: Route transition animations with fade + 8px vertical slide (300ms cubic-bezier), monitors location changes via useLocation hook, two-stage animation (fade-out old, fade-in new), respects prefers-reduced-motion
-  - **Router Integration**: Wrapped all main routes (Browse, Library, Settings, Downloads, NotFound) with ViewTransition for seamless page transitions
-  - **Sidebar Enhancement**: Added `transform: scale(0.98)` on active state for improved click feedback
-  - All 3 components include comprehensive READMEs with usage examples and API documentation
-  - ~1,800 lines of TypeScript + CSS + documentation created for Steps 16-18
-  - SettingsView updated with Tooltip demos (4 positions, complex content), Popover demos (click/hover triggers, menu example)
-  - All TypeScript compilation passing with proper React hook dependency management
-  - Steps 16-18 complete: 18/20 steps done, 90% complete
-  - Steps 19-20 remaining: Documentation consolidation, Integration/Testing
-
-- ✅ **Comprehensive UI Polish Pass (9 Refinements)**:
-  1. **SearchBar Styling Consistency**: Matched SearchBar to Input component (32px height, 2px bottom border, identical focus behavior)
-  2. **Focus/Hover Conflict Fix**: Added `:not(:focus-within)` to SearchBar hover state to prevent overriding focus accent border
-  3. **Global Focus Glow Removal**: Removed `box-shadow` and `border-color` from global `input:focus` in main.css, added `!important` rules to component styles to prevent browser defaults
-  4. **ViewTransition Flash Fix**: Changed from per-route wrapping to single wrapper with `key={location.pathname}`, React key-based remounting eliminates content flash
-  5. **Sidebar Animated Indicator**: Added sliding blue accent bar with spring animation `cubic-bezier(0.34, 1.56, 0.64, 1)`, 400ms duration, position calculated via `offsetTop/offsetHeight`
-  6. **Input Focus Animation Evolution**: Started with Material Design expanding line → scale(1.01) → final: simple border-bottom-color transition (200ms cubic-bezier), removed all pseudo-elements
-  7. **Fluent Design Over Material**: Removed Material ripple effects, adopted clean Windows 11 patterns with minimal transitions
-  8. **@fluentui/react-icons Integration**: Installed official Microsoft Fluent UI icon library (67 packages, ~5-6 KB for 8 icons), tree-shakeable
-  9. **Icon Variant Pattern**: Implemented Regular icons for inactive state, Filled icons for active navigation items (Windows 11 pattern)
-  - **Icons Used**: Search24Regular/Filled, Library24Regular/Filled, ArrowDownload24Regular/Filled, Settings24Regular/Filled
-  - **Design Decisions**: Chose Fluent over Material for authenticity, spring animation for satisfying feedback, simple border transitions for clean focus states
-  - All 17 components now polished to Windows 11 Fluent Design standards with official icons and refined animations
-
-### 01 December 2025 (Afternoon Session)
-
-- ✅ **P1-T03 Steps 13-15 completed**: Switch, Badge, and Tabs components fully implemented
-  - **Switch Component**: Toggle switch with sliding knob animation (40×20px, 12px knob), full-width layout with right-aligned toggle, label + description support, keyboard navigation (Space/Enter), Windows 11 styling with accent colors, vertically centered knob using transform translateY(-50%)
-  - **Badge Component**: 5 variants (default/success/warning/error/info), 2 sizes (small 11px/medium 12px), optional icon, dot variant (6px/8px circles), pill-shaped design, high contrast support
-  - **Tabs Component**: Context-based architecture (Tabs/TabList/Tab/TabPanel), animated accent indicator that slides under active tab, keyboard navigation (Arrow keys/Home/End), controlled/uncontrolled modes, disabled tab support, content fade-in animation, proper ARIA attributes
-  - All 15 Step 1-15 components now complete: Button, Input, MangaCard, SearchBar, Skeleton, Toast, ProgressBar, ProgressRing, Modal, Select, Checkbox, Switch, Badge, Tabs
-  - ~2,000 lines of TypeScript + CSS + documentation added for Steps 13-15
-  - SettingsView updated with comprehensive demos (Switch settings panel, Badge variants/sizes/dots, Tabs with 4 panels)
-  - All TypeScript compilation passing, no errors
-  - Steps 16-20 remaining: Tooltip, Popover, View Transitions, Documentation, Integration/Testing
-- ✅ **UI Polish and Fixes Applied**:
-  - **Tabs Active Indicator**: Fixed indicator not updating on tab change by adding `activeValue` to useEffect dependency array in TabList
-  - **Switch Vertical Alignment**: Changed `.switch__control` from `align-items: flex-start` to `align-items: center`, removed `padding-top: 1px` from content
-  - **Switch Layout**: Reordered elements (content first, toggle second), added full-width layout with `justify-content: space-between` for right-aligned toggle
-  - **Switch Knob Centering**: Changed from `top: 2px` to `top: 50%; transform: translateY(-50%)` for perfect vertical centering
-  - **Select Font Weight**: Removed `font-weight: 600` from selected options to show normal weight
-  - **Select Arrow Positioning**: Made icon absolutely positioned for all variants (not just searchable), consistent `padding-right: 32px` on all triggers, fixed vertical centering with `top: 50%; transform: translateY(-50%)`
-  - **Input Focus Glow**: Added `box-shadow: none` and explicit `:focus/:focus-visible` rules to remove default browser glow, keeping only bottom border highlight
-  - All fixes tested and verified in SettingsView
-- ✅ **P1-T03 Steps 10-12 completed**: Modal, Select, and Checkbox components fully implemented
-  - **Modal Component**: Overlay dialog system with focus trap, keyboard navigation (Escape to close, Tab navigation), body scroll lock, click-outside-to-close, 3 sizes (small/medium/large), Windows 11 Acrylic backdrop blur, smooth fade/scale animations, header/content/footer structure
-  - **Select Component**: Custom dropdown with keyboard navigation (Arrow keys, Enter, Escape, Home, End), searchable mode with filtering, multi-select support with checkboxes, click-outside-to-close, disabled options support, smooth animations, Windows 11 styling
-  - **Checkbox Component**: Three states (checked/unchecked/indeterminate), checkmark animation with scale/fade, Windows 11 rounded style with accent color, label support, keyboard navigation (Space/Enter), group functionality with select-all pattern
-  - All 12 Step 1-12 components now complete: Button, Input, MangaCard, SearchBar, Skeleton, Toast, ProgressBar, ProgressRing, Modal, Select, Checkbox
-  - ~4,500 lines of additional TypeScript + CSS + documentation created (total ~7,300 lines for P1-T03)
-  - SettingsView updated with Modal (3 variants), Select (basic/searchable/multi-select), Checkbox (individual + group with indeterminate) demos
-  - All TypeScript compilation passing, Prettier formatting applied
-  - Minor accessibility linter warnings for custom components (intentional for Windows 11 styling)
-  - Steps 1-12 complete: All must-have + 3 should-have components implemented
-
-### 26 November 2025
-
-- ✅ **P1-T03 Steps 7-9 completed**: Toast, ProgressBar, and ProgressRing components fully implemented
-  - **Toast Component**: Notification system with 4 variants (info, success, warning, error), ToastContainer with 4 position options, useToast hook for state management, auto-dismiss (configurable 0-∞ms), slide-in animations, close button, stacking support
-  - **ProgressBar Component**: Linear progress with determinate/indeterminate modes, 3 sizes, 3 color variants (default/success/error), optional labels with percentage, metadata support (speed, ETA), auto-success color at 100%, smooth transitions, moving gradient animation for indeterminate
-  - **ProgressRing Component**: Circular SVG-based progress indicator, determinate/indeterminate modes, 3 sizes (24px/40px/64px), 3 color variants, customizable stroke width, rotation + arc animations for indeterminate, rounded stroke caps
-  - All 9 must-have components now complete (Button, Input, MangaCard, SearchBar, Skeleton, Toast, ProgressBar, ProgressRing, Modal TBD)
-  - ~2,800 lines of TypeScript + CSS + documentation created
-  - Updated SettingsView with Toast/ProgressBar/ProgressRing showcase
-  - All TypeScript compilation passing, Prettier formatting applied
-  - Fixed ProgressVariant type definition (changed from determinate/indeterminate to default/success/error)
-  - Steps 10-12 remaining: Modal component, documentation consolidation, final integration/testing
-
-### 25 November 2025
-
-- ✅ **P1-T02 completed**: Menu bar and navigation system fully implemented with Windows 11 design
-- ✅ Added hamburger toggle button to sidebar (top placement, icon-only)
-- ✅ Fixed multiple state management and IPC handler issues
-- ✅ Added Windows 11 Fluent UI icon replacement as future enhancement (P3-T19)
-- ✅ **P1-T03 planning completed**: Created comprehensive 12-step implementation plan for UI component library
-  - 9 must-have components: Button, Input, MangaCard, SearchBar, Skeleton, Toast, ProgressBar, ProgressRing, Modal
-  - 24-32 hours estimated (3-4 days)
-  - Complete TypeScript interfaces, BEM CSS naming, Windows 11 design patterns
-  - Accessibility requirements (ARIA, keyboard nav, WCAG AA)
-  - Animation guidelines (60fps, GPU-accelerated)
-  - Plan saved to `.github/copilot-plans/P1-T03-create-base-ui-component-library.md`
-  - Ready for execution
-- ✅ **P1-T03 Steps 1-6 completed**: Component structure, Button, Input, MangaCard, SearchBar, Skeleton components fully implemented (~3,100 lines total)
-
-### 24 November 2025
-
-- ✅ **P1-T01 completed**: Created 11 comprehensive design documents (~110KB total)
-- ✅ Finalized React Router v6 as routing solution
-- ✅ Established Windows 11 design system with complete token library
-- ✅ Documented all UI patterns, loading states, and component specifications
-
-### 23 November 2025
-
-- Project initialized with electron-vite template
-- Decided on React 19 + TypeScript stack
-- Memory bank documentation system established (5 files)
-- Timeline estimated at 7 months to v1.0.0
-- Project brief written with complete feature set
-- Task coding system implemented (P1-T01 through P7-T08)
-- Core requirements and scope defined
-- MangaDex integration approach finalized (public API)
-- Caching strategy established (explicit downloads only)
-- Git repository set up with initial commit
-- Repository pushed to GitHub (remichan97/DexReader)
-- Coding standards verified: Prettier (.prettierrc.yaml) and ESLint (eslint.config.mjs) already configured
-- **Phase 0 completed in 1 day** ✅
-
-### Decision Log
+## Decision Log
 
 **Why Electron?**
 
@@ -1610,7 +835,7 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 
 - Modern concurrent features
 - Large ecosystem of components
-- Team familiarity (assumed)
+- Team familiarity
 
 **Why electron-vite?**
 
@@ -1618,44 +843,19 @@ Infrastructure complete ✅, Phase 3 ready to implement (manga caching + progres
 - Modern tooling compared to Webpack
 - Better developer experience
 
----
+**Why Zustand over Redux?**
 
-## Team & Resources
+- Lightweight (1.4kb vs 15kb+)
+- TypeScript-first design
+- Built-in persistence middleware
+- Minimal boilerplate
 
-### Current Team
+**Why Drizzle ORM?**
 
-- Developer: (To be defined)
-- Designer: (To be defined)
-- QA: (To be defined)
-
-### Required Skills
-
-- Electron development
-- React/TypeScript
-- Node.js file system operations
-- UI/UX design
-- Testing (unit, integration, E2E)
-
-### External Dependencies
-
-- None currently identified
-
----
-
-## Communication & Updates
-
-### Progress Updates
-
-- **Frequency**: Weekly (recommended)
-- **Format**: Update this document with completed tasks and blockers
-- **Review**: Bi-weekly timeline review and adjustment
-
-### Milestone Reviews
-
-- Conduct review at end of each phase
-- Evaluate completed deliverables
-- Adjust timeline for next phase if needed
-- Document lessons learned
+- TypeScript-first with excellent type inference
+- Minimal runtime overhead
+- SQL-like syntax (easy learning curve)
+- Built-in migration system
 
 ---
 

@@ -13,7 +13,7 @@ When updating progress, follow these steps:
 1. **Initialisation**: Begin by reading all memory bank files to have a complete understanding of the current project state.
 2. **Assess Changes**: Review recent changes made to the project since the last update.
 3. **Update Project Progress**: Tick the completed tasks, add any new tasks, update ongoing work, using the provided legends, as well as listing out any known issues encountered.
-4. **Update Active Context**: Reflect the latest state of the project, including recent tasks, goals, blockers, and upcoming work.
+4. **Update Active Context**: Reflect the latest state of the project, including recent tasks, goals, blockers, any new issues known, and upcoming work.
 5. **Save Changes**: Ensure that both files are saved correctly with the latest information.
 
 If there is anything unclear, ambiguous, or if you need more information, **immediately stop** the update and **ask the user for clarification** before proceeding.
