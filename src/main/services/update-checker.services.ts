@@ -8,7 +8,7 @@ import { DEFAULT_MANGA_INCLUDES } from '../api/constants/default-manga-includes.
 import { MangaUpdateData } from './data/manga-updates.data'
 import { getChangedFields } from '../utils/diffs.util'
 import { Manga } from '../api/entities/manga.entity'
-import { UpsertMangaCommand } from '../database/commands/collections/upsert-manga.command'
+import { UpsertMangaCommand } from '../database/commands/manga/upsert-manga.command'
 
 export class UpdateCheckerService {
   private readonly client: MangaDexClient = new MangaDexClient()

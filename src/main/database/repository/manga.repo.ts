@@ -1,5 +1,5 @@
 import { and, eq, like, lt, SQL } from 'drizzle-orm'
-import { UpsertMangaCommand } from '../commands/collections/upsert-manga.command'
+import { UpsertMangaCommand } from '../commands/manga/upsert-manga.command'
 import { databaseConnection } from '../connection'
 import { collectionItems, manga, mangaReaderOverrides } from '../schema'
 import { GetLibraryMangaCommand } from '../commands/manga/get-library-manga.command'

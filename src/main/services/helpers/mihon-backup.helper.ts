@@ -1,6 +1,6 @@
 import { PublicationStatus } from '../../api/enums'
 import { AddToCollectionCommand } from '../../database/commands/collections/add-to-collection.command'
-import { UpsertMangaCommand } from '../../database/commands/collections/upsert-manga.command'
+import { UpsertMangaCommand } from '../../database/commands/manga/upsert-manga.command'
 import { collectionRepo } from '../../database/repository/collection.repo'
 import { TagList } from '../../api/constants/tag-list.constant'
 import { BackupCategory } from '../types/mihon/backup-category.type'

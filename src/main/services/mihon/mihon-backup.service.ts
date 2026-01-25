@@ -1,7 +1,7 @@
 import { SaveChapterCommand } from '../../database/commands/progress/save-chapter.command'
 import { mihonBackup } from '../helpers/mihon-backup.helper'
 import fs from 'node:fs/promises'
-import { UpsertMangaCommand } from '../../database/commands/collections/upsert-manga.command'
+import { UpsertMangaCommand } from '../../database/commands/manga/upsert-manga.command'
 import Pako from 'pako'
 import { ImportResult } from '../results/mihon/import.result'
 import { BackupCategory } from '../types/mihon/backup-category.type'
