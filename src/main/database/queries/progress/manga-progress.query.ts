@@ -1,4 +1,4 @@
-export interface MangaProgress {
+export interface MangaProgressQuery {
   mangaId: string
   lastChapterId: string
   firstReadAt: number //unix timestamp

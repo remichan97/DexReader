@@ -12,6 +12,7 @@ import { AddToCollectionCommand } from '../main/database/commands/collections/ad
 import { RemoveFromCollectionCommand } from '../main/database/commands/collections/remove-from-collection.command'
 import { ReorderMangaInCollectionCommand } from '../main/database/commands/collections/reorder-manga-collection.command'
 import { RecordReadCommand } from '../main/database/commands/history/record-read.command'
+import { DexreaderExportOption } from '../main/services/options/dexreader-export.option'
 
 // Custom APIs for renderer
 const api = {
@@ -279,6 +280,11 @@ const settings = {
   clearAllData: () => ipcRenderer.invoke('settings:clear-all')
 }
 
+const dexReader = {
+  exportData: (savePath: string, options: DexreaderExportOption) =>
+    ipcRenderer.invoke('dexreader:export-data', savePath, options)
+}
+
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
@@ -295,6 +301,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('readHistory', readHistory)
     contextBridge.exposeInMainWorld('mihon', mihon)
     contextBridge.exposeInMainWorld('settings', settings)
+    contextBridge.exposeInMainWorld('dexreader', dexReader)
   } catch (error) {
     console.error(error)
   }
@@ -321,4 +328,6 @@ if (process.contextIsolated) {
   globalThis.mihon = mihon
   // @ts-ignore (define in dts)
   globalThis.settings = settings
+  // @ts-ignore (define in dts)
+  globalThis.dexreader = dexReader
 }

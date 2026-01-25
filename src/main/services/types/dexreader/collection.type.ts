@@ -1,4 +1,4 @@
-export interface Collection {
+export interface DexReaderCollection {
   id: number // Collection ID (NOT auto-increment on import)
   name: string // Collection name (unique)
   description?: string // Description (can be null)

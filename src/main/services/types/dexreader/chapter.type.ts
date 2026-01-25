@@ -1,4 +1,4 @@
-export interface Chapter {
+export interface DexReaderChapter {
   // Core identifiers
   chapterId: string // UUID from MangaDex API
   mangaId: string // Parent manga UUID

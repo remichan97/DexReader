@@ -75,7 +75,8 @@ export class CollectionMapper {
       id: row.id,
       collectionId: row.collectionId,
       mangaId: row.mangaId,
-      addedAt: row.addedAt
+      addedAt: row.addedAt,
+      position: row.position ?? 0
     }
   }
 }

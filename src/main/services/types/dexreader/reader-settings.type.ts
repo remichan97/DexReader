@@ -1,5 +1,5 @@
-import { MangaReaderOverride } from './manga-reader-override.type'
+import { DexReaderMangaReaderOverride } from './manga-reader-override.type'
 
 export interface ReaderSettingsData {
-  overrides: MangaReaderOverride[]
+  overrides: DexReaderMangaReaderOverride[]
 }

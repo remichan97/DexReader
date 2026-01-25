@@ -1,7 +1,7 @@
-import { ChapterProgress } from './chapter-progress.type'
-import { MangaProgress } from './manga-progress.type'
+import { DexReaderChapterProgress } from './chapter-progress.type'
+import { DexReaderMangaProgress } from './manga-progress.type'
 
 export interface ProgressData {
-  mangaProgress: MangaProgress[]
-  chapterProgress: ChapterProgress[]
+  mangaProgress: DexReaderMangaProgress[]
+  chapterProgress: DexReaderChapterProgress[]
 }

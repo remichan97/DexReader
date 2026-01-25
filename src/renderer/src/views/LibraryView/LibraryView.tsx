@@ -14,6 +14,7 @@ import { CollectionPickerDialog } from '@renderer/components/CollectionPickerDia
 import { ContextMenu } from '@renderer/components/ContextMenu'
 import { ImportProgressDialog } from '@renderer/components/ImportProgressDialog'
 import { ImportResultDialog } from '@renderer/components/ImportResultDialog'
+import { DexReaderExportDialog, type ExportOptions } from '@renderer/components/DexReaderExportDialog'
 import { useLibraryStore, useCollectionsStore, useToastStore } from '@renderer/stores'
 
 // ImportResult interface matches src/main/services/results/import.result.ts
@@ -148,6 +149,11 @@ export function LibraryView(): JSX.Element {
   const [importResult, setImportResult] = useState<ImportResult | null>(null)
   const importingRef = useRef(false) // Synchronous guard against double imports
 
+  // Export state
+  const [exportDialogOpen, setExportDialogOpen] = useState(false)
+  const [exportFilePath, setExportFilePath] = useState<string | null>(null)
+  const [isExporting, setIsExporting] = useState(false)
+
   // Stores
   const { favourites, loading, error, loadFavourites, toggleFavourite } = useLibraryStore()
   const { collections, loadCollections, createCollection, updateCollection, deleteCollection } =
@@ -275,6 +281,16 @@ export function LibraryView(): JSX.Element {
 
     return removeListener
   }, [show])
+
+  // Listen for DexReader export events from main process
+  useEffect(() => {
+    const removeListener = globalThis.api.onExportLibrary((filePath: string) => {
+      setExportFilePath(filePath)
+      setExportDialogOpen(true)
+    })
+
+    return removeListener
+  }, [])
 
   const handleSearch = (query: string): void => {
     setSearchQuery(query)
@@ -446,6 +462,51 @@ export function LibraryView(): JSX.Element {
         variant: 'error',
         duration: 3000
       })
+    }
+  }
+
+  const handleExport = async (options: ExportOptions): Promise<void> => {
+    if (!exportFilePath) return
+
+    setIsExporting(true)
+    try {
+      const response = await globalThis.dexreader.exportData(exportFilePath, options)
+
+      if (response.success && response.data) {
+        show({
+          title: 'Export Complete',
+          message: `Exported ${response.data.exportedMangaCount} manga to DexReader backup`,
+          variant: 'success',
+          duration: 4000
+        })
+
+        setExportDialogOpen(false)
+        setExportFilePath(null)
+      } else {
+        show({
+          title: 'Export Failed',
+          message: response.error || 'Could not export library',
+          variant: 'error',
+          duration: 4000
+        })
+      }
+    } catch (error) {
+      console.error('Error exporting backup:', error)
+      show({
+        title: 'Export Failed',
+        message: 'An error occurred during export',
+        variant: 'error',
+        duration: 4000
+      })
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
+  const handleCloseExportDialog = (): void => {
+    if (!isExporting) {
+      setExportDialogOpen(false)
+      setExportFilePath(null)
     }
   }
 
@@ -828,6 +889,14 @@ export function LibraryView(): JSX.Element {
           }}
         />
       )}
+
+      {/* DexReader Export Dialog */}
+      <DexReaderExportDialog
+        isOpen={exportDialogOpen}
+        onClose={handleCloseExportDialog}
+        onExport={handleExport}
+        isExporting={isExporting}
+      />
     </div>
   )
 }
