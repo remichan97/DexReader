@@ -14,7 +14,10 @@ import { CollectionPickerDialog } from '@renderer/components/CollectionPickerDia
 import { ContextMenu } from '@renderer/components/ContextMenu'
 import { ImportProgressDialog } from '@renderer/components/ImportProgressDialog'
 import { ImportResultDialog } from '@renderer/components/ImportResultDialog'
-import { DexReaderExportDialog, type ExportOptions } from '@renderer/components/DexReaderExportDialog'
+import {
+  DexReaderExportDialog,
+  type ExportOptions
+} from '@renderer/components/DexReaderExportDialog'
 import { useLibraryStore, useCollectionsStore, useToastStore } from '@renderer/stores'
 
 // ImportResult interface matches src/main/services/results/import.result.ts

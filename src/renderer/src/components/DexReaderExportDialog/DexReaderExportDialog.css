@@ -36,7 +36,7 @@
   transition: var(--transition-all-fast);
 }
 
-.dexreader-export-dialog .option-section:has(input[type="checkbox"]:disabled) {
+.dexreader-export-dialog .option-section:has(input[type='checkbox']:disabled) {
   opacity: 0.6;
   cursor: not-allowed;
 }
@@ -48,7 +48,7 @@
   margin-bottom: var(--space-1);
 }
 
-.dexreader-export-dialog .option-section:has(input[type="checkbox"]:checked) {
+.dexreader-export-dialog .option-section:has(input[type='checkbox']:checked) {
   border-color: var(--win-accent);
   background: var(--win-accent-subtle);
 }

@@ -52,74 +52,74 @@ export function DexReaderExportDialog({
   return (
     <Modal open={isOpen} onClose={handleCancel} title="Export DexReader Backup" size="medium">
       <div className="dexreader-export-dialog">
-          <div className="export-info">
-            <p className="info-text">
-              Choose what to include in your backup file. Library manga metadata is always included.
+        <div className="export-info">
+          <p className="info-text">
+            Choose what to include in your backup file. Library manga metadata is always included.
+          </p>
+        </div>
+
+        <div className="export-options">
+          <div className="option-section">
+            <div className="option-header">
+              <Library20Regular className="option-icon" />
+              <strong>Library</strong>
+              <span className="always-included">Always included</span>
+            </div>
+            <p className="option-description">
+              Manga metadata, cover URLs, chapters, tags, and authors
             </p>
           </div>
 
-          <div className="export-options">
-            <div className="option-section">
-              <div className="option-header">
-                <Library20Regular className="option-icon" />
-                <strong>Library</strong>
-                <span className="always-included">Always included</span>
-              </div>
-              <p className="option-description">
-                Manga metadata, cover URLs, chapters, tags, and authors
-              </p>
+          <div className="option-section">
+            <div className="option-header">
+              <Checkbox
+                checked={includeCollections}
+                onChange={setIncludeCollections}
+                disabled={isExporting}
+              />
+              <Folder20Regular className="option-icon" />
+              <strong>Collections</strong>
             </div>
-
-            <div className="option-section">
-              <div className="option-header">
-                <Checkbox
-                  checked={includeCollections}
-                  onChange={setIncludeCollections}
-                  disabled={isExporting}
-                />
-                <Folder20Regular className="option-icon" />
-                <strong>Collections</strong>
-              </div>
-              <p className="option-description">Your custom collections and their organization</p>
-            </div>
-
-            <div className="option-section">
-              <div className="option-header">
-                <Checkbox
-                  checked={includeProgress}
-                  onChange={setIncludeProgress}
-                  disabled={isExporting}
-                />
-                <BookOpen20Regular className="option-icon" />
-                <strong>Reading Progress</strong>
-              </div>
-              <p className="option-description">
-                Chapter progress, reading history, and completion status
-              </p>
-            </div>
-
-            <div className="option-section">
-              <div className="option-header">
-                <Checkbox
-                  checked={includeReaderSettings}
-                  onChange={setIncludeReaderSettings}
-                  disabled={isExporting}
-                />
-                <Settings20Regular className="option-icon" />
-                <strong>Reader Settings</strong>
-              </div>
-              <p className="option-description">
-                Per-manga reading mode preferences and reader configurations
-              </p>
-            </div>
+            <p className="option-description">Your custom collections and their organization</p>
           </div>
 
-          <div className="export-note">
-            <p className="note-text">
-              <strong>Note:</strong> App settings (theme, language, shortcuts) are stored
-              separately. Use <em>Settings → Advanced → Open Settings File</em> to back them up.
+          <div className="option-section">
+            <div className="option-header">
+              <Checkbox
+                checked={includeProgress}
+                onChange={setIncludeProgress}
+                disabled={isExporting}
+              />
+              <BookOpen20Regular className="option-icon" />
+              <strong>Reading Progress</strong>
+            </div>
+            <p className="option-description">
+              Chapter progress, reading history, and completion status
             </p>
           </div>
+
+          <div className="option-section">
+            <div className="option-header">
+              <Checkbox
+                checked={includeReaderSettings}
+                onChange={setIncludeReaderSettings}
+                disabled={isExporting}
+              />
+              <Settings20Regular className="option-icon" />
+              <strong>Reader Settings</strong>
+            </div>
+            <p className="option-description">
+              Per-manga reading mode preferences and reader configurations
+            </p>
+          </div>
+        </div>
+
+        <div className="export-note">
+          <p className="note-text">
+            <strong>Note:</strong> App settings (theme, language, shortcuts) are stored separately.
+            Use <em>Settings → Advanced → Open Settings File</em> to back them up.
+          </p>
+        </div>
 
         <div className="dexreader-export-dialog__actions">
           <Button variant="secondary" onClick={handleCancel} disabled={isExporting}>
