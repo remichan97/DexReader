@@ -1,56 +1,39 @@
+/**
+ * DexReaderExportDialog Component Styles
+ * Following Windows 11 Fluent Design principles
+ */
+
 .dexreader-export-dialog {
-  background: var(--layer-1);
-  border-radius: 8px;
-  width: 560px;
-  max-width: 90vw;
-  max-height: 85vh;
   display: flex;
   flex-direction: column;
-  box-shadow: var(--elevation-shadow-dialog);
-  overflow: hidden;
-}
-
-.dexreader-export-dialog .dialog-header {
-  padding: 20px 24px;
-  border-bottom: 1px solid var(--stroke-surface);
-}
-
-.dexreader-export-dialog .dialog-header h2 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.dexreader-export-dialog .dialog-content {
-  padding: 24px;
-  overflow-y: auto;
-  flex: 1;
+  gap: var(--space-4);
 }
 
 .dexreader-export-dialog .export-info {
-  margin-bottom: 24px;
+  padding: var(--space-3);
+  background: var(--win-bg-subtle);
+  border-radius: var(--radius-sm);
 }
 
 .dexreader-export-dialog .info-text {
   margin: 0;
-  color: var(--text-secondary);
-  font-size: 14px;
+  color: var(--win-text-secondary);
+  font-size: var(--win-font-size-caption);
   line-height: 1.5;
 }
 
 .dexreader-export-dialog .export-options {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-2);
 }
 
 .dexreader-export-dialog .option-section {
-  padding: 16px;
-  border: 1px solid var(--stroke-surface);
-  border-radius: 6px;
-  background: var(--layer-0);
-  transition: all 0.15s ease;
+  padding: var(--space-3);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-sm);
+  background: var(--win-bg-default);
+  transition: var(--transition-all-fast);
 }
 
 .dexreader-export-dialog .option-section:has(input[type="checkbox"]:disabled) {
@@ -61,82 +44,74 @@
 .dexreader-export-dialog .option-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
-  cursor: pointer;
-}
-
-.dexreader-export-dialog .option-section:has(input[type="checkbox"]) {
-  cursor: pointer;
+  gap: var(--space-2);
+  margin-bottom: var(--space-1);
 }
 
 .dexreader-export-dialog .option-section:has(input[type="checkbox"]:checked) {
-  border-color: var(--accent-default);
-  background: var(--layer-0-hover);
+  border-color: var(--win-accent);
+  background: var(--win-accent-subtle);
 }
 
 .dexreader-export-dialog .option-icon {
-  font-size: 20px;
-  line-height: 1;
+  flex-shrink: 0;
+  color: var(--win-text-secondary);
+  width: 20px;
+  height: 20px;
 }
 
 .dexreader-export-dialog .option-header strong {
-  font-size: 15px;
+  font-size: var(--win-font-size-body);
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--win-text-primary);
   flex: 1;
 }
 
 .dexreader-export-dialog .always-included {
-  font-size: 12px;
+  font-size: var(--win-font-size-caption);
   font-weight: 500;
-  color: var(--accent-default);
-  background: var(--accent-subtle);
-  padding: 2px 8px;
-  border-radius: 4px;
+  color: var(--win-accent);
+  background: var(--win-accent-subtle);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-xs);
 }
 
 .dexreader-export-dialog .option-description {
   margin: 0;
-  font-size: 13px;
-  color: var(--text-secondary);
+  font-size: var(--win-font-size-caption);
+  color: var(--win-text-tertiary);
   line-height: 1.4;
   padding-left: 52px; /* Align with checkbox + icon + text */
 }
 
 .dexreader-export-dialog .export-note {
-  margin-top: 20px;
-  padding: 12px 16px;
-  background: var(--layer-0);
-  border-left: 3px solid var(--accent-default);
-  border-radius: 4px;
+  padding: var(--space-3);
+  background: var(--win-bg-subtle);
+  border-left: 3px solid var(--win-accent);
+  border-radius: var(--radius-sm);
 }
 
 .dexreader-export-dialog .note-text {
   margin: 0;
-  font-size: 13px;
-  color: var(--text-secondary);
+  font-size: var(--win-font-size-caption);
+  color: var(--win-text-secondary);
   line-height: 1.5;
 }
 
 .dexreader-export-dialog .note-text strong {
-  color: var(--text-primary);
+  color: var(--win-text-primary);
 }
 
 .dexreader-export-dialog .note-text em {
   font-style: normal;
-  color: var(--text-primary);
+  color: var(--win-text-primary);
   font-weight: 500;
 }
 
-.dexreader-export-dialog .dialog-actions {
-  padding: 16px 24px;
-  border-top: 1px solid var(--stroke-surface);
+.dexreader-export-dialog__actions {
   display: flex;
-  gap: 12px;
   justify-content: flex-end;
-}
-
-.dexreader-export-dialog .dialog-actions button {
-  min-width: 100px;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--win-border-subtle);
 }

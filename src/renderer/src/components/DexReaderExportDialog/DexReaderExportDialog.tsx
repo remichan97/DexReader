@@ -1,6 +1,13 @@
 import { JSX, useState } from 'react'
+import { Modal } from '../Modal'
 import { Button } from '../Button'
 import { Checkbox } from '../Checkbox'
+import {
+  Library20Regular,
+  Folder20Regular,
+  BookOpen20Regular,
+  Settings20Regular
+} from '@fluentui/react-icons'
 import './DexReaderExportDialog.css'
 
 interface DexReaderExportDialogProps {
@@ -43,19 +50,8 @@ export function DexReaderExportDialog({
   }
 
   return (
-    <div className="dialog-overlay" onClick={handleCancel}>
-      <div
-        className="dexreader-export-dialog"
-        onClick={(e) => e.stopPropagation()}
-        role="dialog"
-        aria-labelledby="export-dialog-title"
-        aria-modal="true"
-      >
-        <div className="dialog-header">
-          <h2 id="export-dialog-title">Export DexReader Backup</h2>
-        </div>
-
-        <div className="dialog-content">
+    <Modal open={isOpen} onClose={handleCancel} title="Export DexReader Backup" size="medium">
+      <div className="dexreader-export-dialog">
           <div className="export-info">
             <p className="info-text">
               Choose what to include in your backup file. Library manga metadata is always included.
@@ -65,7 +61,7 @@ export function DexReaderExportDialog({
           <div className="export-options">
             <div className="option-section">
               <div className="option-header">
-                <span className="option-icon">📚</span>
+                <Library20Regular className="option-icon" />
                 <strong>Library</strong>
                 <span className="always-included">Always included</span>
               </div>
@@ -81,7 +77,7 @@ export function DexReaderExportDialog({
                   onChange={setIncludeCollections}
                   disabled={isExporting}
                 />
-                <span className="option-icon">📁</span>
+                <Folder20Regular className="option-icon" />
                 <strong>Collections</strong>
               </div>
               <p className="option-description">Your custom collections and their organization</p>
@@ -94,7 +90,7 @@ export function DexReaderExportDialog({
                   onChange={setIncludeProgress}
                   disabled={isExporting}
                 />
-                <span className="option-icon">📖</span>
+                <BookOpen20Regular className="option-icon" />
                 <strong>Reading Progress</strong>
               </div>
               <p className="option-description">
@@ -109,7 +105,7 @@ export function DexReaderExportDialog({
                   onChange={setIncludeReaderSettings}
                   disabled={isExporting}
                 />
-                <span className="option-icon">⚙️</span>
+                <Settings20Regular className="option-icon" />
                 <strong>Reader Settings</strong>
               </div>
               <p className="option-description">
@@ -124,9 +120,8 @@ export function DexReaderExportDialog({
               separately. Use <em>Settings → Advanced → Open Settings File</em> to back them up.
             </p>
           </div>
-        </div>
 
-        <div className="dialog-actions">
+        <div className="dexreader-export-dialog__actions">
           <Button variant="secondary" onClick={handleCancel} disabled={isExporting}>
             Cancel
           </Button>
@@ -135,6 +130,6 @@ export function DexReaderExportDialog({
           </Button>
         </div>
       </div>
-    </div>
+    </Modal>
   )
 }
