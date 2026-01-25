@@ -24,6 +24,7 @@ export class MihonBackupService {
   private abortController?: AbortController
   private readonly schemaPath = path.join(
     __dirname,
+    '../../',
     'services',
     'protobuf',
     'schemas',

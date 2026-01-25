@@ -1,3 +1,4 @@
+import { MangaOverride } from './../main/database/queries/manga/manga-override.query'
 import { MangaWithMetadata } from './../main/database/queries/manga/manga-with-metadata.query'
 import { ImportResult } from './../main/services/results/import.result'
 import { UpdateResult } from './../main/services/results/update.result'
@@ -25,6 +26,7 @@ export type { MangaProgressMetadata } from '../main/database/queries/progress/ma
 export type { ChapterProgress } from '../main/database/queries/progress/chapter-progress.query'
 export type { ProgressDatabase } from '../main/database/queries/progress/progress-database.query'
 export type { ReadingStats } from '../main/database/queries/reading-stats/reading-stats.query'
+export type { MangaOverride } from '../main/database/queries/manga/manga-override.query'
 export type { MangaReadingSettings } from '../main/settings/entity/reading-settings.entity'
 export type { CreateCollectionCommand } from '../main/database/commands/collections/create-collection.command'
 export type { UpdateCollectionCommand } from '../main/database/commands/collections/update-collection.command'
@@ -154,6 +156,8 @@ interface Reader {
   getMangaReaderSettings: (mangaId: string) => Promise<MangaReadingSettings>
   updateMangaReaderSettings: (mangaId: string, settings: MangaReadingSettings) => Promise<void>
   resetMangaReaderSettings: (mangaId: string) => Promise<void>
+  clearAllMangaReaderOverrides: () => Promise<void>
+  getAllReaderOverrides: () => Promise<IpcResponse<MangaOverride[]>>
 }
 
 interface Library {

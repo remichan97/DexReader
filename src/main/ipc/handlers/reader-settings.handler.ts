@@ -14,9 +14,9 @@ export function registerReaderSettingsHandlers(): void {
     async (_, mangaId: unknown, newSettings: unknown) => {
       const globalSettings = await getMangaReaderSettings('') // Get global settings
 
-      // If new settings match global, do nothing
+      // If new settings match global, reset the override for the manga instead
       if (newSettings && JSON.stringify(newSettings) === JSON.stringify(globalSettings)) {
-        return
+        return readerSettingsRepo.clearMangaOverride(mangaId as string)
       }
 
       const newOverrideSettings = {
@@ -38,5 +38,13 @@ export function registerReaderSettingsHandlers(): void {
 
   wrapIpcHandler('reader:reset-manga-settings', async (_, mangaId: unknown) => {
     return readerSettingsRepo.clearMangaOverride(mangaId as string)
+  })
+
+  wrapIpcHandler('reader:clear-all-overrides', async () => {
+    return readerSettingsRepo.clearAllOverrides()
+  })
+
+  wrapIpcHandler('reader:get-all-manga-overrides', async () => {
+    return readerSettingsRepo.getAllOverridesWithMetadata()
   })
 }

@@ -3,6 +3,8 @@ import { MangaWithMetadata } from '../queries/manga/manga-with-metadata.query'
 import { manga } from '../schema'
 import { dateToUnixTimestamp } from '../../utils/timestamps.util'
 import { PublicationStatus } from '../../api/enums'
+import { MangaReadingSettings } from '../../settings/entity/reading-settings.entity'
+import { MangaOverride } from '../queries/manga/manga-override.query'
 
 type MangaRow = typeof manga.$inferSelect
 
@@ -18,6 +20,15 @@ type MangaProgressWithMetadataRow = {
   lastChapterTitle: string | null
   lastChapterVolume: string | null
   language: string | null
+}
+
+type MangaOverrideRow = {
+  mangaId: string
+  title: string
+  coverUrl: string | null
+  readerSettings: MangaReadingSettings
+  createdAt: Date
+  updatedAt: Date
 }
 
 export class MangaMapper {
@@ -56,6 +67,17 @@ export class MangaMapper {
       lastChapterTitle: row.lastChapterTitle ?? undefined,
       lastChapterVolume: row.lastChapterVolume ?? undefined,
       language: row.language ?? undefined
+    }
+  }
+
+  static toMangaOverrideQuery(row: MangaOverrideRow): MangaOverride {
+    return {
+      mangaId: row.mangaId,
+      title: row.title,
+      coverUrl: row.coverUrl ?? undefined,
+      readerSettings: row.readerSettings,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt
     }
   }
 }

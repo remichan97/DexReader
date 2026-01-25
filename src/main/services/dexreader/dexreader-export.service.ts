@@ -12,6 +12,7 @@ import { collectionRepo } from '../../database/repository/collection.repo'
 import { ProgressData } from '../types/dexreader/progress.type'
 import { progressRepo } from '../../database/repository/manga-progress.repo'
 import { ReaderSettingsData } from '../types/dexreader/reader-settings.type'
+import { readerSettingsRepo } from '../../database/repository/reader-settings.repo'
 import { dateToUnixTimestamp } from '../../utils/timestamps.util'
 import { version } from '../../../../package.json'
 import protobuf from 'protobufjs'
@@ -20,6 +21,7 @@ import Pako from 'pako'
 export class DexReaderExportService {
   private readonly schemaPath = path.join(
     __dirname,
+    '../../',
     'services',
     'protobuf',
     'schemas',
@@ -126,7 +128,7 @@ export class DexReaderExportService {
   }
 
   private fetchReaderSettingsData(): ReaderSettingsData {
-    const overrides = mangaRepository.getAllOverrides()
+    const overrides = readerSettingsRepo.getAllOverridesWithMetadata()
     return {
       overrides: overrides.map((it) => ({
         mangaId: it.mangaId,
@@ -138,4 +140,3 @@ export class DexReaderExportService {
     }
   }
 }
-export const dexreaderExportService = new DexReaderExportService()

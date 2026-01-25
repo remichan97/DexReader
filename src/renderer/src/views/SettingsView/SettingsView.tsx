@@ -41,29 +41,6 @@ export function SettingsView(): JSX.Element {
   const [perMangaOverrides, setPerMangaOverrides] = useState<PerMangaOverride[]>([])
   const [isLoadingReaderSettings, setIsLoadingReaderSettings] = useState(true)
 
-  // Helper function to load per-manga overrides
-  const loadPerMangaOverrides = async (
-    mangaSettings: Record<string, unknown>
-  ): Promise<PerMangaOverride[]> => {
-    const overrides: PerMangaOverride[] = []
-    for (const [mangaId, overrideData] of Object.entries(mangaSettings)) {
-      // Read from stored MangaOverrideSettings structure
-      const override = overrideData as {
-        title: string
-        coverUrl?: string
-        settings: MangaReadingSettings
-      }
-
-      overrides.push({
-        mangaId,
-        mangaTitle: override.title || mangaId,
-        coverUrl: override.coverUrl,
-        settings: override.settings
-      })
-    }
-    return overrides
-  }
-
   // Load settings on mount
   useEffect(() => {
     async function loadSettings(): Promise<void> {
@@ -121,12 +98,18 @@ export function SettingsView(): JSX.Element {
             if (settings.reader.quality !== undefined) {
               setImageQuality(settings.reader.quality)
             }
+          }
 
-            // Load per-manga overrides
-            if (settings.reader.manga) {
-              const overrides = await loadPerMangaOverrides(settings.reader.manga)
-              setPerMangaOverrides(overrides)
-            }
+          // Load per-manga overrides from database
+          const overridesResult = await globalThis.reader.getAllMangaOverrides()
+          if (overridesResult.success && overridesResult.data) {
+            const overrides: PerMangaOverride[] = overridesResult.data.map((override) => ({
+              mangaId: override.mangaId,
+              mangaTitle: override.title,
+              coverUrl: override.coverUrl,
+              settings: override.readerSettings
+            }))
+            setPerMangaOverrides(overrides)
           }
         } catch {
           // Settings file doesn't exist - use system color
@@ -503,15 +486,11 @@ export function SettingsView(): JSX.Element {
   // Clear all manga overrides
   const handleClearAllOverrides = async (): Promise<void> => {
     try {
-      // Reset all overrides
-      const results = await Promise.all(
-        perMangaOverrides.map((o) => globalThis.reader.resetMangaReaderSettings(o.mangaId))
-      )
+      // Clear all overrides in a single database operation
+      const result = await globalThis.reader.clearAllOverrides()
 
-      // Check if any failed
-      const failed = results.filter((r) => !r.success)
-      if (failed.length > 0) {
-        throw new Error(`Failed to reset ${failed.length} override(s)`)
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to clear all overrides')
       }
 
       setPerMangaOverrides([])

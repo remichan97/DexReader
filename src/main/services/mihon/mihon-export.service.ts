@@ -16,6 +16,7 @@ import Pako from 'pako'
 export class MihonExportService {
   private readonly schemaPath = path.join(
     __dirname,
+    '../../',
     'services',
     'protobuf',
     'schemas',

@@ -1,13 +1,12 @@
 import { and, eq, like, lt, SQL } from 'drizzle-orm'
 import { UpsertMangaCommand } from '../commands/manga/upsert-manga.command'
 import { databaseConnection } from '../connection'
-import { collectionItems, manga, mangaReaderOverrides } from '../schema'
+import { collectionItems, manga } from '../schema'
 import { GetLibraryMangaCommand } from '../commands/manga/get-library-manga.command'
 import { MangaWithMetadata } from '../queries/manga/manga-with-metadata.query'
 import { MangaMapper } from '../mappers/manga.mapper'
 import { MarkMangaNewChapterCommand } from '../commands/manga/mark-new-chapter.command'
 import { SearchMangaCommand } from '../commands/manga/search-manga.command'
-import { MangaOverrideQuery } from '../queries/manga/manga-override.query'
 
 type MangaRow = typeof manga.$inferSelect
 
@@ -228,17 +227,6 @@ export class MangaRepository {
     const result = deleteQuery.run()
 
     return result.changes || 0
-  }
-
-  getAllOverrides(): MangaOverrideQuery[] {
-    const results = this.db.select().from(mangaReaderOverrides).all()
-
-    return results.map((item) => ({
-      mangaId: item.mangaId,
-      readerSettings: item.settings,
-      createdAt: item.createdAt,
-      updatedAt: item.updatedAt
-    }))
   }
 
   // For native export functionality, return raw data from the manga table

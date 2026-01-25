@@ -226,7 +226,9 @@ const reader = {
   updateMangaReaderSettings: (mangaId: string, newSettings: unknown) =>
     ipcRenderer.invoke('reader:update-manga-settings', mangaId, newSettings),
   resetMangaReaderSettings: (mangaId: string) =>
-    ipcRenderer.invoke('reader:reset-manga-settings', mangaId)
+    ipcRenderer.invoke('reader:reset-manga-settings', mangaId),
+  clearAllOverrides: () => ipcRenderer.invoke('reader:clear-all-overrides'),
+  getAllMangaOverrides: () => ipcRenderer.invoke('reader:get-all-manga-overrides')
 }
 
 const library = {
