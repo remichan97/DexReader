@@ -12,11 +12,12 @@ The memory bank consists of **core files** (required) and **supplementary files*
 
 These files are essential for me to understand the project. If any of these files are missing, I will create them based on available information or by asking for details. These include:
 
-- `active-context.md`: This file contains the current context of our collaboration, including recent tasks, goals, any blockers, upcoming works, as well as up-to-date information on the project's status. This is my primary source of truth for current project state.
+- `active-context.md`: This file contains the **current context** of our collaboration, including recent tasks (last 2-3 weeks), immediate goals, any blockers, and next steps. **This is my session dashboard** - it should be kept concise (150-300 lines) and focused on **actionable, recent information only**. Older session notes and completed work details belong in `archived-milestones.md`. This is my primary source of truth for current project state.
 - `project-brief.md`: This file provides a high-level overview of the project, including its purpose, target audience, and key features.
 - `system-pattern.md`: This file outlines the architectural patterns, coding standards, and best practices that should be followed in the project.
 - `tech-context.md`: This file details the technologies, frameworks, and libraries used in the project, along with their versions and configurations.
-- `project-progress.md`: This file tracks the progress of the project, including completed tasks, ongoing work, any known issues and upcoming milestones.
+- `project-progress.md`: This file tracks the progress of the project as a concise historical timeline. It includes completed milestones, key outcomes, known issues, and upcoming work. Keep entries brief - detailed implementation notes belong in `archived-milestones.md`.
+- `archived-milestones.md`: This file contains detailed implementation notes from completed milestones. Use this to store comprehensive technical details, bug fix documentation, and refactoring histories. This serves as essential reference material when working on related features, debugging issues, or building on previous work.
 
 ## Supplementary Files (Optional)
 
