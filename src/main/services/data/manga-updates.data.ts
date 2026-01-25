@@ -1,4 +1,4 @@
-import { UpsertMangaCommand } from '../../database/commands/collections/upsert-manga.command'
+import { UpsertMangaCommand } from '../../database/commands/manga/upsert-manga.command'
 
 export interface MangaUpdateData {
   hasNewChapters: boolean

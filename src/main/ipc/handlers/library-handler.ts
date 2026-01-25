@@ -3,7 +3,7 @@ import { CreateCollectionCommand } from '../../database/commands/collections/cre
 import { RemoveFromCollectionCommand } from '../../database/commands/collections/remove-from-collection.command'
 import { ReorderMangaInCollectionCommand } from '../../database/commands/collections/reorder-manga-collection.command'
 import { UpdateCollectionCommand } from '../../database/commands/collections/update-collection.command'
-import { UpsertMangaCommand } from '../../database/commands/collections/upsert-manga.command'
+import { UpsertMangaCommand } from '../../database/commands/manga/upsert-manga.command'
 import { RecordReadCommand } from '../../database/commands/history/record-read.command'
 import { GetLibraryMangaCommand } from '../../database/commands/manga/get-library-manga.command'
 import { collectionRepo } from '../../database/repository/collection.repo'

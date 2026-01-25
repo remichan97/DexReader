@@ -11,9 +11,7 @@ import { AppTheme } from './enum/theme-mode.enum'
 import { ReadingMode } from './enum/reading-mode.enum'
 import { AppSettings } from './entity/app-settings.entity'
 import { MangaReadingSettings } from './entity/reading-settings.entity'
-import { databaseConnection } from '../database/connection'
-import { mangaReaderOverrides } from '../database/schema'
-import { eq } from 'drizzle-orm'
+import { readerSettingsRepo } from '../database/repository/reader-settings.repo'
 
 const SETTINGS_FILE = path.join(getAppDataPath(), 'settings.json')
 
@@ -121,51 +119,14 @@ export async function setDownloadsPath(newPath: string): Promise<void> {
 }
 
 export async function getMangaReaderSettings(mangaId: string): Promise<MangaReadingSettings> {
-  const db = databaseConnection.getDb()
-
-  const override = db
-    .select()
-    .from(mangaReaderOverrides)
-    .where(eq(mangaReaderOverrides.mangaId, mangaId))
-    .get()
+  const override = readerSettingsRepo.getMangaOverride(mangaId)
 
   if (override) {
-    return override.settings
+    return override
   }
 
   const settings = await loadSettings()
   return settings.reader.global
-}
-
-export async function updateMangaReaderSettings(
-  mangaId: string,
-  newSettings: MangaReadingSettings
-): Promise<void> {
-  const db = databaseConnection.getDb()
-
-  const now = new Date()
-
-  db.insert(mangaReaderOverrides)
-    .values({
-      mangaId,
-      settings: newSettings,
-      createdAt: now,
-      updatedAt: now
-    })
-    .onConflictDoUpdate({
-      target: mangaReaderOverrides.mangaId,
-      set: {
-        settings: newSettings,
-        updatedAt: now
-      }
-    })
-    .run()
-}
-
-export async function deleteMangaReaderSettings(mangaId: string): Promise<void> {
-  const db = databaseConnection.getDb()
-
-  db.delete(mangaReaderOverrides).where(eq(mangaReaderOverrides.mangaId, mangaId)).run()
 }
 
 // Initialize downloads path from settings on app startup

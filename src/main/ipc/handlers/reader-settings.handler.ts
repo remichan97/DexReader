@@ -1,9 +1,6 @@
+import { readerSettingsRepo } from '../../database/repository/reader-settings.repo'
 import { MangaReadingSettings } from '../../settings/entity/reading-settings.entity'
-import {
-  getMangaReaderSettings,
-  updateMangaReaderSettings,
-  deleteMangaReaderSettings
-} from '../../settings/settingsManager'
+import { getMangaReaderSettings } from '../../settings/settingsManager'
 import { isMangaOverrideSettings } from '../../settings/validators/types.validator'
 import { wrapIpcHandler } from '../wrapHandler'
 
@@ -30,11 +27,16 @@ export function registerReaderSettingsHandlers(): void {
         throw new Error('Invalid manga override settings provided')
       }
 
-      return await updateMangaReaderSettings(mangaId as string, newSettings as MangaReadingSettings)
+      const overrideCommand = {
+        mangaId: mangaId as string,
+        overrideData: newOverrideSettings.settings
+      }
+
+      return readerSettingsRepo.updateMangaOverride(overrideCommand)
     }
   )
 
   wrapIpcHandler('reader:reset-manga-settings', async (_, mangaId: unknown) => {
-    return await deleteMangaReaderSettings(mangaId as string)
+    return readerSettingsRepo.clearMangaOverride(mangaId as string)
   })
 }
