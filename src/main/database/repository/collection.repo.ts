@@ -80,6 +80,40 @@ export class CollectionRepository {
     return result.id
   }
 
+  batchCreateCollections(command: CreateCollectionCommand[]): number[] {
+    const now = new Date()
+    const ids: number[] = []
+
+    // Nothing to do, bail out early
+    if (command.length === 0) {
+      return ids
+    }
+
+    // Single command, call the simple create method
+    if (command.length === 1) {
+      const id = this.createCollection(command[0])
+      ids.push(id)
+      return ids
+    }
+
+    this.db.transaction((tx) => {
+      for (const cmd of command) {
+        const result = tx
+          .insert(collections)
+          .values({
+            name: cmd.name,
+            description: cmd.description,
+            createdAt: now,
+            updatedAt: now
+          })
+          .returning({ id: collections.id })
+          .get()
+        ids.push(result.id)
+      }
+    })
+    return ids
+  }
+
   updateCollection(command: UpdateCollectionCommand): void {
     const now = new Date()
 
@@ -107,6 +141,7 @@ export class CollectionRepository {
 
     if (command.length === 1) {
       this.addToCollection(command[0])
+      return
     }
 
     this.db.transaction((tx) => {

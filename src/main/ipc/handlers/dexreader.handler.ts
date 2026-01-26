@@ -1,4 +1,5 @@
 import { dexreaderExportService } from '../../services/dexreader/dexreader-export.service'
+import { dexreaderImportService } from '../../services/dexreader/dexreader-import.service'
 import { DexreaderExportOption } from '../../services/options/dexreader-export.option'
 import { wrapIpcHandler } from '../wrapHandler'
 
@@ -19,5 +20,21 @@ export function registerDexReaderHandler(): void {
     const exportOptions = options as DexreaderExportOption
 
     return await dexreaderExportService.exportLibrary(savePath, exportOptions)
+  })
+
+  wrapIpcHandler('dexreader:import-data', async (_, filePath: unknown) => {
+    if (typeof filePath !== 'string') {
+      throw new TypeError('Invalid file path')
+    }
+
+    if (filePath.endsWith('.dexreader') === false) {
+      throw new TypeError('File path must have a .dexreader extension')
+    }
+
+    return await dexreaderImportService.importLibrary(filePath)
+  })
+
+  wrapIpcHandler('dexreader:cancel-import', async () => {
+    dexreaderImportService.cancelImport()
   })
 }

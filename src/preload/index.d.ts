@@ -4,6 +4,7 @@ import { ImportResult } from './../main/services/results/import.result'
 import { UpdateResult } from './../main/services/results/update.result'
 import { ExportResult } from './../main/services/results/export.result'
 import { DexReaderExportResult } from './../main/services/results/dexreader/export.result'
+import { DexReaderImportResult } from './../main/services/results/dexreader/import.result'
 import { ImageUrlResponse } from './../main/api/responses/image-url.response'
 import { ApiResponse } from './../main/api/responses/api.response'
 import { Manga } from './../main/api/entities/manga.entity'
@@ -34,6 +35,7 @@ export type { AddToCollectionCommand } from '../main/database/commands/collectio
 export type { RemoveFromCollectionCommand } from '../main/database/commands/collections/remove-from-collection.command'
 export type { ImportResult } from './../main/services/results/import.result'
 export type { ExportResult } from './../main/services/results/export.result'
+export type { DexReaderImportResult } from './../main/services/results/dexreader/import.result'
 export type { MangaWithMetadata } from './../main/database/queries/manga/manga-with-metadata.query'
 export type { DexreaderExportOption } from './../main/services/options/dexreader-export.option'
 export type { DexReaderExportResult } from './../main/services/results/dexreader/export.result'
@@ -206,6 +208,10 @@ interface DexReader {
     savePath: string,
     options: DexreaderExportOption
   ) => Promise<IpcResponse<DexReaderExportResult>>
+
+  importData: (filePath: string) => Promise<IpcResponse<DexReaderImportResult>>
+
+  cancelImport: () => Promise<IpcResponse<void>>
 }
 
 declare global {

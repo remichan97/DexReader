@@ -284,7 +284,11 @@ const settings = {
 
 const dexReader = {
   exportData: (savePath: string, options: DexreaderExportOption) =>
-    ipcRenderer.invoke('dexreader:export-data', savePath, options)
+    ipcRenderer.invoke('dexreader:export-data', savePath, options),
+
+  importData: (filePath: string) => ipcRenderer.invoke('dexreader:import-data', filePath),
+
+  cancelImport: () => ipcRenderer.invoke('dexreader:cancel-import')
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

@@ -9,6 +9,7 @@ import { MangaMapper } from '../mappers/manga.mapper'
 import { dateToUnixTimestamp, unixTimestampToDate } from '../../utils/timestamps.util'
 import { mangaRepository } from './manga.repo'
 import { readingRepo } from './reading-stats.repo'
+import { UpdateFirstReadCommand } from '../commands/progress/update-firstread.command'
 
 export class MangaProgressRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
@@ -144,6 +145,20 @@ export class MangaProgressRepository {
       // Calculate statistics and cleanup once after all items
       readingRepo.calculateStatistics()
       mangaRepository.cleanupMangaCache()
+    })
+  }
+
+  // For import operation, preserving firstReadAt timestamp
+  updateFirstReadAt(command: UpdateFirstReadCommand[]): void {
+    this.db.transaction((tx) => {
+      for (const item of command) {
+        tx.update(mangaProgress)
+          .set({
+            firstReadAt: unixTimestampToDate(item.firstReadAt)
+          })
+          .where(eq(mangaProgress.mangaId, item.mangaId))
+          .run()
+      }
     })
   }
 

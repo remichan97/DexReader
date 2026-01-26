@@ -140,3 +140,4 @@ export class DexReaderExportService {
     }
   }
 }
+export const dexreaderExportService = new DexReaderExportService()
