@@ -34,20 +34,25 @@
 
 **2. Conflict Resolution Strategies**
 
+**Important**: These strategies **only apply when the section exists in the backup file**. Missing sections (user didn't export them) result in no action - existing data is completely preserved.
+
 | Data Type | Strategy | On Conflict | Rationale |
 |-----------|----------|-------------|-----------|
 | Manga | UPSERT | Import wins | Backup restoration, self-healing via API |
 | Chapters | UPSERT | Import wins | Same as manga |
-| Collections | SKIP + MERGE | Merge manga into existing | Same name = same concept, additive |
-| Progress | UPSERT | Import wins (preserve firstReadAt) | Authoritative history |
-| Reader Settings | SKIP EXISTING | Current wins | Active preferences priority |
+| Collections* | SKIP + MERGE | Merge manga into existing | Same name = same concept, additive |
+| Progress* | UPSERT | Import wins (preserve firstReadAt) | Authoritative history |
+| Reader Settings* | SKIP EXISTING | Current wins | Active preferences priority |
 
-**3. Export Scope Fix Required**
+*Optional sections - only imported if present in backup (automatically detected via protobuf decode)
+
+**3. Export Scope Fix Required** (CRITICAL)
 
 - **Current**: Export only `isFavourite = true` manga → **Causes FK violations**
 - **Required**: Export ALL cached manga with `isFavourite` field
-- **Reason**: Reader overrides reference all visited manga, not just favourites
-- **Impact**: Library view unchanged (filters by flag), prevents FK constraint errors
+- **Reason**: Reader overrides (optional export) reference all visited manga, not just favourites
+- **Impact**: Library view unchanged (filters by flag), prevents FK constraint errors on import
+- **Note**: This fix is independent of optional export sections - library data always exported, but must include ALL cached manga
 
 ### Implementation Checklist
 
