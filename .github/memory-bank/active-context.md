@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 26 January 2026
+**Last Updated**: 27 January 2026
 **Current Phase**: Phase 3 - User Experience Enhancement
-**Session**: P3-T13 Complete, P3-T15 Ready - Native Export Done
+**Session**: P3-T15 Backend Audit Complete, Import Strategies Finalized
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -11,11 +11,67 @@
 ## Current Status Summary
 
 **Phase**: Phase 3 - User Experience Enhancement (16/19 tasks, 84.2%)
-**Progress**: P3-T13 complete ✅, P3-T15 ready ✅, P3-T16 complete ✅
-**Current Date**: 26 January 2026
+**Progress**: P3-T13 complete ✅, P3-T15 backend audited ✅, P3-T16 complete ✅
+**Current Date**: 27 January 2026
 **Database Migration Status**: Fully migrated and operational
-**Current Task**: Ready to implement P3-T15 (Native import), or tackle P3-T17/P3-T18
-**Plan Document**: `.github/copilot-plans/P3-T13-T15-native-backup-restore-plan.md`
+**Current Task**: P3-T15 Implementation (backend fixes + frontend UI)
+**Plan Document**: `.github/copilot-plans/P3-T13-T15-native-backup-restore-plan.md` (updated with strategies)
+
+---
+
+## 🎯 P3-T15 Native Import - IMPORT STRATEGIES FINALIZED (27 Jan 2026)
+
+**Session Summary**: Conducted comprehensive backend audit of native import implementation. Identified architectural decisions needed for conflict resolution and error handling.
+
+### Critical Architectural Decisions Made
+
+**1. Error Handling Architecture**
+
+- **HALT on failure**: Manga/Chapters import (critical, everything depends on them)
+- **CONTINUE on failure**: Collections, Progress, Reader Settings (log to `sectionErrors`, proceed)
+- **Result Type Changes**: Remove per-item `errors[]`, add section-level `sectionErrors: { collections?, progress?, readerSettings? }`
+- **Within-section**: All-or-nothing transactions (one item fails → entire section fails)
+
+**2. Conflict Resolution Strategies**
+
+| Data Type | Strategy | On Conflict | Rationale |
+|-----------|----------|-------------|-----------|
+| Manga | UPSERT | Import wins | Backup restoration, self-healing via API |
+| Chapters | UPSERT | Import wins | Same as manga |
+| Collections | SKIP + MERGE | Merge manga into existing | Same name = same concept, additive |
+| Progress | UPSERT | Import wins (preserve firstReadAt) | Authoritative history |
+| Reader Settings | SKIP EXISTING | Current wins | Active preferences priority |
+
+**3. Export Scope Fix Required**
+
+- **Current**: Export only `isFavourite = true` manga → **Causes FK violations**
+- **Required**: Export ALL cached manga with `isFavourite` field
+- **Reason**: Reader overrides reference all visited manga, not just favourites
+- **Impact**: Library view unchanged (filters by flag), prevents FK constraint errors
+
+### Implementation Checklist
+
+**Backend Fixes Needed**:
+
+1. ✅ Update result type with `sectionErrors`, remove per-item `errors[]`
+2. ✅ Wrap optional sections in try-catch
+3. ✅ Implement collection ID mapping (oldId→newId) - **CRITICAL BUG FIX**
+4. ✅ Implement reader settings skip logic (filter existing overrides)
+5. ✅ Track skip counts for collections/settings
+
+**Export Service Fix** (Prerequisite):
+6. ✅ Change export from `getLibraryManga()` to `getAllManga()` - prevents FK violations
+
+**Frontend** (Not Started):
+7. ❌ Create `DexReaderImportDialog` component
+8. ❌ Add LibraryView event listener for `import-library`
+9. ❌ Add library refresh after import
+10. ❌ Toast notifications for results
+
+**Backend Status**: ~85% complete (functional but has critical collection ID mapping bug + missing frontend)
+**Next Steps**: Implement backend fixes, then frontend UI
+
+**Documentation**: All strategies documented in plan file with detailed implementation notes
 
 ---
 
@@ -491,7 +547,7 @@ Complete native `.dexreader` export functionality with selective backup options 
 - `dexreader-export.result.ts` - Result type
 - `dexreader.handler.ts` - IPC handlers
 - `dexreader-backup.type.ts` - TypeScript type definitions
-- `dexreader.proto` - Protobuf schema (renamed from Backup* to DexReader*)
+- `dexreader.proto` - Protobuf schema (renamed from Backup*to DexReader*)
 - `chapter.repo.ts` - Added `getChaptersByMangaIds()`
 - `collection.repo.ts` - Fixed ZoomPanState typo
 - `manga-progress.repo.ts` - Added `getAllMangaProgress()`, `getAllChapterProgressForAllManga()`
