@@ -1,4 +1,4 @@
-import { DexReaderImportErrorResult } from './import-error.result'
+import { DexReaderSectionImportErrorResult } from './section-errors.result'
 
 export interface DexReaderImportResult {
   importedMangaCount: number
@@ -7,9 +7,8 @@ export interface DexReaderImportResult {
   importedCollectionItemsCount: number
   importedMangaProgressCount: number
   importedReaderOverridesCount: number
-  skippedMangaCount: number
-  skippedChaptersCount: number
   skippedCollectionsCount: number
-  errors: DexReaderImportErrorResult[]
+  skippedReaderSettingsCount: number
+  sectionErrors: DexReaderSectionImportErrorResult
   message?: string
 }
