@@ -233,6 +233,11 @@ export class MangaRepository {
   getLibraryMangaForExport(): MangaRow[] {
     return this.db.select().from(manga).where(eq(manga.isFavourite, true)).all()
   }
+
+  // Unconditionally get all manga rows for when we need to export reader settings and progress
+  getAllManga(): MangaRow[] {
+    return this.db.select().from(manga).all()
+  }
 }
 
 export const mangaRepository = new MangaRepository()

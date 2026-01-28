@@ -33,7 +33,7 @@ export class DexReaderExportService {
     options: DexreaderExportOption
   ): Promise<DexReaderExportResult> {
     try {
-      const libraryData: LibraryData = this.fetchLibraryData()
+      const libraryData: LibraryData = this.fetchLibraryData(options)
 
       if (libraryData.mangaList.length === 0) {
         return {
@@ -97,8 +97,12 @@ export class DexReaderExportService {
     }
   }
 
-  private fetchLibraryData(): LibraryData {
-    const mangaList = mangaRepository.getLibraryMangaForExport()
+  private fetchLibraryData(options: DexreaderExportOption): LibraryData {
+    // If we need to export progress or reader settings, we need all manga data
+    const mangaList =
+      options.includeProgress || options.includeReaderSettings
+        ? mangaRepository.getAllManga()
+        : mangaRepository.getLibraryMangaForExport()
 
     const mangaIDs = mangaList.map((it) => it.mangaId)
     const chapterList = chapterRepo.getChaptersByMangaIds(mangaIDs)
