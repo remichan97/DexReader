@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 27 January 2026
+**Last Updated**: 29 January 2026
 **Current Phase**: Phase 3 - User Experience Enhancement
-**Session**: P3-T15 Backend Audit Complete, Import Strategies Finalized
+**Session**: P3-T17 Complete ✅
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -10,18 +10,49 @@
 
 ## Current Status Summary
 
-**Phase**: Phase 3 - User Experience Enhancement (16/19 tasks, 84.2%)
-**Progress**: P3-T13 complete ✅, P3-T15 backend audited ✅, P3-T16 complete ✅
-**Current Date**: 27 January 2026
+**Phase**: Phase 3 - User Experience Enhancement (18/19 tasks, 94.7%)
+**Progress**: P3-T13 complete ✅, P3-T15 complete ✅, P3-T16 complete ✅, P3-T17 complete ✅
+**Current Date**: 29 January 2026
 **Database Migration Status**: Fully migrated and operational
-**Current Task**: P3-T15 Implementation (backend fixes + frontend UI)
-**Plan Document**: `.github/copilot-plans/P3-T13-T15-native-backup-restore-plan.md` (updated with strategies)
+**Current Task**: None - P3-T17 implementation complete
+**Plan Document**: None
 
 ---
 
-## 🎯 P3-T15 Native Import - IMPORT STRATEGIES FINALIZED (27 Jan 2026)
+## 🎉 P3-T17 Date Format Preferences - COMPLETE (29 Jan 2026)
 
-**Session Summary**: Conducted comprehensive backend audit of native import implementation. Identified architectural decisions needed for conflict resolution and error handling.
+**Implementation Status**: ✅ Complete (Alternative Solution - System Settings Link)
+
+**Decision**: Instead of custom date format picker, implemented system settings integration.
+
+**Rationale**:
+
+- Only 3 user-visible date displays (Chapter publish dates, Reading history, Error logs)
+- `toLocaleDateString()` already respects OS settings automatically
+- Custom picker would require: format options, utility functions, testing, maintenance
+- System integration is lighter, more consistent, and user-friendly
+
+**Implementation**:
+
+- Added "Date & Time Format" section in Settings → Appearance
+- Button opens OS-specific date/time settings:
+  - Windows: `ms-settings:regionlanguage`
+  - macOS: `x-apple.systempreferences:com.apple.preference.international`
+  - Linux: Fallback alert with manual instructions
+- New IPC handler: `settings:open-system-date-settings`
+- Preload bridge and type definitions added
+
+**Files Modified**:
+
+- `app-settings.handler.ts`: Platform-specific settings URLs
+- `AppearanceSettings.tsx`: New section with explanation
+- Preload: Bridge method and types
+
+---
+
+## 🎉 P3-T15 Native Import - COMPLETE (29 Jan 2026)
+
+**Implementation Status**: ✅ Backend complete, ✅ Frontend complete, ✅ Full import flow functional
 
 ### Critical Architectural Decisions Made
 
@@ -36,15 +67,15 @@
 
 **Important**: These strategies **only apply when the section exists in the backup file**. Missing sections (user didn't export them) result in no action - existing data is completely preserved.
 
-| Data Type | Strategy | On Conflict | Rationale |
-|-----------|----------|-------------|-----------|
-| Manga | UPSERT | Import wins | Backup restoration, self-healing via API |
-| Chapters | UPSERT | Import wins | Same as manga |
-| Collections* | SKIP + MERGE | Merge manga into existing | Same name = same concept, additive |
-| Progress* | UPSERT | Import wins (preserve firstReadAt) | Authoritative history |
-| Reader Settings* | SKIP EXISTING | Current wins | Active preferences priority |
+| Data Type         | Strategy      | On Conflict                        | Rationale                                |
+| ----------------- | ------------- | ---------------------------------- | ---------------------------------------- |
+| Manga             | UPSERT        | Import wins                        | Backup restoration, self-healing via API |
+| Chapters          | UPSERT        | Import wins                        | Same as manga                            |
+| Collections\*     | SKIP + MERGE  | Merge manga into existing          | Same name = same concept, additive       |
+| Progress\*        | UPSERT        | Import wins (preserve firstReadAt) | Authoritative history                    |
+| Reader Settings\* | SKIP EXISTING | Current wins                       | Active preferences priority              |
 
-*Optional sections - only imported if present in backup (automatically detected via protobuf decode)
+\*Optional sections - only imported if present in backup (automatically detected via protobuf decode)
 
 **3. Export Scope Fix Required** (CRITICAL)
 
@@ -64,19 +95,30 @@
 4. ✅ Implement reader settings skip logic (filter existing overrides)
 5. ✅ Track skip counts for collections/settings
 
-**Export Service Fix** (Prerequisite):
-6. ✅ Change export from `getLibraryManga()` to `getAllManga()` - prevents FK violations
+**Frontend Components Created**:
 
-**Frontend** (Not Started):
-7. ❌ Create `DexReaderImportDialog` component
-8. ❌ Add LibraryView event listener for `import-library`
-9. ❌ Add library refresh after import
-10. ❌ Toast notifications for results
+- ✅ `DexReaderImportDialog`: Windows 11 styled modal with file info, sections list, warnings, and error handling
+- ✅ LibraryView integration: Event listener, state management, automatic library refresh
+- ✅ Toast notifications with detailed import results and section error warnings
 
-**Backend Status**: ~85% complete (functional but has critical collection ID mapping bug + missing frontend)
-**Next Steps**: Implement backend fixes, then frontend UI
+**Implementation Summary**:
 
-**Documentation**: All strategies documented in plan file with detailed implementation notes
+All import strategies implemented as designed:
+
+- Manga/Chapters: UPSERT (import wins)
+- Collections: SKIP + MERGE (name-based, reuse existing IDs)
+- Progress: UPSERT with firstReadAt preservation
+- Reader Settings: SKIP EXISTING (current settings win)
+
+Error handling: HALT for manga/chapters, CONTINUE for optional sections with detailed error reporting.
+
+Export scope fixed: ALL cached manga exported (not just favourites) to prevent FK violations when optional sections included.
+
+**Files Created/Modified**:
+
+- Created: `DexReaderImportDialog` component (TSX + CSS + index)
+- Modified: LibraryView with import listener, handler, and refresh logic
+- Modified: collectionsStore `addToCollection` method now returns boolean for duplicate detection
 
 ---
 
@@ -154,120 +196,9 @@
 
 ## ✅ P3-T12 Mihon/Tachiyomi Library Import - COMPLETE (14 Jan 2026)
 
-**Duration**: ~6 hours (14 January 2026)
-**Status**: All implementation complete, fully tested ✅
+**Status**: Complete ✅ | **Duration**: ~6 hours
 
-### What Was Implemented
-
-**1. Backend Import Service** (MihonService + MihonBackupHelper):
-
-- Protobuf parsing with `protobufjs` and gzip decompression via `pako`
-- MangaDex source filtering (source ID: `2499283573021220255n`)
-- Batch manga upsert with tag name→ID conversion using `TagNameToIdMap`
-- Collection mapping with fallback keys for uncategorized manga
-- Chapter progress import with actual reading timestamps from `BackupHistory`
-- Chapter metadata import for History view (title, number, scanlationGroup)
-- BigInt/Long comparison handling for protobuf source field
-- Favorite field detection via `toJSON()` with `?? true` fallback
-- URL-based ID extraction for manga and chapters
-
-**2. IPC Integration**:
-
-- `mihon:import-backup` handler with AbortController support
-- `mihon:cancel-import` for cancellation
-- Preload type definitions with local `ImportResult` interface
-- Event system: `import-tachiyomi` triggered from File menu
-
-**3. Frontend UI Components** (3 new components):
-
-- **ImportProgressDialog**: Shows indeterminate progress, manga counts, cancel button
-- **ImportResultDialog**: Success/warning/error states, stats cards, expandable error list
-- **LibraryView integration**: Event listener, state management, ref-based double-import prevention
-
-**4. Build Configuration**:
-
-- Vite plugin to copy `mihon.proto` schema to build output
-- Dependencies: `protobufjs@7.4.0`, `pako@2.1.0`
-
-**5. Data Imported**:
-
-- ✅ Manga metadata (title, author, cover, description, status, tags)
-- ✅ Collections/categories (creates new collections, maps manga to them)
-- ✅ Reading progress (currentPage, completed status)
-- ✅ Reading history timestamps (preserves actual lastRead dates)
-- ✅ Chapter metadata (title, number, scanlationGroup for History view)
-
-### Key Technical Solutions
-
-**Tag Conversion**:
-
-- Created `TagNameToIdMap` from `TagList` constant
-- Supports both PascalCase ("SliceOfLife") and space-separated ("Slice of Life")
-- Filters out undefined IDs with type guard
-
-**Timestamp Handling**:
-
-- History Map lookup: O(1) chapter URL → lastRead timestamp
-- Falls back to `new Date()` if history entry missing
-- Uses `unixTimestampToDate()` util for conversion
-
-**Double-Import Prevention**:
-
-- `useRef` for synchronous guard (not `useState` batching)
-- `importingRef.current` checked/set immediately
-- Prevents race conditions from rapid event firing
-
-**Field Name Alignment**:
-
-- Backend: `importedMangaCount`, `skippedMangaCount`, `failedMangaCount`
-- Frontend interfaces updated to match
-- Error field: `reason` (not `message`)
-
-**Page Tracking**:
-
-- Both systems use 0-based array indexing
-- Direct mapping: `BackupChapter.lastPageRead` → `chapter_progress.currentPage`
-- Display adds +1 for human-readable page numbers
-
-### Files Created/Modified
-
-**Backend**:
-
-- `mihon.services.ts` - Main import orchestration
-- `mihon-backup.helper.ts` - Business logic (4 methods)
-- `mihon.handler.ts` - IPC handlers
-- `import.result.ts` - Result type
-- `save-progress.command.ts` - Added optional `lastReadAt` field
-- `manga-progress.repo.ts` - Updated to handle timestamps
-- `tag-list.constant.ts` - Complete MangaDex tag UUID list
-- `mihon.proto` - Protobuf schema (copied)
-
-**Frontend**:
-
-- `ImportProgressDialog.tsx` (96 lines) + CSS
-- `ImportResultDialog.tsx` (180 lines) + CSS
-- `LibraryView.tsx` - Event integration with ref guard
-
-**Build**:
-
-- `electron.vite.config.ts` - Copy protobuf schema plugin
-
-### Testing & Edge Cases
-
-✅ **Tested Scenarios**:
-
-- Large library import (23+ manga)
-- Manga already in library (skip logic)
-- Missing chapter IDs (graceful skip)
-- Empty history array (falls back to now)
-- Protobuf Long vs BigInt comparison
-- Optional favorite field (library-only backups)
-- Tag name variations (PascalCase, spaces)
-- Double toast prevention (ref guard)
-
-### Result
-
-Complete Mihon/Tachiyomi import functionality. Users can migrate their entire library including reading progress and collections. History view shows correct chapter info and timestamps. All edge cases handled gracefully.
+Full Mihon/Tachiyomi backup import with protobuf parsing, tag name→ID conversion, collection mapping, progress/history import, and chapter metadata caching. Includes ImportProgressDialog and ImportResultDialog components. See [archived-milestones.md](./archived-milestones.md) for detailed implementation notes.
 
 ---
 
@@ -587,38 +518,3 @@ Complete native `.dexreader` export functionality with selective backup options 
 ### Result
 
 Complete native DexReader export system with selective backup, proper schema naming, and consolidated reader settings. Export creates `.dexreader` files with protobuf + gzip compression. Settings page now queries database for reader overrides. All 10 backend issues fixed during implementation.
-
----
-
-## 📋 P3-T15: Native DexReader Import - READY FOR IMPLEMENTATION
-
-**Status**: Planning complete, export done, ready for implementation ✅
-**Duration Estimated**: 6-8 hours
-**Plan Document**: `.github/copilot-plans/P3-T13-T15-native-backup-restore-plan.md`
-
-### Import Features (P3-T15)
-
-- Auto-detect backup contents (reads schema to determine what's present)
-- Import confirmation dialog shows what will be imported (no user selection needed)
-- Merge strategy: skip duplicates, add new data
-- Collection ID mapping (handles ID conflicts via Map<oldId, newId>)
-- Schema versioning for future compatibility
-- Menu integration: Library → Import DexReader Backup (Ctrl+Shift+I)
-- Cancellable import operation with AbortController
-- Comprehensive validation before import
-
-### Implementation Steps
-
-1. Backend Helper (transform protobuf → DB) - 2-3h
-2. Import Service (decode, validate, merge) - 2-3h
-3. IPC Handler + cancellation support - 15min
-4. Preload Bridge (window.dexreader.importBackup) - 15min
-5. Frontend Import Confirmation Dialog - 2-3h
-6. Menu integration - 30min
-7. Testing (duplicates, FK constraints, schema versioning) - 1-2h
-
-**Next Step**: Begin P3-T15 Step 1 (Backend Import Helper) when ready
-
----
-
-**Last Updated**: 26 January 2026 | **Next**: P3-T15 Implementation or P3-T17/P3-T18

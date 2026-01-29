@@ -3,8 +3,8 @@
 **Purpose**: This file tracks completed milestones with concise summaries. For detailed implementation notes, see [archived-milestones.md](./archived-milestones.md).
 
 **Project Start**: 23 November 2025
-**Current Phase**: Phase 3 - User Experience Enhancement (P3-T13 Complete ✅, P3-T15 Ready)
-**Last Updated**: 25 January 2026
+**Current Phase**: Phase 3 - User Experience Enhancement (P3-T17 Complete ✅)
+**Last Updated**: 29 January 2026
 
 ---
 
@@ -18,15 +18,71 @@
 
 ---
 
-## Current Status: Phase 3 In Progress (84.2% Complete)
+## Current Status: Phase 3 In Progress (94.7% Complete)
 
-**Phase Progress**: Phase 2 Complete (11/11) | Guerilla Refactoring Complete | 16/19 Phase 3 tasks
-**Next Tasks**: P3-T15 (Native import) OR P3-T17-T18 (Date format/accessibility)
-**Current Focus**: Native DexReader export COMPLETE ✅, import ready to implement
+**Phase Progress**: Phase 2 Complete (11/11) | Guerilla Refactoring Complete | 18/19 Phase 3 tasks
+**Next Tasks**: P3-T18 (Accessibility improvements) or P3-T19 (Icon refinement)
+**Current Focus**: Date format settings link implemented ✅
 
 ---
 
 ## Recent Milestones
+
+### P3-T17 Date Format Preferences (29 January 2026) ✅
+
+**Duration**: ~1 hour | **Status**: Complete (Alternative Solution)
+
+**Summary**: Implemented system settings integration instead of custom date format picker. Added "Configure Date Format" button in Settings → Appearance that opens OS-specific date/time settings.
+
+**Key Outcomes**:
+
+- Analysis showed only 3 user-visible date displays (chapter publish dates, reading history, error logs)
+- Button opens Windows Region & Language or macOS Language & Region settings
+- App already uses `toLocaleDateString()` which respects OS preferences automatically
+- Zero custom formatting code needed, better consistency across apps
+
+**Files Modified**: `app-settings.handler.ts`, `AppearanceSettings.tsx`, preload bridge
+
+**Result**: Lightweight solution with zero maintenance overhead. See [archived-milestones.md](./archived-milestones.md) for detailed analysis.
+
+---
+
+### P3-T15 Native DexReader Import (29 January 2026) ✅
+
+**Duration**: ~4 hours | **Status**: Complete
+
+**Summary**: Implemented native import functionality with intelligent merge strategies and comprehensive error handling.
+
+**Key Outcomes**:
+
+- **Import Dialog**: Windows 11 styled modal with file info display, sections preview, behavior warnings
+- **Smart Merge Strategies**: UPSERT for manga/chapters, SKIP+MERGE for collections (name-based), SKIP EXISTING for reader settings
+- **Error Handling**: Section-level with graceful degradation (HALT for critical, CONTINUE for optional)
+- **Library Integration**: Automatic refresh post-import, detailed toast notifications with warnings
+- **Result Reporting**: Multi-part success messages, section error warnings, import counts breakdown
+
+**Import Behavior**:
+
+- Manga/Chapters: UPSERT (backup data wins, self-healing on detail view)
+- Collections: SKIP creation if name exists, merge manga into existing collection
+- Progress: UPSERT (import wins, preserves firstReadAt)
+- Reader Settings: SKIP if manga already has settings (current preferences win)
+
+**Technical Implementation**:
+
+- Frontend: DexReaderImportDialog component with Fluent icons
+- LibraryView: Event listener for `import-library`, state management, refresh on completion
+- Toast system: Detailed feedback with section error warnings
+- collectionsStore enhancement: `addToCollection` returns boolean for duplicate detection
+
+**Files Created**:
+
+- Frontend: DexReaderImportDialog component (TSX + CSS + index)
+- Backend: All implemented in P3-T15 backend work (27 Jan)
+
+**Result**: Complete native import/export cycle functional. Users can seamlessly backup and restore libraries across devices.
+
+---
 
 ### P3-T13 Native DexReader Export (25 January 2026) ✅
 
@@ -400,13 +456,13 @@
 - [✅] **P3-T12**: Implement library import from Mihon/Tachiyomi backup (protobuf) - **COMPLETE** (14 Jan 2026, ~6 hours)
 - [✅] **P3-T13**: Implement library export to native DexReader format (protobuf) - **COMPLETE** (25 Jan 2026, ~5 hours)
 - [✅] **P3-T14**: Implement library export to Mihon/Tachiyomi format (cross-compatibility, protobuf) - **COMPLETE** (22 Jan 2026, ~7 hours)
-- [⏳] **P3-T15**: Add native DexReader backup restore functionality (protobuf) - **PLANNED** (Est. 6-8 hours)
+- [✅] **P3-T15**: Add native DexReader backup restore functionality (protobuf) - **COMPLETE** (29 Jan 2026, ~4 hours)
 - [✅] **P3-T16**: Add "Danger Zone" settings section (Open Settings, Reset to Default, Clear Data) - **COMPLETE** (22 Jan 2026, ~2 hours)
-- [⏳] **P3-T17**: Implement date format settings - **PENDING**
+- [✅] **P3-T17**: Implement date format settings - **COMPLETE** (29 Jan 2026, ~1 hour, Alternative Solution)
 - [⏳] **P3-T18**: Improve accessibility (ARIA labels, etc.) - **PENDING**
 - [✅] **P3-T19**: Fluent UI icons - **COMPLETE** (Pre-Phase 3)
 
-**Phase 3 Progress**: 16/19 tasks complete (84.2%)
+**Phase 3 Progress**: 18/19 tasks complete (94.7%)
 
 **Notes**:
 
@@ -421,9 +477,9 @@
 - P3-T12: COMPLETE - Full Mihon/Tachiyomi import working. Imports manga metadata, collections, reading progress (with timestamps), chapter metadata for history view. Tag name→ID conversion, BigInt/Long handling, favorite field detection, double-import prevention. UI with progress dialog, result dialog, and toast notifications
 - P3-T13: COMPLETE ✅ (25 Jan 2026, ~5 hours) - Native DexReader export implemented with protobuf schema and selective backup options. Backend audit fixed 10 critical issues. Protobuf schema renamed (Backup*→ DexReader*) to avoid Mihon conflicts. **Major Fix**: Consolidated reader settings - database now single source of truth. Export dialog with Modal wrapper, Fluent UI icons, Windows 11 styling. Settings page optimized with database queries replacing JSON parsing. File format: .dexreader (protobuf proto3 + gzip). See recent milestones section for full implementation details.
 - P3-T14: COMPLETE ✅ - Full Mihon/Tachiyomi export working. Backend service with protobuf encoding/gzip compression, tag ID→name conversion, Unix timestamp format, collection mapping. Frontend with toast notifications. Fixed: BigInt serialization issue (protobuf.js requires string for int64), duplicate toast bug (IPC listener cleanup), type definition corrections. All features tested and verified working. Estimated time: ~7 hours (22 Jan 2026)
-- P3-T15: PLANNED ⏳ (22 Jan 2026) - Native DexReader import with auto-detection. Import confirmation dialog shows backup contents (no user selection needed). Merge strategy: skip duplicates, add new data. Collection ID mapping handles conflicts. Backend: import service + helper with validation, IPC handlers, cancellation support. Frontend: import confirmation dialog, menu integration (Ctrl+Shift+I). Schema versioning for compatibility. Comprehensive plan document: `.github/copilot-plans/P3-T13-T15-native-backup-restore-plan.md`. Estimated: 6-8 hours. Ready for implementation.
+- P3-T15: COMPLETE ✅ (29 Jan 2026, ~4 hours) - Native DexReader import implemented with intelligent merge strategies. Import dialog shows file info and sections preview. Smart merge: UPSERT for manga/chapters, SKIP+MERGE for collections (name-based), SKIP EXISTING for reader settings. Section-level error handling with graceful degradation. Library auto-refresh post-import. Toast notifications with detailed results and warnings. See Recent Milestones section above for summary.
 - P3-T16: COMPLETE ✅ - "Danger Zone" settings section implemented in Advanced tab with 3 operations: (1) Open Settings File (shell.openPath to settings.json), (2) Reset to Default (restores defaults + page reload), (3) Clear All Data (destructionRepo clears DB + resets settings + app restart). Backend uses DestructionRepository with transaction safety, FK constraint handling, sqlite_sequence reset, and VACUUM. Native Electron dialogs for confirmation. Dev mode handling (exit vs relaunch). Button states with separate loading indicators. Uses app's Button component with accent (orange) and danger (red) variants. **Post-implementation improvements**: (1) IPC wrapper consistency - added settings.load() and settings.save() to preload bridge, (2) IpcResponse handling - fixed 10 calls (7 in SettingsView, 3 in DangerZoneSettings) to properly check .success and extract .data, (3) Theme persistence migration - moved from localStorage to settings.json for single source of truth, (4) Zustand store cleanup - removed persist middleware (redundant layer). Architectural pattern established: all IPC calls use wrapped handlers returning IpcResponse<T>. Estimated time: ~2 hours (22 Jan 2026)
-- P3-T17: Date format settings - planned but not yet implemented
+- P3-T17: COMPLETE ✅ (29 Jan 2026, ~1 hour, Alternative Solution) - System settings integration instead of custom date format picker. Added "Configure Date Format" button in Settings → Appearance that opens OS-specific date/time settings (Windows: Region & Language, macOS: Language & Region). Analysis showed only 3 date displays (chapter publish dates, reading history, error logs) all using toLocaleDateString() which already respects OS settings. Lightweight solution with zero maintenance overhead. See archived-milestones.md for detailed analysis and implementation notes.
 - P3-T18: Some ARIA labels present (reader, buttons, selects), comprehensive audit pending
 - Additional UX features complete but not in original task list: Zoom/fit modes (ZoomControlsModal), progress indicators (ProgressRing/ProgressBar), error/empty states (ErrorBoundary), context menus (LibraryView), download UI (DownloadsView), history UI (HistoryView)
 

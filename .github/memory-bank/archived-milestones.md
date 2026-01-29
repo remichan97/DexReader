@@ -1,8 +1,1078 @@
 # DexReader Archived Milestones
 
-**Purpose**: This file contains detailed implementation notes from completed milestones in chronological order. These are historical records that provide context for past decisions and serve as essential reference material.
+**Purpose**: This file contains detailed implementation notes from completed milestones in reverse chronological order (newest first). These are historical records that provide context for past decisions and serve as essential reference material.
 
-**Last Updated**: 25 January 2026
+**Last Updated**: 29 January 2026
+
+---
+
+## P3-T17 Date Format Preferences: Detailed Implementation (29 January 2026)
+
+### Decision: System Settings Integration vs Custom Picker
+
+**Context**: Originally planned to implement in-app date format picker with multiple format options. After analyzing codebase, determined system integration was superior solution.
+
+### Frontend Date/Time Usage Analysis
+
+**User-Visible Displays (3 locations)**:
+
+1. **HistoryView** - Reading history cards:
+   - Format: Relative time ("2 days ago", "3 hours ago")
+   - Fallback: `toLocaleDateString()` for dates >7 days old
+   - Usage: Shows when user last read manga
+   - Line: HistoryView.tsx:37
+
+2. **ChapterList** (MangaDetailView):
+   - Format: `toLocaleDateString()`
+   - Usage: Chapter publish dates from MangaDex
+   - Visibility: Every chapter in detail view
+   - Line: ChapterList.tsx:237
+
+3. **ErrorLogViewer** (Developer tool):
+   - Format: `toLocaleString()` (date + time)
+   - Usage: Error log timestamps
+   - Audience: Debugging, not regular users
+   - Line: ErrorLogViewer.tsx:111
+
+**Non-User-Visible**:
+
+- connectivityStore: Internal timestamps (not displayed)
+- errorHandler: ISO timestamps for logs (not displayed)
+- progressStore: Unix timestamps for calculations (not displayed raw)
+- collectionsStore: createdAt/updatedAt (not displayed)
+
+### Decision Matrix
+
+| Aspect             | Custom Picker                      | System Integration      |
+| ------------------ | ---------------------------------- | ----------------------- |
+| Implementation     | ~6-8 hours                         | ~1 hour                 |
+| Code Maintenance   | High (format parsing, locale data) | Zero                    |
+| User Benefit       | Format choice in one app           | Format works everywhere |
+| System Consistency | May differ from OS                 | Perfect match           |
+| Testing Burden     | All formats × all locales          | OS tested               |
+
+**Verdict**: System integration wins on all metrics except "format flexibility within app" (which users don't need).
+
+### Technical Implementation
+
+**Backend** (`app-settings.handler.ts`):
+
+```typescript
+wrapIpcHandler('settings:open-system-date-settings', async () => {
+  const platform = process.platform
+
+  if (platform === 'win32') {
+    await shell.openExternal('ms-settings:regionlanguage')
+  } else if (platform === 'darwin') {
+    await shell.openExternal('x-apple.systempreferences:com.apple.preference.international')
+  } else {
+    return false // Linux: no universal way
+  }
+  return true
+})
+```
+
+**Platform URLs**:
+
+- Windows: `ms-settings:regionlanguage` → Settings → Time & Language → Region
+- macOS: `x-apple.systempreferences:com.apple.preference.international` → System Preferences → Language & Region
+- Linux: No URI scheme support, fallback alert with manual instructions
+
+**Frontend** (`AppearanceSettings.tsx`):
+
+- New section: "Date & Time Format"
+- Explanation text: Where dates appear in app
+- Button: "Configure Date Format in System Settings"
+- Handler: Opens OS settings, shows alert if unsupported/failed
+
+**Preload Bridge**:
+
+- Type: `openSystemDateSettings: () => Promise<IpcResponse<boolean>>`
+- Invocation: `globalThis.settings.openSystemDateSettings()`
+
+### User Experience Flow
+
+1. User opens Settings → Appearance tab
+2. Sees "Date & Time Format" section below accent color
+3. Reads: "DexReader uses your system's date and time format settings"
+4. Clicks "Configure Date Format in System Settings"
+5. Windows: Settings app opens to Region settings
+6. User changes short date format (e.g., MM/dd/yyyy → dd/MM/yyyy)
+7. Changes apply immediately to DexReader (browser locale API picks up change)
+
+### Advantages of This Approach
+
+**For Users**:
+
+- ✅ One place to configure dates for ALL apps
+- ✅ Immediate effect across system
+- ✅ Familiar settings UI (OS native)
+- ✅ No learning curve for format syntax
+
+**For Developers**:
+
+- ✅ Zero custom formatting code
+- ✅ No locale data management
+- ✅ No format picker UI
+- ✅ No testing matrix (OS already tested)
+- ✅ Perfect system consistency
+
+**For Maintenance**:
+
+- ✅ OS handles updates/fixes
+- ✅ No breaking changes from format library upgrades
+- ✅ No translation of format options
+- ✅ No accessibility concerns with custom picker
+
+### Files Modified
+
+1. `src/main/ipc/handlers/app-settings.handler.ts` (13 lines added)
+   - New IPC handler with platform detection
+   - Uses `shell.openExternal()` with URI schemes
+   - Returns boolean success indicator
+
+2. `src/renderer/src/views/SettingsView/components/AppearanceSettings.tsx` (28 lines added)
+   - New section after accent color
+   - Handler with fallback alert for unsupported platforms
+   - Explanation text about date usage in app
+
+3. `src/preload/index.d.ts` (1 line added)
+   - Type definition in Settings interface
+
+4. `src/preload/index.ts` (1 line added)
+   - Bridge method mapping to IPC channel
+
+**Total**: ~43 lines of code vs ~500-800 lines for custom picker implementation
+
+### Alternative Considered (Not Implemented)
+
+**Custom Date Format Picker**:
+
+- Format options: ISO 8601, US (MM/DD/YYYY), EU (DD/MM/YYYY), Custom
+- Implementation needs:
+  - Settings field for format preference
+  - Utility function to format dates based on preference
+  - Refactor 3 components to use utility
+  - UI for format selection (dropdown or radio buttons)
+  - Preview of format output
+  - Format parsing/validation
+  - Testing across all format options
+
+**Why Rejected**:
+
+- 8-10x more code
+- Ongoing maintenance burden
+- User confusion (two places to set dates: OS + app)
+- Inconsistency with other apps
+- No significant user benefit over system integration
+
+### Conclusion
+
+System settings integration is objectively superior for this use case. The app has minimal date displays, browser APIs already respect OS settings, and users expect consistent date formatting across applications. Custom picker would be engineering overhead without proportional user value.
+
+---
+
+## P3-T15 Native DexReader Import: Detailed Implementation (29 January 2026)
+
+### Frontend Implementation Overview
+
+**Context**: Complement to P3-T13 export. Allows users to restore `.dexreader` backups with intelligent merge strategies and comprehensive error handling.
+
+### Import Strategies Finalized
+
+**Critical Architectural Decisions**:
+
+1. **Error Handling Architecture**:
+   - **HALT on failure**: Manga/Chapters import (critical sections, everything depends on them)
+   - **CONTINUE on failure**: Collections, Progress, Reader Settings (log to `sectionErrors`, proceed with other sections)
+   - **Within-section**: All-or-nothing transactions (one item fails → entire section fails)
+
+2. **Conflict Resolution by Data Type**:
+
+| Data Type | Strategy | On Conflict | Rationale |
+|-----------|----------|-------------|-----------|
+| Manga | UPSERT | Import wins | Backup restoration, self-healing via API on detail view |
+| Chapters | UPSERT | Import wins | Same as manga, fresh data fetched from API |
+| Collections* | SKIP + MERGE | Merge manga into existing | Same name = same concept, additive is safer |
+| Progress* | UPSERT | Import wins (preserve firstReadAt) | Authoritative reading history from backup |
+| Reader Settings* | SKIP EXISTING | Current wins | Active user preferences take priority |
+
+*Optional sections - only imported if present in backup file (auto-detected via protobuf)
+
+**Important Context**: These strategies only apply when sections exist in the backup. Missing sections result in no action - existing data completely preserved.
+
+### Backend Implementation Details
+
+**Collection ID Mapping** (Critical Fix):
+
+- **Problem**: Import used old collection IDs from backup → FK violations
+- **Solution**: Built `nameToIdMap` from existing collections
+
+  ```typescript
+  const nameToIdMap = new Map(existingCollections.map(c => [c.name, c.id]))
+  const collectionIdMap = new Map<number, number>() // oldId → newId
+
+  // For each backup collection:
+  // - Duplicate name → use existing ID (skip creation, merge manga)
+  // - New name → create new, get new ID
+  ```
+
+- Lines: dexreader-import.service.ts:197-260
+
+**Reader Settings Skip Logic**:
+
+- Fetch all existing overrides: `getAllOverridesWithMetadata()`
+- Create Set of manga IDs with existing settings
+- Filter import list: only import settings for manga without overrides
+- Tracks: `importedReaderOverridesCount`, `skippedReaderSettingsCount`
+
+**Export Scope Fix** (Prerequisite from P3-T13):
+
+- Changed from exporting only `isFavourite = true` manga
+- Now exports ALL cached manga with `isFavourite` field
+- Reason: Reader overrides reference ALL visited manga, not just favourites
+- Prevents FK violations when optional sections included in backup
+
+### Frontend Components
+
+**DexReaderImportDialog** (`src/renderer/src/components/DexReaderImportDialog/`):
+
+**Component Structure**:
+
+- File info display with name extraction
+- Sections preview (Library, Collections, Progress, Reader Settings)
+- Import behavior warnings with detailed bullet points
+- Error handling with display banner
+- Disabled state during import operation
+
+**Features**:
+
+- Windows 11 Fluent Design styling matching export dialog
+- Fluent UI icons: ArrowImport20Regular, Library20Regular, Folder20Regular, BookOpen20Regular, Settings20Regular, Warning20Regular
+- Modal wrapper with focus trap and keyboard navigation
+- State management: `isImporting`, `error`
+- Auto-reset state on dialog close
+
+**Import Behavior Warnings** (educates users):
+
+- "Existing manga will be updated with imported data"
+- "Collections with the same name will be merged"
+- "Your current reader settings take priority"
+- "No data will be deleted from your library"
+
+### LibraryView Integration
+
+**Event Listener** (lines 298-306):
+
+```typescript
+useEffect(() => {
+  const removeListener = globalThis.api.onImportLibrary((filePath: string) => {
+    setImportFilePath(filePath)
+    setImportDialogOpen(true)
+  })
+  return removeListener
+}, [])
+```
+
+**Import Completion Handler** (lines 530-576):
+
+- Calls `globalThis.dexreader.importData(filePath)`
+- Automatically refreshes library: `await fetchLibrary()`
+- Builds multi-part success message:
+  - "Imported: 15 manga, 3 collections, 42 progress entries"
+  - Shows warnings for section errors if any
+- Toast notifications with success/warning variants
+
+**State Management**:
+
+- `importDialogOpen`, `importFilePath` state variables
+- Dialog close handler with cleanup
+
+### Menu Integration
+
+**Already Implemented** (from P3-T13 planning):
+
+- Library → Import Library → From DexReader Backup...
+- Opens file picker with `.dexreader` filter
+- Sends `import-library` event with file path
+- LibraryView listener handles the rest
+
+### Technical Implementation
+
+**Backend** (`dexreader-import.service.ts`):
+
+- All strategies implemented (27 Jan 2026)
+- Collection ID mapping with nameToIdMap
+- Section-level try-catch for optional sections
+- Reader settings filtering
+- Result type with detailed counts and section errors
+
+**IPC Handler** (`dexreader.handler.ts`):
+
+- Channel: `dexreader:import-data`
+- Validates `.dexreader` extension
+- Wraps response with `IpcResponse<T>`
+- Also has `dexreader:cancel-import` for aborting
+
+**Preload Bridge**:
+
+- Type: `importData: (filePath: string) => Promise<IpcResponse<DexReaderImportResult>>`
+- Type exports: DexReaderImportResult with all count fields
+- Invocation: `globalThis.dexreader.importData(filePath)`
+
+**Result Type** (`import.result.ts`):
+
+```typescript
+interface DexReaderImportResult {
+  importedMangaCount: number
+  importedChaptersCount: number
+  importedCollectionsCount: number
+  importedCollectionItemsCount: number
+  importedMangaProgressCount: number
+  importedReaderOverridesCount: number
+  skippedCollectionsCount: number
+  skippedReaderSettingsCount: number
+  sectionErrors: {
+    collections?: string
+    progress?: string
+    readerSettings?: string
+  }
+  message?: string
+}
+```
+
+### User Experience Flow
+
+1. User: Library → Import Library → From DexReader Backup...
+2. System: File picker opens (`.dexreader` files only)
+3. System: Import dialog shows file info, sections list, warnings
+4. User: Clicks "Import Backup"
+5. System: Imports data with merge strategies
+6. System: Refreshes library automatically
+7. System: Shows toast with results
+   - Success: "Imported: 15 manga, 3 collections, 42 progress entries"
+   - With warnings: "Imported: ... Collections import had errors"
+
+### Files Created
+
+1. **Frontend Components** (3 files):
+   - `DexReaderImportDialog.tsx` (162 lines) - Import dialog with file info and warnings
+   - `DexReaderImportDialog.css` (170 lines) - Windows 11 styling matching export dialog
+   - `index.ts` (1 line) - Component export
+
+2. **LibraryView Integration**:
+   - Event listener for `import-library` (9 lines)
+   - Import completion handler with library refresh (47 lines)
+   - State management (2 variables)
+   - Dialog component rendering (6 lines)
+
+**Total Frontend**: ~240 lines of new code
+
+**Backend**: Already implemented in P3-T15 backend work (27 Jan 2026)
+
+### Additional Enhancement
+
+**collectionsStore Signature Update**:
+
+- Changed `addToCollection()` to return `Promise<boolean>`
+- Returns `true` if manga added, `false` if already in collection
+- CollectionPickerDialog uses this for duplicate feedback
+- Enables "Added to 2 collection(s), already in 1 collection(s)" messages
+
+### Testing Considerations
+
+**Manual Test Scenarios**:
+
+- Import with all sections (collections + progress + reader settings)
+- Import with partial sections (library only)
+- Import duplicate manga (should skip)
+- Import with existing collections (should merge)
+- Import with missing collections (should create)
+- Import progress for non-existent manga (should skip)
+- Section errors (should continue with other sections)
+- Invalid file format (should show error)
+- Corrupted backup (should show error)
+- Menu shortcut triggers dialog correctly
+- Library refreshes after import
+- Toast notifications show correct counts
+
+### Integration with P3-T13 Export
+
+**Complete Backup/Restore Cycle**:
+
+1. Export from Device A with selective options
+2. Transfer `.dexreader` file to Device B
+3. Import on Device B with automatic section detection
+4. Smart merge preserves existing data where appropriate
+5. Library automatically refreshes to show imported content
+
+**Cross-Device Scenarios**:
+
+- Fresh install → full restore from backup
+- Existing library → merge with conflict resolution
+- Partial backups → only restore selected sections
+- Multiple imports → additive (collections merge, manga upsert)
+
+### Advantages of Implementation
+
+**For Users**:
+
+- ✅ Seamless backup/restore across devices
+- ✅ Smart merge prevents data loss
+- ✅ Section errors don't block entire import
+- ✅ Automatic library refresh shows changes immediately
+- ✅ Clear feedback about what was imported
+
+**For Developers**:
+
+- ✅ Section-level error handling enables graceful degradation
+- ✅ Strategy pattern makes conflict resolution explicit
+- ✅ Type-safe with IpcResponse wrapper
+- ✅ Reuses existing repository methods
+- ✅ Backend/frontend cleanly separated via IPC
+
+### Conclusion
+
+Native import completes the backup/restore system. Users can confidently backup their libraries with selective options, then restore on any device with intelligent merge strategies. The implementation prioritizes data safety (no deletions), user control (section-level errors), and system consistency (FK integrity maintained).
+
+---
+
+## P3-T13 Native DexReader Export (25 January 2026)
+
+### Backend Audit & Fixes (10 Critical Issues)
+
+During implementation, discovered and fixed 10 issues in export service:
+
+1. **Typo**: `inlcludeProgress` → `includeProgress`
+2. **Duplicate Block**: Removed duplicate reader settings export logic
+3. **App Version**: Now reads from package.json (was hardcoded)
+4. **Helper Performance**: Use raw database rows instead of mapped objects
+5. **Missing Field**: Added `position` field to CollectionItemQuery
+6. **New Methods**: `getLibraryMangaForExport()`, `getChaptersByMangaIds()`
+7. **Query Fix**: Chapter query uses Drizzle's `inArray()` (was causing SQL errors)
+
+### Reader Settings Consolidation (Major Architectural Fix)
+
+**Problem Discovered**: Reader settings stored in TWO places (settings.json + database) → inconsistency risk
+
+**Solution**:
+
+- Database is now single source of truth for reader overrides
+- Created `MangaOverride` query type with full metadata (title, coverUrl, readerSettings)
+- New method: `getAllOverridesWithMetadata()` (joins manga + manga_reader_overrides)
+- Settings page loads from database via IPC (replaced JSON parsing)
+- Export service reads from database with complete metadata
+
+**Impact**: Eliminated dual-source data problem preventing settings conflicts
+
+### Protobuf Schema Renaming
+
+- All 8 types: `Backup*` → `DexReader*` prefix
+- Prevents naming conflicts with Mihon format (also uses Backup\* prefix)
+- Types: DexReaderBackup, DexReaderManga, DexReaderChapter, DexReaderCollection, DexReaderCollectionItem, DexReaderMangaProgress, DexReaderChapterProgress, DexReaderMangaReaderOverride
+
+### Export Features
+
+- **File Format**: Protobuf proto3 + gzip → `.dexreader` extension
+- **Always Included**: Library (manga + cached chapters)
+- **Optional Sections**: Collections, Progress, Reader Settings (user checkboxes)
+- **Dialog**: Modal with Fluent UI icons, Windows 11 styling
+- **Menu**: Library → Export DexReader Backup (Ctrl+Shift+E)
+- **Notifications**: Toast for success/error states
+
+### Technical Details
+
+**Files Created**:
+
+- Backend: Export service, export helper, query types, repository methods
+- Frontend: DexReaderExportDialog component + CSS
+
+**Files Modified**:
+
+- `dexreader-export.service.ts` - Fixed all 10 issues
+- `reader-settings.repo.ts` - Added `getAllOverridesWithMetadata()`
+- `manga.repo.ts` - Added `getLibraryMangaForExport()`
+- `chapter.repo.ts` - Added `getChaptersByMangaIds()` with inArray fix
+- `manga-override.query.ts` - Extended with metadata
+- `manga.mapper.ts` - Added `toMangaOverrideQuery()` mapper
+- `LibraryView.tsx` - Export dialog integration
+- `SettingsView.tsx` - Database queries replace JSON parsing
+- All protobuf type files - Renamed Backup*→ DexReader*
+
+**Result**: Complete native export system. Database is single source of truth for settings. Import (P3-T15) ready for implementation.
+
+---
+
+## P3-T16 Danger Zone: Implementation Details (22 January 2026)
+
+### Backend Service
+
+- DestructionRepository with transaction safety
+- FK constraint handling (disable → clear → enable)
+- sqlite_sequence reset for auto-increment
+- VACUUM for database optimization
+- Dev mode handling (exit vs relaunch)
+
+### Frontend Implementation
+
+- Three operations: Open Settings, Reset to Default, Clear All Data
+- Native Electron dialogs for confirmation
+- Separate loading indicators per button
+- Button variants: accent (orange) for reset, danger (red) for clear
+
+### Post-Implementation Improvements
+
+1. **IPC Wrapper Consistency**: Added settings.load() and settings.save() to preload
+2. **IpcResponse Handling**: Fixed 10 calls to check .success and extract .data
+3. **Theme Persistence Migration**: Moved from localStorage to settings.json
+4. **Zustand Store Cleanup**: Removed persist middleware (redundant layer)
+
+**Architectural Pattern Established**: All IPC calls use wrapped handlers returning IpcResponse<T>
+
+---
+
+## P3-T14 Mihon Export: Implementation Details (22 January 2026)
+
+### Backend Implementation
+
+- Protobuf encoding with mihon.proto schema
+- Tag ID→name reverse mapping
+- Unix timestamp format (seconds since epoch)
+- Collection mapping (DexReader collections → Mihon categories)
+- BigInt serialization fix (protobuf.js requires string for int64)
+- Gzip compression for file size reduction
+
+### Frontend Integration
+
+- Toast notifications for success/failure
+- Menu integration (Library → Export → To Mihon/Tachiyomi Backup)
+- File save dialog with .proto.gz extension
+- Duplicate toast bug fix (IPC listener cleanup)
+
+### Technical Challenges Solved
+
+1. **BigInt Serialization**: Changed from Number() to toString() for int64 fields
+2. **Duplicate Toast Bug**: Added IPC listener cleanup on unmount
+3. **Type Definitions**: Corrected MangaDemographic and PublicationStatus types
+4. **Collection Mapping**: DexReader collections → Mihon categories with order field
+
+---
+
+## P3-T12 Mihon Import: Implementation Details (14 January 2026)
+
+**Duration**: ~6 hours (14 January 2026)
+**Status**: Complete and tested ✅
+
+### What Was Implemented
+
+**1. Backend Import Service** (MihonService + MihonBackupHelper):
+
+- Protobuf parsing with `protobufjs` and gzip decompression via `pako`
+- MangaDex source filtering (source ID: `2499283573021220255n`)
+- Batch manga upsert with tag name→ID conversion using `TagNameToIdMap`
+- Collection mapping with fallback keys for uncategorized manga
+- Chapter progress import with actual reading timestamps from `BackupHistory`
+- Chapter metadata import for History view (title, number, scanlationGroup)
+- BigInt/Long comparison handling for protobuf source field
+- Favorite field detection via `toJSON()` with `?? true` fallback
+- URL-based ID extraction for manga and chapters
+
+**2. IPC Integration**:
+
+- `mihon:import-backup` handler with AbortController support
+- `mihon:cancel-import` for cancellation
+- Preload type definitions with local `ImportResult` interface
+- Event system: `import-tachiyomi` triggered from File menu
+
+**3. Frontend UI Components** (3 new components):
+
+- **ImportProgressDialog**: Shows indeterminate progress, manga counts, cancel button
+- **ImportResultDialog**: Success/warning/error states, stats cards, expandable error list
+- **LibraryView integration**: Event listener, state management, ref-based double-import prevention
+
+**4. Build Configuration**:
+
+- Vite plugin to copy `mihon.proto` schema to build output
+- Dependencies: `protobufjs@7.4.0`, `pako@2.1.0`
+
+**5. Data Imported**:
+
+- ✅ Manga metadata (title, author, cover, description, status, tags)
+- ✅ Collections/categories (creates new collections, maps manga to them)
+- ✅ Reading progress (currentPage, completed status)
+- ✅ Reading history timestamps (preserves actual lastRead dates)
+- ✅ Chapter metadata (title, number, scanlationGroup for History view)
+
+### Key Technical Solutions
+
+**Tag Conversion**:
+
+- Created `TagNameToIdMap` from `TagList` constant (76 tag mappings)
+- Supports both PascalCase ("SliceOfLife") and space-separated ("Slice of Life")
+- Filters out undefined IDs with type guard
+
+**Timestamp Handling**:
+
+- History Map lookup: O(1) chapter URL → lastRead timestamp
+- Falls back to `new Date()` if history entry missing
+- Uses `unixTimestampToDate()` util for conversion
+
+**Double-Import Prevention**:
+
+- `useRef` for synchronous guard (not `useState` batching)
+- `importingRef.current` checked/set immediately
+- Prevents race conditions from rapid event firing
+
+**Field Name Alignment**:
+
+- Backend: `importedMangaCount`, `skippedMangaCount`, `failedMangaCount`
+- Frontend interfaces updated to match
+- Error field: `reason` (not `message`)
+
+**Page Tracking**:
+
+- Both systems use 0-based array indexing
+- Direct mapping: `BackupChapter.lastPageRead` → `chapter_progress.currentPage`
+- Display adds +1 for human-readable page numbers
+
+### Files Created/Modified
+
+**Backend**:
+
+- `mihon.services.ts` - Main import orchestration
+- `mihon-backup.helper.ts` - Business logic (4 methods)
+- `mihon.handler.ts` - IPC handlers
+- `import.result.ts` - Result type
+- `save-progress.command.ts` - Added optional `lastReadAt` field
+- `manga-progress.repo.ts` - Updated to handle timestamps
+- `tag-list.constant.ts` - Complete MangaDex tag UUID list
+- `mihon.proto` - Protobuf schema (copied)
+
+**Frontend**:
+
+- `ImportProgressDialog.tsx` (96 lines) + CSS
+- `ImportResultDialog.tsx` (180 lines) + CSS
+- `LibraryView.tsx` - Event integration with ref guard
+
+**Build**:
+
+- `electron.vite.config.ts` - Copy protobuf schema plugin
+
+### Testing & Edge Cases
+
+✅ **Tested Scenarios**:
+
+- Large library import (23+ manga)
+- Manga already in library (skip logic)
+- Missing chapter IDs (graceful skip)
+- Empty history array (falls back to now)
+- Protobuf Long vs BigInt comparison
+- Optional favorite field (library-only backups)
+- Tag name variations (PascalCase, spaces)
+- Double toast prevention (ref guard)
+
+### Result
+
+Complete Mihon/Tachiyomi import functionality. Users can migrate their entire library including reading progress and collections. History view shows correct chapter info and timestamps. All edge cases handled gracefully.
+
+---
+
+## P3-T01 Library Features: Detailed Implementation (3-5 January 2026)
+
+### Progress Tracking Fixes = P3-T01 Foundation
+
+**Context**: What started as "regression fixes" actually implemented significant portions of P3-T01's data layer. We completed repository expansions, IPC handlers, type definitions, and opportunistic caching.
+
+**Issues Resolved** (9 total):
+
+1. **Progress Display Not Refreshing** - Detail view showing stale data after returning from reader
+   - **Root Cause**: React Router component caching, no dependency on navigation changes
+   - **Fix**: Added useEffect watching `location.pathname` to reload progress
+   - **Files**: MangaDetailView.tsx
+
+2. **Reader Ignoring Saved Progress** - Always starting at page 0 despite saved currentPage
+   - **Root Cause**: useState initialization not checking locationState
+   - **Fix**: Changed to `locationState?.startPage ?? 0`, added chapter change detection with startPage/startAtLastPage handling
+   - **Files**: ReaderView.tsx
+
+3. **Chapter List Missing Progress Indicators** - No per-chapter progress display in detail view
+   - **Root Cause**: Database schema incomplete (MangaProgress missing currentPage/completed), no IPC endpoint for chapter queries
+   - **Fix**: Extended MangaProgress interface, created `getAllChapterProgress` IPC handler, updated ChapterList component
+   - **Files**: manga-progress.query.ts, manga-progress.repo.ts, progress-tracking.handler.ts, ChapterList.tsx, MangaDetailView.tsx
+
+4. **Network Retry Resetting Completion Status** - Completed chapters marked incomplete after retry
+   - **Root Cause**: useProgressTracking re-initializing on loading/error state changes
+   - **Fix**: Removed loading/error from effect dependencies, added conditional check before initial save
+   - **Files**: useProgressTracking.ts
+
+5. **History View Missing Chapter Metadata** - Showing "Ch. ?" instead of chapter numbers/titles
+   - **Root Cause**: Chapter metadata not cached in database during reading
+   - **Fix**: Implemented chapter caching system - saves chapter metadata when reading starts
+   - **Files**: chapter.schema.ts, manga-progress.repo.ts, progress-tracking.handler.ts, ReaderView.tsx, preload files
+
+6. **Statistics Showing Zero** - All reading stats displaying 0 despite active reading
+   - **Root Cause**: Query filtering only completed chapters, incorrect page count formula
+   - **Fix**: Removed `.where(eq(completed, true))` filter, changed to `SUM(currentPage + 1)`
+   - **Files**: reading-stats.repo.ts
+
+7. **History Missing Language Information** - No indication which translation was read
+   - **Root Cause**: Language data not exposed in metadata, no UI component for display
+   - **Fix**: Added `language?: string` to MangaProgressMetadata, created language badge with localized names
+   - **Files**: manga-progress-metadata.query.ts, HistoryView.tsx, HistoryView.css
+
+8. **TypeScript Import Error** - "Module 'src/preload' has no exported member 'ChapterProgress'"
+   - **Root Cause**: Incorrect module path resolution in renderer
+   - **Fix**: Changed import from 'src/preload' to relative path '../../../preload/index.d'
+   - **Files**: MangaDetailView.tsx
+
+9. **Empty State Icons Too Small** - 24px variants not visually prominent
+   - **Root Cause**: Using smaller icon variants, some icon families lacking 48px versions
+   - **Fix**: Upgraded to 48px variants (BookOpen48Regular, Search48Regular, Warning48Regular)
+   - **Files**: LibraryView.tsx
+
+---
+
+## Database Migration: Detailed Implementation (December 2025)
+
+### Phase 1: Database Infrastructure (27 December 2025)
+
+**Duration**: ~4 hours
+
+**What Was Done**:
+
+- ✅ Installed Drizzle ORM + better-sqlite3
+- ✅ Created database schema definitions (9 tables)
+- ✅ Database connection manager with performance pragmas (WAL mode, 64MB cache, mmap)
+- ✅ Migration system using Drizzle's built-in migrator
+- ✅ Fixed migration SQL syntax errors (CHECK constraint, triggers)
+- ✅ Configured build system to bundle migrations (Vite plugin, asarUnpack)
+
+**Files Created**:
+
+- `src/main/database/connection.ts` - Database manager
+- `src/main/database/schema/*.schema.ts` - 9 table schemas
+- `src/main/database/migrations/migrations.ts` - Migration runner
+- `src/main/database/migrations/0000_first-migration.sql` - Initial schema
+- `electron.vite.config.ts` - Updated with migration copy plugin
+
+**Database Configuration**:
+
+- Location: `AppData/dexreader.db` (dev: `./dexreader-dev.db`)
+- WAL mode enabled (concurrent reads/writes)
+- 64MB cache, 256MB memory-mapped I/O
+- Foreign keys enforced
+- Automatic statistics triggers
+
+### Phase 2: Testing the Waters (27 December 2025)
+
+**Duration**: ~1.5 hours
+
+**What Was Done**:
+
+- ✅ Added database methods to settingsManager.ts
+- ✅ Verified database connection works
+- ✅ Confirmed method calls reach database layer
+
+**Current Status**:
+
+- ⚠️ Reader override saves fail due to empty manga table (FK constraint)
+- ✅ **Decision Made**: Option A - Minimal manga caching in Phase 3 (+1-2 hours)
+- Rationale: Development build, get functionality working now, expand in main Phase 3
+
+### Phase 3: Progress Migration with Lean Entities (27-28 December 2025)
+
+**Duration**: ~8 hours
+
+**Major Refactor Decision**:
+
+- **Decision**: Refactor bloated `MangaProgress` entity during migration
+- **Rationale**: Current entity duplicates data (title, cover, reader settings, chapter metadata). Database schema is already normalized. Better to fix now than require another refactoring pass.
+
+**New Entity Structure**:
+
+```typescript
+// Lean (matches manga_progress table)
+interface MangaProgress {
+  mangaId
+  lastChapterId
+  firstReadAt
+  lastReadAt
+}
+
+// Rich (for history view - uses JOINs)
+interface MangaProgressWithMetadata {
+  // Progress + metadata from manga/chapter tables
+}
+```
+
+**What Was Implemented**:
+
+- Created lean MangaProgress and ChapterProgress entities
+- Created MangaProgressWithMetadata for rich queries
+- Implemented MangaProgressRepository with CRUD + JOINs + statistics
+- Minimal manga caching (inserts minimal records for FK constraints)
+- Updated all frontend views (Store, HistoryView, MangaDetailView, ReaderView)
+- Switched IPC handlers from ProgressManager to repository
+- Removed old ProgressManager and progress/ folder
+
+**CQRS-Inspired Folder Structure**:
+
+- `database/queries/` - Query result types (read models)
+- `database/commands/` - Command types (write models)
+- Repository pattern for data access layer
+
+---
+
+## Guerilla Refactoring: Detailed Implementation (December 2025)
+
+### Backend Refactoring (Before 22 December 2025)
+
+**Phase 0: Settings IPC Integration**
+
+- Created app-settings.handler.ts
+- Handlers: settings:load, settings:save with validation
+- Validation: Field-level (accentColor, theme) and section-level (appearance, downloads, reader)
+- Impact: Frontend can no longer bypass SettingsManager
+
+**Phase 1: main/index.ts Refactoring**
+
+- Result: 357 lines → 78 lines (78% reduction, -279 lines)
+- Files Created:
+  - window.ts (46 lines) - createWindow, getMainWindow, window management
+  - app-lifecycle.ts (20 lines) - setupAppLifecycle with app events
+- Pattern: Extract window and lifecycle logic, keep main as orchestrator
+
+**Phase 2: IPC Handler Organization**
+
+- Result: 347 lines → 32 lines registry (91% reduction, -315 lines)
+- Files Created (7 domain handlers):
+  - app-settings.handler.ts - settings operations
+  - dialogs.handler.ts - dialog operations
+  - file-systems.handler.ts - filesystem operations
+  - mangadex.handler.ts - MangaDex API operations
+  - progress-tracking.handler.ts - progress tracking
+  - reader-settings.handler.ts - per-manga settings
+  - theme.handler.ts - theme operations
+- Pattern: Split by domain, registry.ts becomes orchestrator calling registration functions
+
+**Phase 3: menu.ts Refactoring**
+
+- Files Created:
+  - file.menu.ts (41 lines) - File menu
+  - help.menu.ts (42 lines) - Help menu
+  - library.menu.ts (130 lines) - Library menu
+  - tools.menu.ts (38 lines) - Tools menu
+  - view.menu.ts (57 lines) - View menu
+  - menu-state.ts (9 lines) - MenuState interface
+  - index.ts (21 lines) - Menu orchestrator
+- Pattern: Extract by menu section, support state-based building
+
+**Phase 4: Settings Validation**
+
+- Created types.validator.ts (201 lines)
+- Validation Types:
+  - Field-level: accentColor (hex format), theme (enum)
+  - Section-level: appearance, downloads, reader settings
+  - Type guards: isAppearanceSettings, isDownloadsSettings, isReaderSettings
+  - Enum validation: AppTheme, ReadingMode, ImageQuality
+- Pattern: Comprehensive validation before any settings write
+
+### Frontend Refactoring (22 December 2025)
+
+**Phase 1: ReaderView Refactoring**
+
+- Result: 2,189 lines → 753 lines (68.6% reduction, -1,436 lines)
+- Components Created:
+  - 8 custom hooks: useReaderSettings, usePagePairs, useReaderNavigation, useReaderKeyboard, useReaderZoom, useImagePreload, useChapterData, useProgressTracking
+  - 4 display components: PageDisplay, DoublePageDisplay, VerticalScrollDisplay, EndOfChapterOverlay
+- Pattern: Extract logic into hooks, extract UI into components, main file orchestrates
+
+**Phase 2: MangaDetailView Refactoring**
+
+- Result: 1,104 lines → 439 lines (60.2% reduction, -665 lines)
+- Components Created:
+  - MangaHeroSection.tsx (193 lines) - cover image, metadata, action buttons, StatusBadge, DemographicBadge
+  - DescriptionSection.tsx (45 lines) - description with expand/collapse
+  - ExternalLinksSection.tsx (88 lines) - external service links with confirmation
+  - TagsSection.tsx (55 lines) - genre tags with navigation
+  - ChapterList.tsx (288 lines) - language filter, sorting, progress tracking, ChapterItem
+- Pattern: Extract sections into focused components, maintain cache and state in main file
+
+**Phase 3: SettingsView Refactoring**
+
+- Result: 803 lines → 448 lines (44.2% reduction, -355 lines)
+- Components Created:
+  - AppearanceSettings.tsx (92 lines) - theme mode, accent color picker, system color
+  - ReaderSettingsSection.tsx (275 lines) - force dark mode, image quality, reading mode, per-manga overrides
+  - StorageSettings.tsx (77 lines) - downloads folder location
+  - AdvancedSettings.tsx (9 lines) - error log viewer wrapper
+- Pattern: Extract settings sections, keep state management and handlers in main file
+
+---
+
+## P2-T11 Reading Modes (20 December 2025)
+
+### Decision: System Settings Integration vs Custom Picker
+
+**Context**: Originally planned to implement in-app date format picker with multiple format options. After analyzing codebase, determined system integration was superior solution.
+
+### Frontend Date/Time Usage Analysis
+
+**User-Visible Displays (3 locations)**:
+
+1. **HistoryView** - Reading history cards:
+   - Format: Relative time ("2 days ago", "3 hours ago")
+   - Fallback: `toLocaleDateString()` for dates >7 days old
+   - Usage: Shows when user last read manga
+   - Line: HistoryView.tsx:37
+
+2. **ChapterList** (MangaDetailView):
+   - Format: `toLocaleDateString()`
+   - Usage: Chapter publish dates from MangaDex
+   - Visibility: Every chapter in detail view
+   - Line: ChapterList.tsx:237
+
+3. **ErrorLogViewer** (Developer tool):
+   - Format: `toLocaleString()` (date + time)
+   - Usage: Error log timestamps
+   - Audience: Debugging, not regular users
+   - Line: ErrorLogViewer.tsx:111
+
+**Non-User-Visible**:
+
+- connectivityStore: Internal timestamps (not displayed)
+- errorHandler: ISO timestamps for logs (not displayed)
+- progressStore: Unix timestamps for calculations (not displayed raw)
+- collectionsStore: createdAt/updatedAt (not displayed)
+
+### Decision Matrix
+
+| Aspect             | Custom Picker                      | System Integration      |
+| ------------------ | ---------------------------------- | ----------------------- |
+| Implementation     | ~6-8 hours                         | ~1 hour                 |
+| Code Maintenance   | High (format parsing, locale data) | Zero                    |
+| User Benefit       | Format choice in one app           | Format works everywhere |
+| System Consistency | May differ from OS                 | Perfect match           |
+| Testing Burden     | All formats × all locales          | OS tested               |
+
+**Verdict**: System integration wins on all metrics except "format flexibility within app" (which users don't need).
+
+### Technical Implementation
+
+**Backend** (`app-settings.handler.ts`):
+
+```typescript
+wrapIpcHandler('settings:open-system-date-settings', async () => {
+  const platform = process.platform
+
+  if (platform === 'win32') {
+    await shell.openExternal('ms-settings:regionlanguage')
+  } else if (platform === 'darwin') {
+    await shell.openExternal('x-apple.systempreferences:com.apple.preference.international')
+  } else {
+    return false // Linux: no universal way
+  }
+  return true
+})
+```
+
+**Platform URLs**:
+
+- Windows: `ms-settings:regionlanguage` → Settings → Time & Language → Region
+- macOS: `x-apple.systempreferences:com.apple.preference.international` → System Preferences → Language & Region
+- Linux: No URI scheme support, fallback alert with manual instructions
+
+**Frontend** (`AppearanceSettings.tsx`):
+
+- New section: "Date & Time Format"
+- Explanation text: Where dates appear in app
+- Button: "Configure Date Format in System Settings"
+- Handler: Opens OS settings, shows alert if unsupported/failed
+
+**Preload Bridge**:
+
+- Type: `openSystemDateSettings: () => Promise<IpcResponse<boolean>>`
+- Invocation: `globalThis.settings.openSystemDateSettings()`
+
+### User Experience Flow
+
+1. User opens Settings → Appearance tab
+2. Sees "Date & Time Format" section below accent color
+3. Reads: "DexReader uses your system's date and time format settings"
+4. Clicks "Configure Date Format in System Settings"
+5. Windows: Settings app opens to Region settings
+6. User changes short date format (e.g., MM/dd/yyyy → dd/MM/yyyy)
+7. Changes apply immediately to DexReader (browser locale API picks up change)
+
+### Advantages of This Approach
+
+**For Users**:
+
+- ✅ One place to configure dates for ALL apps
+- ✅ Immediate effect across system
+- ✅ Familiar settings UI (OS native)
+- ✅ No learning curve for format syntax
+
+**For Developers**:
+
+- ✅ Zero custom formatting code
+- ✅ No locale data management
+- ✅ No format picker UI
+- ✅ No testing matrix (OS already tested)
+- ✅ Perfect system consistency
+
+**For Maintenance**:
+
+- ✅ OS handles updates/fixes
+- ✅ No breaking changes from format library upgrades
+- ✅ No translation of format options
+- ✅ No accessibility concerns with custom picker
+
+### Files Modified
+
+1. `src/main/ipc/handlers/app-settings.handler.ts` (13 lines added)
+   - New IPC handler with platform detection
+   - Uses `shell.openExternal()` with URI schemes
+   - Returns boolean success indicator
+
+2. `src/renderer/src/views/SettingsView/components/AppearanceSettings.tsx` (28 lines added)
+   - New section after accent color
+   - Handler with fallback alert for unsupported platforms
+   - Explanation text about date usage in app
+
+3. `src/preload/index.d.ts` (1 line added)
+   - Type definition in Settings interface
+
+4. `src/preload/index.ts` (1 line added)
+   - Bridge method mapping to IPC channel
+
+**Total**: ~43 lines of code vs ~500-800 lines for custom picker implementation
+
+### Alternative Considered (Not Implemented)
+
+**Custom Date Format Picker**:
+
+- Format options: ISO 8601, US (MM/DD/YYYY), EU (DD/MM/YYYY), Custom
+- Implementation needs:
+  - Settings field for format preference
+  - Utility function to format dates based on preference
+  - Refactor 3 components to use utility
+  - UI for format selection (dropdown or radio buttons)
+  - Preview of format output
+  - Format parsing/validation
+  - Testing across all format options
+
+**Why Rejected**:
+
+- 8-10x more code
+- Ongoing maintenance burden
+- User confusion (two places to set dates: OS + app)
+- Inconsistency with other apps
+- No significant user benefit over system integration
+
+### Conclusion
+
+System settings integration is objectively superior for this use case. The app has minimal date displays, browser APIs already respect OS settings, and users expect consistent date formatting across applications. Custom picker would be engineering overhead without proportional user value.
 
 ---
 
@@ -231,9 +1301,7 @@ chapters: Record<string, ChapterProgress>
 
 ---
 
-## Guerilla Refactoring: Detailed Implementation (December 2025)
-
-### Backend Refactoring (Before 22 December 2025)
+This file serves as essential reference material for understanding past implementations. Entries are in reverse chronological order (newest first) for easy navigation. Refer to `active-context.md` for current session information and `project-progress.md` for milestone summaries.
 
 **Phase 0: Settings IPC Integration**
 
@@ -318,7 +1386,7 @@ chapters: Record<string, ChapterProgress>
 
 ---
 
-## Database Migration: Detailed Implementation (December 2025)
+This file serves as essential reference material for understanding past implementations. Entries are in reverse chronological order (newest first) for easy navigation. Refer to `active-context.md` for current session information and `project-progress.md` for milestone summaries.
 
 ### Phase 1: Database Infrastructure (27 December 2025)
 
@@ -409,211 +1477,4 @@ interface MangaProgressWithMetadata {
 
 ---
 
-## P3-T01 Library Features: Detailed Implementation (3-5 January 2026)
-
-### Progress Tracking Fixes = P3-T01 Foundation
-
-**Context**: What started as "regression fixes" actually implemented significant portions of P3-T01's data layer. We completed repository expansions, IPC handlers, type definitions, and opportunistic caching.
-
-**Issues Resolved** (9 total):
-
-1. **Progress Display Not Refreshing** - Detail view showing stale data after returning from reader
-   - **Root Cause**: React Router component caching, no dependency on navigation changes
-   - **Fix**: Added useEffect watching `location.pathname` to reload progress
-   - **Files**: MangaDetailView.tsx
-
-2. **Reader Ignoring Saved Progress** - Always starting at page 0 despite saved currentPage
-   - **Root Cause**: useState initialization not checking locationState
-   - **Fix**: Changed to `locationState?.startPage ?? 0`, added chapter change detection with startPage/startAtLastPage handling
-   - **Files**: ReaderView.tsx
-
-3. **Chapter List Missing Progress Indicators** - No per-chapter progress display in detail view
-   - **Root Cause**: Database schema incomplete (MangaProgress missing currentPage/completed), no IPC endpoint for chapter queries
-   - **Fix**: Extended MangaProgress interface, created `getAllChapterProgress` IPC handler, updated ChapterList component
-   - **Files**: manga-progress.query.ts, manga-progress.repo.ts, progress-tracking.handler.ts, ChapterList.tsx, MangaDetailView.tsx
-
-4. **Network Retry Resetting Completion Status** - Completed chapters marked incomplete after retry
-   - **Root Cause**: useProgressTracking re-initializing on loading/error state changes
-   - **Fix**: Removed loading/error from effect dependencies, added conditional check before initial save
-   - **Files**: useProgressTracking.ts
-
-5. **History View Missing Chapter Metadata** - Showing "Ch. ?" instead of chapter numbers/titles
-   - **Root Cause**: Chapter metadata not cached in database during reading
-   - **Fix**: Implemented chapter caching system - saves chapter metadata when reading starts
-   - **Files**: chapter.schema.ts, manga-progress.repo.ts, progress-tracking.handler.ts, ReaderView.tsx, preload files
-
-6. **Statistics Showing Zero** - All reading stats displaying 0 despite active reading
-   - **Root Cause**: Query filtering only completed chapters, incorrect page count formula
-   - **Fix**: Removed `.where(eq(completed, true))` filter, changed to `SUM(currentPage + 1)`
-   - **Files**: reading-stats.repo.ts
-
-7. **History Missing Language Information** - No indication which translation was read
-   - **Root Cause**: Language data not exposed in metadata, no UI component for display
-   - **Fix**: Added `language?: string` to MangaProgressMetadata, created language badge with localized names
-   - **Files**: manga-progress-metadata.query.ts, HistoryView.tsx, HistoryView.css
-
-8. **TypeScript Import Error** - "Module 'src/preload' has no exported member 'ChapterProgress'"
-   - **Root Cause**: Incorrect module path resolution in renderer
-   - **Fix**: Changed import from 'src/preload' to relative path '../../../preload/index.d'
-   - **Files**: MangaDetailView.tsx
-
-9. **Empty State Icons Too Small** - 24px variants not visually prominent
-   - **Root Cause**: Using smaller icon variants, some icon families lacking 48px versions
-   - **Fix**: Upgraded to 48px variants (BookOpen48Regular, Search48Regular, Warning48Regular)
-   - **Files**: LibraryView.tsx
-
----
-
-## P3-T12 Mihon Import: Implementation Details (14 January 2026)
-
-### Backend Service Complete
-
-- Protobuf decoding with proper BigInt/Long handling
-- Tag name→ID conversion (76 tag mappings)
-- Favorite field detection (isFavourite vs favorite)
-- Timestamp conversion (Unix seconds to Date objects)
-- Double-import prevention (checks existing manga/collections)
-- Batch operations for performance
-- Progress tracking with chapter metadata caching
-
-### Frontend UI Complete
-
-- ImportProgressDialog with ProgressRing
-- ImportResultDialog with stats breakdown
-- Toast notifications for errors
-- Menu integration (Library → Import → From Mihon/Tachiyomi Backup)
-- File dialog with .proto.gz and .tachibk extensions
-- Loading states and error recovery
-
-### Key Technical Challenges Solved
-
-1. **BigInt Serialization**: Protobuf uses Long objects, needed toString() conversion
-2. **Tag Mapping**: Created comprehensive tag name→ID lookup table
-3. **Field Naming**: Mihon uses 'favorite' (boolean), DexReader uses 'isFavourite'
-4. **Duplicate Prevention**: Query existing manga/collections before insert
-5. **Chapter Metadata**: Cache minimal chapter data for history view
-
----
-
-## P3-T14 Mihon Export: Implementation Details (22 January 2026)
-
-### Backend Implementation
-
-- Protobuf encoding with mihon.proto schema
-- Tag ID→name reverse mapping
-- Unix timestamp format (seconds since epoch)
-- Collection mapping (DexReader collections → Mihon categories)
-- BigInt serialization fix (protobuf.js requires string for int64)
-- Gzip compression for file size reduction
-
-### Frontend Integration
-
-- Toast notifications for success/failure
-- Menu integration (Library → Export → To Mihon/Tachiyomi Backup)
-- File save dialog with .proto.gz extension
-- Duplicate toast bug fix (IPC listener cleanup)
-
-### Technical Challenges Solved
-
-1. **BigInt Serialization**: Changed from Number() to toString() for int64 fields
-2. **Duplicate Toast Bug**: Added IPC listener cleanup on unmount
-3. **Type Definitions**: Corrected MangaDemographic and PublicationStatus types
-4. **Collection Mapping**: DexReader collections → Mihon categories with order field
-
----
-
-## P3-T16 Danger Zone: Implementation Details (22 January 2026)
-
-### Backend Service
-
-- DestructionRepository with transaction safety
-- FK constraint handling (disable → clear → enable)
-- sqlite_sequence reset for auto-increment
-- VACUUM for database optimization
-- Dev mode handling (exit vs relaunch)
-
-### Frontend Implementation
-
-- Three operations: Open Settings, Reset to Default, Clear All Data
-- Native Electron dialogs for confirmation
-- Separate loading indicators per button
-- Button variants: accent (orange) for reset, danger (red) for clear
-
-### Post-Implementation Improvements
-
-1. **IPC Wrapper Consistency**: Added settings.load() and settings.save() to preload
-2. **IpcResponse Handling**: Fixed 10 calls to check .success and extract .data
-3. **Theme Persistence Migration**: Moved from localStorage to settings.json
-4. **Zustand Store Cleanup**: Removed persist middleware (redundant layer)
-
-**Architectural Pattern Established**: All IPC calls use wrapped handlers returning IpcResponse<T>
-
----
-
-## P3-T13 Native DexReader Export (25 January 2026)
-
-### Backend Audit & Fixes (10 Critical Issues)
-
-During implementation, discovered and fixed 10 issues in export service:
-
-1. **Typo**: `inlcludeProgress` → `includeProgress`
-2. **Duplicate Block**: Removed duplicate reader settings export logic
-3. **App Version**: Now reads from package.json (was hardcoded)
-4. **Helper Performance**: Use raw database rows instead of mapped objects
-5. **Missing Field**: Added `position` field to CollectionItemQuery
-6. **New Methods**: `getLibraryMangaForExport()`, `getChaptersByMangaIds()`
-7. **Query Fix**: Chapter query uses Drizzle's `inArray()` (was causing SQL errors)
-
-### Reader Settings Consolidation (Major Architectural Fix)
-
-**Problem Discovered**: Reader settings stored in TWO places (settings.json + database) → inconsistency risk
-
-**Solution**:
-
-- Database is now single source of truth for reader overrides
-- Created `MangaOverride` query type with full metadata (title, coverUrl, readerSettings)
-- New method: `getAllOverridesWithMetadata()` (joins manga + manga_reader_overrides)
-- Settings page loads from database via IPC (replaced JSON parsing)
-- Export service reads from database with complete metadata
-
-**Impact**: Eliminated dual-source data problem preventing settings conflicts
-
-### Protobuf Schema Renaming
-
-- All 8 types: `Backup*` → `DexReader*` prefix
-- Prevents naming conflicts with Mihon format (also uses Backup\* prefix)
-- Types: DexReaderBackup, DexReaderManga, DexReaderChapter, DexReaderCollection, DexReaderCollectionItem, DexReaderMangaProgress, DexReaderChapterProgress, DexReaderMangaReaderOverride
-
-### Export Features
-
-- **File Format**: Protobuf proto3 + gzip → `.dexreader` extension
-- **Always Included**: Library (manga + cached chapters)
-- **Optional Sections**: Collections, Progress, Reader Settings (user checkboxes)
-- **Dialog**: Modal with Fluent UI icons, Windows 11 styling
-- **Menu**: Library → Export DexReader Backup (Ctrl+Shift+E)
-- **Notifications**: Toast for success/error states
-
-### Technical Details
-
-**Files Created**:
-
-- Backend: Export service, export helper, query types, repository methods
-- Frontend: DexReaderExportDialog component + CSS
-
-**Files Modified**:
-
-- `dexreader-export.service.ts` - Fixed all 10 issues
-- `reader-settings.repo.ts` - Added `getAllOverridesWithMetadata()`
-- `manga.repo.ts` - Added `getLibraryMangaForExport()`
-- `chapter.repo.ts` - Added `getChaptersByMangaIds()` with inArray fix
-- `manga-override.query.ts` - Extended with metadata
-- `manga.mapper.ts` - Added `toMangaOverrideQuery()` mapper
-- `LibraryView.tsx` - Export dialog integration
-- `SettingsView.tsx` - Database queries replace JSON parsing
-- All protobuf type files - Renamed Backup*→ DexReader*
-
-**Result**: Complete native export system. Database is single source of truth for settings. Import (P3-T15) ready for implementation.
-
----
-
-This file serves as essential reference material for understanding past implementations. Entries are in chronological order for easy navigation. Refer to `active-context.md` for current session information and `project-progress.md` for milestone summaries.
+This file serves as essential reference material for understanding past implementations. Entries are in reverse chronological order (newest first) for easy navigation. Refer to `active-context.md` for current session information and `project-progress.md` for milestone summaries.
