@@ -28,94 +28,83 @@ export class MihonExportService {
     const chapterMetadataMap = new Map<string, ChapterWithMetadata>()
     const backupMangaList: BackupManga[] = []
     let backupCategories: BackupCategory[] = []
-    try {
-      //Grab all Library manga first
-      const library = mangaRepository.getLibraryManga()
 
-      if (library.length === 0) {
-        return {
-          exportedCount: 0,
-          message: 'No manga in Library, nothing to export.'
+    //Grab all Library manga first
+    const library = mangaRepository.getLibraryManga()
+
+    if (library.length === 0) {
+      throw new Error('No manga in library, nothing to export')
+    }
+
+    // Then current collections, as well as its items
+    const collections = collectionRepo.getAllCollections()
+    const collectionItems = collectionRepo.getAllCollectionItems()
+
+    for (const item of collectionItems) {
+      const existing = categoryMap.get(item.mangaId) || []
+      categoryMap.set(item.mangaId, [...existing, item.collectionId])
+    }
+
+    // We then build BackupCategory array
+    backupCategories = collections.map((col, idx) => {
+      return mihonExport.buildBackupCategory(col, idx)
+    })
+
+    // Finally, we build BackupManga array
+
+    for (const it of library) {
+      const chapterProgressList = progressRepo.getAllChapterProgress(it.mangaId)
+
+      // Grab chapters metadata
+      for (const chProgress of chapterProgressList) {
+        const metadata = chapterRepo.getChapterById(chProgress.chapterId)
+        if (metadata) {
+          chapterMetadataMap.set(chProgress.chapterId, metadata)
         }
       }
 
-      // Then current collections, as well as its items
-      const collections = collectionRepo.getAllCollections()
-      const collectionItems = collectionRepo.getAllCollectionItems()
-
-      for (const item of collectionItems) {
-        const existing = categoryMap.get(item.mangaId) || []
-        categoryMap.set(item.mangaId, [...existing, item.collectionId])
-      }
-
-      // We then build BackupCategory array
-      backupCategories = collections.map((col, idx) => {
-        return mihonExport.buildBackupCategory(col, idx)
+      // Build BackupChapter array
+      const backupChapters = chapterProgressList.map((chProgress) => {
+        const metadata = chapterMetadataMap.get(chProgress.chapterId)
+        return mihonExport.buildBackupChapter(chProgress, metadata)
       })
 
-      // Finally, we build BackupManga array
+      // Build BackupHistory array
+      const backupHistory = chapterProgressList.map((chProgress) => {
+        return mihonExport.buildBackupHistory(chProgress)
+      })
 
-      for (const it of library) {
-        const chapterProgressList = progressRepo.getAllChapterProgress(it.mangaId)
+      // Get categories for the manga
+      const categories = categoryMap.get(it.mangaId) || []
 
-        // Grab chapters metadata
-        for (const chProgress of chapterProgressList) {
-          const metadata = chapterRepo.getChapterById(chProgress.chapterId)
-          if (metadata) {
-            chapterMetadataMap.set(chProgress.chapterId, metadata)
-          }
-        }
+      // Build BackupManga object
+      const backupManga = mihonExport.buildBackupManga(
+        it,
+        categories,
+        backupChapters,
+        backupHistory
+      )
 
-        // Build BackupChapter array
-        const backupChapters = chapterProgressList.map((chProgress) => {
-          const metadata = chapterMetadataMap.get(chProgress.chapterId)
-          return mihonExport.buildBackupChapter(chProgress, metadata)
-        })
+      backupMangaList.push(backupManga)
+    }
 
-        // Build BackupHistory array
-        const backupHistory = chapterProgressList.map((chProgress) => {
-          return mihonExport.buildBackupHistory(chProgress)
-        })
+    const exportData: Backup = {
+      backupManga: backupMangaList,
+      backupCategories: backupCategories
+    }
 
-        // Get categories for the manga
-        const categories = categoryMap.get(it.mangaId) || []
+    const root = await protobuf.load(this.schemaPath)
+    const BackupType = root.lookupType('Backup')
+    const message = BackupType.create(exportData)
+    const buffer = BackupType.encode(message).finish()
 
-        // Build BackupManga object
-        const backupManga = mihonExport.buildBackupManga(
-          it,
-          categories,
-          backupChapters,
-          backupHistory
-        )
+    // Compress with gzip and save to file
+    const compressed = Pako.gzip(buffer)
 
-        backupMangaList.push(backupManga)
-      }
+    await fs.writeFile(savePath, compressed)
 
-      const exportData: Backup = {
-        backupManga: backupMangaList,
-        backupCategories: backupCategories
-      }
-
-      const root = await protobuf.load(this.schemaPath)
-      const BackupType = root.lookupType('Backup')
-      const message = BackupType.create(exportData)
-      const buffer = BackupType.encode(message).finish()
-
-      // Compress with gzip and save to file
-      const compressed = Pako.gzip(buffer)
-
-      await fs.writeFile(savePath, compressed)
-
-      return {
-        exportedCount: backupMangaList.length,
-        message: 'Mihon data exported successfully.'
-      }
-    } catch (error) {
-      console.error('Error exporting Mihon data:', error)
-      return {
-        exportedCount: 0,
-        error: (error as Error).message || 'An unknown error occurred during export.'
-      }
+    return {
+      exportedCount: backupMangaList.length
     }
   }
 }

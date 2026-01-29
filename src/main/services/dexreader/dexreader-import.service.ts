@@ -92,7 +92,6 @@ export class DexReaderImportService {
       } catch (error) {
         // If collection import fails, it's okay to continue, just log the error
         libraryResult.sectionErrors.collection = (error as Error).message
-        libraryResult.message = 'Import completed with some errors'
         libraryResult.importedCollectionsCount = 0
         libraryResult.importedCollectionItemsCount = 0
       }
@@ -109,7 +108,6 @@ export class DexReaderImportService {
       } catch (error) {
         // If progress import fails, it's okay to continue, just log the error
         libraryResult.sectionErrors.progress = (error as Error).message
-        libraryResult.message = 'Import completed with some errors'
         libraryResult.importedMangaProgressCount = 0
       }
     }
@@ -122,11 +120,9 @@ export class DexReaderImportService {
         // If reader settings import fails, it's okay to continue, just log the error
         libraryResult.sectionErrors.readerSettings = (error as Error).message
         libraryResult.importedReaderOverridesCount = 0
-        libraryResult.message = 'Import completed with some errors'
       }
     }
 
-    libraryResult.message = 'Import completed successfully'
     return libraryResult
   }
 
@@ -152,8 +148,7 @@ export class DexReaderImportService {
       importedReaderOverridesCount: 0,
       skippedCollectionsCount: 0,
       skippedReaderSettingsCount: 0,
-      sectionErrors: {},
-      message: ''
+      sectionErrors: {}
     }
 
     for (const item of manga) {

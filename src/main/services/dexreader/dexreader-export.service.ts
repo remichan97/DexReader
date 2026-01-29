@@ -32,68 +32,53 @@ export class DexReaderExportService {
     savePath: string,
     options: DexreaderExportOption
   ): Promise<DexReaderExportResult> {
-    try {
-      const libraryData: LibraryData = this.fetchLibraryData(options)
+    const libraryData: LibraryData = this.fetchLibraryData(options)
 
-      if (libraryData.mangaList.length === 0) {
-        return {
-          filePath: savePath,
-          exportedMangaCount: 0,
-          exportedChaptersCount: 0,
-          message: 'No manga in Library, nothing to export.'
-        }
-      }
+    if (libraryData.mangaList.length === 0) {
+      throw new Error('No manga in library, nothing to export')
+    }
 
-      const backup: DexReaderBackup = {
-        schemaVersion: 1,
-        exportedAt: Date.now(),
-        appVersion: version,
-        library: libraryData
-      }
+    const backup: DexReaderBackup = {
+      schemaVersion: 1,
+      exportedAt: Date.now(),
+      appVersion: version,
+      library: libraryData
+    }
 
-      if (options.includeCollections) {
-        const collectionsData: CollectionsData = this.fetchCollectionData()
-        backup.collections = collectionsData
-      }
+    if (options.includeCollections) {
+      const collectionsData: CollectionsData = this.fetchCollectionData()
+      backup.collections = collectionsData
+    }
 
-      if (options.includeProgress) {
-        const progressData: ProgressData = this.fetchProgressData()
-        backup.progress = progressData
-      }
+    if (options.includeProgress) {
+      const progressData: ProgressData = this.fetchProgressData()
+      backup.progress = progressData
+    }
 
-      if (options.includeReaderSettings) {
-        const readerSettingsData: ReaderSettingsData = this.fetchReaderSettingsData()
-        backup.readerSettings = readerSettingsData
-      }
+    if (options.includeReaderSettings) {
+      const readerSettingsData: ReaderSettingsData = this.fetchReaderSettingsData()
+      backup.readerSettings = readerSettingsData
+    }
 
-      const root = await protobuf.load(this.schemaPath)
-      const BackupType = root.lookupType('DexReaderBackup')
-      const message = BackupType.create(backup)
-      const buffer = BackupType.encode(message).finish()
-      const compressed = Pako.gzip(buffer)
+    const root = await protobuf.load(this.schemaPath)
+    const BackupType = root.lookupType('DexReaderBackup')
+    const message = BackupType.create(backup)
+    const buffer = BackupType.encode(message).finish()
+    const compressed = Pako.gzip(buffer)
 
-      await fs.writeFile(savePath, compressed)
+    await fs.writeFile(savePath, compressed)
 
-      return {
-        filePath: savePath,
-        exportedMangaCount: libraryData.mangaList.length,
-        exportedChaptersCount: libraryData.chapterList.length,
-        exportedCollectionsCount: backup.collections ? backup.collections.collectionList.length : 0,
-        exportedProgressCount: backup.progress
-          ? backup.progress.mangaProgress.length + backup.progress.chapterProgress.length
-          : 0,
-        exportedReaderSettingsCount: backup.readerSettings
-          ? backup.readerSettings.overrides.length
-          : 0
-      }
-    } catch (error) {
-      console.error('Failed to export DexReader data:', error)
-      return {
-        filePath: savePath,
-        exportedMangaCount: 0,
-        exportedChaptersCount: 0,
-        message: `Export failed: ${(error as Error).message}`
-      }
+    return {
+      filePath: savePath,
+      exportedMangaCount: libraryData.mangaList.length,
+      exportedChaptersCount: libraryData.chapterList.length,
+      exportedCollectionsCount: backup.collections ? backup.collections.collectionList.length : 0,
+      exportedProgressCount: backup.progress
+        ? backup.progress.mangaProgress.length + backup.progress.chapterProgress.length
+        : 0,
+      exportedReaderSettingsCount: backup.readerSettings
+        ? backup.readerSettings.overrides.length
+        : 0
     }
   }
 

@@ -5,5 +5,4 @@ export interface DexReaderExportResult {
   exportedCollectionsCount?: number
   exportedProgressCount?: number
   exportedReaderSettingsCount?: number
-  message?: string
 }

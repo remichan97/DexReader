@@ -48,7 +48,7 @@ export function DexReaderImportDialog({
       const result = await globalThis.dexreader.importData(filePath)
 
       if (!result.success) {
-        throw new Error(result.error || 'Import failed')
+        throw new Error(result.error?.message || 'Import failed')
       }
 
       onImportComplete(result.data)

@@ -51,9 +51,7 @@ export class MihonBackupService {
       return isMangaDex && isFavourite
     })
 
-    // No MangaDex manga found in backup, return early
-    // Probably error out on the UI side?
-    // or show 0 imported manga message?
+    // No MangaDex manga found in backup, return empty result
     if (mangadexManga.length === 0) {
       return {
         importedMangaCount: 0,

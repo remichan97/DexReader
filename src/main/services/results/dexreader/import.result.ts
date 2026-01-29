@@ -10,5 +10,4 @@ export interface DexReaderImportResult {
   skippedCollectionsCount: number
   skippedReaderSettingsCount: number
   sectionErrors: DexReaderSectionImportErrorResult
-  message?: string
 }

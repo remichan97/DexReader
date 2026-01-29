@@ -232,7 +232,7 @@ export function LibraryView(): JSX.Element {
           // Import failed
           show({
             title: 'Import Failed',
-            message: response.error || 'Could not import backup file',
+            message: response.error?.message || 'Could not import backup file',
             variant: 'error',
             duration: 4000
           })
@@ -270,7 +270,7 @@ export function LibraryView(): JSX.Element {
         } else {
           show({
             title: 'Export Failed',
-            message: response.error || 'Could not export library',
+            message: response.error?.message || 'Could not export library',
             variant: 'error',
             duration: 4000
           })
@@ -469,7 +469,7 @@ export function LibraryView(): JSX.Element {
         // Reload library to show update indicators
         await loadFavourites()
       } else {
-        throw new Error(response.error || 'Unknown error')
+        throw new Error(response.error?.message || 'Unknown error')
       }
     } catch (error) {
       console.error('Error checking for updates:', error)
@@ -502,7 +502,7 @@ export function LibraryView(): JSX.Element {
       } else {
         show({
           title: 'Export Failed',
-          message: response.error || 'Could not export library',
+          message: response.error?.message || 'Could not export library',
           variant: 'error',
           duration: 4000
         })
@@ -529,7 +529,8 @@ export function LibraryView(): JSX.Element {
 
   const handleImportComplete = async (result: DexReaderImportResult): Promise<void> => {
     // Refresh library to show imported manga
-    await fetchLibrary()
+    await loadFavourites()
+    await loadCollections()
 
     // Build success message
     const parts: string[] = []
@@ -551,7 +552,7 @@ export function LibraryView(): JSX.Element {
     // Show warnings for section errors if any
     const warnings: string[] = []
     if (result.sectionErrors) {
-      if (result.sectionErrors.collections) {
+      if (result.sectionErrors.collection) {
         warnings.push('Collections import had errors')
       }
       if (result.sectionErrors.progress) {
