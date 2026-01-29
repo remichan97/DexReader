@@ -98,9 +98,10 @@ export class DexReaderExportService {
   }
 
   private fetchLibraryData(options: DexreaderExportOption): LibraryData {
-    // If we need to export progress or reader settings, we need all manga data
+    // If we need to export collections, progress, or reader settings, we need all manga data
+    // to prevent FK violations (these sections can reference non-favourite manga)
     const mangaList =
-      options.includeProgress || options.includeReaderSettings
+      options.includeCollections || options.includeProgress || options.includeReaderSettings
         ? mangaRepository.getAllManga()
         : mangaRepository.getLibraryMangaForExport()
 

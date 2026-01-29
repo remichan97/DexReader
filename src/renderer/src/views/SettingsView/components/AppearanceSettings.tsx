@@ -35,6 +35,19 @@ export function AppearanceSettings({
     }
   }
 
+  const handleOpenDateSettings = async (): Promise<void> => {
+    const result = await globalThis.settings.openSystemDateSettings()
+    if (!result.success || !result.data) {
+      // Fallback message if platform not supported or failed
+      alert(
+        'Unable to open system settings automatically. Please open your system date/time settings manually:\n\n' +
+          'Windows: Settings → Time & Language → Region\n' +
+          'macOS: System Preferences → Language & Region\n' +
+          'Linux: Check your desktop environment settings'
+      )
+    }
+  }
+
   return (
     <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div>
@@ -91,6 +104,23 @@ export function AppearanceSettings({
               : 'Using custom accent color. Click "Use System" to restore system color.'}
           </p>
         </div>
+      </div>
+
+      <div>
+        <h4 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
+          Date & Time Format
+        </h4>
+        <p style={{ fontSize: '14px', color: 'var(--win-text-secondary)', marginBottom: '12px' }}>
+          DexReader uses your system&lsquo;s date and time format settings. Dates are displayed in
+          chapter lists, reading history, and error logs.
+        </p>
+        <Button variant="secondary" onClick={handleOpenDateSettings}>
+          Configure Date Format in System Settings
+        </Button>
+        <p style={{ fontSize: '13px', color: 'var(--win-text-secondary)', marginTop: '8px' }}>
+          This will open your operating system&apos;s regional settings where you can customize date
+          and time formats.
+        </p>
       </div>
     </div>
   )

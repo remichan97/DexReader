@@ -18,6 +18,8 @@ import {
   DexReaderExportDialog,
   type ExportOptions
 } from '@renderer/components/DexReaderExportDialog'
+import { DexReaderImportDialog } from '@renderer/components/DexReaderImportDialog'
+import type { DexReaderImportResult } from '../../../../preload/index.d'
 import { useLibraryStore, useCollectionsStore, useToastStore } from '@renderer/stores'
 
 // ImportResult interface matches src/main/services/results/import.result.ts
@@ -156,6 +158,8 @@ export function LibraryView(): JSX.Element {
   const [exportDialogOpen, setExportDialogOpen] = useState(false)
   const [exportFilePath, setExportFilePath] = useState<string | null>(null)
   const [isExporting, setIsExporting] = useState(false)
+  const [importDialogOpen, setImportDialogOpen] = useState(false)
+  const [importFilePath, setImportFilePath] = useState<string | null>(null)
 
   // Stores
   const { favourites, loading, error, loadFavourites, toggleFavourite } = useLibraryStore()
@@ -290,6 +294,16 @@ export function LibraryView(): JSX.Element {
     const removeListener = globalThis.api.onExportLibrary((filePath: string) => {
       setExportFilePath(filePath)
       setExportDialogOpen(true)
+    })
+
+    return removeListener
+  }, [])
+
+  // Listen for DexReader import events from main process
+  useEffect(() => {
+    const removeListener = globalThis.api.onImportLibrary((filePath: string) => {
+      setImportFilePath(filePath)
+      setImportDialogOpen(true)
     })
 
     return removeListener
@@ -511,6 +525,54 @@ export function LibraryView(): JSX.Element {
       setExportDialogOpen(false)
       setExportFilePath(null)
     }
+  }
+
+  const handleImportComplete = async (result: DexReaderImportResult): Promise<void> => {
+    // Refresh library to show imported manga
+    await fetchLibrary()
+
+    // Build success message
+    const parts: string[] = []
+    if (result.importedMangaCount > 0) {
+      parts.push(`${result.importedMangaCount} manga`)
+    }
+    if (result.importedCollectionsCount > 0) {
+      parts.push(`${result.importedCollectionsCount} collections`)
+    }
+    if (result.importedMangaProgressCount > 0) {
+      parts.push(`${result.importedMangaProgressCount} progress entries`)
+    }
+    if (result.importedReaderOverridesCount > 0) {
+      parts.push(`${result.importedReaderOverridesCount} reader settings`)
+    }
+
+    const message = parts.length > 0 ? `Imported: ${parts.join(', ')}` : 'Import complete'
+
+    // Show warnings for section errors if any
+    const warnings: string[] = []
+    if (result.sectionErrors) {
+      if (result.sectionErrors.collections) {
+        warnings.push('Collections import had errors')
+      }
+      if (result.sectionErrors.progress) {
+        warnings.push('Progress import had errors')
+      }
+      if (result.sectionErrors.readerSettings) {
+        warnings.push('Reader settings import had errors')
+      }
+    }
+
+    show({
+      title: warnings.length > 0 ? 'Import Completed with Warnings' : 'Import Complete',
+      message: warnings.length > 0 ? `${message}. ${warnings.join(', ')}` : message,
+      variant: warnings.length > 0 ? 'warning' : 'success',
+      duration: 5000
+    })
+  }
+
+  const handleCloseImportDialog = (): void => {
+    setImportDialogOpen(false)
+    setImportFilePath(null)
   }
 
   const handleCancelImport = async (): Promise<void> => {
@@ -899,6 +961,13 @@ export function LibraryView(): JSX.Element {
         onClose={handleCloseExportDialog}
         onExport={handleExport}
         isExporting={isExporting}
+      />
+
+      <DexReaderImportDialog
+        isOpen={importDialogOpen}
+        filePath={importFilePath}
+        onClose={handleCloseImportDialog}
+        onImportComplete={handleImportComplete}
       />
     </div>
   )

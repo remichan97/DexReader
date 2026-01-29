@@ -201,6 +201,7 @@ interface Settings {
   openFile: () => Promise<IpcResponse<boolean>>
   resetToDefaults: () => Promise<IpcResponse<boolean>>
   clearAllData: () => Promise<IpcResponse<boolean>>
+  openSystemDateSettings: () => Promise<IpcResponse<boolean>>
 }
 
 interface DexReader {

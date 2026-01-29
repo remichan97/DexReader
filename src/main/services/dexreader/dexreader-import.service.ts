@@ -71,67 +71,63 @@ export class DexReaderImportService {
       )
     }
 
-    // Initialize result outside try block to preserve partial progress on abort
-    let libraryResult: DexReaderImportResult = {
-      importedMangaCount: 0,
-      importedChaptersCount: 0,
-      importedCollectionsCount: 0,
-      importedCollectionItemsCount: 0,
-      importedMangaProgressCount: 0,
-      importedReaderOverridesCount: 0,
-      skippedMangaCount: 0,
-      skippedChaptersCount: 0,
-      skippedCollectionsCount: 0,
-      errors: [],
-      message: ''
-    }
+    // Now we begin the import, starting with the library data, to make sure no FK constraints are violated
+    // No try/catch here, no manga data, no collections, no progress, no reader settings as manga must exist first
+    const libraryResult = this.importMangaData(
+      importData.library.mangaList,
+      importData.library.chapterList,
+      signal
+    )
 
-    try {
-      // Now we begin the import, starting with the library data, to make sure no FK constraints are violated
-      libraryResult = this.importMangaData(
-        importData.library.mangaList,
-        importData.library.chapterList,
-        signal
-      )
-
-      // Next, we work on collections
-      // Skip collections if none are present
-      if (importData.collections && importData.collections.collectionList.length > 0) {
+    // Next, we work on collections
+    // Skip collections if none are present
+    if (importData.collections && importData.collections.collectionList.length > 0) {
+      try {
         this.importCollectionsData(
           importData.collections?.collectionList,
           importData.collections?.collectionItems,
           signal,
           libraryResult
         )
+      } catch (error) {
+        // If collection import fails, it's okay to continue, just log the error
+        libraryResult.sectionErrors.collection = (error as Error).message
+        libraryResult.message = 'Import completed with some errors'
+        libraryResult.importedCollectionsCount = 0
+        libraryResult.importedCollectionItemsCount = 0
       }
-      // As well as the progress data, reading stats should be calculated the moment the progress data are flowing in
-      if (importData.progress) {
+    }
+    // As well as the progress data, reading stats should be calculated the moment the progress data are flowing in
+    if (importData.progress) {
+      try {
         this.importProgressData(
           importData.progress.mangaProgress,
           importData.progress.chapterProgress,
           signal,
           libraryResult
         )
+      } catch (error) {
+        // If progress import fails, it's okay to continue, just log the error
+        libraryResult.sectionErrors.progress = (error as Error).message
+        libraryResult.message = 'Import completed with some errors'
+        libraryResult.importedMangaProgressCount = 0
       }
-
-      // Finally work on reader settings overrides
-      if (importData.readerSettings) {
-        this.importMangaReaderOverrides(importData.readerSettings.overrides, signal, libraryResult)
-      }
-
-      libraryResult.message = 'Import completed successfully'
-      return libraryResult
-    } catch (error) {
-      // Handle user-initiated cancellation separately
-      if (error instanceof Error && error.name === 'AbortError') {
-        libraryResult.message = 'Import cancelled by user'
-        return libraryResult
-      }
-
-      // Log and re-throw actual errors
-      console.error('Error during DexReader import:', error)
-      throw error
     }
+
+    // Finally work on reader settings overrides
+    if (importData.readerSettings) {
+      try {
+        this.importMangaReaderOverrides(importData.readerSettings.overrides, signal, libraryResult)
+      } catch (error) {
+        // If reader settings import fails, it's okay to continue, just log the error
+        libraryResult.sectionErrors.readerSettings = (error as Error).message
+        libraryResult.importedReaderOverridesCount = 0
+        libraryResult.message = 'Import completed with some errors'
+      }
+    }
+
+    libraryResult.message = 'Import completed successfully'
+    return libraryResult
   }
 
   cancelImport(): void {
@@ -154,21 +150,25 @@ export class DexReaderImportService {
       importedCollectionItemsCount: 0,
       importedMangaProgressCount: 0,
       importedReaderOverridesCount: 0,
-      skippedMangaCount: 0,
-      skippedChaptersCount: 0,
       skippedCollectionsCount: 0,
-      errors: [],
+      skippedReaderSettingsCount: 0,
+      sectionErrors: {},
       message: ''
     }
 
     for (const item of manga) {
       signal.throwIfAborted()
       upsertMangaCommand.push(dexreaderImport.processUpsertMangaCommand(item))
+      // Count only favourite manga as imported
+      if (item.isFavourite) {
+        result.importedMangaCount += 1
+      }
     }
 
     for (const item of chapter) {
       signal.throwIfAborted()
       saveChapterCommand.push(dexreaderImport.processSaveChapterCommand(item))
+      result.importedChaptersCount += 1
     }
 
     // Final signal check before we start the database operations
@@ -190,33 +190,73 @@ export class DexReaderImportService {
     result: DexReaderImportResult
   ): void {
     const createCollectionCommand: CreateCollectionCommand[] = []
-    const addToCollectionCommand: AddToCollectionCommand[] = []
+
+    // Step 1: Build name→ID map of existing collections (for SKIP + MERGE)
+    const existingCollections = collectionRepo.getAllCollections()
+    const nameToIdMap = new Map(existingCollections.map((c) => [c.name, c.id]))
+
+    // Step 2: Build oldId→newId mapping for collection ID translation
+    const collectionIdMap = new Map<number, number>()
+
+    // Track which collections from backup need to be created
+    const collectionsToCreate: DexReaderCollection[] = []
 
     for (const item of collections) {
       signal.throwIfAborted()
-      createCollectionCommand.push(dexreaderImport.processCreateCollectionCommand(item))
-    }
 
-    for (const item of collectionItems) {
-      signal.throwIfAborted()
-      addToCollectionCommand.push(dexreaderImport.processAddToCollectionCommand(item))
+      const existingId = nameToIdMap.get(item.name)
+      if (existingId === undefined) {
+        // New collection - will be created
+        collectionsToCreate.push(item)
+        createCollectionCommand.push(dexreaderImport.processCreateCollectionCommand(item))
+      } else {
+        // Collection already exists - map old ID to existing ID (MERGE strategy)
+        collectionIdMap.set(item.id, existingId)
+        result.skippedCollectionsCount += 1
+      }
     }
 
     // Final signal check before we start the database operations
     signal.throwIfAborted()
 
-    // Early return if there's nothing to import
-    if (createCollectionCommand.length === 0 && addToCollectionCommand.length === 0) {
-      return
+    // Step 3: Create new collections and map their old IDs to new IDs
+    if (createCollectionCommand.length > 0) {
+      const newCollectionIds = collectionRepo.batchCreateCollections(createCollectionCommand)
+      result.importedCollectionsCount = newCollectionIds.length
+
+      // Map each old collection ID to its new database ID
+      for (let i = 0; i < collectionsToCreate.length; i++) {
+        collectionIdMap.set(collectionsToCreate[i].id, newCollectionIds[i])
+      }
     }
 
-    // Now we can perform the database operations
-    // We assume that collections are created in the same order as they were exported
-    const createdCollections = collectionRepo.batchCreateCollections(createCollectionCommand)
-    result.importedCollectionsCount = createdCollections.length
+    // Step 4: Add manga to collections using the mapped IDs
+    const addToCollectionCommand: AddToCollectionCommand[] = []
 
-    collectionRepo.batchAddToCollection(addToCollectionCommand)
-    result.importedCollectionItemsCount = addToCollectionCommand.length
+    for (const item of collectionItems) {
+      signal.throwIfAborted()
+
+      // Translate old collection ID to new ID
+      const newCollectionId = collectionIdMap.get(item.collectionId)
+
+      if (newCollectionId === undefined) {
+        // Collection wasn't imported (shouldn't happen, but defensive)
+        continue
+      }
+
+      addToCollectionCommand.push({
+        collectionId: newCollectionId, // Use the NEW mapped ID
+        mangaId: item.mangaId
+      })
+    }
+
+    // Final signal check before adding items
+    signal.throwIfAborted()
+
+    if (addToCollectionCommand.length > 0) {
+      collectionRepo.batchAddToCollection(addToCollectionCommand)
+      result.importedCollectionItemsCount = addToCollectionCommand.length
+    }
   }
 
   private importProgressData(
@@ -260,8 +300,15 @@ export class DexReaderImportService {
   ): void {
     const updateMangaOverrideCommand: UpdateMangaOverrideCommand[] = []
 
+    const currentSettings = readerSettingsRepo.getAllOverridesWithMetadata()
+
     for (const item of overrides) {
       signal.throwIfAborted()
+      // Skip overrides that already exist in the database
+      if (currentSettings.some((s) => s.mangaId === item.mangaId)) {
+        result.skippedReaderSettingsCount += 1
+        continue
+      }
       updateMangaOverrideCommand.push(dexreaderImport.processSaveReaderOverrideCommand(item))
     }
 

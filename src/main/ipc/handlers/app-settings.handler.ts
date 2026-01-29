@@ -86,4 +86,25 @@ export function registerAppSettingsHandlers(): void {
     app.exit(0)
     return true
   })
+
+  wrapIpcHandler('settings:open-system-date-settings', async () => {
+    const platform = process.platform
+
+    try {
+      if (platform === 'win32') {
+        // Windows: Open Region & Language settings
+        await shell.openExternal('ms-settings:regionlanguage')
+      } else if (platform === 'darwin') {
+        // macOS: Open Language & Region in System Preferences
+        await shell.openExternal('x-apple.systempreferences:com.apple.preference.international')
+      } else {
+        // Linux: No universal way, return false to indicate unsupported
+        return false
+      }
+      return true
+    } catch (error) {
+      console.error('Failed to open system date settings:', error)
+      return false
+    }
+  })
 }

@@ -279,7 +279,8 @@ const settings = {
   save: (key: string, value: unknown) => ipcRenderer.invoke('settings:save', key, value),
   openFile: () => ipcRenderer.invoke('settings:open-settings-file'),
   resetToDefaults: () => ipcRenderer.invoke('settings:reset-to-defaults'),
-  clearAllData: () => ipcRenderer.invoke('settings:clear-all')
+  clearAllData: () => ipcRenderer.invoke('settings:clear-all'),
+  openSystemDateSettings: () => ipcRenderer.invoke('settings:open-system-date-settings')
 }
 
 const dexReader = {
