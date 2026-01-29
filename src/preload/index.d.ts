@@ -177,7 +177,7 @@ interface Collections {
   createCollection: (command: CreateCollectionCommand) => Promise<IpcResponse<CollectionEntity>>
   updateCollection: (command: UpdateCollectionCommand) => Promise<IpcResponse<CollectionEntity>>
   deleteCollection: (collectionId: number) => Promise<IpcResponse<void>>
-  addToCollection: (command: AddToCollectionCommand) => Promise<IpcResponse<void>>
+  addToCollection: (command: AddToCollectionCommand) => Promise<IpcResponse<boolean>>
   removeFromCollection: (command: RemoveFromCollectionCommand[]) => Promise<IpcResponse<void>>
   reorderMangaInCollection: (command: ReorderMangaInCollectionCommand) => Promise<IpcResponse<void>>
 }

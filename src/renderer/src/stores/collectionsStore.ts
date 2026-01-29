@@ -25,7 +25,7 @@ interface CollectionsState {
   createCollection: (command: { name: string; description?: string }) => Promise<Collection | null>
   updateCollection: (command: { id: number; name?: string; description?: string }) => Promise<void>
   deleteCollection: (collectionId: number) => Promise<void>
-  addToCollection: (command: { collectionId: number; mangaId: string }) => Promise<void>
+  addToCollection: (command: { collectionId: number; mangaId: string }) => Promise<boolean>
   removeFromCollection: (
     commands: Array<{ collectionId: number; mangaId: string }>
   ) => Promise<void>
@@ -110,18 +110,22 @@ export const useCollectionsStore = create<CollectionsState>()((set, get) => ({
   },
 
   // Add manga to a collection
-  addToCollection: async (command: { collectionId: number; mangaId: string }) => {
+  // Returns true if the manga was added, false if it was already in the collection
+  addToCollection: async (command: { collectionId: number; mangaId: string }): Promise<boolean> => {
     try {
       const result = await globalThis.collections.addToCollection(command)
       if (!result.success) {
         const errorMsg =
           typeof result.error === 'string' ? result.error : 'Failed to add manga to collection'
         set({ error: errorMsg })
+        return false
       }
       // Note: We don't reload collections here as it doesn't change the collection list
+      return result.data // true if added, false if already existed
     } catch (error) {
       console.error('Error adding manga to collection:', error)
       set({ error: 'Failed to add manga to collection' })
+      return false
     }
   },
 

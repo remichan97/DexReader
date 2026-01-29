@@ -89,8 +89,10 @@ export function CollectionPickerDialog({
 
     try {
       // Add to selected collections
-      const addPromises = Array.from(selectedCollections).map((collectionId) =>
-        addToCollection({ collectionId, mangaId })
+      const addResults = await Promise.all(
+        Array.from(selectedCollections).map((collectionId) =>
+          addToCollection({ collectionId, mangaId })
+        )
       )
 
       // Remove from unselected collections (batch operation)
@@ -98,12 +100,23 @@ export function CollectionPickerDialog({
         .filter((c) => !selectedCollections.has(c.id))
         .map((c) => ({ collectionId: c.id, mangaId }))
 
-      const removePromise =
-        collectionsToRemove.length > 0
-          ? removeFromCollection(collectionsToRemove)
-          : Promise.resolve()
+      if (collectionsToRemove.length > 0) {
+        await removeFromCollection(collectionsToRemove)
+      }
 
-      await Promise.all([...addPromises, removePromise])
+      // Provide feedback based on results
+      const addedCount = addResults.filter((result) => result === true).length
+      const alreadyInCount = addResults.filter((result) => result === false).length
+
+      if (addedCount > 0 && alreadyInCount > 0) {
+        console.info(
+          `Added to ${addedCount} collection(s), already in ${alreadyInCount} collection(s)`
+        )
+      } else if (addedCount > 0) {
+        console.info(`Added to ${addedCount} collection(s)`)
+      } else if (alreadyInCount > 0) {
+        console.info(`Already in ${alreadyInCount} collection(s)`)
+      }
 
       onClose()
     } catch (error) {

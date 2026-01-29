@@ -152,22 +152,26 @@ export class CollectionRepository {
             mangaId: cmd.mangaId,
             addedAt: now
           })
+          .onConflictDoNothing()
           .run()
       }
     })
   }
 
-  addToCollection(command: AddToCollectionCommand): void {
+  addToCollection(command: AddToCollectionCommand): boolean {
     const now = new Date()
 
-    this.db
+    const result = this.db
       .insert(collectionItems)
       .values({
         collectionId: command.collectionId,
         mangaId: command.mangaId,
         addedAt: now
       })
+      .onConflictDoNothing()
       .run()
+
+    return result.changes > 0
   }
 
   removeFromCollection(command: RemoveFromCollectionCommand[]): void {
