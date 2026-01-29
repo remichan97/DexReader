@@ -37,7 +37,7 @@
 **Key Outcomes**:
 
 - Backend audit revealed and fixed 10 critical issues (typos, duplicates, missing fields)
-- Protobuf schema renamed: Backup* → DexReader* (8 types) to avoid Mihon conflicts
+- Protobuf schema renamed: Backup*→ DexReader* (8 types) to avoid Mihon conflicts
 - **Critical Fix**: Consolidated reader settings - database now single source of truth (was stored in JSON + database)
 - Export dialog with Modal wrapper, Fluent UI icons, Windows 11 styling
 - LibraryView integration with menu events (Ctrl+Shift+E), file save dialog, toast notifications
@@ -53,26 +53,26 @@
 - Prevents naming conflicts with Mihon backup format
 - Types: DexReaderBackup, DexReaderManga, DexReaderChapter, DexReaderCollection, DexReaderCollectionItem, DexReaderMangaProgress, DexReaderChapterProgress, DexReaderMangaReaderOverride
 
-3. ✅ **Reader Settings Data Consolidation**:
+1. ✅ **Reader Settings Data Consolidation**:
    - **Problem Solved**: Reader settings were stored in TWO places (JSON + database), causing inconsistency
    - Created `MangaOverride` query type with full metadata
    - Database now single source of truth for reader overrides
    - Settings page loads from database via IPC
    - Export service reads from database with metadata
 
-4. ✅ **Export Dialog (Frontend)**:
+2. ✅ **Export Dialog (Frontend)**:
    - Modal wrapper with full focus trapping
    - Fluent UI icons (Library20Regular, Folder20Regular, BookOpen20Regular, Settings20Regular)
    - Windows 11 design tokens
    - Checkbox options for optional sections
    - Toast notifications for success/failure
 
-5. ✅ **LibraryView Integration**:
+3. ✅ **LibraryView Integration**:
    - Menu event listener for `export-library`
    - File save dialog with `.dexreader` extension
    - Loading state management
 
-6. ✅ **Settings Page Improvements**:
+4. ✅ **Settings Page Improvements**:
    - Removed duplicate helper function
    - Database query replaces JSON file reading
    - "Clear All Overrides" uses single IPC call (not loop)
@@ -419,7 +419,7 @@
 - P3-T08-T10, P3-T19: Already implemented during Phase 2 refactoring
 - P3-T11: COMPLETE - All 38 shortcuts implemented and working. Help dialog implemented with unicode arrows + aria-labels for accessibility. Triggered via Help menu or Ctrl+/
 - P3-T12: COMPLETE - Full Mihon/Tachiyomi import working. Imports manga metadata, collections, reading progress (with timestamps), chapter metadata for history view. Tag name→ID conversion, BigInt/Long handling, favorite field detection, double-import prevention. UI with progress dialog, result dialog, and toast notifications
-- P3-T13: COMPLETE ✅ (25 Jan 2026, ~5 hours) - Native DexReader export implemented with protobuf schema and selective backup options. Backend audit fixed 10 critical issues. Protobuf schema renamed (Backup* → DexReader*) to avoid Mihon conflicts. **Major Fix**: Consolidated reader settings - database now single source of truth. Export dialog with Modal wrapper, Fluent UI icons, Windows 11 styling. Settings page optimized with database queries replacing JSON parsing. File format: .dexreader (protobuf proto3 + gzip). See recent milestones section for full implementation details.
+- P3-T13: COMPLETE ✅ (25 Jan 2026, ~5 hours) - Native DexReader export implemented with protobuf schema and selective backup options. Backend audit fixed 10 critical issues. Protobuf schema renamed (Backup*→ DexReader*) to avoid Mihon conflicts. **Major Fix**: Consolidated reader settings - database now single source of truth. Export dialog with Modal wrapper, Fluent UI icons, Windows 11 styling. Settings page optimized with database queries replacing JSON parsing. File format: .dexreader (protobuf proto3 + gzip). See recent milestones section for full implementation details.
 - P3-T14: COMPLETE ✅ - Full Mihon/Tachiyomi export working. Backend service with protobuf encoding/gzip compression, tag ID→name conversion, Unix timestamp format, collection mapping. Frontend with toast notifications. Fixed: BigInt serialization issue (protobuf.js requires string for int64), duplicate toast bug (IPC listener cleanup), type definition corrections. All features tested and verified working. Estimated time: ~7 hours (22 Jan 2026)
 - P3-T15: PLANNED ⏳ (22 Jan 2026) - Native DexReader import with auto-detection. Import confirmation dialog shows backup contents (no user selection needed). Merge strategy: skip duplicates, add new data. Collection ID mapping handles conflicts. Backend: import service + helper with validation, IPC handlers, cancellation support. Frontend: import confirmation dialog, menu integration (Ctrl+Shift+I). Schema versioning for compatibility. Comprehensive plan document: `.github/copilot-plans/P3-T13-T15-native-backup-restore-plan.md`. Estimated: 6-8 hours. Ready for implementation.
 - P3-T16: COMPLETE ✅ - "Danger Zone" settings section implemented in Advanced tab with 3 operations: (1) Open Settings File (shell.openPath to settings.json), (2) Reset to Default (restores defaults + page reload), (3) Clear All Data (destructionRepo clears DB + resets settings + app restart). Backend uses DestructionRepository with transaction safety, FK constraint handling, sqlite_sequence reset, and VACUUM. Native Electron dialogs for confirmation. Dev mode handling (exit vs relaunch). Button states with separate loading indicators. Uses app's Button component with accent (orange) and danger (red) variants. **Post-implementation improvements**: (1) IPC wrapper consistency - added settings.load() and settings.save() to preload bridge, (2) IpcResponse handling - fixed 10 calls (7 in SettingsView, 3 in DangerZoneSettings) to properly check .success and extract .data, (3) Theme persistence migration - moved from localStorage to settings.json for single source of truth, (4) Zustand store cleanup - removed persist middleware (redundant layer). Architectural pattern established: all IPC calls use wrapped handlers returning IpcResponse<T>. Estimated time: ~2 hours (22 Jan 2026)
@@ -470,6 +470,7 @@
 - [⚪] **P4-T10**: Add reading statistics database (AppData)
 - [⚪] **P4-T11**: Implement storage quota management and cleanup
 - [⚪] **P4-T12**: Validate all file operations respect path restrictions
+- [⚪] **P4-T13**: Implement unfavourite dialog with 3 options (remove from library only, delete downloads only, or remove everything) + manual collection cleanup
 
 ---
 
@@ -807,7 +808,7 @@ See [archived-milestones.md](archived-milestones.md) for complete refactoring de
 
 - Fixed 10 critical issues in export service during implementation
 - **Major Fix**: Reader settings consolidated - database now single source of truth
-- Protobuf schema renamed (Backup* → DexReader* to prevent Mihon conflicts)
+- Protobuf schema renamed (Backup*→ DexReader* to prevent Mihon conflicts)
 - Export with optional sections (collections, progress, reader settings)
 
 **P3-T14 Mihon Export** (22 Jan 2026)
