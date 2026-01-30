@@ -2,7 +2,194 @@
 
 **Purpose**: This file contains detailed implementation notes from completed milestones in reverse chronological order (newest first). These are historical records that provide context for past decisions and serve as essential reference material.
 
-**Last Updated**: 29 January 2026
+**Last Updated**: 30 January 2026
+
+---
+
+## DexReader Native Import/Export Polish & Refinements (30 January 2026)
+
+### Overview
+
+Implemented multiple quality-of-life improvements to the native DexReader import/export functionality, addressing protobuf serialization issues, UI consistency, and user feedback improvements.
+
+### Issues Addressed
+
+**1. Protobuf Empty Object Deserialization Issue**
+
+**Problem**: When optional sections (collections, progress, readerSettings) were exported with empty data, protobuf deserialized them as `{}` (empty object) instead of `undefined`. This caused import logic to think data was present and attempt processing.
+
+**Root Cause**: Export service was assigning empty arrays to optional fields even when no data existed:
+
+```typescript
+// BEFORE - Always assigned, even if empty
+if (options.includeCollections) {
+  const collectionsData = this.fetchCollectionData()
+  backup.collections = collectionsData // { collectionList: [], collectionItems: [] }
+}
+```
+
+**Solution**: Only assign optional fields when actual data exists:
+
+```typescript
+// AFTER - Only assign if data present
+if (options.includeCollections) {
+  const collectionsData = this.fetchCollectionData()
+  if (collectionsData.collectionList.length > 0 || collectionsData.collectionItems.length > 0) {
+    backup.collections = collectionsData
+  }
+}
+```
+
+**Impact**:
+
+- Smaller backup file sizes (optional fields not serialized when empty)
+- Import can reliably distinguish "not requested" from "requested but empty"
+- Clear separation between user intent and data availability
+
+**Files Modified**: `dexreader-export.service.ts`
+
+---
+
+**2. Inconsistent Error Handling Between Import/Export Dialogs**
+
+**Problem**:
+
+- Import dialog: Displayed errors inline within modal (error strip with icon)
+- Export dialog: Showed errors as toast notifications (auto-dismissing)
+
+**Issue**: Toasts disappear automatically, potentially missing critical error information. Inconsistent UX patterns across similar operations.
+
+**Solution**: Standardized both dialogs to use inline error strips
+
+**Implementation**:
+
+Frontend changes:
+
+- Updated `DexReaderExportDialog` component:
+  - Added `error: string | null` prop
+  - Made `onExport` async for proper error handling
+  - Added `useEffect` to reset state on dialog close
+  - Added inline error display with `Warning20Regular` icon
+
+- Updated `LibraryView` parent component:
+  - Added `exportError` state
+  - Updated `handleExport` to set inline errors instead of toasts
+  - Kept success toast (celebration feedback is appropriate as toast)
+  - Reset error state in `handleCloseExportDialog`
+
+CSS additions:
+
+- Added `.export-error`, `.error-icon`, `.error-text` matching import dialog styling
+- Consistent visual treatment: error background, border, icon placement
+
+**Result**:
+
+- ✅ Export errors display inline (persistent, contextual)
+- ✅ Export success shows as toast (auto-dismissing celebration)
+- ✅ Import errors display inline (unchanged)
+- ✅ Import success shows as toast (unchanged)
+- ✅ Consistent UX across both dialogs
+
+**Files Modified**:
+
+- `DexReaderExportDialog.tsx`
+- `DexReaderExportDialog.css`
+- `LibraryView.tsx`
+
+---
+
+**3. Missing Save Path Display in Export Dialog**
+
+**Problem**: Import dialog showed the selected file path, but export dialog didn't show where the backup would be saved. Asymmetric information display.
+
+**Solution**: Added save path info section to export dialog matching import dialog's pattern
+
+**Implementation**:
+
+- Added `savePath` prop to `DexReaderExportDialog`
+- Imported `SaveArrowRight20Regular` icon for visual consistency
+- Created conditional path display section:
+
+  ```tsx
+  {savePath && (
+    <div className="export-path-info">
+      <SaveArrowRight20Regular className="export-icon" />
+      <div className="path-details">
+        <span className="path-label">Save to:</span>
+        <span className="path-name">{savePath}</span>
+      </div>
+    </div>
+  )}
+  ```
+
+- Added CSS matching import dialog's file-info section
+- Passed `exportFilePath` from `LibraryView` to dialog
+
+**Result**: Both dialogs now show full file paths with consistent styling, giving users clear visibility into file locations.
+
+**Files Modified**:
+
+- `DexReaderExportDialog.tsx`
+- `DexReaderExportDialog.css`
+- `LibraryView.tsx`
+
+---
+
+**4. Filename vs Full Path Display Inconsistency**
+
+**Problem**: Initially, import showed only filename while export showed folder path. Inconsistent detail level.
+
+**Solution**: Updated both dialogs to consistently display full file paths
+
+**Before**:
+
+- Import: Extracted filename with `filePath.split(/[\\/]/).pop()`
+- Export: Extracted folder with `.slice(0, -1).join('\\\\')`
+
+**After**:
+
+- Import: Shows `filePath` directly
+- Export: Shows `savePath` directly
+
+**Rationale**: Full paths provide complete context and are more useful for users managing multiple backups across different locations.
+
+**Files Modified**:
+
+- `DexReaderImportDialog.tsx`
+- `DexReaderExportDialog.tsx`
+
+---
+
+### Technical Notes
+
+**Protobuf Optional Field Behavior**:
+
+- When optional field is not set: Field absent in serialized data
+- When optional field is empty object: Field present with zero-length arrays
+- Import checks like `if (backup.collections)` now reliably detect presence
+
+**Error Display Pattern**:
+
+- Modal dialogs should use inline errors (persistent, contextual)
+- Toast notifications for success/celebration (transient, non-blocking)
+- Error strips use consistent layout: icon (left) + text (right) + error colors
+
+**Path Display Pattern**:
+
+- Show full paths for file operations (import/export)
+- Use `text-overflow: ellipsis` and `white-space: nowrap` for long paths
+- Label clearly: "File:" for imports, "Save to:" for exports
+
+### Summary
+
+These refinements improve the robustness and user experience of DexReader's native backup system:
+
+- More reliable serialization/deserialization
+- Consistent error feedback across operations
+- Better user visibility into file locations
+- Polished, professional UI treatment
+
+All changes tested and working correctly as of 30 January 2026.
 
 ---
 

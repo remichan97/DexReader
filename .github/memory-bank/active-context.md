@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 29 January 2026
+**Last Updated**: 30 January 2026
 **Current Phase**: Phase 3 - User Experience Enhancement
-**Session**: P3-T17 Complete ✅
+**Session**: Native Import/Export Polish Complete ✅
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -12,10 +12,34 @@
 
 **Phase**: Phase 3 - User Experience Enhancement (18/19 tasks, 94.7%)
 **Progress**: P3-T13 complete ✅, P3-T15 complete ✅, P3-T16 complete ✅, P3-T17 complete ✅
-**Current Date**: 29 January 2026
+**Current Date**: 30 January 2026
 **Database Migration Status**: Fully migrated and operational
-**Current Task**: None - P3-T17 implementation complete
+**Current Task**: None
 **Plan Document**: None
+
+---
+
+## 🛠️ Native Import/Export Polish - COMPLETE (30 Jan 2026)
+
+**Status**: ✅ Complete (Maintenance & Refinements)
+
+**Summary**: Addressed protobuf serialization issues and improved UX consistency in native DexReader import/export dialogs.
+
+**Key Improvements**:
+
+1. **Protobuf Empty Object Fix**: Export service now only assigns optional fields when data exists, preventing `{}` deserialization issues on import
+2. **Consistent Error Handling**: Both dialogs now use inline error strips (removed toast errors from export)
+3. **Path Display Enhancement**: Added save path display to export dialog, both dialogs show full file paths
+4. **Better User Feedback**: Errors persistent and contextual, success notifications as toasts
+
+**Files Modified**:
+
+- `dexreader-export.service.ts`: Conditional field assignment
+- `DexReaderExportDialog.tsx/css`: Error strip, path display
+- `DexReaderImportDialog.tsx`: Full path display
+- `LibraryView.tsx`: Error state management
+
+**Detailed Documentation**: See archived-milestones.md entry "DexReader Native Import/Export Polish & Refinements (30 January 2026)"
 
 ---
 
