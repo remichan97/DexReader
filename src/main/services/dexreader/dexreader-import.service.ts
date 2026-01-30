@@ -30,7 +30,6 @@ import { readerSettingsRepo } from '../../database/repository/reader-settings.re
 export class DexReaderImportService {
   private readonly schemaPath = path.join(
     __dirname,
-    '../../',
     'services',
     'protobuf',
     'schemas',
