@@ -67,8 +67,6 @@ export function DexReaderImportDialog({
     }
   }
 
-  const fileName = filePath.split(/[\\/]/).pop() || 'Unknown file'
-
   return (
     <Modal open={isOpen} onClose={handleCancel} title="Import DexReader Backup" size="medium">
       <div className="dexreader-import-dialog">
@@ -76,7 +74,7 @@ export function DexReaderImportDialog({
           <ArrowImport20Regular className="import-icon" />
           <div className="file-details">
             <span className="file-label">File:</span>
-            <span className="file-name">{fileName}</span>
+            <span className="file-name">{filePath}</span>
           </div>
         </div>
 

@@ -958,6 +958,7 @@ export function LibraryView(): JSX.Element {
       {/* DexReader Export Dialog */}
       <DexReaderExportDialog
         isOpen={exportDialogOpen}
+        savePath={exportFilePath}
         onClose={handleCloseExportDialog}
         onExport={handleExport}
         isExporting={isExporting}

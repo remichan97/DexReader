@@ -7,12 +7,14 @@ import {
   Folder20Regular,
   BookOpen20Regular,
   Settings20Regular,
-  Warning20Regular
+  Warning20Regular,
+  SaveArrowRight20Regular
 } from '@fluentui/react-icons'
 import './DexReaderExportDialog.css'
 
 interface DexReaderExportDialogProps {
   isOpen: boolean
+  savePath: string | null
   onClose: () => void
   onExport: (options: ExportOptions) => Promise<void>
   isExporting: boolean
@@ -27,6 +29,7 @@ export interface ExportOptions {
 
 export function DexReaderExportDialog({
   isOpen,
+  savePath,
   onClose,
   onExport,
   isExporting,
@@ -64,6 +67,16 @@ export function DexReaderExportDialog({
   return (
     <Modal open={isOpen} onClose={handleCancel} title="Export DexReader Backup" size="medium">
       <div className="dexreader-export-dialog">
+        {savePath && (
+          <div className="export-path-info">
+            <SaveArrowRight20Regular className="export-icon" />
+            <div className="path-details">
+              <span className="path-label">Save to:</span>
+              <span className="path-name">{savePath}</span>
+            </div>
+          </div>
+        )}
+
         <div className="export-info">
           <p className="info-text">
             Choose what to include in your backup file. Library manga metadata is always included.
@@ -77,7 +90,7 @@ export function DexReaderExportDialog({
               <strong>Library</strong>
               <span className="always-included">Always included</span>
             </div>
-            <p className="option-description">
+            <p className="option-description no-checkbox">
               Manga metadata, cover URLs, chapters, tags, and authors
             </p>
           </div>

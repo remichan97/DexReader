@@ -9,6 +9,45 @@
   gap: var(--space-4);
 }
 
+.dexreader-export-dialog .export-path-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--win-bg-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.dexreader-export-dialog .export-icon {
+  flex-shrink: 0;
+  color: var(--win-accent);
+  width: 20px;
+  height: 20px;
+}
+
+.dexreader-export-dialog .path-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1;
+  min-width: 0;
+}
+
+.dexreader-export-dialog .path-label {
+  font-size: var(--win-font-size-caption);
+  color: var(--win-text-secondary);
+  font-weight: 500;
+}
+
+.dexreader-export-dialog .path-name {
+  font-size: var(--win-font-size-body);
+  color: var(--win-text-primary);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .dexreader-export-dialog .export-info {
   padding: var(--space-3);
   background: var(--win-bg-subtle);
@@ -81,8 +120,13 @@
   font-size: var(--win-font-size-caption);
   color: var(--win-text-tertiary);
   line-height: 1.4;
-  padding-left: 52px; /* Align with checkbox + icon + text */
+  padding-left: 56px; /* Align with checkbox + icon + text */
 }
+
+.dexreader-export-dialog .option-description.no-checkbox {
+  padding-left: 28px; /* Align with icon + text */
+}
+
 
 .dexreader-export-dialog .export-note {
   padding: var(--space-3);
@@ -105,6 +149,32 @@
 .dexreader-export-dialog .note-text em {
   font-style: normal;
   color: var(--win-text-primary);
+  font-weight: 500;
+}
+
+.dexreader-export-dialog .export-error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--win-error-subtle);
+  border: 1px solid var(--win-error);
+  border-radius: var(--radius-sm);
+}
+
+.dexreader-export-dialog .error-icon {
+  flex-shrink: 0;
+  color: var(--win-error);
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+}
+
+.dexreader-export-dialog .error-text {
+  margin: 0;
+  font-size: var(--win-font-size-caption);
+  color: var(--win-error);
+  line-height: 1.5;
   font-weight: 500;
 }
 
