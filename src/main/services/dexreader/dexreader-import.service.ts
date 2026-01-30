@@ -80,7 +80,7 @@ export class DexReaderImportService {
 
     // Next, we work on collections
     // Skip collections if none are present
-    if (importData.collections && importData.collections.collectionList.length > 0) {
+    if (importData.collections) {
       try {
         this.importCollectionsData(
           importData.collections?.collectionList,
@@ -132,12 +132,12 @@ export class DexReaderImportService {
   }
 
   private importMangaData(
-    manga: DexReaderManga[],
-    chapter: DexReaderChapter[],
+    importManga: DexReaderManga[],
+    importChapters: DexReaderChapter[],
     signal: AbortSignal
   ): DexReaderImportResult {
-    const upsertMangaCommand: UpsertMangaCommand[] = []
     const saveChapterCommand: SaveChapterCommand[] = []
+    const upsertMangaCommand: UpsertMangaCommand[] = []
     const result: DexReaderImportResult = {
       importedMangaCount: 0,
       importedChaptersCount: 0,
@@ -150,7 +150,7 @@ export class DexReaderImportService {
       sectionErrors: {}
     }
 
-    for (const item of manga) {
+    for (const item of importManga) {
       signal.throwIfAborted()
       upsertMangaCommand.push(dexreaderImport.processUpsertMangaCommand(item))
       // Count only favourite manga as imported
@@ -159,17 +159,19 @@ export class DexReaderImportService {
       }
     }
 
-    for (const item of chapter) {
-      signal.throwIfAborted()
-      saveChapterCommand.push(dexreaderImport.processSaveChapterCommand(item))
-      result.importedChaptersCount += 1
+    if (importChapters) {
+      for (const item of importChapters) {
+        signal.throwIfAborted()
+        saveChapterCommand.push(dexreaderImport.processSaveChapterCommand(item))
+        result.importedChaptersCount += 1
+      }
     }
 
     // Final signal check before we start the database operations
     signal.throwIfAborted()
 
     mangaRepository.batchUpsertManga(upsertMangaCommand)
-    result.importedMangaCount = upsertMangaCommand.length
+    result.importedMangaCount = upsertMangaCommand.filter((m) => m.isFavourite === true).length
 
     chapterRepo.saveChapters(saveChapterCommand)
     result.importedChaptersCount = saveChapterCommand.length

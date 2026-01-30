@@ -33,7 +33,7 @@ export class DexReaderExportService {
   ): Promise<DexReaderExportResult> {
     const libraryData: LibraryData = this.fetchLibraryData(options)
 
-    if (libraryData.mangaList.length === 0) {
+    if (libraryData.mangaList.filter((it) => it.isFavourite === true).length === 0) {
       throw new Error('No manga in library, nothing to export')
     }
 
@@ -46,17 +46,26 @@ export class DexReaderExportService {
 
     if (options.includeCollections) {
       const collectionsData: CollectionsData = this.fetchCollectionData()
-      backup.collections = collectionsData
+      // Only include if there's actual data to prevent protobuf empty object deserialization issues
+      if (collectionsData.collectionList.length > 0 || collectionsData.collectionItems.length > 0) {
+        backup.collections = collectionsData
+      }
     }
 
     if (options.includeProgress) {
       const progressData: ProgressData = this.fetchProgressData()
-      backup.progress = progressData
+      // Only include if there's actual data to prevent protobuf empty object deserialization issues
+      if (progressData.mangaProgress.length > 0 || progressData.chapterProgress.length > 0) {
+        backup.progress = progressData
+      }
     }
 
     if (options.includeReaderSettings) {
       const readerSettingsData: ReaderSettingsData = this.fetchReaderSettingsData()
-      backup.readerSettings = readerSettingsData
+      // Only include if there's actual data to prevent protobuf empty object deserialization issues
+      if (readerSettingsData.overrides.length > 0) {
+        backup.readerSettings = readerSettingsData
+      }
     }
 
     const root = await protobuf.load(this.schemaPath)
@@ -69,7 +78,7 @@ export class DexReaderExportService {
 
     return {
       filePath: savePath,
-      exportedMangaCount: libraryData.mangaList.length,
+      exportedMangaCount: libraryData.mangaList.filter((it) => it.isFavourite === true).length,
       exportedChaptersCount: libraryData.chapterList.length,
       exportedCollectionsCount: backup.collections ? backup.collections.collectionList.length : 0,
       exportedProgressCount: backup.progress

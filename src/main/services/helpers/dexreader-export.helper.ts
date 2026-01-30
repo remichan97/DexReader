@@ -22,7 +22,7 @@ export class DexReaderExportHelper {
       status: data.status || 'ongoing',
       description: data.description || '',
       coverUrl: data.coverUrl || '',
-      isFavourite: data.isFavourite || true,
+      isFavourite: data.isFavourite ? data.isFavourite : false,
       addedAt: dateToUnixTimestamp(data.addedAt),
       updatedAt: dateToUnixTimestamp(data.updatedAt),
       lastAccessedAt: dateToUnixTimestamp(data.lastAccessedAt),
