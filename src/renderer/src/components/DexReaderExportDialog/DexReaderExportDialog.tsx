@@ -1,4 +1,4 @@
-import { JSX, useState } from 'react'
+import { JSX, useState, useEffect } from 'react'
 import { Modal } from '../Modal'
 import { Button } from '../Button'
 import { Checkbox } from '../Checkbox'
@@ -6,15 +6,17 @@ import {
   Library20Regular,
   Folder20Regular,
   BookOpen20Regular,
-  Settings20Regular
+  Settings20Regular,
+  Warning20Regular
 } from '@fluentui/react-icons'
 import './DexReaderExportDialog.css'
 
 interface DexReaderExportDialogProps {
   isOpen: boolean
   onClose: () => void
-  onExport: (options: ExportOptions) => void
+  onExport: (options: ExportOptions) => Promise<void>
   isExporting: boolean
+  error: string | null
 }
 
 export interface ExportOptions {
@@ -27,16 +29,26 @@ export function DexReaderExportDialog({
   isOpen,
   onClose,
   onExport,
-  isExporting
+  isExporting,
+  error
 }: Readonly<DexReaderExportDialogProps>): JSX.Element | null {
   const [includeCollections, setIncludeCollections] = useState(true)
   const [includeProgress, setIncludeProgress] = useState(true)
   const [includeReaderSettings, setIncludeReaderSettings] = useState(true)
 
+  // Reset state when dialog closes
+  useEffect(() => {
+    if (!isOpen) {
+      setIncludeCollections(true)
+      setIncludeProgress(true)
+      setIncludeReaderSettings(true)
+    }
+  }, [isOpen])
+
   if (!isOpen) return null
 
-  const handleExport = (): void => {
-    onExport({
+  const handleExport = async (): Promise<void> => {
+    await onExport({
       includeCollections,
       includeProgress,
       includeReaderSettings
@@ -120,6 +132,13 @@ export function DexReaderExportDialog({
             Use <em>Settings → Advanced → Open Settings File</em> to back them up.
           </p>
         </div>
+
+        {error && (
+          <div className="export-error">
+            <Warning20Regular className="error-icon" />
+            <p className="error-text">{error}</p>
+          </div>
+        )}
 
         <div className="dexreader-export-dialog__actions">
           <Button variant="secondary" onClick={handleCancel} disabled={isExporting}>

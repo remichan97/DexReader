@@ -158,6 +158,7 @@ export function LibraryView(): JSX.Element {
   const [exportDialogOpen, setExportDialogOpen] = useState(false)
   const [exportFilePath, setExportFilePath] = useState<string | null>(null)
   const [isExporting, setIsExporting] = useState(false)
+  const [exportError, setExportError] = useState<string | null>(null)
   const [importDialogOpen, setImportDialogOpen] = useState(false)
   const [importFilePath, setImportFilePath] = useState<string | null>(null)
 
@@ -486,10 +487,12 @@ export function LibraryView(): JSX.Element {
     if (!exportFilePath) return
 
     setIsExporting(true)
+    setExportError(null)
     try {
       const response = await globalThis.dexreader.exportData(exportFilePath, options)
 
       if (response.success && response.data) {
+        // Show success toast
         show({
           title: 'Export Complete',
           message: `Exported ${response.data.exportedMangaCount} manga to DexReader backup`,
@@ -497,24 +500,19 @@ export function LibraryView(): JSX.Element {
           duration: 4000
         })
 
+        // Close dialog and reset
         setExportDialogOpen(false)
         setExportFilePath(null)
+        setExportError(null)
       } else {
-        show({
-          title: 'Export Failed',
-          message: response.error?.message || 'Could not export library',
-          variant: 'error',
-          duration: 4000
-        })
+        // Show error inline
+        const errorMessage = response.error?.message || 'Could not export library'
+        setExportError(errorMessage)
       }
     } catch (error) {
       console.error('Error exporting backup:', error)
-      show({
-        title: 'Export Failed',
-        message: 'An error occurred during export',
-        variant: 'error',
-        duration: 4000
-      })
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred'
+      setExportError(errorMessage)
     } finally {
       setIsExporting(false)
     }
@@ -524,6 +522,7 @@ export function LibraryView(): JSX.Element {
     if (!isExporting) {
       setExportDialogOpen(false)
       setExportFilePath(null)
+      setExportError(null)
     }
   }
 
@@ -962,6 +961,7 @@ export function LibraryView(): JSX.Element {
         onClose={handleCloseExportDialog}
         onExport={handleExport}
         isExporting={isExporting}
+        error={exportError}
       />
 
       <DexReaderImportDialog
