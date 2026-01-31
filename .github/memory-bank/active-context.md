@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 30 January 2026
-**Current Phase**: Phase 3 - User Experience Enhancement
-**Session**: Native Import/Export Polish Complete ✅
+**Last Updated**: 31 January 2026
+**Current Phase**: Transition - Phase 3 Complete, Phase 4 Planning
+**Session**: Ready for Phase 4
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -10,178 +10,58 @@
 
 ## Current Status Summary
 
-**Phase**: Phase 3 - User Experience Enhancement (18/19 tasks, 94.7%)
-**Progress**: P3-T13 complete ✅, P3-T15 complete ✅, P3-T16 complete ✅, P3-T17 complete ✅
-**Current Date**: 30 January 2026
+**Phase**: Phase 3 Complete ✅ → Phase 4 Planning
+**Progress**: Phase 3: 19/19 tasks (100%) | Phase 4: Not yet defined
+**Current Date**: 31 January 2026
 **Database Migration Status**: Fully migrated and operational
-**Current Task**: None
+**Current Task**: Phase 4 planning and task definition
 **Plan Document**: None
 
 ---
 
-## 🛠️ Native Import/Export Polish - COMPLETE (30 Jan 2026)
+## Recent Completions (Last 2 Weeks)
 
-**Status**: ✅ Complete (Maintenance & Refinements)
+### Phase 3 Complete - January 2026 ✅
 
-**Summary**: Addressed protobuf serialization issues and improved UX consistency in native DexReader import/export dialogs.
+**Summary**: Completed all 19 Phase 3 tasks focused on user experience enhancements.
 
-**Key Improvements**:
+**Major Achievements**:
 
-1. **Protobuf Empty Object Fix**: Export service now only assigns optional fields when data exists, preventing `{}` deserialization issues on import
-2. **Consistent Error Handling**: Both dialogs now use inline error strips (removed toast errors from export)
-3. **Path Display Enhancement**: Added save path display to export dialog, both dialogs show full file paths
-4. **Better User Feedback**: Errors persistent and contextual, success notifications as toasts
+- **Backup Ecosystem**: Native DexReader + Mihon import/export (P3-T12 to P3-T15)
+- **Accessibility**: WCAG 2.1 Level AA compliance, 100% Lighthouse scores (P3-T18)
+- **Library Features**: Favorites, collections, history fully operational (P3-T01)
+- **Settings Polish**: Danger Zone, system date format integration (P3-T16, P3-T17)
 
-**Files Modified**:
+**Key Metrics**: 19/19 tasks (100%), ~40 hours total investment, production-ready UX
 
-- `dexreader-export.service.ts`: Conditional field assignment
-- `DexReaderExportDialog.tsx/css`: Error strip, path display
-- `DexReaderImportDialog.tsx`: Full path display
-- `LibraryView.tsx`: Error state management
-
-**Detailed Documentation**: See archived-milestones.md entry "DexReader Native Import/Export Polish & Refinements (30 January 2026)"
+**See**: [project-progress.md](./project-progress.md) for milestone summaries, [archived-milestones.md](./archived-milestones.md) for detailed implementation notes
 
 ---
 
-## 🎉 P3-T17 Date Format Preferences - COMPLETE (29 Jan 2026)
+## Next Steps - Phase 4 Planning
 
-**Implementation Status**: ✅ Complete (Alternative Solution - System Settings Link)
+**Action Required**: Define Phase 4 scope and tasks
 
-**Decision**: Instead of custom date format picker, implemented system settings integration.
+**Potential Focus Areas** (to be discussed):
 
-**Rationale**:
+- **Offline Reading**: Download chapters for offline access
+- **Advanced Search**: Complex filtering, saved searches
+- **Reading Analytics**: Statistics dashboard, reading streaks
+- **Performance**: Optimize large libraries (1000+ manga)
+- **Mobile/Tablet**: Responsive design improvements
+- **Customization**: More reader settings, UI themes
 
-- Only 3 user-visible date displays (Chapter publish dates, Reading history, Error logs)
-- `toLocaleDateString()` already respects OS settings automatically
-- Custom picker would require: format options, utility functions, testing, maintenance
-- System integration is lighter, more consistent, and user-friendly
+**Planning Tasks**:
 
-**Implementation**:
-
-- Added "Date & Time Format" section in Settings → Appearance
-- Button opens OS-specific date/time settings:
-  - Windows: `ms-settings:regionlanguage`
-  - macOS: `x-apple.systempreferences:com.apple.preference.international`
-  - Linux: Fallback alert with manual instructions
-- New IPC handler: `settings:open-system-date-settings`
-- Preload bridge and type definitions added
-
-**Files Modified**:
-
-- `app-settings.handler.ts`: Platform-specific settings URLs
-- `AppearanceSettings.tsx`: New section with explanation
-- Preload: Bridge method and types
-
----
-
-## 🎉 P3-T15 Native Import - COMPLETE (29 Jan 2026)
-
-**Implementation Status**: ✅ Backend complete, ✅ Frontend complete, ✅ Full import flow functional
-
-### Critical Architectural Decisions Made
-
-**1. Error Handling Architecture**
-
-- **HALT on failure**: Manga/Chapters import (critical, everything depends on them)
-- **CONTINUE on failure**: Collections, Progress, Reader Settings (log to `sectionErrors`, proceed)
-- **Result Type Changes**: Remove per-item `errors[]`, add section-level `sectionErrors: { collections?, progress?, readerSettings? }`
-- **Within-section**: All-or-nothing transactions (one item fails → entire section fails)
-
-**2. Conflict Resolution Strategies**
-
-**Important**: These strategies **only apply when the section exists in the backup file**. Missing sections (user didn't export them) result in no action - existing data is completely preserved.
-
-| Data Type         | Strategy      | On Conflict                        | Rationale                                |
-| ----------------- | ------------- | ---------------------------------- | ---------------------------------------- |
-| Manga             | UPSERT        | Import wins                        | Backup restoration, self-healing via API |
-| Chapters          | UPSERT        | Import wins                        | Same as manga                            |
-| Collections\*     | SKIP + MERGE  | Merge manga into existing          | Same name = same concept, additive       |
-| Progress\*        | UPSERT        | Import wins (preserve firstReadAt) | Authoritative history                    |
-| Reader Settings\* | SKIP EXISTING | Current wins                       | Active preferences priority              |
-
-\*Optional sections - only imported if present in backup (automatically detected via protobuf decode)
-
-**3. Export Scope Fix Required** (CRITICAL)
-
-- **Current**: Export only `isFavourite = true` manga → **Causes FK violations**
-- **Required**: Export ALL cached manga with `isFavourite` field
-- **Reason**: Reader overrides (optional export) reference all visited manga, not just favourites
-- **Impact**: Library view unchanged (filters by flag), prevents FK constraint errors on import
-- **Note**: This fix is independent of optional export sections - library data always exported, but must include ALL cached manga
-
-### Implementation Checklist
-
-**Backend Fixes Needed**:
-
-1. ✅ Update result type with `sectionErrors`, remove per-item `errors[]`
-2. ✅ Wrap optional sections in try-catch
-3. ✅ Implement collection ID mapping (oldId→newId) - **CRITICAL BUG FIX**
-4. ✅ Implement reader settings skip logic (filter existing overrides)
-5. ✅ Track skip counts for collections/settings
-
-**Frontend Components Created**:
-
-- ✅ `DexReaderImportDialog`: Windows 11 styled modal with file info, sections list, warnings, and error handling
-- ✅ LibraryView integration: Event listener, state management, automatic library refresh
-- ✅ Toast notifications with detailed import results and section error warnings
-
-**Implementation Summary**:
-
-All import strategies implemented as designed:
-
-- Manga/Chapters: UPSERT (import wins)
-- Collections: SKIP + MERGE (name-based, reuse existing IDs)
-- Progress: UPSERT with firstReadAt preservation
-- Reader Settings: SKIP EXISTING (current settings win)
-
-Error handling: HALT for manga/chapters, CONTINUE for optional sections with detailed error reporting.
-
-Export scope fixed: ALL cached manga exported (not just favourites) to prevent FK violations when optional sections included.
-
-**Files Created/Modified**:
-
-- Created: `DexReaderImportDialog` component (TSX + CSS + index)
-- Modified: LibraryView with import listener, handler, and refresh logic
-- Modified: collectionsStore `addToCollection` method now returns boolean for duplicate detection
+1. Review Phase 3 outcomes and user feedback
+2. Prioritize Phase 4 features based on impact/effort
+3. Break down selected features into specific tasks
+4. Estimate timeline and dependencies
+5. Update project-progress.md with Phase 4 task list
 
 ---
 
 ## ⚠️ Known Issues & Strategic Decisions
-
-### electron-builder tar Vulnerability (High Severity)
-
-**Issue**: electron-builder@26.5.0 has transitive dependency on vulnerable tar@6.2.1 via @electron/rebuild@4.0.1
-
-- **CVE**: GHSA-8qq5-rm4j-mr97 (path traversal/arbitrary file overwrite)
-- **Severity**: High
-- **Scope**: Development dependency only (not shipped to users)
-- **Attack Vector**: Requires malicious tarball extraction during build process
-
-**Decision**: **Accept risk, continue with electron-builder@26.5.0**
-
-**Rationale**:
-
-1. **Dev-only**: electron-builder is devDependency, never bundled into production app
-2. **Upstream dependency issue**: Nested dependency (@electron/rebuild) controlled by electron-builder maintainers
-3. **Workarounds ineffective**: npm overrides reported as ineffective by community (GitHub issues)
-4. **Latest version**: Already on electron-builder@26.5.0 (latest); downgrading loses Electron 38 compatibility
-5. **Low exploitability**: Requires malicious tarball to be processed during build
-
-**Mitigation**:
-
-- Only build from trusted sources/repositories
-- Document decision for future reference
-
-**Action Plan**:
-
-- Monitor: [electron-builder Issues](https://github.com/electron-userland/electron-builder/issues)
-- Wait for @electron/rebuild to update tar dependency
-- Re-evaluate when electron-builder v27+ is released
-- Check periodically for upstream fixes
-
-**Date Logged**: 20 January 2026
-
----
 
 ### drizzle-kit esbuild Vulnerability (Moderate Severity)
 
@@ -218,327 +98,51 @@ Export scope fixed: ALL cached manga exported (not just favourites) to prevent F
 
 ---
 
-## ✅ P3-T12 Mihon/Tachiyomi Library Import - COMPLETE (14 Jan 2026)
+## Technical Context
 
-**Status**: Complete ✅ | **Duration**: ~6 hours
+### Architecture Summary
 
-Full Mihon/Tachiyomi backup import with protobuf parsing, tag name→ID conversion, collection mapping, progress/history import, and chapter metadata caching. Includes ImportProgressDialog and ImportResultDialog components. See [archived-milestones.md](./archived-milestones.md) for detailed implementation notes.
+**Stack**: Electron 34 + React 19 + TypeScript 5.7 + Drizzle ORM + SQLite
+**IPC Pattern**: All handlers return `IpcResponse<T>` with success/data/error structure
+**Persistence**: Settings.json (single source of truth), SQLite database (user data)
+**Theme System**: Data-theme attribute + CSS custom properties, respects OS preference
+**State Management**: Zustand stores (runtime only), no localStorage
 
----
+### Critical Patterns Established
 
-## ✅ P3-T16 Danger Zone Settings - COMPLETE (22 Jan 2026)
+**IPC Handlers**:
 
-**Status**: Complete and tested ✅
-**Duration**: ~2 hours (22 January 2026)
+1. Wrapped in preload bridge with type-safe methods
+2. Always return `IpcResponse<T>` objects
+3. Consumed with `.success` check and `.data` extraction
 
-### Implementation Summary
+**Settings Persistence**:
 
-Complete "Danger Zone" settings section with three destructive operations, integrated into Advanced tab.
+- Single source: `settings.json` in AppData
+- All preferences stored/loaded via IPC: `settings.load()`, `settings.save()`
+- Theme synced with OS via `nativeTheme.themeSource`
 
-**What Was Built**:
+**Database**:
 
-1. **Backend IPC Handlers** (`app-settings.handler.ts`)
-   - `settings:open-settings-file` - Opens settings.json in default editor via shell.openPath()
-   - `settings:reset-to-defaults` - Resets settings to defaults, triggers page reload
-   - `settings:clear-all` - Clears database + resets settings + app restart/exit
+- 8 tables: manga, chapters, collections, collection_items, manga_progress, chapter_progress, reader_overrides, manga_tags
+- Drizzle ORM with type-safe queries
+- Foreign key constraints enabled
+- Migrations in `src/main/database/migrations/`
 
-2. **Database Destruction Service** (`destruction-repo.ts`)
-   - Transaction-based clearing of all 8 tables (collections, manga, chapters, progress, etc.)
-   - Temporarily disables FK constraints during deletion
-   - Resets auto-increment counters via `DELETE FROM sqlite_sequence`
-   - Runs VACUUM to reclaim disk space
+### Recent Architectural Decisions
 
-3. **Preload Bridge** (`preload/index.ts` + `index.d.ts`)
-   - Added `globalThis.settings` namespace with 3 methods
-   - Proper IPC channel mapping with type safety
+**Backup/Restore Strategy**:
 
-4. **Frontend Component** (`DangerZoneSettings.tsx`)
-   - Three operations with confirmation dialogs (native Electron dialogs via `showConfirmDialog`)
-   - Separate loading states per button (isResetting/isClearing)
-   - Uses app's Button component with accent (orange) and danger (red) variants
+- Native format: `.dexreader` (protobuf + gzip)
+- Mihon compatibility: `.tachibk` (protobuf + gzip)
+- Selective backup: Library (always) + optional sections (collections, progress, settings)
+- Import strategies: UPSERT for manga/chapters, SKIP+MERGE for collections
 
-5. **Styling** (`DangerZoneSettings.css`)
-   - Red border/background for critical "Clear All Data" item
-   - Integrated into Advanced tab with proper spacing
+**Accessibility Standards**:
 
-### Critical Issues Fixed (22 Jan 2026)
+- WCAG 2.1 Level AA compliance achieved
+- Sr-only headings for screen reader navigation
+- Live regions for dynamic content announcements
+- Honest alt text approach for visual content
 
-**1. IPC Response Handling** ✅
-
-- **Problem**: Dialog confirmation treated as plain boolean instead of IpcResponse object
-- **Solution**: Changed from `if (!confirmed)` to `if (!result.success || !result.data)`
-
-**2. Button Visibility** ✅
-
-- **Problem**: Custom native buttons blended with background, didn't match app design
-- **Solution**: Replaced custom buttons with app's standard Button component
-
-**3. Dev Mode App Restart** ✅
-
-- **Problem**: `app.relaunch()` causes blank page in dev mode (npm run dev)
-- **Solution**: Added `is.dev` check - only relaunch in production, exit cleanly in dev
-
-**4. Shared Button State** ✅
-
-- **Problem**: Both buttons showed loading state when one was clicked
-- **Solution**: Split into separate states (isResetting/isClearing)
-
-### Post-Implementation Improvements (22 Jan 2026)
-
-After P3-T16 completion, several architectural inconsistencies were discovered and fixed:
-
-**1. IPC Wrapper Consistency** ✅
-
-- **Problem**: `SettingsView.tsx` called `settings:load` and `settings:save` directly via `globalThis.electron.ipcRenderer.invoke()`, bypassing the wrapped handler pattern used elsewhere
-- **Solution**: Added `settings.load()` and `settings.save(key, value)` to preload bridge (matching wrapped pattern)
-- **Files Modified**: `src/preload/index.ts`, `src/preload/index.d.ts`
-- **Impact**: All settings operations now use consistent IpcResponse wrapper pattern
-
-**2. IpcResponse Handling** ✅
-
-- **Problem**: 7 direct IPC calls in SettingsView treated responses as raw values instead of checking IpcResponse.success
-- **Solution**: Updated all 7 settings operations to check `result.success` and extract `result.data`
-- **Files Modified**: `src/renderer/src/views/SettingsView/SettingsView.tsx` (7 calls), `src/renderer/src/components/SettingsView/DangerZoneSettings.tsx` (3 calls)
-- **Impact**: Proper error handling for all settings operations (10 total calls fixed)
-
-**3. Theme Persistence Migration** ✅
-
-- **Problem**: Theme persisted to localStorage while accent color used settings.json (inconsistent)
-- **Solution**:
-  - Migrated theme persistence from localStorage to settings.json file
-  - Theme now loads from `settings.appearance.theme` on mount
-  - `handleThemeModeChange()` saves theme via `settings.save('appearance.theme', value)`
-- **Files Modified**: `src/renderer/src/views/SettingsView/SettingsView.tsx`
-- **Impact**: Single source of truth for all settings (settings.json), no localStorage conflicts
-
-**4. Zustand Store Cleanup** ✅
-
-- **Problem**: Zustand persist middleware created duplicate persistence layer alongside settings.json
-- **Solution**:
-  - Removed persist middleware from appStore
-  - Settings file is now the sole persistence mechanism
-  - Store is runtime-only, settings.json handles disk persistence
-- **Files Modified**: `src/renderer/src/stores/appStore.ts`
-- **Impact**: Cleaner architecture, removed redundant persistence layer
-
-### Architectural Rationale
-
-**Why These Changes Matter**:
-
-1. **Consistency**: All IPC calls follow same pattern (wrapped handlers returning IpcResponse<T>)
-2. **Error Handling**: Proper success checking prevents silent failures
-3. **Single Source of Truth**: Settings.json is authoritative, no localStorage conflicts
-4. **Maintainability**: Removed redundant persistence layer (Zustand persist middleware)
-
-**Pattern Established**: All IPC handlers should:
-
-1. Be wrapped in preload bridge with type-safe methods
-2. Return IpcResponse<T> objects
-3. Be consumed with `.success` check and `.data` extraction
-
-### Result
-
-Fully functional Danger Zone with safe destructive operations. All three functions tested and working correctly in both dev and production modes. Post-implementation improvements ensure architectural consistency across entire settings system.
-
----
-
-## ✅ P3-T14 Mihon/Tachiyomi Library Export - COMPLETE (22 Jan 2026)
-
-**Status**: Complete and tested ✅
-**Duration**: ~7 hours (21-22 January 2026)
-
-### Implementation Summary
-
-Complete Mihon/Tachiyomi export functionality with all features working and tested.
-
-**What Was Built**:
-
-1. **Backend Export Service** (`mihon-export.service.ts`)
-2. **Export Helper** (`mihon-export.helper.ts`) with tag ID→name conversion
-3. **IPC Integration** (`mihon.handler.ts`)
-4. **Menu Integration** (`library.menu.ts`) with warning dialog
-5. **Frontend Integration** (`LibraryView.tsx`) with toast notifications
-
-### Critical Bugs Fixed (22 Jan 2026)
-
-**1. BigInt Serialization Issue** ✅
-
-- **Problem**: `source` field (BigInt constant) serialized as 0 in protobuf
-- **Root Cause**: protobuf.js doesn't support JavaScript BigInt for int64 fields
-- **Solution**: Changed `MangaDexSourceId` from `2499283573021220255n` (BigInt) to `'2499283573021220255'` (string), updated `BackupManga.source` type from `bigint` to `string`
-- **Files**: `mihon-export.helper.ts`, `backup-manga.type.ts`
-
-**2. Duplicate Toast Notifications** ✅
-
-- **Problem**: 4 toasts shown on export completion
-- **Root Cause**: IPC event listeners in preload script didn't return cleanup functions, causing listener accumulation on component re-renders
-- **Solution**:
-  - Added cleanup functions to all IPC event listeners (`onExportTachiyomi`, `onImportTachiyomi`, `onThemeChanged`, etc.)
-  - Fixed useEffect dependencies in `LibraryView.tsx` (added `show`, `loadFavourites`, `loadCollections`)
-  - Updated type definitions in `index.d.ts` to reflect `() => void` return types
-- **Files**: `preload/index.ts` (13 event listeners fixed), `preload/index.d.ts`, `LibraryView.tsx`
-
-### Result
-
-Complete and working Mihon/Tachiyomi export. Users can export entire library with metadata, collections, progress, and history. All bugs fixed and thoroughly tested.
-
-### Testing Completed ✅
-
-**All scenarios tested and verified**:
-
-- ✅ Export empty library (0 manga)
-- ✅ Export library with single manga
-- ✅ Export library with multiple manga
-- ✅ Tag ID → name conversion working correctly
-- ✅ Collection name mapping verified
-- ✅ Timestamp format correct (Unix ms)
-- ✅ File format validated (decompress + decode successful)
-- ✅ **Integration test**: Export from DexReader → Import to Mihon → Data verified correct
-
-### Files Created/Modified
-
-**Backend**:
-
-- ✅ `mihon-export.service.ts` - Main export orchestration
-- ✅ `mihon-export.helper.ts` - Business logic transformations
-- ✅ `mihon.handler.ts` - Added `export-backup` handler
-- ✅ `chapter.repo.ts` - Fixed method name typo
-- ✅ `library.menu.ts` - Fixed dialog flow logic
-
-**Frontend**:
-
-- ✅ `LibraryView.tsx` - Added export event listener
-
-**No New Dependencies**: Reused all P3-T12 infrastructure (protobufjs, pako, mihon.proto)
-
----
-
-## ✅ P3-T13 Native DexReader Export - COMPLETE (25 Jan 2026)
-
-**Duration**: ~5 hours (25 January 2026)
-**Status**: Complete and tested ✅
-
-### What Was Implemented
-
-Complete native `.dexreader` export functionality with selective backup options and protobuf schema.
-
-**1. Backend Audit & Critical Fixes** (Pre-Implementation):
-
-- Fixed 10 critical issues discovered during export service implementation:
-  - Typo: `exporterd_at` → `exported_at` (dexreader.proto)
-  - Typo: `favourites` → `favorites` (dexreader.proto)
-  - Typo: `scanlataion_group` → `scanlation_group` (dexreader.proto)
-  - Duplicate `lastVolume` field (dexreader.proto)
-  - Removed `imageFit` field (doesn't exist in DB, was in legacy reader-override.command.ts)
-  - Added missing `currentPage` field (reader-override.command.ts)
-  - Fixed `ZoomPanState` typo → `ZoomAndPanState` (collection.repo.ts, dexreader.proto, reader-override.entity.ts)
-  - Fixed IPC handler routing: `settings:clear-all` → `destruction:clear-all` (app-settings.handler.ts)
-  - Fixed import path typo: `'..utils/diff.util'` → `'../utils/diffs.util'` (app-settings.handler.ts)
-  - Added missing `externalUrl` field (dexreader-backup.type.ts)
-
-**2. Protobuf Schema Renaming** (Critical Change):
-
-- Renamed all 8 protobuf message types: `Backup*` → `DexReader*`
-- **Reason**: Mihon uses identical `Backup*` prefix, causes naming conflicts when both imported
-- **Types Renamed**:
-  - `Backup` → `DexReaderBackup`
-  - `BackupManga` → `DexReaderManga`
-  - `BackupChapter` → `DexReaderChapter`
-  - `BackupCollection` → `DexReaderCollection`
-  - `BackupCollectionItem` → `DexReaderCollectionItem`
-  - `BackupMangaProgress` → `DexReaderMangaProgress`
-  - `BackupChapterProgress` → `DexReaderChapterProgress`
-  - `BackupMangaReaderOverride` → `DexReaderMangaReaderOverride`
-- **Impact**: Clear separation between native and Mihon backup formats
-
-**3. Reader Settings Consolidation** (MAJOR FIX):
-
-- **Problem Discovered**: Reader settings stored in TWO places (database + settings.json), causing inconsistency
-- **Solution**: Made database the single source of truth
-- Created `MangaOverride` query type with full manga metadata (title, coverUrl, mangaId)
-- Updated Settings page to query database via IPC instead of reading JSON file
-- Export service now reads from database with metadata
-- **Impact**: Eliminated dual-source problem, Settings page now shows correct data, exports include all overrides
-
-**4. Backend Export Service** (dexreader-export.service.ts + helper):
-
-- Export service orchestration with AbortController support
-- Helper transforms DB entities → protobuf types
-- Protobuf encoding + gzip compression
-- Selective backup: Library (always), Collections (optional), Progress (optional), Reader Settings (optional)
-- File format: `.dexreader` (protobuf proto3 + gzip)
-
-**5. IPC Integration**:
-
-- `dexreader:export-backup` handler with options parameter
-- `dexreader:cancel-export` for cancellation
-- Preload bridge: `window.dexreader.exportBackup(options)`, `window.dexreader.cancelExport()`
-- Type definitions in preload/index.d.ts
-
-**6. Frontend Export Dialog** (DexReaderExportDialog.tsx):
-
-- Modal wrapper with focus trapping
-- Fluent UI icons: Library20Regular, Folder20Regular, BookOpen20Regular, Settings20Regular
-- Windows 11 design tokens (borders, backgrounds, typography)
-- Checkbox options for Collections, Progress, Reader Settings
-- "Library always included" indicator
-- Export button triggers file save dialog
-
-**7. LibraryView Integration**:
-
-- Menu event listener for `export-library` event
-- File save dialog with `.dexreader` extension and filters
-- Loading state management during export
-- Toast notifications for success/error
-
-**8. Settings Page Improvements**:
-
-- Removed duplicate `getImageFitLabel()` helper (was defined twice)
-- Database query replaces JSON file reading
-- "Clear All Overrides" now uses single IPC call (not loop)
-- Shows manga title and cover in override list
-
-### Files Created/Modified
-
-**Backend Services** (14 files):
-
-- `dexreader-export.service.ts` - Main export orchestration
-- `dexreader-export.helper.ts` - DB → protobuf transformation
-- `dexreader-export.result.ts` - Result type
-- `dexreader.handler.ts` - IPC handlers
-- `dexreader-backup.type.ts` - TypeScript type definitions
-- `dexreader.proto` - Protobuf schema (renamed from Backup*to DexReader*)
-- `chapter.repo.ts` - Added `getChaptersByMangaIds()`
-- `collection.repo.ts` - Fixed ZoomPanState typo
-- `manga-progress.repo.ts` - Added `getAllMangaProgress()`, `getAllChapterProgressForAllManga()`
-- `reader-settings.repo.ts` - Added `getAllOverrides()` with JOIN query
-- `manga-override.query.ts` - NEW query type with manga metadata
-- `reader-override.entity.ts` - Fixed ZoomAndPanState typo
-- `reader-override.command.ts` - Added currentPage field
-- `app-settings.handler.ts` - Fixed IPC routing and import path
-
-**Frontend Components** (3 files):
-
-- `DexReaderExportDialog.tsx` (122 lines) - Export dialog with checkboxes
-- `DexReaderExportDialog.css` (136 lines) - Windows 11 styling
-- `LibraryView.tsx` - Menu integration with file save dialog
-
-**Settings Page** (1 file):
-
-- `ReaderSettingsSection.tsx` - Database queries replace JSON reading, Clear All uses IPC
-
-### Testing & Validation
-
-✅ **Tested Scenarios**:
-
-- Export with all options (collections + progress + reader settings)
-- Export with selective options (only library, only progress, etc.)
-- File save dialog integration
-- Keyboard shortcut (Ctrl+Shift+E)
-- Toast notifications on success/error
-- Settings page shows correct overrides from database
-- Clear All Overrides works correctly
-
-### Result
-
-Complete native DexReader export system with selective backup, proper schema naming, and consolidated reader settings. Export creates `.dexreader` files with protobuf + gzip compression. Settings page now queries database for reader overrides. All 10 backend issues fixed during implementation.
+**See**: [system-patterns.md](./system-patterns.md) for detailed architectural patterns, [tech-context.md](./tech-context.md) for technology stack details

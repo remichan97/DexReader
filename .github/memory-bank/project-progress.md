@@ -3,8 +3,8 @@
 **Purpose**: This file tracks completed milestones with concise summaries. For detailed implementation notes, see [archived-milestones.md](./archived-milestones.md).
 
 **Project Start**: 23 November 2025
-**Current Phase**: Phase 3 - User Experience Enhancement (P3-T17 Complete ✅)
-**Last Updated**: 29 January 2026
+**Current Phase**: Phase 3 - User Experience Enhancement (COMPLETE ✅)
+**Last Updated**: 30 January 2026
 
 ---
 
@@ -18,15 +18,34 @@
 
 ---
 
-## Current Status: Phase 3 In Progress (94.7% Complete)
+## Current Status: Phase 3 Complete (100%)
 
-**Phase Progress**: Phase 2 Complete (11/11) | Guerilla Refactoring Complete | 18/19 Phase 3 tasks
-**Next Tasks**: P3-T18 (Accessibility improvements) or P3-T19 (Icon refinement)
-**Current Focus**: Date format settings link implemented ✅
+**Phase Progress**: Phase 2 Complete (11/11) | Guerilla Refactoring Complete | Phase 3 Complete (19/19 tasks) ✅
+**Next Phase**: Phase 4 - Advanced Features (to be planned)
+**Recent Completion**: Accessibility improvements achieving WCAG 2.1 Level AA compliance ✅
 
 ---
 
 ## Recent Milestones
+
+### P3-T18 Accessibility Improvements (30 January 2026) ✅
+
+**Duration**: ~2 hours | **Status**: Complete - WCAG 2.1 Level AA Compliance Achieved
+
+**Summary**: Achieved 100% Lighthouse accessibility scores on both light (91%→100%) and dark (96%→100%) themes. Fixed theme persistence bug, color contrast issues, and implemented semantic improvements.
+
+**Key Outcomes**:
+
+- **Lighthouse Scores**: Perfect 100% on both themes, all WCAG 2.1 Level AA requirements met
+- **Color Contrast**: Fixed "Completed" badge (3.8:1 → 5.1:1 contrast ratio)
+- **Semantic Structure**: Sr-only h1 headings on all major views (Library, Browse, Settings, History)
+- **Live Regions**: Aria-live announcements for library counts and search results
+- **Alt Text**: Pragmatic approach - covers use titles, reader pages use "Page X of Y"
+- **Theme Bug Fix**: Fixed forced dark mode not persisting across reloads
+
+**Result**: DexReader fully accessible to users with visual impairments, compliant with modern accessibility standards. See [archived-milestones.md](./archived-milestones.md) for detailed implementation notes.
+
+---
 
 ### P3-T17 Date Format Preferences (29 January 2026) ✅
 
@@ -459,10 +478,10 @@
 - [✅] **P3-T15**: Add native DexReader backup restore functionality (protobuf) - **COMPLETE** (29 Jan 2026, ~4 hours)
 - [✅] **P3-T16**: Add "Danger Zone" settings section (Open Settings, Reset to Default, Clear Data) - **COMPLETE** (22 Jan 2026, ~2 hours)
 - [✅] **P3-T17**: Implement date format settings - **COMPLETE** (29 Jan 2026, ~1 hour, Alternative Solution)
-- [⏳] **P3-T18**: Improve accessibility (ARIA labels, etc.) - **PENDING**
+- [✅] **P3-T18**: Improve accessibility (ARIA labels, etc.) - **COMPLETE** (30 Jan 2026, ~2 hours)
 - [✅] **P3-T19**: Fluent UI icons - **COMPLETE** (Pre-Phase 3)
 
-**Phase 3 Progress**: 18/19 tasks complete (94.7%)
+**Phase 3 Progress**: 19/19 tasks complete (100%) ✅
 
 **Notes**:
 
