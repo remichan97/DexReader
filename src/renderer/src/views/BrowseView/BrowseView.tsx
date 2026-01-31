@@ -225,6 +225,20 @@ export function BrowseView(): JSX.Element {
 
   return (
     <div style={{ padding: '24px' }}>
+      {/* Screen reader heading for page structure */}
+      <h1 className="sr-only">Browse Manga</h1>
+
+      {/* Live region for search results */}
+      <div aria-live="polite" aria-atomic="true" className="sr-only" role="status">
+        {loading && !results.length
+          ? 'Searching for manga...'
+          : results.length > 0
+            ? `Found ${results.length} manga${hasMore ? ', scroll for more' : ''}`
+            : query
+              ? 'No manga found'
+              : ''}
+      </div>
+
       {/* Search Bar */}
       <div style={{ marginBottom: '16px' }}>
         <SearchBar

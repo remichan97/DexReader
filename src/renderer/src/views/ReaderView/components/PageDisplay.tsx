@@ -131,7 +131,7 @@ export function PageDisplay({
 
           <img
             src={imageUrl}
-            alt={`Page ${pageNumber + 1}`}
+            alt={`Page ${pageNumber + 1} of ${totalPages}`}
             className={`reader-page__image reader-page__image--fit-${fitMode === 'custom' ? 'height' : fitMode}`}
             style={imageStyle}
             onLoad={onImageLoad}

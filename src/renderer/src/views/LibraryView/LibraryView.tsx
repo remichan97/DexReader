@@ -634,6 +634,14 @@ export function LibraryView(): JSX.Element {
 
   return (
     <div style={{ padding: '24px' }}>
+      {/* Screen reader heading for page structure */}
+      <h1 className="sr-only">Library</h1>
+
+      {/* Live region for dynamic content updates */}
+      <div aria-live="polite" aria-atomic="true" className="sr-only" role="status">
+        {loading ? 'Loading library...' : `${filteredAll.length} manga in library`}
+      </div>
+
       {/* Search Bar with Actions */}
       <div style={{ marginBottom: '24px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
         <div style={{ flex: 1 }}>

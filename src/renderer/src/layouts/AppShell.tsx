@@ -15,6 +15,7 @@ interface AppShellProps {
 export function AppShell({ children }: AppShellProps): JSX.Element {
   const theme = useAppStore((state) => state.theme)
   const setSystemTheme = useAppStore((state) => state.setSystemTheme)
+  const setThemeMode = useAppStore((state) => state.setThemeMode)
   const location = useLocation()
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false)
 
@@ -36,6 +37,22 @@ export function AppShell({ children }: AppShellProps): JSX.Element {
     const viewTitle = viewTitles[location.pathname] || 'DexReader'
     document.title = `${viewTitle} - DexReader`
   }, [location.pathname])
+
+  // Load theme preference from settings on startup
+  useEffect(() => {
+    async function loadThemePreference(): Promise<void> {
+      try {
+        const settingsResult = await globalThis.settings.load()
+        if (settingsResult.success && settingsResult.data?.appearance?.theme) {
+          setThemeMode(settingsResult.data.appearance.theme)
+        }
+      } catch (error) {
+        console.error('Failed to load theme preference:', error)
+      }
+    }
+
+    loadThemePreference()
+  }, [setThemeMode])
 
   // Sync system theme from Electron main process
   useEffect(() => {

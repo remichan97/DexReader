@@ -506,6 +506,9 @@ export function SettingsView(): JSX.Element {
 
   return (
     <div style={{ padding: '24px', maxWidth: 'min(1200px, 90%)', margin: '0 auto', width: '100%' }}>
+      {/* Screen reader heading for page structure */}
+      <h1 className="sr-only">Settings</h1>
+
       <Tabs value={activeTab} onChange={setActiveTab}>
         <TabList>
           <Tab value="appearance">Appearance</Tab>

@@ -323,7 +323,7 @@
 
 .manga-card__status--completed {
   background: rgba(0, 120, 212, 0.1);
-  color: #0078d4;
+  color: #005a9e; /* Darkened from #0078d4 for WCAG AA contrast (4.5:1 on light bg) */
 }
 
 [data-theme='dark'] .manga-card__status--completed {

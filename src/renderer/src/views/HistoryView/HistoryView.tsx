@@ -152,6 +152,9 @@ export function HistoryView(): JSX.Element {
 
   return (
     <div className="history-view">
+      {/* Screen reader heading for page structure */}
+      <h1 className="sr-only">Reading History</h1>
+
       {/* Statistics */}
       {statistics && (
         <div className="history-view__stats">
