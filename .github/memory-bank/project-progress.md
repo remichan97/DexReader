@@ -3,8 +3,8 @@
 **Purpose**: This file tracks completed milestones with concise summaries. For detailed implementation notes, see [archived-milestones.md](./archived-milestones.md).
 
 **Project Start**: 23 November 2025
-**Current Phase**: Phase 3 - User Experience Enhancement (COMPLETE ✅)
-**Last Updated**: 30 January 2026
+**Current Phase**: Phase 4 - Offline Functionality (In Progress 🔵)
+**Last Updated**: 31 January 2026
 
 ---
 
@@ -18,11 +18,11 @@
 
 ---
 
-## Current Status: Phase 3 Complete (100%)
+## Current Status: Phase 4 In Progress (2/11 tasks)
 
-**Phase Progress**: Phase 2 Complete (11/11) | Guerilla Refactoring Complete | Phase 3 Complete (19/19 tasks) ✅
-**Next Phase**: Phase 4 - Advanced Features (to be planned)
-**Recent Completion**: Accessibility improvements achieving WCAG 2.1 Level AA compliance ✅
+**Phase Progress**: Phase 2 Complete (11/11) | Guerilla Refactoring Complete | Phase 3 Complete (19/19) ✅ | Phase 4 In Progress (2/11 foundation complete) 🔵
+**Current Focus**: Offline downloads implementation (database and statistics already complete)
+**Recent Completion**: Phase 3 complete with WCAG 2.1 Level AA accessibility ✅
 
 ---
 
@@ -504,20 +504,19 @@
 
 ---
 
-### Phase 4: Offline Functionality (Planned) ⚪
+### Phase 4: Offline Functionality (In Progress) 🔵
 
 **Duration**: 4-5 weeks
-**Status**: Not Started
-**Target Start**: March 2026
-**Target Completion**: April 2026
+**Status**: 2/11 tasks complete (foundation ready)
+**Target Start**: February 2026
+**Target Completion**: March 2026
 
 **Objectives**:
 
 - Implement explicit chapter downloads (user-initiated only)
 - Create local chapter storage system (user-configured downloads directory)
 - Add offline reading mode for downloaded content
-- Implement download management UI
-- Add reading statistics and history
+- Implement download management UI (connect existing DownloadsView to backend)
 - Support downloading individual chapters or entire manga
 - Respect filesystem restrictions (downloads directory only)
 
@@ -527,25 +526,29 @@
 - Local storage for user-downloaded chapters (user-configured downloads directory)
 - Offline reading mode for downloaded content
 - Download progress and management UI (per-chapter and bulk)
-- Local library database in AppData (SQLite/IndexedDB)
-- Reading statistics and history tracking
 - Download directory management with path validation
+
+**Foundation Already Complete** ✅:
+
+- Local library database in AppData (SQLite with Drizzle ORM, 10 tables) - Completed 27-28 Dec 2025
+- Reading statistics and history tracking (HistoryView with full UI) - Completed P3-T01, 3-5 Jan 2026
+- DownloadsView UI wireframe exists (mock data, needs backend connection)
 
 **Key Technical Tasks**:
 
 - [⚪] **P4-T01**: Implement explicit download system (user-initiated only)
 - [⚪] **P4-T02**: Create download queue manager for chapters
 - [⚪] **P4-T03**: Add local image storage system (user-configured downloads directory)
-- [⚪] **P4-T04**: Implement library database in AppData (SQLite/IndexedDB)
+- [✅] **P4-T04**: Implement library database in AppData - COMPLETE (Database migration 27-28 Dec 2025)
 - [⚪] **P4-T05**: Create download progress tracking (per-chapter and bulk)
-- [⚪] **P4-T06**: Build download management UI (download chapter/manga buttons)
+- [⚪] **P4-T06**: Add download buttons to MangaDetailView and ReaderView (note: DownloadsView UI already exists with mock data)
 - [⚪] **P4-T07**: Add batch downloads (entire manga or selected chapters)
 - [⚪] **P4-T08**: Implement offline mode detection and switching
 - [⚪] **P4-T09**: Create storage management for downloaded chapters and covers
-- [⚪] **P4-T10**: Add reading statistics database (AppData)
+- [✅] **P4-T10**: Add reading statistics database - COMPLETE (P3-T01, 3-5 Jan 2026, includes HistoryView UI)
 - [⚪] **P4-T11**: Implement storage quota management and cleanup
 - [⚪] **P4-T12**: Validate all file operations respect path restrictions
-- [⚪] **P4-T13**: Implement unfavourite dialog with 3 options (remove from library only, delete downloads only, or remove everything) + manual collection cleanup
+- [⚪] **P4-T13**: Implement unfavourite dialog with 3 options (remove from library only, delete downloads only, or remove everything) - **DEFERRED until downloads functional**
 
 ---
 
