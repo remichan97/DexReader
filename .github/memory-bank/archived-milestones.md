@@ -42,14 +42,14 @@ Conducted comprehensive accessibility audit using Lighthouse 12.8.1 and implemen
 // src/renderer/src/layouts/AppShell.tsx
 useEffect(() => {
   const loadTheme = async () => {
-    const settings = await window.api.getSettings();
+    const settings = await window.api.getSettings()
     if (settings?.appearance?.theme) {
-      setThemeMode(settings.appearance.theme); // Apply saved preference FIRST
+      setThemeMode(settings.appearance.theme) // Apply saved preference FIRST
     }
-    await window.api.syncTheme(); // Then sync with system if needed
-  };
-  loadTheme();
-}, []);
+    await window.api.syncTheme() // Then sync with system if needed
+  }
+  loadTheme()
+}, [])
 ```
 
 **Impact**: Theme preference now loads before system sync, ensuring forced dark mode applies immediately on startup.
@@ -85,7 +85,7 @@ useEffect(() => {
 
 ```html
 <!-- src/renderer/index.html -->
-<html lang="en">
+<html lang="en"></html>
 ```
 
 **Impact**: Screen readers now correctly identify content as English and apply appropriate pronunciation.
@@ -151,8 +151,8 @@ Announces total count when filtering/sorting changes.
   {isSearching
     ? 'Searching for manga...'
     : searchResults.length > 0
-    ? `Found ${searchResults.length} manga${hasMore ? ', scroll for more' : ''}`
-    : 'No results found'}
+      ? `Found ${searchResults.length} manga${hasMore ? ', scroll for more' : ''}`
+      : 'No results found'}
 </div>
 ```
 
@@ -187,26 +187,13 @@ Provides real-time search feedback without visual interruption.
 
 ```tsx
 // PageDisplay.tsx - Single page mode
-<img
-  src={imageUrl}
-  alt={`Page ${pageNumber + 1} of ${totalPages}`}
-/>
+;<img src={imageUrl} alt={`Page ${pageNumber + 1} of ${totalPages}`} />
 
 // DoublePageDisplay.tsx - Two-page spread
-pages.map((page, index) => (
-  <img
-    src={pageUrl}
-    alt={`Page ${pageIndex + 1} of ${totalPages}`}
-  />
-))
+pages.map((page, index) => <img src={pageUrl} alt={`Page ${pageIndex + 1} of ${totalPages}`} />)
 
 // VerticalScrollDisplay.tsx - Vertical scroll mode
-pages.map((page, index) => (
-  <img
-    src={pageUrl}
-    alt={`Page ${index + 1} of ${totalPages}`}
-  />
-))
+pages.map((page, index) => <img src={pageUrl} alt={`Page ${index + 1} of ${totalPages}`} />)
 ```
 
 **WCAG Compliance**: Honest approach is compliant - WCAG doesn't require descriptions of content that can't be meaningfully conveyed to non-visual users. Positional information is useful and honest.
@@ -379,15 +366,17 @@ CSS additions:
 - Created conditional path display section:
 
   ```tsx
-  {savePath && (
-    <div className="export-path-info">
-      <SaveArrowRight20Regular className="export-icon" />
-      <div className="path-details">
-        <span className="path-label">Save to:</span>
-        <span className="path-name">{savePath}</span>
+  {
+    savePath && (
+      <div className="export-path-info">
+        <SaveArrowRight20Regular className="export-icon" />
+        <div className="path-details">
+          <span className="path-label">Save to:</span>
+          <span className="path-name">{savePath}</span>
+        </div>
       </div>
-    </div>
-  )}
+    )
+  }
   ```
 
 - Added CSS matching import dialog's file-info section
@@ -644,15 +633,15 @@ System settings integration is objectively superior for this use case. The app h
 
 2. **Conflict Resolution by Data Type**:
 
-| Data Type | Strategy | On Conflict | Rationale |
-|-----------|----------|-------------|-----------|
-| Manga | UPSERT | Import wins | Backup restoration, self-healing via API on detail view |
-| Chapters | UPSERT | Import wins | Same as manga, fresh data fetched from API |
-| Collections* | SKIP + MERGE | Merge manga into existing | Same name = same concept, additive is safer |
-| Progress* | UPSERT | Import wins (preserve firstReadAt) | Authoritative reading history from backup |
-| Reader Settings* | SKIP EXISTING | Current wins | Active user preferences take priority |
+| Data Type         | Strategy      | On Conflict                        | Rationale                                               |
+| ----------------- | ------------- | ---------------------------------- | ------------------------------------------------------- |
+| Manga             | UPSERT        | Import wins                        | Backup restoration, self-healing via API on detail view |
+| Chapters          | UPSERT        | Import wins                        | Same as manga, fresh data fetched from API              |
+| Collections\*     | SKIP + MERGE  | Merge manga into existing          | Same name = same concept, additive is safer             |
+| Progress\*        | UPSERT        | Import wins (preserve firstReadAt) | Authoritative reading history from backup               |
+| Reader Settings\* | SKIP EXISTING | Current wins                       | Active user preferences take priority                   |
 
-*Optional sections - only imported if present in backup file (auto-detected via protobuf)
+\*Optional sections - only imported if present in backup file (auto-detected via protobuf)
 
 **Important Context**: These strategies only apply when sections exist in the backup. Missing sections result in no action - existing data completely preserved.
 
@@ -664,7 +653,7 @@ System settings integration is objectively superior for this use case. The app h
 - **Solution**: Built `nameToIdMap` from existing collections
 
   ```typescript
-  const nameToIdMap = new Map(existingCollections.map(c => [c.name, c.id]))
+  const nameToIdMap = new Map(existingCollections.map((c) => [c.name, c.id]))
   const collectionIdMap = new Map<number, number>() // oldId → newId
 
   // For each backup collection:

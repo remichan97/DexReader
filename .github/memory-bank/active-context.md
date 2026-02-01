@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 31 January 2026
-**Current Phase**: Transition - Phase 3 Complete, Phase 4 Planning
-**Session**: Ready for Phase 4
+**Last Updated**: 1 February 2026
+**Current Phase**: Phase 4 - Offline Functionality
+**Session**: P4-T01 Planning Complete
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -10,12 +10,59 @@
 
 ## Current Status Summary
 
-**Phase**: Phase 3 Complete ✅ → Phase 4 Planning
-**Progress**: Phase 3: 19/19 tasks (100%) | Phase 4: Not yet defined
-**Current Date**: 31 January 2026
+**Phase**: Phase 4 In Progress (2/11 tasks complete - foundation ready)
+**Progress**: Phase 3: 19/19 (100%) ✅ | Phase 4: 0/11 active tasks
+**Current Date**: 1 February 2026
 **Database Migration Status**: Fully migrated and operational
-**Current Task**: Phase 4 planning and task definition
-**Plan Document**: None
+**Current Task**: P4-T01 - Implement explicit download system
+**Plan Document**: `.github/copilot-plans/p4-t01-download-system-plan.md`
+
+---
+
+## Next Steps - Phase 4 In Progress
+
+**Current Focus**: P4-T01 - Implement explicit download system (foundation for all download features)
+
+**Immediate Actions**:
+
+1. Implement database schema for `chapter_downloads` table
+2. Build download service with single-chapter download capability
+3. Create repository layer for download tracking
+4. Add IPC handlers and preload bridge
+5. Enhance image proxy to load from local storage
+
+**Ready to Start**: All prerequisites complete (SQLite, filesystem security, API client, IPC patterns)
+
+---
+
+## Planning Notes for Future Tasks
+
+### P4-T02: Download Queue Manager
+
+**Performance Analysis** (1 Feb 2026):
+
+- **Bottleneck**: Network/API (70-100 minutes for 1000 chapters at 5 req/s rate limit)
+- **NOT bottlenecks**: Database writes (~1 second for 1000 records), Filesystem I/O (5-10 minutes)
+- **Key optimizations needed**:
+  - Concurrent downloads: 3-5 simultaneous chapters
+  - Batch database transactions: Update 10-100 records at once
+  - Throttled progress events: Max 10 events/sec across all downloads (prevent IPC flood)
+
+**Features to Implement**:
+
+- Overall progress calculation: Aggregate across all active downloads
+- Event: `download:overall-progress` with `{ totalChapters, completedPages, totalPages, overallPercentage }`
+- Retry logic: Query `status='error'` from database, exponential backoff
+- Download resumption: Detect app restarts, resume incomplete downloads (status='downloading')
+
+### P4-T05: Download Progress UI
+
+**Integration Points**:
+
+- Listen to `download:chapter-progress` events from P4-T01 (per-page updates)
+- Listen to `download:overall-progress` events from P4-T02 (bulk operations)
+- Connect DownloadsView mock UI to real backend
+- Display: Progress bars, status badges, speed/ETA calculations, failed items with retry buttons
 
 ---
 

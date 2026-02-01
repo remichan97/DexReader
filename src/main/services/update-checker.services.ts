@@ -1,5 +1,4 @@
 import { MangaDexClient } from '../api/mangadexClient'
-import { UpdateResult } from './results/update.result'
 import { Chapter } from '../api/entities/chapter.entity'
 import { ChapterOrderOptions, OrderDirection } from '../api/enums'
 import { mangaRepository } from '../database/repository/manga.repo'
@@ -9,6 +8,7 @@ import { MangaUpdateData } from './data/manga-updates.data'
 import { getChangedFields } from '../utils/diffs.util'
 import { Manga } from '../api/entities/manga.entity'
 import { UpsertMangaCommand } from '../database/commands/manga/upsert-manga.command'
+import { UpdateResult } from './results/mihon/update.result'
 
 export class UpdateCheckerService {
   private readonly client: MangaDexClient = new MangaDexClient()
