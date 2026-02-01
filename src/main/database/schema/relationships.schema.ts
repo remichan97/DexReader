@@ -1,3 +1,4 @@
+import { chapterDownloads } from './chapter-downloads.schema'
 import { relations } from 'drizzle-orm'
 import { collections } from './collections.schema'
 import { collectionItems } from './collection-items.schema'
@@ -35,7 +36,8 @@ export const mangaRelations = relations(manga, ({ many, one }) => ({
     fields: [manga.mangaId],
     references: [mangaReaderOverrides.mangaId]
   }),
-  readHistory: many(readHistory)
+  readHistory: many(readHistory),
+  downloads: many(chapterDownloads)
 }))
 
 // Read History Relations
@@ -74,5 +76,18 @@ export const chapterRelations = relations(chapter, ({ one }) => ({
   manga: one(manga, {
     fields: [chapter.mangaId],
     references: [manga.mangaId]
+  }),
+  downloads: one(chapterDownloads)
+}))
+
+// Chapter Downloads Relations
+export const chapterDownloadsRelations = relations(chapterDownloads, ({ one }) => ({
+  manga: one(manga, {
+    fields: [chapterDownloads.mangaId],
+    references: [manga.mangaId]
+  }),
+  chapter: one(chapter, {
+    fields: [chapterDownloads.chapterId],
+    references: [chapter.chapterId]
   })
 }))
