@@ -127,7 +127,6 @@
   padding-left: 28px; /* Align with icon + text */
 }
 
-
 .dexreader-export-dialog .export-note {
   padding: var(--space-3);
   background: var(--win-bg-subtle);
