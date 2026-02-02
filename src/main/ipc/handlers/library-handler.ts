@@ -9,7 +9,7 @@ import { GetLibraryMangaCommand } from '../../database/commands/manga/get-librar
 import { collectionRepo } from '../../database/repository/collection.repo'
 import { mangaRepository } from '../../database/repository/manga.repo'
 import { readHistoryRepo } from '../../database/repository/read-history.repo'
-import { libraryUpdate } from '../../services/update-checker.services'
+import { libraryUpdate } from '../../services/update-checker.service'
 import { wrapIpcHandler } from '../wrapHandler'
 
 export function registerLibraryHandlers(): void {
