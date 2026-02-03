@@ -17,6 +17,7 @@ export interface Chapter {
     updatedAt: string
     publishedAt: string
     readableAt: string
+    isUnavailable: boolean
   }
   relationships: Relationship[]
 }
