@@ -64,8 +64,10 @@ export default function ChapterList({
 
   // Filter and sort chapters
   const displayChapters = useMemo(() => {
-    // Chapters are already filtered by language from API
-    const filtered = [...chapters]
+    // Filter out unavailable chapters
+    const filtered = chapters.filter(
+      (chapter) => !(chapter.attributes as { isUnavailable?: boolean }).isUnavailable
+    )
 
     // Sort by chapter number
     filtered.sort((a, b) => {
