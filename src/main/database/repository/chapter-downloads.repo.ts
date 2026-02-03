@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 import { databaseConnection } from '../connection'
 import { chapter, chapterDownloads, manga } from '../schema'
 import { CreateDownloadCommand } from '../commands/chapter-downloads/create-download.command'
@@ -16,7 +16,12 @@ export class ChapterDownloadsRepo {
     const result = this.db
       .select()
       .from(chapterDownloads)
-      .where(eq(chapterDownloads.chapterId, chapterId))
+      .where(
+        and(
+          eq(chapterDownloads.chapterId, chapterId),
+          eq(chapterDownloads.status, DownloadStatus.Completed)
+        )
+      )
       .get()
 
     return result !== undefined
