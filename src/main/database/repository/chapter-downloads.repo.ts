@@ -1,4 +1,4 @@
-import { eq, and } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { databaseConnection } from '../connection'
 import { chapter, chapterDownloads, manga } from '../schema'
 import { CreateDownloadCommand } from '../commands/chapter-downloads/create-download.command'
@@ -10,21 +10,6 @@ import { DownloadStatus } from '../enums/download-status.enum'
 export class ChapterDownloadsRepo {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
     return databaseConnection.getDb()
-  }
-
-  isDownloaded(chapterId: string): boolean {
-    const result = this.db
-      .select()
-      .from(chapterDownloads)
-      .where(
-        and(
-          eq(chapterDownloads.chapterId, chapterId),
-          eq(chapterDownloads.status, DownloadStatus.Completed)
-        )
-      )
-      .get()
-
-    return result !== undefined
   }
 
   getDownload(chapterId: string): ChapterDownloadQuery | undefined {
@@ -107,11 +92,15 @@ export class ChapterDownloadsRepo {
 
     if (command.isDownloaded) {
       updates.status = DownloadStatus.Completed
+      updates.storageSize = command.storageSize
+      updates.totalPages = command.totalPages
+      updates.downloadedAt = new Date()
     }
 
     if (command.isFailed) {
       updates.status = DownloadStatus.Failed
       updates.errorMessage = command.errorMessage ?? undefined
+      updates.lastAttemptedAt = new Date()
     }
 
     this.db

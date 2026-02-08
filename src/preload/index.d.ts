@@ -1,44 +1,89 @@
-import { MangaOverride } from './../main/database/queries/manga/manga-override.query'
-import { MangaWithMetadata } from './../main/database/queries/manga/manga-with-metadata.query'
-import { ImportResult } from './../main/services/results/import.result'
-import { UpdateResult } from './../main/services/results/update.result'
-import { ExportResult } from './../main/services/results/export.result'
-import { DexReaderExportResult } from './../main/services/results/dexreader/export.result'
-import { DexReaderImportResult } from './../main/services/results/dexreader/import.result'
-import { ImageUrlResponse } from './../main/api/responses/image-url.response'
-import { ApiResponse } from './../main/api/responses/api.response'
-import { Manga } from './../main/api/entities/manga.entity'
-import { CollectionResponse } from './../main/api/responses/collection.response'
+// Third-party imports
 import { ElectronAPI } from '@electron-toolkit/preload'
+
+// IPC types
 import type { IpcResponse, FileStats, AllowedPaths, FolderSelectResult } from './ipc.types'
+
+// API entities
+import { Manga } from '../main/api/entities/manga.entity'
+import { Chapter } from '../main/api/entities/chapter.entity'
+
+// API responses
+import { ApiResponse } from '../main/api/responses/api.response'
+import { CollectionResponse } from '../main/api/responses/collection.response'
+import { ImageUrlResponse } from '../main/api/responses/image-url.response'
+
+// API enums & params
+import { ImageQuality } from '../main/api/enums/image-quality.enum'
+import { MangaSearchParams } from '../main/api/searchparams/manga-search.searchparam'
+import { FeedParams } from '../main/api/searchparams/feed.searchparam'
+
+// Database queries
 import type { MangaProgress } from '../main/database/queries/progress/manga-progress.query'
-import type { ProgressDatabase } from '../main/database/queries/progress/progress-database.query'
-import type { ReadingStats } from '../main/database/queries/reading-stats/reading-stats.query'
 import type { MangaProgressMetadata } from '../main/database/queries/progress/manga-progress-metadata.query'
 import type { ChapterProgress } from '../main/database/queries/progress/chapter-progress.query'
+import type { ProgressDatabase } from '../main/database/queries/progress/progress-database.query'
+import type { ReadingStats } from '../main/database/queries/reading-stats/reading-stats.query'
+import { MangaOverride } from '../main/database/queries/manga/manga-override.query'
+import { MangaWithMetadata } from '../main/database/queries/manga/manga-with-metadata.query'
+import type { ChapterDownloadQuery } from '../main/database/queries/chapter-downloads/chapter-downloads.query'
+import { ReadHistoryEntry } from '../main/database/queries/read-history/read-history.query'
+
+// Database commands
+import { CreateCollectionCommand } from '../main/database/commands/collections/create-collection.command'
+import { UpdateCollectionCommand } from '../main/database/commands/collections/update-collection.command'
+import { AddToCollectionCommand } from '../main/database/commands/collections/add-to-collection.command'
+import { RemoveFromCollectionCommand } from '../main/database/commands/collections/remove-from-collection.command'
+import { ReorderMangaInCollectionCommand } from '../main/database/commands/collections/reorder-manga-in-collection.command'
+import { RecordReadCommand } from '../main/database/commands/read-history/record-read.command'
+import { GetLibraryMangaCommand } from '../main/database/commands/library/get-library-manga.command'
+import { UpsertMangaCommand } from '../main/database/commands/manga/upsert-manga.command'
+
+// Database entities
+import { CollectionEntity } from '../main/database/schema/collections.schema'
+
+// Settings
 import type { MangaReadingSettings } from '../main/settings/entity/reading-settings.entity'
-import type { DexreaderExportOption } from './../main/services/options/dexreader-export.option'
+import type { AppSettings } from '../main/settings/entity/settings.entity'
+
+// Service options
+import type { DexreaderExportOption } from '../main/services/options/dexreader-export.option'
+import type { DownloadChapterOptions } from '../main/services/options/download-chapter.option'
+
+// Service results
+import { ImportResult } from '../main/services/results/import.result'
+import { UpdateResult } from '../main/services/results/update.result'
+import { ExportResult } from '../main/services/results/export.result'
+import { DexReaderExportResult } from '../main/services/results/dexreader/export.result'
+import { DexReaderImportResult } from '../main/services/results/dexreader/import.result'
+import { DownloadChapterResult } from '../main/services/results/dexreader/download-chapter.result'
 
 // Re-export types for renderer use
-export type { ImageUrlResponse } from './../main/api/responses/image-url.response'
 export type { IpcResponse } from './ipc.types'
+export type { ImageUrlResponse } from '../main/api/responses/image-url.response'
 export type { MangaProgress } from '../main/database/queries/progress/manga-progress.query'
 export type { MangaProgressMetadata } from '../main/database/queries/progress/manga-progress-metadata.query'
 export type { ChapterProgress } from '../main/database/queries/progress/chapter-progress.query'
 export type { ProgressDatabase } from '../main/database/queries/progress/progress-database.query'
 export type { ReadingStats } from '../main/database/queries/reading-stats/reading-stats.query'
 export type { MangaOverride } from '../main/database/queries/manga/manga-override.query'
+export type { MangaWithMetadata } from '../main/database/queries/manga/manga-with-metadata.query'
 export type { MangaReadingSettings } from '../main/settings/entity/reading-settings.entity'
 export type { CreateCollectionCommand } from '../main/database/commands/collections/create-collection.command'
 export type { UpdateCollectionCommand } from '../main/database/commands/collections/update-collection.command'
 export type { AddToCollectionCommand } from '../main/database/commands/collections/add-to-collection.command'
 export type { RemoveFromCollectionCommand } from '../main/database/commands/collections/remove-from-collection.command'
-export type { ImportResult } from './../main/services/results/import.result'
-export type { ExportResult } from './../main/services/results/export.result'
-export type { DexReaderImportResult } from './../main/services/results/dexreader/import.result'
-export type { MangaWithMetadata } from './../main/database/queries/manga/manga-with-metadata.query'
-export type { DexreaderExportOption } from './../main/services/options/dexreader-export.option'
-export type { DexReaderExportResult } from './../main/services/results/dexreader/export.result'
+export type { ReorderMangaInCollectionCommand } from '../main/database/commands/collections/reorder-manga-in-collection.command'
+export type { RecordReadCommand } from '../main/database/commands/read-history/record-read.command'
+export type { ReadHistoryEntry } from '../main/database/queries/read-history/read-history.query'
+export type { ImportResult } from '../main/services/results/import.result'
+export type { ExportResult } from '../main/services/results/export.result'
+export type { DexReaderImportResult } from '../main/services/results/dexreader/import.result'
+export type { DexReaderExportResult } from '../main/services/results/dexreader/export.result'
+export type { DexreaderExportOption } from '../main/services/options/dexreader-export.option'
+export type { DownloadChapterOptions } from '../main/services/options/download-chapter.option'
+export type { DownloadChapterResult } from '../main/services/results/dexreader/download-chapter.result'
+
 interface MenuState {
   canAddToFavorites?: boolean
   isFavorited?: boolean
@@ -215,6 +260,14 @@ interface DexReader {
   cancelImport: () => Promise<IpcResponse<void>>
 }
 
+interface Downloads {
+  downloadChapter: (options: DownloadChapterOptions) => Promise<IpcResponse<DownloadChapterResult>>
+  deleteChapter: (chapterId: string) => Promise<IpcResponse<void>>
+  getAllDownloads: () => Promise<IpcResponse<ChapterDownloadQuery[]>>
+  getDownload: (chapterId: string) => Promise<IpcResponse<ChapterDownloadQuery | undefined>>
+  isDownloaded: (chapterId: string) => Promise<IpcResponse<ChapterDownloadQuery | undefined>>
+}
+
 declare global {
   interface Window {
     electron: ElectronAPI
@@ -229,5 +282,6 @@ declare global {
     mihon: Mihon
     settings: Settings
     dexreader: DexReader
+    downloads: Downloads
   }
 }

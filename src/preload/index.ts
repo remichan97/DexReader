@@ -1,3 +1,4 @@
+import { DownloadChapterOptions } from './../main/services/options/download-chapter.option'
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { IpcResponse, FileStats, AllowedPaths, FolderSelectResult } from './ipc.types'
@@ -292,6 +293,15 @@ const dexReader = {
   cancelImport: () => ipcRenderer.invoke('dexreader:cancel-import')
 }
 
+const downloads = {
+  downloadChapter: (options: DownloadChapterOptions) =>
+    ipcRenderer.invoke('downloads:download-chapter', options),
+  deleteChapter: (chapterId: string) => ipcRenderer.invoke('downloads:delete-chapter', chapterId),
+  getAllDownloads: () => ipcRenderer.invoke('download:get-all-downloads'),
+  getDownload: (chapterId: string) => ipcRenderer.invoke('download:get-download', chapterId),
+  isDownloaded: (chapterId: string) => ipcRenderer.invoke('download:is-downloaded', chapterId)
+}
+
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
@@ -309,6 +319,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('mihon', mihon)
     contextBridge.exposeInMainWorld('settings', settings)
     contextBridge.exposeInMainWorld('dexreader', dexReader)
+    contextBridge.exposeInMainWorld('downloads', downloads)
   } catch (error) {
     console.error(error)
   }
@@ -337,4 +348,6 @@ if (process.contextIsolated) {
   globalThis.settings = settings
   // @ts-ignore (define in dts)
   globalThis.dexreader = dexReader
+  // @ts-ignore (define in dts)
+  globalThis.downloads = downloads
 }
