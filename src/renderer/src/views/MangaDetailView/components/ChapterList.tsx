@@ -236,7 +236,7 @@ function ChapterItem({
 }: ChapterItemProps): JSX.Element {
   const chapterNum = chapter.attributes.chapter || '0'
   const title = chapter.attributes.title || 'Untitled'
-  const publishDate = new Date(chapter.attributes.publishAt).toLocaleDateString()
+  const publishDate = new Date(chapter.attributes.publishedAt).toLocaleDateString()
 
   // Get scanlation group name
   const scanlationGroup = chapter.relationships.find((r) => r.type === 'scanlation_group')

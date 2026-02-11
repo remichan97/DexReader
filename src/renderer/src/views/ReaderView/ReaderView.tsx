@@ -398,7 +398,7 @@ export function ReaderView(): JSX.Element {
           chapterNumber: ch.attributes.chapter || undefined,
           volume: ch.attributes.volume || undefined,
           language: ch.attributes.translatedLanguage,
-          publishAt: new Date(ch.attributes.publishAt),
+          publishAt: new Date(ch.attributes.publishedAt),
           scanlationGroup: scanlationGroup?.attributes?.name || undefined,
           externalUrl: ch.attributes.externalUrl || undefined
         }

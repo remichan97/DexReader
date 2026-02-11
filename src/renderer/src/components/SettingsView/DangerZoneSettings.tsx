@@ -91,7 +91,7 @@ export const DangerZoneSettings: React.FC = () => {
             <p>Restore all settings to their default values</p>
           </div>
           <Button
-            variant="accent"
+            variant="warning"
             icon={<ArrowReset24Regular />}
             onClick={handleResetToDefault}
             loading={isResetting}

@@ -10,7 +10,7 @@ export type ComponentSize = 'small' | 'medium' | 'large'
 /**
  * Common button variants
  */
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'accent'
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'warning' | 'accent'
 
 /**
  * Common input types

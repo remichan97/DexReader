@@ -119,21 +119,39 @@
   transform: scale(0.98);
 }
 
-/* Accent Variant (Warning/Caution Actions) */
-.button--accent {
+/* Warning Variant (Orange/Caution Actions) */
+.button--warning {
   background: var(--win-warning);
   color: #ffffff;
   border-color: var(--win-warning);
 }
 
-.button--accent:hover:not(.button--disabled):not(.button--loading) {
+.button--warning:hover:not(.button--disabled):not(.button--loading) {
   background: var(--win-warning-hover);
   border-color: var(--win-warning-hover);
 }
 
-.button--accent:active:not(.button--disabled):not(.button--loading) {
+.button--warning:active:not(.button--disabled):not(.button--loading) {
   background: var(--win-warning-hover);
   border-color: var(--win-warning-hover);
+  transform: scale(0.98);
+}
+
+/* Accent Variant (User Accent Color) */
+.button--accent {
+  background: var(--win-accent);
+  color: var(--win-text-on-accent);
+  border-color: var(--win-accent);
+}
+
+.button--accent:hover:not(.button--disabled):not(.button--loading) {
+  background: var(--win-accent-hover);
+  border-color: var(--win-accent-hover);
+}
+
+.button--accent:active:not(.button--disabled):not(.button--loading) {
+  background: var(--win-accent-active);
+  border-color: var(--win-accent-active);
   transform: scale(0.98);
 }
 
