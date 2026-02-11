@@ -240,7 +240,7 @@ function ChapterItem({
 
   // Get scanlation group name
   const scanlationGroup = chapter.relationships.find((r) => r.type === 'scanlation_group')
-  const groupName = scanlationGroup?.attributes?.name || 'Unknown Group'
+  const groupName = String(scanlationGroup?.attributes?.name || 'Unknown Group')
 
   // Determine status classes
   let statusClass = ''

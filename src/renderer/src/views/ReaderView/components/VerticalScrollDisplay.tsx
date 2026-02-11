@@ -105,7 +105,7 @@ export function VerticalScrollDisplay({
               {!hasError && (
                 <img
                   src={image.url}
-                  alt={`Page ${index + 1} of ${totalPages}`}
+                  alt={`Page ${index + 1} of ${images.length}`}
                   className="vertical-scroll-container__image"
                   onLoad={() => onImageLoad(index)}
                   onError={() => onImageError(index)}

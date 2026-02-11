@@ -128,7 +128,7 @@ export function DoublePageDisplay({
             <div key={pageIndex} className="double-page-container__page">
               <img
                 src={images[pageIndex].url}
-                alt={`Page ${pageIndex + 1} of ${totalPages}`}
+                alt={`Page ${pageIndex + 1} of ${images.length}`}
                 className={`reader-page__image reader-page__image--fit-${fitMode === 'custom' ? 'height' : fitMode}`}
                 style={imageStyle}
                 onLoad={() => onImageLoad(pageIndex)}
