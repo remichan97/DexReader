@@ -26,6 +26,7 @@ export function registerAllHandlers(): void {
   registerLibraryHandlers()
   registerMihonHandlers()
   registerDexReaderHandler()
+  registerDownloadHandlers()
 
   // File system handlers need window for dialogs
   // Get window reference when handlers are actually called
