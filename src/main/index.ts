@@ -1,3 +1,4 @@
+import { LocalImageProxy } from './api/localImageProxy';
 import { app, ipcMain } from 'electron'
 import path from 'node:path'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
@@ -13,6 +14,7 @@ import { databaseConnection } from './database/connection'
 import { runMigrations } from './database/migrations/migrations'
 
 const imageProxy = new ImageProxy()
+const localImageProxy = new LocalImageProxy()
 
 // Store menu state
 let menuState = {
@@ -50,7 +52,7 @@ app.whenReady().then(async () => {
   electronApp.setAppUserModelId('com.dexreader.app')
 
   imageProxy.registerProtocol()
-
+  localImageProxy.registerProtocol()
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
   // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
