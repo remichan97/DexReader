@@ -4,7 +4,7 @@
 
 **Project Start**: 23 November 2025
 **Current Phase**: Phase 4 - Offline Functionality (In Progress 🔵)
-**Last Updated**: 31 January 2026
+**Last Updated**: 12 February 2026
 
 ---
 
@@ -18,15 +18,51 @@
 
 ---
 
-## Current Status: Phase 4 In Progress (2/11 tasks)
+## Current Status: Phase 4 In Progress (1/11 tasks backend complete)
 
-**Phase Progress**: Phase 2 Complete (11/11) | Guerilla Refactoring Complete | Phase 3 Complete (19/19) ✅ | Phase 4 In Progress (2/11 foundation complete) 🔵
-**Current Focus**: Offline downloads implementation (database and statistics already complete)
-**Recent Completion**: Phase 3 complete with WCAG 2.1 Level AA accessibility ✅
+**Phase Progress**: Phase 2 Complete (11/11) | Guerilla Refactoring Complete | Phase 3 Complete (19/19) ✅ | Phase 4 In Progress (P4-T01 backend complete, awaiting UI) 🔵
+**Current Focus**: Download system foundation complete - Ready for P4-T06 (UI) or P4-T02 (Queue Manager)
+**Recent Completion**: P4-T01 Backend Complete - Database, services, protocols ready ✅
 
 ---
 
 ## Recent Milestones
+
+### P4-T01 Download System Backend (12 February 2026) ✅
+
+**Duration**: ~6 hours | **Status**: Backend Complete - Frontend Deferred to P4-T06
+
+**Summary**: Implemented complete download system backend foundation including database schema, download service, local image protocol handler, and IPC integration. Strategic decision made to defer all frontend implementation to P4-T06 to enable proper UX design and comprehensive testing.
+
+**Key Outcomes**:
+
+- **Database**: `chapter_downloads` table with `downloadsBasePath` + `filePath` tracking (supports directory migration)
+- **Download Service**: Single-chapter download with proper directory structure (`manga/{id}/chapters/{id}/pages/001.jpg`)
+- **Dual Protocol Architecture**: Separate `local-manga://` protocol for filesystem reads, keeps `mangadex://` focused on network
+- **Path Resilience**: Tracks download location per-chapter, survives user changing download directory
+- **IPC Complete**: All 5 handlers registered with preload bridge and TypeScript types
+- **File Naming**: Zero-padded page numbers (001.jpg, 002.jpg, etc.)
+
+**Architectural Decisions**:
+
+- **Relative + Base Paths**: Database stores `downloadsBasePath` (where files live) + `filePath` (relative structure) separately
+- **Clean Failure Handling**: Mark as failed in database, no partial file cleanup (simple for P4-T01, can enhance in P4-T02)
+- **Frontend Deferred**: Avoid "blind frontend" - P4-T06 will design UX and implement download buttons + reader integration together
+
+**Technical Implementation**:
+
+- Schema: `chapter-downloads.schema.ts` with status tracking (queued/downloading/completed/failed)
+- Migration: `0002_add_newcolumntochapterdownload.sql` (handles existing data gracefully)
+- Service: `download.service.ts` with proper path construction and progress events
+- Protocol: `localImageProxy.ts` for `local-manga://chapter/{id}/page/{num}` URLs
+- Repository: Full CRUD operations with joined queries (manga + chapter metadata)
+- Helper: `downloadData()` with page number parameter for proper file naming
+
+**Next Steps**: P4-T06 (Download UI) or P4-T02 (Queue Manager). Recommended P4-T06 first to enable testing.
+
+**Result**: Solid backend foundation ready for frontend integration. See [archived-milestones.md](./archived-milestones.md) for detailed implementation notes.
+
+---
 
 ### P3-T18 Accessibility Improvements (30 January 2026) ✅
 
@@ -507,7 +543,7 @@
 ### Phase 4: Offline Functionality (In Progress) 🔵
 
 **Duration**: 4-5 weeks
-**Status**: 2/11 tasks complete (foundation ready)
+**Status**: 3/11 tasks complete (download backend ready)
 **Target Start**: February 2026
 **Target Completion**: March 2026
 
@@ -536,7 +572,7 @@
 
 **Key Technical Tasks**:
 
-- [⚪] **P4-T01**: Implement explicit download system (user-initiated only)
+- [✅] **P4-T01**: Implement explicit download system (user-initiated only) - BACKEND COMPLETE (12 Feb 2026: database, service layer, local-manga:// protocol, IPC handlers; frontend UI deferred to P4-T06)
 - [⚪] **P4-T02**: Create download queue manager for chapters
 - [⚪] **P4-T03**: Add local image storage system (user-configured downloads directory)
 - [✅] **P4-T04**: Implement library database in AppData - COMPLETE (Database migration 27-28 Dec 2025)

@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 1 February 2026
+**Last Updated**: 12 February 2026
 **Current Phase**: Phase 4 - Offline Functionality
-**Session**: P4-T01 Planning Complete
+**Session**: P4-T01 Backend Complete
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -10,32 +10,90 @@
 
 ## Current Status Summary
 
-**Phase**: Phase 4 In Progress (2/11 tasks complete - foundation ready)
-**Progress**: Phase 3: 19/19 (100%) ✅ | Phase 4: 0/11 active tasks
-**Current Date**: 1 February 2026
-**Database Migration Status**: Fully migrated and operational
-**Current Task**: P4-T01 - Implement explicit download system
-**Plan Document**: `.github/copilot-plans/p4-t01-download-system-plan.md`
+**Phase**: Phase 4 In Progress (1/11 tasks backend complete)
+**Progress**: Phase 3: 19/19 (100%) ✅ | Phase 4: P4-T01 backend complete, awaiting P4-T06 for UI
+**Current Date**: 12 February 2026
+**Database Migration Status**: Fully migrated (includes chapter_downloads table)
+**Current Task**: P4-T01 Backend Complete - Ready for next task
+**Plan Document**: Backend foundation ready for P4-T06 frontend integration
+
+---
+
+## P4-T01 Completion Summary (12 Feb 2026)
+
+**Status**: ✅ Backend Complete - Frontend Deferred to P4-T06
+
+**What Was Completed**:
+
+1. ✅ Database schema: `chapter_downloads` table with `downloadsBasePath` tracking
+2. ✅ Migration: `0002_add_newcolumntochapterdownload.sql` (handles path changes)
+3. ✅ Repository layer: Full CRUD operations for download tracking
+4. ✅ Download service: Single-chapter download with proper path structure
+5. ✅ Local image protocol: `local-manga://` handler for filesystem reads
+6. ✅ IPC handlers: All 5 handlers registered (`downloadChapter`, `isDownloaded`, etc.)
+7. ✅ Preload bridge: Exposed to renderer with TypeScript types
+8. ✅ File structure: `manga/{mangaId}/chapters/{chapterId}/pages/001.jpg`
+9. ✅ Path tracking: `downloadsBasePath` + relative `filePath` for directory migration support
+
+**Architectural Decision**:
+
+- **Dual protocol**: `local-manga://` for downloads, `mangadex://` for network
+- **Path resilience**: Tracks download location per-chapter (survives settings changes)
+- **Clean separation**: Network proxy unchanged, new protocol for local files
+
+**Deferred to P4-T06** (Download UI):
+
+- ❌ Download buttons (reader, chapter lists, manga pages)
+- ❌ Progress indicators and status badges
+- ❌ Frontend protocol selection logic (`useChapterData.ts` modification)
+- ❌ Download management UI
+- ❌ Testing/validation of complete download flow
+
+**Why Deferred**: Avoid "blind frontend" implementation. P4-T06 will design proper UX and implement both UI and reader integration together, enabling full testing.
 
 ---
 
 ## Next Steps - Phase 4 In Progress
 
-**Current Focus**: P4-T01 - Implement explicit download system (foundation for all download features)
+**Recommended Next**: P4-T02 (Download Queue Manager) OR P4-T06 (Download UI)
 
-**Immediate Actions**:
+**Option A - P4-T02**: Build queue manager (concurrent downloads, retry logic)
 
-1. Implement database schema for `chapter_downloads` table
-2. Build download service with single-chapter download capability
-3. Create repository layer for download tracking
-4. Add IPC handlers and preload bridge
-5. Enhance image proxy to load from local storage
+- Benefit: Complete backend before touching UI
+- Works with: Manual download testing via IPC console
 
-**Ready to Start**: All prerequisites complete (SQLite, filesystem security, API client, IPC patterns)
+**Option B - P4-T06**: Build download UI first
+
+- Benefit: Can test P4-T01 backend immediately
+- Works with: Add download buttons, then enhance with queue in P4-T02
 
 ---
 
 ## Planning Notes for Future Tasks
+
+### P4-T06: Download UI Integration (NEXT RECOMMENDED)
+
+**Frontend Integration Needed**:
+
+1. Add download buttons to reader toolbar
+2. Modify `useChapterData.ts` to check download status and select protocol:
+
+   ```typescript
+   const downloadStatus = await window.downloads.isDownloaded(chapterId)
+   const isDownloaded = downloadStatus.success && downloadStatus.data?.status === 'completed'
+
+   const images = imageUrls.map((img, index) => {
+     if (isDownloaded) {
+       return { ...img, url: `local-manga://chapter/${chapterId}/page/${index + 1}` }
+     } else {
+       return { ...img, url: img.url.replace('https://', 'mangadex://') }
+     }
+   })
+   ```
+
+3. Add download status indicators (badges, icons)
+4. Add progress tracking (listen to `download:chapter-progress` events)
+5. Create downloads management view
 
 ### P4-T02: Download Queue Manager
 

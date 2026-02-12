@@ -51,7 +51,9 @@
 
 **Critical Requirement**: MangaDex **blocks direct image hotlinking** - attempting to load images directly from the renderer will return wrong/incorrect images. All images MUST be proxied through the main process.
 
-**Implementation**: Custom protocol handler (`mangadex://`)
+#### Network Protocol: `mangadex://` ✅ **IMPLEMENTED** (Phase 2)
+
+**Implementation**: Custom protocol handler for online image streaming
 
 - **Why Protocol Handler**: Native Chromium integration, streaming support, lowest memory overhead
 - **Alternatives Rejected**:
@@ -59,15 +61,42 @@
   - Localhost HTTP server: Extra port management, server overhead
 - **Registration**: `protocol.handle('mangadex', ...)` in main process on `app.whenReady()`
 - **URL Format**: `mangadex://uploads.mangadex.org/covers/...` (replaces `https://`)
-- **All images use protocol**: Chapter pages, cover images, thumbnails
+- **Use Case**: Online chapter pages, cover images, thumbnails
 - **Status**: ✅ Implemented in `src/main/api/imageProxy.ts`
+
+#### Local Protocol: `local-manga://` ✅ **IMPLEMENTED** (12 Feb 2026, P4-T01)
+
+**Implementation**: Custom protocol handler for downloaded chapter images
+
+- **Why Separate Protocol**: Keeps network proxy focused, avoids database queries in hot path
+- **Registration**: `protocol.handle('local-manga', ...)` in main process on `app.whenReady()`
+- **URL Format**: `local-manga://chapter/{chapterId}/page/{pageNum}` (e.g., `local-manga://chapter/abc123/page/5`)
+- **Use Case**: Downloaded chapters stored in filesystem
+- **Path Resolution**: Uses `downloadsBasePath` from database (not current settings)
+- **Status**: ✅ Implemented in `src/main/api/localImageProxy.ts`
+
+**Frontend Integration** (P4-T06):
+
+```typescript
+// Reader checks download status once per chapter
+const isDownloaded = await window.downloads.isDownloaded(chapterId)
+
+// Select protocol based on availability
+const imageUrls = pages.map((page, index) => {
+  if (isDownloaded) {
+    return `local-manga://chapter/${chapterId}/page/${index + 1}`
+  } else {
+    return `mangadex://${page.url}` // Online streaming
+  }
+})
+```
 
 **Security: Internal Protocol Only**
 
-- **Scope**: Protocol is ONLY accessible within DexReader's renderer processes
-- **Not OS-registered**: We do NOT call `app.setAsDefaultProtocolClient('mangadex')`
-- **No external access**: Other applications, browsers, or websites cannot trigger `mangadex://` URLs
-- **Sandboxed**: Protocol handler inherits app's security context
+- **Scope**: Both protocols ONLY accessible within DexReader's renderer processes
+- **Not OS-registered**: We do NOT call `app.setAsDefaultProtocolClient()`
+- **No external access**: Other applications, browsers, or websites cannot trigger these URLs
+- **Sandboxed**: Protocol handlers inherit app's security context
 - **Future consideration**: If we need OS-level protocol handling (e.g., "Open in DexReader" from browser), use a different protocol like `dexreader://` with explicit validation
 
 ### Caching Strategy: Progressive by Phase
@@ -128,22 +157,66 @@ class ImageProxy {
 - **Benefit**: Instant library view, offline metadata browsing
 - **Size Limit**: TBD (likely 500MB-1GB for metadata + covers)
 
-#### Phase 4 (Downloads): Full Offline Storage
+#### Phase 4 (Downloads): Full Offline Storage ✅ **BACKEND IMPLEMENTED** (12 Feb 2026)
 
 **Scope**: Complete chapter downloads for offline reading
 
-- **Storage Location**: User-configured downloads directory
-- **Content**: Full chapter images (all pages, original quality)
-- **Trigger**: Explicit "Download Chapter" or "Download Manga" action
-- **Management**: Download queue, progress tracking, storage quota
-- **Metadata**: JSON manifest per manga/chapter
-- **Benefit**: Complete offline reading capability
+**Dual Protocol Architecture**:
+
+- **`local-manga://`** - New protocol for downloaded chapters (filesystem reads)
+  - Format: `local-manga://chapter/{chapterId}/page/{pageNum}`
+  - Handler uses stored `downloadsBasePath` from database (not current settings)
+  - Enables loading files even if user changes download directory
+- **`mangadex://`** - Existing network proxy unchanged (Phase 2 implementation)
+  - Continues to handle online chapter streaming
+- **Frontend decides** which protocol to use based on download status (deferred to P4-T06)
+
+**Storage Structure**:
+
+- **Base Path**: User-configured downloads directory (stored per-download in database)
+- **Directory Layout**: `{downloadsBasePath}/manga/{mangaId}/chapters/{chapterId}/pages/`
+- **Page Format**: Zero-padded filenames (`001.jpg`, `002.jpg`, `...`, `015.jpg`)
+- **No metadata files**: Database is single source of truth
+
+**Database Tracking** (`chapter_downloads` table):
+
+- `downloadsBasePath` (text, NOT NULL): Where download was stored (e.g., `C:\Users\...\downloads`)
+- `filePath` (text, NOT NULL): Relative structure (e.g., `manga\{id}\chapters\{id}`)
+- `status` (enum): `queued`, `downloading`, `completed`, `failed`
+- `downloadedAt`, `totalPages`, `storageSize`, `imageQuality`, `errorMessage`
+- **Path Resilience**: Tracks original location, enables future migration features
+
+**Download Flow**:
+
+1. User triggers explicit download (P4-T06 will add UI buttons)
+2. Backend constructs paths: base + relative structure
+3. Creates directory, downloads all pages with progress events
+4. Saves metadata in database with status tracking
+5. Reader loads via `local-manga://` protocol when available
+
+**Current Status**:
+
+- ✅ Backend complete: Database, service, protocol, IPC handlers
+- ❌ Frontend pending: Download buttons, protocol selection (P4-T06)
+- ✅ Protocol handler registered: `src/main/api/localImageProxy.ts`
+- ✅ Implementation: `src/main/services/download.service.ts`
+
+**Key Design Choices**:
+
+- **Explicit only**: No automatic background downloads
+- **Path tracking**: Survives user changing download directory setting
+- **Clean separation**: Network proxy unchanged, local protocol added
+- **Progress events**: `download:chapter-progress` emitted per-page (for P4-T05 UI)
+
+**Trigger**: Explicit "Download Chapter" action (UI in P4-T06)
+**Management**: Single-chapter foundation (P4-T01), queue management in P4-T02
+**Benefit**: Complete offline reading without network dependency
 
 **Key Distinction**:
 
 - **Streaming (Phase 2)**: Ephemeral, memory-only, automatic
 - **Bookmarks (Phase 3)**: Persistent covers/metadata, automatic on bookmark
-- **Downloads (Phase 4)**: Persistent full chapters, manual user action
+- **Downloads (Phase 4)**: Persistent full chapters, manual user action, dual protocol architecture
 
 ### Rate Limiting ✅ **IMPLEMENTED**
 
