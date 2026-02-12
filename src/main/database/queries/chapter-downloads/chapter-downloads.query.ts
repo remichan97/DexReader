@@ -6,6 +6,7 @@ export interface ChapterDownloadQuery {
   mangaId: string
   status: DownloadStatus
   downloadedAt: number
+  downloadsBasePath: string
   filePath: string
   totalPages: number
   storageSize: number

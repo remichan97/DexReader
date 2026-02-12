@@ -11,6 +11,7 @@ import { secureFs } from '../filesystem/secureFs'
 import { downloadData } from './helpers/dexreader-download.helper'
 import { DownloadChapterOptions } from './options/download-chapter.option'
 import { DownloadChapterResult } from './results/dexreader/download-chapter.result'
+import path from 'path'
 
 import { BrowserWindow } from 'electron'
 import { ChapterDownloadQuery } from '../database/queries/chapter-downloads/chapter-downloads.query'
@@ -36,11 +37,12 @@ export class NativeDownloadService {
         success: isDownloaded.status === DownloadStatus.Completed,
         totalPages: isDownloaded.totalPages || 0,
         storageSize: isDownloaded.storageSize || 0,
-        filePath: isDownloaded.filePath
+        filePath: path.join(isDownloaded.downloadsBasePath, isDownloaded.filePath)
       }
     }
 
-    const filePath = getDownloadsPath()
+    // Get downloads base path (where files should be stored)
+    const downloadsBasePath = getDownloadsPath()
 
     // Collect chapter data from either database cache, or API
 
@@ -94,16 +96,31 @@ export class NativeDownloadService {
       }
     ])
 
+    // Build relative path (stored in database for portability)
+    const relativePath = path.join(
+      'manga',
+      chapterMetadata.mangaId,
+      'chapters',
+      chapterMetadata.chapterId
+    )
+
+    // Build full filesystem path (for actual file operations)
+    const fullPath = path.join(downloadsBasePath, relativePath, 'pages')
+
+    // Ensure directory exists
+    await secureFs.ensureDir(fullPath)
+
     chapterDownloadsRepo.createDownload({
       chapterId: chapterMetadata.chapterId,
       mangaId: chapterMetadata.mangaId,
-      filePath: filePath,
+      downloadsBasePath: downloadsBasePath,
+      filePath: relativePath,
       totalPages: 0, // to be updated after download
       imageQuality: options.quality
     })
 
     const downloadStats = await this.downloadChapterImages(
-      filePath,
+      fullPath,
       chapterMetadata.chapterId,
       options.quality
     )
@@ -115,7 +132,7 @@ export class NativeDownloadService {
       success: true,
       totalPages: downloadStats.totalPages || 0,
       storageSize: downloadStats.storageSize || 0,
-      filePath: filePath
+      filePath: path.join(downloadsBasePath, relativePath)
     }
   }
 
@@ -126,13 +143,19 @@ export class NativeDownloadService {
       throw new Error(`No download found for chapter ID ${chapterId}`)
     }
 
+    // Build full path from stored base path and relative path
+    const fullPath = path.join(download.downloadsBasePath, download.filePath)
+
     // Request the filesystem to delete the chapter files
     try {
-      await secureFs.deleteDir(download.filePath)
+      await secureFs.deleteDir(fullPath)
     } catch (error) {
-      console.error(`Failed to delete chapter files at ${download.filePath}:`, error)
+      console.error(`Failed to delete chapter files at ${fullPath}:`, error)
       throw new Error(`Failed to delete chapter files: ${error}`)
     }
+
+    // Update the database to reflect the deletion
+    chapterDownloadsRepo.deleteDownload(chapterId)
   }
 
   private async downloadChapterImages(
@@ -152,7 +175,7 @@ export class NativeDownloadService {
     for (const [index, imageData] of chapterData.entries()) {
       // Download each image and save to downloadPath
       try {
-        const imageSize = await downloadData(imageData.url, downloadPath)
+        const imageSize = await downloadData(imageData.url, downloadPath, index + 1)
         updateData.storageSize += imageSize
         updateData.totalPages += 1
       } catch (error) {

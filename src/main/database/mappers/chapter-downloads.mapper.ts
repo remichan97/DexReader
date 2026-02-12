@@ -9,7 +9,8 @@ type ChapterDownloadRow = {
   status: DownloadStatus
   storageSize: number | null
   downloadedAt: Date | null
-  filePath: string | null
+  downloadsBasePath: string
+  filePath: string
   totalPages: number
   imageQuality: ImageQuality
   errorMessage: string | null
@@ -31,7 +32,8 @@ export class ChapterDownloadMapper {
       downloadedAt: row.downloadedAt
         ? dateToUnixTimestamp(row.downloadedAt)
         : dateToUnixTimestamp(new Date()),
-      filePath: row.filePath ?? '',
+      downloadsBasePath: row.downloadsBasePath,
+      filePath: row.filePath,
       totalPages: row.totalPages,
       imageQuality: row.imageQuality,
       errorMessage: row.errorMessage ?? undefined,

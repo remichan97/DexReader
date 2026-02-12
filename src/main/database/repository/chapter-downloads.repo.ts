@@ -20,6 +20,7 @@ export class ChapterDownloadsRepo {
         status: chapterDownloads.status,
         storageSize: chapterDownloads.storageSize,
         downloadedAt: chapterDownloads.downloadedAt,
+        downloadsBasePath: chapterDownloads.downloadsBasePath,
         filePath: chapterDownloads.filePath,
         totalPages: chapterDownloads.totalPages,
         imageQuality: chapterDownloads.imageQuality,
@@ -52,6 +53,7 @@ export class ChapterDownloadsRepo {
         status: chapterDownloads.status,
         storageSize: chapterDownloads.storageSize,
         downloadedAt: chapterDownloads.downloadedAt,
+        downloadsBasePath: chapterDownloads.downloadsBasePath,
         filePath: chapterDownloads.filePath,
         totalPages: chapterDownloads.totalPages,
         imageQuality: chapterDownloads.imageQuality,
@@ -82,6 +84,7 @@ export class ChapterDownloadsRepo {
         chapterId: command.chapterId,
         mangaId: command.mangaId,
         totalPages: command.totalPages,
+        downloadsBasePath: command.downloadsBasePath,
         filePath: command.filePath,
         imageQuality: command.imageQuality
       })

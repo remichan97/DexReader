@@ -10,6 +10,7 @@ import { registerAdditionalDialogHandlers } from './handlers/dialogs.handler'
 import { registerLibraryHandlers } from './handlers/library-handler'
 import { registerMihonHandlers } from './handlers/mihon.handler'
 import { registerDexReaderHandler } from './handlers/dexreader.handler'
+import { registerDownloadHandlers } from './handlers/download.handler'
 
 /**
  * Register all IPC handlers

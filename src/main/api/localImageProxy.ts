@@ -1,7 +1,6 @@
 import { protocol } from 'electron'
 import { chapterDownloadsRepo } from '../database/repository/chapter-downloads.repo'
-import { getConfiguredDownloadsPath } from '../settings/settingsManager'
-import path from 'path/win32'
+import path from 'node:path'
 import { secureFs } from '../filesystem/secureFs'
 
 export class LocalImageProxy {
@@ -19,11 +18,10 @@ export class LocalImageProxy {
           return new Response('No Download found for chapter ' + chapterId, { status: 404 })
         }
 
-        // Build the full file path for the requested page, and validate page path
-        const downloadSettingsPath = await getConfiguredDownloadsPath()
-
+        // Build the full file path using the stored base path (not current settings)
+        // This ensures files are found even if user changes download directory
         const pagePath = path.join(
-          downloadSettingsPath,
+          download.downloadsBasePath,
           download.filePath,
           'pages',
           `${String(pageNum).padStart(3, '0')}.jpg`
