@@ -11,7 +11,7 @@ import { secureFs } from '../filesystem/secureFs'
 import { downloadData } from './helpers/dexreader-download.helper'
 import { DownloadChapterOptions } from './options/download-chapter.option'
 import { DownloadChapterResult } from './results/dexreader/download-chapter.result'
-import path from 'path'
+import path from 'node:path'
 
 import { BrowserWindow } from 'electron'
 import { ChapterDownloadQuery } from '../database/queries/chapter-downloads/chapter-downloads.query'
@@ -185,11 +185,14 @@ export class NativeDownloadService {
           chapterId: chapterId,
           isFailed: true,
           errorMessage: `Failed to download image ${imageData.url}: ${error}`,
-          storageSize: updateData.storageSize,
-          totalPages: updateData.totalPages
+          storageSize: 0,
+          totalPages: 0
         })
 
-        // TODO: Should we cleanup the failure download? Or keep it and then rewrite the whole filesystem for already downloaded files?
+        await secureFs.deleteDir(downloadPath).catch((err) => {
+          console.error(`Failed to clean up after failed download at ${downloadPath}:`, err)
+        })
+
         throw error
       }
 
