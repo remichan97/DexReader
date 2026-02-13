@@ -151,7 +151,7 @@ export function getDefaultSettings(): AppSettings {
     downloads: {
       downloadPath: null,
       downloadQuality: ImageQuality.High,
-      concurrentChapterDownloads: 3
+      maxConcurrentDownloads: 3
     },
     appearance: {
       theme: AppTheme.System

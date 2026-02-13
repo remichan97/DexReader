@@ -104,13 +104,13 @@ export function isDownloadsSettings(values: unknown): values is DownloadSettings
     return false
   }
 
-  // Validate concurrentChapterDownloads is integer within reasonable range (1-10)
+  // Validate maxConcurrentDownloads is integer within reasonable range (1-10)
   if (
-    !Number.isInteger(downloadsSettings.concurrentChapterDownloads) ||
-    downloadsSettings.concurrentChapterDownloads < 1 ||
-    downloadsSettings.concurrentChapterDownloads > 10
+    !Number.isInteger(downloadsSettings.maxConcurrentDownloads) ||
+    downloadsSettings.maxConcurrentDownloads < 1 ||
+    downloadsSettings.maxConcurrentDownloads > 10
   ) {
-    console.error('Refused to save download settings: concurrentChapterDownloads must be 1-10')
+    console.error('Refused to save download settings: maxConcurrentDownloads must be 1-10')
     return false
   }
 
