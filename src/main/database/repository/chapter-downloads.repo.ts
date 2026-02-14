@@ -90,6 +90,7 @@ export class ChapterDownloadsRepo {
       })
       .run()
   }
+
   markDownloadState(command: MarkDownloadStateCommand): void {
     const updates: Partial<typeof chapterDownloads.$inferInsert> = {}
 
@@ -119,6 +120,16 @@ export class ChapterDownloadsRepo {
       .set({ lastVerifiedAt: new Date() })
       .where(eq(chapterDownloads.chapterId, chapterId))
       .run()
+  }
+
+  countDownloadsByStatus(status: DownloadStatus): number {
+    const result = this.db
+      .select()
+      .from(chapterDownloads)
+      .where(eq(chapterDownloads.status, status))
+      .all()
+
+    return result.length
   }
 }
 export const chapterDownloadsRepo = new ChapterDownloadsRepo()
