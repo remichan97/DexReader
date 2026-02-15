@@ -114,6 +114,42 @@ export class ChapterDownloadsRepo {
       .run()
   }
 
+  batchMarkDownloadsState(commands: MarkDownloadStateCommand[]): void {
+    // If no commands, skip
+    if (commands.length === 0) return
+
+    // If one command, use single update for better performance
+    if (commands.length === 1) {
+      this.markDownloadState(commands[0])
+      return
+    }
+
+    // For the rest, use a transaction to batch updates
+    this.db.transaction((tx) => {
+      for (const command of commands) {
+        const updates: Partial<typeof chapterDownloads.$inferInsert> = {}
+
+        if (command.isDownloaded) {
+          updates.status = DownloadStatus.Completed
+          updates.storageSize = command.storageSize
+          updates.totalPages = command.totalPages
+          updates.downloadedAt = new Date()
+        }
+
+        if (command.isFailed) {
+          updates.status = DownloadStatus.Failed
+          updates.errorMessage = command.errorMessage ?? undefined
+          updates.lastAttemptedAt = new Date()
+        }
+
+        tx.update(chapterDownloads)
+          .set(updates)
+          .where(eq(chapterDownloads.chapterId, command.chapterId))
+          .run()
+      }
+    })
+  }
+
   updateVerificationTimestamp(chapterId: string): void {
     this.db
       .update(chapterDownloads)
