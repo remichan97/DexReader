@@ -50,6 +50,10 @@ import type { AppSettings } from '../main/settings/entity/settings.entity'
 import type { DexreaderExportOption } from '../main/services/options/dexreader-export.option'
 import type { DownloadChapterOptions } from '../main/services/options/download-chapter.option'
 
+// Service types
+import type { QueuedDownloads } from '../main/services/types/downloads/queued-downloads.type'
+import type { QueueState } from '../main/services/types/downloads/queue-state.type'
+
 // Service results
 import { ImportResult } from '../main/services/results/import.result'
 import { UpdateResult } from '../main/services/results/update.result'
@@ -83,6 +87,8 @@ export type { DexReaderExportResult } from '../main/services/results/dexreader/e
 export type { DexreaderExportOption } from '../main/services/options/dexreader-export.option'
 export type { DownloadChapterOptions } from '../main/services/options/download-chapter.option'
 export type { DownloadChapterResult } from '../main/services/results/dexreader/download-chapter.result'
+export type { QueuedDownloads } from '../main/services/types/downloads/queued-downloads.type'
+export type { QueueState } from '../main/services/types/downloads/queue-state.type'
 
 interface MenuState {
   canAddToFavorites?: boolean
@@ -266,6 +272,12 @@ interface Downloads {
   getAllDownloads: () => Promise<IpcResponse<ChapterDownloadQuery[]>>
   getDownload: (chapterId: string) => Promise<IpcResponse<ChapterDownloadQuery | undefined>>
   isDownloaded: (chapterId: string) => Promise<IpcResponse<ChapterDownloadQuery | undefined>>
+  addToQueue: (options: QueuedDownloads) => Promise<IpcResponse<void>>
+  addBatchToQueue: (options: QueuedDownloads[]) => Promise<IpcResponse<void>>
+  removeFromQueue: (chapterId: string) => Promise<IpcResponse<void>>
+  clearQueue: () => Promise<IpcResponse<void>>
+  retryDownload: (chapterId: string) => Promise<IpcResponse<void>>
+  getQueueStats: () => Promise<IpcResponse<QueueState>>
 }
 
 declare global {

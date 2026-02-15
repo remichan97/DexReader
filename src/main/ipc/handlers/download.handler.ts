@@ -1,35 +1,23 @@
 import { downloadService } from './../../services/download.service'
 import { DownloadChapterOptions } from './../../services/options/download-chapter.option'
-import { ImageQuality } from '../../api/enums'
 import { wrapIpcHandler } from '../wrapHandler'
+import { isDownloadChapterOptions, isQueuedDownloads } from '../../settings/validators/types.validator'
+import { downloadQueueService } from '../../services/download-queue.service'
+import { QueuedDownloads } from '../../services/types/downloads/queued-downloads.type'
 
 export function registerDownloadHandlers(): void {
   wrapIpcHandler('downloads:download-chapter', async (_, params: unknown) => {
-    if (params === null || typeof params !== 'object') {
-      throw new Error('Invalid parameters for downloading chapter')
-    }
+    isDownloadChapterOptions(params)
 
-    if (!('chapterId' in params) || typeof params.chapterId !== 'string') {
-      throw new Error('Missing or invalid chapterId')
-    }
-
-    if (!('mangaId' in params) || typeof params.mangaId !== 'string') {
-      throw new Error('Missing or invalid mangaId')
-    }
-
-    if (!('language' in params) || typeof params.language !== 'string') {
-      throw new Error('Missing or invalid language')
-    }
-
-    if (!('quality' in params) || typeof params.quality !== 'string') {
-      throw new Error('Missing or invalid quality')
+    if (!isDownloadChapterOptions(params)) {
+      throw new TypeError('Invalid parameters for downloading chapter')
     }
 
     const options: DownloadChapterOptions = {
       chapterId: params.chapterId,
       mangaId: params.mangaId,
       language: params.language,
-      quality: params.quality as ImageQuality
+      quality: params.quality
     }
 
     return await downloadService.downloadChapter(options)
@@ -61,5 +49,69 @@ export function registerDownloadHandlers(): void {
     }
 
     return downloadService.isDownloaded(chapterId)
+  })
+
+  wrapIpcHandler('download:add-to-queue', async (_, params: unknown) => {
+    isQueuedDownloads(params)
+
+    if (!isQueuedDownloads(params)) {
+      throw new TypeError('Invalid parameters for adding chapter to download queue')
+    }
+
+    const options: QueuedDownloads = {
+      chapterId: params.chapterId,
+      mangaId: params.mangaId,
+      language: params.language,
+      quality: params.quality,
+      addedAt: params.addedAt
+    }
+
+    return downloadQueueService.addToQueue(options)
+  })
+
+  wrapIpcHandler('download:add-batch-to-queue', async (_, params: unknown) => {
+    if (!Array.isArray(params)) {
+      throw new TypeError('Invalid parameters for adding batch of chapters to download queue')
+    }
+
+    const options: QueuedDownloads[] = params.map((param) => {
+      if (!isQueuedDownloads(param)) {
+        throw new TypeError('Invalid parameters for adding chapter to download queue')
+      }
+
+      return {
+        chapterId: param.chapterId,
+        mangaId: param.mangaId,
+        language: param.language,
+        quality: param.quality,
+        addedAt: param.addedAt
+      }
+    })
+
+    return downloadQueueService.addBatchToQueue(options)
+  })
+
+  wrapIpcHandler('download:remove-from-queue', async (_, chapterId: unknown) => {
+    if (typeof chapterId !== 'string') {
+      throw new TypeError('Invalid chapterId for removing chapter from download queue')
+    }
+
+    return downloadQueueService.removeFromQueue(chapterId)
+  })
+
+  wrapIpcHandler('download:clear-queue', async () => {
+    return downloadQueueService.clearQueue()
+  })
+
+  wrapIpcHandler('download:retry', async (_, chapterId: unknown) => {
+    if (typeof chapterId !== 'string') {
+      throw new TypeError('Invalid chapterId for retrying download')
+    }
+
+    return downloadQueueService.retryDownload(chapterId)
+  })
+
+  wrapIpcHandler('download:get-queue-stats', async () => {
+    return downloadQueueService.getQueueStats()
   })
 }

@@ -1,4 +1,6 @@
 import { ImageQuality } from '../../api/enums'
+import { DownloadChapterOptions } from '../../services/options/download-chapter.option'
+import { QueuedDownloads } from '../../services/types/downloads/queued-downloads.type'
 import { DownloadSettings } from '../entity/downloads-settings.entity'
 import { MangaOverrideSettings } from '../entity/manga-override-settings.entity'
 import { ReaderSettings } from '../entity/reader-settings.entity'
@@ -189,6 +191,69 @@ export function isReaderSettings(values: unknown): values is ReaderSettings {
     !isMangaReadingSettings(readerSettings.global)
   ) {
     console.error('Refused to save reader settings: global settings are invalid')
+    return false
+  }
+
+  return true
+}
+
+export function isDownloadChapterOptions(values: unknown): values is DownloadChapterOptions {
+  if (values === null || typeof values !== 'object') {
+    console.error('Invalid parameters for downloading chapter')
+    return false
+  }
+
+  if (!('chapterId' in values) || typeof values.chapterId !== 'string') {
+    console.error('Missing or invalid chapterId')
+    return false
+  }
+
+  if (!('mangaId' in values) || typeof values.mangaId !== 'string') {
+    console.error('Missing or invalid mangaId')
+    return false
+  }
+
+  if (!('language' in values) || typeof values.language !== 'string') {
+    console.error('Missing or invalid language')
+    return false
+  }
+
+  if (!('quality' in values) || typeof values.quality !== 'string') {
+    console.error('Missing or invalid quality')
+    return false
+  }
+
+  return true
+}
+
+export function isQueuedDownloads(values: unknown): values is QueuedDownloads {
+  if (values === null || typeof values !== 'object') {
+    console.error('Invalid parameters for queued downloads')
+    return false
+  }
+
+  if (!('chapterId' in values) || typeof values.chapterId !== 'string') {
+    console.error('Missing or invalid chapterId')
+    return false
+  }
+
+  if (!('mangaId' in values) || typeof values.mangaId !== 'string') {
+    console.error('Missing or invalid mangaId')
+    return false
+  }
+
+  if (!('language' in values) || typeof values.language !== 'string') {
+    console.error('Missing or invalid language')
+    return false
+  }
+
+  if (!('quality' in values) || typeof values.quality !== 'string') {
+    console.error('Missing or invalid quality')
+    return false
+  }
+
+  if (!('addedAt' in values) || !(values.addedAt instanceof Date)) {
+    console.error('Missing or invalid addedAt')
     return false
   }
 

@@ -14,6 +14,7 @@ import { RemoveFromCollectionCommand } from '../main/database/commands/collectio
 import { ReorderMangaInCollectionCommand } from '../main/database/commands/collections/reorder-manga-collection.command'
 import { RecordReadCommand } from '../main/database/commands/history/record-read.command'
 import { DexreaderExportOption } from '../main/services/options/dexreader-export.option'
+import { QueuedDownloads } from '../main/services/types/downloads/queued-downloads.type'
 
 // Custom APIs for renderer
 const api = {
@@ -299,7 +300,15 @@ const downloads = {
   deleteChapter: (chapterId: string) => ipcRenderer.invoke('downloads:delete-chapter', chapterId),
   getAllDownloads: () => ipcRenderer.invoke('download:get-all-downloads'),
   getDownload: (chapterId: string) => ipcRenderer.invoke('download:get-download', chapterId),
-  isDownloaded: (chapterId: string) => ipcRenderer.invoke('download:is-downloaded', chapterId)
+  isDownloaded: (chapterId: string) => ipcRenderer.invoke('download:is-downloaded', chapterId),
+  addToQueue: (options: QueuedDownloads) => ipcRenderer.invoke('download:add-to-queue', options),
+  addBatchToQueue: (options: QueuedDownloads[]) =>
+    ipcRenderer.invoke('download:add-batch-to-queue', options),
+  removeFromQueue: (chapterId: string) =>
+    ipcRenderer.invoke('download:remove-from-queue', chapterId),
+  clearQueue: () => ipcRenderer.invoke('download:clear-queue'),
+  retryDownload: (chapterId: string) => ipcRenderer.invoke('download:retry', chapterId),
+  getQueueStats: () => ipcRenderer.invoke('download:get-queue-stats')
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
