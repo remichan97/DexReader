@@ -1,4 +1,4 @@
-import { QueuedDownloads } from "./queued-downloads.type";
+import { QueuedDownloads } from './queued-downloads.type'
 
 export interface QueueState {
   items: QueuedDownloads[]

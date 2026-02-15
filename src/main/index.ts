@@ -1,4 +1,4 @@
-import { LocalImageProxy } from './api/localImageProxy';
+import { LocalImageProxy } from './api/localImageProxy'
 import { app, ipcMain } from 'electron'
 import path from 'node:path'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
