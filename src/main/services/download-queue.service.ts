@@ -43,6 +43,7 @@ export class DownloadQueueService {
     }
 
     this.queue.push(item)
+    this.processQueue()
   }
 
   // Resume any incompleted downloads

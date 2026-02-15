@@ -1,7 +1,10 @@
 import { downloadService } from './../../services/download.service'
 import { DownloadChapterOptions } from './../../services/options/download-chapter.option'
 import { wrapIpcHandler } from '../wrapHandler'
-import { isDownloadChapterOptions, isQueuedDownloads } from '../../settings/validators/types.validator'
+import {
+  isDownloadChapterOptions,
+  isQueuedDownloads
+} from '../../settings/validators/types.validator'
 import { downloadQueueService } from '../../services/download-queue.service'
 import { QueuedDownloads } from '../../services/types/downloads/queued-downloads.type'
 
@@ -28,7 +31,7 @@ export function registerDownloadHandlers(): void {
       throw new TypeError('Invalid chapterId for deleting chapter')
     }
 
-    await downloadService.deleteChapter(chapterId)
+    return await downloadService.deleteChapter(chapterId)
   })
 
   wrapIpcHandler('download:get-all-downloads', async () => {
