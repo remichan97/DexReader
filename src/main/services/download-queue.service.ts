@@ -208,15 +208,24 @@ export class DownloadQueueService {
 
     console.log(`Scheduling retry #${attempts} for chapter ${chapterId} after failure.`)
 
-    const item = this.queue.find((i) => i.chapterId === chapterId)
+    const failedDownloadData = chapterDownloadsRepo.getDownload(chapterId)
 
-    if (item) {
-      this.scheduleRetry(item)
-    } else {
-      console.warn(
-        `Failed to find chapter ${chapterId} in the queue for retry scheduling after failure.`
+    if (!failedDownloadData) {
+      console.error(
+        `Failed to find download data for chapter ${chapterId} in the database after failure. Can't schedule retry.`
       )
+      return
     }
+
+    const item: QueuedDownloads = {
+      chapterId: failedDownloadData.chapterId,
+      mangaId: failedDownloadData.mangaId,
+      quality: failedDownloadData.imageQuality,
+      language: failedDownloadData.language || 'en',
+      addedAt: new Date() // We can set the addedAt to now since we're retrying them, not adding them for the first time
+    }
+
+    this.scheduleRetry(item)
   }
 
   private scheduleRetry(item: QueuedDownloads): void {
@@ -289,6 +298,14 @@ export class DownloadQueueService {
   private async getConcurrentDownloadsSize(): Promise<number> {
     const downloadSettings = await getSetting('downloads')
     return downloadSettings.maxConcurrentDownloads
+  }
+
+  // Used on app shutdown to commit any database updates that might not have been flushed
+  cleanup(): void {
+    this.flushBatchUpdates()
+    if (this.batchUpdateTimeout) {
+      clearTimeout(this.batchUpdateTimeout)
+    }
   }
 }
 export const downloadQueueService = new DownloadQueueService()

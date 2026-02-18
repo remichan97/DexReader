@@ -12,6 +12,7 @@ import { setupAppLifecycle } from './app-lifecycle'
 import { registerAllHandlers } from './ipc/registry'
 import { databaseConnection } from './database/connection'
 import { runMigrations } from './database/migrations/migrations'
+import { downloadQueueService } from './services/download-queue.service'
 
 const imageProxy = new ImageProxy()
 const localImageProxy = new LocalImageProxy()
@@ -82,4 +83,9 @@ app.whenReady().then(async () => {
   createWindow()
 
   setupAppLifecycle()
+
+  setTimeout(() => {
+    console.log('Resuming any incomplete downloads in the queue...')
+    downloadQueueService.resumeIncompletedDownloads()
+  })
 })

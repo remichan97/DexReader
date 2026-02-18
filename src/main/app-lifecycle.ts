@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from 'electron'
 import { createWindow } from './window'
 import { databaseConnection } from './database/connection'
+import { downloadQueueService } from './services/download-queue.service'
 
 export function setupAppLifecycle(): void {
   app.on('activate', function () {
@@ -20,5 +21,6 @@ export function setupAppLifecycle(): void {
   // Synchronous operation completes immediately before app exits
   app.on('before-quit', () => {
     databaseConnection.close()
+    downloadQueueService.cleanup()
   })
 }
