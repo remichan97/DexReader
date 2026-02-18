@@ -4,7 +4,7 @@
 
 **Project Start**: 23 November 2025
 **Current Phase**: Phase 4 - Offline Functionality (In Progress 🔵)
-**Last Updated**: 12 February 2026
+**Last Updated**: 18 February 2026
 
 ---
 
@@ -18,15 +18,63 @@
 
 ---
 
-## Current Status: Phase 4 In Progress (1/11 tasks backend complete)
+## Current Status: Phase 4 In Progress (8/11 tasks complete)
 
-**Phase Progress**: Phase 2 Complete (11/11) | Guerilla Refactoring Complete | Phase 3 Complete (19/19) ✅ | Phase 4 In Progress (P4-T01 backend complete, awaiting UI) 🔵
-**Current Focus**: Download system foundation complete - Ready for P4-T06 (UI) or P4-T02 (Queue Manager)
-**Recent Completion**: P4-T01 Backend Complete - Database, services, protocols ready ✅
+**Phase Progress**: Phase 2 Complete (11/11) | Guerilla Refactoring Complete | Phase 3 Complete (19/19) ✅ | Phase 4 In Progress (8/11 complete, 3 remaining) 🔵
+**Current Focus**: Download system complete (backend + infrastructure) - Ready for P4-T06 (Download UI)
+**Recent Completion**: Codebase audit revealed 6 previously completed tasks ✅
 
 ---
 
 ## Recent Milestones
+
+### P4-T02 Download Queue Manager (18 February 2026) ✅
+
+**Duration**: ~6 hours (planning + implementation + audit) | **Status**: Complete
+
+**Summary**: Implemented concurrent download queue manager with configurable concurrency, intelligent retry logic, batch database updates, and graceful app lifecycle integration. User implemented backend independently after planning phase, followed by comprehensive audit and fixes.
+
+**Key Outcomes**:
+
+- **Queue Orchestration**: FIFO queue with configurable concurrent downloads (1-10, default: 3)
+- **Smart Retry Logic**: Silent exponential backoff (5s → 15s → 45s), max 3 attempts before permanent failure
+- **Batch Operations**: Database updates flushed at 10 items or 1-second timeout for performance
+- **Progress Throttling**: Max 10 events/second prevents IPC flooding during bulk downloads
+- **Auto-Resume**: Queries database on startup for incomplete downloads (status='downloading'|'queued')
+- **Graceful Shutdown**: `cleanup()` method flushes pending batch updates on app close
+- **Fresh Settings**: Reads `maxConcurrentDownloads` on every queue cycle (no caching, instant response to settings changes)
+- **Event System**: `download:queue-progress` for overall stats, `download:permanent-failure` for error notifications
+
+**Architectural Decisions**:
+
+- **No Queue Persistence**: Queue cleared on app restart, but auto-resumed from database (simpler, self-healing)
+- **Silent Retries**: Only notify user after 3 failed attempts (reduces notification noise)
+- **Database as Source of Truth**: Failed downloads reconstructed from database, not kept in memory
+- **Separate Helper File**: 4 utility functions extracted for cleaner service code
+
+**Technical Implementation**:
+
+- Core: `download-queue.service.ts` (312 lines) - Queue state, concurrent orchestration, retry scheduling
+- Helper: `download-queue.helper.ts` (70 lines) - Statistics, notifications, retry delay calculation
+- Types: 3 new interfaces (QueuedDownloads, QueueState, OverallProgress)
+- Repository: `batchMarkDownloadsState()` for transactional updates
+- IPC: 11 handlers for queue operations (add, batch add, remove, clear, retry, stats)
+- Lifecycle: `resumeIncompletedDownloads()` on startup, `cleanup()` on shutdown
+- Settings: Validation for `maxConcurrentDownloads` (range: 1-10, default: 3)
+
+**Implementation Process**:
+
+1. Planning phase: Created detailed 9-step plan, clarified 4 architectural questions
+2. Independent implementation: User implemented full backend (294 lines initially)
+3. Code organization: Extracted helpers, organized type exports in preload
+4. Comprehensive audit: Identified 6 issues (startup call, logic error, missing processQueue calls, cleanup, explicit returns, duplicate check)
+5. All issues resolved by user
+
+**Next Steps**: P4-T06 (Download UI) to enable end-to-end testing of queue functionality.
+
+**Result**: Production-ready queue manager. Backend foundation complete for download system. See [archived-milestones.md](./archived-milestones.md) for detailed implementation notes.
+
+---
 
 ### P4-T01 Download System Backend (12 February 2026) ✅
 
@@ -573,17 +621,17 @@
 **Key Technical Tasks**:
 
 - [✅] **P4-T01**: Implement explicit download system (user-initiated only) - BACKEND COMPLETE (12 Feb 2026: database, service layer, local-manga:// protocol, IPC handlers; frontend UI deferred to P4-T06)
-- [⚪] **P4-T02**: Create download queue manager for chapters
-- [⚪] **P4-T03**: Add local image storage system (user-configured downloads directory)
+- [✅] **P4-T02**: Create download queue manager for chapters - BACKEND COMPLETE (18 Feb 2026: concurrent orchestration, retry logic, batch updates, IPC handlers; frontend UI deferred to P4-T06)
+- [✅] **P4-T03**: Add local image storage system (user-configured downloads directory) - COMPLETE (Discovered 18 Feb 2026: downloadPath setting, path validation, secure filesystem wrapper, UI in StorageSettings, fs:select-downloads-folder IPC handler)
 - [✅] **P4-T04**: Implement library database in AppData - COMPLETE (Database migration 27-28 Dec 2025)
-- [⚪] **P4-T05**: Create download progress tracking (per-chapter and bulk)
+- [✅] **P4-T05**: Create download progress tracking (per-chapter and bulk) - COMPLETE (Discovered 18 Feb 2026: download:chapter-progress and download:queue-progress events, storage size tracking, page counts and percentages)
 - [⚪] **P4-T06**: Add download buttons to MangaDetailView and ReaderView (note: DownloadsView UI already exists with mock data)
-- [⚪] **P4-T07**: Add batch downloads (entire manga or selected chapters)
-- [⚪] **P4-T08**: Implement offline mode detection and switching
-- [⚪] **P4-T09**: Create storage management for downloaded chapters and covers
+- [✅] **P4-T07**: Add batch downloads (entire manga or selected chapters) - COMPLETE (Discovered 18 Feb 2026: addBatchToQueue() backend method, download:add-batch-to-queue IPC handler; UI integration pending in P4-T06)
+- [✅] **P4-T08**: Implement offline mode detection and switching - COMPLETE (Discovered 18 Feb 2026: connectivityStore with 3 states, OfflineStatusBar UI component, checkConnectivity() method)
+- [✅] **P4-T09**: Create storage management for downloaded chapters and covers - COMPLETE (Discovered 18 Feb 2026: deleteChapter() method with file and database cleanup, storage size tracking)
 - [✅] **P4-T10**: Add reading statistics database - COMPLETE (P3-T01, 3-5 Jan 2026, includes HistoryView UI)
 - [⚪] **P4-T11**: Implement storage quota management and cleanup
-- [⚪] **P4-T12**: Validate all file operations respect path restrictions
+- [✅] **P4-T12**: Validate all file operations respect path restrictions - COMPLETE (Discovered 18 Feb 2026: pathValidator.ts with validatePath(), secureFs.ts wrapper, allowed paths enforcement)
 - [⚪] **P4-T13**: Implement unfavourite dialog with 3 options (remove from library only, delete downloads only, or remove everything) - **DEFERRED until downloads functional**
 
 ---

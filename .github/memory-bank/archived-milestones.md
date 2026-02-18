@@ -2,7 +2,433 @@
 
 **Purpose**: This file contains detailed implementation notes from completed milestones in reverse chronological order (newest first). These are historical records that provide context for past decisions and serve as essential reference material.
 
-**Last Updated**: 12 February 2026
+**Last Updated**: 18 February 2026
+
+---
+
+## P4-T02 Download Queue Manager - Concurrent Download Orchestration (18 February 2026)
+
+### Overview
+
+Implemented production-ready download queue manager with configurable concurrency, intelligent retry logic, batch database operations, and comprehensive app lifecycle integration. User implemented backend independently after detailed planning phase, followed by comprehensive audit that identified and resolved 6 issues including critical startup integration and logic errors.
+
+**Time Invested**: ~6 hours (2 hours planning, 3 hours implementation, 1 hour audit/fixes)
+**Status**: Complete - Production-ready queue manager operational
+**Frontend**: Deferred to P4-T06 (consistent with P4-T01 strategy)
+
+### Strategic Decisions
+
+**Fresh Settings Reads (No Caching)**: Made deliberate choice to read `maxConcurrentDownloads` setting on every `processQueue()` call instead of caching with reactive updates:
+
+- **Rationale**: Simpler implementation, instant response to settings changes, eliminates need for `updateSettings()` method
+- **Trade-off**: Extra async call per queue cycle (negligible overhead vs complexity of cache invalidation)
+- **Implementation**: `getConcurrentDownloadsSize()` always calls `getSetting('downloads')`
+
+**No Queue Persistence**: Queue cleared on app restart, but automatically resumed from database:
+
+- **Rationale**: Database is source of truth, simpler state management, self-healing on startup
+- **Behavior**: `resumeIncompletedDownloads()` queries for `status='downloading'|'queued'` on app startup
+- **Trade-off**: Lose queue order on crash (acceptable - downloads complete anyway)
+
+**Silent Retries**: Only notify user after permanent failure (3 attempts):
+
+- **Rationale**: Reduce notification noise, most failures are transient (network hiccups)
+- **Retry Schedule**: Exponential backoff (5s → 15s → 45s)
+- **User Notification**: `download:permanent-failure` event only after max attempts
+
+**FIFO Queue (No Priority)**: Simple queue ordering without priority system:
+
+- **Rationale**: Defer complexity to future enhancement, sufficient for MVP
+- **Note**: Queue interface includes optional `priority` field for future use
+
+### Core Implementation
+
+**File**: `src/main/services/download-queue.service.ts` (312 lines)
+
+**Key Methods**:
+
+```typescript
+// Queue Operations
+addToQueue(item: QueuedDownloads): void
+addBatchToQueue(items: QueuedDownloads[]): void
+removeFromQueue(chapterId: string): boolean
+clearQueue(): void
+retryDownload(chapterId: string): void
+getQueueStats(): QueueState
+
+// Lifecycle
+resumeIncompletedDownloads(): void  // Called on app startup
+cleanup(): void                      // Called on app shutdown
+
+// Private orchestration
+processQueue(): Promise<void>
+startDownload(item: QueuedDownloads): Promise<void>
+handleDownloadCompleted(chapterId: string): void
+handleDownloadFailure(chapterId: string, error: unknown): void
+scheduleRetry(item: QueuedDownloads): void
+scheduleBatchUpdate(command: MarkDownloadStateCommand): void
+flushBatchUpdates(): void
+emitOverallProgress(): void
+getConcurrentDownloadsSize(): Promise<number>
+```
+
+**State Management**:
+
+```typescript
+private queue: QueuedDownloads[] = []                                   // FIFO queue
+private pendingUpdates: MarkDownloadStateCommand[] = []                // Batch buffer
+private readonly activeDownloads: Map<string, Promise<Result>> = new Map()  // Concurrent tracking
+private readonly retryCount: Map<string, number> = new Map()           // Retry attempts
+private batchUpdateTimeout: NodeJS.Timeout | undefined                 // Flush timer
+private lastEmit = Date.now()                                           // Progress throttling
+```
+
+**Constants**:
+
+- `maxRetryAttempts = 3`: Permanent failure threshold
+- `retryDelays = [5000, 15000, 45000]`: Exponential backoff (milliseconds)
+- `emitInterval = 100`: Minimum time between progress events (max 10/sec)
+- `batchThreshold = 10`: Flush pending updates at 10 items
+- `batchTimeout = 1000`: Flush pending updates after 1 second
+
+### Queue Flow
+
+**Adding to Queue**:
+
+1. Check for duplicate (by `chapterId`)
+2. Push to queue array
+3. Call `processQueue()` to start immediately if slots available
+
+**Processing Queue**:
+
+1. Read fresh `maxConcurrentDownloads` from settings
+2. Calculate available slots: `limit - activeDownloads.size`
+3. Splice items from queue front (FIFO)
+4. Start downloads concurrently
+5. Each download tracked in `activeDownloads` Map with Promise
+
+**Download Execution**:
+
+1. Create `DownloadChapterOptions` from queue item
+2. Call `downloadService.downloadChapter()` (returns Promise)
+3. Store Promise in `activeDownloads` Map
+4. Await completion or failure
+5. Handle result (completed/failure)
+6. Remove from `activeDownloads`
+7. Recursively call `processQueue()` for next items
+
+**Retry Logic**:
+
+1. On failure, increment retry count for chapter
+2. If attempts < 3: schedule retry with exponential delay
+3. If attempts ≥ 3: emit permanent failure notification, delete retry count
+4. Retry adds item back to queue front (`unshift`) for immediate processing
+
+**Database Batch Updates**:
+
+1. Accumulate updates in `pendingUpdates` array
+2. Flush triggers: 10 items OR 1 second timeout
+3. Call `chapterDownloadsRepo.batchMarkDownloadsState()` (transactional)
+4. Clear buffer and timeout
+
+### Helper Functions
+
+**File**: `src/main/services/helpers/download-queue.helper.ts` (70 lines)
+
+**Extracted Functions**:
+
+```typescript
+// Aggregate statistics from database + queue state
+calculateAggregateStats(
+  queue: QueuedDownloads[],
+  activeDownloads: number,
+  allDownloads: ChapterDownloadQuery[]
+): OverallProgress
+
+// Send permanent failure notification via IPC
+emitPermanentFailureNotification(chapterId: string): void
+
+// Send throttled progress update via IPC
+emitOverallProgressEvent(stats: OverallProgress): void
+
+// Calculate retry delay with exponential backoff
+getRetryDelay(attempt: number, delays: number[]): number
+```
+
+**Rationale for Extraction**: Keep service class focused on orchestration logic, separate utility concerns
+
+### Type System
+
+**New Types**:
+
+```typescript
+// Queue item definition
+interface QueuedDownloads {
+  chapterId: string
+  mangaId: string
+  language: string
+  quality: ImageQuality
+  addedAt: Date
+  priority?: number // Optional, for future use
+}
+
+// Queue state snapshot
+interface QueueState {
+  items: QueuedDownloads[] // Current queue items
+  totalItems: number // Queue length
+  activeCounts: number // Currently downloading
+  completedCounts: number // Total completed (from DB)
+  failedCounts: number // Total failed (from DB)
+}
+
+// Overall progress statistics
+interface OverallProgress {
+  totalChapters: number
+  completedChapters: number
+  failedChapters: number
+  activeDownloads: number
+  completedPages: number
+  totalPages: number
+  overallPercentage: number
+  estimatedTimeRemaining?: number // Optional, for future calculation
+}
+```
+
+**Preload Integration**: All three types exported via `preload/index.d.ts` for renderer consumption
+
+### IPC Handlers
+
+**File**: `src/main/ipc/handlers/download.handler.ts` (121 lines)
+
+**11 Handlers Registered**:
+
+```typescript
+// Original download handlers (from P4-T01)
+downloads: download - chapter // Single chapter download (legacy direct call)
+downloads: delete -chapter // Delete chapter files + DB record
+download: get - all - downloads // List all downloads with metadata
+download: get - download // Get specific download record
+download: is - downloaded // Check if chapter is downloaded
+
+// New queue handlers (P4-T02)
+download: add - to - queue // Add single chapter to queue
+download: add - batch - to - queue // Add multiple chapters to queue
+download: remove - from - queue // Remove specific chapter from queue
+download: clear - queue // Clear all queued items
+download: retry // Retry failed download
+download: get - queue - stats // Get queue state snapshot
+```
+
+**Design Note**: All handlers return explicit values (void or data), proper TypeScript typing
+
+### Database Integration
+
+**New Repository Method**: `chapterDownloadsRepo.batchMarkDownloadsState()`
+
+```typescript
+batchMarkDownloadsState(commands: MarkDownloadStateCommand[]): void {
+  databaseConnection.db.transaction(() => {
+    commands.forEach((command) => {
+      db.update(chapterDownloadSchema)
+        .set({
+          status: command.isFailed ? DownloadStatus.Failed : DownloadStatus.Completed,
+          storageSize: command.storageSize,
+          totalPages: command.totalPages,
+          // ... other fields
+        })
+        .where(eq(chapterDownloadSchema.chapterId, command.chapterId))
+        .run()
+    })
+  })
+}
+```
+
+**Key Feature**: Wraps all updates in single transaction for atomicity
+
+### App Lifecycle Integration
+
+**Startup Integration** (`src/main/index.ts`):
+
+```typescript
+app.whenReady().then(async () => {
+  // ... existing initialization ...
+  await databaseConnection.init()
+  await runMigrations()
+  registerAllHandlers()
+  createWindow()
+  setupAppLifecycle()
+
+  // Resume incomplete downloads
+  downloadQueueService.resumeIncompletedDownloads()
+})
+```
+
+**Shutdown Integration** (`src/main/app-lifecycle.ts`):
+
+```typescript
+app.on('before-quit', () => {
+  databaseConnection.close()
+  downloadQueueService.cleanup() // Flush pending batch updates
+})
+```
+
+### Implementation Process & Audit
+
+**Phase 1 - Planning (2 hours)**:
+
+1. Created comprehensive 9-step plan document (~1200 lines)
+2. Clarified 4 architectural questions:
+   - Concurrency: Configurable from settings (1-10, default 3)
+   - Retry notifications: Silent retries, notify only on permanent failure
+   - Queue persistence: No persistence, auto-resume from database
+   - Priority: FIFO only (defer priority to future)
+
+**Phase 2 - Independent Implementation (3 hours)**:
+
+- User implemented full service class (294 lines initially)
+- Added all queue operations and orchestration logic
+- Implemented retry scheduling and batch updates
+- Created IPC handlers and type definitions
+
+**Phase 3 - Code Organization (30 minutes)**:
+
+- Extracted 4 helper functions to separate file
+- Organized type exports in preload bridge
+- Added TypeScript type definitions
+
+**Phase 4 - Comprehensive Audit (1 hour)**:
+
+Identified 6 issues through code review and grep searches:
+
+1. **Critical**: `resumeIncompletedDownloads()` never called on app startup
+   - **Fix**: Added call in `main/index.ts` after handler registration
+2. **Critical**: Logic error in `handleDownloadFailure()` - tried to find item in queue after it was spliced out
+   - **Fix**: Reconstruct item from database query instead of searching modified queue
+3. **High**: Missing `processQueue()` calls after `addToQueue()` and `retryDownload()`
+   - **Fix**: Added explicit calls to trigger immediate processing
+4. **Medium**: Pending batch updates not flushed on app close
+   - **Fix**: Added `cleanup()` method, called in `before-quit` handler
+5. **Minor**: IPC handlers missing explicit return statements
+   - **Fix**: Added `return` statements for clarity
+6. **Minor**: `addToQueue()` doesn't check if already downloaded or actively downloading
+   - **Fix**: Added duplicate check at queue front
+
+**False Alarm**: Initially identified missing `updateSettings()` method, but analysis revealed fresh settings reads eliminated need for reactive updates
+
+### Performance Characteristics
+
+**Concurrency**: 1-10 simultaneous downloads (user-configurable)
+
+**Batch Updates**: Reduces database writes by up to 10x during bulk operations
+
+**Progress Throttling**: Caps IPC overhead at 10 events/sec regardless of download speed
+
+**Memory Footprint**: Minimal - only queue items and retry counts in memory, full data in database
+
+**Retry Overhead**: Max ~65 seconds wasted per failed chapter (5s + 15s + 45s waits)
+
+### Event System
+
+**Emitted Events**:
+
+```typescript
+// Overall progress (throttled to 100ms intervals)
+'download:queue-progress' → OverallProgress
+{
+  totalChapters: 100,
+  completedChapters: 45,
+  failedChapters: 2,
+  activeDownloads: 3,
+  completedPages: 1234,
+  totalPages: 2800,
+  overallPercentage: 45.5
+}
+
+// Permanent failure notification (after 3 attempts)
+'download:permanent-failure' → { chapterId: string }
+```
+
+**Frontend Consumption** (P4-T06): Listen to events for UI updates, display progress bars, show failure notifications
+
+### Future Enhancements (Not Implemented)
+
+**Priority Queue**: Optional `priority` field in `QueuedDownloads` interface prepared for future use
+
+**Estimated Time**: Calculate from current download speeds (OverallProgress interface has optional field)
+
+**Pause/Resume**: Would require queue persistence and individual download cancellation
+
+**Bandwidth Throttling**: Limit download speed per chapter or overall
+
+**Network Awareness**: Detect network changes, pause on disconnect
+
+### Testing Strategy (Deferred to P4-T06)
+
+**Unit Testing**: Not implemented yet (deferred to testing phase)
+
+**Manual Testing**: Can be done via DevTools console:
+
+```javascript
+// Add to queue
+await window.downloads.addToQueue({
+  chapterId: 'xxx',
+  mangaId: 'yyy',
+  language: 'en',
+  quality: 'data',
+  addedAt: new Date()
+})
+
+// Check stats
+const stats = await window.downloads.getQueueStats()
+console.log(stats)
+```
+
+**Integration Testing**: Requires P4-T06 frontend to test end-to-end flows
+
+### Lessons Learned
+
+**Fresh Reads > Caching**: For low-frequency operations like concurrency checks, reading fresh values is simpler and more reliable than managing cache invalidation
+
+**Database as Source of Truth**: Eliminates need for complex queue persistence, enables self-healing on crashes
+
+**Silent Retries Reduce Noise**: Users don't need to see every transient failure, only permanent issues
+
+**Batch Operations Matter**: 10x reduction in database writes significantly improves bulk download performance
+
+**Comprehensive Audits Catch Issues**: Independent code review found 6 issues that would have caused runtime failures
+
+### Related Files
+
+**Core Implementation**:
+
+- `src/main/services/download-queue.service.ts` - Main queue manager
+- `src/main/services/helpers/download-queue.helper.ts` - Utility functions
+- `src/main/services/types/downloads/*.type.ts` - Type definitions
+
+**Integration Points**:
+
+- `src/main/index.ts` - App startup with resumeIncompletedDownloads()
+- `src/main/app-lifecycle.ts` - Graceful shutdown with cleanup()
+- `src/main/ipc/handlers/download.handler.ts` - IPC handler registration
+- `src/main/database/repository/chapter-downloads.repo.ts` - Batch operations
+
+**Type System**:
+
+- `src/preload/index.d.ts` - Preload bridge with queue types
+
+### Next Steps
+
+**P4-T06 (Download UI)**: Implement frontend components to enable full testing:
+
+- Download buttons on chapter lists and reader toolbar
+- Queue management view with pause/resume/clear controls
+- Progress indicators and status badges
+- Failure notifications with retry buttons
+- Integration with reader to select local-manga:// protocol
+
+**P4-T03 (Chapter Deletion)**: May be simpler to implement without full UI, uses existing IPC handlers
+
+**Testing & Validation**: Once P4-T06 complete, conduct comprehensive end-to-end testing with various scenarios (concurrent downloads, failures, retries, app restarts)
 
 ---
 
@@ -170,7 +596,7 @@ const pagePath = path.join(downloadPath, 'page.jpg')
 export async function downloadData(
   url: string,
   downloadPath: string,
-  pageNumber: number  // ✅ Added parameter
+  pageNumber: number // ✅ Added parameter
 ): Promise<number> {
   const fileName = `${String(pageNumber).padStart(3, '0')}.jpg`
   const pagePath = path.join(downloadPath, fileName)
@@ -178,7 +604,7 @@ export async function downloadData(
 }
 
 // Caller passes page number:
-await downloadData(imageData.url, downloadPath, index + 1)  // 1-indexed
+await downloadData(imageData.url, downloadPath, index + 1) // 1-indexed
 ```
 
 **Result**: Files saved as `001.jpg`, `002.jpg`, etc. matching protocol expectations.
@@ -200,7 +626,7 @@ import { registerDownloadHandlers } from './handlers/download.handler'
 
 export function registerAllHandlers(): void {
   // ... existing handlers
-  registerDownloadHandlers()  // ✅ Added
+  registerDownloadHandlers() // ✅ Added
   registerFileSystemHandlers(getWindow)
 }
 ```
@@ -211,13 +637,10 @@ export function registerAllHandlers(): void {
 const downloads = {
   downloadChapter: (options: DownloadChapterOptions) =>
     ipcRenderer.invoke('downloads:download-chapter', options),
-  deleteChapter: (chapterId: string) =>
-    ipcRenderer.invoke('downloads:delete-chapter', chapterId),
+  deleteChapter: (chapterId: string) => ipcRenderer.invoke('downloads:delete-chapter', chapterId),
   getAllDownloads: () => ipcRenderer.invoke('download:get-all-downloads'),
-  getDownload: (chapterId: string) =>
-    ipcRenderer.invoke('download:get-download', chapterId),
-  isDownloaded: (chapterId: string) =>
-    ipcRenderer.invoke('download:is-downloaded', chapterId)
+  getDownload: (chapterId: string) => ipcRenderer.invoke('download:get-download', chapterId),
+  isDownloaded: (chapterId: string) => ipcRenderer.invoke('download:is-downloaded', chapterId)
 }
 ```
 

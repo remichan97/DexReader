@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 12 February 2026
+**Last Updated**: 18 February 2026
 **Current Phase**: Phase 4 - Offline Functionality
-**Session**: P4-T01 Backend Complete
+**Session**: P4-T02 Complete
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -10,12 +10,113 @@
 
 ## Current Status Summary
 
-**Phase**: Phase 4 In Progress (1/11 tasks backend complete)
-**Progress**: Phase 3: 19/19 (100%) ✅ | Phase 4: P4-T01 backend complete, awaiting P4-T06 for UI
-**Current Date**: 12 February 2026
+**Phase**: Phase 4 In Progress (8/11 tasks complete)
+**Progress**: Phase 3: 19/19 (100%) ✅ | Phase 4: 8/11 complete (3 remaining: P4-T06, P4-T11, P4-T13)
+**Current Date**: 18 February 2026
 **Database Migration Status**: Fully migrated (includes chapter_downloads table)
-**Current Task**: P4-T01 Backend Complete - Ready for next task
-**Plan Document**: Backend foundation ready for P4-T06 frontend integration
+**Current Task**: Codebase audit complete - 6 previously completed tasks identified
+**Plan Document**: Download infrastructure complete, only UI and quota management remain
+
+---
+
+## Codebase Audit Results (18 Feb 2026)
+
+**Status**: ✅ Complete - Discovered 6 previously implemented tasks
+
+**Audit Findings**: Systematic review of Phase 4 codebase revealed that 6 tasks were already complete but not marked in the task list. These tasks were implemented during earlier sessions or as part of other work.
+
+**Discovered Complete Tasks**:
+
+1. ✅ **P4-T03: Local Image Storage System**
+   - Downloads directory setting with user-configurable path
+   - Path management functions (`getConfiguredDownloadsPath`, `setDownloadsPath`, `initializeDownloadsPath`)
+   - Path validation and allowed paths enforcement
+   - Secure filesystem wrapper for all file operations
+   - UI in StorageSettings.tsx with folder selector
+   - IPC handler: `fs:select-downloads-folder`
+
+2. ✅ **P4-T05: Download Progress Tracking**
+   - Per-chapter progress: `download:chapter-progress` event with page counts
+   - Bulk/queue progress: `download:queue-progress` event with overall stats
+   - Storage size tracking in database
+   - Progress throttling (max 10 events/sec)
+
+3. ✅ **P4-T07: Batch Downloads**
+   - Backend: `addBatchToQueue()` method in download-queue.service.ts
+   - IPC handler: `download:add-batch-to-queue` with validation
+   - Fully functional, awaiting UI integration in P4-T06
+
+4. ✅ **P4-T08: Offline Mode Detection**
+   - Connectivity store with 3 states: online, offline-user, offline-no-internet
+   - Methods: `setOnline()`, `setOfflineMode()`, `setNoInternet()`, `checkConnectivity()`
+   - OfflineStatusBar UI component with "Go Online" and "Retry" buttons
+   - Error messages for offline states
+
+5. ✅ **P4-T09: Storage Management**
+   - Delete chapter: `deleteChapter()` method with file and database cleanup
+   - IPC handler: `downloads:delete-chapter`
+   - Storage size tracking for all downloads
+   - Secure file deletion through validated paths
+
+6. ✅ **P4-T12: File Operation Validation**
+   - pathValidator.ts with `validatePath()`, `normalizePath()`, `validateDirectoryPath()`
+   - secureFs.ts wrapper validates all operations before execution
+   - Allowed paths enforcement (AppData + user downloads directory)
+   - All file operations go through validation layer
+
+**Phase 4 Progress**: 8/11 tasks complete (73%)
+
+**Remaining Tasks**:
+
+- P4-T06: Download UI (buttons, integration with reader, connect DownloadsView)
+- P4-T11: Storage quota management and cleanup
+- P4-T13: Unfavourite dialog with download handling (deferred)
+
+---
+
+## P4-T02 Completion Summary (18 Feb 2026)
+
+**Status**: ✅ Complete - Download Queue Manager Operational
+
+**What Was Completed**:
+
+1. ✅ Queue Service: Concurrent download orchestration with configurable concurrency (1-10, default: 3)
+2. ✅ Retry Logic: Silent exponential backoff (5s, 15s, 45s) with max 3 attempts
+3. ✅ Batch Updates: Pending database updates flushed at 10 items or 1-second timeout
+4. ✅ Progress Throttling: Max 10 events/sec to prevent IPC flooding
+5. ✅ Resume Capability: Auto-resume incomplete downloads on app startup
+6. ✅ Helper Functions: Extracted to dedicated helper file (stats, notifications, retry delays)
+7. ✅ IPC Handlers: 11 handlers for queue operations (add, remove, clear, retry, stats)
+8. ✅ Type System: Queue types properly exported to renderer via preload bridge
+9. ✅ App Lifecycle: Graceful shutdown with batch update flush
+10. ✅ Duplicate Prevention: Checks for existing items before adding to queue
+
+**Architectural Decisions**:
+
+- **Fresh Settings Reads**: No caching, reads `maxConcurrentDownloads` on every queue processing cycle
+- **FIFO Queue**: Simple queue ordering, no persistence (lost on app restart, but auto-resumed from database)
+- **Silent Retries**: Only notify user on permanent failure after 3 attempts
+- **Batch Database Operations**: Transactional updates with timeout-based flushing
+- **Event-Driven Progress**: `download:queue-progress` and `download:permanent-failure` events
+
+**Technical Implementation**:
+
+- Service: `download-queue.service.ts` (312 lines) with queue state management
+- Helper: `download-queue.helper.ts` with 4 extracted functions
+- Types: `queued-downloads.type.ts`, `queue-state.type.ts`, `overall-progress.type.ts`
+- Repository: `batchMarkDownloadsState()` for transactional updates
+- Settings: `maxConcurrentDownloads` with validation (range: 1-10)
+- Lifecycle: Resume on startup, cleanup on shutdown
+
+**Implementation Notes**:
+
+- User implemented full backend independently after planning phase
+- Comprehensive audit performed, all 6 issues addressed
+- Logic error fixed: `handleDownloadFailure()` reconstructs item from database
+- Missing calls added: `processQueue()` after add/retry, `resumeIncompletedDownloads()` on startup
+- Graceful shutdown: `cleanup()` method flushes pending updates
+
+**Frontend Integration Deferred**: All UI work moved to P4-T06 to enable comprehensive testing and proper UX design
 
 ---
 
@@ -55,17 +156,20 @@
 
 ## Next Steps - Phase 4 In Progress
 
-**Recommended Next**: P4-T02 (Download Queue Manager) OR P4-T06 (Download UI)
+**Recommended Next**: P4-T06 (Download UI) to enable end-to-end testing
 
-**Option A - P4-T02**: Build queue manager (concurrent downloads, retry logic)
+**Why P4-T06 Now**: Backend foundation complete (P4-T01 + P4-T02), need frontend to:
 
-- Benefit: Complete backend before touching UI
-- Works with: Manual download testing via IPC console
+- Test queue manager functionality end-to-end
+- Validate progress events and notifications
+- Verify concurrent downloads work as expected
+- Enable user-facing download management
 
-**Option B - P4-T06**: Build download UI first
+**Alternative Tasks** (if deferring P4-T06):
 
-- Benefit: Can test P4-T01 backend immediately
-- Works with: Add download buttons, then enhance with queue in P4-T02
+- P4-T03: Chapter deletion/management (simpler to test without full UI)
+- P4-T04: Storage management utilities (backend-focused)
+- Continue with other Phase 4 backend tasks
 
 ---
 
