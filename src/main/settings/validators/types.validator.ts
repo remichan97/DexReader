@@ -9,56 +9,6 @@ import { ReadingMode } from '../enum/reading-mode.enum'
 import { AppTheme } from '../enum/theme-mode.enum'
 import { AppearanceSettings } from './../entity/appearance-settings.entity'
 
-interface FieldValidationResult {
-  isFieldUpdate: boolean
-  isValid: boolean
-  error?: string
-}
-
-/**
- * Validate individual field updates
- * Returns whether this is a field-level update and if it's valid
- */
-export function validateSettingsField(field: string, value: unknown): FieldValidationResult {
-  switch (field) {
-    case 'accentColor':
-      // Validate accent color format (hex color or undefined)
-      if (value === undefined || value === null) {
-        return { isFieldUpdate: true, isValid: true }
-      }
-      if (typeof value !== 'string') {
-        return {
-          isFieldUpdate: true,
-          isValid: false,
-          error: 'Accent color must be a string or undefined'
-        }
-      }
-      if (!/^#[0-9A-Fa-f]{6}$/.test(value)) {
-        return {
-          isFieldUpdate: true,
-          isValid: false,
-          error: 'Accent color must be in hex format (#RRGGBB)'
-        }
-      }
-      return { isFieldUpdate: true, isValid: true }
-
-    case 'theme':
-      // Validate theme is a valid enum value
-      if (!Object.values(AppTheme).includes(value as AppTheme)) {
-        return {
-          isFieldUpdate: true,
-          isValid: false,
-          error: `Theme must be one of: ${Object.values(AppTheme).join(', ')}`
-        }
-      }
-      return { isFieldUpdate: true, isValid: true }
-
-    default:
-      // Not a recognized field-level update
-      return { isFieldUpdate: false, isValid: false }
-  }
-}
-
 // Validate appearance settings
 export function isAppearanceSettings(values: unknown): values is AppearanceSettings {
   if (typeof values !== 'object' || values === null) {

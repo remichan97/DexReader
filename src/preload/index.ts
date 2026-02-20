@@ -278,6 +278,15 @@ const mihon = {
 
 const settings = {
   load: () => ipcRenderer.invoke('settings:load'),
+  get: <T = unknown>(
+    section: 'downloads' | 'appearance' | 'reader',
+    path?: string
+  ): Promise<IpcResponse<T>> => ipcRenderer.invoke('settings:get', section, path),
+  set: <T = unknown>(
+    section: 'downloads' | 'appearance' | 'reader',
+    path: string,
+    value: T
+  ): Promise<IpcResponse<void>> => ipcRenderer.invoke('settings:set', section, path, value),
   save: (key: string, value: unknown) => ipcRenderer.invoke('settings:save', key, value),
   openFile: () => ipcRenderer.invoke('settings:open-settings-file'),
   resetToDefaults: () => ipcRenderer.invoke('settings:reset-to-defaults'),

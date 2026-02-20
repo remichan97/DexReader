@@ -57,43 +57,65 @@ export async function updateSettings<K extends keyof AppSettings>(
 }
 
 /**
- * Update a specific field within settings sections
- * Supports granular updates without requiring full section objects
+ * Get a nested setting value by path (e.g., 'downloads.batchDownloadSettings.batchConfirmThreshold')
+ * @param section - Top-level settings section ('downloads', 'appearance', 'reader')
+ * @param path - Optional dot-notation path to nested property
+ * @returns The value at the specified path, or the entire section if no path provided
  */
-export async function updateSettingsField(field: string, value: unknown): Promise<void> {
+export async function getSettingByPath<K extends keyof AppSettings>(
+  section: K,
+  path?: string
+): Promise<unknown> {
   const settings = await loadSettings()
+  let value: unknown = settings[section]
 
-  switch (field) {
-    case 'accentColor':
-      // Update accent color in appearance section
-      settings.appearance.accentColor = value as string | undefined
-      break
-
-    case 'theme':
-      // Update theme in appearance section
-      settings.appearance.theme = value as AppSettings['appearance']['theme']
-      break
-
-    default:
-      throw new Error(`Unknown settings field: ${field}`)
+  if (!path) {
+    return value
   }
+
+  const keys = path.split('.')
+  for (const key of keys) {
+    value = value?.[key]
+    if (value === undefined) {
+      return undefined
+    }
+  }
+
+  return value
+}
+
+/**
+ * Set a nested setting value by path (e.g., 'downloads.batchDownloadSettings.batchConfirmThreshold')
+ * @param section - Top-level settings section ('downloads', 'appearance', 'reader')
+ * @param path - Dot-notation path to nested property
+ * @param value - Value to set
+ */
+export async function setSettingByPath<K extends keyof AppSettings>(
+  section: K,
+  path: string,
+  value: unknown
+): Promise<void> {
+  const settings = await loadSettings()
+  const keys = path.split('.')
+
+  // Navigate to the parent object
+  let target = settings[section] as unknown as Record<string, unknown>
+  for (let i = 0; i < keys.length - 1; i++) {
+    if (target[keys[i]] === undefined) {
+      target[keys[i]] = {}
+    }
+    target = target[keys[i]] as Record<string, unknown>
+  }
+
+  // Set the final value
+  const finalKey = keys.at(-1)!
+  target[finalKey] = value
 
   await saveSettings(settings)
 }
 
-export async function getSetting<K extends keyof AppSettings>(key: K): Promise<AppSettings[K]> {
-  const settings = await loadSettings()
-  return settings[key]
-}
-
 export function getSettingsFilePath(): string {
   return SETTINGS_FILE
-}
-
-// Get the current downloads path (from settings or default)
-export async function getConfiguredDownloadsPath(): Promise<string> {
-  const settings = await loadSettings()
-  return settings.downloads.downloadPath ?? getDownloadsPath()
 }
 
 // Set a new downloads path with validation
@@ -141,7 +163,7 @@ export async function initializeDownloadsPath(): Promise<void> {
       console.warn(`Failed to set saved downloads path: ${error}`)
       console.log(`Using default downloads path at ${getDownloadsPath()} instead.`)
       // Reset to default in settings
-      await updateSettings('downloads', { ...settings.downloads, downloadPath: null })
+      await updateSettings('downloads', { ...settings.downloads, downloadPath: undefined })
     }
   }
 }
@@ -149,9 +171,12 @@ export async function initializeDownloadsPath(): Promise<void> {
 export function getDefaultSettings(): AppSettings {
   return {
     downloads: {
-      downloadPath: null,
       downloadQuality: ImageQuality.High,
-      maxConcurrentDownloads: 3
+      maxConcurrentDownloads: 3,
+      batchDownloadSettings: {
+        shouldConfirmBatchDownload: true,
+        batchConfirmThreshold: 10
+      }
     },
     appearance: {
       theme: AppTheme.System

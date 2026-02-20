@@ -4,16 +4,16 @@ import { AppSettings } from '../../settings/entity/app-settings.entity'
 import {
   getDefaultSettings,
   getSettingsFilePath,
+  getSettingByPath,
+  setSettingByPath,
   loadSettings,
   saveSettings,
-  updateSettings,
-  updateSettingsField
+  updateSettings
 } from '../../settings/settingsManager'
 import {
   isAppearanceSettings,
   isDownloadsSettings,
-  isReaderSettings,
-  validateSettingsField
+  isReaderSettings
 } from '../../settings/validators/types.validator'
 import { wrapIpcHandler } from '../wrapHandler'
 import { destructionRepo } from '../../database/repository/destruction-repo'
@@ -23,18 +23,40 @@ export function registerAppSettingsHandlers(): void {
     return await loadSettings()
   })
 
+  wrapIpcHandler('settings:get', async (_, section: unknown, path?: unknown) => {
+    if (typeof section !== 'string') {
+      throw new TypeError('Section must be a string')
+    }
+
+    if (!['downloads', 'appearance', 'reader'].includes(section)) {
+      throw new Error(`Invalid settings section: ${section}`)
+    }
+
+    if (path !== undefined && typeof path !== 'string') {
+      throw new Error('Path must be a string')
+    }
+
+    return await getSettingByPath(section as keyof AppSettings, path)
+  })
+
+  wrapIpcHandler('settings:set', async (_, section: unknown, path: unknown, value: unknown) => {
+    if (typeof section !== 'string') {
+      throw new TypeError('Section must be a string')
+    }
+
+    if (!['downloads', 'appearance', 'reader'].includes(section)) {
+      throw new Error(`Invalid settings section: ${section}`)
+    }
+
+    if (typeof path !== 'string') {
+      throw new TypeError('Path must be a string')
+    }
+
+    return await setSettingByPath(section as keyof AppSettings, path, value)
+  })
+
   wrapIpcHandler('settings:save', async (_, key: unknown, value: unknown) => {
     const keyStr = key as string
-
-    // Check if this is a field-level update (e.g., 'accentColor', 'theme')
-    const fieldUpdateResult = validateSettingsField(keyStr, value)
-    if (fieldUpdateResult.isFieldUpdate) {
-      // Field-level update with validation
-      if (!fieldUpdateResult.isValid) {
-        throw new Error(fieldUpdateResult.error || 'Invalid field value')
-      }
-      return await updateSettingsField(keyStr, value)
-    }
 
     // Section-level update (e.g., 'appearance', 'downloads', 'reader')
     switch (keyStr as keyof AppSettings) {

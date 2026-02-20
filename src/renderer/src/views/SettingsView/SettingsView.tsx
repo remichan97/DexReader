@@ -178,26 +178,7 @@ export function SettingsView(): JSX.Element {
     applyAccentColor(systemAccentColor)
 
     try {
-      // Remove custom color from settings
-      const pathsResult = await globalThis.fileSystem.getAllowedPaths()
-      if (!pathsResult.success || !pathsResult.data) {
-        throw new Error('Failed to get allowed paths')
-      }
-      const paths = pathsResult.data
-      const settingsPath = paths.appData + '/settings.json'
-
-      let settings: Record<string, unknown> = {}
-      try {
-        const existingResult = await globalThis.fileSystem.readFile(settingsPath, 'utf-8')
-        if (existingResult.success && existingResult.data) {
-          settings = JSON.parse(existingResult.data as string)
-        }
-      } catch {
-        // File doesn't exist, use empty object
-      }
-
-      delete settings.accentColor
-      const result = await globalThis.settings.save('accentColor', undefined)
+      const result = await globalThis.settings.set('appearance', 'accentColor', undefined)
       if (!result.success) {
         throw new Error('Failed to save settings')
       }
@@ -214,26 +195,7 @@ export function SettingsView(): JSX.Element {
     applyAccentColor(color)
 
     try {
-      // Save to settings.json
-      const pathsResult = await globalThis.fileSystem.getAllowedPaths()
-      if (!pathsResult.success || !pathsResult.data) {
-        throw new Error('Failed to get allowed paths')
-      }
-      const paths = pathsResult.data
-      const settingsPath = paths.appData + '/settings.json'
-
-      let settings: Record<string, unknown> = {}
-      try {
-        const existingResult = await globalThis.fileSystem.readFile(settingsPath, 'utf-8')
-        if (existingResult.success && existingResult.data) {
-          settings = JSON.parse(existingResult.data as string)
-        }
-      } catch {
-        // File doesn't exist, use empty object
-      }
-
-      settings.accentColor = color
-      const result = await globalThis.settings.save('accentColor', color)
+      const result = await globalThis.settings.set('appearance', 'accentColor', color)
       if (!result.success) {
         throw new Error('Failed to save settings')
       }
@@ -248,7 +210,7 @@ export function SettingsView(): JSX.Element {
     setThemeMode(mode as 'system' | 'light' | 'dark')
 
     try {
-      const result = await globalThis.settings.save('theme', mode)
+      const result = await globalThis.settings.set('appearance', 'theme', mode)
       if (!result.success) {
         throw new Error('Failed to save theme setting')
       }
@@ -293,29 +255,7 @@ export function SettingsView(): JSX.Element {
     setGlobalReaderSettings(updatedSettings)
 
     try {
-      const pathsResult = await globalThis.fileSystem.getAllowedPaths()
-      if (!pathsResult.success || !pathsResult.data) {
-        throw new Error('Failed to get allowed paths')
-      }
-      const paths = pathsResult.data
-      const settingsPath = paths.appData + '/settings.json'
-
-      let settings: Record<string, unknown> = {}
-      try {
-        const existingResult = await globalThis.fileSystem.readFile(settingsPath, 'utf-8')
-        if (existingResult.success && existingResult.data) {
-          settings = JSON.parse(existingResult.data as string)
-        }
-      } catch {
-        // File doesn't exist, use empty object
-      }
-
-      if (!settings.reader) {
-        settings.reader = {}
-      }
-      ;(settings.reader as Record<string, unknown>).global = updatedSettings
-
-      const result = await globalThis.settings.save('reader', settings.reader)
+      const result = await globalThis.settings.set('reader', 'global', updatedSettings)
       if (!result.success) {
         throw new Error('Failed to save reader settings')
       }
@@ -345,29 +285,7 @@ export function SettingsView(): JSX.Element {
     setGlobalReaderSettings(updatedSettings)
 
     try {
-      const pathsResult = await globalThis.fileSystem.getAllowedPaths()
-      if (!pathsResult.success || !pathsResult.data) {
-        throw new Error('Failed to get allowed paths')
-      }
-      const paths = pathsResult.data
-      const settingsPath = paths.appData + '/settings.json'
-
-      let settings: Record<string, unknown> = {}
-      try {
-        const existingResult = await globalThis.fileSystem.readFile(settingsPath, 'utf-8')
-        if (existingResult.success && existingResult.data) {
-          settings = JSON.parse(existingResult.data as string)
-        }
-      } catch {
-        // File doesn't exist, use empty object
-      }
-
-      if (!settings.reader) {
-        settings.reader = {}
-      }
-      ;(settings.reader as Record<string, unknown>).global = updatedSettings
-
-      const result = await globalThis.settings.save('reader', settings.reader)
+      const result = await globalThis.settings.set('reader', 'global', updatedSettings)
       if (!result.success) {
         throw new Error('Failed to save reader settings')
       }
@@ -386,29 +304,7 @@ export function SettingsView(): JSX.Element {
     setForceDarkMode(enabled)
 
     try {
-      const pathsResult = await globalThis.fileSystem.getAllowedPaths()
-      if (!pathsResult.success || !pathsResult.data) {
-        throw new Error('Failed to get allowed paths')
-      }
-      const paths = pathsResult.data
-      const settingsPath = paths.appData + '/settings.json'
-
-      let settings: Record<string, unknown> = {}
-      try {
-        const existingResult = await globalThis.fileSystem.readFile(settingsPath, 'utf-8')
-        if (existingResult.success && existingResult.data) {
-          settings = JSON.parse(existingResult.data as string)
-        }
-      } catch {
-        // File doesn't exist, use empty object
-      }
-
-      if (!settings.reader) {
-        settings.reader = {}
-      }
-      ;(settings.reader as Record<string, unknown>).forceDarkMode = enabled
-
-      const result = await globalThis.settings.save('reader', settings.reader)
+      const result = await globalThis.settings.set('reader', 'forceDarkMode', enabled)
       if (!result.success) {
         throw new Error('Failed to save reader settings')
       }
@@ -428,29 +324,7 @@ export function SettingsView(): JSX.Element {
     setImageQuality(selectedQuality as 'data' | 'data-saver')
 
     try {
-      const pathsResult = await globalThis.fileSystem.getAllowedPaths()
-      if (!pathsResult.success || !pathsResult.data) {
-        throw new Error('Failed to get allowed paths')
-      }
-      const paths = pathsResult.data
-      const settingsPath = paths.appData + '/settings.json'
-
-      let settings: Record<string, unknown> = {}
-      try {
-        const existingResult = await globalThis.fileSystem.readFile(settingsPath, 'utf-8')
-        if (existingResult.success && existingResult.data) {
-          settings = JSON.parse(existingResult.data as string)
-        }
-      } catch {
-        // File doesn't exist, use empty object
-      }
-
-      if (!settings.reader) {
-        settings.reader = {}
-      }
-      ;(settings.reader as Record<string, unknown>).quality = selectedQuality
-
-      const result = await globalThis.settings.save('reader', settings.reader)
+      const result = await globalThis.settings.set('reader', 'quality', selectedQuality)
       if (!result.success) {
         throw new Error('Failed to save reader settings')
       }
