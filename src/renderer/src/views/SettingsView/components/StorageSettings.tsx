@@ -3,6 +3,7 @@ import { Lightbulb16Regular } from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
 import { Input } from '@renderer/components/Input'
 import { Switch } from '@renderer/components/Switch'
+import { Select, type SelectOption } from '@renderer/components/Select'
 
 interface StorageSettingsProps {
   downloadsPath: string
@@ -10,9 +11,13 @@ interface StorageSettingsProps {
   isChangingPath: boolean
   shouldConfirmBatchDownload: boolean
   batchConfirmThreshold: number
+  shouldAskForQuality: boolean
+  defaultQuality: 'data' | 'data-saver'
   onSelectDownloadsFolder: () => void
   onBatchConfirmToggle: (enabled: boolean) => void
   onBatchThresholdChange: (value: number) => void
+  onAskForQualityToggle: (enabled: boolean) => void
+  onDefaultQualityChange: (quality: string | string[]) => void
 }
 
 export function StorageSettings({
@@ -21,10 +26,18 @@ export function StorageSettings({
   isChangingPath,
   shouldConfirmBatchDownload,
   batchConfirmThreshold,
+  shouldAskForQuality,
+  defaultQuality,
   onSelectDownloadsFolder,
   onBatchConfirmToggle,
-  onBatchThresholdChange
+  onBatchThresholdChange,
+  onAskForQualityToggle,
+  onDefaultQualityChange
 }: Readonly<StorageSettingsProps>): React.JSX.Element {
+  const qualityOptions: SelectOption[] = [
+    { value: 'data', label: 'High Quality' },
+    { value: 'data-saver', label: 'Data Saver' }
+  ]
   return (
     <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div>
@@ -85,7 +98,12 @@ export function StorageSettings({
       </div>
 
       {/* Batch Download Settings */}
-      <div>
+      <div
+        style={{
+          borderTop: '1px solid var(--win-border-default)',
+          paddingTop: '20px'
+        }}
+      >
         <h4 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>Batch Downloads</h4>
 
         <Switch
@@ -140,6 +158,39 @@ export function StorageSettings({
             </p>
           </div>
         )}
+      </div>
+
+      {/* Download Quality Settings */}
+      <div
+        style={{
+          borderTop: '1px solid var(--win-border-default)',
+          paddingTop: '20px'
+        }}
+      >
+        <h4 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
+          Download Quality
+        </h4>
+
+        <Switch
+          checked={shouldAskForQuality}
+          onChange={onAskForQualityToggle}
+          label="Ask for quality before downloading"
+          description="Show quality selection dialog before each download session"
+        />
+
+        <div style={{ marginTop: '16px' }}>
+          <Select
+            value={defaultQuality}
+            onChange={onDefaultQualityChange}
+            options={qualityOptions}
+            label="Download quality"
+            helperText={
+              shouldAskForQuality
+                ? 'Pre-selected value in quality dialog'
+                : 'Quality used for all downloads'
+            }
+          />
+        </div>
       </div>
     </div>
   )

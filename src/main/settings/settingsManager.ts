@@ -171,7 +171,10 @@ export async function initializeDownloadsPath(): Promise<void> {
 export function getDefaultSettings(): AppSettings {
   return {
     downloads: {
-      downloadQuality: ImageQuality.High,
+      downloadQuality: {
+        shouldAskForQuality: true,
+        defaultQuality: ImageQuality.High
+      },
       maxConcurrentDownloads: 3,
       batchDownloadSettings: {
         shouldConfirmBatchDownload: true,
