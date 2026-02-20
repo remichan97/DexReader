@@ -28,6 +28,8 @@ export function SettingsView(): JSX.Element {
   const [downloadsPath, setDownloadsPath] = useState<string>('')
   const [isLoadingPath, setIsLoadingPath] = useState(true)
   const [isChangingPath, setIsChangingPath] = useState(false)
+  const [shouldConfirmBatchDownload, setShouldConfirmBatchDownload] = useState<boolean>(true)
+  const [batchConfirmThreshold, setBatchConfirmThreshold] = useState<number>(10)
   const [accentColor, setAccentColor] = useState<string>('#0078d4')
   const [isUsingSystemColor, setIsUsingSystemColor] = useState<boolean>(true)
   const [systemAccentColor, setSystemAccentColor] = useState<string>('#0078d4')
@@ -83,6 +85,24 @@ export function SettingsView(): JSX.Element {
             setAccentColor(systemAccent)
             setIsUsingSystemColor(true)
             applyAccentColor(systemAccent)
+          }
+
+          // Load downloads settings
+          if (settings.downloads) {
+            if (settings.downloads.batchDownloadSettings) {
+              if (
+                settings.downloads.batchDownloadSettings.shouldConfirmBatchDownload !== undefined
+              ) {
+                setShouldConfirmBatchDownload(
+                  settings.downloads.batchDownloadSettings.shouldConfirmBatchDownload
+                )
+              }
+              if (settings.downloads.batchDownloadSettings.batchConfirmThreshold !== undefined) {
+                setBatchConfirmThreshold(
+                  settings.downloads.batchDownloadSettings.batchConfirmThreshold
+                )
+              }
+            }
           }
 
           // Load reader settings
@@ -216,6 +236,50 @@ export function SettingsView(): JSX.Element {
       }
     } catch (error) {
       console.error('Failed to save theme:', error)
+    }
+  }
+
+  // Handle batch download confirmation toggle
+  const handleBatchConfirmToggle = async (enabled: boolean): Promise<void> => {
+    setShouldConfirmBatchDownload(enabled)
+
+    try {
+      const result = await globalThis.settings.set(
+        'downloads',
+        'batchDownloadSettings.shouldConfirmBatchDownload',
+        enabled
+      )
+      if (!result.success) {
+        throw new Error('Failed to save setting')
+      }
+    } catch (error) {
+      showToast({
+        variant: 'error',
+        title: 'Failed to save setting',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      })
+    }
+  }
+
+  // Handle batch confirm threshold change
+  const handleBatchThresholdChange = async (value: number): Promise<void> => {
+    setBatchConfirmThreshold(value)
+
+    try {
+      const result = await globalThis.settings.set(
+        'downloads',
+        'batchDownloadSettings.batchConfirmThreshold',
+        value
+      )
+      if (!result.success) {
+        throw new Error('Failed to save setting')
+      }
+    } catch (error) {
+      showToast({
+        variant: 'error',
+        title: 'Failed to save setting',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      })
     }
   }
 
@@ -410,7 +474,11 @@ export function SettingsView(): JSX.Element {
             downloadsPath={downloadsPath}
             isLoadingPath={isLoadingPath}
             isChangingPath={isChangingPath}
+            shouldConfirmBatchDownload={shouldConfirmBatchDownload}
+            batchConfirmThreshold={batchConfirmThreshold}
             onSelectDownloadsFolder={handleSelectDownloadsFolder}
+            onBatchConfirmToggle={handleBatchConfirmToggle}
+            onBatchThresholdChange={handleBatchThresholdChange}
           />
         </TabPanel>
 
