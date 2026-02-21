@@ -74,10 +74,14 @@ export async function getSettingByPath<K extends keyof AppSettings>(
   }
 
   const keys = settingsPath.split('.')
-  let value: unknown
+  let value: unknown = settingsData
   for (const key of keys) {
-    value = settingsData?.[key]
+    value = (value as Record<string, unknown>)?.[key]
     if (value === undefined) {
+      // Special case: downloadPath defaults to system downloads directory
+      if (section === 'downloads' && settingsPath === 'downloadPath') {
+        return getDownloadsPath()
+      }
       return undefined
     }
   }
