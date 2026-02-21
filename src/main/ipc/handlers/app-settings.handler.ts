@@ -28,10 +28,6 @@ export function registerAppSettingsHandlers(): void {
       throw new TypeError('Section must be a string')
     }
 
-    if (!['downloads', 'appearance', 'reader'].includes(section)) {
-      throw new Error(`Invalid settings section: ${section}`)
-    }
-
     if (path !== undefined && typeof path !== 'string') {
       throw new Error('Path must be a string')
     }
@@ -42,10 +38,6 @@ export function registerAppSettingsHandlers(): void {
   wrapIpcHandler('settings:set', async (_, section: unknown, path: unknown, value: unknown) => {
     if (typeof section !== 'string') {
       throw new TypeError('Section must be a string')
-    }
-
-    if (!['downloads', 'appearance', 'reader'].includes(section)) {
-      throw new Error(`Invalid settings section: ${section}`)
     }
 
     if (typeof path !== 'string') {

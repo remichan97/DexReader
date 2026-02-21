@@ -248,15 +248,8 @@ interface Mihon {
 
 interface Settings {
   load: () => Promise<IpcResponse<AppSettings>>
-  get: <T = unknown>(
-    section: 'downloads' | 'appearance' | 'reader',
-    path?: string
-  ) => Promise<IpcResponse<T>>
-  set: <T = unknown>(
-    section: 'downloads' | 'appearance' | 'reader',
-    path: string,
-    value: T
-  ) => Promise<IpcResponse<void>>
+  getSettingByPath: (section: string, path?: string) => Promise<IpcResponse<unknown>>
+  setSettingByPath: (section: string, path: string, value: unknown) => Promise<IpcResponse<void>>
   save: (key: string, value: unknown) => Promise<IpcResponse<void>>
   openFile: () => Promise<IpcResponse<boolean>>
   resetToDefaults: () => Promise<IpcResponse<boolean>>
