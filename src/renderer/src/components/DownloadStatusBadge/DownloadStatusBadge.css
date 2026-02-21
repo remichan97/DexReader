@@ -1,0 +1,101 @@
+.download-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 8px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--win-text-secondary);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: default;
+  transition: all 0.2s ease;
+  min-width: 32px;
+  min-height: 32px;
+}
+
+.download-badge__text {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Clickable states */
+.download-badge--not-downloaded,
+.download-badge--failed {
+  cursor: pointer;
+}
+
+.download-badge--not-downloaded:hover,
+.download-badge--failed:hover {
+  background: var(--win-bg-subtle);
+}
+
+.download-badge--not-downloaded:active,
+.download-badge--failed:active {
+  transform: scale(0.95);
+}
+
+/* Not Downloaded */
+.download-badge--not-downloaded {
+  color: var(--win-text-secondary);
+}
+
+.download-badge--not-downloaded:hover {
+  color: var(--win-accent-primary);
+}
+
+/* Downloading */
+.download-badge--downloading {
+  color: var(--win-accent-primary);
+}
+
+.download-badge__icon--spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Queued */
+.download-badge--queued {
+  color: var(--win-accent-tertiary);
+}
+
+/* Downloaded */
+.download-badge--downloaded {
+  color: var(--win-success);
+}
+
+/* Failed */
+.download-badge--failed {
+  color: var(--win-danger);
+}
+
+.download-badge--failed:hover {
+  background: var(--win-danger-subtle);
+}
+
+/* Disabled state */
+.download-badge:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.download-badge:disabled:hover {
+  background: transparent;
+  transform: none;
+}
+
+/* Focus visible for accessibility */
+.download-badge:focus-visible {
+  outline: 2px solid var(--win-accent-primary);
+  outline-offset: 2px;
+}

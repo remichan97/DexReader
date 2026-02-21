@@ -1,9 +1,12 @@
 import type { JSX } from 'react'
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@renderer/components/Button'
 import { Select } from '@renderer/components/Select'
 import { Skeleton } from '@renderer/components/Skeleton'
+import { DownloadStatusBadge } from '@renderer/components/DownloadStatusBadge'
+import type { DownloadStatus } from '@renderer/components/DownloadStatusBadge'
+import { DownloadConfirmationDialog } from '@renderer/components/DownloadConfirmationDialog'
 import { getCoverImageUrl, getMangaTitle, CoverSize } from '@renderer/utils/mangaHelpers'
 import { getLanguageName } from '@renderer/constants/language-list.constant'
 
@@ -54,6 +57,85 @@ export default function ChapterList({
 }: ChapterListProps): JSX.Element {
   const navigate = useNavigate()
 
+  // Download dialog state
+  const [showDownloadDialog, setShowDownloadDialog] = useState(false)
+  const [selectedChapter, setSelectedChapter] = useState<ChapterEntity | null>(null)
+
+  // Settings state
+  const [downloadSettings, setDownloadSettings] = useState<{
+    path: string
+    defaultQuality: 'data-saver' | 'high-quality'
+    shouldAsk: boolean
+  } | null>(null)
+
+  // Download status cache
+  const [downloadStatusMap, setDownloadStatusMap] = useState<Map<string, DownloadStatus>>(new Map())
+
+  // Load settings on mount
+  useEffect(() => {
+    async function loadSettings(): Promise<void> {
+      const [pathResult, qualityResult, shouldAskResult] = await Promise.all([
+        globalThis.settings.getSettingByPath('downloads.downloadPath'),
+        globalThis.settings.getSettingByPath('downloads.downloadQuality.defaultQuality'),
+        globalThis.settings.getSettingByPath('downloads.downloadQuality.shouldAskForQuality')
+      ])
+
+      if (pathResult.success && qualityResult.success && shouldAskResult.success) {
+        // Map backend quality format to frontend format
+        const quality = qualityResult.data === 'data' ? 'high-quality' : 'data-saver'
+        setDownloadSettings({
+          path: String(pathResult.data),
+          defaultQuality: quality,
+          shouldAsk: Boolean(shouldAskResult.data)
+        })
+      }
+    }
+
+    void loadSettings()
+  }, [])
+
+  // Load download statuses for visible chapters
+  useEffect(() => {
+    async function loadDownloadStatuses(): Promise<void> {
+      const statusMap = new Map<string, DownloadStatus>()
+
+      // Check each chapter's download status
+      await Promise.all(
+        chapters.map(async (chapter) => {
+          const result = await globalThis.downloads.getDownload(chapter.id)
+          if (result.success && result.data) {
+            // Map backend status to frontend status
+            const backendStatus = result.data.status
+            let frontendStatus: DownloadStatus = 'not-downloaded'
+            switch (backendStatus) {
+              case 'completed':
+                frontendStatus = 'downloaded'
+                break
+              case 'queued':
+                frontendStatus = 'queued'
+                break
+              case 'downloading':
+                frontendStatus = 'downloading'
+                break
+              case 'failed':
+                frontendStatus = 'failed'
+                break
+            }
+            statusMap.set(chapter.id, frontendStatus)
+          } else {
+            statusMap.set(chapter.id, 'not-downloaded')
+          }
+        })
+      )
+
+      setDownloadStatusMap(statusMap)
+    }
+
+    if (chapters.length > 0) {
+      void loadDownloadStatuses()
+    }
+  }, [chapters])
+
   // Get available languages from manga attributes
   const availableLanguages = useMemo(() => {
     const langs =
@@ -78,6 +160,40 @@ export default function ChapterList({
 
     return filtered
   }, [chapters, sortOrder])
+
+  // Handle download button click
+  const handleDownloadClick = (chapter: ChapterEntity): void => {
+    setSelectedChapter(chapter)
+    setShowDownloadDialog(true)
+  }
+
+  // Handle download confirmation
+  const handleDownloadConfirm = async (quality: 'data-saver' | 'high-quality'): Promise<void> => {
+    if (!selectedChapter) return
+
+    // Map frontend quality to backend ImageQuality enum
+    const imageQuality = quality === 'high-quality' ? 'data' : 'data-saver'
+
+    // Add chapter to download queue
+    const result = await globalThis.downloads.addToQueue({
+      chapterId: selectedChapter.id,
+      mangaId: mangaId,
+      language: selectedLanguage,
+      quality: imageQuality,
+      addedAt: new Date()
+    })
+
+    if (result.success) {
+      // Update status in the map
+      setDownloadStatusMap((prev) => new Map(prev).set(selectedChapter.id, 'queued'))
+    } else {
+      console.error('Failed to add chapter to queue:', result.error)
+      // TODO: Show error toast/notification
+    }
+
+    setShowDownloadDialog(false)
+    setSelectedChapter(null)
+  }
 
   return (
     <div className="manga-detail-view__chapters">
@@ -190,6 +306,9 @@ export default function ChapterList({
               ? { currentPage: chapterProg.currentPage, totalPages: chapter.attributes.pages }
               : undefined
 
+            // Get download status from map
+            const downloadStatus = downloadStatusMap.get(chapter.id) || 'not-downloaded'
+
             return (
               <ChapterItem
                 key={chapter.id}
@@ -197,6 +316,8 @@ export default function ChapterList({
                 isRead={isRead}
                 isInProgress={isInProgress}
                 pageProgress={pageProgress}
+                downloadStatus={downloadStatus}
+                onDownloadClick={() => handleDownloadClick(chapter)}
                 onClick={() =>
                   navigate(`/reader/${mangaId}/${chapter.id}`, {
                     state: {
@@ -212,6 +333,24 @@ export default function ChapterList({
             )
           })}
       </div>
+
+      {/* Download confirmation dialog */}
+      {selectedChapter && downloadSettings && (
+        <DownloadConfirmationDialog
+          isOpen={showDownloadDialog}
+          onClose={() => {
+            setShowDownloadDialog(false)
+            setSelectedChapter(null)
+          }}
+          onConfirm={handleDownloadConfirm}
+          chapterCount={1}
+          chapterTitle={selectedChapter.attributes.title || 'Untitled'}
+          defaultQuality={downloadSettings.defaultQuality}
+          downloadsPath={downloadSettings.path}
+          showBatchInfo={false}
+          onOpenSettings={() => navigate('/settings')}
+        />
+      )}
     </div>
   )
 }
@@ -225,6 +364,8 @@ interface ChapterItemProps {
   readonly isRead?: boolean
   readonly isInProgress?: boolean
   readonly pageProgress?: { currentPage: number; totalPages: number }
+  readonly downloadStatus?: DownloadStatus
+  readonly onDownloadClick?: () => void
 }
 
 function ChapterItem({
@@ -232,7 +373,9 @@ function ChapterItem({
   onClick,
   isRead,
   isInProgress,
-  pageProgress
+  pageProgress,
+  downloadStatus = 'not-downloaded',
+  onDownloadClick
 }: ChapterItemProps): JSX.Element {
   const chapterNum = chapter.attributes.chapter || '0'
   const title = chapter.attributes.title || 'Untitled'
@@ -272,6 +415,13 @@ function ChapterItem({
               p. {pageProgress.currentPage + 1}/{pageProgress.totalPages}
             </span>
           )}
+          <DownloadStatusBadge
+            status={downloadStatus}
+            onClick={(e) => {
+              e.stopPropagation()
+              onDownloadClick?.()
+            }}
+          />
           <span className="chapter-item__date">{publishDate}</span>
         </div>
       </div>

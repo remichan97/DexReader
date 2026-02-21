@@ -15,6 +15,10 @@ import { useAppStore } from '@renderer/stores'
 import { ReaderSettingsModal } from '@renderer/components/ReaderSettingsModal'
 import { ZoomControlsModal } from '@renderer/components/ZoomControlsModal'
 import {
+  StreamSourceIndicator,
+  type StreamSource
+} from '@renderer/components/StreamSourceIndicator'
+import {
   useReaderSettings,
   usePagePairs,
   useReaderNavigation,
@@ -72,6 +76,8 @@ interface ReaderHeaderProps {
   readonly readingMode: 'single' | 'double' | 'vertical'
   readonly currentPagePair?: [number] | [number, number]
   readonly readRightToLeft?: boolean
+  // Stream source indicator
+  readonly streamSource: StreamSource
 }
 
 function ReaderHeader({
@@ -86,7 +92,8 @@ function ReaderHeader({
   zoomControlsPopover,
   readingMode,
   currentPagePair,
-  readRightToLeft
+  readRightToLeft,
+  streamSource
 }: ReaderHeaderProps): JSX.Element {
   return (
     <header className="reader-header">
@@ -96,7 +103,10 @@ function ReaderHeader({
         </Button>
       </div>
 
-      <h1 className="reader-header__title">{chapterTitle}</h1>
+      <h1 className="reader-header__title">
+        <StreamSourceIndicator source={streamSource} />
+        {chapterTitle}
+      </h1>
 
       <div className="reader-header__right">
         {/* Incognito mode indicator */}
@@ -263,6 +273,7 @@ export function ReaderView(): JSX.Element {
   })
 
   const [showErrorDetails, setShowErrorDetails] = useState(false)
+  const [streamSource, setStreamSource] = useState<StreamSource>('online')
 
   // Ref to store zoom indicator timeout
   const zoomIndicatorTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -383,6 +394,27 @@ export function ReaderView(): JSX.Element {
 
     loadReaderSettings()
   }, []) // Run once on mount
+
+  // Check if current chapter is downloaded
+  useEffect(() => {
+    if (!chapterId) return
+
+    const checkDownloadStatus = async (): Promise<void> => {
+      try {
+        const result = await globalThis.downloads.isDownloaded(chapterId)
+        if (result.success && result.data) {
+          setStreamSource('local')
+        } else {
+          setStreamSource('online')
+        }
+      } catch (error) {
+        console.error('Failed to check download status:', error)
+        setStreamSource('online') // Default to online on error
+      }
+    }
+
+    checkDownloadStatus()
+  }, [chapterId]) // Re-check when chapter changes
 
   // Cache chapters to database when chapters are available
   useEffect(() => {
@@ -643,6 +675,7 @@ export function ReaderView(): JSX.Element {
                 </Button>
               </ZoomControlsModal>
             }
+            streamSource={streamSource}
           />
 
           {/* Render based on reading mode */}
