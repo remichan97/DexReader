@@ -16,7 +16,7 @@ interface DownloadStatusBadgeProps {
     current: number
     total: number
   }
-  readonly onClick?: () => void
+  readonly onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
   readonly disabled?: boolean
 }
 

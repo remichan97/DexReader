@@ -64,7 +64,7 @@ export default function ChapterList({
   // Settings state
   const [downloadSettings, setDownloadSettings] = useState<{
     path: string
-    defaultQuality: 'data-saver' | 'high-quality'
+    defaultQuality: 'data' | 'data-saver'
     shouldAsk: boolean
   } | null>(null)
 
@@ -81,11 +81,9 @@ export default function ChapterList({
       ])
 
       if (pathResult.success && qualityResult.success && shouldAskResult.success) {
-        // Map backend quality format to frontend format
-        const quality = qualityResult.data === 'data' ? 'high-quality' : 'data-saver'
         setDownloadSettings({
           path: String(pathResult.data),
-          defaultQuality: quality,
+          defaultQuality: qualityResult.data as 'data' | 'data-saver',
           shouldAsk: Boolean(shouldAskResult.data)
         })
       }
@@ -168,18 +166,15 @@ export default function ChapterList({
   }
 
   // Handle download confirmation
-  const handleDownloadConfirm = async (quality: 'data-saver' | 'high-quality'): Promise<void> => {
+  const handleDownloadConfirm = async (quality: 'data' | 'data-saver'): Promise<void> => {
     if (!selectedChapter) return
-
-    // Map frontend quality to backend ImageQuality enum
-    const imageQuality = quality === 'high-quality' ? 'data' : 'data-saver'
 
     // Add chapter to download queue
     const result = await globalThis.downloads.addToQueue({
       chapterId: selectedChapter.id,
       mangaId: mangaId,
       language: selectedLanguage,
-      quality: imageQuality,
+      quality: quality,
       addedAt: new Date()
     })
 
@@ -394,10 +389,17 @@ function ChapterItem({
   }
 
   return (
-    <Button
-      variant="ghost"
+    <div
       className={`chapter-item ${statusClass}`}
       onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onClick()
+        }
+      }}
+      role="button"
+      tabIndex={0}
       aria-label={`Read Chapter ${chapterNum}: ${title}`}
     >
       <div className="chapter-item__content">
@@ -425,6 +427,6 @@ function ChapterItem({
           <span className="chapter-item__date">{publishDate}</span>
         </div>
       </div>
-    </Button>
+    </div>
   )
 }
