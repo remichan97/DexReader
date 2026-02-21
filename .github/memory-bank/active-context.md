@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 18 February 2026
+**Last Updated**: 21 February 2026
 **Current Phase**: Phase 4 - Offline Functionality
-**Session**: P4-T06 Planning Complete
+**Session**: Post P4-T06 - Download System Fully Operational
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -10,12 +10,75 @@
 
 ## Current Status Summary
 
-**Phase**: Phase 4 In Progress (8/11 tasks complete)
-**Progress**: Phase 3: 19/19 (100%) ✅ | Phase 4: 8/11 complete (3 remaining: P4-T06, P4-T11, P4-T13)
-**Current Date**: 18 February 2026
-**Database Migration Status**: Fully migrated (includes chapter_downloads table)
-**Current Task**: P4-T06 plan complete - Ready for implementation
-**Plan Document**: p4-t06-download-ui-integration-plan.md (8-10 hours estimated)
+**Phase**: Phase 4 In Progress (9/11 tasks complete)
+**Progress**: Phase 3: 19/19 (100%) ✅ | Phase 4: 9/11 complete (81.8%, 2 remaining: P4-T11, P4-T13)
+**Current Date**: 21 February 2026
+**Database Migration Status**: Fully migrated (includes chapter_downloads table with 2 migrations)
+**Current Task**: All Phase 4 tasks complete except storage quota (P4-T11) and unfavorite dialog (P4-T13)
+**Download System Status**: ✅ Fully operational end-to-end (Backend + Frontend + Queue + UI)
+**Next Recommended**: P4-T11 (Storage quota management) to prevent disk exhaustion
+
+---
+
+## P4-T06 Completion Summary (21 Feb 2026)
+
+**Status**: ✅ Complete - Download UI Fully Integrated
+
+**What Was Completed**:
+
+1. ✅ **StreamSourceIndicator Component**: Passive indicator in ReaderView header showing online (globe icon) or local (disk icon) source with fade-in animation
+2. ✅ **DownloadStatusBadge Component**: Interactive badge for chapter lists with 5 states (not-downloaded, queued, downloading, downloaded, failed) and progress display
+3. ✅ **DownloadConfirmationDialog Component**: Unified modal for single/batch downloads with quality selection (High Quality/Data Saver), location display, and Settings link
+4. ✅ **MangaDetailView Integration**: Added download badge to each chapter item with click handler and confirmation dialog
+5. ✅ **ReaderView Integration**: Added stream source indicator that dynamically shows local/online based on download status
+6. ✅ **IPC Integration**: Connected all components to download IPC handlers (`addToQueue`, `getDownload`, `isDownloaded`)
+7. ✅ **Settings Integration**: Load download path and quality preferences from settings system
+8. ✅ **Quality Mapping**: Proper conversion between frontend format ('high-quality'/'data-saver') and backend ImageQuality enum ('data'/'data-saver')
+9. ✅ **Download Status Checking**: Automatic status loading for visible chapters with proper state management
+10. ✅ **Event Handling**: Proper event propagation control to prevent navigation when clicking download badge
+
+**Components Created** (9 files, ~570 lines):
+
+- `StreamSourceIndicator/` (3 files): Component + CSS + barrel export
+- `DownloadStatusBadge/` (3 files): Component + CSS + barrel export
+- `DownloadConfirmationDialog/` (3 files): Component + CSS + barrel export
+
+**Files Modified** (2 files):
+
+- `ChapterList.tsx`: Added download state management, IPC integration, dialog rendering
+- `ReaderView.tsx`: Added stream source state, download status checking, dynamic indicator
+
+**Technical Implementation**:
+
+- **State Management**: Uses React useState/useEffect for download status caching and settings
+- **Type Safety**: Proper type conversions between frontend and backend enums
+- **Performance**: Batch status checks using Promise.all(), status map caching
+- **User Experience**: Click handlers with stopPropagation(), loading indicators, error handling
+- **Design System**: Windows 11 design tokens, Fluent UI icons, accessible components
+
+**UI/UX Decisions**:
+
+1. **Passive Reader Indicator**: ReaderView shows source (online/local) as info only, no download action
+2. **Unified Quality Dialog**: Single dialog for both single and batch downloads, quality always visible
+3. **Chapter List Actions**: All download interactions happen from chapter list in MangaDetailView
+4. **Settings-Driven Behavior**: Respects shouldAskForQuality and defaultQuality settings
+5. **Clear Visual Hierarchy**: Badges integrated into existing chapter item meta section
+
+**Implementation Quality**:
+
+- ✅ No blocking compilation errors
+- ✅ Proper TypeScript typing throughout
+- ✅ Accessibility features (ARIA labels, keyboard navigation)
+- ✅ Responsive design with Windows 11 styling
+- ✅ Event-driven architecture for real-time updates (foundation laid)
+
+**Deferred for Future Enhancement**:
+
+- Real-time download progress updates in DownloadsView
+- Batch download UI (multi-select chapters)
+- Retry functionality UI
+- Error toast notifications
+- Context menu for downloaded chapters (delete option)
 
 ---
 
@@ -64,11 +127,10 @@
    - Allowed paths enforcement (AppData + user downloads directory)
    - All file operations go through validation layer
 
-**Phase 4 Progress**: 8/11 tasks complete (73%)
+**Phase 4 Progress**: 9/11 tasks complete (82%)
 
 **Remaining Tasks**:
 
-- P4-T06: Download UI (buttons, integration with reader, connect DownloadsView)
 - P4-T11: Storage quota management and cleanup
 - P4-T13: Unfavourite dialog with download handling (deferred)
 
@@ -154,50 +216,47 @@
 
 ---
 
-## Next Steps - Phase 4 In Progress
+## Next Steps - Phase 4 Nearly Complete
 
-**Recommended Next**: P4-T06 (Download UI) to enable end-to-end testing
+**Recommended Next**: P4-T11 (Storage Quota Management)
 
-**Why P4-T06 Now**: Backend foundation complete (P4-T01 + P4-T02), need frontend to:
+**Why P4-T11 Now**: Download system is fully functional, need storage management to:
 
-- Test queue manager functionality end-to-end
-- Validate progress events and notifications
-- Verify concurrent downloads work as expected
-- Enable user-facing download management
+- Prevent disk space exhaustion
+- Provide user-configurable quota limits
+- Display storage usage in settings
+- Offer manual cleanup options (delete old/unread downloads)
+- Warn users when approaching limits
 
-**Alternative Tasks** (if deferring P4-T06):
+**Alternative Tasks**:
 
-- P4-T03: Chapter deletion/management (simpler to test without full UI)
-- P4-T04: Storage management utilities (backend-focused)
-- Continue with other Phase 4 backend tasks
+- Continue with other features (Phase 5 planning)
+- Polish existing download UI (batch downloads, retry UI)
+- Improve DownloadsView with real-time progress updates
 
 ---
 
 ## Planning Notes for Future Tasks
 
-### P4-T06: Download UI Integration (NEXT RECOMMENDED)
+### P4-T11: Storage Quota Management (NEXT RECOMMENDED)
 
-**Frontend Integration Needed**:
+**Features Needed**:
 
-1. Add download buttons to reader toolbar
-2. Modify `useChapterData.ts` to check download status and select protocol:
+1. Storage quota settings (user-configurable limit)
+2. Storage usage calculation and display
+3. Automatic cleanup policies (oldest first, completed first, etc.)
+4. Manual cleanup UI in settings
+5. Warning notifications when approaching limit
+6. Per-manga storage breakdown
 
-   ```typescript
-   const downloadStatus = await window.downloads.isDownloaded(chapterId)
-   const isDownloaded = downloadStatus.success && downloadStatus.data?.status === 'completed'
+### P4-T13: Unfavorite Dialog with Download Handling (DEFERRED)
 
-   const images = imageUrls.map((img, index) => {
-     if (isDownloaded) {
-       return { ...img, url: `local-manga://chapter/${chapterId}/page/${index + 1}` }
-     } else {
-       return { ...img, url: img.url.replace('https://', 'mangadex://') }
-     }
-   })
-   ```
+**Features Needed**:
 
-3. Add download status indicators (badges, icons)
-4. Add progress tracking (listen to `download:chapter-progress` events)
-5. Create downloads management view
+1. Show warning if manga has downloaded chapters
+2. Offer to delete downloads when unfavoriting
+3. Show storage savings amount
+4. Confirm deletion action
 
 ### P4-T02: Download Queue Manager
 
@@ -333,10 +392,11 @@
 
 **Database**:
 
-- 8 tables: manga, chapters, collections, collection_items, manga_progress, chapter_progress, reader_overrides, manga_tags
+- 9 tables: manga, chapter, collections, collection_items, manga_progress, chapter_progress, chapter_downloads, reader_overrides, read_history
 - Drizzle ORM with type-safe queries
 - Foreign key constraints enabled
 - Migrations in `src/main/database/migrations/`
+- Latest migration: 0002_add_newcolumntochapterdownload.sql (adds downloads_base_path + file_path for path resilience)
 
 ### Recent Architectural Decisions
 

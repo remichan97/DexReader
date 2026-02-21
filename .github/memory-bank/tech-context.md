@@ -1,7 +1,7 @@
 # DexReader Technical Context
 
-**Last Updated**: 22 January 2026
-**Project Version**: 1.0.1
+**Last Updated**: 21 February 2026
+**Project Version**: 1.0.0
 **Type**: Desktop Application (Electron)
 
 ---
@@ -257,15 +257,19 @@ electron_builder_binaries_mirror=https://npmmirror.com/mirrors/electron-builder-
 
 ## Dependency Management
 
-### Production Dependencies (5)
+### Production Dependencies (9)
 
 ```json
 {
   "@electron-toolkit/preload": "^3.0.2",
   "@electron-toolkit/utils": "^4.0.0",
   "@fluentui/react-icons": "^2.0.315",
+  "better-sqlite3": "^12.5.0",
+  "drizzle-orm": "^0.45.1",
   "electron-updater": "^6.3.9",
-  "react-router-dom": "^6.28.0",
+  "pako": "^2.1.0",
+  "protobufjs": "^8.0.0",
+  "react-router-dom": "^6.30.3",
   "zustand": "^5.0.9"
 }
 ```
@@ -275,18 +279,22 @@ electron_builder_binaries_mirror=https://npmmirror.com/mirrors/electron-builder-
 - **@electron-toolkit/preload**: Helper utilities for secure preload scripts
 - **@electron-toolkit/utils**: Common Electron utilities (is.dev, optimizer, etc.)
 - **@fluentui/react-icons**: Microsoft Fluent UI icon library (2000+ icons, Regular/Filled variants)
+- **better-sqlite3**: Native SQLite3 bindings for database operations
+- **drizzle-orm**: Type-safe ORM for SQLite database queries
 - **electron-updater**: Auto-update functionality for deployed applications
+- **pako**: DEFLATE compression/decompression for backup files (gzip)
+- **protobufjs**: Protocol Buffers serialization for backup/import functionality
 - **react-router-dom**: Client-side routing for multi-view navigation
-- **zustand**: Lightweight state management library with persistence middleware (~1.4kb)
+- **zustand**: Lightweight state management library (~1.4kb)
 
-### Development Dependencies (18)
+### Development Dependencies (21)
 
 **Electron & Build Tools**:
 
 ```json
 {
   "electron": "^38.1.2",
-  "electron-builder": "^25.1.8",
+  "electron-builder": "^26.6.0",
   "electron-vite": "^4.0.1",
   "vite": "^7.1.6"
 }
@@ -307,9 +315,12 @@ electron_builder_binaries_mirror=https://npmmirror.com/mirrors/electron-builder-
 ```json
 {
   "typescript": "^5.9.2",
+  "@types/better-sqlite3": "^7.6.13",
   "@types/node": "^22.18.6",
+  "@types/pako": "^2.0.4",
   "@types/react": "^19.1.13",
-  "@types/react-dom": "^19.1.9"
+  "@types/react-dom": "^19.1.9",
+  "@types/react-router-dom": "^5.3.3"
 }
 ```
 
@@ -322,6 +333,14 @@ electron_builder_binaries_mirror=https://npmmirror.com/mirrors/electron-builder-
   "eslint-plugin-react-hooks": "^5.2.0",
   "eslint-plugin-react-refresh": "^0.4.20",
   "prettier": "^3.6.2"
+}
+```
+
+**Database Tools**:
+
+```json
+{
+  "drizzle-kit": "^0.31.8"
 }
 ```
 
