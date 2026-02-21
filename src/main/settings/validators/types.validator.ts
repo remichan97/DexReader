@@ -50,9 +50,23 @@ export function isDownloadsSettings(values: unknown): values is DownloadSettings
     return false
   }
 
-  // Validate downloadQuality is valid enum
-  if (!Object.values(ImageQuality).includes(downloadsSettings.downloadQuality)) {
-    console.error('Refused to save download settings: invalid downloadQuality')
+  // Validate downloadQuality is a valid DownloadQualitySettings object
+  if (
+    typeof downloadsSettings.downloadQuality !== 'object' ||
+    downloadsSettings.downloadQuality === null ||
+    !Object.values(ImageQuality).includes(downloadsSettings.downloadQuality.defaultQuality) ||
+    typeof downloadsSettings.downloadQuality.shouldAskForQuality !== 'boolean'
+  ) {
+    console.error('Refused to save download settings: invalid downloadQuality settings')
+    return false
+  }
+
+  // Validate the download quality settings
+  if (
+    !Object.values(ImageQuality).includes(downloadsSettings.downloadQuality.defaultQuality) ||
+    typeof downloadsSettings.downloadQuality.shouldAskForQuality !== 'boolean'
+  ) {
+    console.error('Refused to save download settings: invalid download quality settings')
     return false
   }
 
