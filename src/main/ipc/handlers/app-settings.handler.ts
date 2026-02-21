@@ -19,6 +19,8 @@ import { wrapIpcHandler } from '../wrapHandler'
 import { destructionRepo } from '../../database/repository/destruction-repo'
 
 export function registerAppSettingsHandlers(): void {
+  const validSections: Set<keyof AppSettings> = new Set(['appearance', 'downloads', 'reader'])
+
   wrapIpcHandler('settings:load', async () => {
     return await loadSettings()
   })
@@ -26,6 +28,11 @@ export function registerAppSettingsHandlers(): void {
   wrapIpcHandler('settings:get', async (_, section: unknown, path?: unknown) => {
     if (typeof section !== 'string') {
       throw new TypeError('Section must be a string')
+    }
+
+    // Validate section is a valid top-level key in AppSettings
+    if (!validSections.has(section as keyof AppSettings)) {
+      throw new Error(`Unknown settings section: ${section}`)
     }
 
     if (path !== undefined && typeof path !== 'string') {
@@ -38,6 +45,10 @@ export function registerAppSettingsHandlers(): void {
   wrapIpcHandler('settings:set', async (_, section: unknown, path: unknown, value: unknown) => {
     if (typeof section !== 'string') {
       throw new TypeError('Section must be a string')
+    }
+
+    if (!validSections.has(section as keyof AppSettings)) {
+      throw new Error(`Unknown settings section: ${section}`)
     }
 
     if (typeof path !== 'string') {

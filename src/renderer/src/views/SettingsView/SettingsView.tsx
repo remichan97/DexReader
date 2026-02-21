@@ -208,7 +208,11 @@ export function SettingsView(): JSX.Element {
     applyAccentColor(systemAccentColor)
 
     try {
-      const result = await globalThis.settings.set('appearance', 'accentColor', undefined)
+      const result = await globalThis.settings.setSettingByPath(
+        'appearance',
+        'accentColor',
+        undefined
+      )
       if (!result.success) {
         throw new Error('Failed to save settings')
       }
@@ -225,7 +229,7 @@ export function SettingsView(): JSX.Element {
     applyAccentColor(color)
 
     try {
-      const result = await globalThis.settings.set('appearance', 'accentColor', color)
+      const result = await globalThis.settings.setSettingByPath('appearance', 'accentColor', color)
       if (!result.success) {
         throw new Error('Failed to save settings')
       }
@@ -240,7 +244,7 @@ export function SettingsView(): JSX.Element {
     setThemeMode(mode as 'system' | 'light' | 'dark')
 
     try {
-      const result = await globalThis.settings.set('appearance', 'theme', mode)
+      const result = await globalThis.settings.setSettingByPath('appearance', 'theme', mode)
       if (!result.success) {
         throw new Error('Failed to save theme setting')
       }
@@ -254,7 +258,7 @@ export function SettingsView(): JSX.Element {
     setShouldConfirmBatchDownload(enabled)
 
     try {
-      const result = await globalThis.settings.set(
+      const result = await globalThis.settings.setSettingByPath(
         'downloads',
         'batchDownloadSettings.shouldConfirmBatchDownload',
         enabled
@@ -276,7 +280,7 @@ export function SettingsView(): JSX.Element {
     setBatchConfirmThreshold(value)
 
     try {
-      const result = await globalThis.settings.set(
+      const result = await globalThis.settings.setSettingByPath(
         'downloads',
         'batchDownloadSettings.batchConfirmThreshold',
         value
@@ -298,7 +302,7 @@ export function SettingsView(): JSX.Element {
     setShouldAskForQuality(enabled)
 
     try {
-      const result = await globalThis.settings.set(
+      const result = await globalThis.settings.setSettingByPath(
         'downloads',
         'downloadQuality.shouldAskForQuality',
         enabled
@@ -321,7 +325,7 @@ export function SettingsView(): JSX.Element {
     setDefaultQuality(selectedQuality as 'data' | 'data-saver')
 
     try {
-      const result = await globalThis.settings.set(
+      const result = await globalThis.settings.setSettingByPath(
         'downloads',
         'downloadQuality.defaultQuality',
         selectedQuality
@@ -374,7 +378,7 @@ export function SettingsView(): JSX.Element {
     setGlobalReaderSettings(updatedSettings)
 
     try {
-      const result = await globalThis.settings.set('reader', 'global', updatedSettings)
+      const result = await globalThis.settings.setSettingByPath('reader', 'global', updatedSettings)
       if (!result.success) {
         throw new Error('Failed to save reader settings')
       }
@@ -404,7 +408,7 @@ export function SettingsView(): JSX.Element {
     setGlobalReaderSettings(updatedSettings)
 
     try {
-      const result = await globalThis.settings.set('reader', 'global', updatedSettings)
+      const result = await globalThis.settings.setSettingByPath('reader', 'global', updatedSettings)
       if (!result.success) {
         throw new Error('Failed to save reader settings')
       }
@@ -423,7 +427,7 @@ export function SettingsView(): JSX.Element {
     setForceDarkMode(enabled)
 
     try {
-      const result = await globalThis.settings.set('reader', 'forceDarkMode', enabled)
+      const result = await globalThis.settings.setSettingByPath('reader', 'forceDarkMode', enabled)
       if (!result.success) {
         throw new Error('Failed to save reader settings')
       }
@@ -443,7 +447,11 @@ export function SettingsView(): JSX.Element {
     setImageQuality(selectedQuality as 'data' | 'data-saver')
 
     try {
-      const result = await globalThis.settings.set('reader', 'quality', selectedQuality)
+      const result = await globalThis.settings.setSettingByPath(
+        'reader',
+        'quality',
+        selectedQuality
+      )
       if (!result.success) {
         throw new Error('Failed to save reader settings')
       }

@@ -64,18 +64,19 @@ export async function updateSettings<K extends keyof AppSettings>(
  */
 export async function getSettingByPath<K extends keyof AppSettings>(
   section: K,
-  path?: string
+  settingsPath?: string
 ): Promise<unknown> {
   const settings = await loadSettings()
-  let value: unknown = settings[section]
+  const settingsData: unknown = settings[section]
 
-  if (!path) {
-    return value
+  if (!settingsPath) {
+    return settingsData
   }
 
-  const keys = path.split('.')
+  const keys = settingsPath.split('.')
+  let value: unknown
   for (const key of keys) {
-    value = value?.[key]
+    value = settingsData?.[key]
     if (value === undefined) {
       return undefined
     }
@@ -87,17 +88,16 @@ export async function getSettingByPath<K extends keyof AppSettings>(
 /**
  * Set a nested setting value by path (e.g., 'downloads.batchDownloadSettings.batchConfirmThreshold')
  * @param section - Top-level settings section ('downloads', 'appearance', 'reader')
- * @param path - Dot-notation path to nested property
+ * @param settingsPath - Dot-notation path to nested property
  * @param value - Value to set
  */
 export async function setSettingByPath<K extends keyof AppSettings>(
   section: K,
-  path: string,
+  settingsPath: string,
   value: unknown
 ): Promise<void> {
   const settings = await loadSettings()
-  const keys = path.split('.')
-
+  const keys = settingsPath.split('.')
   // Navigate to the parent object
   let target = settings[section] as unknown as Record<string, unknown>
   for (let i = 0; i < keys.length - 1; i++) {

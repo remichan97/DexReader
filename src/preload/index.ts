@@ -278,10 +278,10 @@ const mihon = {
 
 const settings = {
   load: () => ipcRenderer.invoke('settings:load'),
-  getSettingByPath: (section: string, path?: string) =>
-    ipcRenderer.invoke('settings:get', section, path),
-  setSettingByPath: (section: string, path: string, value: unknown) =>
-    ipcRenderer.invoke('settings:set', section, path, value),
+  getSettingByPath: (section: string, settingsPath?: string) =>
+    ipcRenderer.invoke('settings:get', section, settingsPath),
+  setSettingByPath: (section: string, settingsPath: string, value: unknown) =>
+    ipcRenderer.invoke('settings:set', section, settingsPath, value),
   save: (key: string, value: unknown) => ipcRenderer.invoke('settings:save', key, value),
   openFile: () => ipcRenderer.invoke('settings:open-settings-file'),
   resetToDefaults: () => ipcRenderer.invoke('settings:reset-to-defaults'),

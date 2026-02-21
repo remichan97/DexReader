@@ -75,9 +75,9 @@ export default function ChapterList({
   useEffect(() => {
     async function loadSettings(): Promise<void> {
       const [pathResult, qualityResult, shouldAskResult] = await Promise.all([
-        globalThis.settings.getSettingByPath('downloads.downloadPath'),
-        globalThis.settings.getSettingByPath('downloads.downloadQuality.defaultQuality'),
-        globalThis.settings.getSettingByPath('downloads.downloadQuality.shouldAskForQuality')
+        globalThis.settings.getSettingByPath('downloads', 'downloadPath'),
+        globalThis.settings.getSettingByPath('downloads', 'downloadQuality.defaultQuality'),
+        globalThis.settings.getSettingByPath('downloads', 'downloadQuality.shouldAskForQuality')
       ])
 
       if (pathResult.success && qualityResult.success && shouldAskResult.success) {
