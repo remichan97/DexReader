@@ -10,13 +10,13 @@
 
 ## Current Status Summary
 
-**Phase**: Phase 4 In Progress (9/11 tasks complete)
-**Progress**: Phase 3: 19/19 (100%) ✅ | Phase 4: 9/11 complete (81.8%, 2 remaining: P4-T11, P4-T13)
+**Phase**: Phase 4 In Progress (9/12 tasks complete)
+**Progress**: Phase 3: 19/19 (100%) ✅ | Phase 4: 9/12 complete (75%, 3 remaining: P4-T11, P4-T13, P4-T14)
 **Current Date**: 21 February 2026
 **Database Migration Status**: Fully migrated (includes chapter_downloads table with 2 migrations)
-**Current Task**: All Phase 4 tasks complete except storage quota (P4-T11) and unfavorite dialog (P4-T13)
-**Download System Status**: ✅ Fully operational end-to-end (Backend + Frontend + Queue + UI)
-**Next Recommended**: P4-T11 (Storage quota management) to prevent disk exhaustion
+**Current Task**: All Phase 4 download tasks complete except DownloadsView integration (P4-T14)
+**Download System Status**: ✅ Backend fully operational | ⚠️ DownloadsView uses mock data
+**Next Recommended**: P4-T14 (DownloadsView integration) to complete download UI, then P4-T11 (Storage quota)
 
 ---
 
@@ -127,12 +127,13 @@
    - Allowed paths enforcement (AppData + user downloads directory)
    - All file operations go through validation layer
 
-**Phase 4 Progress**: 9/11 tasks complete (82%)
+**Phase 4 Progress**: 9/12 tasks complete (75%)
 
 **Remaining Tasks**:
 
 - P4-T11: Storage quota management and cleanup
 - P4-T13: Unfavourite dialog with download handling (deferred)
+- P4-T14: DownloadsView integration with real-time updates (NEW)
 
 ---
 

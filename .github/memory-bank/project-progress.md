@@ -646,7 +646,7 @@
 ### Phase 4: Offline Functionality (In Progress) 🔵
 
 **Duration**: 4-5 weeks
-**Status**: 3/11 tasks complete (download backend ready)
+**Status**: 9/12 tasks complete (download system operational, DownloadsView integration pending)
 **Target Start**: February 2026
 **Target Completion**: March 2026
 
@@ -688,6 +688,7 @@
 - [⚪] **P4-T11**: Implement storage quota management and cleanup
 - [✅] **P4-T12**: Validate all file operations respect path restrictions - COMPLETE (Discovered 18 Feb 2026: pathValidator.ts with validatePath(), secureFs.ts wrapper, allowed paths enforcement)
 - [⚪] **P4-T13**: Implement unfavourite dialog with 3 options (remove from library only, delete downloads only, or remove everything) - **DEFERRED until downloads functional**
+- [⚪] **P4-T14**: Connect DownloadsView to backend with real-time progress updates - **NEW TASK** (21 Feb 2026: DownloadsView exists with mock data, needs IPC integration and event listeners)
 
 ---
 
