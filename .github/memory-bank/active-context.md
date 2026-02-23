@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 21 February 2026
+**Last Updated**: 23 February 2026
 **Current Phase**: Phase 4 - Offline Functionality
-**Session**: Post P4-T06 - Download System Fully Operational
+**Session**: Post P4-T14 - DownloadsView Integration Complete
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -10,13 +10,82 @@
 
 ## Current Status Summary
 
-**Phase**: Phase 4 In Progress (9/12 tasks complete)
-**Progress**: Phase 3: 19/19 (100%) ✅ | Phase 4: 9/12 complete (75%, 3 remaining: P4-T11, P4-T13, P4-T14)
-**Current Date**: 21 February 2026
+**Phase**: Phase 4 In Progress (10/12 tasks complete)
+**Progress**: Phase 3: 19/19 (100%) ✅ | Phase 4: 10/12 complete (83%, 2 remaining: P4-T11, P4-T13)
+**Current Date**: 23 February 2026
 **Database Migration Status**: Fully migrated (includes chapter_downloads table with 2 migrations)
-**Current Task**: All Phase 4 download tasks complete except DownloadsView integration (P4-T14)
-**Download System Status**: ✅ Backend fully operational | ⚠️ DownloadsView uses mock data
-**Next Recommended**: P4-T14 (DownloadsView integration) to complete download UI, then P4-T11 (Storage quota)
+**Current Task**: Download UI fully complete
+**Download System Status**: ✅ Backend fully operational | ✅ DownloadsView fully integrated
+**Next Recommended**: P4-T11 (Storage quota management) to complete offline functionality
+
+---
+
+## P4-T14 Completion Summary (23 Feb 2026)
+
+**Status**: ✅ Complete - DownloadsView Backend Integration
+
+**What Was Completed**:
+
+1. ✅ **Type Definitions**: Created `download.types.ts` with Download and MangaDownloadGroup interfaces, mapping functions, and utility formatters
+2. ✅ **IPC Integration**: Replaced mock data with real IPC calls to `downloads.getAllDownloads()` and connected to download backend
+3. ✅ **Manga Grouping**: Downloads grouped by manga title with collapsible sections showing aggregate statistics
+4. ✅ **Search/Filter/Sort Bar**: Real-time search by manga/chapter, status filter (All/Active/Completed/Failed), 5 sort options (Recent/Largest/Smallest/A-Z/Z-A)
+5. ✅ **Real-Time Event Listeners**: Connected to `download:chapter-progress`, `download:queue-progress`, and `download:permanent-failure` events
+6. ✅ **Action Handlers**: Connected Cancel, Retry, Remove, Clear Completed, and Retry All Failed buttons to backend IPC handlers
+7. ✅ **Grouped UI**: Collapsible manga sections with chapter cards, progress bars, and action buttons based on status
+8. ✅ **Speed and ETA Calculation**: Real-time speed tracking from progress deltas and ETA estimation from remaining bytes
+9. ✅ **Loading and Error States**: Proper loading spinner, error messages with retry button, and empty state
+10. ✅ **Auto-Collapse**: Groups automatically collapse when all chapters completed (no active or failed)
+11. ✅ **Navigation**: Chapter cards navigate to reader, manga title links navigate to detail view
+12. ✅ **Status Priority Sorting**: Chapters sorted by status (downloading → failed → completed → queued) within groups
+
+**Files Created** (2 files, ~746 lines):
+
+- `src/renderer/src/types/download.types.ts` (200 lines): Type definitions, mapping, utilities
+- `src/renderer/src/views/DownloadsView/DownloadsView.css` (546 lines): Complete styling with responsive design
+
+**Files Modified** (1 file):
+
+- `src/renderer/src/views/DownloadsView/DownloadsView.tsx` (400+ lines): Complete rewrite from mock to full backend integration
+
+**Technical Implementation**:
+
+- **State Management**: React useState/useEffect for downloads, groups, filters, and real-time updates
+- **Event Handling**: Proper event listener cleanup, progress tracking with refs, speed/ETA calculation
+- **Performance**: useMemo for filtering/sorting, auto-refresh every 5 seconds as safety net, efficient grouping algorithm
+- **User Experience**: Search/filter/sort, collapsible groups, status-based action buttons, error handling with toasts
+- **Design System**: Windows 11 design tokens, responsive layout, accessible controls
+
+**UI/UX Features**:
+
+1. **Manga-Grouped Layout**: Downloads organized by manga with aggregate stats (total chapters, storage size, active/failed counts)
+2. **Smart Auto-Collapse**: Groups collapse automatically when all chapters completed (no failures or active downloads)
+3. **Comprehensive Search/Filter/Sort**: Real-time search, 4 status filters, 5 sort options
+4. **Retry All Failed Button**: Appears when failedCount > 0, disabled when queue is processing
+5. **Clear Completed Button**: Always visible, disabled when no completed downloads
+6. **Dual Navigation**: Click chapter card → reader | Click manga title link → detail view
+7. **Status Priority Display**: Chapters sorted by urgency (downloading first, then failed, completed, queued)
+8. **Real-Time Progress**: Speed and ETA calculated from download events, progress bars update live
+
+**Implementation Quality**:
+
+- ✅ No TypeScript compilation errors
+- ✅ All 20 success criteria met (from plan)
+- ✅ Event listeners properly cleaned up on unmount
+- ✅ Proper error handling with user-friendly messages
+- ✅ Responsive design for mobile/tablet/desktop
+- ✅ Windows 11 styling consistency
+
+**Design Decisions (from UI mockup review)**:
+
+- ✅ Grouped layout by manga title
+- 🔷 Cover images deferred to future enhancement
+- ✅ Auto-collapse when all chapters completed
+- ✅ Search/filter/sort with 5 sort options
+- ✅ Clear Completed always visible (disabled when empty)
+- ✅ Retry All Failed appears on first failure (disabled during processing)
+- ✅ Navigation: chapter card→reader, manga title→detail
+- ✅ Sort order: downloading→failed→completed→queued
 
 ---
 
