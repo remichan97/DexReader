@@ -15,7 +15,7 @@ export interface Chapter {
     version: number
     createdAt: string
     updatedAt: string
-    publishedAt: string
+    publishAt: string
     readableAt: string
     isUnavailable: boolean
   }

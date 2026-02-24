@@ -74,7 +74,7 @@ export class NativeDownloadService {
         chapterNumber: response.data.attributes.chapter,
         volume: response.data.attributes.volume,
         language: options.language,
-        publishedAt: new Date(response.data.attributes.publishedAt),
+        publishedAt: new Date(response.data.attributes.publishAt),
         createdAt: new Date(response.data.attributes.createdAt),
         updatedAt: new Date(response.data.attributes.updatedAt),
         scanlatorGroup: scanlatorGroup ? (scanlatorGroup.attributes?.name as string) : undefined
