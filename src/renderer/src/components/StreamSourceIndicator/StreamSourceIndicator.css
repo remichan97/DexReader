@@ -22,9 +22,9 @@
   color: var(--win-text-secondary);
 }
 
-/* Local variant - success color */
+/* Local variant - secondary color (consistent with online) */
 .stream-source-indicator--local .stream-source-indicator__icon {
-  color: var(--win-success);
+  color: var(--win-text-secondary);
 }
 
 /* Fade-in animation when source changes */

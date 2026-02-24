@@ -210,6 +210,9 @@ export class NativeDownloadService {
         bytesDownloaded: updateData.storageSize
       })
     }
+
+    // Mark as successfully downloaded before returning
+    updateData.isDownloaded = true
     return updateData
   }
 

@@ -246,10 +246,15 @@
   font-size: 12px;
   color: var(--win-text-secondary);
   padding: 8px 0;
+  margin-bottom: 8px;
 }
 
 .download-card__progress {
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.download-card__completed {
+  margin-bottom: 16px;
 }
 
 .download-card__progress-info {
@@ -263,7 +268,7 @@
 }
 
 .download-card__error {
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .download-card__error-message {

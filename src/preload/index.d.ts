@@ -166,6 +166,7 @@ interface FileSystem {
   readdir(dirPath: string): Promise<IpcResponse<string[]>>
   getAllowedPaths(): Promise<IpcResponse<AllowedPaths>>
   selectDownloadsFolder(): Promise<IpcResponse<FolderSelectResult>>
+  openDownloadsFolder(): Promise<IpcResponse<boolean>>
 }
 
 interface MangaDexApi {

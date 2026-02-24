@@ -1,4 +1,4 @@
-import { BrowserWindow, dialog } from 'electron'
+import { BrowserWindow, dialog, shell } from 'electron'
 import { getAppDataPath, getDownloadsPath } from '../../filesystem/pathValidator'
 import { secureFs } from '../../filesystem/secureFs'
 import { setDownloadsPath } from '../../settings/settingsManager'
@@ -120,5 +120,12 @@ export function registerFileSystemHandlers(getWindow: () => BrowserWindow): void
     } catch (error) {
       throw new Error(`Unable to set downloads folder: ${error}`)
     }
+  })
+
+  // Open downloads folder in system file explorer
+  wrapIpcHandler('fs:open-downloads-folder', async () => {
+    const downloadsPath = getDownloadsPath()
+    await shell.openPath(downloadsPath)
+    return true
   })
 }

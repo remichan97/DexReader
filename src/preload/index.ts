@@ -185,7 +185,11 @@ const fileSystem = {
 
   // Select download folder
   selectDownloadsFolder: (): Promise<IpcResponse<FolderSelectResult>> =>
-    ipcRenderer.invoke('fs:select-downloads-folder')
+    ipcRenderer.invoke('fs:select-downloads-folder'),
+
+  // Open downloads folder in file explorer
+  openDownloadsFolder: (): Promise<IpcResponse<boolean>> =>
+    ipcRenderer.invoke('fs:open-downloads-folder')
 }
 
 const mangadexApi = {

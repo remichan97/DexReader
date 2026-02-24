@@ -10,16 +10,15 @@ import { useToast } from '@renderer/components/Toast'
 import {
   ArrowDownload24Regular,
   ChevronDown20Regular,
-  ChevronRight20Regular
+  ChevronRight20Regular,
+  FolderOpen20Regular
 } from '@fluentui/react-icons'
 import {
   Download,
   MangaDownloadGroup,
   mapChapterDownloadToFrontend,
   groupDownloadsByManga,
-  formatStorageSize,
-  formatSpeed,
-  formatETA
+  formatStorageSize
 } from '@renderer/types/download.types'
 import './DownloadsView.css'
 
@@ -82,8 +81,6 @@ export function DownloadsView(): JSX.Element {
   const [completedCount, setCompletedCount] = useState(0)
   const [failedCount, setFailedCount] = useState(0)
 
-  // Speed/ETA tracking
-  const progressTracker = useRef<Map<string, { bytes: number; timestamp: number }>>(new Map())
   const isInitialLoad = useRef(true)
 
   // Load downloads from backend
@@ -123,37 +120,8 @@ export function DownloadsView(): JSX.Element {
     }
   }
 
-  // Calculate speed from progress delta
-  const calculateSpeed = (chapterId: string, bytesDownloaded: number): number => {
-    const now = Date.now()
-    const prev = progressTracker.current.get(chapterId)
-
-    if (!prev) {
-      progressTracker.current.set(chapterId, { bytes: bytesDownloaded, timestamp: now })
-      return 0
-    }
-
-    const bytesDelta = bytesDownloaded - prev.bytes
-    const timeDelta = (now - prev.timestamp) / 1000 // seconds
-
-    progressTracker.current.set(chapterId, { bytes: bytesDownloaded, timestamp: now })
-
-    return timeDelta > 0 ? bytesDelta / timeDelta : 0 // bytes per second
-  }
-
   // Handle chapter progress event
   const handleChapterProgress = (event: ChapterProgressEvent): void => {
-    const speed = calculateSpeed(event.chapterId, event.bytesDownloaded)
-    const speedStr = formatSpeed(speed)
-
-    // Calculate ETA
-    let etaStr: string | undefined
-    if (speed > 0 && event.percentage < 100) {
-      const remainingBytes = (event.bytesDownloaded / event.percentage) * (100 - event.percentage)
-      const remainingSeconds = remainingBytes / speed
-      etaStr = formatETA(remainingSeconds)
-    }
-
     setDownloads((prev) =>
       prev.map((d) => {
         if (d.id === event.chapterId) {
@@ -161,9 +129,7 @@ export function DownloadsView(): JSX.Element {
             ...d,
             currentPage: event.currentPage,
             progress: event.percentage,
-            status: event.status,
-            speed: speedStr,
-            eta: etaStr
+            status: event.status
           }
         }
         return d
@@ -327,6 +293,26 @@ export function DownloadsView(): JSX.Element {
 
   const handleNavigateToReader = (mangaId: string, chapterId: string): void => {
     navigate(`/reader/${mangaId}/${chapterId}`)
+  }
+
+  const handleOpenDownloadsFolder = async (): Promise<void> => {
+    try {
+      const response = await globalThis.fileSystem.openDownloadsFolder()
+      if (!response.success) {
+        showToast({
+          title: 'Error',
+          message: 'Failed to open downloads folder',
+          variant: 'error'
+        })
+      }
+    } catch (error) {
+      console.error('Error opening downloads folder:', error)
+      showToast({
+        title: 'Error',
+        message: 'Failed to open downloads folder',
+        variant: 'error'
+      })
+    }
   }
 
   // Filter and sort downloads
@@ -540,6 +526,16 @@ export function DownloadsView(): JSX.Element {
 
         <div className="downloads-stats__actions">
           <Button
+            variant="ghost"
+            size="small"
+            icon={<FolderOpen20Regular />}
+            onClick={handleOpenDownloadsFolder}
+            title="Open downloads folder"
+          >
+            Open Folder
+          </Button>
+
+          <Button
             variant="secondary"
             size="small"
             onClick={handleClearCompleted}
@@ -662,16 +658,16 @@ export function DownloadsView(): JSX.Element {
                           />
                           <div className="download-card__progress-info">
                             <span>
-                              {download.currentPage || 0} / {download.totalPages} pages
+                              Page {download.currentPage || 0} / {download.totalPages}
                             </span>
-                            {download.speed && <span>{download.speed}</span>}
-                            {download.eta && <span>ETA: {download.eta}</span>}
                           </div>
                         </div>
                       )}
 
                       {download.status === 'completed' && (
-                        <ProgressBar value={100} variant="success" size="medium" showLabel />
+                        <div className="download-card__completed">
+                          <ProgressBar value={100} variant="success" size="medium" showLabel />
+                        </div>
                       )}
 
                       {download.status === 'failed' && (

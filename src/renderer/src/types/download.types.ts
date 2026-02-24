@@ -18,8 +18,6 @@ export interface Download {
   status: 'queued' | 'downloading' | 'completed' | 'failed'
   totalPages: number
   currentPage?: number // From progress event
-  speed?: string // Formatted speed (e.g., "2.5 MB/s")
-  eta?: string // Formatted ETA (e.g., "5s", "2m 30s")
   downloadedAt: number
   storageSize: number
   errorMessage?: string

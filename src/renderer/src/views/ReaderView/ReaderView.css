@@ -166,10 +166,12 @@
 
 .reader-header__title {
   flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: var(--font-size-subtitle);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
-  text-align: center;
   margin: 0;
   padding: 0 16px;
   white-space: nowrap;
