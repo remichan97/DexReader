@@ -16,6 +16,9 @@ import { RecordReadCommand } from '../main/database/commands/history/record-read
 import { DexreaderExportOption } from '../main/services/options/dexreader-export.option'
 import { QueuedDownloads } from '../main/services/types/downloads/queued-downloads.type'
 
+// Export enums for renderer
+export { DownloadConfirmation } from '../main/settings/enum/download-confirmation.enum'
+
 // Custom APIs for renderer
 const api = {
   // Theme API

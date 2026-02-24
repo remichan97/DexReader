@@ -1,9 +1,9 @@
-import { DownloadBatchSettings } from './download-batch-settings.entity'
-import { DownloadQualitySettings } from './download-quality-settings.entity'
+import { ImageQuality } from '../../api/enums'
+import { DownloadConfirmation } from '../enum/download-confirmation.enum'
 
 export interface DownloadSettings {
   downloadPath?: string
-  downloadQuality: DownloadQualitySettings
   maxConcurrentDownloads: number
-  batchDownloadSettings: DownloadBatchSettings
+  shouldConfirmDownload: DownloadConfirmation
+  defaultQuality: ImageQuality
 }

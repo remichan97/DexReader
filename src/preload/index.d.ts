@@ -44,7 +44,7 @@ import { CollectionEntity } from '../main/database/schema/collections.schema'
 
 // Settings
 import type { MangaReadingSettings } from '../main/settings/entity/reading-settings.entity'
-import type { AppSettings } from '../main/settings/entity/settings.entity'
+import type { AppSettings } from '../main/settings/entity/app-settings.entity'
 
 // Service options
 import type { DexreaderExportOption } from '../main/services/options/dexreader-export.option'

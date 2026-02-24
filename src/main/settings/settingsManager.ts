@@ -12,6 +12,7 @@ import { ReadingMode } from './enum/reading-mode.enum'
 import { AppSettings } from './entity/app-settings.entity'
 import { MangaReadingSettings } from './entity/reading-settings.entity'
 import { readerSettingsRepo } from '../database/repository/reader-settings.repo'
+import { DownloadConfirmation } from './enum/download-confirmation.enum'
 
 const SETTINGS_FILE = path.join(getAppDataPath(), 'settings.json')
 
@@ -57,7 +58,7 @@ export async function updateSettings<K extends keyof AppSettings>(
 }
 
 /**
- * Get a nested setting value by path (e.g., 'downloads.batchDownloadSettings.batchConfirmThreshold')
+ * Get a nested setting value by path (e.g., 'downloads.downloadPath')
  * @param section - Top-level settings section ('downloads', 'appearance', 'reader')
  * @param path - Optional dot-notation path to nested property
  * @returns The value at the specified path, or the entire section if no path provided
@@ -90,7 +91,7 @@ export async function getSettingByPath<K extends keyof AppSettings>(
 }
 
 /**
- * Set a nested setting value by path (e.g., 'downloads.batchDownloadSettings.batchConfirmThreshold')
+ * Set a nested setting value by path (e.g., 'downloads.downloadPath')
  * @param section - Top-level settings section ('downloads', 'appearance', 'reader')
  * @param settingsPath - Dot-notation path to nested property
  * @param value - Value to set
@@ -175,15 +176,9 @@ export async function initializeDownloadsPath(): Promise<void> {
 export function getDefaultSettings(): AppSettings {
   return {
     downloads: {
-      downloadQuality: {
-        shouldAskForQuality: true,
-        defaultQuality: ImageQuality.High
-      },
       maxConcurrentDownloads: 3,
-      batchDownloadSettings: {
-        shouldConfirmBatchDownload: true,
-        batchConfirmThreshold: 10
-      }
+      shouldConfirmDownload: DownloadConfirmation.BatchDownload,
+      defaultQuality: ImageQuality.High
     },
     appearance: {
       theme: AppTheme.System

@@ -28,9 +28,9 @@ export function SettingsView(): JSX.Element {
   const [downloadsPath, setDownloadsPath] = useState<string>('')
   const [isLoadingPath, setIsLoadingPath] = useState(true)
   const [isChangingPath, setIsChangingPath] = useState(false)
-  const [shouldConfirmBatchDownload, setShouldConfirmBatchDownload] = useState<boolean>(true)
-  const [batchConfirmThreshold, setBatchConfirmThreshold] = useState<number>(10)
-  const [shouldAskForQuality, setShouldAskForQuality] = useState<boolean>(true)
+  const [downloadConfirmation, setDownloadConfirmation] = useState<
+    'always' | 'batch-only' | 'never'
+  >('batch-only')
   const [defaultQuality, setDefaultQuality] = useState<'data' | 'data-saver'>('data')
   const [accentColor, setAccentColor] = useState<string>('#0078d4')
   const [isUsingSystemColor, setIsUsingSystemColor] = useState<boolean>(true)
@@ -91,27 +91,11 @@ export function SettingsView(): JSX.Element {
 
           // Load downloads settings
           if (settings.downloads) {
-            if (settings.downloads.batchDownloadSettings) {
-              if (
-                settings.downloads.batchDownloadSettings.shouldConfirmBatchDownload !== undefined
-              ) {
-                setShouldConfirmBatchDownload(
-                  settings.downloads.batchDownloadSettings.shouldConfirmBatchDownload
-                )
-              }
-              if (settings.downloads.batchDownloadSettings.batchConfirmThreshold !== undefined) {
-                setBatchConfirmThreshold(
-                  settings.downloads.batchDownloadSettings.batchConfirmThreshold
-                )
-              }
+            if (settings.downloads.shouldConfirmDownload !== undefined) {
+              setDownloadConfirmation(settings.downloads.shouldConfirmDownload)
             }
-            if (settings.downloads.downloadQuality) {
-              if (settings.downloads.downloadQuality.shouldAskForQuality !== undefined) {
-                setShouldAskForQuality(settings.downloads.downloadQuality.shouldAskForQuality)
-              }
-              if (settings.downloads.downloadQuality.defaultQuality !== undefined) {
-                setDefaultQuality(settings.downloads.downloadQuality.defaultQuality)
-              }
+            if (settings.downloads.defaultQuality !== undefined) {
+              setDefaultQuality(settings.downloads.defaultQuality)
             }
           }
 
@@ -253,59 +237,18 @@ export function SettingsView(): JSX.Element {
     }
   }
 
-  // Handle batch download confirmation toggle
-  const handleBatchConfirmToggle = async (enabled: boolean): Promise<void> => {
-    setShouldConfirmBatchDownload(enabled)
+  // Handle download confirmation change
+  const handleDownloadConfirmationChange = async (
+    confirmation: string | string[]
+  ): Promise<void> => {
+    const selected = Array.isArray(confirmation) ? confirmation[0] : confirmation
+    setDownloadConfirmation(selected as 'always' | 'batch-only' | 'never')
 
     try {
       const result = await globalThis.settings.setSettingByPath(
         'downloads',
-        'batchDownloadSettings.shouldConfirmBatchDownload',
-        enabled
-      )
-      if (!result.success) {
-        throw new Error('Failed to save setting')
-      }
-    } catch (error) {
-      showToast({
-        variant: 'error',
-        title: 'Failed to save setting',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      })
-    }
-  }
-
-  // Handle batch confirm threshold change
-  const handleBatchThresholdChange = async (value: number): Promise<void> => {
-    setBatchConfirmThreshold(value)
-
-    try {
-      const result = await globalThis.settings.setSettingByPath(
-        'downloads',
-        'batchDownloadSettings.batchConfirmThreshold',
-        value
-      )
-      if (!result.success) {
-        throw new Error('Failed to save setting')
-      }
-    } catch (error) {
-      showToast({
-        variant: 'error',
-        title: 'Failed to save setting',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      })
-    }
-  }
-
-  // Handle ask for quality toggle
-  const handleAskForQualityToggle = async (enabled: boolean): Promise<void> => {
-    setShouldAskForQuality(enabled)
-
-    try {
-      const result = await globalThis.settings.setSettingByPath(
-        'downloads',
-        'downloadQuality.shouldAskForQuality',
-        enabled
+        'shouldConfirmDownload',
+        selected
       )
       if (!result.success) {
         throw new Error('Failed to save setting')
@@ -327,7 +270,7 @@ export function SettingsView(): JSX.Element {
     try {
       const result = await globalThis.settings.setSettingByPath(
         'downloads',
-        'downloadQuality.defaultQuality',
+        'defaultQuality',
         selectedQuality
       )
       if (!result.success) {
@@ -537,14 +480,10 @@ export function SettingsView(): JSX.Element {
             downloadsPath={downloadsPath}
             isLoadingPath={isLoadingPath}
             isChangingPath={isChangingPath}
-            shouldConfirmBatchDownload={shouldConfirmBatchDownload}
-            batchConfirmThreshold={batchConfirmThreshold}
-            shouldAskForQuality={shouldAskForQuality}
+            downloadConfirmation={downloadConfirmation}
             defaultQuality={defaultQuality}
             onSelectDownloadsFolder={handleSelectDownloadsFolder}
-            onBatchConfirmToggle={handleBatchConfirmToggle}
-            onBatchThresholdChange={handleBatchThresholdChange}
-            onAskForQualityToggle={handleAskForQualityToggle}
+            onDownloadConfirmationChange={handleDownloadConfirmationChange}
             onDefaultQualityChange={handleDefaultQualityChange}
           />
         </TabPanel>

@@ -5,6 +5,7 @@ import { DownloadSettings } from '../entity/downloads-settings.entity'
 import { MangaOverrideSettings } from '../entity/manga-override-settings.entity'
 import { ReaderSettings } from '../entity/reader-settings.entity'
 import { MangaReadingSettings } from '../entity/reading-settings.entity'
+import { DownloadConfirmation } from '../enum/download-confirmation.enum'
 import { ReadingMode } from '../enum/reading-mode.enum'
 import { AppTheme } from '../enum/theme-mode.enum'
 import { AppearanceSettings } from './../entity/appearance-settings.entity'
@@ -50,23 +51,19 @@ export function isDownloadsSettings(values: unknown): values is DownloadSettings
     return false
   }
 
-  // Validate downloadQuality is a valid DownloadQualitySettings object
-  if (
-    typeof downloadsSettings.downloadQuality !== 'object' ||
-    downloadsSettings.downloadQuality === null ||
-    !Object.values(ImageQuality).includes(downloadsSettings.downloadQuality.defaultQuality) ||
-    typeof downloadsSettings.downloadQuality.shouldAskForQuality !== 'boolean'
-  ) {
-    console.error('Refused to save download settings: invalid downloadQuality settings')
+  // Validate downloadConfirmation is a valid DownloadConfirmation enum value
+  if (!Object.values(DownloadConfirmation).includes(downloadsSettings.shouldConfirmDownload)) {
+    console.error(
+      'Refused to save download settings: shouldConfirmDownload is not a valid DownloadConfirmation value'
+    )
     return false
   }
 
-  // Validate the download quality settings
-  if (
-    !Object.values(ImageQuality).includes(downloadsSettings.downloadQuality.defaultQuality) ||
-    typeof downloadsSettings.downloadQuality.shouldAskForQuality !== 'boolean'
-  ) {
-    console.error('Refused to save download settings: invalid download quality settings')
+  // Validate defaultQuality is a valid ImageQuality enum value
+  if (!Object.values(ImageQuality).includes(downloadsSettings.defaultQuality)) {
+    console.error(
+      'Refused to save download settings: defaultQuality is not a valid ImageQuality value'
+    )
     return false
   }
 

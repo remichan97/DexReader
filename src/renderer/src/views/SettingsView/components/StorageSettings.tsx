@@ -2,21 +2,16 @@ import React from 'react'
 import { Lightbulb16Regular } from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
 import { Input } from '@renderer/components/Input'
-import { Switch } from '@renderer/components/Switch'
 import { Select, type SelectOption } from '@renderer/components/Select'
 
 interface StorageSettingsProps {
   downloadsPath: string
   isLoadingPath: boolean
   isChangingPath: boolean
-  shouldConfirmBatchDownload: boolean
-  batchConfirmThreshold: number
-  shouldAskForQuality: boolean
+  downloadConfirmation: 'always' | 'batch-only' | 'never'
   defaultQuality: 'data' | 'data-saver'
   onSelectDownloadsFolder: () => void
-  onBatchConfirmToggle: (enabled: boolean) => void
-  onBatchThresholdChange: (value: number) => void
-  onAskForQualityToggle: (enabled: boolean) => void
+  onDownloadConfirmationChange: (confirmation: string | string[]) => void
   onDefaultQualityChange: (quality: string | string[]) => void
 }
 
@@ -24,20 +19,40 @@ export function StorageSettings({
   downloadsPath,
   isLoadingPath,
   isChangingPath,
-  shouldConfirmBatchDownload,
-  batchConfirmThreshold,
-  shouldAskForQuality,
+  downloadConfirmation,
   defaultQuality,
   onSelectDownloadsFolder,
-  onBatchConfirmToggle,
-  onBatchThresholdChange,
-  onAskForQualityToggle,
+  onDownloadConfirmationChange,
   onDefaultQualityChange
 }: Readonly<StorageSettingsProps>): React.JSX.Element {
+  const confirmationOptions: SelectOption[] = [
+    { value: 'always', label: 'Always' },
+    { value: 'batch-only', label: 'Batch Only' },
+    { value: 'never', label: 'Never' }
+  ]
+
   const qualityOptions: SelectOption[] = [
     { value: 'data', label: 'High Quality' },
     { value: 'data-saver', label: 'Data Saver' }
   ]
+
+  // Generate helper text based on confirmation setting
+  const getConfirmationHelperText = (): string => {
+    if (downloadConfirmation === 'always') {
+      return 'Show quality dialog before every download'
+    }
+    if (downloadConfirmation === 'batch-only') {
+      return 'Only ask when downloading multiple chapters at once'
+    }
+    return 'Start downloads immediately without confirmation'
+  }
+
+  const getQualityHelperText = (): string => {
+    return downloadConfirmation === 'never'
+      ? 'Quality used for all downloads'
+      : 'Pre-selected value in quality dialog'
+  }
+
   return (
     <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div>
@@ -97,67 +112,33 @@ export function StorageSettings({
         </p>
       </div>
 
-      {/* Batch Download Settings */}
+      {/* Download Confirmation Settings */}
       <div
         style={{
           borderTop: '1px solid var(--win-border-default)',
           paddingTop: '20px'
         }}
       >
-        <h4 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>Batch Downloads</h4>
+        <h4 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
+          Download Confirmation
+        </h4>
+        <p
+          style={{
+            fontSize: '13px',
+            color: 'var(--win-text-secondary)',
+            marginBottom: '12px'
+          }}
+        >
+          When should we ask before downloading chapters?
+        </p>
 
-        <Switch
-          checked={shouldConfirmBatchDownload}
-          onChange={onBatchConfirmToggle}
-          label="Confirm before batch downloads"
-          description="Show a confirmation dialog when downloading multiple chapters"
+        <Select
+          value={downloadConfirmation}
+          onChange={onDownloadConfirmationChange}
+          options={confirmationOptions}
+          label="Confirmation behavior"
+          helperText={getConfirmationHelperText()}
         />
-
-        {shouldConfirmBatchDownload && (
-          <div style={{ marginTop: '16px' }}>
-            <label
-              htmlFor="batch-threshold"
-              style={{
-                display: 'block',
-                fontSize: '13px',
-                fontWeight: 500,
-                marginBottom: '8px',
-                color: 'var(--win-text-primary)'
-              }}
-            >
-              Ask when downloading more than
-            </label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <Input
-                id="batch-threshold"
-                type="text"
-                inputMode="numeric"
-                value={String(batchConfirmThreshold)}
-                onChange={(value) => {
-                  const num = Number.parseInt(value, 10)
-                  if (!Number.isNaN(num) && num >= 1 && num <= 999) {
-                    onBatchThresholdChange(num)
-                  }
-                }}
-                min={1}
-                max={999}
-                style={{
-                  width: '100px'
-                }}
-              />
-              <span style={{ fontSize: '13px', color: 'var(--win-text-secondary)' }}>chapters</span>
-            </div>
-            <p
-              style={{
-                fontSize: '12px',
-                color: 'var(--win-text-tertiary)',
-                marginTop: '8px'
-              }}
-            >
-              Downloads with fewer chapters will start immediately without confirmation.
-            </p>
-          </div>
-        )}
       </div>
 
       {/* Download Quality Settings */}
@@ -171,26 +152,13 @@ export function StorageSettings({
           Download Quality
         </h4>
 
-        <Switch
-          checked={shouldAskForQuality}
-          onChange={onAskForQualityToggle}
-          label="Ask for quality before downloading"
-          description="Show quality selection dialog before each download session"
+        <Select
+          value={defaultQuality}
+          onChange={onDefaultQualityChange}
+          options={qualityOptions}
+          label="Default quality"
+          helperText={getQualityHelperText()}
         />
-
-        <div style={{ marginTop: '16px' }}>
-          <Select
-            value={defaultQuality}
-            onChange={onDefaultQualityChange}
-            options={qualityOptions}
-            label="Download quality"
-            helperText={
-              shouldAskForQuality
-                ? 'Pre-selected value in quality dialog'
-                : 'Quality used for all downloads'
-            }
-          />
-        </div>
       </div>
     </div>
   )
