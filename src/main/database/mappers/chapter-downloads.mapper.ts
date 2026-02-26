@@ -13,6 +13,7 @@ type ChapterDownloadRow = {
   filePath: string
   totalPages: number
   imageQuality: ImageQuality
+  imageFormat: string
   errorMessage: string | null
   title: string
   coverUrl: string | null
@@ -36,6 +37,7 @@ export class ChapterDownloadMapper {
       filePath: row.filePath,
       totalPages: row.totalPages,
       imageQuality: row.imageQuality,
+      imageFormat: row.imageFormat,
       errorMessage: row.errorMessage ?? undefined,
       title: row.title,
       coverUrl: row.coverUrl ?? undefined,

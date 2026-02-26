@@ -51,7 +51,7 @@ export class ChapterRepository {
     return results.map(ChapterMapper.toChapterMetadata)
   }
 
-  getChapterById(chapterId: string): ChapterWithMetadata {
+  getChapterById(chapterId: string): ChapterWithMetadata | undefined {
     const result = this.db
       .select()
       .from(chapter)
@@ -60,7 +60,7 @@ export class ChapterRepository {
       .get()
 
     if (!result) {
-      throw new Error(`Chapter with ID ${chapterId} not found`)
+      return undefined
     }
 
     return ChapterMapper.toChapterMetadata(result)

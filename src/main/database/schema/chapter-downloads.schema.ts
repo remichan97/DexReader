@@ -21,6 +21,7 @@ export const chapterDownloads = sqliteTable(
     totalPages: integer('total_pages').notNull(),
     storageSize: integer('storage_size'),
     imageQuality: text('image_quality').notNull().$type<ImageQuality>().default(ImageQuality.High),
+    imageFormat: text('image_format').notNull().default('.jpg'),
     errorMessage: text('error_message'),
     lastAttemptedAt: integer('last_attempted_at', { mode: 'timestamp' })
       .notNull()

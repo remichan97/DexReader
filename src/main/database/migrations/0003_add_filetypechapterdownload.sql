@@ -1,0 +1,1 @@
+ALTER TABLE `chapter_downloads` ADD `image_format` text DEFAULT '.jpg' NOT NULL;

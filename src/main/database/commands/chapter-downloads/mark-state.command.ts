@@ -3,6 +3,7 @@ export interface MarkDownloadStateCommand {
   isDownloaded?: boolean
   storageSize: number
   totalPages: number
+  imageFormat?: string
   isFailed?: boolean
   errorMessage?: string
 }

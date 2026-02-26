@@ -24,6 +24,7 @@ export class ChapterDownloadsRepo {
         filePath: chapterDownloads.filePath,
         totalPages: chapterDownloads.totalPages,
         imageQuality: chapterDownloads.imageQuality,
+        imageFormat: chapterDownloads.imageFormat,
         errorMessage: chapterDownloads.errorMessage,
         title: manga.title,
         coverUrl: manga.coverUrl,
@@ -57,6 +58,7 @@ export class ChapterDownloadsRepo {
         filePath: chapterDownloads.filePath,
         totalPages: chapterDownloads.totalPages,
         imageQuality: chapterDownloads.imageQuality,
+        imageFormat: chapterDownloads.imageFormat,
         errorMessage: chapterDownloads.errorMessage,
         title: manga.title,
         coverUrl: manga.coverUrl,
@@ -99,6 +101,9 @@ export class ChapterDownloadsRepo {
       updates.storageSize = command.storageSize
       updates.totalPages = command.totalPages
       updates.downloadedAt = new Date()
+      if (command.imageFormat) {
+        updates.imageFormat = command.imageFormat
+      }
     }
 
     if (command.isFailed) {
@@ -134,6 +139,9 @@ export class ChapterDownloadsRepo {
           updates.storageSize = command.storageSize
           updates.totalPages = command.totalPages
           updates.downloadedAt = new Date()
+          if (command.imageFormat) {
+            updates.imageFormat = command.imageFormat
+          }
         }
 
         if (command.isFailed) {

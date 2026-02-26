@@ -11,6 +11,7 @@ export interface ChapterDownloadQuery {
   totalPages: number
   storageSize: number
   imageQuality: ImageQuality
+  imageFormat: string
   errorMessage?: string
 
   // Data from Manga table
