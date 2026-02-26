@@ -4,7 +4,7 @@ import { validatePath } from './pathValidator'
 import path from 'node:path'
 
 export const secureFs = {
-  async readFile(filePath: string, encoding: BufferEncoding = 'utf-8'): Promise<string | Buffer> {
+  async readFile(filePath: string, encoding?: BufferEncoding): Promise<string | Buffer> {
     const validPath = validatePath(filePath)
     return encoding ? fs.readFile(validPath, { encoding }) : fs.readFile(validPath)
   },
@@ -73,6 +73,10 @@ export const secureFs = {
   ): Promise<void> {
     const validPath = validatePath(filePath)
     await this.ensureDir(path.dirname(validPath))
+    // Only apply encoding for strings; write Buffers directly to preserve binary data
+    if (Buffer.isBuffer(data)) {
+      return fs.writeFile(validPath, data)
+    }
     return fs.writeFile(validPath, data, { encoding })
   },
 

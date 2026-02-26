@@ -10,9 +10,11 @@ interface StorageSettingsProps {
   isChangingPath: boolean
   downloadConfirmation: 'always' | 'batch-only' | 'never'
   defaultQuality: 'data' | 'data-saver'
+  maxConcurrentDownloads: number
   onSelectDownloadsFolder: () => void
   onDownloadConfirmationChange: (confirmation: string | string[]) => void
   onDefaultQualityChange: (quality: string | string[]) => void
+  onMaxConcurrentDownloadsChange: (count: string | string[]) => void
 }
 
 export function StorageSettings({
@@ -21,9 +23,11 @@ export function StorageSettings({
   isChangingPath,
   downloadConfirmation,
   defaultQuality,
+  maxConcurrentDownloads,
   onSelectDownloadsFolder,
   onDownloadConfirmationChange,
-  onDefaultQualityChange
+  onDefaultQualityChange,
+  onMaxConcurrentDownloadsChange
 }: Readonly<StorageSettingsProps>): React.JSX.Element {
   const confirmationOptions: SelectOption[] = [
     { value: 'always', label: 'Always' },
@@ -34,6 +38,14 @@ export function StorageSettings({
   const qualityOptions: SelectOption[] = [
     { value: 'data', label: 'High Quality' },
     { value: 'data-saver', label: 'Data Saver' }
+  ]
+
+  const concurrentDownloadsOptions: SelectOption[] = [
+    { value: '1', label: '1 (Sequential)' },
+    { value: '2', label: '2' },
+    { value: '3', label: '3' },
+    { value: '4', label: '4' },
+    { value: '5', label: '5' }
   ]
 
   // Generate helper text based on confirmation setting
@@ -158,6 +170,35 @@ export function StorageSettings({
           options={qualityOptions}
           label="Default quality"
           helperText={getQualityHelperText()}
+        />
+      </div>
+
+      {/* Concurrent Downloads Settings */}
+      <div
+        style={{
+          borderTop: '1px solid var(--win-border-default)',
+          paddingTop: '20px'
+        }}
+      >
+        <h4 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
+          Concurrent Downloads
+        </h4>
+        <p
+          style={{
+            fontSize: '13px',
+            color: 'var(--win-text-secondary)',
+            marginBottom: '12px'
+          }}
+        >
+          How many chapters should download at the same time?
+        </p>
+
+        <Select
+          value={String(maxConcurrentDownloads)}
+          onChange={onMaxConcurrentDownloadsChange}
+          options={concurrentDownloadsOptions}
+          label="Maximum concurrent downloads"
+          helperText="Higher values download faster but use more bandwidth and resources"
         />
       </div>
     </div>

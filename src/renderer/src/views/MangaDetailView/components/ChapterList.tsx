@@ -7,6 +7,8 @@ import { Skeleton } from '@renderer/components/Skeleton'
 import { DownloadStatusBadge } from '@renderer/components/DownloadStatusBadge'
 import type { DownloadStatus } from '@renderer/components/DownloadStatusBadge'
 import { DownloadConfirmationDialog } from '@renderer/components/DownloadConfirmationDialog'
+import { useToast } from '@renderer/components/Toast'
+import { ArrowDownload20Regular } from '@fluentui/react-icons'
 import { getCoverImageUrl, getMangaTitle, CoverSize } from '@renderer/utils/mangaHelpers'
 import { getLanguageName } from '@renderer/constants/language-list.constant'
 
@@ -56,16 +58,18 @@ export default function ChapterList({
   onToggleErrorDetails
 }: ChapterListProps): JSX.Element {
   const navigate = useNavigate()
+  const { show: showToast } = useToast()
 
   // Download dialog state
   const [showDownloadDialog, setShowDownloadDialog] = useState(false)
+  const [showDownloadAllDialog, setShowDownloadAllDialog] = useState(false)
   const [selectedChapter, setSelectedChapter] = useState<ChapterEntity | null>(null)
 
   // Settings state
   const [downloadSettings, setDownloadSettings] = useState<{
     path: string
     defaultQuality: 'data' | 'data-saver'
-    shouldAsk: boolean
+    confirmation: 'always' | 'batch-only' | 'never'
   } | null>(null)
 
   // Download status cache
@@ -74,17 +78,17 @@ export default function ChapterList({
   // Load settings on mount
   useEffect(() => {
     async function loadSettings(): Promise<void> {
-      const [pathResult, qualityResult, shouldAskResult] = await Promise.all([
+      const [pathResult, qualityResult, confirmationResult] = await Promise.all([
         globalThis.settings.getSettingByPath('downloads', 'downloadPath'),
-        globalThis.settings.getSettingByPath('downloads', 'downloadQuality.defaultQuality'),
-        globalThis.settings.getSettingByPath('downloads', 'downloadQuality.shouldAskForQuality')
+        globalThis.settings.getSettingByPath('downloads', 'defaultQuality'),
+        globalThis.settings.getSettingByPath('downloads', 'shouldConfirmDownload')
       ])
 
-      if (pathResult.success && qualityResult.success && shouldAskResult.success) {
+      if (pathResult.success && qualityResult.success && confirmationResult.success) {
         setDownloadSettings({
           path: String(pathResult.data),
           defaultQuality: qualityResult.data as 'data' | 'data-saver',
-          shouldAsk: Boolean(shouldAskResult.data)
+          confirmation: confirmationResult.data as 'always' | 'batch-only' | 'never'
         })
       }
     }
@@ -134,6 +138,35 @@ export default function ChapterList({
     }
   }, [chapters])
 
+  // Listen to download progress events
+  useEffect(() => {
+    const unsubscribe = globalThis.api.onDownloadProgress((event) => {
+      // Map backend status to frontend status
+      let frontendStatus: DownloadStatus = 'not-downloaded'
+      switch (event.status) {
+        case 'completed':
+          frontendStatus = 'downloaded'
+          break
+        case 'queued':
+          frontendStatus = 'queued'
+          break
+        case 'downloading':
+          frontendStatus = 'downloading'
+          break
+        case 'failed':
+          frontendStatus = 'failed'
+          break
+      }
+
+      // Update the status map for this chapter
+      setDownloadStatusMap((prev) => new Map(prev).set(event.chapterId, frontendStatus))
+    })
+
+    return () => {
+      unsubscribe()
+    }
+  }, [])
+
   // Get available languages from manga attributes
   const availableLanguages = useMemo(() => {
     const langs =
@@ -149,29 +182,47 @@ export default function ChapterList({
       (chapter) => !(chapter.attributes as { isUnavailable?: boolean }).isUnavailable
     )
 
+    // Remove duplicates by chapter ID (shouldn't happen but ensures unique keys)
+    const uniqueChapters = Array.from(
+      new Map(filtered.map((chapter) => [chapter.id, chapter])).values()
+    )
+
     // Sort by chapter number
-    filtered.sort((a, b) => {
+    uniqueChapters.sort((a, b) => {
       const aNum = Number.parseFloat(a.attributes.chapter || '0')
       const bNum = Number.parseFloat(b.attributes.chapter || '0')
       return sortOrder === 'asc' ? aNum - bNum : bNum - aNum
     })
 
-    return filtered
+    return uniqueChapters
   }, [chapters, sortOrder])
 
   // Handle download button click
-  const handleDownloadClick = (chapter: ChapterEntity): void => {
+  const handleDownloadClick = async (chapter: ChapterEntity): Promise<void> => {
+    if (!downloadSettings) return
+
     setSelectedChapter(chapter)
-    setShowDownloadDialog(true)
+
+    // Check confirmation setting
+    if (downloadSettings.confirmation === 'never') {
+      // Download immediately with default quality
+      await performDownload(chapter, downloadSettings.defaultQuality)
+    } else if (downloadSettings.confirmation === 'batch-only') {
+      // For single chapter, download directly
+      await performDownload(chapter, downloadSettings.defaultQuality)
+    } else {
+      // 'always': show dialog
+      setShowDownloadDialog(true)
+    }
   }
 
-  // Handle download confirmation
-  const handleDownloadConfirm = async (quality: 'data' | 'data-saver'): Promise<void> => {
-    if (!selectedChapter) return
-
-    // Add chapter to download queue
+  // Helper function to perform download
+  const performDownload = async (
+    chapter: ChapterEntity,
+    quality: 'data' | 'data-saver'
+  ): Promise<void> => {
     const result = await globalThis.downloads.addToQueue({
-      chapterId: selectedChapter.id,
+      chapterId: chapter.id,
       mangaId: mangaId,
       language: selectedLanguage,
       quality: quality,
@@ -179,15 +230,87 @@ export default function ChapterList({
     })
 
     if (result.success) {
-      // Update status in the map
-      setDownloadStatusMap((prev) => new Map(prev).set(selectedChapter.id, 'queued'))
+      setDownloadStatusMap((prev) => new Map(prev).set(chapter.id, 'queued'))
     } else {
       console.error('Failed to add chapter to queue:', result.error)
       // TODO: Show error toast/notification
     }
+  }
 
+  // Handle download confirmation from dialog
+  const handleDownloadConfirm = async (quality: 'data' | 'data-saver'): Promise<void> => {
+    if (!selectedChapter) return
+
+    await performDownload(selectedChapter, quality)
     setShowDownloadDialog(false)
     setSelectedChapter(null)
+  }
+
+  // Handle Download All Chapters
+  const handleDownloadAll = async (quality?: 'data' | 'data-saver'): Promise<void> => {
+    if (!downloadSettings || displayChapters.length === 0) return
+
+    const selectedQuality = quality || downloadSettings.defaultQuality
+
+    // Queue all visible chapters for download
+    const results = await Promise.all(
+      displayChapters.map((chapter) =>
+        globalThis.downloads.addToQueue({
+          chapterId: chapter.id,
+          mangaId: mangaId,
+          language: selectedLanguage,
+          quality: selectedQuality,
+          addedAt: new Date()
+        })
+      )
+    )
+
+    const successCount = results.filter((r) => r.success).length
+    const failCount = displayChapters.length - successCount
+
+    if (successCount > 0) {
+      showToast({
+        title: 'Download Started',
+        message: `Queued ${successCount} chapter${successCount === 1 ? '' : 's'} for download`,
+        variant: 'success',
+        duration: 3000
+      })
+
+      // Update status map for queued chapters
+      const newStatusMap = new Map(downloadStatusMap)
+      displayChapters.forEach((chapter) => {
+        newStatusMap.set(chapter.id, 'queued')
+      })
+      setDownloadStatusMap(newStatusMap)
+    }
+
+    if (failCount > 0) {
+      showToast({
+        title: 'Partial Failure',
+        message: `Failed to queue ${failCount} chapter${failCount === 1 ? '' : 's'}`,
+        variant: 'error',
+        duration: 5000
+      })
+    }
+
+    setShowDownloadAllDialog(false)
+  }
+
+  // Handle Download All button click
+  const handleDownloadAllClick = async (): Promise<void> => {
+    if (!downloadSettings || displayChapters.length === 0) return
+
+    // Check confirmation setting
+    if (downloadSettings.confirmation === 'never') {
+      // Download immediately with default quality
+      await handleDownloadAll()
+    } else if (
+      downloadSettings.confirmation === 'batch-only' ||
+      downloadSettings.confirmation === 'always'
+    ) {
+      // Show dialog for batch download
+      setShowDownloadAllDialog(true)
+    }
   }
 
   return (
@@ -197,6 +320,19 @@ export default function ChapterList({
         <h2 className="section-title">Chapters ({displayChapters.length})</h2>
 
         <div className="chapter-controls">
+          {/* Download All button */}
+          {displayChapters.length > 0 && downloadSettings && (
+            <Button
+              variant="secondary"
+              size="small"
+              onClick={handleDownloadAllClick}
+              disabled={!downloadSettings}
+            >
+              <ArrowDownload20Regular />
+              Download All
+            </Button>
+          )}
+
           {/* Language filter */}
           {availableLanguages.length > 1 && (
             <Select
@@ -343,6 +479,21 @@ export default function ChapterList({
           defaultQuality={downloadSettings.defaultQuality}
           downloadsPath={downloadSettings.path}
           showBatchInfo={false}
+          onOpenSettings={() => navigate('/settings')}
+        />
+      )}
+
+      {/* Download All confirmation dialog */}
+      {downloadSettings && (
+        <DownloadConfirmationDialog
+          isOpen={showDownloadAllDialog}
+          onClose={() => setShowDownloadAllDialog(false)}
+          onConfirm={handleDownloadAll}
+          chapterCount={displayChapters.length}
+          chapterTitle=""
+          defaultQuality={downloadSettings.defaultQuality}
+          downloadsPath={downloadSettings.path}
+          showBatchInfo={true}
           onOpenSettings={() => navigate('/settings')}
         />
       )}

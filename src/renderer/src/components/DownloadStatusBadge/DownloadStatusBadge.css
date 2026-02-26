@@ -4,11 +4,12 @@
   justify-content: center;
   gap: 4px;
   padding: 6px 8px;
-  border: none;
+  border: 1px solid transparent;
   border-radius: var(--radius-sm);
-  background: transparent;
+  background: var(--win-bg-subtle);
   color: var(--win-text-secondary);
   font-size: 13px;
+  font-weight: 500;
   font-family: inherit;
   cursor: default;
   transition: all 0.2s ease;
@@ -18,7 +19,7 @@
 
 .download-badge__text {
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 /* Clickable states */
@@ -29,7 +30,8 @@
 
 .download-badge--not-downloaded:hover,
 .download-badge--failed:hover {
-  background: var(--win-bg-subtle);
+  background: var(--win-bg-tertiary);
+  border-color: var(--win-border-default);
 }
 
 .download-badge--not-downloaded:active,
@@ -39,16 +41,23 @@
 
 /* Not Downloaded */
 .download-badge--not-downloaded {
-  color: var(--win-text-secondary);
+  color: var(--win-text-primary);
+  background: transparent;
+  border-color: var(--win-border-subtle);
 }
 
 .download-badge--not-downloaded:hover {
   color: var(--win-accent-primary);
+  background: var(--win-accent-subtle);
+  border-color: var(--win-accent-tertiary);
 }
 
 /* Downloading */
 .download-badge--downloading {
   color: var(--win-accent-primary);
+  background: var(--win-accent-subtle);
+  border-color: var(--win-accent-tertiary);
+  font-weight: 600;
 }
 
 .download-badge__icon--spinning {
@@ -66,21 +75,31 @@
 
 /* Queued */
 .download-badge--queued {
-  color: var(--win-accent-tertiary);
+  color: var(--win-accent-primary);
+  background: var(--win-accent-subtle);
+  border-color: var(--win-accent-tertiary);
+  font-weight: 600;
 }
 
 /* Downloaded */
 .download-badge--downloaded {
   color: var(--win-success);
+  background: var(--win-success-subtle);
+  border-color: var(--win-success-tertiary);
+  font-weight: 600;
 }
 
 /* Failed */
 .download-badge--failed {
   color: var(--win-danger);
+  background: var(--win-danger-subtle);
+  border-color: var(--win-danger-tertiary);
+  font-weight: 600;
 }
 
 .download-badge--failed:hover {
   background: var(--win-danger-subtle);
+  border-color: var(--win-danger);
 }
 
 /* Disabled state */

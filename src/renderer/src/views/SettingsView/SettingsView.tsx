@@ -32,6 +32,7 @@ export function SettingsView(): JSX.Element {
     'always' | 'batch-only' | 'never'
   >('batch-only')
   const [defaultQuality, setDefaultQuality] = useState<'data' | 'data-saver'>('data')
+  const [maxConcurrentDownloads, setMaxConcurrentDownloads] = useState<number>(3)
   const [accentColor, setAccentColor] = useState<string>('#0078d4')
   const [isUsingSystemColor, setIsUsingSystemColor] = useState<boolean>(true)
   const [systemAccentColor, setSystemAccentColor] = useState<string>('#0078d4')
@@ -96,6 +97,9 @@ export function SettingsView(): JSX.Element {
             }
             if (settings.downloads.defaultQuality !== undefined) {
               setDefaultQuality(settings.downloads.defaultQuality)
+            }
+            if (settings.downloads.maxConcurrentDownloads !== undefined) {
+              setMaxConcurrentDownloads(settings.downloads.maxConcurrentDownloads)
             }
           }
 
@@ -272,6 +276,30 @@ export function SettingsView(): JSX.Element {
         'downloads',
         'defaultQuality',
         selectedQuality
+      )
+      if (!result.success) {
+        throw new Error('Failed to save setting')
+      }
+    } catch (error) {
+      showToast({
+        variant: 'error',
+        title: 'Failed to save setting',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      })
+    }
+  }
+
+  // Handle max concurrent downloads change
+  const handleMaxConcurrentDownloadsChange = async (count: string | string[]): Promise<void> => {
+    const selectedCount = Array.isArray(count) ? count[0] : count
+    const numericCount = Number.parseInt(selectedCount, 10)
+    setMaxConcurrentDownloads(numericCount)
+
+    try {
+      const result = await globalThis.settings.setSettingByPath(
+        'downloads',
+        'maxConcurrentDownloads',
+        numericCount
       )
       if (!result.success) {
         throw new Error('Failed to save setting')
@@ -482,9 +510,11 @@ export function SettingsView(): JSX.Element {
             isChangingPath={isChangingPath}
             downloadConfirmation={downloadConfirmation}
             defaultQuality={defaultQuality}
+            maxConcurrentDownloads={maxConcurrentDownloads}
             onSelectDownloadsFolder={handleSelectDownloadsFolder}
             onDownloadConfirmationChange={handleDownloadConfirmationChange}
             onDefaultQualityChange={handleDefaultQualityChange}
+            onMaxConcurrentDownloadsChange={handleMaxConcurrentDownloadsChange}
           />
         </TabPanel>
 

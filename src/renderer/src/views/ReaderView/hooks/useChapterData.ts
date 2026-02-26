@@ -73,33 +73,54 @@ export function useChapterData(
   })
 
   /**
-   * Load chapter images from API
+   * Load chapter images from API or local storage
    */
   const loadChapterImages = useCallback(
     async (id: string, _startAtLastPage = false): Promise<void> => {
       setData((prev) => ({ ...prev, loading: true, error: null }))
 
       try {
-        // Fetch image URLs from at-home server (wrapped in IpcResponse)
-        const response = await globalThis.window.mangadex.getChapterImages(id, imageQuality)
+        // First, check if chapter is downloaded
+        const downloadCheck = await globalThis.downloads.isDownloaded(id)
+        const isDownloaded = downloadCheck.success && downloadCheck.data
 
-        // Check IPC response wrapper
-        if (!response.success || !response.data) {
-          throw new Error(response.error?.message || "Couldn't load the chapter pages")
+        let images: ImageUrlResponse[]
+
+        if (isDownloaded && downloadCheck.data) {
+          // Chapter is downloaded - build local image URLs
+          const download = downloadCheck.data
+          const totalPages = download.totalPages
+
+          // Build local URLs for each page using the local-manga:// protocol
+          images = Array.from({ length: totalPages }, (_, index) => ({
+            url: `local-manga://chapter/${id}/page/${index}`,
+            filename: `${String(index).padStart(3, '0')}.jpg`,
+            quality: imageQuality
+          }))
+        } else {
+          // Chapter not downloaded - fetch from MangaDex API
+          const response = await globalThis.window.mangadex.getChapterImages(id, imageQuality)
+
+          // Check IPC response wrapper
+          if (!response.success || !response.data) {
+            throw new Error(response.error?.message || "Couldn't load the chapter pages")
+          }
+
+          const imageUrls = response.data
+
+          // Validate response data
+          if (!imageUrls || imageUrls.length === 0) {
+            throw new Error(
+              "This chapter doesn't have any pages. It might be empty or unavailable."
+            )
+          }
+
+          // Convert URLs to proxy protocol (mangadex://)
+          images = imageUrls.map((img) => ({
+            ...img,
+            url: img.url.replace('https://', 'mangadex://')
+          }))
         }
-
-        const imageUrls = response.data
-
-        // Validate response data
-        if (!imageUrls || imageUrls.length === 0) {
-          throw new Error("This chapter doesn't have any pages. It might be empty or unavailable.")
-        }
-
-        // Convert URLs to proxy protocol (mangadex://)
-        const images = imageUrls.map((img) => ({
-          ...img,
-          url: img.url.replace('https://', 'mangadex://')
-        }))
 
         setData((prev) => {
           // Initialize loading states for all images, preserving any existing loaded/error states

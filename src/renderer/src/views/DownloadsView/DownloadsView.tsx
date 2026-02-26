@@ -15,7 +15,6 @@ import {
 } from '@fluentui/react-icons'
 import {
   Download,
-  MangaDownloadGroup,
   mapChapterDownloadToFrontend,
   groupDownloadsByManga,
   formatStorageSize
@@ -67,7 +66,6 @@ export function DownloadsView(): JSX.Element {
 
   // State
   const [downloads, setDownloads] = useState<Download[]>([])
-  const [groupedDownloads, setGroupedDownloads] = useState<MangaDownloadGroup[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -75,6 +73,9 @@ export function DownloadsView(): JSX.Element {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<FilterOption>('all')
   const [sortOption, setSortOption] = useState<SortOption>('recent')
+
+  // Track expansion state separately to avoid re-render loops
+  const [expandedGroups, setExpandedGroups] = useState<Map<string, boolean>>(new Map())
 
   // Stats from queue progress
   const [activeCount, setActiveCount] = useState(0)
@@ -160,16 +161,6 @@ export function DownloadsView(): JSX.Element {
 
     // Reload downloads to get updated status
     await loadDownloads()
-  }
-
-  // Auto-collapse group when all chapters completed
-  const handleAutoCollapse = (mangaId: string): void => {
-    const group = groupedDownloads.find((g) => g.mangaId === mangaId)
-    if (group && group.activeChapters === 0 && group.failedChapters === 0) {
-      setGroupedDownloads((prev) =>
-        prev.map((g) => (g.mangaId === mangaId ? { ...g, isExpanded: false } : g))
-      )
-    }
   }
 
   // Action handlers
@@ -279,11 +270,12 @@ export function DownloadsView(): JSX.Element {
   }
 
   const handleToggleGroup = (mangaId: string): void => {
-    setGroupedDownloads((prev) =>
-      prev.map((group) =>
-        group.mangaId === mangaId ? { ...group, isExpanded: !group.isExpanded } : group
-      )
-    )
+    setExpandedGroups((prev) => {
+      const next = new Map(prev)
+      const currentState = next.get(mangaId) ?? true
+      next.set(mangaId, !currentState)
+      return next
+    })
   }
 
   const handleNavigateToManga = (mangaId: string, e: React.MouseEvent): void => {
@@ -343,11 +335,11 @@ export function DownloadsView(): JSX.Element {
   }, [downloads, statusFilter, searchQuery])
 
   // Group and sort
-  const sortedGroups = useMemo(() => {
+  const groupedDownloads = useMemo(() => {
     const groups = groupDownloadsByManga(filteredDownloads)
 
     // Apply sort
-    return [...groups].sort((a, b) => {
+    const sorted = [...groups].sort((a, b) => {
       switch (sortOption) {
         case 'recent': {
           const aRecent = Math.max(...a.downloads.map((d) => d.downloadedAt))
@@ -366,20 +358,13 @@ export function DownloadsView(): JSX.Element {
           return 0
       }
     })
-  }, [filteredDownloads, sortOption])
 
-  // Update grouped downloads state
-  useEffect(() => {
-    setGroupedDownloads((prevGroups) => {
-      // Preserve expansion state
-      const expansionState = new Map(prevGroups.map((g) => [g.mangaId, g.isExpanded]))
-
-      return sortedGroups.map((group) => ({
-        ...group,
-        isExpanded: expansionState.get(group.mangaId) ?? true
-      }))
-    })
-  }, [sortedGroups])
+    // Apply expansion state (default to expanded for new groups)
+    return sorted.map((group) => ({
+      ...group,
+      isExpanded: expandedGroups.get(group.mangaId) ?? true
+    }))
+  }, [filteredDownloads, sortOption, expandedGroups])
 
   // Load downloads on mount + auto-refresh
   useEffect(() => {
@@ -422,15 +407,6 @@ export function DownloadsView(): JSX.Element {
       unsubFailure()
     }
   }, [])
-
-  // Auto-collapse groups when appropriate
-  useEffect(() => {
-    groupedDownloads.forEach((group) => {
-      if (group.activeChapters === 0 && group.failedChapters === 0) {
-        handleAutoCollapse(group.mangaId)
-      }
-    })
-  }, [groupedDownloads])
 
   // Helper functions for UI
   const getBadgeVariant = (

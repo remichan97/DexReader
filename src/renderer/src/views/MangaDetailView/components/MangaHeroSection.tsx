@@ -1,12 +1,15 @@
 import type { JSX } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   BookOpenRegular,
   PlayCircle24Regular,
   Heart24Regular,
-  Heart24Filled
+  Heart24Filled,
+  ArrowDownload24Regular
 } from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
+import { DownloadConfirmationDialog } from '@renderer/components/DownloadConfirmationDialog'
 import { useLibraryStore, useToastStore } from '@renderer/stores'
 import {
   getCoverImageUrl,
@@ -53,6 +56,35 @@ export default function MangaHeroSection({
   const demographic = manga.attributes.publicationDemographic
   const lastVolume = manga.attributes.lastVolume
   const lastChapter = manga.attributes.lastChapter
+
+  // Download state
+  const [showDownloadDialog, setShowDownloadDialog] = useState(false)
+  const [downloadSettings, setDownloadSettings] = useState<{
+    path: string
+    defaultQuality: 'data' | 'data-saver'
+    confirmation: 'always' | 'batch-only' | 'never'
+  } | null>(null)
+
+  // Load download settings
+  useEffect(() => {
+    async function loadSettings(): Promise<void> {
+      const [pathResult, qualityResult, confirmationResult] = await Promise.all([
+        globalThis.settings.getSettingByPath('downloads', 'downloadPath'),
+        globalThis.settings.getSettingByPath('downloads', 'defaultQuality'),
+        globalThis.settings.getSettingByPath('downloads', 'shouldConfirmDownload')
+      ])
+
+      if (pathResult.success && qualityResult.success && confirmationResult.success) {
+        setDownloadSettings({
+          path: String(pathResult.data),
+          defaultQuality: qualityResult.data as 'data' | 'data-saver',
+          confirmation: confirmationResult.data as 'always' | 'batch-only' | 'never'
+        })
+      }
+    }
+
+    void loadSettings()
+  }, [])
 
   // Extract tags from attributes
   const tags =
@@ -128,6 +160,64 @@ export default function MangaHeroSection({
     navigate(`/browse?tag=${tagId}`)
   }
 
+  const handleDownloadAll = async (quality?: 'data' | 'data-saver'): Promise<void> => {
+    if (!downloadSettings || chapters.length === 0) return
+
+    const selectedQuality = quality || downloadSettings.defaultQuality
+
+    // Queue all chapters for download
+    const results = await Promise.all(
+      chapters.map((chapter) =>
+        globalThis.downloads.addToQueue({
+          chapterId: chapter.id,
+          mangaId: manga.id,
+          language: chapter.attributes.translatedLanguage,
+          quality: selectedQuality,
+          addedAt: new Date()
+        })
+      )
+    )
+
+    const successCount = results.filter((r) => r.success).length
+    const failCount = chapters.length - successCount
+
+    if (successCount > 0) {
+      showToast({
+        title: 'Download Started',
+        message: `Queued ${successCount} chapter${successCount === 1 ? '' : 's'} for download`,
+        variant: 'success',
+        duration: 3000
+      })
+    }
+
+    if (failCount > 0) {
+      showToast({
+        title: 'Partial Failure',
+        message: `Failed to queue ${failCount} chapter${failCount === 1 ? '' : 's'}`,
+        variant: 'error',
+        duration: 5000
+      })
+    }
+
+    setShowDownloadDialog(false)
+  }
+
+  const handleDownloadAllClick = async (): Promise<void> => {
+    if (!downloadSettings || chapters.length === 0) return
+
+    // Check confirmation setting
+    if (downloadSettings.confirmation === 'never') {
+      // Download immediately with default quality
+      await handleDownloadAll()
+    } else if (
+      downloadSettings.confirmation === 'batch-only' ||
+      downloadSettings.confirmation === 'always'
+    ) {
+      // Show dialog for batch download
+      setShowDownloadDialog(true)
+    }
+  }
+
   return (
     <div className="manga-detail-view__hero">
       {/* Cover Image */}
@@ -197,7 +287,7 @@ export default function MangaHeroSection({
               disabled={chapters.length === 0}
               icon={<PlayCircle24Regular />}
             >
-              Continue Reading
+              Continue
             </Button>
           ) : (
             <Button
@@ -214,10 +304,32 @@ export default function MangaHeroSection({
             onClick={handleAddToLibrary}
             icon={isFavourite(manga.id) ? <Heart24Filled /> : <Heart24Regular />}
           >
-            {isFavourite(manga.id) ? 'Remove from Library' : 'Add to Library'}
+            {isFavourite(manga.id) ? 'In Library' : 'Add to Library'}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={handleDownloadAllClick}
+            disabled={chapters.length === 0 || !downloadSettings}
+            icon={<ArrowDownload24Regular />}
+          >
+            Download All
           </Button>
         </div>
       </div>
+
+      {/* Download confirmation dialog */}
+      {downloadSettings && (
+        <DownloadConfirmationDialog
+          isOpen={showDownloadDialog}
+          onClose={() => setShowDownloadDialog(false)}
+          onConfirm={handleDownloadAll}
+          chapterCount={chapters.length}
+          defaultQuality={downloadSettings.defaultQuality}
+          downloadsPath={downloadSettings.path}
+          showBatchInfo={downloadSettings.confirmation === 'batch-only'}
+          onOpenSettings={() => navigate('/settings')}
+        />
+      )}
     </div>
   )
 }

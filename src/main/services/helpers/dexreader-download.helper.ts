@@ -29,7 +29,9 @@ export async function downloadData(
   const fileExtension = path.extname(url)
   const fileName = `${String(pageNumber).padStart(3, '0')}${fileExtension}`
   const pagePath = path.join(downloadPath, fileName)
-  await secureFs.writeFile(pagePath, buffer, 'binary')
+
+  // Write buffer directly through secureFs (detects Buffer and writes without encoding)
+  await secureFs.writeFile(pagePath, buffer)
 
   return {
     size: buffer.byteLength,
