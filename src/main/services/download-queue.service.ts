@@ -42,8 +42,21 @@ export class DownloadQueueService {
       return
     }
 
+    // Check if already downloaded
+    const existingDownload = chapterDownloadsRepo.getDownload(item.chapterId)
+
+    if (existingDownload?.status === DownloadStatus.Completed) {
+      // Already downloaded, don't queue again
+      return
+    }
+
     this.queue.push(item)
     this.processQueue()
+  }
+
+  // Get current queue items for UI display
+  getQueuedItems(): QueuedDownloads[] {
+    return [...this.queue]
   }
 
   // Resume any incompleted downloads
@@ -85,6 +98,19 @@ export class DownloadQueueService {
     this.queue = []
   }
 
+  // Cancel all queued downloads (not active ones)
+  cancelAllQueued(): number {
+    // Get count before clearing
+    const queuedCount = this.queue.length
+
+    // Clear the queue
+    this.queue = []
+
+    console.log(`Cancelled ${queuedCount} queued downloads`)
+
+    return queuedCount
+  }
+
   // Remove a specific chapter from the queue
   removeFromQueue(chapterId: string): boolean {
     // Make sure we actually have the chapter in the queue before trying to remove it
@@ -95,6 +121,7 @@ export class DownloadQueueService {
     }
 
     this.queue.splice(index, 1)
+
     return true
   }
 

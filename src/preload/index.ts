@@ -323,8 +323,10 @@ const downloads = {
   removeFromQueue: (chapterId: string) =>
     ipcRenderer.invoke('download:remove-from-queue', chapterId),
   clearQueue: () => ipcRenderer.invoke('download:clear-queue'),
+  cancelAllQueued: () => ipcRenderer.invoke('download:cancel-all-queued'),
   retryDownload: (chapterId: string) => ipcRenderer.invoke('download:retry', chapterId),
-  getQueueStats: () => ipcRenderer.invoke('download:get-queue-stats')
+  getQueueStats: () => ipcRenderer.invoke('download:get-queue-stats'),
+  getQueuedItems: () => ipcRenderer.invoke('download:get-queued-items')
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

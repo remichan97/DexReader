@@ -79,12 +79,13 @@ export function DownloadsView(): JSX.Element {
 
   // Stats from queue progress
   const [activeCount, setActiveCount] = useState(0)
+  const [queuedCount, setQueuedCount] = useState(0)
   const [completedCount, setCompletedCount] = useState(0)
   const [failedCount, setFailedCount] = useState(0)
 
   const isInitialLoad = useRef(true)
 
-  // Load downloads from backend
+  // Load downloads from backend (both DB and in-memory queue)
   const loadDownloads = async (showLoading = true): Promise<void> => {
     if (showLoading) {
       setLoading(true)
@@ -92,25 +93,56 @@ export function DownloadsView(): JSX.Element {
     setError(null)
 
     try {
-      const response = await window.downloads.getAllDownloads()
+      // Fetch both DB downloads and in-memory queue
+      const [downloadsResponse, queueResponse] = await Promise.all([
+        globalThis.downloads.getAllDownloads(),
+        globalThis.downloads.getQueuedItems()
+      ])
 
-      if (response.success && response.data) {
-        const mapped = response.data.map(mapChapterDownloadToFrontend)
-        setDownloads(mapped)
-
-        // Calculate stats
-        const active = mapped.filter(
-          (d) => d.status === 'downloading' || d.status === 'queued'
-        ).length
-        const completed = mapped.filter((d) => d.status === 'completed').length
-        const failed = mapped.filter((d) => d.status === 'failed').length
-
-        setActiveCount(active)
-        setCompletedCount(completed)
-        setFailedCount(failed)
-      } else {
-        setError(response.error?.message || 'Failed to load downloads')
+      if (!downloadsResponse.success) {
+        setError(downloadsResponse.error?.message || 'Failed to load downloads')
+        return
       }
+
+      const dbDownloads = downloadsResponse.data || []
+      const queuedItems = queueResponse.success ? queueResponse.data || [] : []
+
+      // Map DB downloads to frontend format
+      const mapped = dbDownloads.map(mapChapterDownloadToFrontend)
+
+      // Map queued items that aren't in DB yet to frontend format
+      // These are items that are waiting in queue but haven't started downloading
+      const dbChapterIds = new Set(mapped.map((d) => d.id))
+      const queueOnly = queuedItems
+        .filter((item) => !dbChapterIds.has(item.chapterId))
+        .map((item) => ({
+          id: item.chapterId,
+          mangaId: item.mangaId,
+          mangaTitle: 'Loading...', // Will be updated when download starts
+          chapterNumber: item.chapterId.substring(0, 8) + '...', // Placeholder
+          progress: 0,
+          status: 'queued' as const,
+          totalPages: 0,
+          downloadedAt: item.addedAt.getTime ? item.addedAt.getTime() : Date.now(),
+          storageSize: 0,
+          language: item.language
+        }))
+
+      const allDownloads = [...mapped, ...queueOnly]
+      setDownloads(allDownloads)
+
+      // Calculate stats
+      const active = allDownloads.filter(
+        (d) => d.status === 'downloading' || d.status === 'queued'
+      ).length
+      const queued = allDownloads.filter((d) => d.status === 'queued').length
+      const completed = allDownloads.filter((d) => d.status === 'completed').length
+      const failed = allDownloads.filter((d) => d.status === 'failed').length
+
+      setActiveCount(active)
+      setQueuedCount(queued)
+      setCompletedCount(completed)
+      setFailedCount(failed)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error occurred')
     } finally {
@@ -123,8 +155,8 @@ export function DownloadsView(): JSX.Element {
 
   // Handle chapter progress event
   const handleChapterProgress = (event: ChapterProgressEvent): void => {
-    setDownloads((prev) =>
-      prev.map((d) => {
+    setDownloads((prev) => {
+      const updated = prev.map((d) => {
         if (d.id === event.chapterId) {
           return {
             ...d,
@@ -135,7 +167,13 @@ export function DownloadsView(): JSX.Element {
         }
         return d
       })
-    )
+
+      // Update queued count when status changes
+      const queued = updated.filter((d) => d.status === 'queued').length
+      setQueuedCount(queued)
+
+      return updated
+    })
   }
 
   // Handle queue progress event
@@ -143,6 +181,13 @@ export function DownloadsView(): JSX.Element {
     setActiveCount(stats.activeDownloads)
     setCompletedCount(stats.completedChapters)
     setFailedCount(stats.failedChapters)
+
+    // Calculate queued count from current downloads
+    setDownloads((prev) => {
+      const queued = prev.filter((d) => d.status === 'queued').length
+      setQueuedCount(queued)
+      return prev
+    })
   }
 
   // Handle permanent failure event
@@ -267,6 +312,34 @@ export function DownloadsView(): JSX.Element {
     })
 
     await loadDownloads()
+  }
+
+  const handleCancelAllQueued = async (): Promise<void> => {
+    const queuedDownloads = downloads.filter((d) => d.status === 'queued')
+
+    if (queuedDownloads.length === 0) return
+
+    const response = await globalThis.downloads.cancelAllQueued()
+
+    if (response.success && response.data !== undefined) {
+      const cancelledCount = response.data
+
+      showToast({
+        title: 'Cancelled',
+        message: `Cancelled ${cancelledCount} queued download${cancelledCount === 1 ? '' : 's'}`,
+        variant: 'warning',
+        duration: 2000
+      })
+
+      await loadDownloads()
+    } else {
+      showToast({
+        title: 'Error',
+        message: 'Failed to cancel queued downloads',
+        variant: 'error',
+        duration: 3000
+      })
+    }
   }
 
   const handleToggleGroup = (mangaId: string): void => {
@@ -490,6 +563,11 @@ export function DownloadsView(): JSX.Element {
           <Badge variant="info" size="medium">
             {activeCount} Active
           </Badge>
+          {queuedCount > 0 && (
+            <Badge variant="accent" size="medium">
+              {queuedCount} Queued
+            </Badge>
+          )}
           <Badge variant="success" size="medium">
             {completedCount} Completed
           </Badge>
@@ -519,6 +597,17 @@ export function DownloadsView(): JSX.Element {
           >
             Clear Completed
           </Button>
+
+          {queuedCount > 0 && (
+            <Button
+              variant="warning"
+              size="small"
+              onClick={handleCancelAllQueued}
+              title="Cancel all queued downloads"
+            >
+              Cancel All Queued
+            </Button>
+          )}
 
           {failedCount > 0 && (
             <Button

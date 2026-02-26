@@ -106,6 +106,10 @@ export function registerDownloadHandlers(): void {
     return downloadQueueService.clearQueue()
   })
 
+  wrapIpcHandler('download:cancel-all-queued', async () => {
+    return downloadQueueService.cancelAllQueued()
+  })
+
   wrapIpcHandler('download:retry', async (_, chapterId: unknown) => {
     if (typeof chapterId !== 'string') {
       throw new TypeError('Invalid chapterId for retrying download')
@@ -116,5 +120,9 @@ export function registerDownloadHandlers(): void {
 
   wrapIpcHandler('download:get-queue-stats', async () => {
     return downloadQueueService.getQueueStats()
+  })
+
+  wrapIpcHandler('download:get-queued-items', async () => {
+    return downloadQueueService.getQueuedItems()
   })
 }

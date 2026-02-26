@@ -286,8 +286,10 @@ interface Downloads {
   addBatchToQueue: (options: QueuedDownloads[]) => Promise<IpcResponse<void>>
   removeFromQueue: (chapterId: string) => Promise<IpcResponse<void>>
   clearQueue: () => Promise<IpcResponse<void>>
+  cancelAllQueued: () => Promise<IpcResponse<number>>
   retryDownload: (chapterId: string) => Promise<IpcResponse<void>>
   getQueueStats: () => Promise<IpcResponse<QueueState>>
+  getQueuedItems: () => Promise<IpcResponse<QueuedDownloads[]>>
 }
 
 declare global {
