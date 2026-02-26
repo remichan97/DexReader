@@ -86,6 +86,6 @@ app.whenReady().then(async () => {
 
   setTimeout(() => {
     console.log('Resuming any incomplete downloads in the queue...')
-    downloadQueueService.resumeIncompletedDownloads()
+    downloadQueueService.resumeIncompleteDownloads()
   })
 })

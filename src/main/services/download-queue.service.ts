@@ -55,13 +55,15 @@ export class DownloadQueueService {
   }
 
   // Get current queue items for UI display
+  // This is a snapshot of the queue that is being shown to the UI, not the active downloads which are tracked separately
+  // This is for the UI to respond to user actions like "Download All" and prove that the chapters have been added to the queue, even if they haven't started downloading yet
   getQueuedItems(): QueuedDownloads[] {
     return [...this.queue]
   }
 
-  // Resume any incompleted downloads
-  resumeIncompletedDownloads(): void {
-    console.log('Looking for incompleted downloads to resume...')
+  // Resume any incomplete downloads
+  resumeIncompleteDownloads(): void {
+    console.log('Looking for incomplete downloads to resume...')
 
     const allDownloads = chapterDownloadsRepo.getAllDownloads()
     const incompletedDownloads = allDownloads.filter(
@@ -125,6 +127,7 @@ export class DownloadQueueService {
     return true
   }
 
+  // Retry a failed download by chapterId
   retryDownload(chapterId: string): void {
     // Reset retry count for this chapter
     this.retryCount.delete(chapterId)
@@ -164,6 +167,7 @@ export class DownloadQueueService {
     }
   }
 
+  // Process the queue and start downloads if we have available slots
   private async processQueue(): Promise<void> {
     // Check if we have any available slots
     const concurrentLimit = await this.getConcurrentDownloadsSize()
@@ -187,6 +191,7 @@ export class DownloadQueueService {
     }
   }
 
+  // The actual download logic for a single chapter, with error handling and retry logic
   private async startDownload(item: QueuedDownloads): Promise<void> {
     const downloadOptions: DownloadChapterOptions = {
       chapterId: item.chapterId,
