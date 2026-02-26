@@ -161,6 +161,7 @@ export function DownloadsView(): JSX.Element {
           return {
             ...d,
             currentPage: event.currentPage,
+            totalPages: event.totalPages,
             progress: event.percentage,
             status: event.status
           }
@@ -564,7 +565,7 @@ export function DownloadsView(): JSX.Element {
             {activeCount} Active
           </Badge>
           {queuedCount > 0 && (
-            <Badge variant="accent" size="medium">
+            <Badge variant="default" size="medium">
               {queuedCount} Queued
             </Badge>
           )}
