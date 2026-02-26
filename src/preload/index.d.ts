@@ -28,6 +28,7 @@ import { MangaOverride } from '../main/database/queries/manga/manga-override.que
 import { MangaWithMetadata } from '../main/database/queries/manga/manga-with-metadata.query'
 import type { ChapterDownloadQuery } from '../main/database/queries/chapter-downloads/chapter-downloads.query'
 import { ReadHistoryEntry } from '../main/database/queries/read-history/read-history.query'
+import type { ChapterDownloadsEvent } from '../main/services/events/chapter-downloads.event'
 
 // Database commands
 import { CreateCollectionCommand } from '../main/database/commands/collections/create-collection.command'
@@ -89,6 +90,7 @@ export type { DownloadChapterOptions } from '../main/services/options/download-c
 export type { DownloadChapterResult } from '../main/services/results/dexreader/download-chapter.result'
 export type { QueuedDownloads } from '../main/services/types/downloads/queued-downloads.type'
 export type { QueueState } from '../main/services/types/downloads/queue-state.type'
+export type { ChapterDownloadsEvent } from '../main/services/events/chapter-downloads.event'
 
 interface MenuState {
   canAddToFavorites?: boolean
@@ -143,6 +145,7 @@ interface API {
   onExportTachiyomi: (callback: (filePath: string) => void) => () => void
   onDownloadChapter: (callback: () => void) => () => void
   onDownloadManga: (callback: () => void) => () => void
+  onDownloadProgress: (callback: (event: ChapterDownloadsEvent) => void) => () => void
   onClearMetadata: (callback: () => void) => () => void
   onClearHistory: (callback: () => void) => () => void
   onShowShortcuts: (callback: () => void) => () => void

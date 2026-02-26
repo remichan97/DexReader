@@ -120,6 +120,11 @@ const api = {
     ipcRenderer.on('download-manga', callback)
     return () => ipcRenderer.removeListener('download-manga', callback)
   },
+  onDownloadProgress: (callback: (event: unknown) => void) => {
+    const listener = (_: unknown, event: unknown): void => callback(event)
+    ipcRenderer.on('download:chapter-progress', listener)
+    return () => ipcRenderer.removeListener('download:chapter-progress', listener)
+  },
   onClearMetadata: (callback: () => void) => {
     ipcRenderer.on('clear-metadata', callback)
     return () => ipcRenderer.removeListener('clear-metadata', callback)

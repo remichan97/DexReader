@@ -20,16 +20,17 @@ export class LocalImageProxy {
 
         // Build the full file path using the stored base path (not current settings)
         // This ensures files are found even if user changes download directory
+        // Note: Frontend uses 0-based indexing, but files are saved with 1-based naming (001.jpg, 002.jpg...)
         const pagePath = path.join(
           download.downloadsBasePath,
           download.filePath,
           'pages',
-          `${String(pageNum).padStart(3, '0')}.jpg`
+          `${String(pageNum + 1).padStart(3, '0')}${download.imageFormat}`
         )
 
-        const buffer = (await secureFs.readFile(pagePath, 'binary')) as Buffer
+        const buffer = Buffer.from(await secureFs.readFile(pagePath, 'binary'))
 
-        return new Response(new Uint8Array(buffer), {
+        return new Response(buffer.buffer, {
           headers: {
             'Content-Type': this.getContentType(pagePath),
             'Cache-Control': 'no-store'

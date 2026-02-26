@@ -46,16 +46,12 @@ export class NativeDownloadService {
 
     // Collect chapter data from either database cache, or API
 
-    let chapterMetadata: ChapterWithMetadata
+    let chapterMetadata: ChapterWithMetadata | undefined = chapterRepo.getChapterById(
+      options.chapterId
+    )
 
-    try {
-      chapterMetadata = chapterRepo.getChapterById(options.chapterId)
-    } catch (error) {
+    if (!chapterMetadata) {
       // We have no cache of this chapter, we'll have to use API for this
-      console.log(
-        `Chapter ${options.chapterId} not found in local cache, fetching from API...`,
-        error
-      )
       const response = await this.mangadexClient.getChapter(options.chapterId, ['scanlation_group'])
 
       // If API fail us, bail out
@@ -175,9 +171,14 @@ export class NativeDownloadService {
     for (const [index, imageData] of chapterData.entries()) {
       // Download each image and save to downloadPath
       try {
-        const imageSize = await downloadData(imageData.url, downloadPath, index + 1)
-        updateData.storageSize += imageSize
+        const downloadResult = await downloadData(imageData.url, downloadPath, index + 1)
+        updateData.storageSize += downloadResult.size
         updateData.totalPages += 1
+
+        // Capture the image format from the first image
+        if (index === 0) {
+          updateData.imageFormat = downloadResult.format
+        }
       } catch (error) {
         console.error(`Failed to download image ${imageData.url}:`, error)
         // Tell the upstream that the download failed

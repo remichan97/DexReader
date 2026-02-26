@@ -2,11 +2,16 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { secureFs } from '../../filesystem/secureFs'
 
+export interface DownloadResult {
+  size: number
+  format: string
+}
+
 export async function downloadData(
   url: string,
   downloadPath: string,
   pageNumber: number
-): Promise<number> {
+): Promise<DownloadResult> {
   // Open a write stream to the downloadPath
   // But first, ensure the directory exists
   await fs.mkdir(downloadPath, { recursive: true })
@@ -20,10 +25,14 @@ export async function downloadData(
 
   const buffer = Buffer.from(await data.arrayBuffer())
 
-  // Use zero-padded page numbers: 001.jpg, 002.jpg, etc.
-  const fileName = `${String(pageNumber).padStart(3, '0')}.jpg`
+  // Use zero-padded page numbers, preserve the same file format as the source URL
+  const fileExtension = path.extname(url)
+  const fileName = `${String(pageNumber).padStart(3, '0')}${fileExtension}`
   const pagePath = path.join(downloadPath, fileName)
-  await secureFs.writeFile(pagePath, buffer)
+  await secureFs.writeFile(pagePath, buffer, 'binary')
 
-  return buffer.byteLength
+  return {
+    size: buffer.byteLength,
+    format: fileExtension
+  }
 }
