@@ -6,6 +6,7 @@ import { ChapterDownloadQuery } from '../queries/chapter-downloads/chapter-downl
 import { ChapterDownloadMapper } from '../mappers/chapter-downloads.mapper'
 import { MarkDownloadStateCommand } from '../commands/chapter-downloads/mark-state.command'
 import { DownloadStatus } from '../enums/download-status.enum'
+import { DeleteChapterCommand } from '../commands/chapter-downloads/delete-chapter.command'
 
 export class ChapterDownloadsRepo {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
@@ -75,8 +76,50 @@ export class ChapterDownloadsRepo {
     return results.map(ChapterDownloadMapper.toChapterDownloadQuery)
   }
 
-  deleteDownload(chapterId: string): void {
-    this.db.delete(chapterDownloads).where(eq(chapterDownloads.chapterId, chapterId)).run()
+  // Delete a download, either permanently or soft delete (mark as hidden)
+  deleteDownload(command: DeleteChapterCommand): void {
+    if (command.isDeletePermanent) {
+      // This is a permanent delete, remove the entry from the database and the files from disk (handled at service level)
+      this.db
+        .delete(chapterDownloads)
+        .where(eq(chapterDownloads.chapterId, command.chapterId))
+        .run()
+    } else {
+      // This is a soft delete, we will just mark the entry as hidden, which hides it from the UI but keep the files on disk and the entry in the database in case they want to read the chapter again without needing to redownload
+      this.db
+        .update(chapterDownloads)
+        .set({ isHidden: true })
+        .where(eq(chapterDownloads.chapterId, command.chapterId))
+        .run()
+    }
+  }
+
+  // Batch delete downloads, either permanently or soft delete (mark as hidden)
+  batchDeleteDownloads(commands: DeleteChapterCommand[]): void {
+    // If no commands, skip
+    if (commands.length === 0) return
+
+    // If one command, use single delete/update for better performance
+    if (commands.length === 1) {
+      this.deleteDownload(commands[0])
+      return
+    }
+
+    // For the rest, use a transaction to batch deletes/updates
+    this.db.transaction((tx) => {
+      // Same logic as single delete, but applied to each command in the batch
+      // TODO: Maybe a dedicated method for this duplicated logic would be cleaner, but for now this is fine since it's only used in one place and the logic is pretty straightforward. The same could be said for various different batch operations in this repo
+      for (const command of commands) {
+        if (command.isDeletePermanent) {
+          tx.delete(chapterDownloads).where(eq(chapterDownloads.chapterId, command.chapterId)).run()
+        } else {
+          tx.update(chapterDownloads)
+            .set({ isHidden: true })
+            .where(eq(chapterDownloads.chapterId, command.chapterId))
+            .run()
+        }
+      }
+    })
   }
 
   createDownload(command: CreateDownloadCommand): void {
