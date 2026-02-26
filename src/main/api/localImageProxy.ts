@@ -20,7 +20,7 @@ export class LocalImageProxy {
 
         // Build the full file path using the stored base path (not current settings)
         // This ensures files are found even if user changes download directory
-        // Note: Frontend uses 0-based indexing, but files are saved with 1-based naming (001.jpg, 002.jpg...)
+        // Note: Frontend uses 0-based indexing, but files are saved with 1-based naming
         const pagePath = path.join(
           download.downloadsBasePath,
           download.filePath,
