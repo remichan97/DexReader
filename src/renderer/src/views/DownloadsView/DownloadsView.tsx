@@ -274,24 +274,27 @@ export function DownloadsView(): JSX.Element {
   }
 
   const handleClearCompleted = async (): Promise<void> => {
-    const completedDownloads = downloads.filter((d) => d.status === 'completed')
+    const response = await globalThis.downloads.clearCompleted()
 
-    if (completedDownloads.length === 0) return
+    if (response.success && response.data !== undefined) {
+      const clearedCount = response.data
 
-    const results = await Promise.allSettled(
-      completedDownloads.map((d) => globalThis.downloads.deleteChapter(d.id))
-    )
+      showToast({
+        title: 'Cleared',
+        message: `Cleared ${clearedCount} completed download${clearedCount === 1 ? '' : 's'} from view`,
+        variant: 'success',
+        duration: 2000
+      })
 
-    const successCount = results.filter((r) => r.status === 'fulfilled').length
-
-    showToast({
-      title: 'Cleared',
-      message: `Cleared ${successCount} completed download${successCount === 1 ? '' : 's'}`,
-      variant: 'success',
-      duration: 2000
-    })
-
-    await loadDownloads()
+      await loadDownloads()
+    } else {
+      showToast({
+        title: 'Error',
+        message: response.error?.message || 'Failed to clear completed downloads',
+        variant: 'error',
+        duration: 3000
+      })
+    }
   }
 
   const handleRetryAllFailed = async (): Promise<void> => {

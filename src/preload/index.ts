@@ -315,6 +315,7 @@ const downloads = {
     ipcRenderer.invoke('downloads:download-chapter', options),
   deleteChapter: (chapterId: string) => ipcRenderer.invoke('downloads:delete-chapter', chapterId),
   getAllDownloads: () => ipcRenderer.invoke('download:get-all-downloads'),
+  clearCompleted: () => ipcRenderer.invoke('download:clear-completed'),
   getDownload: (chapterId: string) => ipcRenderer.invoke('download:get-download', chapterId),
   isDownloaded: (chapterId: string) => ipcRenderer.invoke('download:is-downloaded', chapterId),
   addToQueue: (options: QueuedDownloads) => ipcRenderer.invoke('download:add-to-queue', options),

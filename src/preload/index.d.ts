@@ -280,6 +280,7 @@ interface Downloads {
   downloadChapter: (options: DownloadChapterOptions) => Promise<IpcResponse<DownloadChapterResult>>
   deleteChapter: (chapterId: string) => Promise<IpcResponse<void>>
   getAllDownloads: () => Promise<IpcResponse<ChapterDownloadQuery[]>>
+  clearCompleted: () => Promise<IpcResponse<number>>
   getDownload: (chapterId: string) => Promise<IpcResponse<ChapterDownloadQuery | undefined>>
   isDownloaded: (chapterId: string) => Promise<IpcResponse<ChapterDownloadQuery | undefined>>
   addToQueue: (options: QueuedDownloads) => Promise<IpcResponse<void>>
