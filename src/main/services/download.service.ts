@@ -150,8 +150,26 @@ export class NativeDownloadService {
       throw new Error(`Failed to delete chapter files: ${error}`)
     }
 
-    // Update the database to reflect the deletion
-    chapterDownloadsRepo.deleteDownload(chapterId)
+    // Update the database to reflect the deletion (permanent delete)
+    chapterDownloadsRepo.deleteDownload({
+      chapterId,
+      isDeletePermanent: true
+    })
+  }
+
+  // Clear completed downloads from UI (soft delete - files remain on disk)
+  clearCompletedDownloads(): number {
+    const allDownloads = chapterDownloadsRepo.getAllDownloads()
+    const completedDownloads = allDownloads.filter((d) => d.status === DownloadStatus.Completed)
+
+    completedDownloads.forEach((download) => {
+      chapterDownloadsRepo.deleteDownload({
+        chapterId: download.chapterId,
+        isDeletePermanent: false // Soft delete - hide from UI but keep files
+      })
+    })
+
+    return completedDownloads.length
   }
 
   private async downloadChapterImages(
