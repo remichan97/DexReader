@@ -38,6 +38,10 @@ export function registerDownloadHandlers(): void {
     return downloadService.getAllDownloads()
   })
 
+  wrapIpcHandler('download:clear-completed', async () => {
+    return downloadService.clearCompletedDownloads()
+  })
+
   wrapIpcHandler('download:get-download', async (_, chapterId: unknown) => {
     if (typeof chapterId !== 'string') {
       throw new TypeError('Invalid chapterId for getting download')

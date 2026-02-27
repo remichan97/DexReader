@@ -71,6 +71,7 @@ export class ChapterDownloadsRepo {
       .from(chapterDownloads)
       .innerJoin(manga, eq(chapterDownloads.mangaId, manga.mangaId))
       .innerJoin(chapter, eq(chapterDownloads.chapterId, chapter.chapterId))
+      .where(eq(chapterDownloads.isHidden, false))
       .all()
 
     return results.map(ChapterDownloadMapper.toChapterDownloadQuery)
