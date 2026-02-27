@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 23 February 2026
+**Last Updated**: 27 February 2026
 **Current Phase**: Phase 4 - Offline Functionality
-**Session**: Post P4-T14 - DownloadsView Integration Complete
+**Session**: Download System Improvements & Queue Visibility Fixes
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -12,11 +12,198 @@
 
 **Phase**: Phase 4 In Progress (10/12 tasks complete)
 **Progress**: Phase 3: 19/19 (100%) ✅ | Phase 4: 10/12 complete (83%, 2 remaining: P4-T11, P4-T13)
-**Current Date**: 23 February 2026
+**Current Date**: 27 February 2026
 **Database Migration Status**: Fully migrated (includes chapter_downloads table with 2 migrations)
-**Current Task**: Download UI fully complete
-**Download System Status**: ✅ Backend fully operational | ✅ DownloadsView fully integrated
+**Current Task**: Download improvements complete ✅
+**Download System Status**: ✅ Backend fully operational | ✅ Queue visibility fixed | ✅ Clear Completed no longer touches filesystem
 **Next Recommended**: P4-T11 (Storage quota management) to complete offline functionality
+
+---
+
+## Download System Improvements (27 Feb 2026)
+
+**Status**: ✅ Complete - Fixed queue visibility and Clear Completed button behavior
+
+### Issues Addressed
+
+**1. ✅ Queue Visibility Problem**
+
+- **Issue**: Queued downloads not showing in DownloadsView UI
+- **Root Cause**: Database entries only created when download starts (in `downloadService.downloadChapter()`), not when added to queue. Foreign key constraints (chapter/manga must exist) prevented early DB entry creation.
+- **Solution**: Expose in-memory queue via IPC and merge with database downloads in UI
+- **Implementation**:
+  - Added `getQueuedItems()` method in `download-queue.service.ts` to expose in-memory queue
+  - Added IPC handler `download:get-queued-items`
+  - Updated preload bindings with `getQueuedItems(): Promise<IpcResponse<QueuedDownloads[]>>`
+  - Modified `loadDownloads()` in DownloadsView to fetch both DB downloads and queue items
+  - Queue items not in DB display with placeholder metadata until download starts
+- **Files Modified**:
+  - `src/main/services/download-queue.service.ts`
+  - `src/main/ipc/handlers/download.handler.ts`
+  - `src/preload/index.d.ts`, `src/preload/index.ts`
+  - `src/renderer/src/views/DownloadsView/DownloadsView.tsx`
+
+**2. ✅ Cancel All Queued Button**
+
+- **Implementation**: Added button to cancel all queued (not actively downloading) items
+- **Backend**: `cancelAllQueued()` clears in-memory queue array, returns count
+- **Frontend**: Button shows when `queuedCount > 0`, calls `globalThis.downloads.cancelAllQueued()`
+- **Files Modified**: Same as above + additional UI button in DownloadsView
+
+**3. ✅ Clear Completed Button Regression Fix**
+
+- **Issue**: "Clear Completed" was calling `deleteChapter()` which deleted files from disk
+- **Expected Behavior**: Should soft-delete (hide from UI) but keep files on disk
+- **Solution**: Implemented proper soft delete using existing `isHidden` column infrastructure
+- **Backend Changes**:
+  - Added `clearCompletedDownloads()` method in `download.service.ts` that soft-deletes (sets `isHidden: true`)
+  - Updated `deleteChapter()` to use `DeleteChapterCommand` with `isDeletePermanent: true` flag
+  - Added `download:clear-completed` IPC handler
+  - Updated `getAllDownloads()` in repo to filter `WHERE isHidden = false`
+- **Frontend Changes**:
+  - Updated `handleClearCompleted()` to call `globalThis.downloads.clearCompleted()`
+  - Toast message clarifies "Cleared X downloads from view"
+- **Files Modified**:
+  - `src/main/services/download.service.ts`
+  - `src/main/database/repository/chapter-downloads.repo.ts`
+  - `src/main/ipc/handlers/download.handler.ts`
+  - `src/preload/index.d.ts`, `src/preload/index.ts`
+  - `src/renderer/src/views/DownloadsView/DownloadsView.tsx`
+
+### Technical Summary
+
+**Queue Architecture**:
+
+- In-memory queue managed by `download-queue.service.ts`
+- Database entries created when download starts (after metadata fetch)
+- UI merges both sources to show all queued + active + completed downloads
+- Queue items display with temporary placeholder data ("Loading...", chapter ID preview)
+
+**Download Lifecycle**:
+
+1. User queues chapter → Added to in-memory queue
+2. UI shows queued item with placeholder
+3. Queue processor starts download → Fetches metadata, saves to DB, creates download entry
+4. UI updates with real metadata as download progresses
+5. Completion persists to database with full details
+
+**Button Behaviors**:
+
+| Button                | Files      | Database                       | Action                         |
+| --------------------- | ---------- | ------------------------------ | ------------------------------ |
+| **Clear Completed**   | ✅ Kept    | Soft delete (`isHidden: true`) | Hide from UI, keep for reading |
+| **Remove** (per item) | ❌ Deleted | Hard delete                    | Permanent removal              |
+| **Cancel All Queued** | N/A        | N/A                            | Clear in-memory queue only     |
+
+**Why This Design**:
+
+- Foreign key constraints require chapter/manga metadata before DB entry creation
+- Fetching metadata before queueing would slow down bulk operations
+- In-memory queue + merge strategy provides immediate UI feedback with eventual consistency
+- Soft delete for Clear Completed enables re-reading without re-downloading
+
+### Files Changed (8 files)
+
+**Backend**:
+
+- `src/main/services/download-queue.service.ts` (added `getQueuedItems()`, updated cancel methods)
+- `src/main/services/download.service.ts` (added `clearCompletedDownloads()`)
+- `src/main/database/repository/chapter-downloads.repo.ts` (filter hidden downloads)
+- `src/main/ipc/handlers/download.handler.ts` (added 2 handlers)
+
+**Preload**:
+
+- `src/preload/index.d.ts` (added `getQueuedItems`, `clearCompleted`, `cancelAllQueued`)
+- `src/preload/index.ts` (added IPC invocations)
+
+**Frontend**:
+
+- `src/renderer/src/views/DownloadsView/DownloadsView.tsx` (merged queue + DB, updated handlers)
+
+### Testing Recommendations
+
+1. Queue multiple chapters and verify they appear immediately in Downloads view
+2. Click "Cancel All Queued" and confirm items are removed from UI
+3. Complete some downloads, click "Clear Completed", verify:
+   - Items disappear from UI
+   - Files still exist in downloads folder
+   - Can still read chapters from ReaderView
+4. Test "Remove" button to ensure permanent deletion still works
+
+---
+
+## Download Regression Test Fixes (24 Feb 2026)
+
+**Status**: ✅ Complete - All 6 identified issues resolved
+
+**Issues Fixed**:
+
+1. ✅ **CRITICAL BUG: Download state not updating in database**
+   - **Root Cause**: `downloadChapterImages()` method in `download.service.ts` was returning `MarkDownloadStateCommand` with `isDownloaded: false`, causing `markDownloadState()` to skip database updates (empty UPDATE statement)
+   - **Fix**: Added `updateData.isDownloaded = true` before returning from successful download
+   - **Impact**: First download attempts now properly mark chapters as completed in database
+   - **File Modified**: `src/main/services/download.service.ts`
+
+2. ✅ **UI Bug: StreamSourceIndicator vertical misalignment**
+   - **Root Cause**: Icon displayed inline within `<h1>` without flexbox alignment
+   - **Fix**: Added `display: flex; align-items: center; justify-content: center;` to `.reader-header__title`
+   - **Impact**: Globe/disk icons now properly aligned with chapter title
+   - **File Modified**: `src/renderer/src/views/ReaderView/ReaderView.css`
+
+3. ✅ **UI Polish: Icon color inconsistency**
+   - **Root Cause**: Online source icon used secondary color, local source icon used success green
+   - **Fix**: Changed local icon from `var(--win-success)` to `var(--win-text-secondary)`
+   - **Impact**: Both streaming indicators now use consistent neutral coloring
+   - **File Modified**: `src/renderer/src/components/StreamSourceIndicator/StreamSourceIndicator.css`
+
+4. ✅ **Feature: Open Download Folder button**
+   - **Decision**: Added to DownloadsView toolbar (browser-style UX: Settings for location config, Downloads view for quick access)
+   - **Implementation**:
+     - Added IPC handler `fs:open-downloads-folder` using `shell.openPath()`
+     - Updated preload types (`index.d.ts` and `index.ts`)
+     - Added "Open Folder" button with FolderOpen icon in DownloadsView toolbar
+   - **Files Modified**:
+     - `src/main/ipc/handlers/file-systems.handler.ts`
+     - `src/preload/index.d.ts`
+     - `src/preload/index.ts`
+     - `src/renderer/src/views/DownloadsView/DownloadsView.tsx`
+
+5. ✅ **UX Enhancement: Simplified progress display**
+   - **Decision**: Replaced unreliable bytes/speed/ETA calculation with deterministic "Page X/Y" display
+   - **Rationale**: Page count is known upfront and reliable; byte-based speed/ETA calculations were inconsistent due to variable image sizes and no single source of truth for download speed
+   - **Changes**:
+     - Removed `progressTracker` useRef Map and `calculateSpeed()` function
+     - Removed `formatSpeed` and `formatETA` imports and usage
+     - Removed `speed` and `eta` fields from Download interface
+     - Simplified `handleChapterProgress()` to only update currentPage and progress percentage
+     - Updated UI to show only "Page X / Y" instead of "X / Y pages + speed + ETA"
+   - **Files Modified**:
+     - `src/renderer/src/types/download.types.ts`
+     - `src/renderer/src/views/DownloadsView/DownloadsView.tsx`
+
+6. ✅ **Investigation: "Chapter not found" API errors on first attempt**
+   - **Finding**: Issue was actually caused by #1 (database state not updating). With `isDownloaded` fix, chapter data is now properly cached and subsequent operations work correctly.
+   - **No separate fix needed**: Resolved by fixing the state update bug
+
+**Technical Summary**:
+
+- **Critical Fix**: Download completion now properly persists to database (1 line addition)
+- **UI Refinements**: Icon alignment and color consistency improved
+- **New Feature**: "Open Folder" button with full IPC integration (main + preload + renderer)
+- **UX Simplification**: Removed ~50 lines of speed/ETA calculation code, replaced with simple page counter
+
+**Files Changed** (9 files):
+
+- Main Process: `download.service.ts`, `file-systems.handler.ts`
+- Preload: `index.ts`, `index.d.ts`
+- Renderer: `DownloadsView.tsx`, `ReaderView.css`, `StreamSourceIndicator.css`, `download.types.ts`
+
+**Testing Recommendations**:
+
+- Test download completion persistence across app restarts
+- Verify "Open Folder" button opens correct directory on all platforms
+- Confirm simplified progress display shows correct page numbers during active downloads
+- Check visual alignment of StreamSourceIndicator in ReaderView header
 
 ---
 

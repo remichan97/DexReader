@@ -157,9 +157,9 @@ const loadDownloads = async () => {
     const mapped = response.data.map(mapChapterDownloadToFrontend)
     setDownloads(mapped)
     // Calculate stats
-    const active = mapped.filter(d => d.status === 'downloading' || d.status === 'queued').length
-    const completed = mapped.filter(d => d.status === 'completed').length
-    const failed = mapped.filter(d => d.status === 'failed').length
+    const active = mapped.filter((d) => d.status === 'downloading' || d.status === 'queued').length
+    const completed = mapped.filter((d) => d.status === 'completed').length
+    const failed = mapped.filter((d) => d.status === 'failed').length
     setActiveCount(active)
     setCompletedCount(completed)
     setFailedCount(failed)
@@ -216,11 +216,20 @@ const handleChapterProgress = (event: ChapterProgressEvent) => {
     const remainingSeconds = remainingBytes / speed
     etaStr = formatETA(remainingSeconds)
   }
-  setDownloads(prev => prev.map(d =>
-    d.id === event.chapterId
-      ? { ...d, currentPage: event.currentPage, progress: event.percentage, status: event.status, speed: speedStr, eta: etaStr }
-      : d
-  ))
+  setDownloads((prev) =>
+    prev.map((d) =>
+      d.id === event.chapterId
+        ? {
+            ...d,
+            currentPage: event.currentPage,
+            progress: event.percentage,
+            status: event.status,
+            speed: speedStr,
+            eta: etaStr
+          }
+        : d
+    )
+  )
 }
 ```
 
@@ -231,19 +240,20 @@ const filteredDownloads = useMemo(() => {
   let filtered = downloads
   // Apply status filter
   if (statusFilter === 'active') {
-    filtered = filtered.filter(d => d.status === 'downloading' || d.status === 'queued')
+    filtered = filtered.filter((d) => d.status === 'downloading' || d.status === 'queued')
   } else if (statusFilter === 'completed') {
-    filtered = filtered.filter(d => d.status === 'completed')
+    filtered = filtered.filter((d) => d.status === 'completed')
   } else if (statusFilter === 'failed') {
-    filtered = filtered.filter(d => d.status === 'failed')
+    filtered = filtered.filter((d) => d.status === 'failed')
   }
   // Apply search
   if (searchQuery.trim()) {
     const searchLower = searchQuery.toLowerCase()
-    filtered = filtered.filter(d =>
-      d.mangaTitle.toLowerCase().includes(searchLower) ||
-      d.chapterNumber.toLowerCase().includes(searchLower) ||
-      d.chapterTitle?.toLowerCase().includes(searchLower)
+    filtered = filtered.filter(
+      (d) =>
+        d.mangaTitle.toLowerCase().includes(searchLower) ||
+        d.chapterNumber.toLowerCase().includes(searchLower) ||
+        d.chapterTitle?.toLowerCase().includes(searchLower)
     )
   }
   return filtered
@@ -254,8 +264,8 @@ const sortedGroups = useMemo(() => {
   return [...groups].sort((a, b) => {
     switch (sortOption) {
       case 'recent':
-        const aRecent = Math.max(...a.downloads.map(d => d.downloadedAt))
-        const bRecent = Math.max(...b.downloads.map(d => d.downloadedAt))
+        const aRecent = Math.max(...a.downloads.map((d) => d.downloadedAt))
+        const bRecent = Math.max(...b.downloads.map((d) => d.downloadedAt))
         return bRecent - aRecent
       case 'largest':
         return b.totalStorageSize - a.totalStorageSize
@@ -296,17 +306,17 @@ const handleRetry = async (chapterId: string) => {
 const handleRemove = async (chapterId: string) => {
   const response = await window.downloads.deleteChapter(chapterId)
   if (response.success) {
-    setDownloads(prev => prev.filter(d => d.id !== chapterId))
+    setDownloads((prev) => prev.filter((d) => d.id !== chapterId))
     showToast({ title: 'Removed', message: 'Download removed', variant: 'success' })
   }
 }
 
 const handleClearCompleted = async () => {
-  const completedDownloads = downloads.filter(d => d.status === 'completed')
+  const completedDownloads = downloads.filter((d) => d.status === 'completed')
   const results = await Promise.allSettled(
-    completedDownloads.map(d => window.downloads.deleteChapter(d.id))
+    completedDownloads.map((d) => window.downloads.deleteChapter(d.id))
   )
-  const successCount = results.filter(r => r.status === 'fulfilled').length
+  const successCount = results.filter((r) => r.status === 'fulfilled').length
   showToast({
     title: 'Cleared',
     message: `Cleared ${successCount} completed download${successCount === 1 ? '' : 's'}`,
@@ -316,12 +326,12 @@ const handleClearCompleted = async () => {
 }
 
 const handleRetryAllFailed = async () => {
-  const failedDownloads = downloads.filter(d => d.status === 'failed')
+  const failedDownloads = downloads.filter((d) => d.status === 'failed')
   if (failedDownloads.length === 0 || activeCount > 0) return
   const results = await Promise.allSettled(
-    failedDownloads.map(d => window.downloads.retryDownload(d.id))
+    failedDownloads.map((d) => window.downloads.retryDownload(d.id))
   )
-  const successCount = results.filter(r => r.status === 'fulfilled').length
+  const successCount = results.filter((r) => r.status === 'fulfilled').length
   showToast({
     title: 'Retrying',
     message: `Queued ${successCount} failed download${successCount === 1 ? '' : 's'} for retry`,
@@ -348,10 +358,10 @@ const handleNavigateToReader = (mangaId: string, chapterId: string) => {
 
 ```typescript
 useEffect(() => {
-  groupedDownloads.forEach(group => {
+  groupedDownloads.forEach((group) => {
     if (group.activeChapters === 0 && group.failedChapters === 0) {
-      setGroupedDownloads(prev =>
-        prev.map(g => g.mangaId === group.mangaId ? { ...g, isExpanded: false } : g)
+      setGroupedDownloads((prev) =>
+        prev.map((g) => (g.mangaId === group.mangaId ? { ...g, isExpanded: false } : g))
       )
     }
   })
