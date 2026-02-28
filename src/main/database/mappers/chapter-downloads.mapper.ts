@@ -2,6 +2,7 @@ import { ImageQuality } from '../../api/enums'
 import { dateToUnixTimestamp } from '../../utils/timestamps.util'
 import { DownloadStatus } from '../enums/download-status.enum'
 import { ChapterDownloadQuery } from '../queries/chapter-downloads/chapter-downloads.query'
+import { MangaStorageQuery } from '../queries/chapter-downloads/manga-storage.query'
 
 type ChapterDownloadRow = {
   chapterId: string
@@ -21,6 +22,14 @@ type ChapterDownloadRow = {
   chapterTitle: string | null
   volume: string | null
   language: string
+}
+
+type MangaStorageByTitleRow = {
+  mangaId: string
+  mangaTitle: string
+  coverUrl: string | null
+  chapterCount: unknown
+  totalStorageSize: unknown
 }
 
 export class ChapterDownloadMapper {
@@ -45,6 +54,22 @@ export class ChapterDownloadMapper {
       chapterTitle: row.chapterTitle ?? '',
       volume: row.volume ?? undefined,
       language: row.language
+    }
+  }
+
+  static toMangaStorageQuery(
+    totalAppStorage: number,
+    mangaStorageByTitle: MangaStorageByTitleRow[]
+  ): MangaStorageQuery {
+    return {
+      totalAppStorage,
+      mangaStorageByTitle: mangaStorageByTitle.map((row) => ({
+        mangaId: row.mangaId,
+        mangaTitle: row.mangaTitle,
+        coverUrl: row.coverUrl ?? undefined,
+        chapterCount: row.chapterCount as number,
+        totalStorageSize: row.totalStorageSize as number
+      }))
     }
   }
 }

@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises'
-import { type Stats } from 'node:fs'
+import { StatsFs, type Stats } from 'node:fs'
 import { validatePath } from './pathValidator'
 import path from 'node:path'
 
@@ -46,6 +46,11 @@ export const secureFs = {
   async readDir(dirPath: string): Promise<string[]> {
     const validPath = validatePath(dirPath)
     return fs.readdir(validPath)
+  },
+
+  async statFs(path: string): Promise<StatsFs> {
+    const validPath = validatePath(path)
+    return fs.statfs(validPath)
   },
 
   async copyFile(srcPath: string, destPath: string): Promise<void> {

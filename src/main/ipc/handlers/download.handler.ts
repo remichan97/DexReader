@@ -58,6 +58,34 @@ export function registerDownloadHandlers(): void {
     return downloadService.isDownloaded(chapterId)
   })
 
+  wrapIpcHandler('download:storage-stats', async () => {
+    return downloadService.getStorageInfo()
+  })
+
+  wrapIpcHandler('download:delete-manga', async (_, mangaId: unknown) => {
+    if (typeof mangaId !== 'string') {
+      throw new TypeError('Invalid mangaId for deleting manga downloads')
+    }
+
+    if (!mangaId) {
+      throw new TypeError('MangaId is required for deleting manga downloads')
+    }
+
+    return downloadService.deleteManga(mangaId)
+  })
+
+  wrapIpcHandler('download:batch-delete-manga', async (_, mangaIds: unknown) => {
+    if (!Array.isArray(mangaIds) || mangaIds.some((id) => typeof id !== 'string')) {
+      throw new TypeError('Invalid mangaIds for batch deleting manga downloads')
+    }
+
+    if (mangaIds.length === 0) {
+      throw new TypeError('At least one mangaId is required for batch deleting manga downloads')
+    }
+
+    return downloadService.batchDeleteManga(mangaIds)
+  })
+
   wrapIpcHandler('download:add-to-queue', async (_, params: unknown) => {
     isQueuedDownloads(params)
 

@@ -315,6 +315,7 @@ const downloads = {
     ipcRenderer.invoke('downloads:download-chapter', options),
   deleteChapter: (chapterId: string) => ipcRenderer.invoke('downloads:delete-chapter', chapterId),
   getAllDownloads: () => ipcRenderer.invoke('download:get-all-downloads'),
+  getStorageInfo: () => ipcRenderer.invoke('download:storage-stats'),
   clearCompleted: () => ipcRenderer.invoke('download:clear-completed'),
   getDownload: (chapterId: string) => ipcRenderer.invoke('download:get-download', chapterId),
   isDownloaded: (chapterId: string) => ipcRenderer.invoke('download:is-downloaded', chapterId),
@@ -324,6 +325,9 @@ const downloads = {
   removeFromQueue: (chapterId: string) =>
     ipcRenderer.invoke('download:remove-from-queue', chapterId),
   clearQueue: () => ipcRenderer.invoke('download:clear-queue'),
+  deleteManga: (mangaId: string) => ipcRenderer.invoke('download:delete-manga', mangaId),
+  batchDeleteManga: (mangaIds: string[]) =>
+    ipcRenderer.invoke('download:batch-delete-manga', mangaIds),
   cancelAllQueued: () => ipcRenderer.invoke('download:cancel-all-queued'),
   retryDownload: (chapterId: string) => ipcRenderer.invoke('download:retry', chapterId),
   getQueueStats: () => ipcRenderer.invoke('download:get-queue-stats'),

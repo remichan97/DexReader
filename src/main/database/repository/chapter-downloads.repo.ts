@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
 import { databaseConnection } from '../connection'
 import { chapter, chapterDownloads, manga } from '../schema'
 import { CreateDownloadCommand } from '../commands/chapter-downloads/create-download.command'
@@ -7,10 +7,35 @@ import { ChapterDownloadMapper } from '../mappers/chapter-downloads.mapper'
 import { MarkDownloadStateCommand } from '../commands/chapter-downloads/mark-state.command'
 import { DownloadStatus } from '../enums/download-status.enum'
 import { DeleteChapterCommand } from '../commands/chapter-downloads/delete-chapter.command'
+import { MangaStorageQuery } from '../queries/chapter-downloads/manga-storage.query'
 
 export class ChapterDownloadsRepo {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
     return databaseConnection.getDb()
+  }
+
+  // Calculate total storage used by all manga downloads, and storage used by each manga grouped by title (sum of all chapters of the same manga)
+  getStorageByManga(): MangaStorageQuery {
+    const mangaStorageByTitle = this.db
+      .select({
+        mangaId: manga.mangaId,
+        mangaTitle: manga.title,
+        coverUrl: manga.coverUrl,
+        totalStorageSize: sql`SUM(${chapterDownloads.storageSize})`,
+        chapterCount: sql`COUNT(${chapterDownloads.chapterId})`
+      })
+      .from(chapterDownloads)
+      .innerJoin(manga, eq(chapterDownloads.mangaId, manga.mangaId))
+      .where(eq(chapterDownloads.isHidden, false))
+      .groupBy(manga.mangaId)
+      .all()
+
+    const totalAppStorage = mangaStorageByTitle.reduce(
+      (acc, manga) => acc + (manga.totalStorageSize as number),
+      0
+    )
+
+    return ChapterDownloadMapper.toMangaStorageQuery(totalAppStorage, mangaStorageByTitle)
   }
 
   getDownload(chapterId: string): ChapterDownloadQuery | undefined {

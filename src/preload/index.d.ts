@@ -63,6 +63,9 @@ import { DexReaderExportResult } from '../main/services/results/dexreader/export
 import { DexReaderImportResult } from '../main/services/results/dexreader/import.result'
 import { DownloadChapterResult } from '../main/services/results/dexreader/download-chapter.result'
 
+// Data objects
+import { StorageData } from '../main/services/types/storage-data.type'
+
 // Re-export types for renderer use
 export type { IpcResponse } from './ipc.types'
 export type { ImageUrlResponse } from '../main/api/responses/image-url.response'
@@ -91,6 +94,9 @@ export type { DownloadChapterResult } from '../main/services/results/dexreader/d
 export type { QueuedDownloads } from '../main/services/types/downloads/queued-downloads.type'
 export type { QueueState } from '../main/services/types/downloads/queue-state.type'
 export type { ChapterDownloadsEvent } from '../main/services/events/chapter-downloads.event'
+export type { StorageData } from '../main/services/types/storage-data.type'
+export type { CollectionEntity } from '../main/database/schema/collections.schema'
+export type { AppSettings } from '../main/settings/entity/app-settings.entity'
 
 interface MenuState {
   canAddToFavorites?: boolean
@@ -282,6 +288,7 @@ interface Downloads {
   getAllDownloads: () => Promise<IpcResponse<ChapterDownloadQuery[]>>
   clearCompleted: () => Promise<IpcResponse<number>>
   getDownload: (chapterId: string) => Promise<IpcResponse<ChapterDownloadQuery | undefined>>
+  getStorageInfo: () => Promise<IpcResponse<StorageData>>
   isDownloaded: (chapterId: string) => Promise<IpcResponse<ChapterDownloadQuery | undefined>>
   addToQueue: (options: QueuedDownloads) => Promise<IpcResponse<void>>
   addBatchToQueue: (options: QueuedDownloads[]) => Promise<IpcResponse<void>>
@@ -291,6 +298,8 @@ interface Downloads {
   retryDownload: (chapterId: string) => Promise<IpcResponse<void>>
   getQueueStats: () => Promise<IpcResponse<QueueState>>
   getQueuedItems: () => Promise<IpcResponse<QueuedDownloads[]>>
+  deleteManga: (mangaId: string) => Promise<IpcResponse<void>>
+  batchDeleteManga: (mangaIds: string[]) => Promise<IpcResponse<void>>
 }
 
 declare global {

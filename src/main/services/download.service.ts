@@ -1,3 +1,4 @@
+import { DeleteChapterCommand } from './../database/commands/chapter-downloads/delete-chapter.command'
 import { ChapterDownloadsEvent } from './events/chapter-downloads.event'
 import { ImageQuality } from '../api/enums'
 import { MangaDexClient } from '../api/mangadexClient'
@@ -15,6 +16,10 @@ import path from 'node:path'
 
 import { BrowserWindow } from 'electron'
 import { ChapterDownloadQuery } from '../database/queries/chapter-downloads/chapter-downloads.query'
+import { MangaStorageQuery } from '../database/queries/chapter-downloads/manga-storage.query'
+import { DiskSpaceData } from './data/disk-space.data'
+import { getSettingByPath } from '../settings/settingsManager'
+import { StorageData } from './data/storage.data'
 
 export class NativeDownloadService {
   private readonly mangadexClient = new MangaDexClient()
@@ -25,6 +30,13 @@ export class NativeDownloadService {
 
   getAllDownloads(): ChapterDownloadQuery[] {
     return chapterDownloadsRepo.getAllDownloads()
+  }
+
+  async getStorageInfo(): Promise<StorageData> {
+    return {
+      mangaStorage: this.getMangaStorage(),
+      diskSpace: await this.getDiskSpaceInfo()
+    }
   }
 
   async downloadChapter(options: DownloadChapterOptions): Promise<DownloadChapterResult> {
@@ -157,6 +169,36 @@ export class NativeDownloadService {
     })
   }
 
+  // Delete all chapters of a manga, use for single deletion
+  deleteManga(mangaId: string): void {
+    const downloadsToBeDeleted = this.getDownloadByMangaId(mangaId)
+    const successfulDeletions: DeleteChapterCommand[] = []
+
+    // Begin by deleting all chapters of the manga
+    for (const download of downloadsToBeDeleted) {
+      const fullPath = path.join(download.downloadsBasePath, download.filePath)
+      try {
+        secureFs.deleteDir(fullPath)
+        successfulDeletions.push({
+          chapterId: download.chapterId,
+          isDeletePermanent: true
+        })
+      } catch (error) {
+        console.error(`Failed to delete chapter files at ${fullPath}:`, error)
+        // TODO: If a chapter fails to delete, should we bail out? or continue with the rest?
+      }
+    }
+
+    // After attempting to delete all chapters, update the database for the successfully deleted ones
+    if (successfulDeletions.length > 0) {
+      chapterDownloadsRepo.batchDeleteDownloads(successfulDeletions)
+    }
+  }
+
+  batchDeleteManga(mangaIds: string[]): void {
+    mangaIds.forEach((mangaId) => this.deleteManga(mangaId))
+  }
+
   // Clear completed downloads from UI (soft delete - files remain on disk)
   clearCompletedDownloads(): number {
     const allDownloads = chapterDownloadsRepo.getAllDownloads()
@@ -233,6 +275,26 @@ export class NativeDownloadService {
     // Mark as successfully downloaded before returning
     updateData.isDownloaded = true
     return updateData
+  }
+
+  private getMangaStorage(): MangaStorageQuery {
+    return chapterDownloadsRepo.getStorageByManga()
+  }
+
+  private async getDiskSpaceInfo(): Promise<DiskSpaceData> {
+    const downloadsPath = (await getSettingByPath('downloads', 'downloadPath')) as string
+
+    const stats = await secureFs.statFs(downloadsPath)
+
+    return {
+      total: stats.blocks * stats.bsize,
+      free: stats.bfree * stats.bsize,
+      used: (stats.blocks - stats.bfree) * stats.bsize
+    }
+  }
+
+  private getDownloadByMangaId(mangaId: string): ChapterDownloadQuery[] {
+    return chapterDownloadsRepo.getAllDownloads().filter((d) => d.mangaId === mangaId)
   }
 
   private emitProgress(event: ChapterDownloadsEvent): void {
