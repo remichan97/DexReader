@@ -71,7 +71,7 @@ export function registerDownloadHandlers(): void {
       throw new TypeError('MangaId is required for deleting manga downloads')
     }
 
-    return downloadService.deleteManga(mangaId)
+    return await downloadService.deleteManga(mangaId)
   })
 
   wrapIpcHandler('download:batch-delete-manga', async (_, mangaIds: unknown) => {
@@ -83,7 +83,7 @@ export function registerDownloadHandlers(): void {
       throw new TypeError('At least one mangaId is required for batch deleting manga downloads')
     }
 
-    return downloadService.batchDeleteManga(mangaIds)
+    return await downloadService.batchDeleteManga(mangaIds)
   })
 
   wrapIpcHandler('download:add-to-queue', async (_, params: unknown) => {

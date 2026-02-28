@@ -102,6 +102,36 @@ export class ChapterDownloadsRepo {
     return results.map(ChapterDownloadMapper.toChapterDownloadQuery)
   }
 
+  filterDownloadsByMangaId(mangaId: string): ChapterDownloadQuery[] {
+    const results = this.db
+      .select({
+        chapterId: chapterDownloads.chapterId,
+        mangaId: chapterDownloads.mangaId,
+        status: chapterDownloads.status,
+        storageSize: chapterDownloads.storageSize,
+        downloadedAt: chapterDownloads.downloadedAt,
+        downloadsBasePath: chapterDownloads.downloadsBasePath,
+        filePath: chapterDownloads.filePath,
+        totalPages: chapterDownloads.totalPages,
+        imageQuality: chapterDownloads.imageQuality,
+        imageFormat: chapterDownloads.imageFormat,
+        errorMessage: chapterDownloads.errorMessage,
+        title: manga.title,
+        coverUrl: manga.coverUrl,
+        chapterNumber: chapter.chapterNumber,
+        chapterTitle: chapter.title,
+        volume: chapter.volume,
+        language: chapter.language
+      })
+      .from(chapterDownloads)
+      .innerJoin(manga, eq(chapterDownloads.mangaId, manga.mangaId))
+      .innerJoin(chapter, eq(chapterDownloads.chapterId, chapter.chapterId))
+      .where(eq(chapterDownloads.mangaId, mangaId))
+      .all()
+
+    return results.map(ChapterDownloadMapper.toChapterDownloadQuery)
+  }
+
   // Delete a download, either permanently or soft delete (mark as hidden)
   deleteDownload(command: DeleteChapterCommand): void {
     if (command.isDeletePermanent) {
