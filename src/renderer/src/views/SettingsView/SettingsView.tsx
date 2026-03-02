@@ -1,11 +1,13 @@
 import type { JSX } from 'react'
 import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { Tabs, TabList, Tab, TabPanel } from '@renderer/components/Tabs'
 import { useToastStore, useAppStore } from '@renderer/stores'
 import type { MangaReadingSettings } from '../../../../preload/index.d'
 import { AppearanceSettings } from './components/AppearanceSettings'
 import { ReaderSettingsSection } from './components/ReaderSettingsSection'
-import { StorageSettings } from './components/StorageSettings'
+import { DownloadsSettings } from './components/DownloadsSettings'
+import { StorageManagementSettings } from './components/StorageManagementSettings'
 import { AdvancedSettings } from './components/AdvancedSettings'
 import { DangerZoneSettings } from '../../components/SettingsView/DangerZoneSettings'
 
@@ -22,6 +24,9 @@ export function SettingsView(): JSX.Element {
 
   // App state (theme)
   const { themeMode, setThemeMode } = useAppStore()
+
+  // Router location for reading URL params
+  const location = useLocation()
 
   // Local state for UI
   const [activeTab, setActiveTab] = useState('appearance')
@@ -45,6 +50,18 @@ export function SettingsView(): JSX.Element {
   const [imageQuality, setImageQuality] = useState<'data' | 'data-saver'>('data')
   const [perMangaOverrides, setPerMangaOverrides] = useState<PerMangaOverride[]>([])
   const [isLoadingReaderSettings, setIsLoadingReaderSettings] = useState(true)
+
+  // Read tab from URL params on mount
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search)
+    const tabParam = searchParams.get('tab')
+    if (
+      tabParam &&
+      ['appearance', 'downloads', 'reader', 'storage', 'advanced'].includes(tabParam)
+    ) {
+      setActiveTab(tabParam)
+    }
+  }, [location.search])
 
   // Load settings on mount
   useEffect(() => {
@@ -484,8 +501,9 @@ export function SettingsView(): JSX.Element {
       <Tabs value={activeTab} onChange={setActiveTab}>
         <TabList>
           <Tab value="appearance">Appearance</Tab>
-          <Tab value="storage">Storage</Tab>
+          <Tab value="downloads">Downloads</Tab>
           <Tab value="reader">Reader</Tab>
+          <Tab value="storage">Storage</Tab>
           <Tab value="advanced">Advanced</Tab>
         </TabList>
 
@@ -502,9 +520,9 @@ export function SettingsView(): JSX.Element {
           />
         </TabPanel>
 
-        {/* Storage Settings */}
-        <TabPanel value="storage">
-          <StorageSettings
+        {/* Downloads Settings */}
+        <TabPanel value="downloads">
+          <DownloadsSettings
             downloadsPath={downloadsPath}
             isLoadingPath={isLoadingPath}
             isChangingPath={isChangingPath}
@@ -533,6 +551,11 @@ export function SettingsView(): JSX.Element {
             onResetMangaOverride={handleResetMangaOverride}
             onClearAllOverrides={handleClearAllOverrides}
           />
+        </TabPanel>
+
+        {/* Storage Management Settings */}
+        <TabPanel value="storage">
+          <StorageManagementSettings />
         </TabPanel>
 
         {/* Advanced Settings */}

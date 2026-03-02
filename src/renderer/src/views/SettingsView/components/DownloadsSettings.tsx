@@ -4,7 +4,7 @@ import { Button } from '@renderer/components/Button'
 import { Input } from '@renderer/components/Input'
 import { Select, type SelectOption } from '@renderer/components/Select'
 
-interface StorageSettingsProps {
+interface DownloadsSettingsProps {
   downloadsPath: string
   isLoadingPath: boolean
   isChangingPath: boolean
@@ -17,7 +17,7 @@ interface StorageSettingsProps {
   onMaxConcurrentDownloadsChange: (count: string | string[]) => void
 }
 
-export function StorageSettings({
+export function DownloadsSettings({
   downloadsPath,
   isLoadingPath,
   isChangingPath,
@@ -28,7 +28,7 @@ export function StorageSettings({
   onDownloadConfirmationChange,
   onDefaultQualityChange,
   onMaxConcurrentDownloadsChange
-}: Readonly<StorageSettingsProps>): React.JSX.Element {
+}: Readonly<DownloadsSettingsProps>): React.JSX.Element {
   const confirmationOptions: SelectOption[] = [
     { value: 'always', label: 'Always' },
     { value: 'batch-only', label: 'Batch Only' },

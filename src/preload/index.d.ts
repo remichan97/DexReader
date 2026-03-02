@@ -62,9 +62,10 @@ import { ExportResult } from '../main/services/results/export.result'
 import { DexReaderExportResult } from '../main/services/results/dexreader/export.result'
 import { DexReaderImportResult } from '../main/services/results/dexreader/import.result'
 import { DownloadChapterResult } from '../main/services/results/dexreader/download-chapter.result'
+import { DeleteMangaResult } from '../main/services/results/dexreader/delete-manga.result'
 
 // Data objects
-import { StorageData } from '../main/services/types/storage-data.type'
+import { StorageData } from '../main/services/data/storage.data'
 
 // Re-export types for renderer use
 export type { IpcResponse } from './ipc.types'
@@ -94,7 +95,8 @@ export type { DownloadChapterResult } from '../main/services/results/dexreader/d
 export type { QueuedDownloads } from '../main/services/types/downloads/queued-downloads.type'
 export type { QueueState } from '../main/services/types/downloads/queue-state.type'
 export type { ChapterDownloadsEvent } from '../main/services/events/chapter-downloads.event'
-export type { StorageData } from '../main/services/types/storage-data.type'
+export type { StorageData } from '../main/services/data/storage.data'
+export type { DeleteMangaResult } from '../main/services/results/dexreader/delete-manga.result'
 export type { CollectionEntity } from '../main/database/schema/collections.schema'
 export type { AppSettings } from '../main/settings/entity/app-settings.entity'
 
@@ -298,7 +300,7 @@ interface Downloads {
   retryDownload: (chapterId: string) => Promise<IpcResponse<void>>
   getQueueStats: () => Promise<IpcResponse<QueueState>>
   getQueuedItems: () => Promise<IpcResponse<QueuedDownloads[]>>
-  deleteManga: (mangaId: string) => Promise<IpcResponse<void>>
+  deleteManga: (mangaId: string) => Promise<IpcResponse<DeleteMangaResult>>
   batchDeleteManga: (mangaIds: string[]) => Promise<IpcResponse<void>>
 }
 

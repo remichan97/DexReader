@@ -23,6 +23,13 @@ export function buildToolsMenu(mainWindow: BrowserWindow): MenuItemConstructorOp
       },
       { type: 'separator' },
       {
+        label: 'Manage Storage...',
+        accelerator: 'CmdOrCtrl+Shift+M',
+        click: () => {
+          mainWindow.webContents.send('navigate', '/settings?tab=storage')
+        }
+      },
+      {
         label: 'Clear Cache...',
         click: () => {
           mainWindow.webContents.send('clear-metadata')
