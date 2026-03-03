@@ -44,10 +44,10 @@ import { Button } from '@renderer/components/Button'
 
 ## Props
 
-| Prop         | Type                                                   | Default      | Description                                    |
-| ------------ | ------------------------------------------------------ | ------------ | ---------------------------------------------- |
-| `variant`    | `'primary' \| 'secondary' \| 'ghost' \| 'destructive'` | `'primary'`  | Visual style variant                           |
-| `size`       | `'small' \| 'medium' \| 'large'`                       | `'medium'`   | Button size                                    |
+| Prop         | Type                                                    | Default      | Description                                    |
+| ------------ | ------------------------------------------------------- | ------------ | ---------------------------------------------- |
+| `variant`    | `'primary' \| 'secondary' \| 'ghost' \| 'danger' \| 'warning' \| 'accent'` | `'primary'`  | Visual style variant                           |
+| `size`       | `'small' \| 'medium' \| 'large'`                        | `'medium'`   | Button size                                    |
 | `disabled`   | `boolean`                                              | `false`      | Disables button interaction                    |
 | `loading`    | `boolean`                                              | `false`      | Shows loading spinner and disables interaction |
 | `icon`       | `React.ReactNode`                                      | `undefined`  | Icon to display before text                    |
@@ -79,11 +79,22 @@ import { Button } from '@renderer/components/Button'
 - No border
 - Use for tertiary actions or links
 
-### Destructive
+### Danger
 
 - Red background
 - White text
 - Use for delete/remove actions
+
+### Warning
+
+- Yellow/orange background
+- Dark text
+- Use for cautionary actions
+
+### Accent
+
+- Accent color variant
+- Use for special highlighted actions
 
 ## Sizes
 

@@ -4,7 +4,7 @@ import { StorageChart } from '@renderer/components/StorageChart'
 import { MangaStorageList } from '@renderer/components/MangaStorageList'
 import { Button } from '@renderer/components/Button'
 import { useToastStore } from '@renderer/stores'
-import type { StorageData } from '../../../../preload/index.d'
+import type { StorageData } from '../../../../../preload/index.d'
 
 export function StorageManagementSettings(): JSX.Element {
   const [storageData, setStorageData] = useState<StorageData | null>(null)
@@ -24,11 +24,18 @@ export function StorageManagementSettings(): JSX.Element {
         if (response.success && response.data) {
           setStorageData(response.data)
         } else {
-          showToast('Failed to load storage data', 'error')
+          showToast({
+            variant: 'error',
+            title: 'Failed to load storage data'
+          })
         }
       } catch (error) {
         console.error('Error loading storage data:', error)
-        showToast('Failed to load storage data', 'error')
+        showToast({
+          variant: 'error',
+          title: 'Failed to load storage data',
+          message: error instanceof Error ? error.message : 'Unknown error'
+        })
       } finally {
         setIsLoading(false)
       }
@@ -88,7 +95,7 @@ export function StorageManagementSettings(): JSX.Element {
       'Cancel'
     )
 
-    if (!confirmed) return
+    if (confirmed.success && !confirmed.data) return
 
     setIsDeleting(true)
 
@@ -103,13 +110,24 @@ export function StorageManagementSettings(): JSX.Element {
         }
 
         setSelectedMangaIds(new Set())
-        showToast(`Successfully deleted ${selectedMangaIds.size} manga`, 'success')
+        showToast({
+          variant: 'success',
+          title: `Successfully deleted ${selectedMangaIds.size} manga`,
+          message: `${formatBytes(totalSize)} freed`
+        })
       } else {
-        showToast('Failed to delete manga', 'error')
+        showToast({
+          variant: 'error',
+          title: 'Failed to delete manga'
+        })
       }
     } catch (error) {
       console.error('Error deleting manga:', error)
-      showToast('Failed to delete manga', 'error')
+      showToast({
+        variant: 'error',
+        title: 'Failed to delete manga',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      })
     } finally {
       setIsDeleting(false)
     }
@@ -201,7 +219,7 @@ export function StorageManagementSettings(): JSX.Element {
       {/* Delete Button */}
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <Button
-          variant="destructive"
+          variant="danger"
           onClick={handleDelete}
           disabled={selectedMangaIds.size === 0 || isDeleting}
           loading={isDeleting}
