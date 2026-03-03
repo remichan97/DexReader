@@ -185,7 +185,7 @@ export class NativeDownloadService {
     for (const download of downloadsToBeDeleted) {
       const fullPath = path.join(download.downloadsBasePath, download.filePath)
       try {
-        await secureFs.deleteDir(fullPath)
+        await secureFs.deleteDir(fullPath, { recursive: true })
         successfulDeletions.push({
           chapterId: download.chapterId,
           isDeletePermanent: true
