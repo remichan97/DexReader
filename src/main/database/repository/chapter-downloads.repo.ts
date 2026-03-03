@@ -164,7 +164,7 @@ export class ChapterDownloadsRepo {
     // For the rest, use a transaction to batch deletes/updates
     this.db.transaction((tx) => {
       // Same logic as single delete, but applied to each command in the batch
-      // TODO: Maybe a dedicated method for this duplicated logic would be cleaner, but for now this is fine since it's only used in one place and the logic is pretty straightforward. The same could be said for various different batch operations in this repo
+      // TODO: Maybe a dedicated method for this duplicated logic would be cleaner, but for now this is fine since it's only used in one place and the logic is pretty straightforward. The same could be said for various different batch operations in this repo, and many other repos across the codebase
       for (const command of commands) {
         if (command.isDeletePermanent) {
           tx.delete(chapterDownloads).where(eq(chapterDownloads.chapterId, command.chapterId)).run()
