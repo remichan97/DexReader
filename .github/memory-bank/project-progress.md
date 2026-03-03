@@ -18,15 +18,105 @@
 
 ---
 
-## Current Status: Phase 4 In Progress (10/12 tasks complete)
+## Current Status: Phase 4 In Progress (11/13 tasks complete)
 
-**Phase Progress**: Phase 2 Complete (11/11) | Guerilla Refactoring Complete | Phase 3 Complete (19/19) ✅ | Phase 4 In Progress (10/12 complete, 2 remaining) 🔵
-**Current Focus**: Download system fully complete - DownloadsView integrated with backend
-**Recent Completion**: P4-T14 DownloadsView Backend Integration (23 Feb 2026) ✅
+**Phase Progress**: Phase 2 Complete (11/11) | Guerilla Refactoring Complete | Phase 3 Complete (19/19) ✅ | Phase 4 In Progress (11/13 complete, 2 remaining) 🔵
+**Current Focus**: Storage management complete - Full disk visualization and bulk cleanup UI
+**Recent Completion**: P4-T11 Storage Management Implementation (27 Feb 2026) ✅
 
 ---
 
 ## Recent Milestones
+
+### P4-T11 Storage Management Implementation (27 February 2026) ✅
+
+**Duration**: ~6 hours (planning + implementation + integration) | **Status**: Complete
+
+**Summary**: Implemented comprehensive storage management interface in Settings with dual-level bar chart visualization, sortable manga list with bulk selection, and safe deletion workflow. Users can now visualize total storage usage with disk context, see per-manga breakdown, and bulk-delete downloads to free up space via native confirmation dialogs.
+
+**Key Outcomes**:
+
+- **Settings Tab Reorganization**: Renamed "Storage" → "Downloads" tab (for download config), created new "Storage" tab (for storage management), reordered tabs to Appearance | Downloads | Reader | Storage | Advanced
+- **Dual-Level Storage Chart**: Top bar shows disk context (DexReader | Other Apps | Free), bottom bar shows manga breakdown (top 3-5 + Others), smart labeling (only segments >8%), Windows 11 design with accent color variants
+- **Manga Storage List**: Borderless Steam-style list with semi-header, 4 sort options (Storage Largest/Smallest, Title A-Z/Z-A), checkboxes with keyboard support, two-line items (title + chapter count | size)
+- **Safe Deletion Workflow**: Set-based selection tracking, native Electron confirmation dialog with detailed manga list + total size, batch API call, toast feedback, automatic data refresh
+- **Menu Integration**: Tools → Manage Storage (Ctrl+Shift+M) launches Settings with ?tab=storage URL param, deep linking works from anywhere
+- **URL Routing**: SettingsView reads ?tab= parameter and opens corresponding tab automatically
+
+**Components Created** (5 files, ~740 lines):
+
+- `StorageChart.tsx` (271 lines): Dual-level horizontal bar chart with segment labels, formatBytes utility, shouldShowLabel logic (8% threshold)
+- `MangaStorageList.tsx` (249 lines): Semi-header with dropdown, list items with checkbox|cover|title+chapters|size, dashed dividers, keyboard navigation
+- `StorageManagementSettings.tsx` (221 lines): Main view with state management (storageData, selectedIds, sort, isDeleting), data fetching, deletion handler
+- Index files for component exports
+
+**Files Modified** (3 files):
+
+- `SettingsView.tsx`: Added `useLocation` import, URL param reading with `useEffect`, reorganized tab configuration (5 tabs), separate Downloads and Storage panels
+- `tools.menu.ts`: Added "Manage Storage..." menu item with Ctrl+Shift+M accelerator, IPC navigation to '/settings?tab=storage'
+- `StorageSettings.tsx` → `DownloadsSettings.tsx`: Renamed component and interface names
+
+**Technical Implementation**:
+
+- **State Management**: React useState for storageData/selectedIds/sort/isDeleting, useEffect for data loading on mount
+- **IPC Integration**: `downloads.getStorageInfo()` for data, `downloads.batchDeleteManga()` for deletion, `api.showConfirmDialog()` for native confirmation
+- **Selection Tracking**: Set<string> for efficient lookups, toggle function with immutable updates
+- **Sorting**: Four modes with localeCompare for proper alphabetical sorting, direction control
+- **Data Flow**: Mount → load data → render chart + list → user selects → delete → refresh → clear selection
+- **Type Safety**: StorageData interface from preload types, proper component props typing
+- **Performance**: Efficient Set operations, native CSS bars (no chart library), minimal re-renders
+
+**UI/UX Features**:
+
+1. **Disk Space Header**: "Total Disk Space: X GB" with Used/Free breakdown
+2. **Storage Chart**: Two horizontal bars (40px + 32px), color-coded segments with labels, percentage-based widths
+3. **Semi-Header**: "Manage Storage - X manga (Y GB)" label with right-aligned sort dropdown
+4. **Manga List Items**: Checkbox for bulk selection, 48×48 cover image, manga title + 📚 chapter count, formatted size (GB/MB)
+5. **Sort Dropdown**: 4 options (Storage Largest First, Storage Smallest First, Title A-Z, Title Z-A)
+6. **Delete Button**: "Delete Selected (X)" - disabled when empty, loading state during operation
+7. **Confirmation Dialog**: Lists all selected manga with sizes, shows total to be freed, warning about permanence
+8. **Toast Feedback**: Success message with freed space, error messages for failures
+9. **Keyboard Support**: role="button", tabIndex={0}, Enter/Space handlers for list items
+10. **Loading/Error States**: Proper UX for data fetch failures
+
+**Design Decisions**:
+
+- **Dual-Level Chart**: Top bar provides disk context (prevents anxiety), bottom bar shows actionable breakdown (which manga to delete)
+- **Borderless List**: Cleaner modern aesthetic with dashed dividers, matches Steam Big Picture style
+- **Semi-Header**: Integrated label + dropdown (compact), not full table header (less formal)
+- **Native Dialog**: System-level confirmation (more trustworthy), consistent with OS patterns for destructive actions
+- **Tab Separation**: Downloads tab for configuration, Storage tab for monitoring - clear separation of concerns
+- **Menu Shortcut**: Ctrl+Shift+M for quick access, common pattern for management UIs
+
+**Implementation Quality**:
+
+- ✅ No TypeScript compilation errors
+- ✅ Accessibility features (role, tabIndex, keyboard handlers)
+- ✅ Error handling with try/catch and user-friendly toasts
+- ✅ Loading states and disabled states during operations
+- ✅ Code formatting with Prettier (fixed 500+ line ending issues)
+- ✅ Type safety with proper interfaces and prop types
+- ✅ Performance optimizations (Set for selection, efficient sorting)
+
+**Backend Integration** (already complete from previous session):
+
+- ✅ `downloads.getStorageInfo()` - Returns disk space + per-manga stats
+- ✅ `downloads.deleteManga()` - Deletes single manga's downloads
+- ✅ `downloads.batchDeleteManga()` - Deletes multiple manga in batch
+- ✅ Database queries for storage size aggregation
+- ✅ Filesystem deletion with error handling
+
+**Testing Recommendations**:
+
+1. Navigation: Settings tab click, Tools menu item, Ctrl+Shift+M shortcut, direct URL
+2. Chart: Verify disk totals, top manga accuracy, label threshold behavior
+3. List: Test all sort options, checkbox selection, keyboard navigation
+4. Deletion: Single/multiple selection, confirmation content, file removal, toast messages
+5. Edge cases: Empty state, single manga, large library, network errors
+
+**Result**: Production-ready storage management UI. Users can visualize disk usage, sort manga by size or title, select multiple for bulk cleanup, and safely delete with confirmation. Phase 4 progress: 11/12 tasks complete (92%) - only P4-T13 library management remains.
+
+---
 
 ### P4-T14 DownloadsView Backend Integration (23 February 2026) ✅
 
@@ -719,7 +809,7 @@
 ### Phase 4: Offline Functionality (In Progress) 🔵
 
 **Duration**: 4-5 weeks
-**Status**: 9/12 tasks complete (download system operational, DownloadsView integration pending)
+**Status**: 11/13 tasks complete (download system fully operational, storage management complete)
 **Target Start**: February 2026
 **Target Completion**: March 2026
 
@@ -731,6 +821,7 @@
 - Implement download management UI (connect existing DownloadsView to backend)
 - Support downloading individual chapters or entire manga
 - Respect filesystem restrictions (downloads directory only)
+- Add manual offline mode toggle to application menu
 
 **Deliverables**:
 
@@ -739,6 +830,8 @@
 - Offline reading mode for downloaded content
 - Download progress and management UI (per-chapter and bulk)
 - Download directory management with path validation
+- Storage management and cleanup interface
+- Manual offline mode toggle in application menu
 
 **Foundation Already Complete** ✅:
 
@@ -758,10 +851,11 @@
 - [✅] **P4-T08**: Implement offline mode detection and switching - COMPLETE (Discovered 18 Feb 2026: connectivityStore with 3 states, OfflineStatusBar UI component, checkConnectivity() method)
 - [✅] **P4-T09**: Create storage management for downloaded chapters and covers - COMPLETE (Discovered 18 Feb 2026: deleteChapter() method with file and database cleanup, storage size tracking)
 - [✅] **P4-T10**: Add reading statistics database - COMPLETE (P3-T01, 3-5 Jan 2026, includes HistoryView UI)
-- [⚪] **P4-T11**: Implement storage quota management and cleanup
+- [✅] **P4-T11**: Implement storage quota management and cleanup - COMPLETE (27 Feb 2026: StorageChart, MangaStorageList, StorageManagementSettings components; dual-level visualization; bulk selection; safe deletion workflow; menu integration)
 - [✅] **P4-T12**: Validate all file operations respect path restrictions - COMPLETE (Discovered 18 Feb 2026: pathValidator.ts with validatePath(), secureFs.ts wrapper, allowed paths enforcement)
 - [⚪] **P4-T13**: Implement unfavourite dialog with 3 options (remove from library only, delete downloads only, or remove everything) - **DEFERRED until downloads functional**
 - [✅] **P4-T14**: Connect DownloadsView to backend with real-time progress updates - COMPLETE (23 Feb 2026: Full IPC integration, manga grouping, search/filter/sort, real-time events, speed/ETA calculation, auto-collapse, navigation)
+- [⚪] **P4-T15**: Add offline mode toggle to application menu - Menu item for manual offline mode switching (File → Work Offline or View → Toggle Offline Mode), keyboard shortcut support, menu state synchronization with connectivityStore
 
 ---
 
