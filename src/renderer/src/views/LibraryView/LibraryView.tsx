@@ -21,6 +21,7 @@ import {
 import { DexReaderImportDialog } from '@renderer/components/DexReaderImportDialog'
 import type { DexReaderImportResult } from '../../../../preload/index.d'
 import { useLibraryStore, useCollectionsStore, useToastStore } from '@renderer/stores'
+import { handleUnfavourite } from '@renderer/utils/unfavouriteHandler'
 
 // ImportResult interface matches src/main/services/results/import.result.ts
 interface ImportResult {
@@ -594,25 +595,26 @@ export function LibraryView(): JSX.Element {
   const handleRemoveFromLibrary = async (id: string): Promise<void> => {
     const manga = favourites.find((m) => m.mangaId === id)
 
-    try {
-      const newStatus = await toggleFavourite(id)
-
-      // Show toast notification
-      show({
-        title: newStatus ? 'Added to Library!' : 'Removed from Library!',
-        message: manga ? manga.title : 'Manga updated',
-        variant: 'info',
-        duration: 3000
-      })
-    } catch (error) {
-      console.error('Error toggling favourite:', error)
+    if (!manga) {
       show({
         title: 'Error',
-        message: 'Failed to update library',
-        variant: 'error',
-        duration: 3000
+        message: 'Manga not found',
+        variant: 'error'
       })
+      return
     }
+
+    await handleUnfavourite({
+      mangaId: id,
+      mangaTitle: manga.title,
+      onSuccess: () => {
+        // Refresh library to update UI
+        loadFavourites()
+      },
+      onError: (error) => {
+        console.error('Unfavourite error:', error)
+      }
+    })
   }
 
   interface MangaItem {

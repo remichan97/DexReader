@@ -2,6 +2,7 @@ import type { JSX } from 'react'
 import { Book20Regular } from '@fluentui/react-icons'
 import { Select, type SelectOption } from '@renderer/components/Select'
 import { Checkbox } from '@renderer/components/Checkbox'
+import { formatBytes } from '@renderer/utils/formatBytes'
 
 interface MangaStorageItem {
   mangaId: string
@@ -30,15 +31,6 @@ export function MangaStorageList({
   onToggleSelect,
   onSortChange
 }: Readonly<MangaStorageListProps>): JSX.Element {
-  // Format bytes to human-readable
-  const formatBytes = (bytes: number): string => {
-    if (bytes === 0) return '0 B'
-    const k = 1024
-    const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return `${(bytes / Math.pow(k, i)).toFixed(i === 0 ? 0 : 1)} ${sizes[i]}`
-  }
-
   // Sort options for dropdown
   const sortOptions: SelectOption[] = [
     { value: 'storage-desc', label: 'Storage (Largest First)' },

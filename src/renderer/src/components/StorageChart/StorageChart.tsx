@@ -1,4 +1,5 @@
 import type { JSX } from 'react'
+import { formatBytes } from '@renderer/utils/formatBytes'
 
 interface DiskSpaceData {
   total: number
@@ -37,15 +38,6 @@ export function StorageChart({
     percent: (manga.size / dexReaderSize) * 100
   }))
   const othersPercent = (othersSize / dexReaderSize) * 100
-
-  // Format bytes to human-readable
-  const formatBytes = (bytes: number): string => {
-    if (bytes === 0) return '0 B'
-    const k = 1024
-    const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return `${(bytes / Math.pow(k, i)).toFixed(i === 0 ? 0 : 1)} ${sizes[i]}`
-  }
 
   // Determine if segment is large enough to show label (>8% of bar)
   const shouldShowLabel = (percent: number): boolean => percent > 8

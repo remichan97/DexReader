@@ -11,6 +11,7 @@ import {
 import { Button } from '@renderer/components/Button'
 import { DownloadConfirmationDialog } from '@renderer/components/DownloadConfirmationDialog'
 import { useLibraryStore, useToastStore } from '@renderer/stores'
+import { handleUnfavourite } from '@renderer/utils/unfavouriteHandler'
 import {
   getCoverImageUrl,
   getMangaTitle,
@@ -44,7 +45,7 @@ export default function MangaHeroSection({
   progress
 }: MangaHeroSectionProps): JSX.Element {
   const navigate = useNavigate()
-  const { isFavourite, toggleFavourite } = useLibraryStore()
+  const { isFavourite, toggleFavourite, loadFavourites } = useLibraryStore()
   const showToast = useToastStore((state) => state.show)
   const coverUrl = getCoverImageUrl(manga, CoverSize.Large)
   const title = getMangaTitle(manga)
@@ -136,23 +137,38 @@ export default function MangaHeroSection({
   }
 
   const handleAddToLibrary = async (): Promise<void> => {
-    try {
-      const newStatus = await toggleFavourite(manga.id)
+    const currentlyFavourited = isFavourite(manga.id)
 
-      showToast({
-        title: newStatus ? 'Added to Library!' : 'Removed from Library!',
-        message: getMangaTitle(manga),
-        variant: 'info',
-        duration: 3000
+    if (currentlyFavourited) {
+      // Unfavouriting - show dialog with download options
+      await handleUnfavourite({
+        mangaId: manga.id,
+        mangaTitle: getMangaTitle(manga),
+        onSuccess: () => {
+          // Refresh library store to update heart icon
+          loadFavourites()
+        }
       })
-    } catch (error) {
-      console.error('Error toggling favourite:', error)
-      showToast({
-        title: 'Error',
-        message: 'Failed to update library',
-        variant: 'error',
-        duration: 3000
-      })
+    } else {
+      // Favouriting - simple toggle
+      try {
+        await toggleFavourite(manga.id)
+
+        showToast({
+          title: 'Added to Library!',
+          message: getMangaTitle(manga),
+          variant: 'info',
+          duration: 3000
+        })
+      } catch (error) {
+        console.error('Error adding to library:', error)
+        showToast({
+          title: 'Error',
+          message: 'Failed to add to library',
+          variant: 'error',
+          duration: 3000
+        })
+      }
     }
   }
 

@@ -4,6 +4,7 @@ import { StorageChart } from '@renderer/components/StorageChart'
 import { MangaStorageList } from '@renderer/components/MangaStorageList'
 import { Button } from '@renderer/components/Button'
 import { useToastStore } from '@renderer/stores'
+import { formatBytes } from '@renderer/utils/formatBytes'
 import type { StorageData } from '../../../../../preload/index.d'
 
 export function StorageManagementSettings(): JSX.Element {
@@ -74,13 +75,6 @@ export function StorageManagementSettings(): JSX.Element {
 
     // Calculate total size to delete
     const totalSize = selectedManga.reduce((sum, m) => sum + m.totalStorageSize, 0)
-    const formatBytes = (bytes: number): string => {
-      if (bytes === 0) return '0 B'
-      const k = 1024
-      const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
-      const i = Math.floor(Math.log(bytes) / Math.log(k))
-      return `${(bytes / Math.pow(k, i)).toFixed(i === 0 ? 0 : 1)} ${sizes[i]}`
-    }
 
     // Build confirmation message
     const mangaList = selectedManga

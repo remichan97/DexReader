@@ -18,6 +18,7 @@ import {
   getAvailableLanguages
 } from '@renderer/utils/mangaHelpers'
 import { cacheMangaMetadata } from '@renderer/utils/mangaCache'
+import { handleUnfavourite } from '@renderer/utils/unfavouriteHandler'
 import './BrowseView.css'
 
 export function BrowseView(): JSX.Element {
@@ -42,7 +43,7 @@ export function BrowseView(): JSX.Element {
   } = useSearchStore()
 
   // Library store for favorite management
-  const { isFavourite, toggleFavourite } = useLibraryStore()
+  const { isFavourite, toggleFavourite, loadFavourites } = useLibraryStore()
   const showToast = useToastStore((state) => state.show)
 
   // Hide filters by default - users reveal when needed
@@ -157,24 +158,36 @@ export function BrowseView(): JSX.Element {
         throw new Error('Manga not found in results')
       }
 
-      // Cache manga metadata before toggling favorite (required for new favorites)
-      try {
-        await cacheMangaMetadata(manga)
-      } catch (cacheError) {
-        console.warn('Failed to cache manga metadata:', cacheError)
-        // Continue with toggle - metadata might already exist
+      const currentlyFavourited = isFavourite(id)
+
+      if (currentlyFavourited) {
+        // Unfavouriting - show dialog with download options
+        await handleUnfavourite({
+          mangaId: id,
+          mangaTitle: getMangaTitle(manga),
+          onSuccess: () => {
+            // Refresh library store to update heart icon
+            loadFavourites()
+          }
+        })
+      } else {
+        // Favouriting - cache metadata and toggle
+        try {
+          await cacheMangaMetadata(manga)
+        } catch (cacheError) {
+          console.warn('Failed to cache manga metadata:', cacheError)
+          // Continue with toggle - metadata might already exist
+        }
+
+        await toggleFavourite(id)
+
+        showToast({
+          title: 'Added to Library!',
+          message: getMangaTitle(manga),
+          variant: 'info',
+          duration: 3000
+        })
       }
-
-      // Toggle favorite status in database
-      const newStatus = await toggleFavourite(id)
-
-      // Show toast notification
-      showToast({
-        title: newStatus ? 'Added to Library!' : 'Removed from Library!',
-        message: getMangaTitle(manga),
-        variant: 'info',
-        duration: 3000
-      })
     } catch (error) {
       console.error('Error toggling favourite:', error)
       showToast({
