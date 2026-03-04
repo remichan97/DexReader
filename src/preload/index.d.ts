@@ -63,6 +63,7 @@ import { DexReaderExportResult } from '../main/services/results/dexreader/export
 import { DexReaderImportResult } from '../main/services/results/dexreader/import.result'
 import { DownloadChapterResult } from '../main/services/results/dexreader/download-chapter.result'
 import { DeleteMangaResult } from '../main/services/results/dexreader/delete-manga.result'
+import { DownloadStatResult } from '../main/services/results/dexreader/download-stats.result'
 
 // Data objects
 import { StorageData } from '../main/services/data/storage.data'
@@ -99,6 +100,7 @@ export type { StorageData } from '../main/services/data/storage.data'
 export type { DeleteMangaResult } from '../main/services/results/dexreader/delete-manga.result'
 export type { CollectionEntity } from '../main/database/schema/collections.schema'
 export type { AppSettings } from '../main/settings/entity/app-settings.entity'
+export type { DownloadStatResult } from '../main/services/results/dexreader/download-stats.result'
 
 interface MenuState {
   canAddToFavorites?: boolean
@@ -280,7 +282,6 @@ interface DexReader {
   ) => Promise<IpcResponse<DexReaderExportResult>>
 
   importData: (filePath: string) => Promise<IpcResponse<DexReaderImportResult>>
-
   cancelImport: () => Promise<IpcResponse<void>>
 }
 
@@ -302,6 +303,7 @@ interface Downloads {
   getQueuedItems: () => Promise<IpcResponse<QueuedDownloads[]>>
   deleteManga: (mangaId: string) => Promise<IpcResponse<DeleteMangaResult>>
   batchDeleteManga: (mangaIds: string[]) => Promise<IpcResponse<void>>
+  getDownloadStats: (mangaId: string) => Promise<IpcResponse<DownloadStatResult>>
 }
 
 declare global {

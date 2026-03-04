@@ -21,6 +21,7 @@ import { DiskSpaceData } from './data/disk-space.data'
 import { getSettingByPath } from '../settings/settingsManager'
 import { StorageData } from './data/storage.data'
 import { DeleteMangaResult } from './results/dexreader/delete-manga.result'
+import { DownloadStatResult } from './results/dexreader/download-stats.result'
 
 export class NativeDownloadService {
   private readonly mangadexClient = new MangaDexClient()
@@ -37,6 +38,18 @@ export class NativeDownloadService {
     return {
       mangaStorage: this.getMangaStorage(),
       diskSpace: await this.getDiskSpaceInfo()
+    }
+  }
+
+  getDownloadStats(mangaId: string): DownloadStatResult {
+    const downloads = this.getDownloadByMangaId(mangaId)
+
+    const chapterCount = downloads.length
+    const totalBytes = downloads.reduce((acc, download) => acc + (download.storageSize || 0), 0)
+
+    return {
+      chapterCount,
+      totalBytes
     }
   }
 
@@ -249,7 +262,7 @@ export class NativeDownloadService {
       try {
         const downloadResult = await downloadData(imageData.url, downloadPath, index + 1)
         updateData.storageSize += downloadResult.size
-        updateData.totalPages += 1
+        updateData.totalPages = chapterData.length
 
         // Capture the image format from the first image
         if (index === 0) {
@@ -278,10 +291,8 @@ export class NativeDownloadService {
         chapterId: chapterId,
         totalPages: updateData.totalPages,
         percentage:
-          updateData.totalPages > 0
-            ? Math.round((updateData.totalPages / chapterData.length) * 100)
-            : 0,
-        currentPage: updateData.totalPages,
+          updateData.totalPages > 0 ? Math.round(((index + 1) / chapterData.length) * 100) : 0,
+        currentPage: index + 1,
         status:
           index === chapterData.length - 1 ? DownloadStatus.Completed : DownloadStatus.Downloading,
         bytesDownloaded: updateData.storageSize

@@ -157,4 +157,12 @@ export function registerDownloadHandlers(): void {
   wrapIpcHandler('download:get-queued-items', async () => {
     return downloadQueueService.getQueuedItems()
   })
+
+  wrapIpcHandler('download:get-download-stats', async (_, mangaId: unknown) => {
+    if (typeof mangaId !== 'string') {
+      throw new TypeError('Invalid mangaId for getting download stats')
+    }
+
+    return downloadService.getDownloadStats(mangaId)
+  })
 }

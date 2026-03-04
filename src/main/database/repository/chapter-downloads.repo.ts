@@ -1,4 +1,4 @@
-import { eq, sql } from 'drizzle-orm'
+import { eq, sql, and } from 'drizzle-orm'
 import { databaseConnection } from '../connection'
 import { chapter, chapterDownloads, manga } from '../schema'
 import { CreateDownloadCommand } from '../commands/chapter-downloads/create-download.command'
@@ -26,7 +26,12 @@ export class ChapterDownloadsRepo {
       })
       .from(chapterDownloads)
       .innerJoin(manga, eq(chapterDownloads.mangaId, manga.mangaId))
-      .where(eq(chapterDownloads.isHidden, false))
+      .where(
+        and(
+          eq(chapterDownloads.isHidden, false),
+          eq(chapterDownloads.status, DownloadStatus.Completed)
+        )
+      )
       .groupBy(manga.mangaId)
       .all()
 
