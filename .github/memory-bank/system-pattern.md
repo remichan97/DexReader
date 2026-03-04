@@ -1213,6 +1213,69 @@ const setTheme = useAppStore((state) => state.setTheme)
 
 ---
 
+## Native Dialog Best Practices
+
+### Message vs Detail Structure
+
+**Discovery** (4 March 2026, P4-T13): Native Electron dialogs (both `showDialog` and `showConfirmDialog`) have **fixed-width message titles** that truncate long text. Dynamic content like manga titles should be placed in the `detail` body instead.
+
+**✅ Recommended Structure**:
+
+```typescript
+// Good: Short, static message with dynamic content in detail
+const result = await window.api.showDialog({
+  message: 'Remove from library?', // Short, never truncates
+  detail: `${mangaTitle}\n\nThis manga has 50 chapters...`, // Full title here
+  buttons: ['Remove', 'Cancel'],
+  type: 'warning'
+})
+```
+
+**❌ Problematic Structure**:
+
+```typescript
+// Bad: Long manga title gets truncated in message
+const result = await window.api.showDialog({
+  message: `Remove "${veryLongMangaTitle}" from library?`, // Gets cut off!
+  detail: 'Additional info...',
+  buttons: ['Remove', 'Cancel'],
+  type: 'warning'
+})
+```
+
+**Why This Matters**:
+
+- Message field has OS-imposed width constraints
+- Manga titles can be very long (e.g., "That Time I Got Reincarnated as a Slime and Started a Country...")
+- Truncated titles confuse users about what they're confirming
+- Detail field expands naturally to fit content
+
+**Application**:
+
+- **Confirmation dialogs**: Use generic message, put item name in detail
+- **Error dialogs**: Use error category in message, specifics in detail
+- **Multi-choice dialogs**: Use action in message, context in detail
+
+**Implementation Example** (`unfavouriteHandler.ts`):
+
+```typescript
+// Multi-choice dialog with long manga title
+const result = await globalThis.api.showDialog({
+  message: 'Remove from library?',
+  detail: `${mangaTitle}\n\nThis manga has ${chapterCount} downloaded chapters (${formatBytes(totalBytes)}).\n\nWhat would you like to do?`,
+  buttons: [
+    'Remove from library only (keep downloads)',
+    'Delete downloads only (keep bookmark)',
+    'Remove everything',
+    'Cancel'
+  ],
+  type: 'warning',
+  defaultId: 3
+})
+```
+
+---
+
 ## Auto-Update Configuration
 
 ### Update Strategy

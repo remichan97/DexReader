@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 27 February 2026
+**Last Updated**: 4 March 2026
 **Current Phase**: Phase 4 - Offline Functionality
-**Session**: Storage Management Implementation Complete
+**Session**: Unfavourite Dialog Implementation Complete
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -10,13 +10,164 @@
 
 ## Current Status Summary
 
-**Phase**: Phase 4 In Progress (11/13 tasks complete)
-**Progress**: Phase 3: 19/19 (100%) ✅ | Phase 4: 11/13 complete (85%, 2 remaining: P4-T13, P4-T15)
-**Current Date**: 3 March 2026
+**Phase**: Phase 4 In Progress (12/13 tasks complete)
+**Progress**: Phase 3: 19/19 (100%) ✅ | Phase 4: 12/13 complete (92%, 1 remaining: P4-T15)
+**Current Date**: 4 March 2026
 **Database Migration Status**: Fully migrated (includes chapter_downloads table with 2 migrations)
-**Current Task**: P4-T11 Storage Management implementation complete ✅
-**Download System Status**: ✅ Backend fully operational | ✅ Queue visibility fixed | ✅ Clear Completed functional | ✅ Storage management UI complete
-**Next Recommended**: P4-T13 (Library management), then P4-T15 (Offline mode menu toggle)
+**Current Task**: P4-T13 Unfavourite dialog with download handling complete ✅
+**Download System Status**: ✅ Backend fully operational | ✅ Queue visibility fixed | ✅ Clear Completed functional | ✅ Storage management UI complete | ✅ Library integration complete
+**Next Recommended**: P4-T15 (Offline mode menu toggle) - FINAL Phase 4 task
+
+---
+
+## P4-T13 Unfavourite Dialog with Download Handling (4 Mar 2026)
+
+**Status**: ✅ Complete - Smart unfavourite workflow with download cleanup options
+
+### Summary
+
+Implemented context-aware unfavourite dialog that detects downloaded chapters and presents users with granular cleanup options. Users can now remove manga from library, delete downloads, or both - with clear feedback about storage impact. Includes centralized handler utility for consistent behavior across all views.
+
+### Key Features
+
+**1. ✅ Backend - Download Stats API**
+
+- **New IPC Handler**: `downloads.getDownloadStats(mangaId)` returns `{ chapterCount, totalBytes }`
+- **Service Method**: `downloadService.getDownloadStats()` queries chapter_downloads table
+- **Result Type**: `DownloadStatResult` interface exported to renderer
+- **Performance**: Fast query using manga_id index
+
+**2. ✅ Shared Utilities**
+
+- **formatBytes.ts**: Centralized byte formatting (replaces 3 duplicate implementations)
+  - Extracted from StorageChart, MangaStorageList, StorageManagementSettings
+  - Consistent formatting across all storage displays
+  - Single source of truth for size formatting
+
+- **unfavouriteHandler.ts**: Centralized unfavourite logic (~195 lines)
+  - Checks download status via `getDownloadStats()`
+  - Shows simple confirmation if no downloads
+  - Shows 4-option dialog if downloads exist
+  - Handles partial failures gracefully
+  - Toast notifications for all outcomes
+
+**3. ✅ Dialog Patterns**
+
+- **No Downloads**: Simple confirmation → "Remove from library?" with manga title in detail
+- **Has Downloads**: Multi-choice warning dialog with 4 options:
+  1. Remove from library only (keep downloads)
+  2. Delete downloads only (keep bookmark)
+  3. Remove everything (library + downloads)
+  4. Cancel (safe default)
+
+- **Dialog Structure** (Best Practice):
+  - Message: Generic action ("Remove from library?")
+  - Detail: Manga title + download info + question
+  - Reason: Native dialogs have fixed-width titles that truncate long manga names
+  - Type: `warning` (shows ⚠️ icon for destructive actions)
+
+**4. ✅ Integration Points**
+
+- **LibraryView**: `handleRemoveFromLibrary()` → calls `handleUnfavourite()` → refreshes via `loadFavourites()`
+- **MangaDetailView**: `handleAddToLibrary()` checks `isFavourite()` → shows dialog if unfavouriting → updates heart icon
+- **BrowseView**: `handleFavouriteToggle()` checks `isFavourite()` → shows dialog if unfavouriting → updates heart icon
+- All views refresh library store on success for immediate UI updates
+
+**5. ✅ Error Handling**
+
+- **Download stat errors**: Shows error toast, aborts operation
+- **Partial failures**: Warning toast if one operation succeeds but other fails
+- **Success paths**: Clear toast messages for each of 3 action types
+- **Callbacks**: `onSuccess`/`onError` callbacks for view-specific logic
+
+### Technical Implementation
+
+**Files Created**:
+
+- `src/main/services/results/dexreader/download-stats.result.ts` (4 lines) - Result interface
+- `src/renderer/src/utils/formatBytes.ts` (15 lines) - Shared utility
+- `src/renderer/src/utils/unfavouriteHandler.ts` (195 lines) - Centralized logic
+
+**Files Modified**:
+
+- `src/main/services/download.service.ts` - Added `getDownloadStats()` method
+- `src/main/ipc/handlers/download.handler.ts` - Added IPC handler registration
+- `src/preload/index.d.ts` - Added type exports and Downloads interface method
+- `src/preload/index.ts` - Added IPC bridge binding
+- `src/renderer/src/components/StorageChart/StorageChart.tsx` - Removed duplicate formatBytes
+- `src/renderer/src/components/MangaStorageList/MangaStorageList.tsx` - Removed duplicate formatBytes
+- `src/renderer/src/views/SettingsView/components/StorageManagementSettings.tsx` - Removed duplicate formatBytes
+- `src/renderer/src/views/LibraryView/LibraryView.tsx` - Integrated unfavourite handler
+- `src/renderer/src/views/MangaDetailView/components/MangaHeroSection.tsx` - Integrated unfavourite handler + `loadFavourites`
+- `src/renderer/src/views/BrowseView/BrowseView.tsx` - Integrated unfavourite handler + `loadFavourites`
+
+**Architectural Decisions**:
+
+1. **Native Dialog Over Custom Modal**: More trustworthy for destructive actions, OS-consistent
+2. **Centralized Handler**: Single utility prevents inconsistent behavior across views
+3. **Smart Context Detection**: Only show multi-choice dialog when downloads exist
+4. **Graceful Degradation**: Show simple confirmation if stats check fails
+5. **Title in Detail**: Long manga titles in detail body (not message) to avoid truncation
+6. **Library Store Refresh**: Call `loadFavourites()` after unfavourite to update Zustand selectors
+
+### User Experience
+
+**Flow**:
+
+1. User clicks heart icon to unfavourite manga
+2. System checks for downloads (< 100ms)
+3. Shows appropriate dialog:
+   - No downloads: Simple confirmation with manga title
+   - Has downloads: Warning dialog with chapter count, storage size, and 4 options
+4. User selects action (or cancels)
+5. System executes choice(s)
+6. Toast notification confirms outcome
+7. UI updates immediately (heart icon, library lists)
+
+**Toast Messages**:
+
+- Remove library only: "Removed from library" + manga title
+- Delete downloads only: "Downloads deleted" + chapter count
+- Remove everything: "Removed completely" + manga + chapters
+- Partial success: "Partially removed" + what worked/failed
+- Errors: Clear error message with retry suggestion
+
+### Testing Recommendations
+
+**Scenarios to Verify**:
+
+1. Unfavourite manga with no downloads → simple confirmation → library updated
+2. Unfavourite manga with downloads → multi-choice → each option works correctly
+3. Long manga title (50+ chars) → displays fully in dialog detail
+4. Partial failure (library success, download fail) → warning toast shown
+5. Cancel dialog → no changes made
+6. Heart icon updates immediately in all 3 views after unfavourite
+7. Library list refreshes correctly after removal
+
+### Discovery: Native Dialog Title Width Constraint
+
+**Finding**: Native Electron dialogs (`showDialog` and `showConfirmDialog`) have fixed-width message fields that truncate long text. This is an OS-level constraint.
+
+**Solution**: Place dynamic/long content (like manga titles) in the `detail` field, keep `message` short and generic.
+
+**Example**:
+
+```typescript
+// ✅ Good: Short message, full title in detail
+const result = await window.api.showDialog({
+  message: 'Remove from library?',
+  detail: `${mangaTitle}\n\nThis manga has 50 chapters...`,
+  type: 'warning'
+})
+
+// ❌ Bad: Long title gets truncated
+const result = await window.api.showDialog({
+  message: `Remove "${veryLongMangaTitle}" from library?`,
+  type: 'warning'
+})
+```
+
+**Documented**: Added to system-pattern.md "Native Dialog Best Practices" section
 
 ---
 
@@ -260,7 +411,7 @@ Production-ready storage management interface. Users can now:
 - ✅ Safely delete downloads with confirmation
 - ✅ Access via Settings tab or keyboard shortcut (Ctrl+Shift+M)
 
-**Phase 4 Progress**: 11/12 tasks complete (92%) - Only P4-T13 Library Management remains
+**Phase 4 Progress**: 12/13 tasks complete (92%) - Only P4-T15 Offline Mode Menu Toggle remains
 
 ---
 
@@ -629,11 +780,14 @@ Production-ready storage management interface. Users can now:
 
 **Phase 4 Progress**: 9/12 tasks complete (75%)
 
-**Remaining Tasks**:
+**Completed Tasks**:
 
-- P4-T11: Storage quota management and cleanup
-- P4-T13: Unfavourite dialog with download handling (deferred)
-- P4-T14: DownloadsView integration with real-time updates (NEW)
+- P4-T11: Storage quota management and cleanup ✅
+- P4-T13: Unfavourite dialog with download handling ✅
+
+**Next Task**:
+
+- P4-T15: Offline mode menu toggle (File → Work Offline)
 
 ---
 
@@ -739,25 +893,18 @@ Production-ready storage management interface. Users can now:
 
 ## Planning Notes for Future Tasks
 
-### P4-T11: Storage Quota Management (NEXT RECOMMENDED)
+### P4-T15: Offline Mode Menu Toggle (NEXT - FINAL Phase 4 Task)
+
+**Context**: P4-T08 implemented offline mode infrastructure (connectivityStore with 3 states, OfflineStatusBar component). However, there's no menu item for manual toggle - a standard desktop application pattern.
 
 **Features Needed**:
 
-1. Storage quota settings (user-configurable limit)
-2. Storage usage calculation and display
-3. Automatic cleanup policies (oldest first, completed first, etc.)
-4. Manual cleanup UI in settings
-5. Warning notifications when approaching limit
-6. Per-manga storage breakdown
-
-### P4-T13: Unfavorite Dialog with Download Handling (DEFERRED)
-
-**Features Needed**:
-
-1. Show warning if manga has downloaded chapters
-2. Offer to delete downloads when unfavoriting
-3. Show storage savings amount
-4. Confirm deletion action
+1. Menu item: File → Work Offline (toggle)
+2. Checkmark shows current state
+3. Updates connectivityStore when clicked
+4. Respects actual connectivity state (can't force online if no internet)
+5. Integrates with existing OfflineStatusBar component
+6. Integrates with existing OfflineStatusBar component
 
 ### P4-T02: Download Queue Manager
 
