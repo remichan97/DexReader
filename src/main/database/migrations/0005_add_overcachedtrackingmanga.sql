@@ -1,0 +1,1 @@
+ALTER TABLE `manga` ADD `cover_cached_at` integer;

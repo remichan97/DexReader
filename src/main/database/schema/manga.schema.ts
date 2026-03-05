@@ -10,6 +10,7 @@ export const manga = sqliteTable(
     description: text('description'), // Full description
     status: text('status').$type<PublicationStatus>(), // ongoing, completed, hiatus, cancelled
     coverUrl: text('cover_url'), // URL to cover image
+    coverCachedAt: integer('cover_cached_at', { mode: 'timestamp' }), // When the cover image was last cached locally
     year: integer('year'), // Year of publication
     isFavourite: integer('is_favourite', { mode: 'boolean' }).notNull().default(false), // Whether user has marked this manga as a favorite in their library, will be the candidate for erasure if false
     addedAt: integer('added_at', { mode: 'timestamp' }).notNull(), // When manga was added to the database

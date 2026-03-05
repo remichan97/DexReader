@@ -73,6 +73,35 @@ export class MangaRepository {
       .run()
   }
 
+  updateCoverCachedDate(mangaId: string[]): void {
+    const now = new Date()
+
+    this.db.transaction((tx) => {
+      for (const id of mangaId) {
+        tx.update(manga)
+          .set({
+            coverCachedAt: now,
+            updatedAt: now
+          })
+          .where(eq(manga.mangaId, id))
+          .run()
+      }
+    })
+  }
+
+  clearCachedCoverDate(): void {
+    const now = new Date()
+
+    this.db.transaction((tx) => {
+      tx.update(manga)
+        .set({
+          coverCachedAt: undefined,
+          updatedAt: now
+        })
+        .run()
+    })
+  }
+
   toggleFavourite(mangaId: string): boolean {
     const existing = this.db.select().from(manga).where(eq(manga.mangaId, mangaId)).get()
 
