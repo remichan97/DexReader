@@ -6,4 +6,5 @@ export interface MenuState {
   canDownloadManga?: boolean
   mangaTitle?: string
   isIncognito?: boolean
+  isOffline?: boolean
 }

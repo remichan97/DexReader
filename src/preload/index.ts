@@ -136,6 +136,10 @@ const api = {
   onShowShortcuts: (callback: () => void) => {
     ipcRenderer.on('show-shortcuts', callback)
     return () => ipcRenderer.removeListener('show-shortcuts', callback)
+  },
+  onConnectivityToggle: (callback: () => void) => {
+    ipcRenderer.on('connectivity:toggle-offline', callback)
+    return () => ipcRenderer.removeListener('connectivity:toggle-offline', callback)
   }
 }
 
@@ -252,7 +256,8 @@ const library = {
   upsertManga: (command: UpsertMangaCommand) => ipcRenderer.invoke('library:upsert-manga', command),
   checkForUpdates: (mangaIds: string[]) =>
     ipcRenderer.invoke('library:check-for-updates', mangaIds),
-  getMangaWithUpdates: () => ipcRenderer.invoke('library:get-manga-with-updates')
+  getMangaWithUpdates: () => ipcRenderer.invoke('library:get-manga-with-updates'),
+  getDownloadedManga: () => ipcRenderer.invoke('library:get-downloaded-manga')
 }
 
 const collections = {

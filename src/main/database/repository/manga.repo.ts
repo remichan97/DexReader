@@ -1,12 +1,13 @@
 import { and, eq, like, lt, SQL } from 'drizzle-orm'
 import { UpsertMangaCommand } from '../commands/manga/upsert-manga.command'
 import { databaseConnection } from '../connection'
-import { collectionItems, manga } from '../schema'
+import { chapterDownloads, collectionItems, manga } from '../schema'
 import { GetLibraryMangaCommand } from '../commands/manga/get-library-manga.command'
 import { MangaWithMetadata } from '../queries/manga/manga-with-metadata.query'
 import { MangaMapper } from '../mappers/manga.mapper'
 import { MarkMangaNewChapterCommand } from '../commands/manga/mark-new-chapter.command'
 import { SearchMangaCommand } from '../commands/manga/search-manga.command'
+import { DownloadStatus } from '../enums/download-status.enum'
 
 type MangaRow = typeof manga.$inferSelect
 
@@ -184,6 +185,21 @@ export class MangaRepository {
       .all()
 
     return query.map(MangaMapper.toMangaWithMetadata)
+  }
+
+  getDownloadedManga(): MangaWithMetadata[] {
+    const results = this.db
+      .select()
+      .from(manga)
+      .innerJoin(chapterDownloads, eq(manga.mangaId, chapterDownloads.mangaId))
+      .where(
+        eq(chapterDownloads.status, DownloadStatus.Completed) // Only completed downloads
+      )
+      .groupBy(manga.mangaId) // Get unique manga (one manga can have multiple downloaded chapters)
+      .all()
+
+    // Extract just the manga part from join result
+    return results.map((row) => MangaMapper.toMangaWithMetadata(row.manga))
   }
 
   getLibraryMangaByCustomCondition(command: SearchMangaCommand): MangaWithMetadata[] {

@@ -33,6 +33,10 @@ export function registerLibraryHandlers(): void {
     return mangaRepository.getLibraryMangaWithNewChapters()
   })
 
+  wrapIpcHandler('library:get-downloaded-manga', async () => {
+    return mangaRepository.getDownloadedManga()
+  })
+
   wrapIpcHandler('collections:get-all', async () => {
     return collectionRepo.getAllCollections()
   })

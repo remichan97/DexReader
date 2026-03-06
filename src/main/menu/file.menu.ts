@@ -33,6 +33,15 @@ export function buildFileMenu(
         }
       },
       {
+        label: state.isOffline ? 'Go Online' : 'Go Offline',
+        id: 'go-offline',
+        accelerator: 'CmdOrCtrl+Shift+O',
+        click: () => {
+          mainWindow.webContents.send('connectivity:toggle-offline')
+        }
+      },
+      { type: 'separator' },
+      {
         label: 'Exit',
         accelerator: 'Alt+F4',
         role: 'quit'

@@ -110,6 +110,7 @@ interface MenuState {
   canDownloadManga?: boolean
   mangaTitle?: string
   isIncognito?: boolean
+  isOffline?: boolean
 }
 
 interface API {
@@ -159,6 +160,7 @@ interface API {
   onClearMetadata: (callback: () => void) => () => void
   onClearHistory: (callback: () => void) => () => void
   onShowShortcuts: (callback: () => void) => () => void
+  onConnectivityToggle: (callback: () => void) => () => void
 }
 
 interface FileSystem {
@@ -233,6 +235,7 @@ interface Library {
   upsertManga: (command: UpsertMangaCommand) => Promise<IpcResponse<void>>
   checkForUpdates: (mangaIds: string[]) => Promise<IpcResponse<UpdateResult[]>>
   getMangaWithUpdates: () => Promise<IpcResponse<MangaWithMetadata[]>>
+  getDownloadedManga: () => Promise<IpcResponse<MangaWithMetadata[]>>
 }
 
 interface Collections {
