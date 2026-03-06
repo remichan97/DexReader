@@ -104,6 +104,10 @@ export function registerDownloadHandlers(): void {
     return downloadQueueService.addToQueue(options)
   })
 
+  wrapIpcHandler('download:clear-cover-cache', async () => {
+    return await downloadService.emptyDiskCache()
+  })
+
   wrapIpcHandler('download:add-batch-to-queue', async (_, params: unknown) => {
     if (!Array.isArray(params)) {
       throw new TypeError('Invalid parameters for adding batch of chapters to download queue')

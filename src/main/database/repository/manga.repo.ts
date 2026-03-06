@@ -89,17 +89,25 @@ export class MangaRepository {
     })
   }
 
-  clearCachedCoverDate(): void {
+  // Given an optional array of manga IDs, clear the cached cover date for the specified manga or all manga if no IDs are provided
+  clearCachedCoverDate(mangaId?: string[]): void {
     const now = new Date()
 
-    this.db.transaction((tx) => {
-      tx.update(manga)
-        .set({
-          coverCachedAt: undefined,
-          updatedAt: now
-        })
-        .run()
-    })
+    if (mangaId) {
+      this.db.transaction((tx) => {
+        for (const id of mangaId) {
+          tx.update(manga)
+            .set({
+              coverCachedAt: undefined,
+              updatedAt: now
+            })
+            .where(eq(manga.mangaId, id))
+            .run()
+        }
+      })
+    } else {
+      this.db.update(manga).set({ coverCachedAt: undefined, updatedAt: now }).run()
+    }
   }
 
   toggleFavourite(mangaId: string): boolean {

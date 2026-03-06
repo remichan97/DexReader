@@ -178,7 +178,8 @@ export function getDefaultSettings(): AppSettings {
     downloads: {
       maxConcurrentDownloads: 3,
       shouldConfirmDownload: DownloadConfirmation.BatchDownload,
-      defaultQuality: ImageQuality.High
+      defaultQuality: ImageQuality.High,
+      maxDiskCacheSize: 50 * 1024 * 1024 // 50 MB default cache size for covers
     },
     appearance: {
       theme: AppTheme.System

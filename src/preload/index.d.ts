@@ -304,6 +304,7 @@ interface Downloads {
   deleteManga: (mangaId: string) => Promise<IpcResponse<DeleteMangaResult>>
   batchDeleteManga: (mangaIds: string[]) => Promise<IpcResponse<void>>
   getDownloadStats: (mangaId: string) => Promise<IpcResponse<DownloadStatResult>>
+  clearCoverCache: () => Promise<IpcResponse<void>>
 }
 
 declare global {

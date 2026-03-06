@@ -325,6 +325,7 @@ const downloads = {
   removeFromQueue: (chapterId: string) =>
     ipcRenderer.invoke('download:remove-from-queue', chapterId),
   clearQueue: () => ipcRenderer.invoke('download:clear-queue'),
+  clearCoverCache: () => ipcRenderer.invoke('download:clear-cover-cache'),
   deleteManga: (mangaId: string) => ipcRenderer.invoke('download:delete-manga', mangaId),
   batchDeleteManga: (mangaIds: string[]) =>
     ipcRenderer.invoke('download:batch-delete-manga', mangaIds),

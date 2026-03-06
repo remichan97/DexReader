@@ -6,4 +6,5 @@ export interface DownloadSettings {
   maxConcurrentDownloads: number
   shouldConfirmDownload: DownloadConfirmation
   defaultQuality: ImageQuality
+  maxDiskCacheSize: number // in bytes, maximum size of the caching for cover cache, set 0 for unlimited
 }

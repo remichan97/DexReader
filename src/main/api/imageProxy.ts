@@ -1,5 +1,6 @@
 import { net, protocol } from 'electron'
 import { ApiConfig } from './constants/api-config.constant'
+import { diskCacheUtil } from './utils/disk-cache.util'
 
 interface CacheEntry {
   buffer: Buffer
@@ -44,6 +45,19 @@ export class ImageProxy {
         }
       }
 
+      // If this is a cover image, check disk cache before network
+      if (isCover) {
+        const diskCachedBuffer = await diskCacheUtil.loadCoverFromDisk(url)
+        if (diskCachedBuffer) {
+          // Add to in-memory cache for faster subsequent access
+          this.addToCoverCache(url, diskCachedBuffer)
+
+          return new Response(diskCachedBuffer.buffer as ArrayBuffer, {
+            headers: { 'Content-Type': this.getContentType(url), 'Cache-Control': 'no-store' }
+          })
+        }
+      }
+
       // Fetch from network
       try {
         const response = await net.fetch(url, {
@@ -59,6 +73,7 @@ export class ImageProxy {
         // Cache the image
         if (isCover) {
           this.addToCoverCache(url, buffer)
+          await diskCacheUtil.saveCoverToDisk(url, buffer) // Save cover to disk cache as well
         } else if (buffer.length < 5 * 1024 * 1024) {
           // Only cache chapter images < 5MB
           this.addToChapterCache(url, buffer)

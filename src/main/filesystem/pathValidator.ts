@@ -5,13 +5,15 @@ import fs from 'node:fs/promises'
 interface IAllowedPath {
   appData: string
   downloads: string
+  cachedCover: string
 }
 
 // Define allowed paths
 // By default, allow app data and a downloads folder within app data
 const allowedPaths: IAllowedPath = {
   appData: path.join(app.app.getPath('userData'), 'dexreader'),
-  downloads: path.join(app.app.getPath('userData'), 'dexreader', 'downloads')
+  downloads: path.join(app.app.getPath('userData'), 'dexreader', 'downloads'),
+  cachedCover: path.join(app.app.getPath('userData'), 'dexreader', 'cached', 'covers')
 }
 
 // Get the application data path
@@ -22,6 +24,10 @@ export function getAppDataPath(): string {
 // Get the downloads path
 export function getDownloadsPath(): string {
   return allowedPaths.downloads
+}
+
+export function getCachedCoverPath(): string {
+  return allowedPaths.cachedCover
 }
 
 // Update the downloads path in memory (should be called by settingsManager after validation)
@@ -70,6 +76,11 @@ function isPathAllowed(inputPath: string): boolean {
   // If downloads path is outside appData (custom location), check it separately
   // Note: This ensures we only allow the exact downloads directory tree, not parent directories
   if (normalizedInputPath.startsWith(allowedPaths.downloads)) {
+    return true
+  }
+
+  // Cover caching folder, this isn't changed, and won't be changed by users, but we want to ensure it's always allowed
+  if (normalizedInputPath.startsWith(allowedPaths.cachedCover)) {
     return true
   }
 

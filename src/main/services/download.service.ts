@@ -22,6 +22,7 @@ import { getSettingByPath } from '../settings/settingsManager'
 import { StorageData } from './data/storage.data'
 import { DeleteMangaResult } from './results/dexreader/delete-manga.result'
 import { DownloadStatResult } from './results/dexreader/download-stats.result'
+import { diskCacheUtil } from '../api/utils/disk-cache.util'
 
 export class NativeDownloadService {
   private readonly mangadexClient = new MangaDexClient()
@@ -241,6 +242,11 @@ export class NativeDownloadService {
     })
 
     return completedDownloads.length
+  }
+
+  // I rather have this here, than exposing the proxy to the IPC layer just for this
+  async emptyDiskCache(): Promise<void> {
+    await diskCacheUtil.emptyDiskCoverCache()
   }
 
   private async downloadChapterImages(
