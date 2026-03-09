@@ -29,16 +29,17 @@ export function OfflineStatusBar(): JSX.Element | null {
           <WifiOff24Regular className="offline-status-bar__icon" />
         )}
 
-        <div className="offline-status-bar__text">
-          <span className="offline-status-bar__title">
-            {isUserInitiated ? "You're offline" : 'No internet'}
-          </span>
-          <span className="offline-status-bar__message">
-            {isUserInitiated
-              ? 'Only showing downloaded stuff.'
-              : "Can't connect right now. Downloaded content still works though."}
-          </span>
-        </div>
+        <span className="offline-status-bar__text">
+          {isUserInitiated ? (
+            <>
+              <strong>You're offline</strong> — Only downloaded content is available
+            </>
+          ) : (
+            <>
+              <strong>No internet</strong> — Downloaded content still works
+            </>
+          )}
+        </span>
       </div>
 
       <div className="offline-status-bar__actions">

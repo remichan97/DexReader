@@ -3,9 +3,9 @@ import './InfoBar.css'
 
 export interface InfoBarProps {
   /**
-   * Text to display in the info bar
+   * Text to display in the info bar (can be string or JSX)
    */
-  readonly text: string
+  readonly text: ReactNode
 
   /**
    * Action buttons or elements to display on the right

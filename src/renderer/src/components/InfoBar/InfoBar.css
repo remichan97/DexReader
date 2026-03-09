@@ -43,9 +43,14 @@
 
 .info-bar__text {
   font-size: 13px;
-  font-weight: 500;
+  font-weight: normal;
   color: var(--win-text-secondary);
-  line-height: 1.5;
+  line-height: 1.4;
+}
+
+.info-bar__text strong {
+  font-weight: 600;
+  color: var(--win-text-primary);
 }
 
 .info-bar__actions {
