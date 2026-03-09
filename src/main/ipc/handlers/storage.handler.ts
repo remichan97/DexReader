@@ -31,6 +31,6 @@ export function registerStorageHandlers(): void {
       throw new RangeError('Cover cache limit must be between 10 MB and 500 MB')
     }
 
-    return await setSettingByPath('downloads', 'maxDiskCacheSize', limit)
+    return await setSettingByPath('downloads', 'maxDiskCacheSize', byteLimit)
   })
 }

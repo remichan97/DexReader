@@ -30,7 +30,7 @@ import { ChapterWithMetadata } from '../main/database/queries/manga/chapter-with
 import type { ChapterDownloadQuery } from '../main/database/queries/chapter-downloads/chapter-downloads.query'
 import { ReadHistoryEntry } from '../main/database/queries/read-history/read-history.query'
 import type { ChapterDownloadsEvent } from '../main/services/events/chapter-downloads.event'
-import type { MangaCacheStatsQuery } from '../main/database/queries/chapter-downloads/manga-cache-stats.query'
+import type { MangaCacheStatsQuery } from '../main/database/queries/manga/manga-cache-stats.query'
 
 // Database commands
 import { CreateCollectionCommand } from '../main/database/commands/collections/create-collection.command'
@@ -103,7 +103,7 @@ export type { DeleteMangaResult } from '../main/services/results/dexreader/delet
 export type { CollectionEntity } from '../main/database/schema/collections.schema'
 export type { AppSettings } from '../main/settings/entity/app-settings.entity'
 export type { DownloadStatResult } from '../main/services/results/dexreader/download-stats.result'
-export type { MangaCacheStatsQuery } from '../main/database/queries/chapter-downloads/manga-cache-stats.query'
+export type { MangaCacheStatsQuery } from '../main/database/queries/manga/manga-cache-stats.query'
 
 interface MenuState {
   canAddToFavorites?: boolean
