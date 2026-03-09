@@ -10,11 +10,7 @@
 
 /* User-initiated offline mode - informational (blue) */
 .offline-status-bar[data-type='user'] {
-  background: linear-gradient(
-    to right,
-    var(--win-info-tint),
-    transparent
-  );
+  background: linear-gradient(to right, var(--win-info-tint), transparent);
   border-bottom: 2px solid var(--win-info);
 }
 
@@ -28,11 +24,7 @@
 
 /* System no internet - warning (yellow/orange) */
 .offline-status-bar[data-type='system'] {
-  background: linear-gradient(
-    to right,
-    var(--win-warning-tint),
-    transparent
-  );
+  background: linear-gradient(to right, var(--win-warning-tint), transparent);
   border-bottom: 2px solid var(--win-warning);
 }
 
