@@ -67,6 +67,20 @@ export function isDownloadsSettings(values: unknown): values is DownloadSettings
     return false
   }
 
+  // Validate the maxDiskCacheSize is a non-negative integer, allowing 0 for unlimited, if larger than 0, it should be around 10MB to 500MB
+  if (
+    !Number.isInteger(downloadsSettings.maxDiskCacheSize) ||
+    downloadsSettings.maxDiskCacheSize < 0 ||
+    (downloadsSettings.maxDiskCacheSize > 0 &&
+      (downloadsSettings.maxDiskCacheSize < 10 * 1024 * 1024 ||
+        downloadsSettings.maxDiskCacheSize > 500 * 1024 * 1024))
+  ) {
+    console.error(
+      'Refused to save download settings: maxDiskCacheSize must be a non-negative integer, or between 10MB and 500MB. If you mean to set it to unlimited, please set it to 0.'
+    )
+    return false
+  }
+
   // Validate maxConcurrentDownloads is integer within reasonable range (1-10)
   if (
     !Number.isInteger(downloadsSettings.maxConcurrentDownloads) ||
