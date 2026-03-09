@@ -21,6 +21,7 @@ import {
 import { DexReaderImportDialog } from '@renderer/components/DexReaderImportDialog'
 import type { DexReaderImportResult } from '../../../../preload/index.d'
 import { useLibraryStore, useCollectionsStore, useToastStore } from '@renderer/stores'
+import { useConnectivityStore } from '@renderer/stores/connectivityStore'
 import { handleUnfavourite } from '@renderer/utils/unfavouriteHandler'
 
 // ImportResult interface matches src/main/services/results/import.result.ts
@@ -168,6 +169,10 @@ export function LibraryView(): JSX.Element {
   const { collections, loadCollections, createCollection, updateCollection, deleteCollection } =
     useCollectionsStore()
   const show = useToastStore((state) => state.show)
+  const isOnline = useConnectivityStore((state) => state.isOnline)
+
+  // Offline state - track downloaded manga IDs
+  const [downloadedMangaIds, setDownloadedMangaIds] = useState<Set<string>>(new Set())
 
   // Load manga IDs for all collections
   const loadCollectionManga = async (): Promise<void> => {
@@ -188,6 +193,28 @@ export function LibraryView(): JSX.Element {
     loadFavourites()
     loadCollections()
   }, [loadFavourites, loadCollections])
+
+  // Load downloaded manga IDs when going offline
+  useEffect(() => {
+    const loadDownloadedManga = async (): Promise<void> => {
+      if (!isOnline) {
+        try {
+          const response = await globalThis.library.getDownloadedManga()
+          if (response.success && response.data) {
+            const ids = new Set(response.data.map((m) => m.mangaId))
+            setDownloadedMangaIds(ids)
+          } else {
+            setDownloadedMangaIds(new Set())
+          }
+        } catch (error) {
+          console.error('Failed to load downloaded manga:', error)
+          setDownloadedMangaIds(new Set())
+        }
+      }
+    }
+
+    void loadDownloadedManga()
+  }, [isOnline])
 
   // Load manga IDs for all collections when collections change
   useEffect(() => {
@@ -434,6 +461,16 @@ export function LibraryView(): JSX.Element {
   }
 
   const handleCheckUpdates = async (): Promise<void> => {
+    if (!isOnline) {
+      show({
+        title: "You're offline",
+        message: 'Check for updates requires an internet connection',
+        variant: 'warning',
+        duration: 3000
+      })
+      return
+    }
+
     if (favourites.length === 0) {
       show({
         title: 'No manga in library',
@@ -627,8 +664,19 @@ export function LibraryView(): JSX.Element {
   }
 
   const filterManga = (manga: MangaItem[]): MangaItem[] => {
-    if (!searchQuery) return manga
-    return manga.filter((m) => m.title.toLowerCase().includes(searchQuery.toLowerCase()))
+    let filtered = manga
+
+    // Filter to downloaded-only when offline
+    if (!isOnline) {
+      filtered = filtered.filter((m) => downloadedMangaIds.has(m.mangaId))
+    }
+
+    // Apply search query if present
+    if (searchQuery) {
+      filtered = filtered.filter((m) => m.title.toLowerCase().includes(searchQuery.toLowerCase()))
+    }
+
+    return filtered
   }
 
   const filteredAll = filterManga(favourites)
@@ -677,8 +725,9 @@ export function LibraryView(): JSX.Element {
           size="medium"
           icon={<ArrowClockwise24Regular />}
           onClick={handleCheckUpdates}
+          disabled={!isOnline}
           aria-label="Check for updates"
-          title="Check for updates (Ctrl+Shift+U)"
+          title={!isOnline ? 'Check for updates (offline)' : 'Check for updates (Ctrl+Shift+U)'}
           style={{ height: '35px' }}
         />
       </div>
@@ -855,7 +904,9 @@ export function LibraryView(): JSX.Element {
                     message={
                       searchQuery
                         ? "Can't find what you're looking for..."
-                        : 'Nothing here yet! Start adding some manga from Browse.'
+                        : !isOnline
+                          ? 'No downloaded manga. Go online to download manga for offline reading.'
+                          : 'Nothing here yet! Start adding some manga from Browse.'
                     }
                     isSearchResult={!!searchQuery}
                   />
@@ -907,7 +958,9 @@ export function LibraryView(): JSX.Element {
                   message={
                     searchQuery
                       ? "Can't find what you're looking for..."
-                      : 'Nothing here yet! Start adding some manga from Browse.'
+                      : !isOnline
+                        ? 'No downloaded manga. Go online to download manga for offline reading.'
+                        : 'Nothing here yet! Start adding some manga from Browse.'
                   }
                   isSearchResult={!!searchQuery}
                 />

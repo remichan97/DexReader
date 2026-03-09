@@ -159,6 +159,18 @@ export const useSearchStore = create<SearchState>((set, get) => ({
       return
     }
 
+    // Check if online before making API call
+    const { useConnectivityStore } = await import('./connectivityStore')
+    const isOnline = useConnectivityStore.getState().isOnline
+
+    if (!isOnline) {
+      set({
+        loading: false,
+        error: new Error("You're offline. Search is only available when connected to the internet.")
+      })
+      return
+    }
+
     try {
       set({
         loading: true,
@@ -246,6 +258,20 @@ export const useSearchStore = create<SearchState>((set, get) => ({
     const nextOffset = state.offset + state.limit
     if (nextOffset >= MAX_RESULTS_LIMIT) {
       set({ hasMore: false })
+      return
+    }
+
+    // Check if online before making API call
+    const { useConnectivityStore } = await import('./connectivityStore')
+    const isOnline = useConnectivityStore.getState().isOnline
+
+    if (!isOnline) {
+      set({
+        loadingMore: false,
+        loadMoreError: new Error(
+          "You're offline. Search is only available when connected to the internet."
+        )
+      })
       return
     }
 

@@ -1,10 +1,12 @@
 import type { JSX } from 'react'
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
-import { ArrowLeftRegular, Warning48Regular } from '@fluentui/react-icons'
+import { ArrowLeftRegular, Warning48Regular, CloudOff48Regular } from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
 import { Skeleton } from '@renderer/components/Skeleton'
+import { InfoBar } from '@renderer/components/InfoBar'
 import { useProgressStore } from '@renderer/stores/progressStore'
+import { useConnectivityStore } from '@renderer/stores/connectivityStore'
 import { getMangaTitle } from '@renderer/utils/mangaHelpers'
 import { cacheMangaMetadata } from '@renderer/utils/mangaCache'
 import MangaHeroSection from './components/MangaHeroSection'
@@ -13,22 +15,15 @@ import ExternalLinksSection from './components/ExternalLinksSection'
 import AlternativeTitlesSection from './components/AlternativeTitlesSection'
 import ChapterList from './components/ChapterList'
 import './MangaDetailView.css'
-import type { ChapterProgress } from '../../../../preload/index.d'
+import type {
+  ChapterProgress,
+  MangaWithMetadata,
+  ChapterWithMetadata
+} from '../../../../preload/index.d'
 
 // Extract types from global window interface
 type MangaEntity = Awaited<ReturnType<Window['mangadex']['getManga']>>['data']
 type ChapterEntity = Awaited<ReturnType<Window['mangadex']['getMangaFeed']>>['data'][number]
-
-// Module-level cache to persist data across component remounts
-const mangaCache = new Map<
-  string,
-  {
-    manga: MangaEntity
-    chapters: ChapterEntity[]
-    selectedLanguage: string
-    chapterSort: 'asc' | 'desc'
-  }
->()
 
 interface MangaDetailViewState {
   manga: MangaEntity | null
@@ -44,6 +39,7 @@ interface MangaDetailViewState {
     string,
     NonNullable<Awaited<ReturnType<Window['progress']['getAllChapterProgress']>>['data']>[number]
   >
+  usingCachedData: boolean // Flag to indicate we're showing database cache instead of live API data
 }
 
 /**
@@ -51,25 +47,27 @@ interface MangaDetailViewState {
  *
  * Displays full manga information including cover, description, tags,
  * and complete chapter list with filtering and sorting.
+ *
+ * Uses database-first approach: Always checks database cache first,
+ * then fetches from API if online to update the cache.
  */
 export function MangaDetailView(): JSX.Element {
   const { mangaId } = useParams<{ mangaId: string }>()
   const navigate = useNavigate()
   const location = useLocation()
 
-  // Initialize state from cache if available
-  const cachedData = mangaId ? mangaCache.get(mangaId) : null
   const [state, setState] = useState<MangaDetailViewState>({
-    manga: cachedData?.manga || null,
-    chapters: cachedData?.chapters || [],
-    loading: !cachedData, // Don't show loading if we have cached data
+    manga: null,
+    chapters: [],
+    loading: true,
     error: null,
-    selectedLanguage: cachedData?.selectedLanguage || 'en',
-    chapterSort: cachedData?.chapterSort || 'asc',
+    selectedLanguage: 'en',
+    chapterSort: 'asc',
     chaptersLoading: false,
     chaptersError: null,
     progress: null,
-    chapterProgress: new Map()
+    chapterProgress: new Map(),
+    usingCachedData: false
   })
   const [showMainErrorDetails, setShowMainErrorDetails] = useState<boolean>(false)
   const [showChapterErrorDetails, setShowChapterErrorDetails] = useState<boolean>(false)
@@ -79,6 +77,7 @@ export function MangaDetailView(): JSX.Element {
   // Progress tracking
   const loadProgress = useProgressStore((state) => state.loadProgress)
   const progressMap = useProgressStore((state) => state.progressMap)
+  const isOnline = useConnectivityStore((state) => state.isOnline)
 
   // Load manga details and chapters on mount
   useEffect(() => {
@@ -87,10 +86,8 @@ export function MangaDetailView(): JSX.Element {
       return
     }
 
-    // Only load if we don't have data for this manga yet (cache behavior)
-    if (state.manga?.id !== mangaId) {
-      loadMangaDetails(mangaId)
-    }
+    // Always load manga data (database first, then API if online)
+    loadMangaDetails(mangaId)
 
     // Load progress for this manga
     loadProgress(mangaId)
@@ -151,6 +148,16 @@ export function MangaDetailView(): JSX.Element {
     return undefined // Explicit return for no cleanup
   }, [state.manga])
 
+  // Retry loading when coming back online if there was an offline error
+  useEffect(() => {
+    if (isOnline && state.error?.message.toLowerCase().includes('offline')) {
+      if (mangaId) {
+        loadMangaDetails(mangaId)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOnline, mangaId])
+
   /**
    * Load chapter progress for all chapters of this manga
    */
@@ -170,116 +177,238 @@ export function MangaDetailView(): JSX.Element {
   }
 
   /**
-   * Fetch manga details and chapter list from API
+   * Convert database MangaWithMetadata to API MangaEntity format for display
+   * This creates a minimal manga entity that can be displayed in degraded mode
+   */
+  const convertDbToMangaEntity = (dbManga: MangaWithMetadata): MangaEntity => {
+    // Create a minimal manga entity structure
+    return {
+      id: dbManga.mangaId,
+      type: 'manga',
+      attributes: {
+        title: { en: dbManga.title },
+        altTitles: [],
+        description: dbManga.description ? { en: dbManga.description } : {},
+        isLocked: false,
+        links: dbManga.externalLinks || {},
+        originalLanguage: 'ja',
+        lastVolume: dbManga.lastVolume,
+        lastChapter: dbManga.lastChapter,
+        publicationDemographic: null,
+        status: dbManga.status,
+        year: dbManga.year,
+        contentRating: 'safe',
+        tags: [],
+        state: 'published',
+        chapterNumbersResetOnNewVolume: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: dbManga.updatedAt.toISOString(),
+        version: 1,
+        availableTranslatedLanguages: []
+      },
+      relationships: [
+        ...(dbManga.coverUrl
+          ? [
+              {
+                id: 'cached-cover',
+                type: 'cover_art' as const,
+                attributes: { fileName: dbManga.coverUrl.split('/').pop() || '' }
+              }
+            ]
+          : []),
+        ...dbManga.authors.map((author, index) => ({
+          id: `cached-author-${index}`,
+          type: 'author' as const,
+          attributes: { name: author }
+        })),
+        ...dbManga.artists.map((artist, index) => ({
+          id: `cached-artist-${index}`,
+          type: 'artist' as const,
+          attributes: { name: artist }
+        }))
+      ]
+    } as MangaEntity
+  }
+
+  /**
+   * Convert database ChapterWithMetadata[] to API ChapterEntity[] format
+   */
+  const convertDbToChapterEntities = (dbChapters: ChapterWithMetadata[]): ChapterEntity[] => {
+    return dbChapters.map(
+      (ch) =>
+        ({
+          id: ch.chapterId,
+          type: 'chapter',
+          attributes: {
+            title: ch.title,
+            volume: ch.volume,
+            chapter: ch.chapterNumber,
+            pages: 0,
+            translatedLanguage: ch.language,
+            uploader: 'unknown',
+            externalUrl: ch.externalUrl,
+            version: 1,
+            createdAt: ch.createdAt.toISOString(),
+            updatedAt: ch.updatedAt.toISOString(),
+            publishAt: ch.publishedAt.toISOString(),
+            readableAt: ch.publishedAt.toISOString()
+          },
+          relationships: ch.scanlatorGroup
+            ? [
+                {
+                  id: 'cached-group',
+                  type: 'scanlation_group' as const,
+                  attributes: { name: ch.scanlatorGroup }
+                }
+              ]
+            : []
+        }) as ChapterEntity
+    )
+  }
+
+  /**
+   * Fetch manga details from database first, then from API if online
+   * Database-first approach ensures offline functionality with cached data
    */
   const loadMangaDetails = async (id: string): Promise<void> => {
     setState((prev) => ({ ...prev, loading: true, error: null }))
 
+    // Step 1: Always check database first (works offline and online)
+    let foundInDb = false
     try {
-      // Fetch manga with relationships (IPC wrapped response)
-      const mangaResponse = await globalThis.mangadex.getManga(id, [
-        'cover_art',
-        'author',
-        'artist'
+      const [dbMangaResult, dbChaptersResult] = await Promise.all([
+        globalThis.library.getMangaById(id),
+        globalThis.library.getCachedChapters(id)
       ])
 
-      // Check IPC success
-      if (!mangaResponse.success || !mangaResponse.data) {
-        throw new Error(mangaResponse.error?.message || 'Failed to fetch manga')
-      }
+      if (dbMangaResult.success && dbMangaResult.data) {
+        foundInDb = true
+        const dbManga = dbMangaResult.data
+        const dbChapters = dbChaptersResult.success ? dbChaptersResult.data || [] : []
 
-      // Check API result
-      if (mangaResponse.data.result === 'error') {
-        throw new Error('Failed to fetch manga from API')
-      }
+        // Convert database data to display format
+        const mangaEntity = convertDbToMangaEntity(dbManga)
+        const chapterEntities = convertDbToChapterEntities(dbChapters)
 
-      const manga = mangaResponse.data.data
+        // Determine language from cached chapters
+        const languages = [...new Set(dbChapters.map((ch) => ch.language))]
+        const initialLanguage = languages.includes('en') ? 'en' : languages[0] || 'en'
 
-      // Opportunistic caching: Save minimal manga metadata to database
-      // This ensures manga records exist for FK constraints when saving progress/favorites
-      try {
-        await cacheMangaMetadata(manga)
-      } catch (cacheError) {
-        // Non-critical: Log error but don't block UI
-        console.warn('Failed to cache manga metadata:', cacheError)
-      }
-
-      // Get available languages from manga
-      const availableLanguages =
-        (manga.attributes as { availableTranslatedLanguages?: string[] })
-          .availableTranslatedLanguages || []
-
-      // Determine initial language (prefer English if available, otherwise first available)
-      const initialLanguage = availableLanguages.includes('en')
-        ? 'en'
-        : availableLanguages[0] || 'en'
-
-      // Set manga data first (allow view to render even if chapters fail)
-      setState((prev) => ({
-        ...prev,
-        manga: manga,
-        selectedLanguage: initialLanguage,
-        loading: false,
-        chaptersLoading: true,
-        chaptersError: null
-      }))
-
-      // Fetch initial chapter list for selected language
-      try {
-        const chaptersResponse = await globalThis.mangadex.getMangaFeed(id, {
-          limit: 100,
-          offset: 0,
-          translatedLanguage: [initialLanguage],
-          order: { chapter: 'asc' },
-          includes: ['scanlation_group']
-        })
-
-        // Check IPC success
-        if (!chaptersResponse.success || !chaptersResponse.data) {
-          throw new Error(chaptersResponse.error?.message || 'Failed to fetch chapters')
-        }
-
-        // Check API result
-        if (chaptersResponse.data.result === 'error') {
-          throw new Error('Failed to fetch chapters from API')
-        }
-
-        setState((prev) => {
-          const newState = {
-            ...prev,
-            chapters: chaptersResponse.data.data,
-            chaptersLoading: false,
-            chaptersError: null
-          }
-
-          // Update cache
-          if (manga) {
-            mangaCache.set(id, {
-              manga: manga,
-              chapters: chaptersResponse.data.data,
-              selectedLanguage: initialLanguage,
-              chapterSort: 'asc'
-            })
-          }
-
-          return newState
-        })
-      } catch (chapterError) {
-        console.error('Failed to load chapters:', chapterError)
+        // Update state with cached data
         setState((prev) => ({
           ...prev,
-          chapters: [],
+          manga: mangaEntity,
+          chapters: chapterEntities,
+          selectedLanguage: initialLanguage,
+          loading: false,
+          usingCachedData: !isOnline, // Only show cached data indicator if offline
           chaptersLoading: false,
-          chaptersError:
-            chapterError instanceof Error ? chapterError : new Error(String(chapterError))
+          chaptersError: null
         }))
+
+        // If we have downloads, show appropriate message
+        if (!isOnline && dbManga.hasDownloads) {
+          console.log(
+            `Showing cached data for ${dbManga.title} (${dbManga.downloadedChapterCount} downloads)`
+          )
+        }
       }
-    } catch (error) {
-      console.error('Failed to load manga details:', error)
+    } catch (dbError) {
+      console.warn('Failed to load from database:', dbError)
+    }
+
+    // Step 2: If online, fetch from API to update (works in background if we have DB data)
+    if (isOnline) {
+      try {
+        const mangaResponse = await globalThis.mangadex.getManga(id, [
+          'cover_art',
+          'author',
+          'artist'
+        ])
+
+        if (!mangaResponse.success || !mangaResponse.data) {
+          throw new Error(mangaResponse.error?.message || 'Failed to fetch manga')
+        }
+
+        if (mangaResponse.data.result === 'error') {
+          throw new Error('Failed to fetch manga from API')
+        }
+
+        const manga = mangaResponse.data.data
+
+        // Cache to database for future offline use
+        try {
+          await cacheMangaMetadata(manga)
+        } catch (cacheError) {
+          console.warn('Failed to cache manga metadata:', cacheError)
+        }
+
+        // Get available languages
+        const availableLanguages =
+          (manga.attributes as { availableTranslatedLanguages?: string[] })
+            .availableTranslatedLanguages || []
+        const initialLanguage = availableLanguages.includes('en')
+          ? 'en'
+          : availableLanguages[0] || 'en'
+
+        // Update state with live API data
+        setState((prev) => ({
+          ...prev,
+          manga,
+          selectedLanguage: initialLanguage,
+          loading: false,
+          usingCachedData: false,
+          chaptersLoading: true,
+          chaptersError: null
+        }))
+
+        // Fetch chapters
+        try {
+          const chaptersResponse = await globalThis.mangadex.getMangaFeed(id, {
+            limit: 100,
+            offset: 0,
+            translatedLanguage: [initialLanguage],
+            order: { chapter: 'asc' },
+            includes: ['scanlation_group']
+          })
+
+          if (chaptersResponse.success && chaptersResponse.data.result !== 'error') {
+            setState((prev) => ({
+              ...prev,
+              chapters: chaptersResponse.data.data,
+              chaptersLoading: false,
+              chaptersError: null
+            }))
+          }
+        } catch (chapterError) {
+          console.error('Failed to load chapters:', chapterError)
+          setState((prev) => ({
+            ...prev,
+            chaptersLoading: false,
+            chaptersError:
+              chapterError instanceof Error ? chapterError : new Error(String(chapterError))
+          }))
+        }
+      } catch (apiError) {
+        // Only show API error if we don't have database data
+        if (!foundInDb) {
+          console.error('Failed to load manga from API:', apiError)
+          setState((prev) => ({
+            ...prev,
+            error: apiError instanceof Error ? apiError : new Error(String(apiError)),
+            loading: false
+          }))
+        } else {
+          console.warn('API fetch failed, continuing with cached data:', apiError)
+          // Keep cached data, just log the warning
+        }
+      }
+    } else if (!foundInDb) {
+      // Offline and no database cache - show error
       setState((prev) => ({
         ...prev,
-        error: error instanceof Error ? error : new Error(String(error)),
-        loading: false
+        loading: false,
+        error: new Error("You're offline and this manga isn't cached. Go online to view it.")
       }))
     }
   }
@@ -289,6 +418,17 @@ export function MangaDetailView(): JSX.Element {
    */
   const loadChaptersForLanguage = async (language: string): Promise<void> => {
     if (!mangaId) return
+
+    if (!isOnline) {
+      setState((prev) => ({
+        ...prev,
+        chaptersLoading: false,
+        chaptersError: new Error(
+          "You're offline. Changing language or refreshing chapters requires an internet connection."
+        )
+      }))
+      return
+    }
 
     setState((prev) => ({ ...prev, chaptersLoading: true, chaptersError: null }))
 
@@ -311,27 +451,14 @@ export function MangaDetailView(): JSX.Element {
         throw new Error('Failed to fetch chapters from API')
       }
 
-      setState((prev) => {
-        const newState = {
-          ...prev,
-          chapters: chaptersResponse.data.data,
-          selectedLanguage: language,
-          chaptersLoading: false,
-          chaptersError: null
-        }
-
-        // Update cache
-        if (prev.manga && mangaId) {
-          mangaCache.set(mangaId, {
-            manga: prev.manga,
-            chapters: chaptersResponse.data.data,
-            selectedLanguage: language,
-            chapterSort: prev.chapterSort
-          })
-        }
-
-        return newState
-      })
+      setState((prev) => ({
+        ...prev,
+        chapters: chaptersResponse.data.data,
+        selectedLanguage: language,
+        chaptersLoading: false,
+        chaptersError: null,
+        usingCachedData: false // Clear cached data flag when getting fresh data
+      }))
     } catch (error) {
       console.error('Failed to load chapters for language:', error)
       setState((prev) => ({
@@ -366,6 +493,8 @@ export function MangaDetailView(): JSX.Element {
 
   // Render error state
   if (state.error) {
+    const isOfflineError = state.error.message.toLowerCase().includes('offline')
+
     return (
       <div className="manga-detail-view">
         <div className="manga-detail-view__back-button">
@@ -376,25 +505,36 @@ export function MangaDetailView(): JSX.Element {
         <div className="manga-detail-error">
           <div className="error-recovery">
             <div className="error-recovery__icon">
-              <Warning48Regular />
+              {isOfflineError ? <CloudOff48Regular /> : <Warning48Regular />}
             </div>
-            <h3 className="error-recovery__title">Couldn&apos;t load this manga</h3>
+            <h3 className="error-recovery__title">
+              {isOfflineError ? "You're offline" : "Couldn't load this manga"}
+            </h3>
             <p className="error-recovery__message">
-              Something went wrong while trying to fetch this manga. It might be unavailable,
-              deleted, or there could be a connection issue.
+              {isOfflineError
+                ? state.error.message
+                : 'Something went wrong while trying to fetch this manga. It might be unavailable, deleted, or there could be a connection issue.'}
             </p>
             <div className="error-recovery__actions">
-              <Button variant="primary" onClick={handleRetry}>
-                Try Again
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => setShowMainErrorDetails(!showMainErrorDetails)}
-              >
-                {showMainErrorDetails ? 'Hide' : 'Show'} technical details
-              </Button>
+              {isOfflineError ? (
+                <Button variant="primary" onClick={() => navigate('/library')}>
+                  Go to Library
+                </Button>
+              ) : (
+                <>
+                  <Button variant="primary" onClick={handleRetry}>
+                    Try Again
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setShowMainErrorDetails(!showMainErrorDetails)}
+                  >
+                    {showMainErrorDetails ? 'Hide' : 'Show'} technical details
+                  </Button>
+                </>
+              )}
             </div>
-            {showMainErrorDetails && state.error && (
+            {!isOfflineError && showMainErrorDetails && state.error && (
               <div className="error-recovery__technical-details">
                 <div>
                   <strong>Error:</strong> {state.error.message}
@@ -446,6 +586,17 @@ export function MangaDetailView(): JSX.Element {
           <span className="manga-detail-view__sticky-title">{getMangaTitle(state.manga)}</span>
         )}
       </div>
+
+      {/* Cached data indicator */}
+      {state.usingCachedData && (
+        <InfoBar
+          text={
+            <>
+              <strong>Viewing cached data</strong> — Some features require an internet connection
+            </>
+          }
+        />
+      )}
 
       {/* Hero section - Cover + Metadata */}
       <MangaHeroSection manga={state.manga} chapters={state.chapters} progress={state.progress} />

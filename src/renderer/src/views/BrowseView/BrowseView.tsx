@@ -1,14 +1,19 @@
 import type { JSX } from 'react'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Warning48Regular } from '@fluentui/react-icons'
+import { Warning48Regular, CloudOff48Regular } from '@fluentui/react-icons'
 import { SearchBar } from '@renderer/components/SearchBar'
 import { FilterPanel } from '@renderer/components/FilterPanel'
 import { MangaCard } from '@renderer/components/MangaCard'
 import { SkeletonGrid } from '@renderer/components/Skeleton'
 import { Button } from '@renderer/components/Button'
 import { InfoBar } from '@renderer/components/InfoBar'
-import { useSearchStore, useLibraryStore, useToastStore } from '@renderer/stores'
+import {
+  useSearchStore,
+  useLibraryStore,
+  useToastStore,
+  useConnectivityStore
+} from '@renderer/stores'
 import { PublicationStatus, DEFAULT_FILTERS } from '@renderer/stores/searchStore'
 import {
   getCoverImageUrl,
@@ -45,6 +50,7 @@ export function BrowseView(): JSX.Element {
   // Library store for favorite management
   const { isFavourite, toggleFavourite, loadFavourites } = useLibraryStore()
   const showToast = useToastStore((state) => state.show)
+  const isOnline = useConnectivityStore((state) => state.isOnline)
 
   // Hide filters by default - users reveal when needed
   const [showFilters, setShowFilters] = useState(false)
@@ -140,6 +146,14 @@ export function BrowseView(): JSX.Element {
     }
   }, [handleIntersection])
 
+  // Clear offline errors and retry search when going online
+  useEffect(() => {
+    if (isOnline && error?.message.toLowerCase().includes('offline')) {
+      // User just came back online, retry the search
+      search()
+    }
+  }, [isOnline, error, search])
+
   const handleSearch = (newQuery: string): void => {
     setQuery(newQuery)
     search()
@@ -234,6 +248,30 @@ export function BrowseView(): JSX.Element {
     setFilters(DEFAULT_FILTERS)
     setQuery('')
     search()
+  }
+
+  // Early return for offline state
+  if (!isOnline) {
+    return (
+      <div className="browse-view">
+        <div className="browse-view__header">
+          <h1>Browse</h1>
+        </div>
+        <div className="browse-view__offline-message">
+          <CloudOff48Regular style={{ opacity: 0.3, marginBottom: '12px' }} />
+          <h2>You're offline</h2>
+          <p>Browse and search require an internet connection.</p>
+          <p>Check out your Library to read downloaded manga.</p>
+          <Button
+            variant="primary"
+            onClick={() => navigate('/library')}
+            style={{ marginTop: '16px' }}
+          >
+            Go to Library
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   return (

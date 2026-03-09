@@ -98,7 +98,15 @@ export function useChapterData(
             quality: imageQuality
           }))
         } else {
-          // Chapter not downloaded - fetch from MangaDex API
+          // Chapter not downloaded - check if online before fetching from MangaDex API
+          const { useConnectivityStore } = await import('@renderer/stores/connectivityStore')
+          const isOnline = useConnectivityStore.getState().isOnline
+
+          if (!isOnline) {
+            throw new Error("This chapter isn't downloaded. You need to be online to read it.")
+          }
+
+          // Fetch from MangaDex API
           const response = await globalThis.window.mangadex.getChapterImages(id, imageQuality)
 
           // Check IPC response wrapper
@@ -179,6 +187,16 @@ export function useChapterData(
       setData((prev) => ({ ...prev, chaptersLoading: true }))
 
       try {
+        // Check if online before fetching chapter list
+        const { useConnectivityStore } = await import('@renderer/stores/connectivityStore')
+        const isOnline = useConnectivityStore.getState().isOnline
+
+        if (!isOnline) {
+          console.warn('Cannot load chapter list - offline')
+          setData((prev) => ({ ...prev, chaptersLoading: false }))
+          return
+        }
+
         const chaptersResponse = await globalThis.mangadex.getMangaFeed(mangaIdParam, {
           limit: 500,
           offset: 0,

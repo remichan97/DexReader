@@ -6,8 +6,10 @@ import { useNavigationListener } from './hooks/useNavigationListener'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useAccentColor } from './hooks/useAccentColor'
 import { useIncognitoListener } from './hooks/useIncognitoListener'
+import { useConnectivityListener } from './hooks/useConnectivityListener'
 import { ToastContainer } from './components/Toast'
 import { useToastStore, useProgressStore, useLibraryStore } from './stores'
+import { useConnectivityStore } from './stores/connectivityStore'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { ProgressRing } from './components/ProgressRing'
 
@@ -16,6 +18,8 @@ function AppContent(): React.JSX.Element {
   const isReaderRoute = location.pathname.startsWith('/reader/')
   const flushPendingSaves = useProgressStore((state) => state.flushPendingSaves)
   const loadFavourites = useLibraryStore((state) => state.loadFavourites)
+  const startPolling = useConnectivityStore((state) => state.startPolling)
+  const stopPolling = useConnectivityStore((state) => state.stopPolling)
   const [isClosing, setIsClosing] = useState(false)
 
   // Listen for navigation commands from menu
@@ -23,6 +27,9 @@ function AppContent(): React.JSX.Element {
 
   // Listen for incognito toggle from menu
   useIncognitoListener()
+
+  // Listen for connectivity toggle from menu
+  useConnectivityListener()
 
   // Handle keyboard shortcuts
   useKeyboardShortcuts()
@@ -34,6 +41,19 @@ function AppContent(): React.JSX.Element {
   useEffect(() => {
     void loadFavourites()
   }, [loadFavourites])
+
+  // Initialize connectivity polling
+  useEffect(() => {
+    // Start periodic connectivity checks
+    startPolling()
+
+    // Initial check on mount
+    void useConnectivityStore.getState().checkConnectivity()
+
+    return () => {
+      stopPolling()
+    }
+  }, [startPolling, stopPolling])
 
   // Flush pending progress saves before app closes
   useEffect(() => {

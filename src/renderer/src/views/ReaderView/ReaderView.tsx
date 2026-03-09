@@ -1,11 +1,12 @@
 import React, { type JSX, useState, useEffect, useCallback, useRef } from 'react'
-import { useParams, useLocation } from 'react-router-dom'
+import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { ImageQuality } from '../../../../main/api/enums/image-quality.enum'
 import { Button } from '@renderer/components/Button'
 import { ProgressRing } from '@renderer/components/ProgressRing'
 import {
   ArrowLeftRegular,
   Warning48Regular,
+  CloudOff48Regular,
   BookRegular,
   EyeOff20Regular,
   Settings20Regular
@@ -244,6 +245,7 @@ function ChapterListSidebar({
 export function ReaderView(): JSX.Element {
   const { mangaId, chapterId } = useParams<{ mangaId: string; chapterId: string }>()
   const location = useLocation()
+  const navigate = useNavigate()
 
   // Progress tracking
   const saveProgress = useProgressStore((state) => state.saveProgress)
@@ -558,56 +560,79 @@ export function ReaderView(): JSX.Element {
         </div>
       )}
 
-      {chapterData.error && (
-        <div className="reader-view__error">
-          <div className="error-recovery">
-            <div className="error-recovery__icon">
-              <Warning48Regular />
-            </div>
-            <h3 className="error-recovery__title">Couldn&apos;t load this chapter</h3>
-            <p className="error-recovery__message">
-              We ran into a problem loading the pages for this chapter. This might be a temporary
-              network hiccup, or the chapter data might not be available right now.
-            </p>
-            <div className="error-recovery__actions">
-              <Button
-                variant="primary"
-                onClick={() => chapterId && chapterData.loadChapterImages(chapterId)}
-                disabled={chapterData.loading}
-                loading={chapterData.loading}
-                size="medium"
-              >
-                {chapterData.loading ? 'Retrying...' : 'Try Again'}
-              </Button>
-              <Button variant="ghost" onClick={handleBackClick} size="medium">
-                Go Back
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => setShowErrorDetails(!showErrorDetails)}
-                size="medium"
-              >
-                {showErrorDetails ? 'Hide' : 'Show'} technical details
-              </Button>
-            </div>
-            {showErrorDetails && (
-              <div className="error-recovery__technical-details">
-                <div>
-                  <strong>Error:</strong> {chapterData.error.message}
+      {chapterData.error &&
+        (() => {
+          const isOfflineError =
+            chapterData.error.message.toLowerCase().includes('offline') ||
+            chapterData.error.message.toLowerCase().includes('downloaded')
+
+          return (
+            <div className="reader-view__error">
+              <div className="error-recovery">
+                <div className="error-recovery__icon">
+                  {isOfflineError ? <CloudOff48Regular /> : <Warning48Regular />}
                 </div>
-                {chapterData.error.stack && (
-                  <div style={{ marginTop: '8px' }}>
-                    <strong>Stack Trace:</strong>
-                    <pre style={{ margin: '4px 0 0 0', fontSize: '11px', lineHeight: '1.4' }}>
-                      {chapterData.error.stack}
-                    </pre>
+                <h3 className="error-recovery__title">
+                  {isOfflineError ? "You're offline" : "Couldn't load this chapter"}
+                </h3>
+                <p className="error-recovery__message">
+                  {isOfflineError
+                    ? chapterData.error.message
+                    : 'We ran into a problem loading the pages for this chapter. This might be a temporary network hiccup, or the chapter data might not be available right now.'}
+                </p>
+                <div className="error-recovery__actions">
+                  {isOfflineError ? (
+                    <Button
+                      variant="primary"
+                      onClick={() => navigate('/library')}
+                      icon={<BookRegular />}
+                      size="medium"
+                    >
+                      Go to Library
+                    </Button>
+                  ) : (
+                    <>
+                      <Button
+                        variant="primary"
+                        onClick={() => chapterId && chapterData.loadChapterImages(chapterId)}
+                        disabled={chapterData.loading}
+                        loading={chapterData.loading}
+                        size="medium"
+                      >
+                        {chapterData.loading ? 'Retrying...' : 'Try Again'}
+                      </Button>
+                      <Button variant="ghost" onClick={handleBackClick} size="medium">
+                        Go Back
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        onClick={() => setShowErrorDetails(!showErrorDetails)}
+                        size="medium"
+                      >
+                        {showErrorDetails ? 'Hide' : 'Show'} technical details
+                      </Button>
+                    </>
+                  )}
+                </div>
+                {!isOfflineError && showErrorDetails && (
+                  <div className="error-recovery__technical-details">
+                    <div>
+                      <strong>Error:</strong> {chapterData.error.message}
+                    </div>
+                    {chapterData.error.stack && (
+                      <div style={{ marginTop: '8px' }}>
+                        <strong>Stack Trace:</strong>
+                        <pre style={{ margin: '4px 0 0 0', fontSize: '11px', lineHeight: '1.4' }}>
+                          {chapterData.error.stack}
+                        </pre>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
-            )}
-          </div>
-        </div>
-      )}
+            </div>
+          )
+        })()}
 
       {!chapterData.loading && !chapterData.error && chapterData.images.length > 0 && (
         <>

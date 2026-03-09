@@ -63,3 +63,43 @@
   max-height: 300px;
   overflow-y: auto;
 }
+
+/* BrowseView Layout */
+
+.browse-view {
+  padding: var(--space-6);
+}
+
+.browse-view__header h1 {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0 0 var(--space-4) 0;
+  color: var(--win-text-primary);
+}
+
+/* BrowseView Offline State */
+
+.browse-view__offline-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-8);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.browse-view__offline-message h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 var(--space-3) 0;
+  color: var(--win-text-primary);
+}
+
+.browse-view__offline-message p {
+  font-size: 14px;
+  color: var(--win-text-secondary);
+  margin: 0 0 var(--space-2) 0;
+  line-height: 1.5;
+}
