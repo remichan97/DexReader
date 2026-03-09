@@ -11,6 +11,7 @@ import { registerLibraryHandlers } from './handlers/library-handler'
 import { registerMihonHandlers } from './handlers/mihon.handler'
 import { registerDexReaderHandler } from './handlers/dexreader.handler'
 import { registerDownloadHandlers } from './handlers/download.handler'
+import { registerStorageHandlers } from './handlers/storage.handler'
 
 /**
  * Register all IPC handlers
@@ -28,6 +29,7 @@ export function registerAllHandlers(): void {
   registerMihonHandlers()
   registerDexReaderHandler()
   registerDownloadHandlers()
+  registerStorageHandlers()
 
   // File system handlers need window for dialogs
   // Get window reference when handlers are actually called

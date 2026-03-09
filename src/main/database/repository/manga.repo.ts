@@ -1,4 +1,4 @@
-import { and, eq, like, lt, SQL, or, sql } from 'drizzle-orm'
+import { and, eq, like, lt, SQL, or, sql, notExists } from 'drizzle-orm'
 import { UpsertMangaCommand } from '../commands/manga/upsert-manga.command'
 import { databaseConnection } from '../connection'
 import { chapterDownloads, collectionItems, manga } from '../schema'
@@ -8,6 +8,7 @@ import { MangaMapper } from '../mappers/manga.mapper'
 import { MarkMangaNewChapterCommand } from '../commands/manga/mark-new-chapter.command'
 import { SearchMangaCommand } from '../commands/manga/search-manga.command'
 import { DownloadStatus } from '../enums/download-status.enum'
+import { MangaCacheStatsQuery } from '../queries/manga/manga-cache-stats.query'
 
 type MangaRow = typeof manga.$inferSelect
 
@@ -328,16 +329,62 @@ export class MangaRepository {
     }))
   }
 
+  statsMangaTable(): MangaCacheStatsQuery {
+    const thresholdDate = new Date()
+    thresholdDate.setDate(thresholdDate.getDate() - 90)
+
+    // Single query with conditional aggregation - most efficient approach
+    // Uses LEFT JOIN to detect downloads, then aggregates with CASE expressions
+    const result = this.db
+      .select({
+        totalManga: sql<number>`COUNT(DISTINCT ${manga.mangaId})`,
+        totalFavouriteManga: sql<number>`COUNT(DISTINCT CASE WHEN ${manga.isFavourite} = 1 THEN ${manga.mangaId} END)`,
+        downloadedManga: sql<number>`COUNT(DISTINCT CASE WHEN ${chapterDownloads.status} = ${DownloadStatus.Completed} THEN ${manga.mangaId} END)`,
+        browsingCache: sql<number>`COUNT(DISTINCT CASE WHEN ${manga.isFavourite} = 0 AND ${chapterDownloads.status} IS NULL THEN ${manga.mangaId} END)`,
+        oldCache: sql<number>`COUNT(DISTINCT CASE WHEN ${manga.isFavourite} = 0 AND ${chapterDownloads.status} IS NULL AND ${manga.lastAccessedAt} < ${thresholdDate.toISOString()} THEN ${manga.mangaId} END)`
+      })
+      .from(manga)
+      .leftJoin(
+        chapterDownloads,
+        and(
+          eq(manga.mangaId, chapterDownloads.mangaId),
+          eq(chapterDownloads.status, DownloadStatus.Completed)
+        )
+      )
+      .get()
+
+    return {
+      totalManga: result?.totalManga ?? 0,
+      totalFavouriteManga: result?.totalFavouriteManga ?? 0,
+      downloadedManga: result?.downloadedManga ?? 0,
+      browsingCache: result?.browsingCache ?? 0,
+      oldCache: result?.oldCache ?? 0
+    }
+  }
+
   // Cleanup the manga table, can be explicitly or on a schedule
   cleanupMangaCache(immediate?: boolean): number {
     const now = new Date()
 
     // Build delete condition
-    // If immediate is true, delete all non-favourite regardless of last accessed time
-    // Else, only delete non-favourite manga that hasn't been accessed in the last 90 days
+    // If immediate is true, delete all non-favourite, or non-downloaded manga regardless of last accessed time
+    // Else, only delete non-favourite manga, or non-downloaded manga that hasn't been accessed in the last 90 days
     const condition: SQL[] = []
 
-    condition.push(eq(manga.isFavourite, false))
+    condition.push(
+      eq(manga.isFavourite, false),
+      notExists(
+        this.db
+          .select()
+          .from(chapterDownloads)
+          .where(
+            and(
+              eq(chapterDownloads.mangaId, manga.mangaId),
+              eq(chapterDownloads.status, DownloadStatus.Completed)
+            )
+          )
+      )
+    )
 
     if (!immediate) {
       const thresholdDate = new Date()

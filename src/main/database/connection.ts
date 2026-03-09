@@ -7,16 +7,16 @@ import * as schema from './schema'
 class DatabaseConnection {
   private db: Database.Database | undefined = undefined
   private drizzle: ReturnType<typeof drizzle> | undefined = undefined
+  private readonly dbPath: string =
+    process.env.NODE_ENV_ELECTRON_VITE === 'development'
+      ? path.join(process.cwd(), 'dexreader-dev.db') // Project root: .\dexreader-dev.db
+      : path.join(getAppDataPath(), 'dexreader.db') // AppData: %APPDATA%\DexReader\dexreader.db
 
   init(): void {
     // Development: Use project root (easy to find, reset, inspect with DataGrip)
     // Production: Use AppData (proper user data storage location)
-    const dbPath =
-      process.env.NODE_ENV_ELECTRON_VITE === 'development'
-        ? path.join(process.cwd(), 'dexreader-dev.db') // Project root: .\dexreader-dev.db
-        : path.join(getAppDataPath(), 'dexreader.db') // AppData: %APPDATA%\DexReader\dexreader.db
 
-    this.db = new Database(dbPath)
+    this.db = new Database(this.dbPath)
 
     this.db.pragma('journal_mode = WAL')
     this.db.pragma('synchronous = NORMAL')

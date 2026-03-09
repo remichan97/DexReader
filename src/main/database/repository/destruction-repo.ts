@@ -10,11 +10,19 @@ import {
   mangaReaderOverrides,
   readingStatistics
 } from '../schema'
+import path from 'node:path'
+import fs from 'node:fs/promises'
+import { getAppDataPath } from '../../filesystem/pathValidator'
 
 export class DestructionRepository {
   private db(): ReturnType<typeof databaseConnection.getDb> {
     return databaseConnection.getDb()
   }
+
+  private readonly dbPath: string =
+    process.env.NODE_ENV_ELECTRON_VITE === 'development'
+      ? path.join(process.cwd(), 'dexreader-dev.db') // Project root: .\dexreader-dev.db
+      : path.join(getAppDataPath(), 'dexreader.db') // AppData: %APPDATA%\DexReader\dexreader.db
 
   clearAllData(): void {
     this.db().transaction((tx) => {
@@ -39,6 +47,25 @@ export class DestructionRepository {
     })
     // Vacuum the database to reclaim space after deletions
     this.db().run(sql`VACUUM`)
+  }
+
+  async reclaimStorage(): Promise<number> {
+    // This method will run the VACUUM command to optimize the database file and return the amount of space reclaimed
+    const beforeSize = await this.getDatabaseFileSize()
+    this.db().run(sql`VACUUM`)
+    const afterSize = await this.getDatabaseFileSize()
+    return beforeSize - afterSize // in bytes, can convert to MB in the caller if needed
+  }
+
+  private async getDatabaseFileSize(): Promise<number> {
+    const dbPath = path.resolve(this.dbPath)
+    try {
+      const stats = await fs.stat(dbPath)
+      return stats.size
+    } catch (error) {
+      console.error('Error getting database file size:', error)
+      return 0
+    }
   }
 }
 

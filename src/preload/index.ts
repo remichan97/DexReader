@@ -264,6 +264,15 @@ const library = {
   getDownloadedManga: () => ipcRenderer.invoke('library:get-downloaded-manga')
 }
 
+const storage = {
+  statsMangaTable: () => ipcRenderer.invoke('storage:get-stats'),
+  clearMangaCache: (immediate: boolean) =>
+    ipcRenderer.invoke('storage:clear-manga-cache', immediate),
+  optimiseMangaCache: () => ipcRenderer.invoke('storage:optimise-manga-cache'),
+  setCoverCacheLimit: (limitInMB: number) =>
+    ipcRenderer.invoke('storage:set-cover-cache-limit', limitInMB)
+}
+
 const collections = {
   getAllCollections: () => ipcRenderer.invoke('collections:get-all'),
   getMangaInCollection: (collectionId: number) =>
@@ -363,6 +372,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('settings', settings)
     contextBridge.exposeInMainWorld('dexreader', dexReader)
     contextBridge.exposeInMainWorld('downloads', downloads)
+    contextBridge.exposeInMainWorld('storage', storage)
   } catch (error) {
     console.error(error)
   }
@@ -393,4 +403,6 @@ if (process.contextIsolated) {
   globalThis.dexreader = dexReader
   // @ts-ignore (define in dts)
   globalThis.downloads = downloads
+  // @ts-ignore (define in dts)
+  globalThis.storage = storage
 }

@@ -44,18 +44,18 @@ import { Button } from '@renderer/components/Button'
 
 ## Props
 
-| Prop         | Type                                                    | Default      | Description                                    |
-| ------------ | ------------------------------------------------------- | ------------ | ---------------------------------------------- |
+| Prop         | Type                                                                       | Default      | Description                                    |
+| ------------ | -------------------------------------------------------------------------- | ------------ | ---------------------------------------------- |
 | `variant`    | `'primary' \| 'secondary' \| 'ghost' \| 'danger' \| 'warning' \| 'accent'` | `'primary'`  | Visual style variant                           |
-| `size`       | `'small' \| 'medium' \| 'large'`                        | `'medium'`   | Button size                                    |
-| `disabled`   | `boolean`                                              | `false`      | Disables button interaction                    |
-| `loading`    | `boolean`                                              | `false`      | Shows loading spinner and disables interaction |
-| `icon`       | `React.ReactNode`                                      | `undefined`  | Icon to display before text                    |
-| `children`   | `React.ReactNode`                                      | **required** | Button content/text                            |
-| `type`       | `'button' \| 'submit' \| 'reset'`                      | `'button'`   | HTML button type                               |
-| `onClick`    | `(event: MouseEvent) => void`                          | `undefined`  | Click handler                                  |
-| `className`  | `string`                                               | `''`         | Additional CSS class                           |
-| `aria-label` | `string`                                               | `undefined`  | Accessible label for screen readers            |
+| `size`       | `'small' \| 'medium' \| 'large'`                                           | `'medium'`   | Button size                                    |
+| `disabled`   | `boolean`                                                                  | `false`      | Disables button interaction                    |
+| `loading`    | `boolean`                                                                  | `false`      | Shows loading spinner and disables interaction |
+| `icon`       | `React.ReactNode`                                                          | `undefined`  | Icon to display before text                    |
+| `children`   | `React.ReactNode`                                                          | **required** | Button content/text                            |
+| `type`       | `'button' \| 'submit' \| 'reset'`                                          | `'button'`   | HTML button type                               |
+| `onClick`    | `(event: MouseEvent) => void`                                              | `undefined`  | Click handler                                  |
+| `className`  | `string`                                                                   | `''`         | Additional CSS class                           |
+| `aria-label` | `string`                                                                   | `undefined`  | Accessible label for screen readers            |
 
 ## Variants
 
