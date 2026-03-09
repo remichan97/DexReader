@@ -57,6 +57,28 @@ export class MangaDexClient {
     )
   }
 
+  // Call the ping endpoint to see if we have a connection to it
+  // Returns true if we get a `pong` back from the API, else false
+  async isServiceAlive(): Promise<boolean> {
+    try {
+      await this.rateLimiter.waitForToken()
+
+      const url = `${this.baseUrl}/ping`
+      const response = await fetch(url, {
+        headers: { 'User-Agent': this.userAgent },
+        signal: AbortSignal.timeout(this.timeout)
+      })
+
+      if (!response.ok) return false
+
+      const text = await response.text()
+      return text === 'pong'
+    } catch (error) {
+      console.error('[MangaDex] Ping failed:', error)
+      return false
+    }
+  }
+
   //#endregion
 
   //#region Chapter endpoints

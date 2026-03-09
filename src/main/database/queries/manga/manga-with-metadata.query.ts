@@ -18,4 +18,6 @@ export interface MangaWithMetadata {
   lastCheckForUpdate: Date
   lastKnownChapterId?: string
   lastKnownChapterNumber?: string
+  hasDownloads: boolean // Whether this manga has any downloaded chapters
+  downloadedChapterCount: number // Number of completed chapter downloads
 }

@@ -3,6 +3,7 @@ import { getCachedCoverPath } from '../../filesystem/pathValidator'
 import { secureFs } from '../../filesystem/secureFs'
 import { getSettingByPath } from '../../settings/settingsManager'
 import { mangaRepository } from '../../database/repository/manga.repo'
+import { DiskCacheQuery } from '../../database/queries/storage/disk-cache.query'
 
 export class DiskCacheUtil {
   private readonly coverCachePath = getCachedCoverPath()
@@ -13,6 +14,40 @@ export class DiskCacheUtil {
       console.log('[DiskCache] Cache path initialized:', this.coverCachePath)
     } catch (error) {
       console.error('[DiskCache] Failed to initialize cache path:', this.coverCachePath, error)
+    }
+  }
+
+  async getDiskCacheSize(): Promise<DiskCacheQuery> {
+    const cachePath = this.coverCachePath
+
+    const files = await secureFs.readDir(cachePath)
+
+    let totalSize = 0
+    let fileCount = 0
+
+    for (const file of files) {
+      const filePath = path.join(cachePath, file)
+      const stats = await secureFs.stat(filePath)
+
+      if (stats.isFile()) {
+        totalSize += stats.size
+        fileCount += 1
+      } else if (stats.isDirectory()) {
+        // read all files in the directory and sum their sizes
+        const subFiles = await secureFs.readDir(filePath)
+        for (const subFile of subFiles) {
+          const subFilePath = path.join(filePath, subFile)
+          const subStats = await secureFs.stat(subFilePath)
+          if (subStats.isFile()) {
+            totalSize += subStats.size
+            fileCount += 1
+          }
+        }
+      }
+    }
+    return {
+      cacheSize: totalSize,
+      fileCount: fileCount
     }
   }
 
@@ -97,6 +132,12 @@ export class DiskCacheUtil {
       const maxCacheSize = await this.getMaxCacheSize()
       const mangaIdToBeEvicted: string[] = []
 
+      // If maxCacheSize is 0, it means the user has allowed unlimited cache, so we skip eviction
+      if (maxCacheSize === 0) {
+        console.log('[DiskCache] Unlimited cache size configured, skipping eviction.')
+        return
+      }
+
       const files = await secureFs.readDir(this.coverCachePath)
 
       // Get file stats and calculate total cache size
@@ -148,7 +189,8 @@ export class DiskCacheUtil {
   }
 
   private async getMaxCacheSize(): Promise<number> {
-    return ((await getSettingByPath('downloads', 'maxDiskCacheSize')) as number) ?? 50 * 1024 * 1024 // Default to 50 MB if not set
+    const cacheSize = (await getSettingByPath('downloads', 'maxDiskCacheSize')) as number
+    return cacheSize ?? 50 * 1024 * 1024 // Default to 50MB if not set, 0 means unlimited
   }
 
   private extractMangaIdFromCoverUrl(url: string): string | undefined {

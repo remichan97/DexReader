@@ -23,6 +23,7 @@ import { StorageData } from './data/storage.data'
 import { DeleteMangaResult } from './results/dexreader/delete-manga.result'
 import { DownloadStatResult } from './results/dexreader/download-stats.result'
 import { diskCacheUtil } from '../api/utils/disk-cache.util'
+import { DiskCacheQuery } from '../database/queries/storage/disk-cache.query'
 
 export class NativeDownloadService {
   private readonly mangadexClient = new MangaDexClient()
@@ -38,7 +39,8 @@ export class NativeDownloadService {
   async getStorageInfo(): Promise<StorageData> {
     return {
       mangaStorage: this.getMangaStorage(),
-      diskSpace: await this.getDiskSpaceInfo()
+      diskSpace: await this.getDiskSpaceInfo(),
+      cacheSize: await this.getDiskCacheSize()
     }
   }
 
@@ -324,6 +326,10 @@ export class NativeDownloadService {
       free: stats.bfree * stats.bsize,
       used: (stats.blocks - stats.bfree) * stats.bsize
     }
+  }
+
+  private async getDiskCacheSize(): Promise<DiskCacheQuery> {
+    return await diskCacheUtil.getDiskCacheSize()
   }
 
   private getDownloadByMangaId(mangaId: string): ChapterDownloadQuery[] {

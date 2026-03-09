@@ -13,6 +13,7 @@ import { registerAllHandlers } from './ipc/registry'
 import { databaseConnection } from './database/connection'
 import { runMigrations } from './database/migrations/migrations'
 import { downloadQueueService } from './services/download-queue.service'
+import { diskCacheUtil } from './api/utils/disk-cache.util'
 
 const imageProxy = new ImageProxy()
 const localImageProxy = new LocalImageProxy()
@@ -33,6 +34,7 @@ async function initFileSystem(): Promise<void> {
   await secureFs.ensureDir(path.join(appDataPath, 'metadata'))
   await secureFs.ensureDir(path.join(appDataPath, 'logs'))
   await secureFs.ensureDir(path.join(appDataPath, 'downloads'))
+  await diskCacheUtil.initCachePath()
 
   // Load App settings
   const settings = await loadSettings()
