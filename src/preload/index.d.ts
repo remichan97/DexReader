@@ -26,6 +26,7 @@ import type { ProgressDatabase } from '../main/database/queries/progress/progres
 import type { ReadingStats } from '../main/database/queries/reading-stats/reading-stats.query'
 import { MangaOverride } from '../main/database/queries/manga/manga-override.query'
 import { MangaWithMetadata } from '../main/database/queries/manga/manga-with-metadata.query'
+import { ChapterWithMetadata } from '../main/database/queries/manga/chapter-with-metadata.query'
 import type { ChapterDownloadQuery } from '../main/database/queries/chapter-downloads/chapter-downloads.query'
 import { ReadHistoryEntry } from '../main/database/queries/read-history/read-history.query'
 import type { ChapterDownloadsEvent } from '../main/services/events/chapter-downloads.event'
@@ -191,6 +192,7 @@ interface MangaDexApi {
   getChapter: (id: string, includes?: string[]) => Promise<ApiResponse<Chapter>>
   getChapterImages: (id: string, quality: ImageQuality) => Promise<IpcResponse<ImageUrlResponse[]>>
   getCoverUrl: (id: string, fileName: string, size?: string) => string
+  isServiceAlive: () => Promise<IpcResponse<boolean>>
 }
 
 interface Progress {
@@ -231,6 +233,8 @@ interface Reader {
 
 interface Library {
   getLibraryManga: (command: GetLibraryMangaCommand) => Promise<IpcResponse<MangaWithMetadata[]>>
+  getMangaById: (mangaId: string) => Promise<IpcResponse<MangaWithMetadata | undefined>>
+  getCachedChapters: (mangaId: string) => Promise<IpcResponse<ChapterWithMetadata[]>>
   toggleFavourite: (mangaId: string) => Promise<IpcResponse<void>>
   upsertManga: (command: UpsertMangaCommand) => Promise<IpcResponse<void>>
   checkForUpdates: (mangaIds: string[]) => Promise<IpcResponse<UpdateResult[]>>

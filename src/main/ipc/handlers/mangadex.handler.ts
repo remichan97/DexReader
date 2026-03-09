@@ -26,4 +26,8 @@ export function registerMangaDexHandlers(): void {
   wrapIpcHandler('mangadex:get-chapter-images', async (_, id: unknown, quality: unknown) => {
     return await mangadexClient.getChapterImages(id as string, quality as ImageQuality)
   })
+
+  wrapIpcHandler('mangadex:healthcheck', async () => {
+    return await mangadexClient.isServiceAlive()
+  })
 }

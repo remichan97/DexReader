@@ -8,6 +8,7 @@ import { RecordReadCommand } from '../../database/commands/history/record-read.c
 import { GetLibraryMangaCommand } from '../../database/commands/manga/get-library-manga.command'
 import { collectionRepo } from '../../database/repository/collection.repo'
 import { mangaRepository } from '../../database/repository/manga.repo'
+import { chapterRepo } from '../../database/repository/chapter.repo'
 import { readHistoryRepo } from '../../database/repository/read-history.repo'
 import { libraryUpdate } from '../../services/update-checker.service'
 import { wrapIpcHandler } from '../wrapHandler'
@@ -15,6 +16,14 @@ import { wrapIpcHandler } from '../wrapHandler'
 export function registerLibraryHandlers(): void {
   wrapIpcHandler('library:get-manga', async (_, options: unknown) => {
     return mangaRepository.getLibraryManga(options as GetLibraryMangaCommand)
+  })
+
+  wrapIpcHandler('library:get-manga-by-id', async (_, mangaId: unknown) => {
+    return mangaRepository.getMangaById(mangaId as string)
+  })
+
+  wrapIpcHandler('library:get-cached-chapters', async (_, mangaId: unknown) => {
+    return chapterRepo.getChaptersByMangaId(mangaId as string)
   })
 
   wrapIpcHandler('library:toggle-favourite', async (_, mangaId: string) => {

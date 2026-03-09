@@ -213,7 +213,8 @@ const mangadexApi = {
   getChapter: (id: string, includes?: string[]) =>
     ipcRenderer.invoke('mangadex:get-chapter', id, includes),
   getChapterImages: (id: string, quality: ImageQuality) =>
-    ipcRenderer.invoke('mangadex:get-chapter-images', id, quality)
+    ipcRenderer.invoke('mangadex:get-chapter-images', id, quality),
+  isServiceAlive: () => ipcRenderer.invoke('mangadex:healthcheck')
 }
 
 // Progress tracking API
@@ -252,6 +253,9 @@ const reader = {
 const library = {
   getLibraryManga: (command: GetLibraryMangaCommand) =>
     ipcRenderer.invoke('library:get-manga', command),
+  getMangaById: (mangaId: string) => ipcRenderer.invoke('library:get-manga-by-id', mangaId),
+  getCachedChapters: (mangaId: string) =>
+    ipcRenderer.invoke('library:get-cached-chapters', mangaId),
   toggleFavourite: (mangaId: string) => ipcRenderer.invoke('library:toggle-favourite', mangaId),
   upsertManga: (command: UpsertMangaCommand) => ipcRenderer.invoke('library:upsert-manga', command),
   checkForUpdates: (mangaIds: string[]) =>
