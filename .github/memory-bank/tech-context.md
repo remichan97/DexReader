@@ -1,6 +1,6 @@
 # DexReader Technical Context
 
-**Last Updated**: 21 February 2026
+**Last Updated**: 10 March 2026
 **Project Version**: 1.0.0
 **Type**: Desktop Application (Electron)
 
@@ -33,7 +33,7 @@ _\*Note: Electron bundles its own Node.js runtime (~v20.x). Development uses sys
 | -------------------- | ------- | ------------------------------------ |
 | **Vite**             | 7.1.6   | Frontend build tool & dev server     |
 | **electron-vite**    | 4.0.1   | Electron-specific Vite wrapper       |
-| **electron-builder** | 25.1.8  | Application packaging & distribution |
+| **electron-builder** | 26.8.1  | Application packaging & distribution |
 | **npm**              | 11.3.0  | Package manager                      |
 
 ### Code Quality
@@ -1059,24 +1059,15 @@ autoUpdater.checkForUpdatesAndNotify()
 **Architecture**:
 
 ```typescript
-// Store creation with persist middleware
+// Store creation (simple, no persist middleware)
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
 
-const useStore = create(
-  persist(
-    (set, get) => ({
-      // State and actions
-    }),
-    {
-      name: 'storage-key',
-      partialize: (state) => ({
-        /* selective persistence */
-      })
-    }
-  )
-)
+const useStore = create((set, get) => ({
+  // State and actions
+}))
 ```
+
+**Persistence Strategy**: App-wide settings (theme, accent color, downloads path, reader preferences) are persisted via **Settings Manager** to `AppData/settings.json` (managed by main process). State stores in renderer are ephemeral and rehydrated from main process on load.
 
 **Current Stores**:
 
@@ -1084,7 +1075,7 @@ const useStore = create(
    - Theme management (light/dark/system)
    - UI state (fullscreen)
    - System theme synchronization
-   - Persists: theme mode only
+   - Persists: via Settings Manager IPC to settings.json (P3-T16, 22 Jan 2026)
 
 2. **Toast Store** (`toastStore.ts`)
    - Global notification system
@@ -1097,12 +1088,12 @@ const useStore = create(
    - Download preferences (simultaneous downloads, location, quality)
    - UI preferences (animations, sidebar state, theme, compact mode)
    - Notification preferences (download complete, chapter updates, errors)
-   - Persists: all preferences to localStorage
+   - Persists: critical preferences via Settings Manager IPC
 
 4. **Library Store** (`libraryStore.ts`)
-   - Bookmark management (Phase 3 skeleton)
+   - Bookmark management (Phase 3 complete, Jan-Feb 2026)
    - Collection management
-   - Persists: all library data
+   - Persists: SQLite database via IPC
 
 **Store Location**: `src/renderer/src/stores/`
 

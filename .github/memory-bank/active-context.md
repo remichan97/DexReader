@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 4 March 2026
-**Current Phase**: Phase 4 - Offline Functionality
-**Session**: Unfavourite Dialog Implementation Complete
+**Last Updated**: 10 March 2026
+**Current Phase**: Phase 4 - Offline Functionality (COMPLETE ✅)
+**Next**: Phase 5 Planning
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -10,970 +10,144 @@
 
 ## Current Status Summary
 
-**Phase**: Phase 4 In Progress (12/13 tasks complete)
-**Progress**: Phase 3: 19/19 (100%) ✅ | Phase 4: 12/13 complete (92%, 1 remaining: P4-T15)
-**Current Date**: 4 March 2026
-**Database Migration Status**: Fully migrated (includes chapter_downloads table with 2 migrations)
-**Current Task**: P4-T13 Unfavourite dialog with download handling complete ✅
-**Download System Status**: ✅ Backend fully operational | ✅ Queue visibility fixed | ✅ Clear Completed functional | ✅ Storage management UI complete | ✅ Library integration complete
-**Next Recommended**: P4-T15 (Offline mode menu toggle) - FINAL Phase 4 task
+**Phase 4 Status**: COMPLETE - 13/13 tasks (100%) ✅
+**Last Completed**: P4-T15 Cache Management UI (10 Mar 2026)
+**Database**: Fully migrated with chapter_downloads table + 2 migrations
+**Download System**: ✅ Full offline functionality operational
+**Storage Management**: ✅ Visualization, cleanup, and cache controls complete
+**Next Steps**: Begin Phase 5 planning (Testing & Optimization)
 
 ---
 
-## P4-T13 Unfavourite Dialog with Download Handling (4 Mar 2026)
+## Phase 4 Complete - Quick Reference
 
-**Status**: ✅ Complete - Smart unfavourite workflow with download cleanup options
+All offline functionality is now production-ready:
 
-### Summary
+1. **P4-T01** (12 Feb) - Download backend foundation (database, service, local-manga:// protocol)
+2. **P4-T02** (18 Feb) - Queue manager (concurrent downloads, retry logic, batch operations)
+3. **P4-T03** (Discovered) - Downloads directory configuration and path validation
+4. **P4-T04** (27-28 Dec) - SQLite database migration (AppData storage)
+5. **P4-T05** (Discovered) - Progress tracking with real-time events
+6. **P4-T06** (21 Feb) - Download UI (badges, dialogs, status indicators)
+7. **P4-T07** (Discovered) - Batch download support (queue multiple chapters)
+8. **P4-T08** (Discovered) - Offline mode detection (connectivity store + status bar)
+9. **P4-T09** (Discovered) - Storage cleanup (delete chapters with file removal)
+10. **P4-T10** (3-5 Jan) - Reading statistics and history tracking
+11. **P4-T11** (27 Feb) - Storage management UI (visualization, bulk deletion)
+12. **P4-T13** (4 Mar) - Unfavourite dialog with download handling
+13. **P4-T15** (10 Mar) - Cache management UI (cover + metadata cleanup)
 
-Implemented context-aware unfavourite dialog that detects downloaded chapters and presents users with granular cleanup options. Users can now remove manga from library, delete downloads, or both - with clear feedback about storage impact. Includes centralized handler utility for consistent behavior across all views.
-
-### Key Features
-
-**1. ✅ Backend - Download Stats API**
-
-- **New IPC Handler**: `downloads.getDownloadStats(mangaId)` returns `{ chapterCount, totalBytes }`
-- **Service Method**: `downloadService.getDownloadStats()` queries chapter_downloads table
-- **Result Type**: `DownloadStatResult` interface exported to renderer
-- **Performance**: Fast query using manga_id index
-
-**2. ✅ Shared Utilities**
-
-- **formatBytes.ts**: Centralized byte formatting (replaces 3 duplicate implementations)
-  - Extracted from StorageChart, MangaStorageList, StorageManagementSettings
-  - Consistent formatting across all storage displays
-  - Single source of truth for size formatting
-
-- **unfavouriteHandler.ts**: Centralized unfavourite logic (~195 lines)
-  - Checks download status via `getDownloadStats()`
-  - Shows simple confirmation if no downloads
-  - Shows 4-option dialog if downloads exist
-  - Handles partial failures gracefully
-  - Toast notifications for all outcomes
-
-**3. ✅ Dialog Patterns**
-
-- **No Downloads**: Simple confirmation → "Remove from library?" with manga title in detail
-- **Has Downloads**: Multi-choice warning dialog with 4 options:
-  1. Remove from library only (keep downloads)
-  2. Delete downloads only (keep bookmark)
-  3. Remove everything (library + downloads)
-  4. Cancel (safe default)
-
-- **Dialog Structure** (Best Practice):
-  - Message: Generic action ("Remove from library?")
-  - Detail: Manga title + download info + question
-  - Reason: Native dialogs have fixed-width titles that truncate long manga names
-  - Type: `warning` (shows ⚠️ icon for destructive actions)
-
-**4. ✅ Integration Points**
-
-- **LibraryView**: `handleRemoveFromLibrary()` → calls `handleUnfavourite()` → refreshes via `loadFavourites()`
-- **MangaDetailView**: `handleAddToLibrary()` checks `isFavourite()` → shows dialog if unfavouriting → updates heart icon
-- **BrowseView**: `handleFavouriteToggle()` checks `isFavourite()` → shows dialog if unfavouriting → updates heart icon
-- All views refresh library store on success for immediate UI updates
-
-**5. ✅ Error Handling**
-
-- **Download stat errors**: Shows error toast, aborts operation
-- **Partial failures**: Warning toast if one operation succeeds but other fails
-- **Success paths**: Clear toast messages for each of 3 action types
-- **Callbacks**: `onSuccess`/`onError` callbacks for view-specific logic
-
-### Technical Implementation
-
-**Files Created**:
-
-- `src/main/services/results/dexreader/download-stats.result.ts` (4 lines) - Result interface
-- `src/renderer/src/utils/formatBytes.ts` (15 lines) - Shared utility
-- `src/renderer/src/utils/unfavouriteHandler.ts` (195 lines) - Centralized logic
-
-**Files Modified**:
-
-- `src/main/services/download.service.ts` - Added `getDownloadStats()` method
-- `src/main/ipc/handlers/download.handler.ts` - Added IPC handler registration
-- `src/preload/index.d.ts` - Added type exports and Downloads interface method
-- `src/preload/index.ts` - Added IPC bridge binding
-- `src/renderer/src/components/StorageChart/StorageChart.tsx` - Removed duplicate formatBytes
-- `src/renderer/src/components/MangaStorageList/MangaStorageList.tsx` - Removed duplicate formatBytes
-- `src/renderer/src/views/SettingsView/components/StorageManagementSettings.tsx` - Removed duplicate formatBytes
-- `src/renderer/src/views/LibraryView/LibraryView.tsx` - Integrated unfavourite handler
-- `src/renderer/src/views/MangaDetailView/components/MangaHeroSection.tsx` - Integrated unfavourite handler + `loadFavourites`
-- `src/renderer/src/views/BrowseView/BrowseView.tsx` - Integrated unfavourite handler + `loadFavourites`
-
-**Architectural Decisions**:
-
-1. **Native Dialog Over Custom Modal**: More trustworthy for destructive actions, OS-consistent
-2. **Centralized Handler**: Single utility prevents inconsistent behavior across views
-3. **Smart Context Detection**: Only show multi-choice dialog when downloads exist
-4. **Graceful Degradation**: Show simple confirmation if stats check fails
-5. **Title in Detail**: Long manga titles in detail body (not message) to avoid truncation
-6. **Library Store Refresh**: Call `loadFavourites()` after unfavourite to update Zustand selectors
-
-### User Experience
-
-**Flow**:
-
-1. User clicks heart icon to unfavourite manga
-2. System checks for downloads (< 100ms)
-3. Shows appropriate dialog:
-   - No downloads: Simple confirmation with manga title
-   - Has downloads: Warning dialog with chapter count, storage size, and 4 options
-4. User selects action (or cancels)
-5. System executes choice(s)
-6. Toast notification confirms outcome
-7. UI updates immediately (heart icon, library lists)
-
-**Toast Messages**:
-
-- Remove library only: "Removed from library" + manga title
-- Delete downloads only: "Downloads deleted" + chapter count
-- Remove everything: "Removed completely" + manga + chapters
-- Partial success: "Partially removed" + what worked/failed
-- Errors: Clear error message with retry suggestion
-
-### Testing Recommendations
-
-**Scenarios to Verify**:
-
-1. Unfavourite manga with no downloads → simple confirmation → library updated
-2. Unfavourite manga with downloads → multi-choice → each option works correctly
-3. Long manga title (50+ chars) → displays fully in dialog detail
-4. Partial failure (library success, download fail) → warning toast shown
-5. Cancel dialog → no changes made
-6. Heart icon updates immediately in all 3 views after unfavourite
-7. Library list refreshes correctly after removal
-
-### Discovery: Native Dialog Title Width Constraint
-
-**Finding**: Native Electron dialogs (`showDialog` and `showConfirmDialog`) have fixed-width message fields that truncate long text. This is an OS-level constraint.
-
-**Solution**: Place dynamic/long content (like manga titles) in the `detail` field, keep `message` short and generic.
-
-**Example**:
-
-```typescript
-// ✅ Good: Short message, full title in detail
-const result = await window.api.showDialog({
-  message: 'Remove from library?',
-  detail: `${mangaTitle}\n\nThis manga has 50 chapters...`,
-  type: 'warning'
-})
-
-// ❌ Bad: Long title gets truncated
-const result = await window.api.showDialog({
-  message: `Remove "${veryLongMangaTitle}" from library?`,
-  type: 'warning'
-})
-```
-
-**Documented**: Added to system-pattern.md "Native Dialog Best Practices" section
+**See**: [archived-milestones.md](./archived-milestones.md) for detailed implementation notes on all tasks.
 
 ---
 
-## P4-T11 Storage Management Implementation (27 Feb 2026)
-
-**Status**: ✅ Complete - Storage visualization and bulk cleanup UI fully implemented
-
-### Summary
-
-Implemented complete storage management interface in Settings with dual-level bar chart visualization, sortable manga list with bulk selection, and safe deletion workflow. Users can now see disk space usage, visualize storage breakdown by manga, and bulk-delete downloads to free up space.
-
-### Key Features
-
-**1. ✅ Settings Tab Reorganization**
-
-- **Renamed Tab**: "Storage" → "Downloads" (for download configuration)
-- **New Tab**: "Storage" tab for storage management
-- **Tab Order**: Appearance | Downloads | Reader | Storage | Advanced
-- **Components**:
-  - `DownloadsSettings.tsx` (renamed from StorageSettings.tsx) - download path, quality, confirmation settings
-  - `StorageManagementSettings.tsx` - new storage visualization and cleanup UI
-
-**2. ✅ Dual-Level Storage Chart**
-
-- **Top Bar**: Disk context (DexReader | Other Apps | Free Space) - 40px height
-- **Bottom Bar**: DexReader breakdown (Top 3-5 manga + Others) - 32px height
-- **Smart Labeling**: Shows labels only for segments >8% to avoid clutter
-- **Visual Design**: Windows 11 accent colors with opacity variants, clean modern aesthetic
-- **Component**: `StorageChart.tsx` (271 lines) with formatBytes utility
-
-**3. ✅ Manga Storage List**
-
-- **Layout**: Borderless Steam Big Picture style with dashed dividers
-- **Semi-Header**: "Manage Storage - X manga (Y GB)" label with sort dropdown
-- **Sort Options**: 4 modes (Storage Largest/Smallest, Title A-Z/Z-A)
-- **List Items**: Checkbox | Cover (48×48) | Title + 📚 chapter count | Size
-- **Accessibility**: role="button", tabIndex={0}, keyboard navigation (Enter/Space)
-- **Component**: `MangaStorageList.tsx` (249 lines)
-
-**4. ✅ Menu Integration & Navigation**
-
-- **Menu Item**: Tools → Manage Storage (Ctrl+Shift+M)
-- **Navigation**: IPC message sends navigate('/settings?tab=storage')
-- **URL Params**: SettingsView reads ?tab= param and opens corresponding tab
-- **Deep Linking**: Menu keyboard shortcut directly opens Storage settings
-
-**5. ✅ Safe Deletion Workflow**
-
-- **Selection**: Set-based tracking with toggle functionality
-- **Confirmation**: Native Electron dialog with manga list + total size
-- **API Call**: Batch deletion via `downloads.batchDeleteManga()`
-- **Feedback**: Toast notifications for success/errors, automatic data refresh
-- **Button State**: "Delete Selected (X)" - disabled when none selected, loading state during operation
-
-### Technical Implementation
-
-**Components Created** (5 files, ~740 lines):
-
-- `StorageChart/StorageChart.tsx` (271 lines) - Dual-level horizontal bar chart
-- `StorageChart/index.ts` - Barrel export
-- `MangaStorageList/MangaStorageList.tsx` (249 lines) - Sortable list with checkboxes
-- `MangaStorageList/index.ts` - Barrel export
-- `StorageManagementSettings.tsx` (221 lines) - Main storage management view
-
-**Files Modified** (3 files):
-
-- `SettingsView.tsx` - Added useLocation, URL param reading, reorganized tabs
-- `tools.menu.ts` - Added "Manage Storage..." menu item with Ctrl+Shift+M
-- `StorageSettings.tsx` → `DownloadsSettings.tsx` - Renamed component
-
-**State Management**:
-
-```typescript
-const [storageData, setStorageData] = useState<StorageData | null>(null)
-const [selectedMangaIds, setSelectedMangaIds] = useState<Set<string>>(new Set())
-const [sortBy, setSortBy] = useState<'title' | 'storage'>('storage')
-const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
-const [isDeleting, setIsDeleting] = useState(false)
-```
-
-**Data Flow**:
-
-1. `useEffect` calls `downloads.getStorageInfo()` on mount
-2. StorageChart receives disk space + top manga for visualization
-3. MangaStorageList receives sorted manga array + selection callbacks
-4. Delete button builds confirmation message → shows dialog → calls batch API → refreshes data
-
-**IPC Integration**:
-
-- `downloads.getStorageInfo()` - Fetch disk space + per-manga storage stats
-- `downloads.batchDeleteManga(Set<string>)` - Delete selected manga's downloads
-- `api.showConfirmDialog()` - Native confirmation with detailed message
-- Toast store for user feedback
-
-**Design System**:
-
-- Windows 11 design tokens (accent colors, text colors, spacing)
-- Native CSS for bar chart (no chart library dependencies)
-- Consistent with existing Settings tab styling
-- Responsive layout with proper spacing
-
-### UI/UX Details
-
-**Storage Chart**:
-
-- **Disk Context Bar**: Shows DexReader vs Other Apps vs Free Space with percentages
-- **Manga Breakdown Bar**: Shows top 3-5 manga individually + "Others" category
-- **Color Scheme**: Accent color variants (opacity 0.9, 0.75, 0.6, 0.45) for hierarchy
-- **Smart Labels**: Only shown when segment ≥8% width to prevent overlap
-- **Format**: Human-readable sizes (e.g., "2.4 GB", "156.2 MB")
-
-**Manga List**:
-
-- **Header**: "Manage Storage - 12 manga (4.2 GB)" with right-aligned sort dropdown
-- **Sort Dropdown**: 4 options with clear labels (e.g., "Storage (Largest First)")
-- **List Style**: Borderless cards with 1px dashed dividers (var(--win-divider))
-- **Item Layout**: Two-line design (Title + chapter count, with size on right)
-- **Selection**: Checkboxes with visual feedback, keyboard support
-- **Empty State**: Shows when no downloads exist
-
-**Deletion Flow**:
-
-1. User selects manga with checkboxes (multiple selection supported)
-2. Clicks "Delete Selected (X)" button at bottom
-3. Confirmation dialog shows:
-   - List of manga titles with individual sizes
-   - Total size to be freed
-   - Warning: "This action cannot be undone"
-4. On confirm: API call → Loading state → Success toast → Data refresh → Clear selection
-5. On cancel: No action, selection maintained
-
-### Implementation Quality
-
-- ✅ **No compilation errors** - All TypeScript types correct
-- ✅ **Accessibility** - Keyboard navigation, role attributes, focus management
-- ✅ **Error handling** - Try/catch blocks, user-friendly toast messages
-- ✅ **Loading states** - Proper loading UI, disabled states during operations
-- ✅ **Code formatting** - Prettier applied, consistent style
-- ✅ **Type safety** - Proper interfaces for StorageData, MangaStorageItem, props
-- ✅ **Performance** - Efficient sorting with localeCompare, Set for selection tracking
-- ✅ **Reusability** - Components properly separated, could be used elsewhere
-
-### Files Changed (8 files total)
-
-**Frontend Components**:
-
-- `src/renderer/src/components/StorageChart/StorageChart.tsx` (NEW)
-- `src/renderer/src/components/StorageChart/index.ts` (NEW)
-- `src/renderer/src/components/MangaStorageList/MangaStorageList.tsx` (NEW)
-- `src/renderer/src/components/MangaStorageList/index.ts` (NEW)
-- `src/renderer/src/views/SettingsView/components/StorageManagementSettings.tsx` (NEW)
-- `src/renderer/src/views/SettingsView/components/DownloadsSettings.tsx` (RENAMED)
-- `src/renderer/src/views/SettingsView/SettingsView.tsx` (MODIFIED)
-
-**Backend**:
-
-- `src/main/menu/tools.menu.ts` (MODIFIED)
-
-**Backend Already Complete** (from previous session):
-
-- `downloads.getStorageInfo()` IPC handler ✅
-- `downloads.deleteManga()` IPC handler ✅
-- `downloads.batchDeleteManga()` IPC handler ✅
-- Database queries for storage stats ✅
-- Filesystem deletion logic ✅
-
-### Testing Recommendations
-
-1. **Navigation Testing**:
-   - Open Settings normally → click Storage tab
-   - Use Tools → Manage Storage menu item (Ctrl+Shift+M)
-   - Navigate directly to `/settings?tab=storage` via URL
-
-2. **Chart Visualization**:
-   - Verify disk space totals match system disk info
-   - Check top manga matches largest downloads
-   - Confirm labels appear/disappear based on 8% threshold
-   - Test with varying data sizes (empty, few manga, many manga)
-
-3. **List Functionality**:
-   - Test all 4 sort options (Largest/Smallest/A-Z/Z-A)
-   - Verify chapter counts and sizes are accurate
-   - Test checkbox selection (single, multiple, all)
-   - Keyboard navigation (Tab, Enter, Space)
-
-4. **Deletion Workflow**:
-   - Select single manga → verify confirmation dialog content
-   - Select multiple manga → verify list shows all items + total size
-   - Confirm deletion → verify files removed from disk
-   - Cancel deletion → verify no changes made
-   - Test with manga that has many chapters
-   - Verify toast messages appear correctly
-
-5. **Edge Cases**:
-   - No downloads → empty state UI
-   - Single manga → chart shows correctly
-   - Very large library → performance testing
-   - Network error during data fetch → error message
-   - Deletion failure → proper error handling
-
-### Design Decisions
-
-**Tab Reorganization Rationale**:
-
-- "Downloads" tab for configuration (path, quality, settings) - action-oriented
-- "Storage" tab for management (visualization, cleanup) - monitoring-oriented
-- Clear separation of concerns for better UX
-
-**Dual-Level Chart Choice**:
-
-- Top bar provides disk context (prevents user anxiety about total space)
-- Bottom bar shows actionable breakdown (which manga to delete)
-- Two-tier design inspired by macOS Storage Management
-
-**Borderless List Style**:
-
-- Cleaner, more modern than bordered cards
-- Consistent with Steam Big Picture mode aesthetic
-- Dashed dividers provide subtle separation without heaviness
-
-**Semi-Header Design**:
-
-- Not full table header (too formal)
-- Integrated label + dropdown (more compact)
-- Matches Windows 11 Settings app patterns
-
-**Native Confirmation Dialog**:
-
-- More trustworthy than custom modal
-- System-level warning for destructive action
-- Consistent with OS deletion workflows
-
-### Result
-
-Production-ready storage management interface. Users can now:
-
-- ✅ Visualize total storage usage with disk context
-- ✅ See per-manga breakdown with chapter counts
-- ✅ Sort manga by storage size or title
-- ✅ Select multiple manga for bulk cleanup
-- ✅ Safely delete downloads with confirmation
-- ✅ Access via Settings tab or keyboard shortcut (Ctrl+Shift+M)
-
-**Phase 4 Progress**: 12/13 tasks complete (92%) - Only P4-T15 Offline Mode Menu Toggle remains
+## Next Steps - Phase 5 Planning
+
+**Recommended Focus Areas**:
+
+1. **Testing & QA**:
+   - Comprehensive E2E testing (download flows, offline reading, storage management)
+   - Performance profiling (download concurrency, database queries, UI responsiveness)
+   - Cross-platform testing (Windows/macOS behavior validation)
+   - Accessibility audit (WCAG 2.1 compliance verification)
+
+2. **Performance Optimization**:
+   - Database query optimization for large libraries (1000+ manga)
+   - Memory leak detection and prevention
+   - Download queue performance tuning
+   - Image loading optimization
+
+3. **Polish & Refinements**:
+   - UI/UX improvements based on Phase 4 learnings
+   - Error message refinement
+   - Loading state consistency
+   - Keyboard shortcut completion
+
+4. **Stability Improvements**:
+   - Bug fixing from Phase 4 usage
+   - Edge case handling
+   - Network error recovery
+   - Crash reporting setup
+
+**See**: [project-progress.md](./project-progress.md) Phase 5 section for full planning details.
 
 ---
 
-## Download System Improvements (27 Feb 2026)
+## Recent Work - Last 2 Weeks
 
-**Status**: ✅ Complete - Fixed queue visibility and Clear Completed button behavior
+### P4-T15: Cache Management UI (10 Mar 2026) ✅
 
-### Issues Addressed
+**Summary**: Comprehensive cache management in Settings > Storage tab with cover cache controls and two-tier metadata cleanup system.
 
-**1. ✅ Queue Visibility Problem**
+**Key Features**:
 
-- **Issue**: Queued downloads not showing in DownloadsView UI
-- **Root Cause**: Database entries only created when download starts (in `downloadService.downloadChapter()`), not when added to queue. Foreign key constraints (chapter/manga must exist) prevented early DB entry creation.
-- **Solution**: Expose in-memory queue via IPC and merge with database downloads in UI
-- **Implementation**:
-  - Added `getQueuedItems()` method in `download-queue.service.ts` to expose in-memory queue
-  - Added IPC handler `download:get-queued-items`
-  - Updated preload bindings with `getQueuedItems(): Promise<IpcResponse<QueuedDownloads[]>>`
-  - Modified `loadDownloads()` in DownloadsView to fetch both DB downloads and queue items
-  - Queue items not in DB display with placeholder metadata until download starts
-- **Files Modified**:
-  - `src/main/services/download-queue.service.ts`
-  - `src/main/ipc/handlers/download.handler.ts`
-  - `src/preload/index.d.ts`, `src/preload/index.ts`
-  - `src/renderer/src/views/DownloadsView/DownloadsView.tsx`
+- **Cover Cache Management**: Size limit dropdown (10MB-500MB or Unlimited), real-time usage display with percentage bar, clear all function
+- **Metadata Cache**: Statistics breakdown (total/library/downloaded/browsing/old), two cleanup options (gentle 90-day vs aggressive immediate)
+- **Backend**: 4 new IPC handlers (get-stats, clear-cache, optimize-db, set-limit), single optimized query for statistics
+- **Bug Fix**: Fixed EPERM error in cover cache deletion (added directory check before unlink)
 
-**2. ✅ Cancel All Queued Button**
+**Files Modified** (9 files):
 
-- **Implementation**: Added button to cancel all queued (not actively downloading) items
-- **Backend**: `cancelAllQueued()` clears in-memory queue array, returns count
-- **Frontend**: Button shows when `queuedCount > 0`, calls `globalThis.downloads.cancelAllQueued()`
-- **Files Modified**: Same as above + additional UI button in DownloadsView
+- Backend: storage.handler.ts, manga.repo.ts, destruction-repo.ts, disk-cache.util.ts, registry.ts
+- Preload: index.d.ts, index.ts (Storage interface)
+- Frontend: CacheManagementSettings.tsx (NEW ~320 lines), SettingsView.tsx
 
-**3. ✅ Clear Completed Button Regression Fix**
+**Design Decisions**:
 
-- **Issue**: "Clear Completed" was calling `deleteChapter()` which deleted files from disk
-- **Expected Behavior**: Should soft-delete (hide from UI) but keep files on disk
-- **Solution**: Implemented proper soft delete using existing `isHidden` column infrastructure
-- **Backend Changes**:
-  - Added `clearCompletedDownloads()` method in `download.service.ts` that soft-deletes (sets `isHidden: true`)
-  - Updated `deleteChapter()` to use `DeleteChapterCommand` with `isDeletePermanent: true` flag
-  - Added `download:clear-completed` IPC handler
-  - Updated `getAllDownloads()` in repo to filter `WHERE isHidden = false`
-- **Frontend Changes**:
-  - Updated `handleClearCompleted()` to call `globalThis.downloads.clearCompleted()`
-  - Toast message clarifies "Cleared X downloads from view"
-- **Files Modified**:
-  - `src/main/services/download.service.ts`
-  - `src/main/database/repository/chapter-downloads.repo.ts`
-  - `src/main/ipc/handlers/download.handler.ts`
-  - `src/preload/index.d.ts`, `src/preload/index.ts`
-  - `src/renderer/src/views/DownloadsView/DownloadsView.tsx`
+- **Two-tier cleanup**: Gentle (90 days, respects history) vs Aggressive (immediate, maximum space)
+- **Cover limit exposed**: Previously hidden, now user-facing with dropdown (default 100MB)
+- **Protected data**: Library and downloaded manga never deleted, clearly labeled with icons (📚/⬇️)
+- **No VACUUM UI**: Can't reliably estimate space savings beforehand, deferred to automatic background task
 
-### Technical Summary
-
-**Queue Architecture**:
-
-- In-memory queue managed by `download-queue.service.ts`
-- Database entries created when download starts (after metadata fetch)
-- UI merges both sources to show all queued + active + completed downloads
-- Queue items display with temporary placeholder data ("Loading...", chapter ID preview)
-
-**Download Lifecycle**:
-
-1. User queues chapter → Added to in-memory queue
-2. UI shows queued item with placeholder
-3. Queue processor starts download → Fetches metadata, saves to DB, creates download entry
-4. UI updates with real metadata as download progresses
-5. Completion persists to database with full details
-
-**Button Behaviors**:
-
-| Button                | Files      | Database                       | Action                         |
-| --------------------- | ---------- | ------------------------------ | ------------------------------ |
-| **Clear Completed**   | ✅ Kept    | Soft delete (`isHidden: true`) | Hide from UI, keep for reading |
-| **Remove** (per item) | ❌ Deleted | Hard delete                    | Permanent removal              |
-| **Cancel All Queued** | N/A        | N/A                            | Clear in-memory queue only     |
-
-**Why This Design**:
-
-- Foreign key constraints require chapter/manga metadata before DB entry creation
-- Fetching metadata before queueing would slow down bulk operations
-- In-memory queue + merge strategy provides immediate UI feedback with eventual consistency
-- Soft delete for Clear Completed enables re-reading without re-downloading
-
-### Files Changed (8 files)
-
-**Backend**:
-
-- `src/main/services/download-queue.service.ts` (added `getQueuedItems()`, updated cancel methods)
-- `src/main/services/download.service.ts` (added `clearCompletedDownloads()`)
-- `src/main/database/repository/chapter-downloads.repo.ts` (filter hidden downloads)
-- `src/main/ipc/handlers/download.handler.ts` (added 2 handlers)
-
-**Preload**:
-
-- `src/preload/index.d.ts` (added `getQueuedItems`, `clearCompleted`, `cancelAllQueued`)
-- `src/preload/index.ts` (added IPC invocations)
-
-**Frontend**:
-
-- `src/renderer/src/views/DownloadsView/DownloadsView.tsx` (merged queue + DB, updated handlers)
-
-### Testing Recommendations
-
-1. Queue multiple chapters and verify they appear immediately in Downloads view
-2. Click "Cancel All Queued" and confirm items are removed from UI
-3. Complete some downloads, click "Clear Completed", verify:
-   - Items disappear from UI
-   - Files still exist in downloads folder
-   - Can still read chapters from ReaderView
-4. Test "Remove" button to ensure permanent deletion still works
+**Result**: Production-ready cache management. Users control cover allocation, view metadata stats, and clean browsing cache with granular control.
 
 ---
 
-## Download Regression Test Fixes (24 Feb 2026)
+### P4-T13: Unfavourite Dialog (4 Mar 2026) ✅
 
-**Status**: ✅ Complete - All 6 identified issues resolved
+**Summary**: Smart unfavourite workflow that detects downloads and offers granular cleanup options.
 
-**Issues Fixed**:
+**Key Features**:
 
-1. ✅ **CRITICAL BUG: Download state not updating in database**
-   - **Root Cause**: `downloadChapterImages()` method in `download.service.ts` was returning `MarkDownloadStateCommand` with `isDownloaded: false`, causing `markDownloadState()` to skip database updates (empty UPDATE statement)
-   - **Fix**: Added `updateData.isDownloaded = true` before returning from successful download
-   - **Impact**: First download attempts now properly mark chapters as completed in database
-   - **File Modified**: `src/main/services/download.service.ts`
+- Context-aware: Simple confirmation if no downloads, 4-choice dialog if downloads exist
+- Options: (1) Remove library only, (2) Delete downloads only, (3) Remove everything, (4) Cancel
+- Centralized handler utility (unfavouriteHandler.ts) for consistent behavior across views
+- Download stats API (getDownloadStats) returns chapter count and storage size
+- Shared formatBytes utility (replaced 3 duplicates)
 
-2. ✅ **UI Bug: StreamSourceIndicator vertical misalignment**
-   - **Root Cause**: Icon displayed inline within `<h1>` without flexbox alignment
-   - **Fix**: Added `display: flex; align-items: center; justify-content: center;` to `.reader-header__title`
-   - **Impact**: Globe/disk icons now properly aligned with chapter title
-   - **File Modified**: `src/renderer/src/views/ReaderView/ReaderView.css`
+**Integration**: LibraryView, MangaDetailView, BrowseView all use centralized handler with refresh on success
 
-3. ✅ **UI Polish: Icon color inconsistency**
-   - **Root Cause**: Online source icon used secondary color, local source icon used success green
-   - **Fix**: Changed local icon from `var(--win-success)` to `var(--win-text-secondary)`
-   - **Impact**: Both streaming indicators now use consistent neutral coloring
-   - **File Modified**: `src/renderer/src/components/StreamSourceIndicator/StreamSourceIndicator.css`
+**Discovery**: Native Electron dialogs have fixed-width titles - place long manga titles in `detail` field, not `message`
 
-4. ✅ **Feature: Open Download Folder button**
-   - **Decision**: Added to DownloadsView toolbar (browser-style UX: Settings for location config, Downloads view for quick access)
-   - **Implementation**:
-     - Added IPC handler `fs:open-downloads-folder` using `shell.openPath()`
-     - Updated preload types (`index.d.ts` and `index.ts`)
-     - Added "Open Folder" button with FolderOpen icon in DownloadsView toolbar
-   - **Files Modified**:
-     - `src/main/ipc/handlers/file-systems.handler.ts`
-     - `src/preload/index.d.ts`
-     - `src/preload/index.ts`
-     - `src/renderer/src/views/DownloadsView/DownloadsView.tsx`
-
-5. ✅ **UX Enhancement: Simplified progress display**
-   - **Decision**: Replaced unreliable bytes/speed/ETA calculation with deterministic "Page X/Y" display
-   - **Rationale**: Page count is known upfront and reliable; byte-based speed/ETA calculations were inconsistent due to variable image sizes and no single source of truth for download speed
-   - **Changes**:
-     - Removed `progressTracker` useRef Map and `calculateSpeed()` function
-     - Removed `formatSpeed` and `formatETA` imports and usage
-     - Removed `speed` and `eta` fields from Download interface
-     - Simplified `handleChapterProgress()` to only update currentPage and progress percentage
-     - Updated UI to show only "Page X / Y" instead of "X / Y pages + speed + ETA"
-   - **Files Modified**:
-     - `src/renderer/src/types/download.types.ts`
-     - `src/renderer/src/views/DownloadsView/DownloadsView.tsx`
-
-6. ✅ **Investigation: "Chapter not found" API errors on first attempt**
-   - **Finding**: Issue was actually caused by #1 (database state not updating). With `isDownloaded` fix, chapter data is now properly cached and subsequent operations work correctly.
-   - **No separate fix needed**: Resolved by fixing the state update bug
-
-**Technical Summary**:
-
-- **Critical Fix**: Download completion now properly persists to database (1 line addition)
-- **UI Refinements**: Icon alignment and color consistency improved
-- **New Feature**: "Open Folder" button with full IPC integration (main + preload + renderer)
-- **UX Simplification**: Removed ~50 lines of speed/ETA calculation code, replaced with simple page counter
-
-**Files Changed** (9 files):
-
-- Main Process: `download.service.ts`, `file-systems.handler.ts`
-- Preload: `index.ts`, `index.d.ts`
-- Renderer: `DownloadsView.tsx`, `ReaderView.css`, `StreamSourceIndicator.css`, `download.types.ts`
-
-**Testing Recommendations**:
-
-- Test download completion persistence across app restarts
-- Verify "Open Folder" button opens correct directory on all platforms
-- Confirm simplified progress display shows correct page numbers during active downloads
-- Check visual alignment of StreamSourceIndicator in ReaderView header
+**Result**: Users can unfavourite with clear understanding of download impact. See [archived-milestones.md](./archived-milestones.md#p4-t13) for details.
 
 ---
 
-## P4-T14 Completion Summary (23 Feb 2026)
+### P4-T11: Storage Management UI (27 Feb 2026) ✅
 
-**Status**: ✅ Complete - DownloadsView Backend Integration
+**Summary**: Complete storage visualization and bulk cleanup interface in Settings > Storage tab.
 
-**What Was Completed**:
+**Key Features**:
 
-1. ✅ **Type Definitions**: Created `download.types.ts` with Download and MangaDownloadGroup interfaces, mapping functions, and utility formatters
-2. ✅ **IPC Integration**: Replaced mock data with real IPC calls to `downloads.getAllDownloads()` and connected to download backend
-3. ✅ **Manga Grouping**: Downloads grouped by manga title with collapsible sections showing aggregate statistics
-4. ✅ **Search/Filter/Sort Bar**: Real-time search by manga/chapter, status filter (All/Active/Completed/Failed), 5 sort options (Recent/Largest/Smallest/A-Z/Z-A)
-5. ✅ **Real-Time Event Listeners**: Connected to `download:chapter-progress`, `download:queue-progress`, and `download:permanent-failure` events
-6. ✅ **Action Handlers**: Connected Cancel, Retry, Remove, Clear Completed, and Retry All Failed buttons to backend IPC handlers
-7. ✅ **Grouped UI**: Collapsible manga sections with chapter cards, progress bars, and action buttons based on status
-8. ✅ **Speed and ETA Calculation**: Real-time speed tracking from progress deltas and ETA estimation from remaining bytes
-9. ✅ **Loading and Error States**: Proper loading spinner, error messages with retry button, and empty state
-10. ✅ **Auto-Collapse**: Groups automatically collapse when all chapters completed (no active or failed)
-11. ✅ **Navigation**: Chapter cards navigate to reader, manga title links navigate to detail view
-12. ✅ **Status Priority Sorting**: Chapters sorted by status (downloading → failed → completed → queued) within groups
+- Dual-level bar chart (disk context + manga breakdown)
+- Sortable manga list with bulk selection (4 sort modes)
+- Safe deletion workflow with native confirmation dialogs
+- Menu integration (Tools → Manage Storage, Ctrl+Shift+M)
+- Deep linking via URL params (?tab=storage)
 
-**Files Created** (2 files, ~746 lines):
+**Components** (5 files, ~740 lines): StorageChart, MangaStorageList, StorageManagementSettings
 
-- `src/renderer/src/types/download.types.ts` (200 lines): Type definitions, mapping, utilities
-- `src/renderer/src/views/DownloadsView/DownloadsView.css` (546 lines): Complete styling with responsive design
+**Design**: Windows 11 style, borderless Steam-inspired list, smart labeling (>8% segments only)
 
-**Files Modified** (1 file):
-
-- `src/renderer/src/views/DownloadsView/DownloadsView.tsx` (400+ lines): Complete rewrite from mock to full backend integration
-
-**Technical Implementation**:
-
-- **State Management**: React useState/useEffect for downloads, groups, filters, and real-time updates
-- **Event Handling**: Proper event listener cleanup, progress tracking with refs, speed/ETA calculation
-- **Performance**: useMemo for filtering/sorting, auto-refresh every 5 seconds as safety net, efficient grouping algorithm
-- **User Experience**: Search/filter/sort, collapsible groups, status-based action buttons, error handling with toasts
-- **Design System**: Windows 11 design tokens, responsive layout, accessible controls
-
-**UI/UX Features**:
-
-1. **Manga-Grouped Layout**: Downloads organized by manga with aggregate stats (total chapters, storage size, active/failed counts)
-2. **Smart Auto-Collapse**: Groups collapse automatically when all chapters completed (no failures or active downloads)
-3. **Comprehensive Search/Filter/Sort**: Real-time search, 4 status filters, 5 sort options
-4. **Retry All Failed Button**: Appears when failedCount > 0, disabled when queue is processing
-5. **Clear Completed Button**: Always visible, disabled when no completed downloads
-6. **Dual Navigation**: Click chapter card → reader | Click manga title link → detail view
-7. **Status Priority Display**: Chapters sorted by urgency (downloading first, then failed, completed, queued)
-8. **Real-Time Progress**: Speed and ETA calculated from download events, progress bars update live
-
-**Implementation Quality**:
-
-- ✅ No TypeScript compilation errors
-- ✅ All 20 success criteria met (from plan)
-- ✅ Event listeners properly cleaned up on unmount
-- ✅ Proper error handling with user-friendly messages
-- ✅ Responsive design for mobile/tablet/desktop
-- ✅ Windows 11 styling consistency
-
-**Design Decisions (from UI mockup review)**:
-
-- ✅ Grouped layout by manga title
-- 🔷 Cover images deferred to future enhancement
-- ✅ Auto-collapse when all chapters completed
-- ✅ Search/filter/sort with 5 sort options
-- ✅ Clear Completed always visible (disabled when empty)
-- ✅ Retry All Failed appears on first failure (disabled during processing)
-- ✅ Navigation: chapter card→reader, manga title→detail
-- ✅ Sort order: downloading→failed→completed→queued
+**Result**: Users visualize storage usage, sort by size/title, bulk-delete with confirmation. See [archived-milestones.md](./archived-milestones.md#p4-t11) for details.
 
 ---
 
-## P4-T06 Completion Summary (21 Feb 2026)
+## Next Steps
 
-**Status**: ✅ Complete - Download UI Fully Integrated
+**Phase 5 Planning**: With Phase 4 complete (13/13 tasks), prepare roadmap for next development phase. Potential focus areas include advanced search features, reading analytics, or performance optimizations for large libraries.
 
-**What Was Completed**:
-
-1. ✅ **StreamSourceIndicator Component**: Passive indicator in ReaderView header showing online (globe icon) or local (disk icon) source with fade-in animation
-2. ✅ **DownloadStatusBadge Component**: Interactive badge for chapter lists with 5 states (not-downloaded, queued, downloading, downloaded, failed) and progress display
-3. ✅ **DownloadConfirmationDialog Component**: Unified modal for single/batch downloads with quality selection (High Quality/Data Saver), location display, and Settings link
-4. ✅ **MangaDetailView Integration**: Added download badge to each chapter item with click handler and confirmation dialog
-5. ✅ **ReaderView Integration**: Added stream source indicator that dynamically shows local/online based on download status
-6. ✅ **IPC Integration**: Connected all components to download IPC handlers (`addToQueue`, `getDownload`, `isDownloaded`)
-7. ✅ **Settings Integration**: Load download path and quality preferences from settings system
-8. ✅ **Quality Mapping**: Proper conversion between frontend format ('high-quality'/'data-saver') and backend ImageQuality enum ('data'/'data-saver')
-9. ✅ **Download Status Checking**: Automatic status loading for visible chapters with proper state management
-10. ✅ **Event Handling**: Proper event propagation control to prevent navigation when clicking download badge
-
-**Components Created** (9 files, ~570 lines):
-
-- `StreamSourceIndicator/` (3 files): Component + CSS + barrel export
-- `DownloadStatusBadge/` (3 files): Component + CSS + barrel export
-- `DownloadConfirmationDialog/` (3 files): Component + CSS + barrel export
-
-**Files Modified** (2 files):
-
-- `ChapterList.tsx`: Added download state management, IPC integration, dialog rendering
-- `ReaderView.tsx`: Added stream source state, download status checking, dynamic indicator
-
-**Technical Implementation**:
-
-- **State Management**: Uses React useState/useEffect for download status caching and settings
-- **Type Safety**: Proper type conversions between frontend and backend enums
-- **Performance**: Batch status checks using Promise.all(), status map caching
-- **User Experience**: Click handlers with stopPropagation(), loading indicators, error handling
-- **Design System**: Windows 11 design tokens, Fluent UI icons, accessible components
-
-**UI/UX Decisions**:
-
-1. **Passive Reader Indicator**: ReaderView shows source (online/local) as info only, no download action
-2. **Unified Quality Dialog**: Single dialog for both single and batch downloads, quality always visible
-3. **Chapter List Actions**: All download interactions happen from chapter list in MangaDetailView
-4. **Settings-Driven Behavior**: Respects shouldAskForQuality and defaultQuality settings
-5. **Clear Visual Hierarchy**: Badges integrated into existing chapter item meta section
-
-**Implementation Quality**:
-
-- ✅ No blocking compilation errors
-- ✅ Proper TypeScript typing throughout
-- ✅ Accessibility features (ARIA labels, keyboard navigation)
-- ✅ Responsive design with Windows 11 styling
-- ✅ Event-driven architecture for real-time updates (foundation laid)
-
-**Deferred for Future Enhancement**:
-
-- Real-time download progress updates in DownloadsView
-- Batch download UI (multi-select chapters)
-- Retry functionality UI
-- Error toast notifications
-- Context menu for downloaded chapters (delete option)
-
----
-
-## Codebase Audit Results (18 Feb 2026)
-
-**Status**: ✅ Complete - Discovered 6 previously implemented tasks
-
-**Audit Findings**: Systematic review of Phase 4 codebase revealed that 6 tasks were already complete but not marked in the task list. These tasks were implemented during earlier sessions or as part of other work.
-
-**Discovered Complete Tasks**:
-
-1. ✅ **P4-T03: Local Image Storage System**
-   - Downloads directory setting with user-configurable path
-   - Path management functions (`getConfiguredDownloadsPath`, `setDownloadsPath`, `initializeDownloadsPath`)
-   - Path validation and allowed paths enforcement
-   - Secure filesystem wrapper for all file operations
-   - UI in StorageSettings.tsx with folder selector
-   - IPC handler: `fs:select-downloads-folder`
-
-2. ✅ **P4-T05: Download Progress Tracking**
-   - Per-chapter progress: `download:chapter-progress` event with page counts
-   - Bulk/queue progress: `download:queue-progress` event with overall stats
-   - Storage size tracking in database
-   - Progress throttling (max 10 events/sec)
-
-3. ✅ **P4-T07: Batch Downloads**
-   - Backend: `addBatchToQueue()` method in download-queue.service.ts
-   - IPC handler: `download:add-batch-to-queue` with validation
-   - Fully functional, awaiting UI integration in P4-T06
-
-4. ✅ **P4-T08: Offline Mode Detection**
-   - Connectivity store with 3 states: online, offline-user, offline-no-internet
-   - Methods: `setOnline()`, `setOfflineMode()`, `setNoInternet()`, `checkConnectivity()`
-   - OfflineStatusBar UI component with "Go Online" and "Retry" buttons
-   - Error messages for offline states
-
-5. ✅ **P4-T09: Storage Management**
-   - Delete chapter: `deleteChapter()` method with file and database cleanup
-   - IPC handler: `downloads:delete-chapter`
-   - Storage size tracking for all downloads
-   - Secure file deletion through validated paths
-
-6. ✅ **P4-T12: File Operation Validation**
-   - pathValidator.ts with `validatePath()`, `normalizePath()`, `validateDirectoryPath()`
-   - secureFs.ts wrapper validates all operations before execution
-   - Allowed paths enforcement (AppData + user downloads directory)
-   - All file operations go through validation layer
-
-**Phase 4 Progress**: 9/12 tasks complete (75%)
-
-**Completed Tasks**:
-
-- P4-T11: Storage quota management and cleanup ✅
-- P4-T13: Unfavourite dialog with download handling ✅
-
-**Next Task**:
-
-- P4-T15: Offline mode menu toggle (File → Work Offline)
-
----
-
-## P4-T02 Completion Summary (18 Feb 2026)
-
-**Status**: ✅ Complete - Download Queue Manager Operational
-
-**What Was Completed**:
-
-1. ✅ Queue Service: Concurrent download orchestration with configurable concurrency (1-10, default: 3)
-2. ✅ Retry Logic: Silent exponential backoff (5s, 15s, 45s) with max 3 attempts
-3. ✅ Batch Updates: Pending database updates flushed at 10 items or 1-second timeout
-4. ✅ Progress Throttling: Max 10 events/sec to prevent IPC flooding
-5. ✅ Resume Capability: Auto-resume incomplete downloads on app startup
-6. ✅ Helper Functions: Extracted to dedicated helper file (stats, notifications, retry delays)
-7. ✅ IPC Handlers: 11 handlers for queue operations (add, remove, clear, retry, stats)
-8. ✅ Type System: Queue types properly exported to renderer via preload bridge
-9. ✅ App Lifecycle: Graceful shutdown with batch update flush
-10. ✅ Duplicate Prevention: Checks for existing items before adding to queue
-
-**Architectural Decisions**:
-
-- **Fresh Settings Reads**: No caching, reads `maxConcurrentDownloads` on every queue processing cycle
-- **FIFO Queue**: Simple queue ordering, no persistence (lost on app restart, but auto-resumed from database)
-- **Silent Retries**: Only notify user on permanent failure after 3 attempts
-- **Batch Database Operations**: Transactional updates with timeout-based flushing
-- **Event-Driven Progress**: `download:queue-progress` and `download:permanent-failure` events
-
-**Technical Implementation**:
-
-- Service: `download-queue.service.ts` (312 lines) with queue state management
-- Helper: `download-queue.helper.ts` with 4 extracted functions
-- Types: `queued-downloads.type.ts`, `queue-state.type.ts`, `overall-progress.type.ts`
-- Repository: `batchMarkDownloadsState()` for transactional updates
-- Settings: `maxConcurrentDownloads` with validation (range: 1-10)
-- Lifecycle: Resume on startup, cleanup on shutdown
-
-**Implementation Notes**:
-
-- User implemented full backend independently after planning phase
-- Comprehensive audit performed, all 6 issues addressed
-- Logic error fixed: `handleDownloadFailure()` reconstructs item from database
-- Missing calls added: `processQueue()` after add/retry, `resumeIncompletedDownloads()` on startup
-- Graceful shutdown: `cleanup()` method flushes pending updates
-
-**Frontend Integration Deferred**: All UI work moved to P4-T06 to enable comprehensive testing and proper UX design
-
----
-
-## P4-T01 Completion Summary (12 Feb 2026)
-
-**Status**: ✅ Backend Complete - Frontend Deferred to P4-T06
-
-**What Was Completed**:
-
-1. ✅ Database schema: `chapter_downloads` table with `downloadsBasePath` tracking
-2. ✅ Migration: `0002_add_newcolumntochapterdownload.sql` (handles path changes)
-3. ✅ Repository layer: Full CRUD operations for download tracking
-4. ✅ Download service: Single-chapter download with proper path structure
-5. ✅ Local image protocol: `local-manga://` handler for filesystem reads
-6. ✅ IPC handlers: All 5 handlers registered (`downloadChapter`, `isDownloaded`, etc.)
-7. ✅ Preload bridge: Exposed to renderer with TypeScript types
-8. ✅ File structure: `manga/{mangaId}/chapters/{chapterId}/pages/001.jpg`
-9. ✅ Path tracking: `downloadsBasePath` + relative `filePath` for directory migration support
-
-**Architectural Decision**:
-
-- **Dual protocol**: `local-manga://` for downloads, `mangadex://` for network
-- **Path resilience**: Tracks download location per-chapter (survives settings changes)
-- **Clean separation**: Network proxy unchanged, new protocol for local files
-
-**Deferred to P4-T06** (Download UI):
-
-- ❌ Download buttons (reader, chapter lists, manga pages)
-- ❌ Progress indicators and status badges
-- ❌ Frontend protocol selection logic (`useChapterData.ts` modification)
-- ❌ Download management UI
-- ❌ Testing/validation of complete download flow
-
-**Why Deferred**: Avoid "blind frontend" implementation. P4-T06 will design proper UX and implement both UI and reader integration together, enabling full testing.
-
----
-
-## Next Steps - Phase 4 Nearly Complete
-
-**Recommended Next**: P4-T11 (Storage Quota Management)
-
-**Why P4-T11 Now**: Download system is fully functional, need storage management to:
-
-- Prevent disk space exhaustion
-- Provide user-configurable quota limits
-- Display storage usage in settings
-- Offer manual cleanup options (delete old/unread downloads)
-- Warn users when approaching limits
-
-**Alternative Tasks**:
-
-- Continue with other features (Phase 5 planning)
-- Polish existing download UI (batch downloads, retry UI)
-- Improve DownloadsView with real-time progress updates
-
----
-
-## Planning Notes for Future Tasks
-
-### P4-T15: Offline Mode Menu Toggle (NEXT - FINAL Phase 4 Task)
-
-**Context**: P4-T08 implemented offline mode infrastructure (connectivityStore with 3 states, OfflineStatusBar component). However, there's no menu item for manual toggle - a standard desktop application pattern.
-
-**Features Needed**:
-
-1. Menu item: File → Work Offline (toggle)
-2. Checkmark shows current state
-3. Updates connectivityStore when clicked
-4. Respects actual connectivity state (can't force online if no internet)
-5. Integrates with existing OfflineStatusBar component
-6. Integrates with existing OfflineStatusBar component
-
-### P4-T02: Download Queue Manager
-
-**Performance Analysis** (1 Feb 2026):
-
-- **Bottleneck**: Network/API (70-100 minutes for 1000 chapters at 5 req/s rate limit)
-- **NOT bottlenecks**: Database writes (~1 second for 1000 records), Filesystem I/O (5-10 minutes)
-- **Key optimizations needed**:
-  - Concurrent downloads: 3-5 simultaneous chapters
-  - Batch database transactions: Update 10-100 records at once
-  - Throttled progress events: Max 10 events/sec across all downloads (prevent IPC flood)
-
-**Features to Implement**:
-
-- Overall progress calculation: Aggregate across all active downloads
-- Event: `download:overall-progress` with `{ totalChapters, completedPages, totalPages, overallPercentage }`
-- Retry logic: Query `status='error'` from database, exponential backoff
-- Download resumption: Detect app restarts, resume incomplete downloads (status='downloading')
-
-### P4-T05: Download Progress UI
-
-**Integration Points**:
-
-- Listen to `download:chapter-progress` events from P4-T01 (per-page updates)
-- Listen to `download:overall-progress` events from P4-T02 (bulk operations)
-- Connect DownloadsView mock UI to real backend
-- Display: Progress bars, status badges, speed/ETA calculations, failed items with retry buttons
-
----
-
-## Recent Completions (Last 2 Weeks)
-
-### Phase 3 Complete - January 2026 ✅
-
-**Summary**: Completed all 19 Phase 3 tasks focused on user experience enhancements.
-
-**Major Achievements**:
-
-- **Backup Ecosystem**: Native DexReader + Mihon import/export (P3-T12 to P3-T15)
-- **Accessibility**: WCAG 2.1 Level AA compliance, 100% Lighthouse scores (P3-T18)
-- **Library Features**: Favorites, collections, history fully operational (P3-T01)
-- **Settings Polish**: Danger Zone, system date format integration (P3-T16, P3-T17)
-
-**Key Metrics**: 19/19 tasks (100%), ~40 hours total investment, production-ready UX
-
-**See**: [project-progress.md](./project-progress.md) for milestone summaries, [archived-milestones.md](./archived-milestones.md) for detailed implementation notes
-
----
-
-## Next Steps - Phase 4 Planning
-
-**Action Required**: Define Phase 4 scope and tasks
-
-**Potential Focus Areas** (to be discussed):
-
-- **Offline Reading**: Download chapters for offline access
-- **Advanced Search**: Complex filtering, saved searches
-- **Reading Analytics**: Statistics dashboard, reading streaks
-- **Performance**: Optimize large libraries (1000+ manga)
-- **Mobile/Tablet**: Responsive design improvements
-- **Customization**: More reader settings, UI themes
-
-**Planning Tasks**:
-
-1. Review Phase 3 outcomes and user feedback
-2. Prioritize Phase 4 features based on impact/effort
-3. Break down selected features into specific tasks
-4. Estimate timeline and dependencies
-5. Update project-progress.md with Phase 4 task list
+**See**: [.github/planning/](../.github/planning/) for detailed planning documents (to be created).
 
 ---
 
@@ -1018,7 +192,7 @@ Production-ready storage management interface. Users can now:
 
 ### Architecture Summary
 
-**Stack**: Electron 34 + React 19 + TypeScript 5.7 + Drizzle ORM + SQLite
+**Stack**: Electron 38.1.2 + React 19 + TypeScript 5.9.2 + Drizzle ORM + SQLite
 **IPC Pattern**: All handlers return `IpcResponse<T>` with success/data/error structure
 **Persistence**: Settings.json (single source of truth), SQLite database (user data)
 **Theme System**: Data-theme attribute + CSS custom properties, respects OS preference

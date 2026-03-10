@@ -1,5 +1,7 @@
 # Project brief: DexReader
 
+**Last Updated**: 10 March 2026
+
 ## What it is
 
 DexReader is a manga reader app written in React with TypeScript. It allows user to read manga, bookmarks titles, as well as the ability to download manga titles to enjoy when the user does not have internet access.

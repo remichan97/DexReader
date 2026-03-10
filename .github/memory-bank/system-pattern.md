@@ -1,6 +1,6 @@
 # DexReader System Pattern
 
-**Last Updated**: 12 December 2025
+**Last Updated**: 10 March 2026
 **Version**: 1.0.1
 **Architecture**: Electron Multi-Process Desktop Application
 
@@ -145,17 +145,17 @@ class ImageProxy {
 }
 ```
 
-#### Phase 3 (Bookmarks): Persistent Metadata Cache
+#### Phase 3 (Bookmarks): Persistent Metadata Cache ✅ **COMPLETE** (Jan-Feb 2026)
 
 **Scope**: Cached metadata and covers for favourited/bookmarked manga
 
-- **Storage Location**: `AppData/DexReader/metadata/`
-- **Cover Images**: 512x512 JPG, persistent on disk
-- **Metadata**: Manga details, chapter lists, tags
+- **Storage Location**: SQLite database (`AppData/DexReader/dexreader.db`) + cover cache (`AppData/DexReader/cache/cover/`)
+- **Cover Images**: 512x512 JPG, persistent on disk with configurable size limit
+- **Metadata**: Manga details, chapter lists, tags, read history, collections
 - **Trigger**: User adds manga to favourites/library
 - **Invalidation**: Based on `updatedAt` timestamps from API
 - **Benefit**: Instant library view, offline metadata browsing
-- **Size Limit**: TBD (likely 500MB-1GB for metadata + covers)
+- **Size Limit**: Configurable via `maxDiskCacheSize` setting (default: unlimited)
 
 #### Phase 4 (Downloads): Full Offline Storage ✅ **BACKEND IMPLEMENTED** (12 Feb 2026)
 
@@ -703,10 +703,13 @@ DexReader implements a **restricted filesystem access model** that limits all fi
 - `mkdir`, `ensureDir`, `deleteFile`, `deleteDir`
 - `isExists`, `stat`, `readDir`
 
-**Settings Manager** (`src/main/filesystem/settingsManager.ts`):
+**Settings Manager** (`src/main/settings/settingsManager.ts`):
 
 - Persists settings to `AppData/settings.json`
-- Schema: `downloadsPath`, `theme`, `accentColor`
+- Schema: `AppSettings` interface with nested structure:
+  - `appearance`: `theme` (light/dark/system), `accentColor` (hex)
+  - `downloads`: `downloadPath`, `maxConcurrentDownloads`, `shouldConfirmDownload`, `defaultQuality`, `maxDiskCacheSize`
+  - `reader`: global reading settings, per-manga overrides
 - Graceful fallback to defaults if corrupted
 
 ### Usage in Renderer
@@ -748,12 +751,12 @@ if (!result.cancelled) {
 
 ## IPC Communication Architecture
 
-**Status**: ✅ Implemented (P1-T08)
+**Status**: ✅ Implemented (P1-T08), expanded in Phase 3/4
 **Documentation**: [ipc-messaging.md](../../docs/architecture/ipc-messaging.md)
 
 ### Overview
 
-DexReader uses a robust IPC (Inter-Process Communication) architecture with **37 channels** across 6 categories. All IPC operations follow consistent patterns for type safety, error handling, and validation.
+DexReader uses a robust IPC (Inter-Process Communication) architecture with **50+ channels** across 12 categories. All IPC operations follow consistent patterns for type safety, error handling, and validation.
 
 ### Channel Naming Convention
 
@@ -1071,11 +1074,11 @@ const setTheme = useAppStore((state) => state.setTheme)
 **Actions**:
 
 - `setSystemTheme(theme)` - Update OS theme
-- `setThemeMode(mode)` - Set user preference
+- `setThemeMode(mode)` - Set user preference (persisted via Settings Manager IPC)
 - `setTheme(theme)` - Direct theme override
 - `setFullscreen(isFullscreen)` - Fullscreen toggle
 
-**Persistence**: `themeMode` only (via localStorage)
+**Persistence**: Theme and accent color via Settings Manager IPC to `settings.json` (P3-T16, 22 Jan 2026)
 
 #### 2. Toast Store (`toastStore.ts`)
 
@@ -1099,19 +1102,19 @@ const setTheme = useAppStore((state) => state.setTheme)
 
 #### 3. User Preferences Store (`userPreferencesStore.ts`)
 
-**Purpose**: Persistent user settings
+**Purpose**: User settings and preferences (deprecated in favor of Settings Manager)
 
 **Categories**: Reading, Downloads, UI, Notifications
 
 **Actions**: Individual setters, bulk updates, reset to defaults
 
-**Persistence**: All preferences to localStorage
+**Persistence**: Critical settings via Settings Manager IPC (downloads, reader preferences)
 
 **Extensibility**: Designed for future expansion
 
 #### 4. Library Store (`libraryStore.ts`)
 
-**Purpose**: Phase 3 skeleton for bookmarks and collections
+**Purpose**: Library management (Phase 3 complete, Jan-Feb 2026)
 
 **Status**: Implemented but not yet integrated
 
