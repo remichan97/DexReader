@@ -98,7 +98,14 @@ export class DiskCacheUtil {
       await Promise.all(
         files.map(async (file) => {
           const filePath = path.join(this.coverCachePath, file)
-          await secureFs.deleteFile(filePath)
+          const stats = await secureFs.stat(filePath)
+
+          // Delete directories recursively, files directly
+          if (stats.isDirectory()) {
+            await secureFs.deleteDir(filePath, { recursive: true })
+          } else {
+            await secureFs.deleteFile(filePath)
+          }
         })
       )
 

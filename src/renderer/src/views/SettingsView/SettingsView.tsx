@@ -8,6 +8,7 @@ import { AppearanceSettings } from './components/AppearanceSettings'
 import { ReaderSettingsSection } from './components/ReaderSettingsSection'
 import { DownloadsSettings } from './components/DownloadsSettings'
 import { StorageManagementSettings } from './components/StorageManagementSettings'
+import { CacheManagementSettings } from './components/CacheManagementSettings'
 import { AdvancedSettings } from './components/AdvancedSettings'
 import { DangerZoneSettings } from '../../components/SettingsView/DangerZoneSettings'
 
@@ -556,6 +557,35 @@ export function SettingsView(): JSX.Element {
         {/* Storage Management Settings */}
         <TabPanel value="storage">
           <StorageManagementSettings />
+
+          {/* Cache Management Section */}
+          <div
+            style={{
+              borderTop: '1px solid var(--win-border-default)',
+              paddingTop: '32px'
+            }}
+          >
+            <h3
+              style={{
+                fontSize: '18px',
+                fontWeight: 600,
+                marginBottom: '8px'
+              }}
+            >
+              Cache Management
+            </h3>
+            <p
+              style={{
+                fontSize: '13px',
+                color: 'var(--win-text-secondary)',
+                marginBottom: '20px'
+              }}
+            >
+              Manage temporary data to balance performance and storage usage.
+            </p>
+
+            <CacheManagementSettings />
+          </div>
         </TabPanel>
 
         {/* Advanced Settings */}
