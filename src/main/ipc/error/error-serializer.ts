@@ -1,10 +1,10 @@
-import { IpcError } from './error'
+import { IpcError } from './ipc.error'
 
 // Re-export shared type for convenience
-export type { ISerialiseError } from '../../preload/ipc.types'
-import type { ISerialiseError } from '../../preload/ipc.types'
+export type { ISerializeError } from '../../../preload/ipc.types'
+import type { ISerializeError } from '../../../preload/ipc.types'
 
-export function serialiseError(error: unknown): ISerialiseError {
+export function serializeError(error: unknown): ISerializeError {
   if (error instanceof IpcError) {
     return {
       name: error.name,

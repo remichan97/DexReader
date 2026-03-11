@@ -1,6 +1,6 @@
 import { downloadService } from './../../services/download.service'
 import { DownloadChapterOptions } from './../../services/options/download-chapter.option'
-import { wrapIpcHandler } from '../wrapHandler'
+import { wrapIpcHandler } from '../wrap-handler'
 import {
   isDownloadChapterOptions,
   isQueuedDownloads

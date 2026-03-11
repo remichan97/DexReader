@@ -1,4 +1,4 @@
-import { MangaDexClient } from '../api/mangadexClient'
+import { MangaDexClient } from '../api/mangadex-client'
 import { Chapter } from '../api/entities/chapter.entity'
 import { ChapterOrderOptions, OrderDirection } from '../api/enums'
 import { mangaRepo } from '../database/repository/manga.repo'
@@ -199,4 +199,4 @@ export class UpdateCheckerService {
     }
   }
 }
-export const libraryUpdate = new UpdateCheckerService()
+export const updateCheckerService = new UpdateCheckerService()

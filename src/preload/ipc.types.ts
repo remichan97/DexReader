@@ -1,6 +1,6 @@
 // Shared IPC types for main, preload, and renderer processes
 
-export interface ISerialiseError {
+export interface ISerializeError {
   name: string
   message: string
   code?: string
@@ -35,7 +35,7 @@ export interface AllowedPaths {
 export interface IpcResponse<T = unknown> {
   success: boolean
   data?: T
-  error?: ISerialiseError
+  error?: ISerializeError
 }
 
 export interface FolderSelectResult {

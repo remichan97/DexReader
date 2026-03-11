@@ -1,5 +1,5 @@
 import { getMainWindow } from '../../window'
-import { wrapIpcHandler } from '../wrapHandler'
+import { wrapIpcHandler } from '../wrap-handler'
 
 export function registerAdditionalDialogHandlers(): void {
   // IPC handler for confirm dialog

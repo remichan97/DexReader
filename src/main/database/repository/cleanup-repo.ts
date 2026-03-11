@@ -14,7 +14,7 @@ import path from 'node:path'
 import fs from 'node:fs/promises'
 import { getAppDataPath } from '../../filesystem/pathValidator'
 
-export class DestructionRepository {
+export class CleanUpRepository {
   private db(): ReturnType<typeof databaseConnection.getDb> {
     return databaseConnection.getDb()
   }
@@ -69,4 +69,4 @@ export class DestructionRepository {
   }
 }
 
-export const destructionRepo = new DestructionRepository()
+export const cleanupRepo = new CleanUpRepository()

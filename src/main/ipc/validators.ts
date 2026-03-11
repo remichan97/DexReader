@@ -1,4 +1,4 @@
-import { ValidationError } from './validationError'
+import { ValidationError } from './error/validation.error'
 
 export function validateString(value: unknown, fieldName: string): string {
   if (typeof value !== 'string') {

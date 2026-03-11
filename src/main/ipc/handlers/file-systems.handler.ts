@@ -3,7 +3,7 @@ import { getAppDataPath, getDownloadsPath } from '../../filesystem/pathValidator
 import { secureFs } from '../../filesystem/secureFs'
 import { setDownloadsPath } from '../../settings/settingsManager'
 import { validateEncoding, validatePath } from '../validators'
-import { wrapIpcHandler } from '../wrapHandler'
+import { wrapIpcHandler } from '../wrap-handler'
 
 export function registerFileSystemHandlers(getWindow: () => BrowserWindow): void {
   // Read files

@@ -1,7 +1,7 @@
 import { DeleteChapterCommand } from './../database/commands/chapter-downloads/delete-chapter.command'
 import { ChapterDownloadsEvent } from './events/chapter-downloads.event'
 import { ImageQuality } from '../api/enums'
-import { MangaDexClient } from '../api/mangadexClient'
+import { MangaDexClient } from '../api/mangadex-client'
 import { MarkDownloadStateCommand } from '../database/commands/chapter-downloads/mark-state.command'
 import { DownloadStatus } from '../database/enums/download-status.enum'
 import { ChapterWithMetadata } from '../database/queries/manga/chapter-with-metadata.query'
@@ -25,7 +25,7 @@ import { DownloadStatResult } from './results/dexreader/download-stats.result'
 import { diskCacheUtil } from '../api/utils/disk-cache.util'
 import { DiskCacheQuery } from '../database/queries/storage/disk-cache.query'
 
-export class NativeDownloadService {
+export class DownloadService {
   private readonly mangadexClient = new MangaDexClient()
 
   isDownloaded(chapterId: string): ChapterDownloadQuery | undefined {
@@ -345,4 +345,4 @@ export class NativeDownloadService {
     }
   }
 }
-export const downloadService = new NativeDownloadService()
+export const downloadService = new DownloadService()

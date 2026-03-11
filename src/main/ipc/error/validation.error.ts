@@ -1,4 +1,4 @@
-import { IpcError } from './error'
+import { IpcError } from './ipc.error'
 
 export class ValidationError extends IpcError {
   constructor(field: string, reason: string) {

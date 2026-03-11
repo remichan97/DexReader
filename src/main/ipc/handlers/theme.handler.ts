@@ -1,5 +1,5 @@
 import { getCurrentTheme, getSystemAccentColor } from '../../theme'
-import { wrapIpcHandler } from '../wrapHandler'
+import { wrapIpcHandler } from '../wrap-handler'
 
 export function registerThemeHandlers(): void {
   // Theme IPC handlers

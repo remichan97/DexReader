@@ -1,7 +1,7 @@
 import { dexreaderExportService } from '../../services/dexreader/dexreader-export.service'
 import { dexreaderImportService } from '../../services/dexreader/dexreader-import.service'
 import { DexreaderExportOption } from '../../services/options/dexreader-export.option'
-import { wrapIpcHandler } from '../wrapHandler'
+import { wrapIpcHandler } from '../wrap-handler'
 
 export function registerDexReaderHandler(): void {
   wrapIpcHandler('dexreader:export-data', async (_, savePath: unknown, options: unknown) => {

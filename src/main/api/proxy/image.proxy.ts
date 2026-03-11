@@ -1,6 +1,6 @@
 import { net, protocol } from 'electron'
-import { ApiConfig } from './constants/api-config.constant'
-import { diskCacheUtil } from './utils/disk-cache.util'
+import { ApiConfig } from '../constants/api-config.constant'
+import { diskCacheUtil } from '../utils/disk-cache.util'
 
 interface CacheEntry {
   buffer: Buffer

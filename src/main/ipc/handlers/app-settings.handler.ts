@@ -15,8 +15,8 @@ import {
   isDownloadsSettings,
   isReaderSettings
 } from '../../settings/validators/types.validator'
-import { wrapIpcHandler } from '../wrapHandler'
-import { destructionRepo } from '../../database/repository/destruction-repo'
+import { wrapIpcHandler } from '../wrap-handler'
+import { cleanupRepo } from '../../database/repository/cleanup-repo'
 
 export function registerAppSettingsHandlers(): void {
   const validSections: Set<keyof AppSettings> = new Set(['appearance', 'downloads', 'reader'])
@@ -99,7 +99,7 @@ export function registerAppSettingsHandlers(): void {
   })
 
   wrapIpcHandler('settings:clear-all', async () => {
-    destructionRepo.clearAllData()
+    cleanupRepo.clearAllData()
 
     const defaultSettings = getDefaultSettings()
     await saveSettings(defaultSettings)

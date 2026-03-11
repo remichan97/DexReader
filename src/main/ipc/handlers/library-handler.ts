@@ -10,8 +10,8 @@ import { collectionRepo } from '../../database/repository/collection.repo'
 import { mangaRepo } from '../../database/repository/manga.repo'
 import { chapterRepo } from '../../database/repository/chapter.repo'
 import { readHistoryRepo } from '../../database/repository/read-history.repo'
-import { libraryUpdate } from '../../services/update-checker.service'
-import { wrapIpcHandler } from '../wrapHandler'
+import { updateCheckerService } from '../../services/update-checker.service'
+import { wrapIpcHandler } from '../wrap-handler'
 
 export function registerLibraryHandlers(): void {
   wrapIpcHandler('library:get-manga', async (_, options: unknown) => {
@@ -35,7 +35,7 @@ export function registerLibraryHandlers(): void {
   })
 
   wrapIpcHandler('library:check-for-updates', async (_, mangaIds: unknown) => {
-    return libraryUpdate.checkForUpdates(mangaIds as string[])
+    return updateCheckerService.checkForUpdates(mangaIds as string[])
   })
 
   wrapIpcHandler('library:get-manga-with-updates', async () => {

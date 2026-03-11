@@ -1,4 +1,4 @@
-import { IpcResponse, ISerialiseError } from '../../../preload/ipc.types'
+import { IpcResponse, ISerializeError } from '../../../preload/ipc.types'
 
 export function isIpcSuccess<T>(
   response: IpcResponse<T>
@@ -8,6 +8,6 @@ export function isIpcSuccess<T>(
 
 export function isIpcError<T>(
   response: IpcResponse<T>
-): response is IpcResponse<T> & { success: false; error: ISerialiseError } {
+): response is IpcResponse<T> & { success: false; error: ISerializeError } {
   return response.success === false && response.error !== undefined
 }

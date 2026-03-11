@@ -1,4 +1,4 @@
-import { IpcError } from './error'
+import { IpcError } from './ipc.error'
 
 export class ThemeError extends IpcError {
   constructor(operation: string, originalError: unknown) {

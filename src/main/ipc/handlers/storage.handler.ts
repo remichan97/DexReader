@@ -1,7 +1,7 @@
-import { destructionRepo } from '../../database/repository/destruction-repo'
+import { cleanupRepo } from '../../database/repository/cleanup-repo'
 import { mangaRepo } from '../../database/repository/manga.repo'
 import { setSettingByPath } from '../../settings/settingsManager'
-import { wrapIpcHandler } from '../wrapHandler'
+import { wrapIpcHandler } from '../wrap-handler'
 
 export function registerStorageHandlers(): void {
   wrapIpcHandler('storage:get-stats', async () => {
@@ -17,7 +17,7 @@ export function registerStorageHandlers(): void {
   })
 
   wrapIpcHandler('storage:optimise-manga-cache', async () => {
-    return await destructionRepo.reclaimStorage()
+    return await cleanupRepo.reclaimStorage()
   })
 
   wrapIpcHandler('storage:set-cover-cache-limit', async (_, limit: unknown) => {

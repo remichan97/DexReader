@@ -1,4 +1,4 @@
-import { RateLimiter } from './rateLimiter'
+import { RateLimiter } from './rate-limiter'
 import { ApiConfig } from './constants/api-config.constant'
 import { MangaDexApiError, MangaDexNetworkError } from './shared/error.shared'
 import { MangaSearchParams } from './searchparams/manga.searchparam'

@@ -2,7 +2,7 @@ import { SaveProgressCommand } from '../../database/commands/progress/save-progr
 import { chapterRepo } from '../../database/repository/chapter.repo'
 import { progressRepo } from '../../database/repository/manga-progress.repo'
 import { readingRepo } from '../../database/repository/reading-stats.repo'
-import { wrapIpcHandler } from '../wrapHandler'
+import { wrapIpcHandler } from '../wrap-handler'
 
 export function registerProgressTrackingHandlers(): void {
   wrapIpcHandler('progress:get-progress', async (_, id: unknown) => {

@@ -1,5 +1,5 @@
 import { ipcMain, IpcMainInvokeEvent } from 'electron'
-import { serialiseError } from './errorSerialiser'
+import { serializeError } from './error/error-serializer'
 
 type IpcHandler<T = unknown, R = unknown> = (
   event: IpcMainInvokeEvent,
@@ -16,7 +16,7 @@ export function wrapIpcHandler<T = unknown, R = unknown>(
       return { success: true, data: result }
     } catch (error) {
       console.error(`[IPC Error] "${channel}":`, error)
-      return { success: false, error: serialiseError(error) }
+      return { success: false, error: serializeError(error) }
     }
   })
 }

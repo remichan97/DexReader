@@ -2,7 +2,7 @@ import { readerSettingsRepo } from '../../database/repository/reader-settings.re
 import { MangaReadingSettings } from '../../settings/entity/reading-settings.entity'
 import { getMangaReaderSettings } from '../../settings/settingsManager'
 import { isMangaOverrideSettings } from '../../settings/validators/types.validator'
-import { wrapIpcHandler } from '../wrapHandler'
+import { wrapIpcHandler } from '../wrap-handler'
 
 export function registerReaderSettingsHandlers(): void {
   wrapIpcHandler('reader:get-manga-settings', async (_, mangaId: unknown) => {
