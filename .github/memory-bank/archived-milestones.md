@@ -134,25 +134,23 @@ export const statsMangaTable = async (): Promise<MangaCacheStatsQuery> => {
 export const cleanupMangaCache = async (immediate: boolean): Promise<number> => {
   const ninetyDaysAgo = Date.now() - 90 * 24 * 60 * 60 * 1000
 
-  const query = db
-    .delete(mangaTable)
-    .where(
-      and(
-        eq(mangaTable.isFavourite, false),
-        notExists(
-          db
-            .select({ mangaId: chapterDownloadsTable.mangaId })
-            .from(chapterDownloadsTable)
-            .where(
-              and(
-                eq(chapterDownloadsTable.mangaId, mangaTable.id),
-                eq(chapterDownloadsTable.status, 'completed')
-              )
+  const query = db.delete(mangaTable).where(
+    and(
+      eq(mangaTable.isFavourite, false),
+      notExists(
+        db
+          .select({ mangaId: chapterDownloadsTable.mangaId })
+          .from(chapterDownloadsTable)
+          .where(
+            and(
+              eq(chapterDownloadsTable.mangaId, mangaTable.id),
+              eq(chapterDownloadsTable.status, 'completed')
             )
-        ),
-        immediate ? undefined : lt(mangaTable.updatedAt, ninetyDaysAgo)
-      )
+          )
+      ),
+      immediate ? undefined : lt(mangaTable.updatedAt, ninetyDaysAgo)
     )
+  )
 
   const result = await query.returning({ id: mangaTable.id })
   return result.length
@@ -390,9 +388,17 @@ const handleSetCacheLimit = async (value: string) => {
   const response = await globalThis.storage.setCoverCacheLimit(limitBytes)
   if (response.success) {
     setCoverCacheLimit(limitBytes)
-    showToast({ title: 'Saved', message: `Cache limit set to ${value === '0' ? 'unlimited' : value + ' MB'}`, variant: 'success' })
+    showToast({
+      title: 'Saved',
+      message: `Cache limit set to ${value === '0' ? 'unlimited' : value + ' MB'}`,
+      variant: 'success'
+    })
   } else {
-    showToast({ title: 'Error', message: response.error || 'Failed to set limit', variant: 'error' })
+    showToast({
+      title: 'Error',
+      message: response.error || 'Failed to set limit',
+      variant: 'error'
+    })
   }
 }
 
@@ -410,7 +416,11 @@ const handleClearCovers = async () => {
     showToast({ title: 'Cleared', message: `${imageCount} covers removed`, variant: 'success' })
     await loadCoverCacheInfo()
   } else {
-    showToast({ title: 'Error', message: response.error || 'Failed to clear covers', variant: 'error' })
+    showToast({
+      title: 'Error',
+      message: response.error || 'Failed to clear covers',
+      variant: 'error'
+    })
   }
 }
 
@@ -419,7 +429,8 @@ const handleCleanUpNow = async () => {
 
   const confirm = await globalThis.api.showConfirmDialog({
     message: `Clean up ${stats.oldCache} old manga?`,
-    detail: 'This removes manga not viewed in 90+ days. Library and downloaded titles are protected.',
+    detail:
+      'This removes manga not viewed in 90+ days. Library and downloaded titles are protected.',
     type: 'warning'
   })
 
@@ -427,10 +438,18 @@ const handleCleanUpNow = async () => {
 
   const response = await globalThis.storage.clearMangaCache(false) // 90-day cleanup
   if (response.success) {
-    showToast({ title: 'Cleaned', message: `${stats.oldCache} old manga removed`, variant: 'success' })
+    showToast({
+      title: 'Cleaned',
+      message: `${stats.oldCache} old manga removed`,
+      variant: 'success'
+    })
     await loadStats()
   } else {
-    showToast({ title: 'Error', message: response.error || 'Failed to clean cache', variant: 'error' })
+    showToast({
+      title: 'Error',
+      message: response.error || 'Failed to clean cache',
+      variant: 'error'
+    })
   }
 }
 
@@ -447,10 +466,18 @@ const handleClearAllCache = async () => {
 
   const response = await globalThis.storage.clearMangaCache(true) // Immediate cleanup
   if (response.success) {
-    showToast({ title: 'Cleared', message: `${stats.browsingCache} manga removed`, variant: 'success' })
+    showToast({
+      title: 'Cleared',
+      message: `${stats.browsingCache} manga removed`,
+      variant: 'success'
+    })
     await loadStats()
   } else {
-    showToast({ title: 'Error', message: response.error || 'Failed to clear cache', variant: 'error' })
+    showToast({
+      title: 'Error',
+      message: response.error || 'Failed to clear cache',
+      variant: 'error'
+    })
   }
 }
 ```
