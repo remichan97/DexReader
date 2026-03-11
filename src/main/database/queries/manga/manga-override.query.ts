@@ -1,4 +1,4 @@
-import { MangaReadingSettings } from '../../../settings/entity/reading-settings.entity'
+import { MangaReadingSettings } from '../../../settings/entities/reading-settings.entity'
 
 /**
  * Query result for manga reader overrides with metadata

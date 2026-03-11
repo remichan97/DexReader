@@ -3,7 +3,7 @@ import { GetReadHistoryCommand } from '../commands/history/get-history-options.c
 import { RecordReadCommand } from '../commands/history/record-read.command'
 import { databaseConnection } from '../connection'
 import { ReadHistoryQuery } from '../queries/history/reading-history.query'
-import { chapter, manga, readHistory } from '../schema'
+import { chapter, manga, readHistory } from '../schemas'
 import { ReadHistoryMapper } from '../mappers/history.mapper'
 
 export class ReadHistoryRepository {

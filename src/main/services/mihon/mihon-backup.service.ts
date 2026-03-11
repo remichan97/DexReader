@@ -8,13 +8,13 @@ import { BackupCategory } from '../types/mihon/backup-category.type'
 import { BackupManga } from '../types/mihon/backup-manga.type'
 import protobuf from 'protobufjs'
 import { Backup } from '../types/mihon/backup.type'
-import { collectionRepo } from '../../database/repository/collection.repo'
-import { mangaRepo } from '../../database/repository/manga.repo'
+import { collectionRepo } from '../../database/repositories/collection.repo'
+import { mangaRepo } from '../../database/repositories/manga.repo'
 import { AddToCollectionCommand } from '../../database/commands/collections/add-to-collection.command'
 import path from 'node:path'
 import { SaveProgressCommand } from '../../database/commands/progress/save-progress.command'
-import { progressRepo } from '../../database/repository/manga-progress.repo'
-import { chapterRepo } from '../../database/repository/chapter.repo'
+import { progressRepo } from '../../database/repositories/manga-progress.repo'
+import { chapterRepo } from '../../database/repositories/chapter.repo'
 
 export class MihonBackupService {
   // MangaDex source ID from Tachiyomi extension

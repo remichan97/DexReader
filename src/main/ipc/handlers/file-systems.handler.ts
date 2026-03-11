@@ -1,7 +1,7 @@
 import { BrowserWindow, dialog, shell } from 'electron'
-import { getAppDataPath, getDownloadsPath } from '../../filesystem/pathValidator'
-import { secureFs } from '../../filesystem/secureFs'
-import { setDownloadsPath } from '../../settings/settingsManager'
+import { getAppDataPath, getDownloadsPath } from '../../filesystem/path-validator'
+import { secureFs } from '../../filesystem/secure-fs'
+import { setDownloadsPath } from '../../settings/settings-manager'
 import { validateEncoding, validatePath } from '../validators'
 import { wrapIpcHandler } from '../wrap-handler'
 

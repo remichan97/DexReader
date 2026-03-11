@@ -1,4 +1,4 @@
-import { ContentRating } from './../enums/content-rating.enum'
+import { ContentRating } from '../enums/content-rating.enum'
 import { PublicationDemographic } from '../enums/demographic.enum'
 import { PublicationStatus } from '../enums/publication-status.enum'
 import { OrderOptions } from '../enums/order-options.enum'

@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import { secureFs } from '../../filesystem/secureFs'
+import { secureFs } from '../../filesystem/secure-fs'
 
 export interface DownloadResult {
   size: number

@@ -1,6 +1,6 @@
 import { countDistinct, eq, sql } from 'drizzle-orm'
 import { databaseConnection } from '../connection'
-import { chapterProgress, readingStatistics } from '../schema'
+import { chapterProgress, readingStatistics } from '../schemas'
 import { ReadingStats } from '../queries/reading-stats/reading-stats.query'
 
 export class ReadingStatisticRepository {

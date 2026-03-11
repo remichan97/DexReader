@@ -3,7 +3,7 @@ import { databaseConnection } from '../connection'
 import { CollectionQuery } from '../queries/collections/collection.query'
 
 import { CreateCollectionCommand } from '../commands/collections/create-collection.command'
-import { collectionItems, collections, manga } from '../schema'
+import { collectionItems, collections, manga } from '../schemas'
 import { AddToCollectionCommand } from '../commands/collections/add-to-collection.command'
 import { RemoveFromCollectionCommand } from '../commands/collections/remove-from-collection.command'
 import { UpdateCollectionCommand } from '../commands/collections/update-collection.command'

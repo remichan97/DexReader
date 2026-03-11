@@ -1,5 +1,5 @@
 import { ChapterWithMetadata } from '../queries/manga/chapter-with-metadata.query'
-import { chapter } from '../schema/chapter.schema'
+import { chapter } from '../schemas/chapter.schema'
 
 type ChapterRow = typeof chapter.$inferSelect
 

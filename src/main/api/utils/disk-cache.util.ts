@@ -1,8 +1,8 @@
 import path from 'node:path'
-import { getCachedCoverPath } from '../../filesystem/pathValidator'
-import { secureFs } from '../../filesystem/secureFs'
-import { getSettingByPath } from '../../settings/settingsManager'
-import { mangaRepo } from '../../database/repository/manga.repo'
+import { getCachedCoverPath } from '../../filesystem/path-validator'
+import { secureFs } from '../../filesystem/secure-fs'
+import { getSettingByPath } from '../../settings/settings-manager'
+import { mangaRepo } from '../../database/repositories/manga.repo'
 import { DiskCacheQuery } from '../../database/queries/storage/disk-cache.query'
 
 export class DiskCacheUtil {

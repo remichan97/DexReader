@@ -4,15 +4,15 @@ import {
   getDownloadsPath,
   updateDownloadsPath,
   validateDirectoryPath
-} from '../filesystem/pathValidator'
-import { secureFs } from '../filesystem/secureFs'
+} from '../filesystem/path-validator'
+import { secureFs } from '../filesystem/secure-fs'
 import { ImageQuality } from '../api/enums'
-import { AppTheme } from './enum/theme-mode.enum'
-import { ReadingMode } from './enum/reading-mode.enum'
-import { AppSettings } from './entity/app-settings.entity'
-import { MangaReadingSettings } from './entity/reading-settings.entity'
-import { readerSettingsRepo } from '../database/repository/reader-settings.repo'
-import { DownloadConfirmation } from './enum/download-confirmation.enum'
+import { AppTheme } from './enums/theme-mode.enum'
+import { ReadingMode } from './enums/reading-mode.enum'
+import { AppSettings } from './entities/app-settings.entity'
+import { MangaReadingSettings } from './entities/reading-settings.entity'
+import { readerSettingsRepo } from '../database/repositories/reader-settings.repo'
+import { DownloadConfirmation } from './enums/download-confirmation.enum'
 
 const SETTINGS_FILE = path.join(getAppDataPath(), 'settings.json')
 

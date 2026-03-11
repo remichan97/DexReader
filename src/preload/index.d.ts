@@ -15,8 +15,8 @@ import { ImageUrlResponse } from '../main/api/responses/image-url.response'
 
 // API enums & params
 import { ImageQuality } from '../main/api/enums/image-quality.enum'
-import { MangaSearchParams } from '../main/api/searchparams/manga-search.searchparam'
-import { FeedParams } from '../main/api/searchparams/feed.searchparam'
+import { MangaSearchParams } from '../main/api/search-params/manga-search.searchparam'
+import { FeedParams } from '../main/api/search-params/feed.searchparam'
 
 // Database queries
 import type { MangaProgress } from '../main/database/queries/progress/manga-progress.query'
@@ -43,11 +43,11 @@ import { GetLibraryMangaCommand } from '../main/database/commands/library/get-li
 import { UpsertMangaCommand } from '../main/database/commands/manga/upsert-manga.command'
 
 // Database entities
-import { CollectionEntity } from '../main/database/schema/collections.schema'
+import { CollectionEntity } from '../main/database/schemas/collections.schema'
 
 // Settings
-import type { MangaReadingSettings } from '../main/settings/entity/reading-settings.entity'
-import type { AppSettings } from '../main/settings/entity/app-settings.entity'
+import type { MangaReadingSettings } from '../main/settings/entities/reading-settings.entity'
+import type { AppSettings } from '../main/settings/entities/app-settings.entity'
 
 // Service options
 import type { DexreaderExportOption } from '../main/services/options/dexreader-export.option'
@@ -80,7 +80,7 @@ export type { ProgressDatabase } from '../main/database/queries/progress/progres
 export type { ReadingStats } from '../main/database/queries/reading-stats/reading-stats.query'
 export type { MangaOverride } from '../main/database/queries/manga/manga-override.query'
 export type { MangaWithMetadata } from '../main/database/queries/manga/manga-with-metadata.query'
-export type { MangaReadingSettings } from '../main/settings/entity/reading-settings.entity'
+export type { MangaReadingSettings } from '../main/settings/entities/reading-settings.entity'
 export type { CreateCollectionCommand } from '../main/database/commands/collections/create-collection.command'
 export type { UpdateCollectionCommand } from '../main/database/commands/collections/update-collection.command'
 export type { AddToCollectionCommand } from '../main/database/commands/collections/add-to-collection.command'
@@ -100,8 +100,8 @@ export type { QueueState } from '../main/services/types/downloads/queue-state.ty
 export type { ChapterDownloadsEvent } from '../main/services/events/chapter-downloads.event'
 export type { StorageData } from '../main/services/data/storage.data'
 export type { DeleteMangaResult } from '../main/services/results/dexreader/delete-manga.result'
-export type { CollectionEntity } from '../main/database/schema/collections.schema'
-export type { AppSettings } from '../main/settings/entity/app-settings.entity'
+export type { CollectionEntity } from '../main/database/schemas/collections.schema'
+export type { AppSettings } from '../main/settings/entities/app-settings.entity'
 export type { DownloadStatResult } from '../main/services/results/dexreader/download-stats.result'
 export type { MangaCacheStatsQuery } from '../main/database/queries/manga/manga-cache-stats.query'
 

@@ -1,7 +1,7 @@
 import { protocol } from 'electron'
-import { chapterDownloadsRepo } from '../../database/repository/chapter-downloads.repo'
+import { chapterDownloadsRepo } from '../../database/repositories/chapter-downloads.repo'
 import path from 'node:path'
-import { secureFs } from '../../filesystem/secureFs'
+import { secureFs } from '../../filesystem/secure-fs'
 
 export class LocalImageProxy {
   private readonly localUrlPattern: RegExp = /local-manga:\/\/chapter\/([^/]+)\/page\/(\d+)/

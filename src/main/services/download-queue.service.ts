@@ -1,11 +1,11 @@
 import { DownloadStatus } from '../database/enums/download-status.enum'
-import { chapterDownloadsRepo } from '../database/repository/chapter-downloads.repo'
+import { chapterDownloadsRepo } from '../database/repositories/chapter-downloads.repo'
 import { downloadService } from './download.service'
 import { DownloadChapterOptions } from './options/download-chapter.option'
 import { DownloadChapterResult } from './results/dexreader/download-chapter.result'
 import { QueueState } from './types/downloads/queue-state.type'
 import { QueuedDownloads } from './types/downloads/queued-downloads.type'
-import { getSettingByPath } from '../settings/settingsManager'
+import { getSettingByPath } from '../settings/settings-manager'
 import {
   calculateAggregateStats,
   emitOverallProgressEvent,

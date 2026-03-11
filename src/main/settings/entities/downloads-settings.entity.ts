@@ -1,5 +1,5 @@
 import { ImageQuality } from '../../api/enums'
-import { DownloadConfirmation } from '../enum/download-confirmation.enum'
+import { DownloadConfirmation } from '../enums/download-confirmation.enum'
 
 export interface DownloadSettings {
   downloadPath?: string

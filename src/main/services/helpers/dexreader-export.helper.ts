@@ -2,7 +2,7 @@ import { CollectionItemQuery } from '../../database/queries/collections/collecti
 import { CollectionQuery } from '../../database/queries/collections/collection.query'
 import { ChapterProgressQuery } from '../../database/queries/progress/chapter-progress.query'
 import { MangaProgressQuery } from '../../database/queries/progress/manga-progress.query'
-import { chapter, manga } from '../../database/schema'
+import { chapter, manga } from '../../database/schemas'
 import { dateToUnixTimestamp } from '../../utils/timestamps.util'
 import { DexReaderChapterProgress } from '../types/dexreader/chapter-progress.type'
 import { DexReaderChapter } from '../types/dexreader/chapter.type'

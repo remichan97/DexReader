@@ -1,7 +1,7 @@
 import { MangaDexClient } from '../api/mangadex-client'
 import { Chapter } from '../api/entities/chapter.entity'
 import { ChapterOrderOptions, OrderDirection } from '../api/enums'
-import { mangaRepo } from '../database/repository/manga.repo'
+import { mangaRepo } from '../database/repositories/manga.repo'
 import { MangaWithMetadata } from '../database/queries/manga/manga-with-metadata.query'
 import { DEFAULT_MANGA_INCLUDES } from '../api/constants/default-manga-includes.constant'
 import { MangaUpdateData } from './data/manga-updates.data'

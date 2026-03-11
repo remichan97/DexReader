@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises'
 import { StatsFs, type Stats } from 'node:fs'
-import { validatePath } from './pathValidator'
+import { validatePath } from './path-validator'
 import path from 'node:path'
 
 export const secureFs = {

@@ -2,7 +2,7 @@ import { eq, inArray } from 'drizzle-orm'
 import { SaveChapterCommand } from '../commands/progress/save-chapter.command'
 import { databaseConnection } from '../connection'
 import { ChapterWithMetadata } from '../queries/manga/chapter-with-metadata.query'
-import { chapter } from '../schema/chapter.schema'
+import { chapter } from '../schemas/chapter.schema'
 import { ChapterMapper } from '../mappers/chapter.mapper'
 
 type ChapterRow = typeof chapter.$inferSelect

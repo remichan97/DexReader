@@ -9,10 +9,10 @@ import {
   mangaProgress,
   mangaReaderOverrides,
   readingStatistics
-} from '../schema'
+} from '../schemas'
 import path from 'node:path'
 import fs from 'node:fs/promises'
-import { getAppDataPath } from '../../filesystem/pathValidator'
+import { getAppDataPath } from '../../filesystem/path-validator'
 
 export class CleanUpRepository {
   private db(): ReturnType<typeof databaseConnection.getDb> {

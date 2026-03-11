@@ -1,4 +1,4 @@
-import { AppTheme } from '../enum/theme-mode.enum'
+import { AppTheme } from '../enums/theme-mode.enum'
 
 export interface AppearanceSettings {
   theme: AppTheme

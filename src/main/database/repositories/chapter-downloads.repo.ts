@@ -1,6 +1,6 @@
 import { eq, sql, and } from 'drizzle-orm'
 import { databaseConnection } from '../connection'
-import { chapter, chapterDownloads, manga } from '../schema'
+import { chapter, chapterDownloads, manga } from '../schemas'
 import { CreateDownloadCommand } from '../commands/chapter-downloads/create-download.command'
 import { ChapterDownloadQuery } from '../queries/chapter-downloads/chapter-downloads.query'
 import { ChapterDownloadMapper } from '../mappers/chapter-downloads.mapper'

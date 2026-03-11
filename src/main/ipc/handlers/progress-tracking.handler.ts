@@ -1,7 +1,7 @@
 import { SaveProgressCommand } from '../../database/commands/progress/save-progress.command'
-import { chapterRepo } from '../../database/repository/chapter.repo'
-import { progressRepo } from '../../database/repository/manga-progress.repo'
-import { readingRepo } from '../../database/repository/reading-stats.repo'
+import { chapterRepo } from '../../database/repositories/chapter.repo'
+import { progressRepo } from '../../database/repositories/manga-progress.repo'
+import { readingRepo } from '../../database/repositories/reading-stats.repo'
 import { wrapIpcHandler } from '../wrap-handler'
 
 export function registerProgressTrackingHandlers(): void {

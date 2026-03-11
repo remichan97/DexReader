@@ -1,8 +1,8 @@
 import Database from 'better-sqlite3'
 import { drizzle } from 'drizzle-orm/better-sqlite3'
-import { getAppDataPath } from '../filesystem/pathValidator'
+import { getAppDataPath } from '../filesystem/path-validator'
 import path from 'node:path'
-import * as schema from './schema'
+import * as schema from './schemas'
 
 class DatabaseConnection {
   private db: Database.Database | undefined = undefined

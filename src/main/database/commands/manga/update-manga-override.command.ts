@@ -1,4 +1,4 @@
-import { MangaReadingSettings } from '../../../settings/entity/reading-settings.entity'
+import { MangaReadingSettings } from '../../../settings/entities/reading-settings.entity'
 
 export interface UpdateMangaOverrideCommand {
   mangaId: string

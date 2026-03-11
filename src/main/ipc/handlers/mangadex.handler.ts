@@ -1,7 +1,7 @@
 import { ImageQuality } from '../../api/enums'
 import { MangaDexClient } from '../../api/mangadex-client'
-import { FeedParams } from '../../api/searchparams/feed.searchparam'
-import { MangaSearchParams } from '../../api/searchparams/manga.searchparam'
+import { FeedParams } from '../../api/search-params/feed.searchparam'
+import { MangaSearchParams } from '../../api/search-params/manga.searchparam'
 import { wrapIpcHandler } from '../wrap-handler'
 
 const mangadexClient = new MangaDexClient()

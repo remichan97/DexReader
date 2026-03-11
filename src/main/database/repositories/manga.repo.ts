@@ -1,7 +1,7 @@
 import { and, eq, like, lt, SQL, or, sql, notExists } from 'drizzle-orm'
 import { UpsertMangaCommand } from '../commands/manga/upsert-manga.command'
 import { databaseConnection } from '../connection'
-import { chapterDownloads, collectionItems, manga } from '../schema'
+import { chapterDownloads, collectionItems, manga } from '../schemas'
 import { GetLibraryMangaCommand } from '../commands/manga/get-library-manga.command'
 import { MangaWithMetadata } from '../queries/manga/manga-with-metadata.query'
 import { MangaMapper } from '../mappers/manga.mapper'

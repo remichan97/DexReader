@@ -1,6 +1,6 @@
 import { app, shell } from 'electron'
 import { is } from '@electron-toolkit/utils'
-import { AppSettings } from '../../settings/entity/app-settings.entity'
+import { AppSettings } from '../../settings/entities/app-settings.entity'
 import {
   getDefaultSettings,
   getSettingsFilePath,
@@ -9,14 +9,14 @@ import {
   loadSettings,
   saveSettings,
   updateSettings
-} from '../../settings/settingsManager'
+} from '../../settings/settings-manager'
 import {
   isAppearanceSettings,
   isDownloadsSettings,
   isReaderSettings
 } from '../../settings/validators/types.validator'
 import { wrapIpcHandler } from '../wrap-handler'
-import { cleanupRepo } from '../../database/repository/cleanup-repo'
+import { cleanupRepo } from '../../database/repositories/cleanup-repo'
 
 export function registerAppSettingsHandlers(): void {
   const validSections: Set<keyof AppSettings> = new Set(['appearance', 'downloads', 'reader'])

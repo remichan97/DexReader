@@ -1,7 +1,7 @@
 import { CollectionItemQuery } from '../queries/collections/collection-item.query'
 import { CollectionMetadataQuery } from '../queries/collections/collection-metadata.query'
 import { CollectionQuery } from '../queries/collections/collection.query'
-import { collectionItems, collections } from '../schema'
+import { collectionItems, collections } from '../schemas'
 
 type CollectionMetadataRow = {
   id: number

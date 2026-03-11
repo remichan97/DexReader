@@ -1,7 +1,7 @@
 import { ReadHistoryQuery } from '../queries/history/reading-history.query'
-import { readHistory } from '../schema/read-history.schema'
-import { manga } from '../schema/manga.schema'
-import { chapter } from '../schema/chapter.schema'
+import { readHistory } from '../schemas/read-history.schema'
+import { manga } from '../schemas/manga.schema'
+import { chapter } from '../schemas/chapter.schema'
 
 type ReadHistoryRow = typeof readHistory.$inferSelect
 type MangaRow = typeof manga.$inferSelect

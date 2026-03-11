@@ -15,17 +15,17 @@ import { CreateCollectionCommand } from '../../database/commands/collections/cre
 import { DexReaderManga } from '../types/dexreader/manga.type'
 import { DexReaderChapter } from '../types/dexreader/chapter.type'
 import { dexreaderImport } from '../helpers/dexreader-import.helper'
-import { mangaRepo } from '../../database/repository/manga.repo'
-import { chapterRepo } from '../../database/repository/chapter.repo'
+import { mangaRepo } from '../../database/repositories/manga.repo'
+import { chapterRepo } from '../../database/repositories/chapter.repo'
 import { DexReaderCollection } from '../types/dexreader/collection.type'
 import { DexReaderCollectionItem } from '../types/dexreader/collection-item.type'
-import { collectionRepo } from '../../database/repository/collection.repo'
+import { collectionRepo } from '../../database/repositories/collection.repo'
 import { DexReaderMangaProgress } from '../types/dexreader/manga-progress.type'
 import { DexReaderChapterProgress } from '../types/dexreader/chapter-progress.type'
 import { SaveProgressCommand } from '../../database/commands/progress/save-progress.command'
-import { progressRepo } from '../../database/repository/manga-progress.repo'
+import { progressRepo } from '../../database/repositories/manga-progress.repo'
 import { DexReaderMangaReaderOverride } from '../types/dexreader/manga-reader-override.type'
-import { readerSettingsRepo } from '../../database/repository/reader-settings.repo'
+import { readerSettingsRepo } from '../../database/repositories/reader-settings.repo'
 
 export class DexReaderImportService {
   private readonly schemaPath = path.join(

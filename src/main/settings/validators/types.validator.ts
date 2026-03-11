@@ -1,14 +1,14 @@
 import { ImageQuality } from '../../api/enums'
 import { DownloadChapterOptions } from '../../services/options/download-chapter.option'
 import { QueuedDownloads } from '../../services/types/downloads/queued-downloads.type'
-import { DownloadSettings } from '../entity/downloads-settings.entity'
-import { MangaOverrideSettings } from '../entity/manga-override-settings.entity'
-import { ReaderSettings } from '../entity/reader-settings.entity'
-import { MangaReadingSettings } from '../entity/reading-settings.entity'
-import { DownloadConfirmation } from '../enum/download-confirmation.enum'
-import { ReadingMode } from '../enum/reading-mode.enum'
-import { AppTheme } from '../enum/theme-mode.enum'
-import { AppearanceSettings } from './../entity/appearance-settings.entity'
+import { DownloadSettings } from '../entities/downloads-settings.entity'
+import { MangaOverrideSettings } from '../entities/manga-override-settings.entity'
+import { ReaderSettings } from '../entities/reader-settings.entity'
+import { MangaReadingSettings } from '../entities/reading-settings.entity'
+import { DownloadConfirmation } from '../enums/download-confirmation.enum'
+import { ReadingMode } from '../enums/reading-mode.enum'
+import { AppTheme } from '../enums/theme-mode.enum'
+import { AppearanceSettings } from '../entities/appearance-settings.entity'
 
 // Validate appearance settings
 export function isAppearanceSettings(values: unknown): values is AppearanceSettings {

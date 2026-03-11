@@ -2,8 +2,8 @@ import { DownloadChapterOptions } from './../main/services/options/download-chap
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { IpcResponse, FileStats, AllowedPaths, FolderSelectResult } from './ipc.types'
-import { MangaSearchParams } from '../main/api/searchparams/manga.searchparam'
-import { FeedParams } from '../main/api/searchparams/feed.searchparam'
+import { MangaSearchParams } from '../main/api/search-params/manga.searchparam'
+import { FeedParams } from '../main/api/search-params/feed.searchparam'
 import { ImageQuality } from '../main/api/enums'
 import { GetLibraryMangaCommand } from '../main/database/commands/manga/get-library-manga.command'
 import { UpsertMangaCommand } from '../main/database/commands/manga/upsert-manga.command'
@@ -17,7 +17,7 @@ import { DexreaderExportOption } from '../main/services/options/dexreader-export
 import { QueuedDownloads } from '../main/services/types/downloads/queued-downloads.type'
 
 // Export enums for renderer
-export { DownloadConfirmation } from '../main/settings/enum/download-confirmation.enum'
+export { DownloadConfirmation } from '../main/settings/enums/download-confirmation.enum'
 
 // Custom APIs for renderer
 const api = {

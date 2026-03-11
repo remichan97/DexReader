@@ -1,6 +1,6 @@
-import { cleanupRepo } from '../../database/repository/cleanup-repo'
-import { mangaRepo } from '../../database/repository/manga.repo'
-import { setSettingByPath } from '../../settings/settingsManager'
+import { cleanupRepo } from '../../database/repositories/cleanup-repo'
+import { mangaRepo } from '../../database/repositories/manga.repo'
+import { setSettingByPath } from '../../settings/settings-manager'
 import { wrapIpcHandler } from '../wrap-handler'
 
 export function registerStorageHandlers(): void {
