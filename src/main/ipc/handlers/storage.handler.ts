@@ -1,11 +1,11 @@
 import { destructionRepo } from '../../database/repository/destruction-repo'
-import { mangaRepository } from '../../database/repository/manga.repo'
+import { mangaRepo } from '../../database/repository/manga.repo'
 import { setSettingByPath } from '../../settings/settingsManager'
 import { wrapIpcHandler } from '../wrapHandler'
 
 export function registerStorageHandlers(): void {
   wrapIpcHandler('storage:get-stats', async () => {
-    return mangaRepository.statsMangaTable()
+    return mangaRepo.statsMangaTable()
   })
 
   wrapIpcHandler('storage:clear-manga-cache', async (_, immediate: unknown) => {
@@ -13,7 +13,7 @@ export function registerStorageHandlers(): void {
       throw new TypeError('Invalid parameter for clearing manga cache')
     }
 
-    return mangaRepository.cleanupMangaCache(immediate)
+    return mangaRepo.cleanupMangaCache(immediate)
   })
 
   wrapIpcHandler('storage:optimise-manga-cache', async () => {

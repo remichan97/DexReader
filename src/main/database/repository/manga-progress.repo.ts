@@ -7,7 +7,7 @@ import { MangaProgressQuery } from '../queries/progress/manga-progress.query'
 import { SaveProgressCommand } from '../commands/progress/save-progress.command'
 import { MangaMapper } from '../mappers/manga.mapper'
 import { dateToUnixTimestamp, unixTimestampToDate } from '../../utils/timestamps.util'
-import { mangaRepository } from './manga.repo'
+import { mangaRepo } from './manga.repo'
 import { readingRepo } from './reading-stats.repo'
 import { UpdateFirstReadCommand } from '../commands/progress/update-firstread.command'
 
@@ -120,7 +120,7 @@ export class MangaProgressRepository {
 
       // Calculate statistics and cleanup once after all items
       readingRepo.calculateStatistics()
-      mangaRepository.cleanupMangaCache()
+      mangaRepo.cleanupMangaCache()
     })
   }
 

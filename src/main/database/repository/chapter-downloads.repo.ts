@@ -9,7 +9,7 @@ import { DownloadStatus } from '../enums/download-status.enum'
 import { DeleteChapterCommand } from '../commands/chapter-downloads/delete-chapter.command'
 import { MangaStorageQuery } from '../queries/chapter-downloads/manga-storage.query'
 
-export class ChapterDownloadsRepo {
+export class ChapterDownloadsRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
     return databaseConnection.getDb()
   }
@@ -280,4 +280,4 @@ export class ChapterDownloadsRepo {
     return result.length
   }
 }
-export const chapterDownloadsRepo = new ChapterDownloadsRepo()
+export const chapterDownloadsRepo = new ChapterDownloadsRepository()

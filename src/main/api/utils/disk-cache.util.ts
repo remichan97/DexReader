@@ -2,7 +2,7 @@ import path from 'node:path'
 import { getCachedCoverPath } from '../../filesystem/pathValidator'
 import { secureFs } from '../../filesystem/secureFs'
 import { getSettingByPath } from '../../settings/settingsManager'
-import { mangaRepository } from '../../database/repository/manga.repo'
+import { mangaRepo } from '../../database/repository/manga.repo'
 import { DiskCacheQuery } from '../../database/queries/storage/disk-cache.query'
 
 export class DiskCacheUtil {
@@ -82,7 +82,7 @@ export class DiskCacheUtil {
       // Update the manga's cached cover date in the database
       const mangaId = this.extractMangaIdFromCoverUrl(url) // Extract mangaId from URL
       if (mangaId) {
-        mangaRepository.updateCoverCachedDate([mangaId])
+        mangaRepo.updateCoverCachedDate([mangaId])
       }
 
       console.log('[DiskCache] Saved cover to disk:', url)
@@ -109,7 +109,7 @@ export class DiskCacheUtil {
         })
       )
 
-      mangaRepository.clearCachedCoverDate() // Clear cached cover dates for all manga
+      mangaRepo.clearCachedCoverDate() // Clear cached cover dates for all manga
 
       console.log('[DiskCache] Emptied disk cover cache successfully.')
     } catch (error) {
@@ -187,7 +187,7 @@ export class DiskCacheUtil {
         }
       }
 
-      mangaRepository.clearCachedCoverDate(mangaIdToBeEvicted)
+      mangaRepo.clearCachedCoverDate(mangaIdToBeEvicted)
 
       console.log('[DiskCache] Enforced disk cache limit. Current size:', currentSize)
     } catch (error) {

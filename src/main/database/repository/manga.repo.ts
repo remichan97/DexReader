@@ -410,4 +410,4 @@ export class MangaRepository {
   }
 }
 
-export const mangaRepository = new MangaRepository()
+export const mangaRepo = new MangaRepository()

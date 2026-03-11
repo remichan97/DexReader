@@ -9,7 +9,7 @@ import { BackupManga } from '../types/mihon/backup-manga.type'
 import protobuf from 'protobufjs'
 import { Backup } from '../types/mihon/backup.type'
 import { collectionRepo } from '../../database/repository/collection.repo'
-import { mangaRepository } from '../../database/repository/manga.repo'
+import { mangaRepo } from '../../database/repository/manga.repo'
 import { AddToCollectionCommand } from '../../database/commands/collections/add-to-collection.command'
 import path from 'node:path'
 import { SaveProgressCommand } from '../../database/commands/progress/save-progress.command'
@@ -107,7 +107,7 @@ export class MihonBackupService {
         }
 
         // Check if manga already exists
-        const existing = mangaRepository.getLibraryMangaByCustomCondition({ mangaId: mangaId })
+        const existing = mangaRepo.getLibraryMangaByCustomCondition({ mangaId: mangaId })
 
         if (existing.length > 0) {
           result.skippedMangaCount++
@@ -146,7 +146,7 @@ export class MihonBackupService {
     }
 
     // Now we batch everything we have built
-    mangaRepository.batchUpsertManga(upsertCommand)
+    mangaRepo.batchUpsertManga(upsertCommand)
     collectionRepo.batchAddToCollection(addToCollectionsCommands)
     chapterRepo.saveChapters(chapterMetadata)
     progressRepo.saveProgress(progressCommands)

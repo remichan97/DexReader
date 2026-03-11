@@ -1,7 +1,7 @@
 import { MangaDexClient } from '../api/mangadexClient'
 import { Chapter } from '../api/entities/chapter.entity'
 import { ChapterOrderOptions, OrderDirection } from '../api/enums'
-import { mangaRepository } from '../database/repository/manga.repo'
+import { mangaRepo } from '../database/repository/manga.repo'
 import { MangaWithMetadata } from '../database/queries/manga/manga-with-metadata.query'
 import { DEFAULT_MANGA_INCLUDES } from '../api/constants/default-manga-includes.constant'
 import { MangaUpdateData } from './data/manga-updates.data'
@@ -87,7 +87,7 @@ export class UpdateCheckerService {
     }
     // Finally, commit any metadata updates if needed
     const commands = updates.map((i) => i.data)
-    mangaRepository.batchUpsertManga(commands)
+    mangaRepo.batchUpsertManga(commands)
     return result
   }
 
@@ -103,7 +103,7 @@ export class UpdateCheckerService {
   }
 
   private queryCachedMangaData(mangaId: string): MangaWithMetadata | undefined {
-    return mangaRepository.getMangaById(mangaId)
+    return mangaRepo.getMangaById(mangaId)
   }
 
   private buildUpdateCommand(

@@ -7,7 +7,7 @@ import { UpsertMangaCommand } from '../../database/commands/manga/upsert-manga.c
 import { RecordReadCommand } from '../../database/commands/history/record-read.command'
 import { GetLibraryMangaCommand } from '../../database/commands/manga/get-library-manga.command'
 import { collectionRepo } from '../../database/repository/collection.repo'
-import { mangaRepository } from '../../database/repository/manga.repo'
+import { mangaRepo } from '../../database/repository/manga.repo'
 import { chapterRepo } from '../../database/repository/chapter.repo'
 import { readHistoryRepo } from '../../database/repository/read-history.repo'
 import { libraryUpdate } from '../../services/update-checker.service'
@@ -15,11 +15,11 @@ import { wrapIpcHandler } from '../wrapHandler'
 
 export function registerLibraryHandlers(): void {
   wrapIpcHandler('library:get-manga', async (_, options: unknown) => {
-    return mangaRepository.getLibraryManga(options as GetLibraryMangaCommand)
+    return mangaRepo.getLibraryManga(options as GetLibraryMangaCommand)
   })
 
   wrapIpcHandler('library:get-manga-by-id', async (_, mangaId: unknown) => {
-    return mangaRepository.getMangaById(mangaId as string)
+    return mangaRepo.getMangaById(mangaId as string)
   })
 
   wrapIpcHandler('library:get-cached-chapters', async (_, mangaId: unknown) => {
@@ -27,11 +27,11 @@ export function registerLibraryHandlers(): void {
   })
 
   wrapIpcHandler('library:toggle-favourite', async (_, mangaId: string) => {
-    return mangaRepository.toggleFavourite(mangaId)
+    return mangaRepo.toggleFavourite(mangaId)
   })
 
   wrapIpcHandler('library:upsert-manga', async (_, command: unknown) => {
-    return mangaRepository.upsertManga(command as UpsertMangaCommand)
+    return mangaRepo.upsertManga(command as UpsertMangaCommand)
   })
 
   wrapIpcHandler('library:check-for-updates', async (_, mangaIds: unknown) => {
@@ -39,11 +39,11 @@ export function registerLibraryHandlers(): void {
   })
 
   wrapIpcHandler('library:get-manga-with-updates', async () => {
-    return mangaRepository.getLibraryMangaWithNewChapters()
+    return mangaRepo.getLibraryMangaWithNewChapters()
   })
 
   wrapIpcHandler('library:get-downloaded-manga', async () => {
-    return mangaRepository.getDownloadedManga()
+    return mangaRepo.getDownloadedManga()
   })
 
   wrapIpcHandler('collections:get-all', async () => {

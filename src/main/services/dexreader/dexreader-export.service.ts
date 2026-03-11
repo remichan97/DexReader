@@ -3,7 +3,7 @@ import fs from 'node:fs/promises'
 import { DexreaderExportOption } from '../options/dexreader-export.option'
 import { DexReaderExportResult } from '../results/dexreader/export.result'
 import { LibraryData } from '../types/dexreader/library.type'
-import { mangaRepository } from '../../database/repository/manga.repo'
+import { mangaRepo } from '../../database/repository/manga.repo'
 import { dexreaderExport } from '../helpers/dexreader-export.helper'
 import { chapterRepo } from '../../database/repository/chapter.repo'
 import { DexReaderBackup } from '../types/dexreader/backup.type'
@@ -95,8 +95,8 @@ export class DexReaderExportService {
     // to prevent FK violations (these sections can reference non-favourite manga)
     const mangaList =
       options.includeCollections || options.includeProgress || options.includeReaderSettings
-        ? mangaRepository.getAllManga()
-        : mangaRepository.getLibraryMangaForExport()
+        ? mangaRepo.getAllManga()
+        : mangaRepo.getLibraryMangaForExport()
 
     const mangaIDs = mangaList.map((it) => it.mangaId)
     const chapterList = chapterRepo.getChaptersByMangaIds(mangaIDs)

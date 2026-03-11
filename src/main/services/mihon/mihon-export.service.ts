@@ -4,7 +4,7 @@ import { ChapterWithMetadata } from '../../database/queries/manga/chapter-with-m
 import { chapterRepo } from '../../database/repository/chapter.repo'
 import { collectionRepo } from '../../database/repository/collection.repo'
 import { progressRepo } from '../../database/repository/manga-progress.repo'
-import { mangaRepository } from '../../database/repository/manga.repo'
+import { mangaRepo } from '../../database/repository/manga.repo'
 import { mihonExport } from '../helpers/mihon-export.helper'
 import { ExportResult } from '../results/mihon/export.result'
 import { BackupCategory } from '../types/mihon/backup-category.type'
@@ -29,7 +29,7 @@ export class MihonExportService {
     let backupCategories: BackupCategory[] = []
 
     //Grab all Library manga first
-    const library = mangaRepository.getLibraryManga()
+    const library = mangaRepo.getLibraryManga()
 
     if (library.length === 0) {
       throw new Error('No manga in library, nothing to export')

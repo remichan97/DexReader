@@ -15,7 +15,7 @@ import { CreateCollectionCommand } from '../../database/commands/collections/cre
 import { DexReaderManga } from '../types/dexreader/manga.type'
 import { DexReaderChapter } from '../types/dexreader/chapter.type'
 import { dexreaderImport } from '../helpers/dexreader-import.helper'
-import { mangaRepository } from '../../database/repository/manga.repo'
+import { mangaRepo } from '../../database/repository/manga.repo'
 import { chapterRepo } from '../../database/repository/chapter.repo'
 import { DexReaderCollection } from '../types/dexreader/collection.type'
 import { DexReaderCollectionItem } from '../types/dexreader/collection-item.type'
@@ -170,7 +170,7 @@ export class DexReaderImportService {
     // Final signal check before we start the database operations
     signal.throwIfAborted()
 
-    mangaRepository.batchUpsertManga(upsertMangaCommand)
+    mangaRepo.batchUpsertManga(upsertMangaCommand)
     result.importedMangaCount = upsertMangaCommand.filter((m) => m.isFavourite === true).length
 
     chapterRepo.saveChapters(saveChapterCommand)
