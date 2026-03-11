@@ -2,7 +2,7 @@
 
 **Last Updated**: 11 March 2026
 **Current Phase**: Phase 5 - Production Readiness (PLANNING COMPLETE ✅)
-**Next**: Begin P5-T21 Code Refactoring (Week 1)
+**Next**: Begin P5-T21 Code Refactoring (Backend OR Frontend, 18-26 hours each)
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -12,10 +12,67 @@
 
 **Phase 4 Status**: COMPLETE - 13/13 tasks (100%) ✅
 **Phase 5 Planning**: COMPLETE - Timeline finalized (11 Mar 2026) ✅
-**Phase 5 Execution**: Ready to begin Week 1 (P5-T21 Code Refactoring)
+**P5-T21 Audits**: COMPLETE - Backend + Frontend audits done (11 Mar 2026) ✅
+**Phase 5 Execution**: Ready to begin Week 1 (P5-T21 Backend OR Frontend refactoring)
 **Timeline**: 6-8 weeks (11 March - 5 May 2026)
 **Target**: v1.0 Release Early May 2026 🚀
-**Next Steps**: Start P5-T21 (Code Refactoring & Technical Debt Cleanup)
+**Next Steps**: Choose backend OR frontend refactoring path, start execution
+
+---
+
+## P5-T21 Code Refactoring & Technical Debt Cleanup
+
+**Status**: Planning complete, ready for execution ✅
+
+### Backend Audit Complete (11 Mar 2026)
+
+Audited 207 TypeScript files in `src/main/**/*.ts`:
+
+**Findings**:
+
+- **Dead Code**: 4 files/exports (safe to delete, verified no frontend usage)
+  - common-language.enum.ts
+  - relationship-types.constant.ts
+  - manga-relation-types.constant.ts
+  - DEFAULT_CHAPTER_INCLUDES export
+- **Naming Inconsistencies**: 30+ instances (mixed -Repo/-Repository, Service patterns)
+- **Convention Violations**: 13 camelCase files should be kebab-case
+- **Directory Naming**: 5 singular directories → plural (~90 imports affected)
+  - repository/ → repositories/
+  - schema/ → schemas/
+  - entity/ → entities/
+  - enum/ → enums/
+  - searchparams/ → search-params/
+
+**Execution Plan**:
+
+- **7 Phases**: Dead code → Repository naming → Service naming → File naming → Cleanup repo rename → Directory renaming → Documentation
+- **Duration**: 18-24 hours (2-3 days)
+- **Plan**: `.github/copilot-plans/p5-t21-code-refactoring-plan.md` (~1400 lines)
+
+### Frontend Audit Complete (11 Mar 2026)
+
+Audited 166 TypeScript/TSX files in `src/renderer/src/`:
+
+**Findings**:
+
+- **Inline Styling**: 192 `style={{}}` instances across 15+ files (needs CSS migration)
+- **Oversized Components**: 5 components too large
+  - LibraryView: 952 lines → target ~400 lines
+  - ReaderView: 749 lines → target ~350 lines
+  - DownloadsView: 715 lines → target ~350 lines
+  - MangaDetailView: 631 lines → target ~350 lines
+  - ChapterList: 526 lines → target ~200 lines
+- **Accessibility**: 100+ clickable elements missing descriptive aria-labels
+- **CSS Duplication**: 36+ files with repeated `display: flex` patterns (utility class system needed)
+
+**Execution Plan**:
+
+- **6 Phases**: Utility classes → Inline styles migration → Component splitting → CSS deduplication → Accessibility → Final cleanup
+- **Duration**: 20-26 hours (3-4 days)
+- **Plan**: `.github/copilot-plans/p5-t21-frontend-refactoring-plan.md` (~800 lines)
+
+**Next Decision**: Choose backend OR frontend refactoring first (both independent, can be done in either order)
 
 ---
 

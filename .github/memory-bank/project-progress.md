@@ -18,16 +18,45 @@
 
 ---
 
-## Current Status: Phase 5 Planning Complete ✅
+## Current Status: Phase 5 Refactoring Plans Complete ✅
 
 **Phase Progress**: Phase 2 Complete (11/11) ✅ | Guerilla Refactoring Complete ✅ | Phase 3 Complete (19/19) ✅ | Phase 4 Complete (13/13) ✅ | Phase 5 Planning Complete ✅
 **Current Focus**: Phase 5 execution begins Week 1 - Code Refactoring (P5-T21)
-**Recent Completion**: Phase 5 timeline finalized (11 Mar 2026) ✅
-**Next Steps**: Begin P5-T21 Code Refactoring & Technical Debt Cleanup (12-16 hours)
+**Recent Completion**: P5-T21 Backend & Frontend audit + refactoring plans (11 Mar 2026) ✅
+**Next Steps**: Begin P5-T21 Backend refactoring execution (18-24 hours) or Frontend refactoring (20-26 hours)
 
 ---
 
 ## Recent Milestones
+
+### P5-T21 Refactoring Plans Complete (11 March 2026) ✅
+
+Conducted comprehensive backend and frontend code audits, identified technical debt, and created detailed refactoring plans.
+
+**Backend Audit** (207 files in src/main/):
+
+- 4 dead code files/exports identified (safe to delete)
+- 30+ naming inconsistencies (repositories, services, classes)
+- 13 convention violations (camelCase files should be kebab-case)
+- 5 directory naming issues (singular → plural, ~90 imports affected)
+- Estimated: 18-24 hours across 7 phases
+
+**Frontend Audit** (166 files in src/renderer/src/):
+
+- 192 inline `style={{}}` instances (needs CSS class migration)
+- 5 oversized components (952, 749, 715, 631, 526 lines - need splitting)
+- 100+ clickable elements missing descriptive aria-labels
+- 36+ CSS files with display:flex duplication (utility class system needed)
+- Estimated: 20-26 hours across 6 phases
+
+**Plans Created**:
+
+- `.github/copilot-plans/p5-t21-code-refactoring-plan.md` (Backend, ~1400 lines)
+- `.github/copilot-plans/p5-t21-frontend-refactoring-plan.md` (Frontend, ~800 lines)
+
+**Total Estimated Effort**: 38-50 hours (5-7 working days)
+
+---
 
 ### Phase 5 Planning Complete (11 March 2026) ✅
 
@@ -297,7 +326,7 @@ See [archived-milestones.md](./archived-milestones.md) for detailed P4 task impl
 
 **Track 0 - Code Refactoring (Week 1)**:
 
-- [⏳] **P5-T21**: Code Refactoring & Technical Debt Cleanup (12-16 hours)
+- [⏳] **P5-T21**: Code Refactoring & Technical Debt Cleanup (18-24 hours)
 
 **Track 1 - Performance Optimization (Week 2-3)**:
 
