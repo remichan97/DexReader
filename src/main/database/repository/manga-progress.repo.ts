@@ -55,30 +55,6 @@ export class MangaProgressRepository {
     this.db.delete(mangaProgress).where(eq(mangaProgress.mangaId, mangaId)).run()
   }
 
-  getProgressWithMetadata(mangaId: string): MangaProgressMetadata | undefined {
-    const result = this.db
-      .select({
-        mangaId: mangaProgress.mangaId,
-        lastChapterId: mangaProgress.lastChapterId,
-        firstReadAt: mangaProgress.firstReadAt,
-        lastReadAt: mangaProgress.lastReadAt,
-        title: manga.title,
-        coverUrl: manga.coverUrl,
-        status: manga.status,
-        lastChapterNumber: chapter.chapterNumber,
-        lastChapterTitle: chapter.title,
-        lastChapterVolume: chapter.volume,
-        language: chapter.language
-      })
-      .from(mangaProgress)
-      .innerJoin(manga, eq(mangaProgress.mangaId, manga.mangaId))
-      .leftJoin(chapter, eq(mangaProgress.lastChapterId, chapter.chapterId))
-      .where(eq(mangaProgress.mangaId, mangaId))
-      .get()
-
-    return result ? MangaMapper.toMangaProgressWithMetadata(result) : undefined
-  }
-
   getAllProgressWithMetadata(): MangaProgressMetadata[] {
     const results = this.db
       .select({

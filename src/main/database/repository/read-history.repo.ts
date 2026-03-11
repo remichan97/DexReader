@@ -71,37 +71,6 @@ export class ReadHistoryRepository {
     return results.map(ReadHistoryMapper.toReadHistoryQuery)
   }
 
-  // Per-manga read history for detail view
-  getHistoryByManga(mangaId: string): ReadHistoryQuery[] {
-    const results = this.db
-      .select()
-      .from(readHistory)
-      .innerJoin(manga, eq(readHistory.mangaId, manga.mangaId))
-      .innerJoin(chapter, eq(readHistory.chapterId, chapter.chapterId))
-      .where(eq(readHistory.mangaId, mangaId))
-      .orderBy(desc(readHistory.readAt))
-      .all()
-
-    return results.map(ReadHistoryMapper.toReadHistoryQuery)
-  }
-
-  // Last read timestamps for individual manga cards
-  getMangaLastRead(mangaId: string): Date | undefined {
-    const result = this.db
-      .select({
-        lastRead: max(readHistory.readAt)
-      })
-      .from(readHistory)
-      .where(eq(readHistory.mangaId, mangaId))
-      .get()
-
-    if (!result) {
-      return undefined
-    }
-
-    return result.lastRead ? new Date(result.lastRead) : undefined
-  }
-
   // Clear all read history, ONLY when explicitly asked via a `Clear History` button on UI
   clearAllHistory(): number {
     const deleteResult = this.db.delete(readHistory).run()
