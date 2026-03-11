@@ -3,8 +3,8 @@
 **Purpose**: This file tracks completed milestones with concise summaries. For detailed implementation notes, see [archived-milestones.md](./archived-milestones.md).
 
 **Project Start**: 23 November 2025
-**Current Phase**: Phase 4 - Offline Functionality (COMPLETE ✅)
-**Last Updated**: 10 March 2026
+**Current Phase**: Phase 5 - Production Readiness (PLANNING COMPLETE ✅)
+**Last Updated**: 11 March 2026
 
 ---
 
@@ -18,16 +18,32 @@
 
 ---
 
-## Current Status: Phase 4 Complete (13/13 tasks) ✅
+## Current Status: Phase 5 Planning Complete ✅
 
-**Phase Progress**: Phase 2 Complete (11/11) ✅ | Guerilla Refactoring Complete ✅ | Phase 3 Complete (19/19) ✅ | Phase 4 Complete (13/13) ✅
-**Current Focus**: All offline functionality complete - Download system, storage management, and cache management fully implemented
-**Recent Completion**: P4-T15 Cache Management UI (10 Mar 2026) ✅
-**Next Steps**: Phase 5 planning or feature enhancements
+**Phase Progress**: Phase 2 Complete (11/11) ✅ | Guerilla Refactoring Complete ✅ | Phase 3 Complete (19/19) ✅ | Phase 4 Complete (13/13) ✅ | Phase 5 Planning Complete ✅
+**Current Focus**: Phase 5 execution begins Week 1 - Code Refactoring (P5-T21)
+**Recent Completion**: Phase 5 timeline finalized (11 Mar 2026) ✅
+**Next Steps**: Begin P5-T21 Code Refactoring & Technical Debt Cleanup (12-16 hours)
 
 ---
 
 ## Recent Milestones
+
+### Phase 5 Planning Complete (11 March 2026) ✅
+
+Finalized comprehensive Phase 5 plan for production readiness. Created 3 planning documents with 21 tasks (192-236 hours) across 6-8 weeks targeting v1.0 release in early May 2026.
+
+**Key Decisions**:
+
+- Code signing deferred (saves $500-600/year, not needed for <10 users)
+- Testing philosophy: Mock external APIs, test our application logic
+- Logical task order: Refactor → Optimize → Build → Test → Document
+
+**Timeline**: Week 1 Refactoring → Week 2-3 Performance → Week 3-4 Build Pipeline → Week 5-6 Testing → Week 7-8 Documentation → v1.0 Release
+
+See [.github/copilot-plans/](../../copilot-plans/) for detailed planning documents.
+
+---
 
 ### P4-T15 Cache Management UI (10 March 2026) ✅
 
@@ -245,6 +261,89 @@ See [archived-milestones.md](./archived-milestones.md#p4-t01) for implementation
 - [✅] **P4-T15**: Cache management UI (10 Mar 2026)
 
 See [archived-milestones.md](./archived-milestones.md) for detailed P4 task implementation notes.
+
+---
+
+### Phase 5: Production Readiness (11 March - 5 May 2026) 🔵
+
+**Duration**: 6-8 weeks
+**Status**: Planning Complete ✅ | Ready to Execute
+**Started**: Planning Phase (11 Mar 2026)
+**Target Completion**: 28 April - 5 May 2026
+**v1.0 Release**: Early May 2026 🚀
+
+**Objectives**:
+
+- Code refactoring and technical debt cleanup
+- Performance optimization for large libraries (1000+ manga)
+- Automated build and deployment pipeline (GitHub Actions)
+- Comprehensive testing suite (unit, integration, accessibility)
+- Auto-update system (unsigned builds)
+- Production-ready error reporting and logging
+- Complete user and developer documentation
+
+**Deliverables**:
+
+- Clean, well-documented codebase with JSDoc comments
+- Optimized performance (<100ms queries, 60fps UI)
+- CI/CD pipeline with multi-platform builds (Windows/macOS/Linux)
+- 80%+ code coverage for critical paths
+- Auto-update system functional
+- Complete installation guide (including security warning workarounds)
+- API documentation and contribution guide
+- **v1.0 Production Release** 🎉
+
+**Key Technical Tasks** (21 tasks, 5 tracks):
+
+**Track 0 - Code Refactoring (Week 1)**:
+
+- [⏳] **P5-T21**: Code Refactoring & Technical Debt Cleanup (12-16 hours)
+
+**Track 1 - Performance Optimization (Week 2-3)**:
+
+- [⏳] **P5-T01**: Database Query Optimization & Indexing (12-16 hours)
+- [⏳] **P5-T02**: Memory Profiling & Leak Detection (10-12 hours)
+- [⏳] **P5-T03**: Download System Performance (8-10 hours)
+- [⏳] **P5-T04**: Image Loading Optimization (8-10 hours)
+- [⏳] **P5-T05**: UI Responsiveness (6-8 hours)
+
+**Track 2 - Build Pipeline & Deployment (Week 3-4)**:
+
+- [⏳] **P5-T06**: GitHub Actions CI/CD (10-12 hours) **CRITICAL**
+- [⏸️] **P5-T07**: Code Signing **DEFERRED** (not needed for small user base)
+- [⏳] **P5-T08**: Auto-Update System (10-12 hours)
+- [⏳] **P5-T09**: Release Automation (6-8 hours)
+- [⏳] **P5-T10**: Build Optimization (4-6 hours)
+- [⏳] **P5-T11**: Multi-Platform Testing (8-10 hours)
+
+**Track 3 - Testing & Quality Assurance (Week 5-6)**:
+
+- [⏳] **P5-T12**: Unit Testing Framework (8-10 hours)
+- [⏳] **P5-T13**: Integration Testing (12-16 hours)
+- [⏸️] **P5-T14**: E2E Testing (Optional, deferred to v1.1)
+- [⏳] **P5-T15**: Accessibility Audit (8-10 hours)
+- [⏳] **P5-T16**: Performance Benchmarking (6-8 hours)
+
+**Track 4 - Production Polish (Week 6-8)**:
+
+- [⏳] **P5-T17**: Error Reporting & Telemetry (10-12 hours, optional)
+- [⏳] **P5-T18**: Logging System (6-8 hours)
+- [⏳] **P5-T19**: User Documentation & Installation Guide (12-16 hours) **CRITICAL**
+- [⏳] **P5-T20**: Developer Documentation (8-10 hours)
+
+**Phase 5 Progress**: 0/21 tasks (0% complete)
+
+**Key Decisions**:
+
+- **Code Signing Deferred**: Windows cert ($200-500) + Apple Developer ($99) not needed for personal use with <10 users. Saves $500-600/year + 12-16 hours. Installation guide will document security warning workarounds.
+- **Testing Philosophy**: Mock all MangaDex API calls, test application logic only (our data transformation, state management, database operations, download system, UI components).
+- **Logical Task Order**: Refactor first (clean foundation) → Then optimize clean code → Build/test/document stable codebase.
+
+**Planning Documents**:
+
+- [phase5-optimization-deployment-plan.md](../../copilot-plans/phase5-optimization-deployment-plan.md)
+- [phase5-timeline-summary.md](../../copilot-plans/phase5-timeline-summary.md)
+- [phase5-task-checklist.md](../../copilot-plans/phase5-task-checklist.md)
 
 ---
 

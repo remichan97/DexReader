@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 10 March 2026
-**Current Phase**: Phase 4 - Offline Functionality (COMPLETE ✅)
-**Next**: Phase 5 Planning
+**Last Updated**: 11 March 2026
+**Current Phase**: Phase 5 - Production Readiness (PLANNING COMPLETE ✅)
+**Next**: Begin P5-T21 Code Refactoring (Week 1)
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -11,11 +11,11 @@
 ## Current Status Summary
 
 **Phase 4 Status**: COMPLETE - 13/13 tasks (100%) ✅
-**Last Completed**: P4-T15 Cache Management UI (10 Mar 2026)
-**Database**: Fully migrated with chapter_downloads table + 2 migrations
-**Download System**: ✅ Full offline functionality operational
-**Storage Management**: ✅ Visualization, cleanup, and cache controls complete
-**Next Steps**: Begin Phase 5 planning (Testing & Optimization)
+**Phase 5 Planning**: COMPLETE - Timeline finalized (11 Mar 2026) ✅
+**Phase 5 Execution**: Ready to begin Week 1 (P5-T21 Code Refactoring)
+**Timeline**: 6-8 weeks (11 March - 5 May 2026)
+**Target**: v1.0 Release Early May 2026 🚀
+**Next Steps**: Start P5-T21 (Code Refactoring & Technical Debt Cleanup)
 
 ---
 
@@ -143,11 +143,34 @@ All offline functionality is now production-ready:
 
 ---
 
-## Next Steps
+## Phase 5 Planning Complete ✅
 
-**Phase 5 Planning**: With Phase 4 complete (13/13 tasks), prepare roadmap for next development phase. Potential focus areas include advanced search features, reading analytics, or performance optimizations for large libraries.
+**Planning Completed**: 11 March 2026
+**Timeline**: 6-8 weeks (11 March - 5 May 2026)
+**Total Tasks**: 21 tasks (192-236 hours estimated)
+**v1.0 Release Target**: Early May 2026
 
-**See**: [.github/planning/](../.github/planning/) for detailed planning documents (to be created).
+**Key Decisions**:
+
+- ✅ Code signing DEFERRED ($500-600/year saved, not needed for small user base)
+- ✅ Testing philosophy: Mock MangaDex API, test our application logic only
+- ✅ Task order: Refactor → Optimize → Build → Test → Document (clean code first!)
+
+**Phase 5 Structure**:
+
+- **Week 1**: Code Refactoring (P5-T21) - Clean foundation before optimization
+- **Week 2-3**: Performance Optimization (P5-T01 to P5-T05) - Database, memory, download, UI
+- **Week 3-4**: Build Pipeline (P5-T06 to P5-T10, P5-T08) - CI/CD, releases, auto-updates
+- **Week 5-6**: Testing & QA (P5-T11 to P5-T18) - Unit, integration, accessibility, logging
+- **Week 7-8**: Documentation & Release (P5-T19, P5-T20) - User guide, dev docs, v1.0 launch
+
+**Planning Documents**:
+
+- [phase5-optimization-deployment-plan.md](../../copilot-plans/phase5-optimization-deployment-plan.md) - Detailed task specifications
+- [phase5-timeline-summary.md](../../copilot-plans/phase5-timeline-summary.md) - Week-by-week timeline with milestones
+- [phase5-task-checklist.md](../../copilot-plans/phase5-task-checklist.md) - Progress tracking checklist
+
+**Next Action**: Begin P5-T21 (Code Refactoring & Technical Debt Cleanup, 12-16 hours)
 
 ---
 
