@@ -105,7 +105,7 @@ export class ImageProxy {
   private addToChapterCache(url: string, buffer: Buffer): void {
     // Evict least recently used entries if necessary
     while (this.currentChapterCacheSize + buffer.length > this.MAX_CHAPTER_CACHE) {
-      let lruKey: string | null = null
+      let lruKey: string | undefined = undefined
       let lruTime = Infinity
 
       // Find least recently used entry
@@ -135,7 +135,7 @@ export class ImageProxy {
   private addToCoverCache(url: string, buffer: Buffer): void {
     // Evict least recently used entries if necessary
     while (this.currentCoverCacheSize + buffer.length > this.MAX_COVER_CACHE) {
-      let lruKey: string | null = null
+      let lruKey: string | undefined = undefined
       let lruTime = Infinity
 
       // Find least recently used entry

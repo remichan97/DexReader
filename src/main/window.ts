@@ -5,7 +5,7 @@ import { createMenu } from './menu/index'
 import { setupThemeDetection } from './theme'
 import { is } from '@electron-toolkit/utils'
 
-let mainWindow: BrowserWindow | null = null
+let mainWindow: BrowserWindow | undefined = undefined
 let isQuitting = false
 
 const menuState = {
@@ -78,6 +78,6 @@ export function createWindow(): void {
   }
 }
 
-export function getMainWindow(): BrowserWindow | null {
+export function getMainWindow(): BrowserWindow | undefined {
   return mainWindow
 }
