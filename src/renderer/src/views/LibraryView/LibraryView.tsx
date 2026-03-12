@@ -8,7 +8,8 @@ import { Badge } from '@renderer/components/Badge'
 import { Button } from '@renderer/components/Button'
 import { Modal } from '@renderer/components/Modal'
 import { Input } from '@renderer/components/Input'
-import { SkeletonGrid } from '@renderer/components/Skeleton'
+import { LoadingState } from '@renderer/components/LoadingState'
+import { EmptyState } from '@renderer/components/EmptyState'
 import { CreateCollectionDialog } from '@renderer/components/CreateCollectionDialog'
 import { CollectionPickerDialog } from '@renderer/components/CollectionPickerDialog'
 import { ContextMenu } from '@renderer/components/ContextMenu'
@@ -48,22 +49,6 @@ import {
 import './LibraryView.css'
 
 // Helper Components (moved outside parent to prevent re-renders)
-interface EmptyStateProps {
-  readonly message: string
-  readonly isSearchResult?: boolean
-}
-
-const EmptyState = ({ message, isSearchResult = false }: EmptyStateProps): JSX.Element => (
-  <div className="library__empty">
-    {isSearchResult ? (
-      <Search48Regular style={{ opacity: 0.3, marginBottom: '12px' }} />
-    ) : (
-      <BookOpen48Regular style={{ opacity: 0.3, marginBottom: '12px' }} />
-    )}
-    <div>{message}</div>
-  </div>
-)
-
 interface MangaGridProps {
   readonly items: Array<{
     readonly mangaId: string
@@ -788,15 +773,10 @@ export function LibraryView(): JSX.Element {
       )}
 
       {/* Loading State */}
-      {loading && <SkeletonGrid count={12} />}
+      {loading && <LoadingState variant="skeleton" skeletonCount={12} />}
 
       {/* Error State */}
-      {error && !loading && (
-        <div className="library__empty">
-          <Warning48Regular style={{ opacity: 0.3, marginBottom: '12px' }} />
-          <div>{error}</div>
-        </div>
-      )}
+      {error && !loading && <EmptyState icon={<Warning48Regular />} message={error} />}
 
       {/* Content - Only show if not loading and no error */}
       {!loading && !error && (
@@ -901,6 +881,7 @@ export function LibraryView(): JSX.Element {
               <TabPanel value="all">
                 {filteredAll.length === 0 ? (
                   <EmptyState
+                    icon={searchQuery ? <Search48Regular /> : <BookOpen48Regular />}
                     message={
                       searchQuery
                         ? "Can't find what you're looking for..."
@@ -908,7 +889,7 @@ export function LibraryView(): JSX.Element {
                           ? 'No downloaded manga. Go online to download manga for offline reading.'
                           : 'Nothing here yet! Start adding some manga from Browse.'
                     }
-                    isSearchResult={!!searchQuery}
+                    variant={searchQuery ? 'search' : 'default'}
                   />
                 ) : (
                   <MangaGrid
@@ -931,12 +912,13 @@ export function LibraryView(): JSX.Element {
                   <TabPanel key={collection.id} value={String(collection.id)}>
                     {collectionManga.length === 0 ? (
                       <EmptyState
+                        icon={searchQuery ? <Search48Regular /> : <BookOpen48Regular />}
                         message={
                           searchQuery
                             ? `Nothing in "${collection.name}" matches that...`
                             : `Your "${collection.name}" collection is empty!`
                         }
-                        isSearchResult={!!searchQuery}
+                        variant={searchQuery ? 'search' : 'default'}
                       />
                     ) : (
                       <MangaGrid
@@ -955,6 +937,7 @@ export function LibraryView(): JSX.Element {
             <>
               {filteredAll.length === 0 ? (
                 <EmptyState
+                  icon={searchQuery ? <Search48Regular /> : <BookOpen48Regular />}
                   message={
                     searchQuery
                       ? "Can't find what you're looking for..."
@@ -962,7 +945,7 @@ export function LibraryView(): JSX.Element {
                         ? 'No downloaded manga. Go online to download manga for offline reading.'
                         : 'Nothing here yet! Start adding some manga from Browse.'
                   }
-                  isSearchResult={!!searchQuery}
+                  variant={searchQuery ? 'search' : 'default'}
                 />
               ) : (
                 <MangaGrid

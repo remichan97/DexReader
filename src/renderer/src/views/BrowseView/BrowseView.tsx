@@ -1,8 +1,9 @@
 import type { JSX } from 'react'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Warning48Regular, CloudOff48Regular } from '@fluentui/react-icons'
+import { Warning48Regular, CloudOff48Regular, Search48Regular } from '@fluentui/react-icons'
 import { SearchBar } from '@renderer/components/SearchBar'
+import { EmptyState } from '@renderer/components/EmptyState'
 import { FilterPanel } from '@renderer/components/FilterPanel'
 import { MangaCard } from '@renderer/components/MangaCard'
 import { SkeletonGrid } from '@renderer/components/Skeleton'
@@ -257,19 +258,16 @@ export function BrowseView(): JSX.Element {
         <div className="browse-view__header">
           <h1>Browse</h1>
         </div>
-        <div className="browse-view__offline-message">
-          <CloudOff48Regular style={{ opacity: 0.3, marginBottom: '12px' }} />
-          <h2>You're offline</h2>
-          <p>Browse and search require an internet connection.</p>
-          <p>Check out your Library to read downloaded manga.</p>
-          <Button
-            variant="primary"
-            onClick={() => navigate('/library')}
-            style={{ marginTop: '16px' }}
-          >
-            Go to Library
-          </Button>
-        </div>
+        <EmptyState
+          icon={<CloudOff48Regular />}
+          title="You're offline"
+          message="Browse and search require an internet connection. Check out your Library to read downloaded manga."
+          action={{
+            label: 'Go to Library',
+            onClick: () => navigate('/library'),
+            variant: 'primary'
+          }}
+        />
       </div>
     )
   }
@@ -377,19 +375,11 @@ export function BrowseView(): JSX.Element {
 
       {/* Empty State */}
       {!loading && !error && results.length === 0 && (
-        <div
-          style={{
-            textAlign: 'center',
-            padding: '48px 24px',
-            color: 'var(--win-text-secondary)'
-          }}
-        >
-          isFavourite
-          <p style={{ fontSize: '16px', marginBottom: '8px' }}>No manga found</p>
-          <p style={{ fontSize: '14px' }}>
-            {query ? 'Try different search terms or filters' : 'Start searching to discover manga'}
-          </p>
-        </div>
+        <EmptyState
+          icon={query ? <Search48Regular /> : undefined}
+          message={query ? 'No manga found' : 'Start searching to discover manga'}
+          variant={query ? 'search' : 'default'}
+        />
       )}
 
       {/* Manga Grid */}

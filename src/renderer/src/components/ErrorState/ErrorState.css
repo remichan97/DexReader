@@ -1,0 +1,81 @@
+/* ErrorState Component */
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  gap: var(--space-3);
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Icon */
+.error-state__icon {
+  font-size: 48px;
+  color: var(--win-error);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-state--offline .error-state__icon {
+  color: var(--win-text-tertiary);
+}
+
+/* Title */
+.error-state__title {
+  font-size: var(--font-size-subtitle);
+  font-weight: var(--font-weight-semibold);
+  color: var(--win-text-primary);
+  margin: 0;
+}
+
+/* Message */
+.error-state__message {
+  font-size: var(--win-font-size-body);
+  color: var(--win-text-secondary);
+  margin: 0;
+  max-width: 500px;
+}
+
+/* Actions */
+.error-state__actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Technical Details */
+.error-state__technical-details {
+  margin-top: var(--space-4);
+  padding: var(--space-3);
+  background: var(--win-bg-subtle);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-md);
+  text-align: left;
+  width: 100%;
+  max-width: 500px;
+}
+
+.error-state__technical-details strong {
+  color: var(--win-text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.error-state__stack-trace {
+  margin-top: var(--space-2);
+}
+
+.error-state__stack-trace pre {
+  margin: var(--space-1) 0 0 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--win-text-secondary);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}

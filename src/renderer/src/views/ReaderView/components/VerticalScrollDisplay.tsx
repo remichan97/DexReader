@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react'
-import { ProgressRing } from '@renderer/components/ProgressRing'
+import { LoadingState } from '@renderer/components/LoadingState'
 import { Warning48Regular } from '@fluentui/react-icons'
 import type { ImageUrlResponse } from '../../../../../preload/index.d'
 
@@ -89,11 +89,7 @@ export function VerticalScrollDisplay({
               data-page-index={index}
               className="vertical-scroll-container__page"
             >
-              {isLoading && (
-                <div className="vertical-scroll-page__loading">
-                  <ProgressRing size="medium" aria-label={`Loading page ${index + 1}`} />
-                </div>
-              )}
+              {isLoading && <LoadingState size="medium" />}
 
               {hasError && !isLoading && (
                 <div className="vertical-scroll-page__error">

@@ -4,6 +4,9 @@ import { useNavigate } from 'react-router-dom'
 import { ProgressBar } from '@renderer/components/ProgressBar'
 import { Badge } from '@renderer/components/Badge'
 import { Button } from '@renderer/components/Button'
+import { EmptyState } from '@renderer/components/EmptyState'
+import { LoadingState } from '@renderer/components/LoadingState'
+import { ErrorState } from '@renderer/components/ErrorState'
 import { SearchBar } from '@renderer/components/SearchBar'
 import { Select, type SelectOption } from '@renderer/components/Select'
 import { useToast } from '@renderer/components/Toast'
@@ -509,24 +512,12 @@ export function DownloadsView(): JSX.Element {
 
   // Render loading state
   if (loading) {
-    return (
-      <div className="downloads-view__loading">
-        <div className="downloads-view__spinner" />
-        <p>Loading downloads...</p>
-      </div>
-    )
+    return <LoadingState message="Loading downloads..." />
   }
 
   // Render error state
   if (error) {
-    return (
-      <div className="downloads-view__error">
-        <p className="downloads-view__error-message">{error}</p>
-        <Button onClick={() => loadDownloads(true)} variant="accent">
-          Retry
-        </Button>
-      </div>
-    )
+    return <ErrorState message={error} onRetry={() => loadDownloads(true)} />
   }
 
   // Render main UI
@@ -633,10 +624,10 @@ export function DownloadsView(): JSX.Element {
 
       {/* Downloads List - Grouped by Manga */}
       {groupedDownloads.length === 0 ? (
-        <div className="downloads-view__empty">
-          <ArrowDownload24Regular className="downloads-view__empty-icon" />
-          <p>No downloads. When you start downloading chapters, they will appear here.</p>
-        </div>
+        <EmptyState
+          icon={<ArrowDownload24Regular />}
+          message="No downloads. When you start downloading chapters, they will appear here."
+        />
       ) : (
         <div className="downloads-groups">
           {groupedDownloads.map((group) => (

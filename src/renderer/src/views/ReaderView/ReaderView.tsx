@@ -2,11 +2,11 @@ import React, { type JSX, useState, useEffect, useCallback, useRef } from 'react
 import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { ImageQuality } from '../../../../main/api/enums/image-quality.enum'
 import { Button } from '@renderer/components/Button'
-import { ProgressRing } from '@renderer/components/ProgressRing'
+import { EmptyState } from '@renderer/components/EmptyState'
+import { LoadingState } from '@renderer/components/LoadingState'
+import { ErrorState } from '@renderer/components/ErrorState'
 import {
   ArrowLeftRegular,
-  Warning48Regular,
-  CloudOff48Regular,
   BookRegular,
   EyeOff20Regular,
   Settings20Regular
@@ -193,7 +193,7 @@ function ChapterListSidebar({
 
         <div className="chapter-list-sidebar__content">
           {chapters.length === 0 ? (
-            <p className="chapter-list-sidebar__empty">No chapters available</p>
+            <EmptyState message="No chapters available" />
           ) : (
             <ul className="chapter-list-sidebar__list">
               {chapters.map((chapter) => {
@@ -274,7 +274,6 @@ export function ReaderView(): JSX.Element {
     forceReaderDarkMode: true // Default to true for better reading experience, updated from settings on mount
   })
 
-  const [showErrorDetails, setShowErrorDetails] = useState(false)
   const [streamSource, setStreamSource] = useState<StreamSource>('online')
 
   // Ref to store zoom indicator timeout
@@ -553,12 +552,7 @@ export function ReaderView(): JSX.Element {
 
   return (
     <main className="reader-view" data-theme={readerTheme}>
-      {chapterData.loading && (
-        <div className="reader-view__loading">
-          <ProgressRing size="large" aria-label="Loading chapter" />
-          <p className="reader-view__loading-text">Loading chapter...</p>
-        </div>
-      )}
+      {chapterData.loading && <LoadingState message="Loading chapter..." />}
 
       {chapterData.error &&
         (() => {
@@ -566,71 +560,29 @@ export function ReaderView(): JSX.Element {
             chapterData.error.message.toLowerCase().includes('offline') ||
             chapterData.error.message.toLowerCase().includes('downloaded')
 
-          return (
-            <div className="reader-view__error">
-              <div className="error-recovery">
-                <div className="error-recovery__icon">
-                  {isOfflineError ? <CloudOff48Regular /> : <Warning48Regular />}
-                </div>
-                <h3 className="error-recovery__title">
-                  {isOfflineError ? "You're offline" : "Couldn't load this chapter"}
-                </h3>
-                <p className="error-recovery__message">
-                  {isOfflineError
-                    ? chapterData.error.message
-                    : 'We ran into a problem loading the pages for this chapter. This might be a temporary network hiccup, or the chapter data might not be available right now.'}
-                </p>
-                <div className="error-recovery__actions">
-                  {isOfflineError ? (
-                    <Button
-                      variant="primary"
-                      onClick={() => navigate('/library')}
-                      icon={<BookRegular />}
-                      size="medium"
-                    >
-                      Go to Library
-                    </Button>
-                  ) : (
-                    <>
-                      <Button
-                        variant="primary"
-                        onClick={() => chapterId && chapterData.loadChapterImages(chapterId)}
-                        disabled={chapterData.loading}
-                        loading={chapterData.loading}
-                        size="medium"
-                      >
-                        {chapterData.loading ? 'Retrying...' : 'Try Again'}
-                      </Button>
-                      <Button variant="ghost" onClick={handleBackClick} size="medium">
-                        Go Back
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        onClick={() => setShowErrorDetails(!showErrorDetails)}
-                        size="medium"
-                      >
-                        {showErrorDetails ? 'Hide' : 'Show'} technical details
-                      </Button>
-                    </>
-                  )}
-                </div>
-                {!isOfflineError && showErrorDetails && (
-                  <div className="error-recovery__technical-details">
-                    <div>
-                      <strong>Error:</strong> {chapterData.error.message}
-                    </div>
-                    {chapterData.error.stack && (
-                      <div style={{ marginTop: '8px' }}>
-                        <strong>Stack Trace:</strong>
-                        <pre style={{ margin: '4px 0 0 0', fontSize: '11px', lineHeight: '1.4' }}>
-                          {chapterData.error.stack}
-                        </pre>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
+          return isOfflineError ? (
+            <ErrorState
+              variant="offline"
+              title="You're offline"
+              message={chapterData.error.message}
+              secondaryAction={{
+                label: 'Go to Library',
+                onClick: () => navigate('/library')
+              }}
+            />
+          ) : (
+            <ErrorState
+              title="Couldn't load this chapter"
+              message="We ran into a problem loading the pages for this chapter. This might be a temporary network hiccup, or the chapter data might not be available right now."
+              error={chapterData.error}
+              onRetry={() => chapterId && chapterData.loadChapterImages(chapterId)}
+              retrying={chapterData.loading}
+              secondaryAction={{
+                label: 'Go Back',
+                onClick: handleBackClick
+              }}
+              showTechnicalDetails={true}
+            />
           )
         })()}
 

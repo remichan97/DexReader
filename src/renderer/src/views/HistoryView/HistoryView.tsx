@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { History24Regular, PlayCircle24Regular, Delete24Regular } from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
-import { ProgressRing } from '@renderer/components/ProgressRing'
+import { EmptyState } from '@renderer/components/EmptyState'
+import { LoadingState } from '@renderer/components/LoadingState'
 import { useProgressStore } from '@renderer/stores/progressStore'
 import { getLanguageName } from '@renderer/constants/language-list.constant'
 import './HistoryView.css'
@@ -190,28 +191,23 @@ export function HistoryView(): JSX.Element {
 
       {/* History List */}
       <div className="history-view__content">
-        {loading && (
-          <div className="history-view__loading">
-            <ProgressRing size="large" />
-            <p>Loading history...</p>
-          </div>
-        )}
+        {loading && <LoadingState message="Loading history..." />}
 
         {!loading && filteredProgress.length === 0 && !searchQuery && (
-          <div className="history-view__empty">
-            <History24Regular />
-            <h2>No reading history yet</h2>
-            <p>Start reading manga to see your progress here.</p>
-            <Button variant="primary" onClick={() => navigate('/browse')}>
-              Browse Manga
-            </Button>
-          </div>
+          <EmptyState
+            icon={<History24Regular />}
+            title="No reading history yet"
+            message="Start reading manga to see your progress here."
+            action={{
+              label: 'Browse Manga',
+              onClick: () => navigate('/browse'),
+              variant: 'primary'
+            }}
+          />
         )}
 
         {!loading && filteredProgress.length === 0 && searchQuery && (
-          <div className="history-view__empty">
-            <p>No results found for &ldquo;{searchQuery}&rdquo;</p>
-          </div>
+          <EmptyState message={`No results found for "${searchQuery}"`} variant="search" />
         )}
 
         {!loading && filteredProgress.length > 0 && (

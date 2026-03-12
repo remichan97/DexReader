@@ -3,12 +3,13 @@ import { useMemo, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@renderer/components/Button'
 import { Select } from '@renderer/components/Select'
+import { EmptyState } from '@renderer/components/EmptyState'
 import { Skeleton } from '@renderer/components/Skeleton'
 import { DownloadStatusBadge } from '@renderer/components/DownloadStatusBadge'
 import type { DownloadStatus } from '@renderer/components/DownloadStatusBadge'
 import { DownloadConfirmationDialog } from '@renderer/components/DownloadConfirmationDialog'
 import { useToast } from '@renderer/components/Toast'
-import { ArrowDownload20Regular } from '@fluentui/react-icons'
+import { ArrowDownload20Regular, BookOpen48Regular } from '@fluentui/react-icons'
 import { getCoverImageUrl, getMangaTitle, CoverSize } from '@renderer/utils/mangaHelpers'
 import { getLanguageName } from '@renderer/constants/language-list.constant'
 
@@ -400,27 +401,20 @@ export default function ChapterList({
         )}
 
         {!loading && !error && displayChapters.length === 0 && (
-          <div className="chapter-list-empty">
-            <p>
-              No chapters available in {getLanguageName(selectedLanguage)} (
-              {selectedLanguage.toUpperCase()})
-            </p>
-            <p className="chapter-list-empty-hint">
-              Chapters may have been removed by translators or are currently unavailable.
-            </p>
-            <Button
-              variant="secondary"
-              onClick={() =>
+          <EmptyState
+            icon={<BookOpen48Regular />}
+            message={`No chapters available in ${getLanguageName(selectedLanguage)} (${selectedLanguage.toUpperCase()})`}
+            action={{
+              label: 'View on MangaDex',
+              onClick: () =>
                 window.open(
                   `https://mangadex.org/title/${mangaId}`,
                   '_blank',
                   'noopener,noreferrer'
-                )
-              }
-            >
-              View on MangaDex
-            </Button>
-          </div>
+                ),
+              variant: 'secondary'
+            }}
+          />
         )}
 
         {!loading &&
