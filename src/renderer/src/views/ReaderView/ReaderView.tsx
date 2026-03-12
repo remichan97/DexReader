@@ -552,39 +552,46 @@ export function ReaderView(): JSX.Element {
 
   return (
     <main className="reader-view" data-theme={readerTheme}>
-      {chapterData.loading && <LoadingState message="Loading chapter..." />}
+      {chapterData.loading && (
+        <div className="reader-view__loading">
+          <LoadingState message="Loading chapter..." />
+        </div>
+      )}
 
-      {chapterData.error &&
-        (() => {
-          const isOfflineError =
-            chapterData.error.message.toLowerCase().includes('offline') ||
-            chapterData.error.message.toLowerCase().includes('downloaded')
+      {chapterData.error && (
+        <div className="reader-view__error">
+          {(() => {
+            const isOfflineError =
+              chapterData.error.message.toLowerCase().includes('offline') ||
+              chapterData.error.message.toLowerCase().includes('downloaded')
 
-          return isOfflineError ? (
-            <ErrorState
-              variant="offline"
-              title="You're offline"
-              message={chapterData.error.message}
-              secondaryAction={{
-                label: 'Go to Library',
-                onClick: () => navigate('/library')
-              }}
-            />
-          ) : (
-            <ErrorState
-              title="Couldn't load this chapter"
-              message="We ran into a problem loading the pages for this chapter. This might be a temporary network hiccup, or the chapter data might not be available right now."
-              error={chapterData.error}
-              onRetry={() => chapterId && chapterData.loadChapterImages(chapterId)}
-              retrying={chapterData.loading}
-              secondaryAction={{
-                label: 'Go Back',
-                onClick: handleBackClick
-              }}
-              showTechnicalDetails={true}
-            />
-          )
-        })()}
+            return isOfflineError ? (
+              <ErrorState
+                variant="offline"
+                title="You're offline"
+                message={chapterData.error.message}
+                secondaryAction={{
+                  label: 'Go to Library',
+                  onClick: () => navigate('/library')
+                }}
+              />
+            ) : (
+              <ErrorState
+                title="Couldn't load this chapter"
+                message="We ran into a problem loading the pages for this chapter. This might be a temporary network hiccup, or the chapter data might not be available right now."
+                error={chapterData.error}
+                onRetry={() => chapterId && chapterData.loadChapterImages(chapterId)}
+                retrying={chapterData.loading}
+                secondaryAction={{
+                  label: 'Go Back',
+                  onClick: handleBackClick
+                }}
+                showTechnicalDetails={true}
+              />
+            )
+          })()}
+        </div>
+      )}
 
       {!chapterData.loading && !chapterData.error && chapterData.images.length > 0 && (
         <>

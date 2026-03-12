@@ -255,9 +255,7 @@ export function BrowseView(): JSX.Element {
   if (!isOnline) {
     return (
       <div className="browse-view">
-        <div className="browse-view__header">
-          <h1>Browse</h1>
-        </div>
+        <div className="browse-view__header"></div>
         <EmptyState
           icon={<CloudOff48Regular />}
           title="You're offline"

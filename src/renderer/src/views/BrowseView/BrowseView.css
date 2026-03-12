@@ -70,11 +70,12 @@
   padding: var(--space-6);
 }
 
-.browse-view__header h1 {
+.browse-view__header {
   font-size: 28px;
   font-weight: 600;
   margin: 0 0 var(--space-4) 0;
   color: var(--win-text-primary);
+  margin-bottom: 20vh;
 }
 
 /* BrowseView Offline State */
