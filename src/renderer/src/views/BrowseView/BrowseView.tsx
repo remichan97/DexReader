@@ -271,7 +271,7 @@ export function BrowseView(): JSX.Element {
   }
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div className="p-6">
       {/* Screen reader heading for page structure */}
       <h1 className="sr-only">Browse Manga</h1>
 
@@ -287,7 +287,7 @@ export function BrowseView(): JSX.Element {
       </div>
 
       {/* Search Bar */}
-      <div style={{ marginBottom: '16px' }}>
+      <div className="mb-4">
         <SearchBar
           value={query}
           onChange={handleSearch}
@@ -299,7 +299,7 @@ export function BrowseView(): JSX.Element {
 
       {/* Filter Panel */}
       {showFilters && (
-        <div ref={filterPanelRef} style={{ marginBottom: '24px' }}>
+        <div ref={filterPanelRef} className="mb-6">
           <FilterPanel
             filters={filters}
             limit={limit}
@@ -356,11 +356,9 @@ export function BrowseView(): JSX.Element {
                 <strong>Error:</strong> {error.message}
               </div>
               {error.stack && (
-                <div style={{ marginTop: '8px' }}>
+                <div className="mt-2">
                   <strong>Stack Trace:</strong>
-                  <pre style={{ margin: '4px 0 0 0', fontSize: '11px', lineHeight: '1.4' }}>
-                    {error.stack}
-                  </pre>
+                  <pre className="browse-view__stack-trace">{error.stack}</pre>
                 </div>
               )}
             </div>
@@ -383,13 +381,7 @@ export function BrowseView(): JSX.Element {
       {/* Manga Grid */}
       {!loading && !error && results.length > 0 && (
         <>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-              gap: '16px'
-            }}
-          >
+          <div className="browse-view__manga-grid">
             {results.map((manga) => (
               <MangaCard
                 key={manga.id}
@@ -409,27 +401,12 @@ export function BrowseView(): JSX.Element {
           </div>
 
           {/* Infinite scroll sentinel */}
-          <div ref={sentinelRef} style={{ height: '1px', margin: '24px 0' }} />
+          <div ref={sentinelRef} className="browse-view__sentinel" />
 
           {/* Load more error - inline, doesn't crash the view */}
           {loadMoreError && (
-            <div
-              style={{
-                textAlign: 'center',
-                padding: '24px',
-                background: 'var(--win-bg-secondary)',
-                borderRadius: '8px',
-                margin: '0 auto',
-                maxWidth: '600px'
-              }}
-            >
-              <p
-                style={{
-                  color: 'var(--win-text-secondary)',
-                  fontSize: '14px',
-                  marginBottom: '16px'
-                }}
-              >
+            <div className="browse-view__load-more-error">
+              <p className="text-secondary text-body mb-4">
                 Couldn&apos;t load more manga. This might be a connection issue.
               </p>
               <Button variant="primary" onClick={retryLoadMore} size="small">
@@ -440,19 +417,15 @@ export function BrowseView(): JSX.Element {
 
           {/* Loading more indicator */}
           {loading && hasMore && !loadMoreError && (
-            <div style={{ textAlign: 'center', padding: '24px' }}>
-              <p style={{ color: 'var(--win-text-secondary)', fontSize: '14px' }}>
-                Loading more manga...
-              </p>
+            <div className="text-center p-6">
+              <p className="text-secondary text-body">Loading more manga...</p>
             </div>
           )}
 
           {/* End of results */}
           {!hasMore && (
-            <div style={{ textAlign: 'center', padding: '24px' }}>
-              <p style={{ color: 'var(--win-text-secondary)', fontSize: '14px' }}>
-                No more results to load
-              </p>
+            <div className="text-center p-6">
+              <p className="text-secondary text-body">No more results to load</p>
             </div>
           )}
         </>

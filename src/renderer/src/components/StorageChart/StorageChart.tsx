@@ -44,27 +44,23 @@ export function StorageChart({
 
   return (
     <div
+      className="p-4"
       style={{
         border: '1px solid var(--win-border-default)',
         borderRadius: '6px',
-        padding: '16px',
         backgroundColor: 'var(--win-surface-default)'
       }}
     >
       {/* Chart Header */}
       <h3
-        style={{
-          fontSize: '14px',
-          fontWeight: 600,
-          marginBottom: '12px',
-          color: 'var(--win-text-primary)'
-        }}
+        className="mb-3"
+        style={{ fontSize: '14px', fontWeight: 600, color: 'var(--win-text-primary)' }}
       >
         DexReader Storage Breakdown
       </h3>
 
       {/* Top Bar: Disk-Level Context */}
-      <div style={{ marginBottom: '8px' }}>
+      <div className="mb-2">
         <div
           style={{
             display: 'flex',

@@ -34,19 +34,13 @@ export function ZoomControlsModal({
   const zoomPercentage = Math.round(zoomLevel * 100)
 
   const popoverContent = (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px',
-        padding: '16px',
-        minWidth: '220px'
-      }}
-    >
+    <div className="flex flex-col gap-4 p-4" style={{ minWidth: '220px' }}>
       {/* Fit modes section */}
       <div>
-        <h5 style={{ margin: '0 0 8px 0', fontSize: '13px', fontWeight: 600 }}>Fit Mode</h5>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <h5 className="mb-2" style={{ margin: '0 0 8px 0', fontSize: '13px', fontWeight: 600 }}>
+          Fit Mode
+        </h5>
+        <div className="flex gap-2">
           <Button
             variant={fitMode === 'width' ? 'primary' : 'ghost'}
             size="small"
@@ -56,7 +50,7 @@ export function ZoomControlsModal({
             }}
             aria-label="Fit to width"
             title="Fit image to page width"
-            style={{ flex: 1 }}
+            className="flex-1"
           >
             Width
           </Button>
@@ -69,7 +63,7 @@ export function ZoomControlsModal({
             }}
             aria-label="Fit to height"
             title="Fit image to page height"
-            style={{ flex: 1 }}
+            className="flex-1"
           >
             Height
           </Button>
@@ -82,7 +76,7 @@ export function ZoomControlsModal({
             }}
             aria-label="Actual size"
             title="Show at 100% size (actual size)"
-            style={{ flex: 1 }}
+            className="flex-1"
           >
             100%
           </Button>
@@ -91,8 +85,10 @@ export function ZoomControlsModal({
 
       {/* Zoom controls section */}
       <div>
-        <h5 style={{ margin: '0 0 8px 0', fontSize: '13px', fontWeight: 600 }}>Zoom</h5>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <h5 className="mb-2" style={{ margin: '0 0 8px 0', fontSize: '13px', fontWeight: 600 }}>
+          Zoom
+        </h5>
+        <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="small"

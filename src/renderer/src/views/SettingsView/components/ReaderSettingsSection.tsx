@@ -4,6 +4,7 @@ import { Button } from '@renderer/components/Button'
 import { Select, type SelectOption } from '@renderer/components/Select'
 import { Switch } from '@renderer/components/Switch'
 import type { MangaReadingSettings } from '../../../../../preload/index.d'
+import './ReaderSettingsSection.css'
 
 interface PerMangaOverride {
   mangaId: string
@@ -57,18 +58,14 @@ export function ReaderSettingsSection({
   }
 
   return (
-    <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div className="reader-settings__container">
       <div>
-        <h4 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
-          Reader Display Settings
-        </h4>
+        <h4 className="reader-settings__heading">Reader Display Settings</h4>
 
         {isLoading ? (
-          <p style={{ fontSize: '14px', color: 'var(--win-text-secondary)' }}>
-            Loading settings...
-          </p>
+          <p className="text-body text-secondary">Loading settings...</p>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div className="reader-settings__controls">
             <Switch
               checked={forceDarkMode}
               onChange={onForceDarkModeChange}
@@ -87,32 +84,17 @@ export function ReaderSettingsSection({
         )}
       </div>
 
-      <div
-        style={{
-          borderTop: '1px solid var(--win-border-default)',
-          paddingTop: '20px'
-        }}
-      >
-        <h4 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
-          Global Reader Settings
-        </h4>
-        <p
-          style={{
-            fontSize: '13px',
-            color: 'var(--win-text-secondary)',
-            marginBottom: '16px'
-          }}
-        >
+      <div className="reader-settings__divider">
+        <h4 className="reader-settings__heading">Global Reader Settings</h4>
+        <p className="reader-settings__description">
           These settings apply to all manga by default. You can override them per-manga in the
           reader.
         </p>
 
         {isLoading ? (
-          <p style={{ fontSize: '14px', color: 'var(--win-text-secondary)' }}>
-            Loading settings...
-          </p>
+          <p className="text-body text-secondary">Loading settings...</p>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div className="reader-settings__controls">
             <Select
               value={globalReaderSettings.readingMode}
               onChange={onReadingModeChange}
@@ -122,19 +104,8 @@ export function ReaderSettingsSection({
             />
 
             {globalReaderSettings.readingMode === 'double' && (
-              <div
-                style={{
-                  padding: '16px',
-                  background: 'var(--win-bg-subtle)',
-                  borderRadius: 'var(--radius-md)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px'
-                }}
-              >
-                <h5 style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>
-                  Double Page Mode Options
-                </h5>
+              <div className="reader-settings__double-page-box">
+                <h5 className="reader-settings__subheading">Double Page Mode Options</h5>
                 <Switch
                   checked={globalReaderSettings.doublePageMode?.skipCoverPages ?? true}
                   onChange={(checked) => onDoublePageSettingChange('skipCoverPages', checked)}
@@ -151,21 +122,9 @@ export function ReaderSettingsSection({
         )}
       </div>
 
-      <div
-        style={{
-          borderTop: '1px solid var(--win-border-default)',
-          paddingTop: '20px'
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '12px'
-          }}
-        >
-          <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>Per-Manga Overrides</h4>
+      <div className="reader-settings__divider">
+        <div className="reader-settings__overrides-header">
+          <h4 className="reader-settings__heading-no-margin">Per-Manga Overrides</h4>
           {perMangaOverrides.length > 0 && (
             <Button
               onClick={async () => {
@@ -185,70 +144,34 @@ export function ReaderSettingsSection({
             </Button>
           )}
         </div>
-        <p
-          style={{
-            fontSize: '13px',
-            color: 'var(--win-text-secondary)',
-            marginBottom: '16px'
-          }}
-        >
+        <p className="reader-settings__description">
           Manga with custom reading mode settings. Reset them to use global defaults.
         </p>
 
-        {isLoading ? (
-          <p style={{ fontSize: '14px', color: 'var(--win-text-secondary)' }}>
-            Loading overrides...
-          </p>
-        ) : null}
+        {isLoading ? <p className="text-body text-secondary">Loading overrides...</p> : null}
 
         {!isLoading && perMangaOverrides.length === 0 ? (
-          <div
-            style={{
-              padding: '24px',
-              background: 'var(--win-bg-subtle)',
-              borderRadius: 'var(--radius-md)',
-              textAlign: 'center'
-            }}
-          >
-            <p style={{ fontSize: '14px', color: 'var(--win-text-secondary)', margin: 0 }}>
+          <div className="reader-settings__empty-state">
+            <p className="reader-settings__empty-text">
               No custom settings yet. Change reading modes while reading to create overrides.
             </p>
           </div>
         ) : null}
 
         {!isLoading && perMangaOverrides.length > 0 ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div className="reader-settings__overrides-list">
             {perMangaOverrides.map((override) => (
-              <div
-                key={override.mangaId}
-                style={{
-                  padding: '12px 16px',
-                  background: 'var(--win-bg-subtle)',
-                  borderRadius: 'var(--radius-md)',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  gap: '12px'
-                }}
-              >
+              <div key={override.mangaId} className="reader-settings__override-item">
                 {override.coverUrl && (
                   <img
                     src={override.coverUrl.replace('https://', 'mangadex://')}
                     alt={`${override.mangaTitle} cover`}
-                    style={{
-                      width: '40px',
-                      height: '56px',
-                      objectFit: 'cover',
-                      borderRadius: 'var(--radius-sm)',
-                      flexShrink: 0
-                    }}
+                    className="reader-settings__override-cover"
                   />
                 )}
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>
-                    {override.mangaTitle}
-                  </div>
-                  <div style={{ fontSize: '13px', color: 'var(--win-text-secondary)' }}>
+                <div className="reader-settings__override-info">
+                  <div className="reader-settings__override-title">{override.mangaTitle}</div>
+                  <div className="reader-settings__override-mode">
                     Mode: {getModeName(override.settings.readingMode)}
                     {override.settings.readingMode === 'double' &&
                       override.settings.doublePageMode && (

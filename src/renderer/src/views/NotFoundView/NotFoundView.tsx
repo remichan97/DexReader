@@ -24,7 +24,7 @@ export function NotFoundView(): JSX.Element {
   }, [navigate])
 
   return (
-    <div style={{ padding: '24px', textAlign: 'center' }}>
+    <div className="p-6 text-center">
       <h1>Whoops! 404</h1>
       <p>Taking you back...</p>
     </div>

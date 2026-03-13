@@ -11,6 +11,7 @@ import { StorageManagementSettings } from './components/StorageManagementSetting
 import { CacheManagementSettings } from './components/CacheManagementSettings'
 import { AdvancedSettings } from './components/AdvancedSettings'
 import { DangerZoneSettings } from '../../components/SettingsView/DangerZoneSettings'
+import './SettingsView.css'
 
 interface PerMangaOverride {
   mangaId: string
@@ -495,7 +496,7 @@ export function SettingsView(): JSX.Element {
   }
 
   return (
-    <div style={{ padding: '24px', maxWidth: 'min(1200px, 90%)', margin: '0 auto', width: '100%' }}>
+    <div className="settings-view__container">
       {/* Screen reader heading for page structure */}
       <h1 className="sr-only">Settings</h1>
 
@@ -559,28 +560,9 @@ export function SettingsView(): JSX.Element {
           <StorageManagementSettings />
 
           {/* Cache Management Section */}
-          <div
-            style={{
-              borderTop: '1px solid var(--win-border-default)',
-              paddingTop: '32px'
-            }}
-          >
-            <h3
-              style={{
-                fontSize: '18px',
-                fontWeight: 600,
-                marginBottom: '8px'
-              }}
-            >
-              Cache Management
-            </h3>
-            <p
-              style={{
-                fontSize: '13px',
-                color: 'var(--win-text-secondary)',
-                marginBottom: '20px'
-              }}
-            >
+          <div className="settings-view__section-divider">
+            <h3 className="settings-view__section-heading">Cache Management</h3>
+            <p className="settings-view__section-description">
               Manage temporary data to balance performance and storage usage.
             </p>
 

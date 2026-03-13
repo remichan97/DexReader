@@ -85,15 +85,7 @@ export function MangaStorageList({
       <div>
         {items.length === 0 ? (
           // Empty State
-          <div
-            style={{
-              padding: '40px 16px',
-              textAlign: 'center',
-              color: 'var(--win-text-secondary)'
-            }}
-          >
-            No downloads found
-          </div>
+          <div className="p-10 text-center text-secondary">No downloads found</div>
         ) : (
           // List Items
           items.map((item, index) => {

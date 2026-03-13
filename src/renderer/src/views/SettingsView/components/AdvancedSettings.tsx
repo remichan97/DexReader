@@ -3,7 +3,7 @@ import { ErrorLogViewer } from '@renderer/components/ErrorLogViewer'
 
 export function AdvancedSettings(): React.JSX.Element {
   return (
-    <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div className="py-4 flex flex-col gap-5">
       <ErrorLogViewer />
     </div>
   )

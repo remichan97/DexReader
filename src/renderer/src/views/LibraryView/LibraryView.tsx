@@ -668,7 +668,7 @@ export function LibraryView(): JSX.Element {
   const hasCollections = collections.length > 0
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div className="p-6">
       {/* Screen reader heading for page structure */}
       <h1 className="sr-only">Library</h1>
 
@@ -678,8 +678,8 @@ export function LibraryView(): JSX.Element {
       </div>
 
       {/* Search Bar with Actions */}
-      <div style={{ marginBottom: '24px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-        <div style={{ flex: 1 }}>
+      <div className="mb-6 flex gap-3 items-start">
+        <div className="flex-1">
           <SearchBar
             value={searchQuery}
             onChange={handleSearch}
@@ -751,7 +751,7 @@ export function LibraryView(): JSX.Element {
             </>
           }
         >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div className="flex flex-col gap-4">
             <Input
               label="Collection Name"
               value={editName}

@@ -60,19 +60,10 @@ export function ReaderSettingsModal({
   }
 
   const popoverContent = (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px',
-        padding: '16px',
-        minWidth: '280px',
-        maxWidth: '320px'
-      }}
-    >
+    <div className="flex flex-col gap-4 p-4" style={{ minWidth: '280px', maxWidth: '320px' }}>
       {/* Reading Mode Settings */}
       <div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div className="flex flex-col gap-3">
           <Select
             value={settings.readingMode}
             onChange={handleReadingModeChange}
@@ -83,24 +74,15 @@ export function ReaderSettingsModal({
 
           {settings.readingMode === 'double' && (
             <div
-              style={{
-                padding: '16px',
-                background: 'var(--win-bg-subtle)',
-                borderRadius: 'var(--radius-md)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px'
-              }}
+              className="p-4 flex flex-col gap-3"
+              style={{ background: 'var(--win-bg-subtle)', borderRadius: 'var(--radius-md)' }}
             >
-              <h5 style={{ margin: 0, fontSize: '13px', fontWeight: 600 }}>Double Page Options</h5>
+              <h5 className="m-0" style={{ fontSize: '13px', fontWeight: 600 }}>
+                Double Page Options
+              </h5>
               <label
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  cursor: 'pointer',
-                  fontSize: '14px'
-                }}
+                className="flex items-center gap-2"
+                style={{ cursor: 'pointer', fontSize: '14px' }}
               >
                 <input
                   type="checkbox"
@@ -113,13 +95,8 @@ export function ReaderSettingsModal({
                 Skip cover pages
               </label>
               <label
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  cursor: 'pointer',
-                  fontSize: '14px'
-                }}
+                className="flex items-center gap-2"
+                style={{ cursor: 'pointer', fontSize: '14px' }}
               >
                 <input
                   type="checkbox"
@@ -138,13 +115,8 @@ export function ReaderSettingsModal({
 
       {/* Info Text */}
       <p
-        style={{
-          margin: 0,
-          fontSize: '12px',
-          color: 'var(--win-text-secondary)',
-          borderTop: '1px solid var(--win-border)',
-          paddingTop: '12px'
-        }}
+        className="m-0 text-secondary pt-3"
+        style={{ fontSize: '12px', borderTop: '1px solid var(--win-border)' }}
       >
         Saved for this manga only
       </p>

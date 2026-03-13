@@ -157,22 +157,22 @@ export function StorageManagementSettings(): JSX.Element {
 
   if (isLoading) {
     return (
-      <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        <div style={{ color: 'var(--win-text-secondary)' }}>Loading storage data...</div>
+      <div className="py-4 flex flex-col gap-5">
+        <div className="text-secondary">Loading storage data...</div>
       </div>
     )
   }
 
   if (!storageData) {
     return (
-      <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        <div style={{ color: 'var(--win-text-secondary)' }}>Failed to load storage data</div>
+      <div className="py-4 flex flex-col gap-5">
+        <div className="text-secondary">Failed to load storage data</div>
       </div>
     )
   }
 
   return (
-    <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div className="py-4 flex flex-col gap-5">
       {/* Disk Space Header */}
       <div>
         <h3
@@ -185,7 +185,7 @@ export function StorageManagementSettings(): JSX.Element {
         >
           Total Disk Space: {(storageData.diskSpace.total / 1024 ** 3).toFixed(1)} GB
         </h3>
-        <p style={{ fontSize: '13px', color: 'var(--win-text-secondary)' }}>
+        <p className="text-secondary" style={{ fontSize: '13px' }}>
           Used: {(storageData.diskSpace.used / 1024 ** 3).toFixed(1)} GB • Free:{' '}
           {(storageData.diskSpace.free / 1024 ** 3).toFixed(1)} GB
         </p>
@@ -211,7 +211,7 @@ export function StorageManagementSettings(): JSX.Element {
       />
 
       {/* Delete Button */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+      <div className="flex justify-end">
         <Button
           variant="danger"
           onClick={handleDelete}

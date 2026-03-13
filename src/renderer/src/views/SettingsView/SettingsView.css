@@ -1,0 +1,33 @@
+/* Settings View Component Styles */
+
+/* Main Container */
+
+.settings-view__container {
+  padding: var(--space-6);
+  max-width: min(1200px, 90%);
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Section Dividers */
+
+.settings-view__section-divider {
+  border-top: 1px solid var(--win-border-default);
+  padding-top: var(--space-8);
+}
+
+/* Section Headings */
+
+.settings-view__section-heading {
+  font-size: 18px;
+  font-weight: var(--win-font-weight-semibold);
+  margin-bottom: var(--space-2);
+}
+
+/* Section Descriptions */
+
+.settings-view__section-description {
+  font-size: 13px;
+  color: var(--win-text-secondary);
+  margin-bottom: var(--space-5);
+}

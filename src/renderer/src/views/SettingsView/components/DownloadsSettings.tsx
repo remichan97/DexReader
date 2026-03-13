@@ -3,6 +3,7 @@ import { Lightbulb16Regular } from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
 import { Input } from '@renderer/components/Input'
 import { Select, type SelectOption } from '@renderer/components/Select'
+import './DownloadsSettings.css'
 
 interface DownloadsSettingsProps {
   downloadsPath: string
@@ -66,39 +67,19 @@ export function DownloadsSettings({
   }
 
   return (
-    <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div className="downloads-settings__container">
       <div>
-        <h4 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
-          Downloads Location
-        </h4>
-        <p
-          style={{
-            fontSize: '13px',
-            color: 'var(--win-text-secondary)',
-            marginBottom: '12px'
-          }}
-        >
+        <h4 className="downloads-settings__heading">Downloads Location</h4>
+        <p className="downloads-settings__description">
           Where should we save your downloaded chapters?
         </p>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr auto',
-            gap: '12px',
-            alignItems: 'start'
-          }}
-        >
+        <div className="downloads-settings__controls">
           <Input
             type="text"
             value={isLoadingPath ? 'Loading...' : downloadsPath}
             onChange={() => {}}
             readOnly
-            style={{
-              fontFamily: 'monospace',
-              fontSize: '13px',
-              cursor: 'default',
-              width: '100%'
-            }}
+            className="downloads-settings__path-display"
           />
           <Button
             variant="secondary"
@@ -109,38 +90,16 @@ export function DownloadsSettings({
             Browse...
           </Button>
         </div>
-        <p
-          style={{
-            fontSize: '12px',
-            color: 'var(--win-text-tertiary)',
-            marginTop: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px'
-          }}
-        >
-          <Lightbulb16Regular style={{ flexShrink: 0 }} />
+        <p className="downloads-settings__info-box">
+          <Lightbulb16Regular className="downloads-settings__info-icon" />
           <span>Tip: Choose a location with plenty of free space for your manga collection.</span>
         </p>
       </div>
 
       {/* Download Confirmation Settings */}
-      <div
-        style={{
-          borderTop: '1px solid var(--win-border-default)',
-          paddingTop: '20px'
-        }}
-      >
-        <h4 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
-          Download Confirmation
-        </h4>
-        <p
-          style={{
-            fontSize: '13px',
-            color: 'var(--win-text-secondary)',
-            marginBottom: '12px'
-          }}
-        >
+      <div className="downloads-settings__divider">
+        <h4 className="downloads-settings__heading">Download Confirmation</h4>
+        <p className="downloads-settings__description">
           When should we ask before downloading chapters?
         </p>
 
@@ -154,15 +113,8 @@ export function DownloadsSettings({
       </div>
 
       {/* Download Quality Settings */}
-      <div
-        style={{
-          borderTop: '1px solid var(--win-border-default)',
-          paddingTop: '20px'
-        }}
-      >
-        <h4 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
-          Download Quality
-        </h4>
+      <div className="downloads-settings__divider">
+        <h4 className="downloads-settings__heading">Download Quality</h4>
 
         <Select
           value={defaultQuality}
@@ -174,22 +126,9 @@ export function DownloadsSettings({
       </div>
 
       {/* Concurrent Downloads Settings */}
-      <div
-        style={{
-          borderTop: '1px solid var(--win-border-default)',
-          paddingTop: '20px'
-        }}
-      >
-        <h4 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
-          Concurrent Downloads
-        </h4>
-        <p
-          style={{
-            fontSize: '13px',
-            color: 'var(--win-text-secondary)',
-            marginBottom: '12px'
-          }}
-        >
+      <div className="downloads-settings__divider">
+        <h4 className="downloads-settings__heading">Concurrent Downloads</h4>
+        <p className="downloads-settings__description">
           How many chapters should download at the same time?
         </p>
 

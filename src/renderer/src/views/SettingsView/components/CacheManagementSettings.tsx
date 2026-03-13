@@ -5,6 +5,7 @@ import { Button } from '@renderer/components/Button'
 import { useToastStore } from '@renderer/stores'
 import { formatBytes } from '@renderer/utils/formatBytes'
 import type { MangaCacheStatsQuery } from '../../../../../preload/index.d'
+import './CacheManagementSettings.css'
 
 export function CacheManagementSettings(): JSX.Element {
   const [cacheStats, setCacheStats] = useState<MangaCacheStatsQuery | null>(null)
@@ -254,8 +255,8 @@ export function CacheManagementSettings(): JSX.Element {
 
   if (isLoading) {
     return (
-      <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        <div style={{ color: 'var(--win-text-secondary)' }}>Loading cache data...</div>
+      <div className="cache-settings__loading">
+        <div className="text-secondary">Loading cache data...</div>
       </div>
     )
   }
@@ -264,19 +265,11 @@ export function CacheManagementSettings(): JSX.Element {
     coverCacheLimit === 0 ? 0 : Math.round((coverCacheSize / (coverCacheLimit * 1024 * 1024)) * 100)
 
   return (
-    <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div className="cache-settings__container">
       {/* Cover Image Cache Section */}
       <div>
-        <h4 style={{ marginBottom: '8px', fontSize: '16px', fontWeight: 600 }}>
-          Cover Image Cache
-        </h4>
-        <p
-          style={{
-            fontSize: '13px',
-            color: 'var(--win-text-secondary)',
-            marginBottom: '16px'
-          }}
-        >
+        <h4 className="cache-settings__heading">Cover Image Cache</h4>
+        <p className="cache-settings__description">
           Manage temporary cover image storage to improve browsing performance.
         </p>
 
@@ -292,41 +285,22 @@ export function CacheManagementSettings(): JSX.Element {
           }
         />
 
-        <div
-          style={{
-            marginTop: '16px',
-            padding: '12px',
-            backgroundColor: 'var(--win-surface-secondary)',
-            borderRadius: '6px',
-            fontSize: '13px'
-          }}
-        >
-          <div style={{ marginBottom: '6px' }}>
+        <div className="cache-settings__info-box">
+          <div className="cache-settings__info-row">
             <strong>Current Usage:</strong>{' '}
             {coverCacheLimit === 0
               ? `${formatBytes(coverCacheSize)} (Unlimited)`
               : `${formatBytes(coverCacheSize)} / ${formatBytes(coverCacheLimit * 1024 * 1024)} (${coverUsagePercent}%)`}
           </div>
-          <div style={{ marginBottom: '6px' }}>
+          <div className="cache-settings__info-row">
             <strong>Cached Covers:</strong> {coverCacheCount.toLocaleString()} images
           </div>
           {coverCachePath && (
-            <div
-              style={{
-                fontSize: '12px',
-                color: 'var(--win-text-tertiary)',
-                marginTop: '8px',
-                fontFamily: 'monospace',
-                wordBreak: 'break-all',
-                overflowWrap: 'break-word'
-              }}
-            >
-              Cache Location: {coverCachePath}
-            </div>
+            <div className="cache-settings__cache-path">Cache Location: {coverCachePath}</div>
           )}
         </div>
 
-        <div style={{ marginTop: '12px' }}>
+        <div className="cache-settings__actions">
           <Button
             variant="secondary"
             onClick={handleClearCovers}
@@ -339,69 +313,36 @@ export function CacheManagementSettings(): JSX.Element {
       </div>
 
       {/* Manga Metadata Cache Section */}
-      <div
-        style={{
-          borderTop: '1px solid var(--win-border-default)',
-          paddingTop: '24px'
-        }}
-      >
-        <h4 style={{ marginBottom: '8px', fontSize: '16px', fontWeight: 600 }}>
-          Manga Metadata Cache
-        </h4>
-        <p
-          style={{
-            fontSize: '13px',
-            color: 'var(--win-text-secondary)',
-            marginBottom: '16px'
-          }}
-        >
+      <div className="cache-settings__divider">
+        <h4 className="cache-settings__heading">Manga Metadata Cache</h4>
+        <p className="cache-settings__description">
           Manage cached manga information for offline access.
         </p>
 
         {cacheStats && (
-          <div
-            style={{
-              padding: '12px',
-              backgroundColor: 'var(--win-surface-secondary)',
-              borderRadius: '6px',
-              fontSize: '13px',
-              marginBottom: '16px'
-            }}
-          >
-            <div style={{ marginBottom: '6px' }}>
+          <div className="cache-settings__stats-box">
+            <div className="cache-settings__info-row">
               <strong>Total Cached:</strong> {cacheStats.totalManga.toLocaleString()} manga
             </div>
-            <div style={{ marginLeft: '16px', marginTop: '4px' }}>
-              <div style={{ color: 'var(--win-text-secondary)', marginBottom: '2px' }}>
+            <div className="cache-settings__stats-breakdown">
+              <div className="text-secondary cache-settings__info-row">
                 • In Library: {cacheStats.totalFavouriteManga.toLocaleString()} manga (protected)
               </div>
-              <div style={{ color: 'var(--win-text-secondary)', marginBottom: '2px' }}>
+              <div className="text-secondary cache-settings__info-row">
                 • Downloaded: {cacheStats.downloadedManga.toLocaleString()} manga (protected)
               </div>
-              <div style={{ color: 'var(--win-text-secondary)' }}>
+              <div className="text-secondary">
                 • Browsing Cache: {cacheStats.browsingCache.toLocaleString()} manga
               </div>
             </div>
 
-            <div
-              style={{
-                marginTop: '12px',
-                paddingTop: '12px',
-                borderTop: '1px solid var(--win-border-default)'
-              }}
-            >
-              <div style={{ fontSize: '12px', color: 'var(--win-text-tertiary)' }}>
+            <div className="cache-settings__stats-note">
+              <div className="cache-settings__note-text">
                 DexReader automatically manages this cache by removing non-library manga that
                 haven&rsquo;t been accessed in 90 days.
               </div>
               {cacheStats.oldCache > 0 && (
-                <div
-                  style={{
-                    marginTop: '6px',
-                    fontSize: '12px',
-                    color: 'var(--win-text-secondary)'
-                  }}
-                >
+                <div className="cache-settings__ready-to-clean">
                   Ready to clean: {cacheStats.oldCache.toLocaleString()} manga
                 </div>
               )}
@@ -409,7 +350,7 @@ export function CacheManagementSettings(): JSX.Element {
           </div>
         )}
 
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div className="cache-settings__actions--multiple">
           <Button
             variant="secondary"
             onClick={handleCleanMetadata}

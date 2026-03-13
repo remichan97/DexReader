@@ -104,3 +104,37 @@
   margin: 0 0 var(--space-2) 0;
   line-height: 1.5;
 }
+
+/* Manga Grid Layout */
+
+.browse-view__manga-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-4);
+}
+
+/* Infinite Scroll Sentinel */
+
+.browse-view__sentinel {
+  height: 1px;
+  margin: var(--space-6) 0;
+}
+
+/* Load More Error Box */
+
+.browse-view__load-more-error {
+  text-align: center;
+  padding: var(--space-6);
+  background: var(--win-bg-secondary);
+  border-radius: var(--radius-md);
+  margin: 0 auto;
+  max-width: 600px;
+}
+
+/* Stack Trace Display */
+
+.browse-view__stack-trace {
+  margin: var(--space-1) 0 0 0;
+  font-size: 11px;
+  line-height: 1.4;
+}

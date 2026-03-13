@@ -49,9 +49,11 @@ export function AppearanceSettings({
   }
 
   return (
-    <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div className="py-4 flex flex-col gap-5">
       <div>
-        <h4 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>Theme</h4>
+        <h4 className="mb-3" style={{ fontSize: '16px', fontWeight: 600 }}>
+          Theme
+        </h4>
         <Select
           value={themeMode}
           onChange={(value) => onThemeModeChange(value as typeof themeMode)}
@@ -62,8 +64,10 @@ export function AppearanceSettings({
       </div>
 
       <div>
-        <h4 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>Accent Color</h4>
-        <div style={{ marginBottom: '12px' }}>
+        <h4 className="mb-3" style={{ fontSize: '16px', fontWeight: 600 }}>
+          Accent Color
+        </h4>
+        <div className="mb-3">
           <div
             style={{
               display: 'block',
@@ -74,7 +78,7 @@ export function AppearanceSettings({
           >
             Primary accent color
           </div>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <div className="flex gap-3 items-center">
             <input
               type="color"
               value={accentColor}
@@ -98,7 +102,7 @@ export function AppearanceSettings({
               Use System
             </Button>
           </div>
-          <p style={{ fontSize: '13px', color: 'var(--win-text-secondary)', marginTop: '8px' }}>
+          <p className="text-secondary mt-2" style={{ fontSize: '13px' }}>
             {isUsingSystemColor
               ? `Using system accent color (${systemAccentColor})`
               : 'Using custom accent color. Click "Use System" to restore system color.'}
@@ -107,17 +111,17 @@ export function AppearanceSettings({
       </div>
 
       <div>
-        <h4 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
+        <h4 className="mb-3" style={{ fontSize: '16px', fontWeight: 600 }}>
           Date & Time Format
         </h4>
-        <p style={{ fontSize: '14px', color: 'var(--win-text-secondary)', marginBottom: '12px' }}>
+        <p className="text-secondary mb-3" style={{ fontSize: '14px' }}>
           DexReader uses your system&lsquo;s date and time format settings. Dates are displayed in
           chapter lists, reading history, and error logs.
         </p>
         <Button variant="secondary" onClick={handleOpenDateSettings}>
           Configure Date Format in System Settings
         </Button>
-        <p style={{ fontSize: '13px', color: 'var(--win-text-secondary)', marginTop: '8px' }}>
+        <p className="text-secondary mt-2" style={{ fontSize: '13px' }}>
           This will open your operating system&apos;s regional settings where you can customize date
           and time formats.
         </p>
