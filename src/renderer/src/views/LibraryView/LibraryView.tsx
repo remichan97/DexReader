@@ -1,177 +1,89 @@
 import type { JSX } from 'react'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Tabs, TabList, Tab, TabPanel } from '@renderer/components/Tabs'
-import { MangaCard } from '@renderer/components/MangaCard'
 import { SearchBar } from '@renderer/components/SearchBar'
 import { Badge } from '@renderer/components/Badge'
 import { Button } from '@renderer/components/Button'
-import { Modal } from '@renderer/components/Modal'
-import { Input } from '@renderer/components/Input'
 import { LoadingState } from '@renderer/components/LoadingState'
 import { EmptyState } from '@renderer/components/EmptyState'
 import { CreateCollectionDialog } from '@renderer/components/CreateCollectionDialog'
 import { CollectionPickerDialog } from '@renderer/components/CollectionPickerDialog'
-import { ContextMenu } from '@renderer/components/ContextMenu'
 import { ImportProgressDialog } from '@renderer/components/ImportProgressDialog'
 import { ImportResultDialog } from '@renderer/components/ImportResultDialog'
-import {
-  DexReaderExportDialog,
-  type ExportOptions
-} from '@renderer/components/DexReaderExportDialog'
+import { DexReaderExportDialog } from '@renderer/components/DexReaderExportDialog'
 import { DexReaderImportDialog } from '@renderer/components/DexReaderImportDialog'
-import type { DexReaderImportResult } from '../../../../preload/index.d'
 import { useLibraryStore, useCollectionsStore, useToastStore } from '@renderer/stores'
 import { useConnectivityStore } from '@renderer/stores/connectivityStore'
 import { handleUnfavourite } from '@renderer/utils/unfavouriteHandler'
-
-// ImportResult interface matches src/main/services/results/import.result.ts
-interface ImportResult {
-  importedMangaCount: number
-  skippedMangaCount: number
-  failedMangaCount: number
-  errors?: Array<{
-    mangaId?: string
-    title?: string
-    reason: string
-  }>
-  importedMangaIds?: string[]
-}
 import {
   BookOpen48Regular,
   Search48Regular,
   Warning48Regular,
   ArrowClockwise24Regular,
-  Add24Regular,
-  Edit20Regular,
-  Delete20Regular
+  Add24Regular
 } from '@fluentui/react-icons'
+import { MangaGrid } from './components/MangaGrid'
+import { CollectionContextMenu } from './components/CollectionContextMenu'
+import { EditCollectionModal } from './components/EditCollectionModal'
+import { useLibraryFilters } from './hooks/useLibraryFilters'
+import { useCollectionManager } from './hooks/useCollectionManager'
+import { useMihonImportExport } from './hooks/useMihonImportExport'
+import { useDexReaderImportExport } from './hooks/useDexReaderImportExport'
 import './LibraryView.css'
-
-// Helper Components (moved outside parent to prevent re-renders)
-interface MangaGridProps {
-  readonly items: Array<{
-    readonly mangaId: string
-    readonly coverUrl?: string
-    readonly title: string
-    readonly authors: string[]
-    readonly status: string
-    readonly lastChapter?: string
-    readonly hasNewChapters?: boolean
-  }>
-  readonly onFavourite?: (id: string) => void
-  readonly onClick?: (id: string) => void
-  readonly onAddToCollection?: (id: string) => void
-}
-
-const MangaGrid = ({
-  items,
-  onFavourite,
-  onClick,
-  onAddToCollection
-}: MangaGridProps): JSX.Element => (
-  <div className="library__grid">
-    {items.map((manga) => (
-      <ContextMenu
-        key={manga.mangaId}
-        trigger={
-          <div>
-            <MangaCard
-              id={manga.mangaId}
-              coverUrl={manga.coverUrl || ''}
-              title={manga.title}
-              author={manga.authors[0] || 'Unknown'}
-              status={manga.status as 'ongoing' | 'completed' | 'hiatus'}
-              isFavourite={true}
-              showFavouriteBadge={false}
-              hasNewChapters={manga.hasNewChapters}
-              onFavourite={onFavourite}
-              onClick={onClick}
-            />
-          </div>
-        }
-        items={[
-          {
-            label: 'Go to Detail',
-            onClick: () => onClick?.(manga.mangaId)
-          },
-          { type: 'separator' },
-          {
-            label: 'Add to Collection...',
-            onClick: () => onAddToCollection?.(manga.mangaId)
-          },
-          { type: 'separator' },
-          {
-            label: 'Remove from Library',
-            onClick: () => onFavourite?.(manga.mangaId)
-          }
-        ]}
-      />
-    ))}
-  </div>
-)
 
 export function LibraryView(): JSX.Element {
   const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState('')
-  const [pickerDialogOpen, setPickerDialogOpen] = useState(false)
-  const [createDialogOpen, setCreateDialogOpen] = useState(false)
-  const [selectedMangaForCollection, setSelectedMangaForCollection] = useState<string | null>(null)
-  const [editingCollection, setEditingCollection] = useState<{
-    id: number
-    name: string
-    description?: string
-  } | null>(null)
-  const [editName, setEditName] = useState('')
-  const [editDescription, setEditDescription] = useState('')
-  const [isSubmittingEdit, setIsSubmittingEdit] = useState(false)
-  const [contextMenuCollection, setContextMenuCollection] = useState<{
-    id: number
-    name: string
-  } | null>(null)
-  const [contextMenuPosition, setContextMenuPosition] = useState<{
-    top: number
-    left: number
-  } | null>(null)
-  // Track manga IDs for each collection
-  const [collectionMangaMap, setCollectionMangaMap] = useState<Record<number, string[]>>({})
-
-  // Import state
-  const [isImporting, setIsImporting] = useState(false)
-  const [importResult, setImportResult] = useState<ImportResult | null>(null)
-  const importingRef = useRef(false) // Synchronous guard against double imports
-
-  // Export state
-  const [exportDialogOpen, setExportDialogOpen] = useState(false)
-  const [exportFilePath, setExportFilePath] = useState<string | null>(null)
-  const [isExporting, setIsExporting] = useState(false)
-  const [exportError, setExportError] = useState<string | null>(null)
-  const [importDialogOpen, setImportDialogOpen] = useState(false)
-  const [importFilePath, setImportFilePath] = useState<string | null>(null)
 
   // Stores
-  const { favourites, loading, error, loadFavourites, toggleFavourite } = useLibraryStore()
-  const { collections, loadCollections, createCollection, updateCollection, deleteCollection } =
-    useCollectionsStore()
+  const { favourites, loading, error, loadFavourites } = useLibraryStore()
+  const { collections, loadCollections } = useCollectionsStore()
   const show = useToastStore((state) => state.show)
   const isOnline = useConnectivityStore((state) => state.isOnline)
 
-  // Offline state - track downloaded manga IDs
-  const [downloadedMangaIds, setDownloadedMangaIds] = useState<Set<string>>(new Set())
+  // Use custom hooks
+  const { filterManga } = useLibraryFilters(searchQuery)
 
-  // Load manga IDs for all collections
-  const loadCollectionManga = async (): Promise<void> => {
-    const mangaMap: Record<number, string[]> = {}
-    for (const collection of collections) {
-      const result = await globalThis.collections.getMangaInCollection(collection.id)
-      if (result.success && result.data) {
-        mangaMap[collection.id] = result.data
-      } else {
-        mangaMap[collection.id] = []
-      }
-    }
-    setCollectionMangaMap(mangaMap)
-  }
+  const {
+    editingCollection,
+    isSubmittingEdit,
+    contextMenuCollection,
+    contextMenuPosition,
+    collectionMangaMap,
+    selectedMangaForCollection,
+    pickerDialogOpen,
+    createDialogOpen,
+    setEditingCollection,
+    setContextMenuCollection,
+    setContextMenuPosition,
+    setSelectedMangaForCollection,
+    setPickerDialogOpen,
+    setCreateDialogOpen,
+    handleEditCollection,
+    handleUpdateCollection,
+    handleDeleteCollection,
+    handleCreateCollection,
+    handleAddToCollection
+  } = useCollectionManager()
+
+  const { isImporting, importResult, clearImportResult, handleCancelImport } = useMihonImportExport(
+    loadFavourites,
+    loadCollections
+  )
+
+  const {
+    exportDialogOpen,
+    exportFilePath,
+    isExporting,
+    exportError,
+    importDialogOpen,
+    importFilePath,
+    handleExport,
+    handleCloseExportDialog,
+    handleImportComplete,
+    handleCloseImportDialog
+  } = useDexReaderImportExport(loadFavourites, loadCollections)
 
   // Load favourites and collections on mount
   useEffect(() => {
@@ -179,270 +91,12 @@ export function LibraryView(): JSX.Element {
     loadCollections()
   }, [loadFavourites, loadCollections])
 
-  // Load downloaded manga IDs when going offline
-  useEffect(() => {
-    const loadDownloadedManga = async (): Promise<void> => {
-      if (!isOnline) {
-        try {
-          const response = await globalThis.library.getDownloadedManga()
-          if (response.success && response.data) {
-            const ids = new Set(response.data.map((m) => m.mangaId))
-            setDownloadedMangaIds(ids)
-          } else {
-            setDownloadedMangaIds(new Set())
-          }
-        } catch (error) {
-          console.error('Failed to load downloaded manga:', error)
-          setDownloadedMangaIds(new Set())
-        }
-      }
-    }
-
-    void loadDownloadedManga()
-  }, [isOnline])
-
-  // Load manga IDs for all collections when collections change
-  useEffect(() => {
-    if (collections.length > 0) {
-      void loadCollectionManga()
-    } else {
-      setCollectionMangaMap({})
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [collections])
-
-  // Listen for import events from main process
-  useEffect(() => {
-    const removeListener = globalThis.api.onImportTachiyomi(async (filePath: string) => {
-      // Prevent concurrent imports with synchronous ref check
-      if (importingRef.current) {
-        console.warn('Import already in progress, ignoring duplicate request')
-        return
-      }
-
-      // Start import
-      importingRef.current = true
-      setIsImporting(true)
-      setImportResult(null)
-
-      try {
-        const response = await globalThis.mihon.importBackup(filePath)
-
-        if (response.success && response.data) {
-          setImportResult(response.data)
-
-          // Reload library to show imported manga
-          await loadFavourites()
-          await loadCollections()
-
-          // Show toast notification
-          show({
-            title: 'Import Complete',
-            message: `Imported ${response.data.importedMangaCount} manga, skipped ${response.data.skippedMangaCount}, failed ${response.data.failedMangaCount}`,
-            variant: response.data.failedMangaCount > 0 ? 'warning' : 'success',
-            duration: 4000
-          })
-        } else {
-          // Import failed
-          show({
-            title: 'Import Failed',
-            message: response.error?.message || 'Could not import backup file',
-            variant: 'error',
-            duration: 4000
-          })
-        }
-      } catch (error) {
-        console.error('Error importing backup:', error)
-        show({
-          title: 'Import Failed',
-          message: 'An error occurred during import',
-          variant: 'error',
-          duration: 4000
-        })
-      } finally {
-        importingRef.current = false
-        setIsImporting(false)
-      }
-    })
-
-    return removeListener
-  }, [show, loadFavourites, loadCollections])
-
-  // Listen for export events from main process
-  useEffect(() => {
-    const removeListener = globalThis.api.onExportTachiyomi(async (filePath: string) => {
-      try {
-        const response = await globalThis.mihon.exportBackup(filePath)
-
-        if (response.success && response.data) {
-          show({
-            title: 'Export Complete',
-            message: `Exported ${response.data.exportedCount} manga to Mihon backup`,
-            variant: 'success',
-            duration: 4000
-          })
-        } else {
-          show({
-            title: 'Export Failed',
-            message: response.error?.message || 'Could not export library',
-            variant: 'error',
-            duration: 4000
-          })
-        }
-      } catch (error) {
-        console.error('Error exporting backup:', error)
-        show({
-          title: 'Export Failed',
-          message: 'An error occurred during export',
-          variant: 'error',
-          duration: 4000
-        })
-      }
-    })
-
-    return removeListener
-  }, [show])
-
-  // Listen for DexReader export events from main process
-  useEffect(() => {
-    const removeListener = globalThis.api.onExportLibrary((filePath: string) => {
-      setExportFilePath(filePath)
-      setExportDialogOpen(true)
-    })
-
-    return removeListener
-  }, [])
-
-  // Listen for DexReader import events from main process
-  useEffect(() => {
-    const removeListener = globalThis.api.onImportLibrary((filePath: string) => {
-      setImportFilePath(filePath)
-      setImportDialogOpen(true)
-    })
-
-    return removeListener
-  }, [])
-
   const handleSearch = (query: string): void => {
     setSearchQuery(query)
   }
 
   const handleMangaClick = (id: string): void => {
     navigate(`/browse/${id}`)
-  }
-
-  const handleAddToCollection = (mangaId: string): void => {
-    setSelectedMangaForCollection(mangaId)
-    if (collections.length === 0) {
-      // No collections - automatically open create dialog
-      setCreateDialogOpen(true)
-    } else {
-      // Has collections - show picker
-      setPickerDialogOpen(true)
-    }
-  }
-
-  const handleCreateCollection = async (name: string, description?: string): Promise<void> => {
-    const newCollection = await createCollection({ name, description })
-
-    if (newCollection) {
-      show({
-        title: 'Collection Created',
-        message: `"${name}" has been created`,
-        variant: 'success',
-        duration: 3000
-      })
-
-      // If we have a manga waiting to be added, show the picker
-      if (selectedMangaForCollection) {
-        setPickerDialogOpen(true)
-      } else {
-        // Clear the selectedMangaForCollection if no manga is waiting
-        setSelectedMangaForCollection(null)
-      }
-    } else {
-      // Failed to create collection, clear the selected manga
-      setSelectedMangaForCollection(null)
-    }
-  }
-
-  const handleEditCollection = (collection: {
-    id: number
-    name: string
-    description?: string
-  }): void => {
-    setEditingCollection(collection)
-    setEditName(collection.name)
-    setEditDescription(collection.description || '')
-  }
-
-  const handleUpdateCollection = async (): Promise<void> => {
-    if (!editingCollection || !editName.trim()) return
-
-    setIsSubmittingEdit(true)
-    try {
-      await updateCollection({
-        id: editingCollection.id,
-        name: editName.trim(),
-        description: editDescription.trim() || undefined
-      })
-
-      show({
-        title: 'Collection Updated',
-        message: `"${editName}" has been updated`,
-        variant: 'success',
-        duration: 3000
-      })
-
-      setEditingCollection(null)
-      setEditName('')
-      setEditDescription('')
-    } catch (error) {
-      console.error('Error updating collection:', error)
-      show({
-        title: 'Update Failed',
-        message: 'Could not update collection',
-        variant: 'error',
-        duration: 3000
-      })
-    } finally {
-      setIsSubmittingEdit(false)
-    }
-  }
-
-  const handleDeleteCollection = async (
-    collectionId: number,
-    collectionName: string
-  ): Promise<void> => {
-    // Use Electron's native dialog
-    const result = await globalThis.api.showConfirmDialog(
-      `Delete "${collectionName}"?`,
-      'This will not delete the manga, only the collection.',
-      'Delete',
-      'Cancel'
-    )
-
-    // Check if user confirmed (result should be wrapped in IpcResponse)
-    if (result.success && !result.data) return
-
-    try {
-      await deleteCollection(collectionId)
-
-      show({
-        title: 'Collection Deleted',
-        message: `"${collectionName}" has been removed`,
-        variant: 'success',
-        duration: 3000
-      })
-    } catch (error) {
-      console.error('Error deleting collection:', error)
-      show({
-        title: 'Delete Failed',
-        message: 'Could not delete collection',
-        variant: 'error',
-        duration: 3000
-      })
-    }
   }
 
   const handleCheckUpdates = async (): Promise<void> => {
@@ -506,114 +160,6 @@ export function LibraryView(): JSX.Element {
     }
   }
 
-  const handleExport = async (options: ExportOptions): Promise<void> => {
-    if (!exportFilePath) return
-
-    setIsExporting(true)
-    setExportError(null)
-    try {
-      const response = await globalThis.dexreader.exportData(exportFilePath, options)
-
-      if (response.success && response.data) {
-        // Show success toast
-        show({
-          title: 'Export Complete',
-          message: `Exported ${response.data.exportedMangaCount} manga to DexReader backup`,
-          variant: 'success',
-          duration: 4000
-        })
-
-        // Close dialog and reset
-        setExportDialogOpen(false)
-        setExportFilePath(null)
-        setExportError(null)
-      } else {
-        // Show error inline
-        const errorMessage = response.error?.message || 'Could not export library'
-        setExportError(errorMessage)
-      }
-    } catch (error) {
-      console.error('Error exporting backup:', error)
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred'
-      setExportError(errorMessage)
-    } finally {
-      setIsExporting(false)
-    }
-  }
-
-  const handleCloseExportDialog = (): void => {
-    if (!isExporting) {
-      setExportDialogOpen(false)
-      setExportFilePath(null)
-      setExportError(null)
-    }
-  }
-
-  const handleImportComplete = async (result: DexReaderImportResult): Promise<void> => {
-    // Refresh library to show imported manga
-    await loadFavourites()
-    await loadCollections()
-
-    // Build success message
-    const parts: string[] = []
-    if (result.importedMangaCount > 0) {
-      parts.push(`${result.importedMangaCount} manga`)
-    }
-    if (result.importedCollectionsCount > 0) {
-      parts.push(`${result.importedCollectionsCount} collections`)
-    }
-    if (result.importedMangaProgressCount > 0) {
-      parts.push(`${result.importedMangaProgressCount} progress entries`)
-    }
-    if (result.importedReaderOverridesCount > 0) {
-      parts.push(`${result.importedReaderOverridesCount} reader settings`)
-    }
-
-    const message = parts.length > 0 ? `Imported: ${parts.join(', ')}` : 'Import complete'
-
-    // Show warnings for section errors if any
-    const warnings: string[] = []
-    if (result.sectionErrors) {
-      if (result.sectionErrors.collection) {
-        warnings.push('Collections import had errors')
-      }
-      if (result.sectionErrors.progress) {
-        warnings.push('Progress import had errors')
-      }
-      if (result.sectionErrors.readerSettings) {
-        warnings.push('Reader settings import had errors')
-      }
-    }
-
-    show({
-      title: warnings.length > 0 ? 'Import Completed with Warnings' : 'Import Complete',
-      message: warnings.length > 0 ? `${message}. ${warnings.join(', ')}` : message,
-      variant: warnings.length > 0 ? 'warning' : 'success',
-      duration: 5000
-    })
-  }
-
-  const handleCloseImportDialog = (): void => {
-    setImportDialogOpen(false)
-    setImportFilePath(null)
-  }
-
-  const handleCancelImport = async (): Promise<void> => {
-    try {
-      const response = await globalThis.mihon.cancelImport()
-      if (response.success) {
-        show({
-          title: 'Import Cancelled',
-          message: 'The import has been cancelled',
-          variant: 'info',
-          duration: 3000
-        })
-      }
-    } catch (error) {
-      console.error('Error cancelling import:', error)
-    }
-  }
-
   const handleRemoveFromLibrary = async (id: string): Promise<void> => {
     const manga = favourites.find((m) => m.mangaId === id)
 
@@ -637,31 +183,6 @@ export function LibraryView(): JSX.Element {
         console.error('Unfavourite error:', error)
       }
     })
-  }
-
-  interface MangaItem {
-    mangaId: string
-    coverUrl?: string
-    title: string
-    authors: string[]
-    status: string
-    lastChapter?: string
-  }
-
-  const filterManga = (manga: MangaItem[]): MangaItem[] => {
-    let filtered = manga
-
-    // Filter to downloaded-only when offline
-    if (!isOnline) {
-      filtered = filtered.filter((m) => downloadedMangaIds.has(m.mangaId))
-    }
-
-    // Apply search query if present
-    if (searchQuery) {
-      filtered = filtered.filter((m) => m.title.toLowerCase().includes(searchQuery.toLowerCase()))
-    }
-
-    return filtered
   }
 
   const filteredAll = filterManga(favourites)
@@ -718,59 +239,12 @@ export function LibraryView(): JSX.Element {
       </div>
 
       {/* Edit Collection Modal */}
-      {editingCollection && (
-        <Modal
-          open={!!editingCollection}
-          onClose={() => {
-            setEditingCollection(null)
-            setEditName('')
-            setEditDescription('')
-          }}
-          title="Edit Collection"
-          size="small"
-          footer={
-            <>
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  setEditingCollection(null)
-                  setEditName('')
-                  setEditDescription('')
-                }}
-                disabled={isSubmittingEdit}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="primary"
-                onClick={handleUpdateCollection}
-                disabled={isSubmittingEdit || !editName.trim()}
-              >
-                {isSubmittingEdit ? 'Updating...' : 'Update'}
-              </Button>
-            </>
-          }
-        >
-          <div className="flex flex-col gap-4">
-            <Input
-              label="Collection Name"
-              value={editName}
-              onChange={setEditName}
-              placeholder="e.g., Reading, Want to Read"
-              disabled={isSubmittingEdit}
-              autoFocus
-              required
-            />
-            <Input
-              label="Description (Optional)"
-              value={editDescription}
-              onChange={setEditDescription}
-              placeholder="Add a description"
-              disabled={isSubmittingEdit}
-            />
-          </div>
-        </Modal>
-      )}
+      <EditCollectionModal
+        collection={editingCollection}
+        isSubmitting={isSubmittingEdit}
+        onUpdate={handleUpdateCollection}
+        onClose={() => setEditingCollection(null)}
+      />
 
       {/* Loading State */}
       {loading && <LoadingState variant="skeleton" skeletonCount={12} />}
@@ -812,70 +286,21 @@ export function LibraryView(): JSX.Element {
 
               {/* Context Menu Portal */}
               {contextMenuCollection && contextMenuPosition && (
-                <>
-                  {/* Backdrop to close menu */}
-                  <div
-                    style={{
-                      position: 'fixed',
-                      inset: 0,
-                      zIndex: 9998
-                    }}
-                    onClick={() => {
-                      setContextMenuCollection(null)
-                      setContextMenuPosition(null)
-                    }}
-                    onContextMenu={(e) => {
-                      e.preventDefault()
-                      setContextMenuCollection(null)
-                      setContextMenuPosition(null)
-                    }}
-                  />
-                  {/* Menu */}
-                  <div
-                    className="context-menu__dropdown"
-                    style={{
-                      position: 'fixed',
-                      top: `${contextMenuPosition.top}px`,
-                      left: `${contextMenuPosition.left}px`,
-                      zIndex: 9999
-                    }}
-                  >
-                    <div className="context-menu__list">
-                      <button
-                        type="button"
-                        className="context-menu__item"
-                        onClick={() => {
-                          handleEditCollection(contextMenuCollection)
-                          setContextMenuCollection(null)
-                          setContextMenuPosition(null)
-                        }}
-                      >
-                        <span className="context-menu__item-icon">
-                          <Edit20Regular />
-                        </span>
-                        <span className="context-menu__item-label">Edit Collection</span>
-                      </button>
-                      <div className="context-menu__separator" />
-                      <button
-                        type="button"
-                        className="context-menu__item"
-                        onClick={() => {
-                          void handleDeleteCollection(
-                            contextMenuCollection.id,
-                            contextMenuCollection.name
-                          )
-                          setContextMenuCollection(null)
-                          setContextMenuPosition(null)
-                        }}
-                      >
-                        <span className="context-menu__item-icon">
-                          <Delete20Regular />
-                        </span>
-                        <span className="context-menu__item-label">Delete Collection</span>
-                      </button>
-                    </div>
-                  </div>
-                </>
+                <CollectionContextMenu
+                  collection={contextMenuCollection}
+                  position={contextMenuPosition}
+                  onEdit={() => handleEditCollection(contextMenuCollection)}
+                  onDelete={() =>
+                    void handleDeleteCollection(
+                      contextMenuCollection.id,
+                      contextMenuCollection.name
+                    )
+                  }
+                  onClose={() => {
+                    setContextMenuCollection(null)
+                    setContextMenuPosition(null)
+                  }}
+                />
               )}
 
               <TabPanel value="all">
@@ -967,8 +392,6 @@ export function LibraryView(): JSX.Element {
           onClose={() => {
             setPickerDialogOpen(false)
             setSelectedMangaForCollection(null)
-            // Refresh collection manga after adding
-            void loadCollectionManga()
           }}
           mangaId={selectedMangaForCollection}
           onCreateNew={() => {
@@ -992,9 +415,9 @@ export function LibraryView(): JSX.Element {
         <ImportResultDialog
           open={!!importResult}
           result={importResult}
-          onClose={() => setImportResult(null)}
+          onClose={() => clearImportResult()}
           onViewLibrary={() => {
-            setImportResult(null)
+            clearImportResult()
             // Already in library, just scroll to top
             globalThis.scrollTo({ top: 0, behavior: 'smooth' })
           }}
