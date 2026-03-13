@@ -9,9 +9,9 @@ DexReader uses a comprehensive utility class system for rapid UI development and
 **Import Order**:
 
 ```tsx
-import './assets/tokens.css'      // 1. Design tokens (variables)
-import './assets/utilities.css'   // 2. Utility classes (uses tokens)
-import './assets/main.css'        // 3. Application styles
+import './assets/tokens.css' // 1. Design tokens (variables)
+import './assets/utilities.css' // 2. Utility classes (uses tokens)
+import './assets/main.css' // 3. Application styles
 ```
 
 ## Benefits
@@ -39,9 +39,9 @@ Utility classes follow a predictable naming pattern:
 
 ### Examples
 
-- `mt-4` = margin-top: var(--space-4) *(16px)*
-- `px-6` = padding-left: var(--space-6); padding-right: var(--space-6) *(24px horizontal padding)*
-- `text-secondary` = color: var(--win-text-secondary) *(theme-aware secondary text color)*
+- `mt-4` = margin-top: var(--space-4) _(16px)_
+- `px-6` = padding-left: var(--space-6); padding-right: var(--space-6) _(24px horizontal padding)_
+- `text-secondary` = color: var(--win-text-secondary) _(theme-aware secondary text color)_
 
 ## Available Utility Classes
 
@@ -195,11 +195,17 @@ Map to spacing tokens (4px, 8px, 12px, 16px, 20px, 24px, 32px, 40px, 48px):
 **Usage Example**:
 
 ```tsx
-<div className="p-6">           {/* 24px padding all sides */}
-  <header className="pb-4">     {/* 16px bottom padding */}
+<div className="p-6">
+  {' '}
+  {/* 24px padding all sides */}
+  <header className="pb-4">
+    {' '}
+    {/* 16px bottom padding */}
     <h1>Title</h1>
   </header>
-  <main className="px-4 py-6">  {/* 16px horizontal, 24px vertical */}
+  <main className="px-4 py-6">
+    {' '}
+    {/* 16px horizontal, 24px vertical */}
     <p>Content</p>
   </main>
 </div>
@@ -239,7 +245,9 @@ Map to spacing tokens (4px, 8px, 12px, 16px, 20px, 24px, 32px, 40px, 48px):
 **Usage Example**:
 
 ```tsx
-<div className="mx-auto max-w-lg">  {/* Center horizontally, max-width 512px */}
+<div className="mx-auto max-w-lg">
+  {' '}
+  {/* Center horizontally, max-width 512px */}
   <h1 className="mb-4">Title</h1>
   <p className="mt-2">Paragraph with top margin</p>
 </div>
@@ -405,9 +413,7 @@ Theme-aware background colors:
 **Usage Example**:
 
 ```tsx
-<button className="border rounded-md px-4 py-2">
-  Button
-</button>
+<button className="border rounded-md px-4 py-2">Button</button>
 ```
 
 ### Opacity Utilities
@@ -482,12 +488,14 @@ Visually hides content while keeping it accessible to screen readers:
 **Before** (inline styles):
 
 ```tsx
-<div style={{
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '16px',
-  padding: '24px'
-}}>
+<div
+  style={{
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+    padding: '24px'
+  }}
+>
   <h1 style={{ fontSize: '20px', fontWeight: 700 }}>Title</h1>
   <p style={{ color: 'var(--win-text-secondary)' }}>Content</p>
 </div>
@@ -570,7 +578,7 @@ All utility classes are built on design tokens defined in `tokens.css`:
 
 ```tsx
 <ul className="flex flex-col gap-2">
-  {items.map(item => (
+  {items.map((item) => (
     <li key={item.id} className="flex items-center justify-between p-3 bg-subtle rounded-sm">
       <span className="text-body text-primary">{item.name}</span>
       <span className="text-caption text-tertiary">{item.date}</span>
