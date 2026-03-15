@@ -1,6 +1,6 @@
 # DexReader Active Context
 
-**Last Updated**: 11 March 2026
+**Last Updated**: 15 March 2026
 **Current Phase**: Phase 5 - Production Readiness (PLANNING COMPLETE ✅)
 **Next**: Begin P5-T21 Code Refactoring (Backend OR Frontend, 18-26 hours each)
 
@@ -13,10 +13,36 @@
 **Phase 4 Status**: COMPLETE - 13/13 tasks (100%) ✅
 **Phase 5 Planning**: COMPLETE - Timeline finalized (11 Mar 2026) ✅
 **P5-T21 Audits**: COMPLETE - Backend + Frontend audits done (11 Mar 2026) ✅
+**Electron Upgrade**: COMPLETE - Upgraded to 41.0.2 (15 Mar 2026) ✅
 **Phase 5 Execution**: Ready to begin Week 1 (P5-T21 Backend OR Frontend refactoring)
 **Timeline**: 6-8 weeks (11 March - 5 May 2026)
 **Target**: v1.0 Release Early May 2026 🚀
 **Next Steps**: Choose backend OR frontend refactoring path, start execution
+
+---
+
+## Recent Work: Electron 41 Upgrade (15 March 2026) ✅
+
+**Status**: Successfully upgraded from Electron 38.1.2 → 41.0.2
+**Priority**: Security vulnerability mitigation (Dependabot alert)
+**Duration**: ~6 hours
+
+**Upgrades**:
+
+- Electron: 38.1.2 → 41.0.2 (3 major versions)
+- electron-vite: 4.0.1 → 5.0.0
+- better-sqlite3: 12.5.0 → 12.8.0 (rebuilt for new Node.js)
+- @types/node: 22.18.6 → 25.5.0
+
+**Issues Encountered & Fixed**:
+
+- **Accent color API change**: Electron 41 changed `systemPreferences.getAccentColor()` from BGR format to RGBA format on Windows
+- **Triple invocation**: Added caching to `getSystemAccentColor()` to avoid redundant system calls during startup
+- **Node.js version bump**: better-sqlite3 auto-rebuilt successfully for Electron 41's Node.js v22.x
+
+**Testing**: All features tested and verified working (search, read, download, library, settings)
+
+See [archived-milestones.md](./archived-milestones.md#electron-41-upgrade) for detailed implementation notes.
 
 ---
 

@@ -8,7 +8,7 @@ export function buildHelpMenu(mainWindow: BrowserWindow): MenuItemConstructorOpt
         label: 'Documentation',
         accelerator: 'F1',
         click: () => {
-          shell.openExternal('https://github.com/remichan97/DexReader/wiki')
+          shell.openExternal('https://github.com/remichan97/DexReader/wiki').catch(console.error)
         }
       },
       {
@@ -22,7 +22,9 @@ export function buildHelpMenu(mainWindow: BrowserWindow): MenuItemConstructorOpt
       {
         label: 'Report Issue...',
         click: () => {
-          shell.openExternal('https://github.com/remichan97/DexReader/issues/new')
+          shell
+            .openExternal('https://github.com/remichan97/DexReader/issues/new')
+            .catch(console.error)
         }
       },
       {
