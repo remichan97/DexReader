@@ -72,7 +72,7 @@ export function ImportProgressDialog({
       title="Importing Library"
       footer={
         cancellable && onCancel ? (
-          <div className="import-progress-dialog__footer">
+          <div className="import-progress-dialog__footer flex justify-end">
             <Button variant="secondary" onClick={onCancel} icon={<Dismiss24Regular />}>
               Cancel Import
             </Button>
@@ -82,12 +82,12 @@ export function ImportProgressDialog({
       closeOnOverlayClick={false}
       closeOnEscape={false}
     >
-      <div className="import-progress-dialog">
-        <div className="import-progress-dialog__ring">
+      <div className="import-progress-dialog flex flex-col items-center gap-6">
+        <div className="import-progress-dialog__ring flex justify-center items-center">
           <ProgressRing value={isIndeterminate ? undefined : progress} size="large" />
         </div>
 
-        <div className="import-progress-dialog__status">
+        <div className="import-progress-dialog__status flex flex-col items-center gap-2">
           {isIndeterminate ? (
             <div className="import-progress-dialog__progress">Importing...</div>
           ) : (

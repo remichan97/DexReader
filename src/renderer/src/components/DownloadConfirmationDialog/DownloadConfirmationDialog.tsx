@@ -104,7 +104,7 @@ export function DownloadConfirmationDialog({
   }
 
   const footer = (
-    <div className="download-dialog__footer">
+    <div className="download-dialog__footer flex justify-end gap-2">
       <Button variant="secondary" onClick={onClose}>
         Cancel
       </Button>
@@ -124,7 +124,7 @@ export function DownloadConfirmationDialog({
       closeOnOverlayClick={false}
       aria-label={title}
     >
-      <div className="download-dialog">
+      <div className="download-dialog flex flex-col gap-5">
         {/* Chapter info */}
         <div className="download-dialog__info">
           {isBatch ? (
@@ -137,7 +137,7 @@ export function DownloadConfirmationDialog({
         </div>
 
         {/* Quality selection */}
-        <div className="download-dialog__section">
+        <div className="download-dialog__section flex flex-col gap-2">
           <Select
             value={selectedQuality}
             onChange={handleQualityChange}
@@ -152,9 +152,9 @@ export function DownloadConfirmationDialog({
         </div>
 
         {/* Download location */}
-        <div className="download-dialog__section">
+        <div className="download-dialog__section flex flex-col gap-2">
           <div className="download-dialog__label">Download location:</div>
-          <div className="download-dialog__location">
+          <div className="download-dialog__location flex items-center gap-2">
             <Folder20Regular className="download-dialog__folder-icon" />
             <span className="download-dialog__path" title={downloadsPath}>
               {downloadsPath}
@@ -173,7 +173,7 @@ export function DownloadConfirmationDialog({
 
         {/* Batch info message */}
         {isBatch && showBatchInfo && (
-          <div className="download-dialog__batch-info">
+          <div className="download-dialog__batch-info flex items-start gap-2">
             <Info20Regular className="download-dialog__info-icon" />
             <p className="download-dialog__info-text">
               Downloads will run in the background. You can continue browsing while they complete.

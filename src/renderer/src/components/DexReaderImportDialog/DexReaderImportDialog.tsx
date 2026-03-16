@@ -69,10 +69,10 @@ export function DexReaderImportDialog({
 
   return (
     <Modal open={isOpen} onClose={handleCancel} title="Import DexReader Backup" size="medium">
-      <div className="dexreader-import-dialog">
-        <div className="import-file-info">
+      <div className="dexreader-import-dialog flex flex-col gap-4">
+        <div className="import-file-info flex items-center gap-3">
           <ArrowImport20Regular className="import-icon" />
-          <div className="file-details">
+          <div className="file-details flex flex-col gap-1">
             <span className="file-label">File:</span>
             <span className="file-name">{filePath}</span>
           </div>
@@ -85,8 +85,8 @@ export function DexReaderImportDialog({
           </p>
         </div>
 
-        <div className="import-sections">
-          <div className="section-item">
+        <div className="import-sections flex flex-col gap-2">
+          <div className="section-item flex items-start gap-3">
             <Library20Regular className="section-icon" />
             <div className="section-content">
               <strong>Library</strong>
@@ -94,7 +94,7 @@ export function DexReaderImportDialog({
             </div>
           </div>
 
-          <div className="section-item">
+          <div className="section-item flex items-start gap-3">
             <Folder20Regular className="section-icon" />
             <div className="section-content">
               <strong>Collections</strong>
@@ -102,7 +102,7 @@ export function DexReaderImportDialog({
             </div>
           </div>
 
-          <div className="section-item">
+          <div className="section-item flex items-start gap-3">
             <BookOpen20Regular className="section-icon" />
             <div className="section-content">
               <strong>Reading Progress</strong>
@@ -110,7 +110,7 @@ export function DexReaderImportDialog({
             </div>
           </div>
 
-          <div className="section-item">
+          <div className="section-item flex items-start gap-3">
             <Settings20Regular className="section-icon" />
             <div className="section-content">
               <strong>Reader Settings</strong>
@@ -121,7 +121,7 @@ export function DexReaderImportDialog({
           </div>
         </div>
 
-        <div className="import-warning">
+        <div className="import-warning flex items-start gap-3">
           <Warning20Regular className="warning-icon" />
           <div className="warning-content">
             <strong>Import Behavior:</strong>
@@ -135,13 +135,13 @@ export function DexReaderImportDialog({
         </div>
 
         {error && (
-          <div className="import-error">
+          <div className="import-error flex items-start gap-3">
             <Warning20Regular className="error-icon" />
             <p className="error-text">{error}</p>
           </div>
         )}
 
-        <div className="dexreader-import-dialog__actions">
+        <div className="dexreader-import-dialog__actions flex gap-3 justify-end">
           <Button variant="secondary" onClick={handleCancel} disabled={isImporting}>
             Cancel
           </Button>

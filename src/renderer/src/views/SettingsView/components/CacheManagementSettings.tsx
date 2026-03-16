@@ -255,7 +255,7 @@ export function CacheManagementSettings(): JSX.Element {
 
   if (isLoading) {
     return (
-      <div className="cache-settings__loading">
+      <div className="cache-settings__loading flex flex-col gap-5">
         <div className="text-secondary">Loading cache data...</div>
       </div>
     )
@@ -265,7 +265,7 @@ export function CacheManagementSettings(): JSX.Element {
     coverCacheLimit === 0 ? 0 : Math.round((coverCacheSize / (coverCacheLimit * 1024 * 1024)) * 100)
 
   return (
-    <div className="cache-settings__container">
+    <div className="cache-settings__container flex flex-col gap-6">
       {/* Cover Image Cache Section */}
       <div>
         <h4 className="cache-settings__heading">Cover Image Cache</h4>
@@ -350,7 +350,7 @@ export function CacheManagementSettings(): JSX.Element {
           </div>
         )}
 
-        <div className="cache-settings__actions--multiple">
+        <div className="cache-settings__actions--multiple flex gap-3">
           <Button
             variant="secondary"
             onClick={handleCleanMetadata}

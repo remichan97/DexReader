@@ -1,16 +1,9 @@
 .import-result-dialog {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
   padding: 12px 0;
   min-width: 450px;
 }
 
 .import-result-dialog__icon {
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .import-result-dialog__icon--success {
@@ -34,17 +27,10 @@
 }
 
 .import-result-dialog__stats {
-  display: flex;
-  gap: 16px;
   width: 100%;
-  justify-content: center;
 }
 
 .import-result-dialog__stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
   padding: 12px 20px;
   border-radius: 8px;
   background: var(--card-background);
@@ -86,9 +72,6 @@
 }
 
 .import-result-dialog__errors-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   width: 100%;
   padding: 8px 12px;
   background: var(--card-background);
@@ -135,8 +118,5 @@
 }
 
 .import-result-dialog__footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
   width: 100%;
 }

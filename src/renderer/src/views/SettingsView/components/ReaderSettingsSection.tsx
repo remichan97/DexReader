@@ -58,14 +58,14 @@ export function ReaderSettingsSection({
   }
 
   return (
-    <div className="reader-settings__container">
+    <div className="reader-settings__container flex flex-col gap-5">
       <div>
         <h4 className="reader-settings__heading">Reader Display Settings</h4>
 
         {isLoading ? (
           <p className="text-body text-secondary">Loading settings...</p>
         ) : (
-          <div className="reader-settings__controls">
+          <div className="reader-settings__controls flex flex-col gap-4">
             <Switch
               checked={forceDarkMode}
               onChange={onForceDarkModeChange}
@@ -94,7 +94,7 @@ export function ReaderSettingsSection({
         {isLoading ? (
           <p className="text-body text-secondary">Loading settings...</p>
         ) : (
-          <div className="reader-settings__controls">
+          <div className="reader-settings__controls flex flex-col gap-4">
             <Select
               value={globalReaderSettings.readingMode}
               onChange={onReadingModeChange}
@@ -104,7 +104,7 @@ export function ReaderSettingsSection({
             />
 
             {globalReaderSettings.readingMode === 'double' && (
-              <div className="reader-settings__double-page-box">
+              <div className="reader-settings__double-page-box flex flex-col gap-3">
                 <h5 className="reader-settings__subheading">Double Page Mode Options</h5>
                 <Switch
                   checked={globalReaderSettings.doublePageMode?.skipCoverPages ?? true}
@@ -123,7 +123,7 @@ export function ReaderSettingsSection({
       </div>
 
       <div className="reader-settings__divider">
-        <div className="reader-settings__overrides-header">
+        <div className="reader-settings__overrides-header flex justify-between items-center">
           <h4 className="reader-settings__heading-no-margin">Per-Manga Overrides</h4>
           {perMangaOverrides.length > 0 && (
             <Button
@@ -159,9 +159,12 @@ export function ReaderSettingsSection({
         ) : null}
 
         {!isLoading && perMangaOverrides.length > 0 ? (
-          <div className="reader-settings__overrides-list">
+          <div className="reader-settings__overrides-list flex flex-col gap-2">
             {perMangaOverrides.map((override) => (
-              <div key={override.mangaId} className="reader-settings__override-item">
+              <div
+                key={override.mangaId}
+                className="reader-settings__override-item flex justify-between items-center gap-3"
+              >
                 {override.coverUrl && (
                   <img
                     src={override.coverUrl.replace('https://', 'mangadex://')}

@@ -109,23 +109,23 @@ export function ImportResultDialog({
         </>
       }
     >
-      <div className="import-result-dialog">
+      <div className="import-result-dialog flex flex-col items-center gap-6">
         <div className={`import-result-dialog__header import-result-dialog__header--${status}`}>
-          <StatusIcon className="import-result-dialog__icon" />
+          <StatusIcon className="import-result-dialog__icon flex justify-center items-center" />
         </div>
 
-        <div className="import-result-dialog__stats">
-          <div className="import-result-dialog__stat import-result-dialog__stat--success">
+        <div className="import-result-dialog__stats flex gap-4 justify-center">
+          <div className="import-result-dialog__stat import-result-dialog__stat--success flex flex-col items-center gap-1">
             <div className="import-result-dialog__stat-value">{importedMangaCount}</div>
             <div className="import-result-dialog__stat-label">Imported</div>
           </div>
 
-          <div className="import-result-dialog__stat import-result-dialog__stat--warning">
+          <div className="import-result-dialog__stat import-result-dialog__stat--warning flex flex-col items-center gap-1">
             <div className="import-result-dialog__stat-value">{skippedMangaCount}</div>
             <div className="import-result-dialog__stat-label">Skipped</div>
           </div>
 
-          <div className="import-result-dialog__stat import-result-dialog__stat--error">
+          <div className="import-result-dialog__stat import-result-dialog__stat--error flex flex-col items-center gap-1">
             <div className="import-result-dialog__stat-value">{failedMangaCount}</div>
             <div className="import-result-dialog__stat-label">Failed</div>
           </div>
@@ -147,7 +147,7 @@ export function ImportResultDialog({
           <div className="import-result-dialog__errors">
             <button
               type="button"
-              className="import-result-dialog__errors-toggle"
+              className="import-result-dialog__errors-toggle flex items-center justify-between"
               onClick={() => setShowErrors(!showErrors)}
             >
               <span>

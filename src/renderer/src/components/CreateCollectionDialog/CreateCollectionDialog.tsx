@@ -128,7 +128,7 @@ export function CreateCollectionDialog({
         <h3 className="create-collection-dialog__title">{title || defaultTitle}</h3>
       </div>
 
-      <div className="create-collection-dialog__content">
+      <div className="create-collection-dialog__content flex flex-col gap-3">
         {autoAddMangaId && (
           <p className="create-collection-dialog__hint">
             This manga will be added to the new collection
@@ -155,7 +155,7 @@ export function CreateCollectionDialog({
         />
       </div>
 
-      <div className="create-collection-dialog__actions">
+      <div className="create-collection-dialog__actions flex justify-end gap-2">
         <Button type="button" variant="secondary" onClick={handleClose} disabled={isSubmitting}>
           Cancel
         </Button>

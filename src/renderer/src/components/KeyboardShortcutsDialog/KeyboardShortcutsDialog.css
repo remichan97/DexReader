@@ -1,6 +1,4 @@
 .keyboard-shortcuts-dialog {
-  display: flex;
-  flex-direction: column;
   max-height: 70vh;
 }
 
@@ -57,17 +55,11 @@
 }
 
 .shortcut-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
   padding: 6px 0;
 }
 
 /* Keyboard Key Styling */
 .shortcut-item__key {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   min-width: 100px;
   padding: 4px 8px;
   background: var(--win-bg-elevated);

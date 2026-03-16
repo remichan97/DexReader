@@ -135,9 +135,9 @@ export function CollectionPickerDialog({
 
   return (
     <Modal open={isOpen} onClose={handleClose} title="Manage Collections" size="small">
-      <div className="collection-picker-dialog">
+      <div className="collection-picker-dialog flex flex-col gap-4">
         {collections.length === 0 ? (
-          <div className="collection-picker-dialog__empty">
+          <div className="collection-picker-dialog__empty flex flex-col items-center gap-3">
             <p>You haven&apos;t created any collections yet.</p>
             <Button variant="primary" onClick={onCreateNew}>
               Create Your First Collection
@@ -145,9 +145,12 @@ export function CollectionPickerDialog({
           </div>
         ) : (
           <>
-            <div className="collection-picker-dialog__list">
+            <div className="collection-picker-dialog__list flex flex-col gap-2">
               {collections.map((collection) => (
-                <div key={collection.id} className="collection-picker-dialog__item">
+                <div
+                  key={collection.id}
+                  className="collection-picker-dialog__item flex flex-col gap-1"
+                >
                   <Checkbox
                     checked={selectedCollections.has(collection.id)}
                     onChange={() => handleToggleCollection(collection.id)}
@@ -164,13 +167,13 @@ export function CollectionPickerDialog({
 
             <button
               type="button"
-              className="collection-picker-dialog__create-new"
+              className="collection-picker-dialog__create-new flex items-center justify-center"
               onClick={onCreateNew}
             >
               + Create New Collection
             </button>
 
-            <div className="collection-picker-dialog__actions">
+            <div className="collection-picker-dialog__actions flex justify-end gap-2">
               <Button
                 type="button"
                 variant="secondary"

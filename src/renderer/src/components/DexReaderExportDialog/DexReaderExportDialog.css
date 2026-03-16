@@ -4,15 +4,9 @@
  */
 
 .dexreader-export-dialog {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
 }
 
 .dexreader-export-dialog .export-path-info {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
   padding: var(--space-3);
   background: var(--win-bg-subtle);
   border-radius: var(--radius-sm);
@@ -26,9 +20,6 @@
 }
 
 .dexreader-export-dialog .path-details {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
   flex: 1;
   min-width: 0;
 }
@@ -62,9 +53,6 @@
 }
 
 .dexreader-export-dialog .export-options {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
 }
 
 .dexreader-export-dialog .option-section {
@@ -81,9 +69,6 @@
 }
 
 .dexreader-export-dialog .option-header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
   margin-bottom: var(--space-1);
 }
 
@@ -152,9 +137,6 @@
 }
 
 .dexreader-export-dialog .export-error {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
   padding: var(--space-3);
   background: var(--win-error-subtle);
   border: 1px solid var(--win-error);
@@ -178,9 +160,6 @@
 }
 
 .dexreader-export-dialog__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--space-2);
   padding-top: var(--space-2);
   border-top: 1px solid var(--win-border-subtle);
 }

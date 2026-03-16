@@ -119,7 +119,7 @@ export function KeyboardShortcutsDialog({
 
   return (
     <Modal open={isOpen} onClose={onClose} size="large" title="Keyboard Shortcuts">
-      <div className="keyboard-shortcuts-dialog">
+      <div className="keyboard-shortcuts-dialog flex flex-col">
         <div className="keyboard-shortcuts-dialog__subtitle">
           All keyboard shortcuts available in DexReader
         </div>

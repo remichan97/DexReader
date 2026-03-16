@@ -66,11 +66,11 @@ export function DexReaderExportDialog({
 
   return (
     <Modal open={isOpen} onClose={handleCancel} title="Export DexReader Backup" size="medium">
-      <div className="dexreader-export-dialog">
+      <div className="dexreader-export-dialog flex flex-col gap-4">
         {savePath && (
-          <div className="export-path-info">
+          <div className="export-path-info flex items-center gap-3">
             <SaveArrowRight20Regular className="export-icon" />
-            <div className="path-details">
+            <div className="path-details flex flex-col gap-1">
               <span className="path-label">Save to:</span>
               <span className="path-name">{savePath}</span>
             </div>
@@ -83,9 +83,9 @@ export function DexReaderExportDialog({
           </p>
         </div>
 
-        <div className="export-options">
+        <div className="export-options flex flex-col gap-2">
           <div className="option-section">
-            <div className="option-header">
+            <div className="option-header flex items-center gap-2">
               <Library20Regular className="option-icon" />
               <strong>Library</strong>
               <span className="always-included">Always included</span>
@@ -96,7 +96,7 @@ export function DexReaderExportDialog({
           </div>
 
           <div className="option-section">
-            <div className="option-header">
+            <div className="option-header flex items-center gap-2">
               <Checkbox
                 checked={includeCollections}
                 onChange={setIncludeCollections}
@@ -109,7 +109,7 @@ export function DexReaderExportDialog({
           </div>
 
           <div className="option-section">
-            <div className="option-header">
+            <div className="option-header flex items-center gap-2">
               <Checkbox
                 checked={includeProgress}
                 onChange={setIncludeProgress}
@@ -124,7 +124,7 @@ export function DexReaderExportDialog({
           </div>
 
           <div className="option-section">
-            <div className="option-header">
+            <div className="option-header flex items-center gap-2">
               <Checkbox
                 checked={includeReaderSettings}
                 onChange={setIncludeReaderSettings}
@@ -147,13 +147,13 @@ export function DexReaderExportDialog({
         </div>
 
         {error && (
-          <div className="export-error">
+          <div className="export-error flex items-start gap-3">
             <Warning20Regular className="error-icon" />
             <p className="error-text">{error}</p>
           </div>
         )}
 
-        <div className="dexreader-export-dialog__actions">
+        <div className="dexreader-export-dialog__actions flex justify-end gap-2">
           <Button variant="secondary" onClick={handleCancel} disabled={isExporting}>
             Cancel
           </Button>

@@ -1,7 +1,4 @@
 .download-dialog {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
   padding: 4px 0;
 }
 
@@ -25,9 +22,6 @@
 }
 
 .download-dialog__section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
 }
 
 .download-dialog__label {
@@ -37,9 +31,6 @@
 }
 
 .download-dialog__location {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   padding: 8px 12px;
   background: var(--win-bg-subtle);
   border-radius: var(--radius-sm);
@@ -83,9 +74,6 @@
 }
 
 .download-dialog__batch-info {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
   padding: 12px;
   background: var(--win-bg-layer);
   border-radius: var(--radius-md);
@@ -106,9 +94,6 @@
 }
 
 .download-dialog__footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
 }
 
 /* Responsive adjustments for narrow screens */

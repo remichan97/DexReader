@@ -67,7 +67,7 @@ export function DownloadsSettings({
   }
 
   return (
-    <div className="downloads-settings__container">
+    <div className="downloads-settings__container flex flex-col gap-5">
       <div>
         <h4 className="downloads-settings__heading">Downloads Location</h4>
         <p className="downloads-settings__description">
@@ -90,7 +90,7 @@ export function DownloadsSettings({
             Browse...
           </Button>
         </div>
-        <p className="downloads-settings__info-box">
+        <p className="downloads-settings__info-box flex items-center gap-1.5">
           <Lightbulb16Regular className="downloads-settings__info-icon" />
           <span>Tip: Choose a location with plenty of free space for your manga collection.</span>
         </p>
