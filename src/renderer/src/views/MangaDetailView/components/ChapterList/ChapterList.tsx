@@ -101,10 +101,10 @@ export default function ChapterList({
       />
 
       {/* Chapter items */}
-      <div className="chapter-list-items">
+      <div className="chapter-list-items flex flex-col">
         {/* Loading state */}
         {loading && (
-          <div className="chapter-list-loading">
+          <div className="chapter-list-loading flex flex-col">
             {Array.from({ length: 5 }).map((_, i) => (
               <Skeleton key={`chapter-loading-${i}`} width="100%" height={56} />
             ))}
@@ -113,10 +113,10 @@ export default function ChapterList({
 
         {/* Error state */}
         {!loading && error && (
-          <div className="chapter-list-error">
+          <div className="chapter-list-error flex flex-col items-center gap-3">
             <p className="error-message">Couldn&apos;t load chapters for this language</p>
             <p className="error-hint">Try refreshing or picking a different language.</p>
-            <div className="error-actions">
+            <div className="error-actions flex gap-2">
               <Button variant="secondary" onClick={onRetry}>
                 Try Again
               </Button>

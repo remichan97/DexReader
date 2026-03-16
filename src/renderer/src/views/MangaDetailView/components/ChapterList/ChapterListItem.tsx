@@ -57,16 +57,16 @@ export function ChapterListItem({
       tabIndex={0}
       aria-label={`Read Chapter ${chapterNum}: ${title}`}
     >
-      <div className="chapter-item__content">
-        <div className="chapter-item__main">
+      <div className="chapter-item__content flex justify-between items-center gap-3">
+        <div className="chapter-item__main flex gap-2 items-start">
           <span className="chapter-item__number">Ch. {chapterNum}</span>
-          <div className="chapter-item__info">
+          <div className="chapter-item__info flex flex-col gap-1">
             {title && <span className="chapter-item__title">{title}</span>}
             <span className="chapter-item__group">{groupName}</span>
           </div>
         </div>
 
-        <div className="chapter-item__meta">
+        <div className="chapter-item__meta flex gap-3 items-center">
           {pageProgress && (
             <span className="chapter-item__progress">
               p. {pageProgress.currentPage + 1}/{pageProgress.totalPages}

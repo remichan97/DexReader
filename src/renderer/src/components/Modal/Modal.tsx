@@ -147,10 +147,12 @@ export function Modal({
 
   if (!open) return null
 
-  const classNames = ['modal', `modal--${size}`, className].filter(Boolean).join(' ')
+  const classNames = ['modal', 'flex', 'flex-col', `modal--${size}`, className]
+    .filter(Boolean)
+    .join(' ')
 
   return (
-    <div className="modal-overlay" onClick={handleOverlayClick}>
+    <div className="modal-overlay flex items-center justify-center" onClick={handleOverlayClick}>
       <div
         ref={dialogRef}
         className={classNames}
@@ -160,11 +162,11 @@ export function Modal({
         tabIndex={-1}
         onKeyDown={handleKeyDown}
       >
-        <div className="modal__header">
+        <div className="modal__header flex items-center justify-between">
           <h2 className="modal__title">{title}</h2>
           <button
             type="button"
-            className="modal__close"
+            className="modal__close flex items-center justify-center"
             onClick={onClose}
             aria-label="Close dialog"
           >
@@ -186,7 +188,9 @@ export function Modal({
 
         <div className="modal__content">{children}</div>
 
-        {footer && <div className="modal__footer">{footer}</div>}
+        {footer && (
+          <div className="modal__footer flex items-center justify-end gap-2">{footer}</div>
+        )}
       </div>
     </div>
   )

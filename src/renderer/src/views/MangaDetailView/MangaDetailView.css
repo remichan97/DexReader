@@ -374,22 +374,15 @@
 }
 
 .chapter-list-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   margin-bottom: var(--space-3);
   padding-bottom: var(--space-3);
   border-bottom: 1px solid var(--win-border-default);
 }
 
 .chapter-controls {
-  display: flex;
-  gap: var(--space-2);
 }
 
 .chapter-list-items {
-  display: flex;
-  flex-direction: column;
   gap: 1px;
   background: var(--win-border-default);
   border-radius: var(--radius-md);
@@ -417,8 +410,6 @@
 }
 
 .chapter-list-loading {
-  display: flex;
-  flex-direction: column;
   gap: 1px;
   background: var(--win-border-default);
   border-radius: var(--radius-md);
@@ -429,10 +420,6 @@
   padding: var(--space-6) var(--space-4);
   text-align: center;
   background: var(--win-bg-card);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-3);
 }
 
 .chapter-list-error .error-message {
@@ -449,8 +436,6 @@
 }
 
 .chapter-list-error .error-actions {
-  display: flex;
-  gap: var(--space-2);
   margin-top: var(--space-2);
 }
 
@@ -483,9 +468,6 @@
 
 /* Chapter Item */
 .chapter-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   padding: var(--space-3);
   background: var(--win-bg-card);
   border: none;
@@ -498,19 +480,12 @@
 }
 
 .chapter-item .button__content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   width: 100%;
   padding: 0;
 }
 
 .chapter-item__content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   width: 100%;
-  gap: var(--space-3);
 }
 
 .chapter-item:hover {
@@ -522,9 +497,6 @@
 }
 
 .chapter-item__main {
-  display: flex;
-  gap: var(--space-2);
-  align-items: flex-start;
   flex: 1;
   min-width: 0;
 }
@@ -538,9 +510,6 @@
 }
 
 .chapter-item__info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
   min-width: 0;
   flex: 1;
 }
@@ -562,12 +531,9 @@
 }
 
 .chapter-item__meta {
-  display: flex;
-  gap: var(--space-3);
   font-size: var(--win-font-size-caption);
   color: var(--win-text-tertiary);
   flex-shrink: 0;
-  align-items: center;
 }
 
 .chapter-item__date {

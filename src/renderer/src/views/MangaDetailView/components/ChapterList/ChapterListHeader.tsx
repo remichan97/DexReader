@@ -29,10 +29,10 @@ export function ChapterListHeader({
   downloadAllEnabled = true
 }: ChapterListHeaderProps): JSX.Element {
   return (
-    <div className="chapter-list-header">
+    <div className="chapter-list-header flex justify-between items-center">
       <h2 className="section-title">Chapters ({chapterCount})</h2>
 
-      <div className="chapter-controls">
+      <div className="chapter-controls flex gap-2">
         {/* Download All button */}
         {chapterCount > 0 && onDownloadAllClick && (
           <Button

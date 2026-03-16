@@ -62,9 +62,9 @@ export function InfoBar({
 
   return (
     <div className={`info-bar ${className}`}>
-      <div className="info-bar__content">
+      <div className="info-bar__content flex items-center justify-between">
         <span className="info-bar__text">{text}</span>
-        {actions && <div className="info-bar__actions">{actions}</div>}
+        {actions && <div className="info-bar__actions flex gap-2 items-center">{actions}</div>}
       </div>
     </div>
   )
