@@ -1,6 +1,6 @@
 # DexReader Technical Context
 
-**Last Updated**: 10 March 2026
+**Last Updated**: 15 March 2026
 **Project Version**: 1.0.0
 **Type**: Desktop Application (Electron)
 
@@ -12,12 +12,12 @@
 
 | Technology   | Version    | Purpose                         |
 | ------------ | ---------- | ------------------------------- |
-| **Electron** | 38.1.2     | Desktop application framework   |
+| **Electron** | 41.0.2     | Desktop application framework   |
 | **Node.js**  | v22.21.1\* | Development environment         |
-| **Chromium** | ~128.x     | Embedded browser (via Electron) |
+| **Chromium** | ~134.x     | Embedded browser (via Electron) |
 | **V8**       | Latest     | JavaScript engine               |
 
-_\*Note: Electron bundles its own Node.js runtime (~v20.x). Development uses system Node v22.21.1_
+_\*Note: Electron bundles its own Node.js runtime (~v22.x). Development uses system Node v22.21.1_
 
 ### Frontend Framework
 
@@ -32,7 +32,7 @@ _\*Note: Electron bundles its own Node.js runtime (~v20.x). Development uses sys
 | Technology           | Version | Purpose                              |
 | -------------------- | ------- | ------------------------------------ |
 | **Vite**             | 7.1.6   | Frontend build tool & dev server     |
-| **electron-vite**    | 4.0.1   | Electron-specific Vite wrapper       |
+| **electron-vite**    | 5.0.0   | Electron-specific Vite wrapper       |
 | **electron-builder** | 26.8.1  | Application packaging & distribution |
 | **npm**              | 11.3.0  | Package manager                      |
 
