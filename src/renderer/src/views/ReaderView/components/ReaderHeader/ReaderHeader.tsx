@@ -50,23 +50,23 @@ export function ReaderHeader({
   streamSource
 }: ReaderHeaderProps): JSX.Element {
   return (
-    <header className="reader-header">
-      <div className="reader-header__left">
+    <header className="reader-header flex items-center justify-between">
+      <div className="reader-header__left flex items-center">
         <Button variant="ghost" onClick={onBackClick} icon={<ArrowLeftRegular />} size="medium">
           Back
         </Button>
       </div>
 
-      <h1 className="reader-header__title">
+      <h1 className="reader-header__title flex items-center justify-center">
         <StreamSourceIndicator source={streamSource} />
         {chapterTitle}
       </h1>
 
-      <div className="reader-header__right">
+      <div className="reader-header__right flex items-center gap-3 justify-end">
         {/* Incognito mode indicator */}
         {isIncognito && (
           <div
-            className="reader-header__incognito-badge"
+            className="reader-header__incognito-badge flex items-center gap-1-5"
             title="Progress tracking is disabled. Go to Settings or File menu to enable."
           >
             <EyeOff20Regular />
@@ -78,7 +78,7 @@ export function ReaderHeader({
         {/* Zoom controls popover */}
         {zoomControlsPopover}
 
-        <div className="reader-header__page-counter">
+        <div className="reader-header__page-counter flex items-center gap-1">
           {readingMode === 'double' && currentPagePair && currentPagePair.length === 2
             ? readRightToLeft
               ? `Page ${currentPagePair[1] + 1}-${currentPagePair[0] + 1}/${totalPages}`

@@ -72,9 +72,9 @@ export function PageDisplay({
   }
 
   return (
-    <div className="reader-page-container">
+    <div className="reader-page-container flex items-center justify-center">
       {isLoading && (
-        <div className="reader-page-loading">
+        <div className="reader-page-loading flex flex-col items-center justify-center">
           <ProgressRing size="large" aria-label="Loading page" />
           <p className="reader-page-loading__text">
             Loading page {pageNumber + 1} of {totalPages}...
@@ -83,7 +83,7 @@ export function PageDisplay({
       )}
 
       {hasError && !isLoading && (
-        <div className="reader-page-error">
+        <div className="reader-page-error flex flex-col items-center justify-center">
           <p>Failed to load page {pageNumber + 1}</p>
           <p className="reader-page-error__hint">Try navigating to another page</p>
         </div>
@@ -91,7 +91,7 @@ export function PageDisplay({
 
       {!hasError && (
         <div
-          className="reader-page"
+          className="reader-page flex items-center justify-center"
           onClick={onClick}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
@@ -108,7 +108,7 @@ export function PageDisplay({
           {/* Navigation indicators - clickable even when zoomed */}
           <button
             type="button"
-            className="reader-page__nav-indicator reader-page__nav-indicator--left"
+            className="reader-page__nav-indicator reader-page__nav-indicator--left flex items-center justify-center"
             onClick={(e) => {
               e.stopPropagation()
               onNavigateLeft()
@@ -119,7 +119,7 @@ export function PageDisplay({
           </button>
           <button
             type="button"
-            className="reader-page__nav-indicator reader-page__nav-indicator--right"
+            className="reader-page__nav-indicator reader-page__nav-indicator--right flex items-center justify-center"
             onClick={(e) => {
               e.stopPropagation()
               onNavigateRight()

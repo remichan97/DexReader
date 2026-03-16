@@ -26,14 +26,19 @@ export function EndOfChapterOverlay({
   onBackToDetail
 }: EndOfChapterOverlayProps): React.JSX.Element {
   return (
-    <div className="end-of-chapter-overlay">
+    <div className="end-of-chapter-overlay flex justify-center items-end">
       <div className="end-of-chapter-overlay__content">
         <h2 className="end-of-chapter-overlay__title">End of Chapter {chapterNumber}</h2>
         <p className="end-of-chapter-overlay__subtitle">{chapterTitle}</p>
 
-        <div className="end-of-chapter-overlay__actions">
+        <div className="end-of-chapter-overlay__actions flex flex-col gap-3">
           {previousChapter && (
-            <Button variant="secondary" size="large" onClick={onPreviousChapter}>
+            <Button
+              variant="secondary"
+              size="large"
+              onClick={onPreviousChapter}
+              className="flex flex-col items-center gap-1"
+            >
               <span>← Previous Chapter</span>
               <span className="end-of-chapter-overlay__chapter-info">
                 Ch. {previousChapter.attributes.chapter}
@@ -43,7 +48,12 @@ export function EndOfChapterOverlay({
           )}
 
           {nextChapter && (
-            <Button variant="primary" size="large" onClick={onNextChapter}>
+            <Button
+              variant="primary"
+              size="large"
+              onClick={onNextChapter}
+              className="flex flex-col items-center gap-1"
+            >
               <span>Next Chapter →</span>
               <span className="end-of-chapter-overlay__chapter-info">
                 Ch. {nextChapter.attributes.chapter}

@@ -48,8 +48,10 @@ export function ChapterListSidebar({
       )}
 
       {/* Sidebar */}
-      <aside className={`chapter-list-sidebar ${isOpen ? 'chapter-list-sidebar--open' : ''}`}>
-        <header className="chapter-list-sidebar__header">
+      <aside
+        className={`chapter-list-sidebar flex flex-col ${isOpen ? 'chapter-list-sidebar--open' : ''}`}
+      >
+        <header className="chapter-list-sidebar__header flex items-center justify-between">
           <h2>Chapters</h2>
           <Button onClick={onClose} size="small">
             Close

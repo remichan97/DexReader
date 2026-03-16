@@ -355,13 +355,13 @@ export function ReaderView(): JSX.Element {
   return (
     <main className="reader-view" data-theme={readerTheme}>
       {chapterData.loading && (
-        <div className="reader-view__loading">
+        <div className="reader-view__loading flex flex-col items-center justify-center">
           <LoadingState message="Loading chapter..." />
         </div>
       )}
 
       {chapterData.error && (
-        <div className="reader-view__error">
+        <div className="reader-view__error flex flex-col items-center justify-center">
           {(() => {
             const isOfflineError =
               chapterData.error.message.toLowerCase().includes('offline') ||

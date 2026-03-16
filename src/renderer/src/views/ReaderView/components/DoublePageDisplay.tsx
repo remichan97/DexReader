@@ -78,16 +78,16 @@ export function DoublePageDisplay({
   const pageOrder = pagePair
 
   return (
-    <div className="reader-page-container">
+    <div className="reader-page-container flex items-center justify-center">
       {isLoading && (
-        <div className="reader-page-loading">
+        <div className="reader-page-loading flex flex-col items-center justify-center">
           <ProgressRing size="large" aria-label="Loading pages" />
           <p className="reader-page-loading__text">Loading pages...</p>
         </div>
       )}
 
       {hasError && !isLoading && (
-        <div className="reader-page-error">
+        <div className="reader-page-error flex flex-col items-center justify-center">
           <p>Failed to load one or more pages</p>
           <p className="reader-page-error__hint">Try navigating to another page</p>
         </div>
@@ -95,7 +95,7 @@ export function DoublePageDisplay({
 
       {!hasError && (
         <div
-          className={`double-page-container ${isSinglePage ? 'double-page-container--single' : ''}`}
+          className={`double-page-container flex gap-2 items-center justify-center ${isSinglePage ? 'double-page-container--single' : ''}`}
           onClick={onClick}
           onWheel={onWheel}
           style={{ display: isLoading ? 'none' : 'flex' }}
@@ -103,7 +103,7 @@ export function DoublePageDisplay({
           {/* Navigation indicators */}
           <button
             type="button"
-            className="reader-page__nav-indicator reader-page__nav-indicator--left"
+            className="reader-page__nav-indicator reader-page__nav-indicator--left flex items-center justify-center"
             onClick={(e) => {
               e.stopPropagation()
               onNavigateLeft()
@@ -114,7 +114,7 @@ export function DoublePageDisplay({
           </button>
           <button
             type="button"
-            className="reader-page__nav-indicator reader-page__nav-indicator--right"
+            className="reader-page__nav-indicator reader-page__nav-indicator--right flex items-center justify-center"
             onClick={(e) => {
               e.stopPropagation()
               onNavigateRight()
@@ -125,7 +125,10 @@ export function DoublePageDisplay({
           </button>
 
           {pageOrder.map((pageIndex) => (
-            <div key={pageIndex} className="double-page-container__page">
+            <div
+              key={pageIndex}
+              className="double-page-container__page flex items-center justify-center"
+            >
               <img
                 src={images[pageIndex].url}
                 alt={`Page ${pageIndex + 1} of ${images.length}`}

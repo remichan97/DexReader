@@ -70,7 +70,7 @@ export function VerticalScrollDisplay({
 
   return (
     <div ref={containerRef} className="vertical-scroll-container">
-      <div className="vertical-scroll-container__page-wrapper">
+      <div className="vertical-scroll-container__page-wrapper flex flex-col items-center gap-4">
         {images.map((image, index) => {
           const pageState = imageStates.get(index)
           const isLoading = pageState === 'loading'
@@ -87,12 +87,12 @@ export function VerticalScrollDisplay({
                 }
               }}
               data-page-index={index}
-              className="vertical-scroll-container__page"
+              className="vertical-scroll-container__page flex justify-center"
             >
               {isLoading && <LoadingState size="medium" />}
 
               {hasError && !isLoading && (
-                <div className="vertical-scroll-page__error">
+                <div className="vertical-scroll-page__error flex flex-col items-center justify-center gap-3">
                   <Warning48Regular />
                   <p>Failed to load page {index + 1}</p>
                 </div>
