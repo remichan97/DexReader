@@ -51,10 +51,7 @@
 
 /* Search/Filter/Sort Controls */
 .downloads-controls {
-  display: flex;
-  gap: 12px;
   margin-bottom: 20px;
-  align-items: flex-start;
 }
 
 .downloads-controls__search {
@@ -69,9 +66,6 @@
 
 /* Stats Summary */
 .downloads-stats {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   padding: 16px;
   background: var(--win-bg-subtle);
   border-radius: var(--radius-md);
@@ -80,13 +74,11 @@
 }
 
 .downloads-stats__badges {
-  display: flex;
-  gap: 12px;
+  /* Layout handled by flex utility classes */
 }
 
 .downloads-stats__actions {
-  display: flex;
-  gap: 8px;
+  /* Layout handled by flex utility classes */
 }
 
 /* Empty State */
@@ -107,9 +99,7 @@
 
 /* Download Groups */
 .downloads-groups {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  /* Layout handled by flex utility classes */
 }
 
 .download-group {
@@ -126,9 +116,6 @@
 
 /* Group Header */
 .download-group__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   padding: 16px;
   background: var(--win-bg-subtle);
   border-bottom: 1px solid var(--win-border-default);
@@ -142,9 +129,6 @@
 }
 
 .download-group__header-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
   flex: 1;
   min-width: 0;
 }
@@ -175,9 +159,6 @@
 }
 
 .download-group__header-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
   flex-shrink: 0;
 }
 
@@ -189,8 +170,6 @@
 
 /* Group Chapters */
 .download-group__chapters {
-  display: flex;
-  flex-direction: column;
   gap: 1px;
   background: var(--win-border-default);
 }
@@ -208,9 +187,6 @@
 }
 
 .download-card__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
   margin-bottom: 12px;
   gap: 16px;
 }
@@ -258,9 +234,6 @@
 }
 
 .download-card__progress-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   gap: 16px;
   margin-top: 6px;
   font-size: 12px;
@@ -278,9 +251,7 @@
 }
 
 .download-card__actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  /* Layout handled by flex utility classes */
 }
 
 /* Responsive Design */

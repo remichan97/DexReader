@@ -109,11 +109,11 @@ export function FilterPanel({
   return (
     <div className="filter-panel">
       {/* Quick Filters Row */}
-      <div className="filter-panel__quick">
+      <div className="filter-panel__quick flex items-start gap-4 flex-wrap">
         {/* Content Rating */}
-        <div className="filter-panel__group">
+        <div className="filter-panel__group flex flex-col gap-2">
           <span className="filter-panel__label">Content Rating</span>
-          <div className="filter-panel__checkboxes">
+          <div className="filter-panel__checkboxes flex gap-4 flex-wrap items-center">
             <Checkbox
               checked={filters.contentRating.includes(ContentRating.Safe)}
               onChange={(checked) => handleContentRatingChange(ContentRating.Safe, checked)}
@@ -138,7 +138,7 @@ export function FilterPanel({
         </div>
 
         {/* Status */}
-        <div className="filter-panel__group">
+        <div className="filter-panel__group flex flex-col gap-2">
           <span className="filter-panel__label">Status</span>
           <Select
             value={filters.publicationStatus[0] || 'all'}
@@ -154,7 +154,7 @@ export function FilterPanel({
         </div>
 
         {/* Demographic */}
-        <div className="filter-panel__group">
+        <div className="filter-panel__group flex flex-col gap-2">
           <span className="filter-panel__label">Demographic</span>
           <Select
             value={filters.publicationDemographic[0] || 'all'}
@@ -171,7 +171,7 @@ export function FilterPanel({
         </div>
 
         {/* Sort By */}
-        <div className="filter-panel__group">
+        <div className="filter-panel__group flex flex-col gap-2">
           <span className="filter-panel__label">Sort By</span>
           <Select
             value={filters.sortBy}
@@ -189,7 +189,7 @@ export function FilterPanel({
         </div>
 
         {/* Sort Direction */}
-        <div className="filter-panel__group">
+        <div className="filter-panel__group flex flex-col gap-2">
           <span className="filter-panel__label">Order</span>
           <Select
             value={filters.sortDirection}
@@ -202,7 +202,7 @@ export function FilterPanel({
         </div>
 
         {/* Results Per Page */}
-        <div className="filter-panel__group">
+        <div className="filter-panel__group flex flex-col gap-2">
           <span className="filter-panel__label">Per Page</span>
           <Select
             value={limit.toString()}
@@ -231,7 +231,7 @@ export function FilterPanel({
 
         {/* Action Buttons - Only show in quick filters when advanced is collapsed */}
         {!isExpanded && (
-          <div className="filter-panel__actions">
+          <div className="filter-panel__actions flex gap-2">
             <Button variant="secondary" size="small" onClick={onClear}>
               Clear ({activeFilterCount})
             </Button>
@@ -245,7 +245,7 @@ export function FilterPanel({
       {/* Advanced Filters Toggle */}
       <div className="filter-panel__advanced-toggle">
         <button
-          className="filter-panel__toggle-btn"
+          className="filter-panel__toggle-btn flex items-center gap-2"
           onClick={() => setIsExpanded(!isExpanded)}
           type="button"
         >
@@ -257,7 +257,7 @@ export function FilterPanel({
       {isExpanded && (
         <div className="filter-panel__advanced">
           {/* Tag Mode Selection */}
-          <div className="filter-panel__tag-mode">
+          <div className="filter-panel__tag-mode flex items-center gap-3">
             <span className="filter-panel__label">Include Tags Mode:</span>
             <Select
               value={filters.includedTagsMode}
@@ -279,12 +279,15 @@ export function FilterPanel({
                   const isExcluded = filters.excludedTags.includes(tag.id)
 
                   return (
-                    <div key={tag.id} className="filter-panel__tag-item">
+                    <div
+                      key={tag.id}
+                      className="filter-panel__tag-item flex items-center justify-between"
+                    >
                       <span className="filter-panel__tag-name">{tag.name}</span>
-                      <div className="filter-panel__tag-controls">
+                      <div className="filter-panel__tag-controls flex">
                         <button
                           type="button"
-                          className={`filter-panel__tag-btn include ${isIncluded ? 'active' : ''}`}
+                          className={`filter-panel__tag-btn include ${isIncluded ? 'active' : ''} flex items-center justify-center`}
                           onClick={() => {
                             // Remove from excluded if present
                             if (isExcluded) {
@@ -298,7 +301,7 @@ export function FilterPanel({
                         </button>
                         <button
                           type="button"
-                          className={`filter-panel__tag-btn exclude ${isExcluded ? 'active' : ''}`}
+                          className={`filter-panel__tag-btn exclude ${isExcluded ? 'active' : ''} flex items-center justify-center`}
                           onClick={() => {
                             // Remove from included if present
                             if (isIncluded) {
@@ -325,7 +328,10 @@ export function FilterPanel({
               {LanguageList.map((language) => {
                 const isSelected = filters.availableTranslatedLanguage.includes(language.code)
                 return (
-                  <div key={language.code} className="filter-panel__language-item">
+                  <div
+                    key={language.code}
+                    className="filter-panel__language-item flex items-center"
+                  >
                     <Checkbox
                       label={language.name}
                       checked={isSelected}
@@ -341,7 +347,7 @@ export function FilterPanel({
 
       {/* Sticky Footer with Action Buttons - Only when advanced filters are expanded */}
       {isExpanded && (
-        <div className="filter-panel__sticky-footer">
+        <div className="filter-panel__sticky-footer flex gap-2 justify-end">
           <Button variant="secondary" size="small" onClick={onClear}>
             Clear ({activeFilterCount})
           </Button>

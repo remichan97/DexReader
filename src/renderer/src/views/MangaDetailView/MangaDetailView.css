@@ -1,8 +1,6 @@
 /* MangaDetailView Styles */
 
 .manga-detail-view {
-  display: flex;
-  flex-direction: column;
   height: 100%;
   overflow-y: auto;
   background: var(--win-bg-base);
@@ -16,9 +14,6 @@
   background: var(--win-bg-card);
   padding: var(--space-3);
   border-bottom: 1px solid var(--win-border-default);
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
 }
 
 .manga-detail-view__sticky-title {
@@ -66,9 +61,7 @@
 }
 
 .manga-detail-view__info {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
+  /* Layout handled by flex utility classes */
 }
 
 .manga-detail-view__title {
@@ -80,9 +73,6 @@
 }
 
 .manga-detail-view__metadata {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
   font-size: var(--win-font-size-body);
   color: var(--win-text-secondary);
 }
@@ -97,16 +87,11 @@
 }
 
 .manga-detail-view__actions {
-  display: flex;
-  gap: var(--space-2);
   margin-top: auto;
 }
 
 /* Tags Row (in Hero Section) */
 .manga-detail-view__tags-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
   margin-top: var(--space-2);
 }
 
@@ -146,7 +131,6 @@
 
 /* Status Badge */
 .status-badge {
-  display: inline-flex;
   padding: 2px 8px;
   border-radius: var(--radius-xs);
   font-size: 12px;
@@ -170,7 +154,6 @@
 
 /* Demographic Badge */
 .demographic-badge {
-  display: inline-flex;
   padding: 2px 8px;
   border-radius: var(--radius-xs);
   font-size: 12px;
@@ -272,9 +255,7 @@
 }
 
 .external-links-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
+  /* Layout handled by flex utility classes */
 }
 
 /* Tags Section */
@@ -285,9 +266,7 @@
 }
 
 .tags-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
+  /* Layout handled by flex utility classes */
 }
 
 /* Alternative Titles Section */
@@ -298,23 +277,15 @@
 }
 
 .alt-titles-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+  /* Layout handled by flex utility classes */
 }
 
 .alt-title-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
   font-size: var(--win-font-size-body);
   line-height: 1.5;
 }
 
 .alt-title-language {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   min-width: 48px;
   padding: 4px 8px;
   background: var(--win-subtle-fill-secondary);

@@ -45,7 +45,7 @@ export function DownloadCard({
       onClick={() => onNavigateToReader(download.mangaId, download.id)}
     >
       {/* Chapter info */}
-      <div className="download-card__header">
+      <div className="download-card__header flex justify-between items-start">
         <div className="download-card__info">
           <h4 className="download-card__chapter">
             {download.volume ? `Vol. ${download.volume} ` : ''}
@@ -76,7 +76,7 @@ export function DownloadCard({
             size="medium"
             showLabel
           />
-          <div className="download-card__progress-info">
+          <div className="download-card__progress-info flex justify-between items-center">
             <span>
               Page {download.currentPage || 0} / {download.totalPages}
             </span>
@@ -100,7 +100,10 @@ export function DownloadCard({
       )}
 
       {/* Actions */}
-      <div className="download-card__actions" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="download-card__actions flex gap-2 flex-wrap"
+        onClick={(e) => e.stopPropagation()}
+      >
         {(download.status === 'downloading' || download.status === 'queued') && (
           <Button variant="danger" size="small" onClick={() => onCancel(download.id)}>
             Cancel

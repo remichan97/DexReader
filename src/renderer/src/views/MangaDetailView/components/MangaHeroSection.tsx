@@ -242,12 +242,12 @@ export default function MangaHeroSection({
       </div>
 
       {/* Metadata */}
-      <div className="manga-detail-view__info">
+      <div className="manga-detail-view__info flex flex-col gap-3">
         <h1 className="manga-detail-view__title">{title}</h1>
 
         {/* Tags */}
         {tags.length > 0 && (
-          <div className="manga-detail-view__tags-row">
+          <div className="manga-detail-view__tags-row flex flex-wrap gap-2">
             {tags.map((tag) => (
               <Button
                 key={tag.id}
@@ -261,7 +261,7 @@ export default function MangaHeroSection({
           </div>
         )}
 
-        <div className="manga-detail-view__metadata">
+        <div className="manga-detail-view__metadata flex flex-col gap-2">
           <p className="manga-detail-view__author">
             <strong>Author:</strong> {author}
           </p>
@@ -295,7 +295,7 @@ export default function MangaHeroSection({
         </div>
 
         {/* Action Buttons */}
-        <div className="manga-detail-view__actions">
+        <div className="manga-detail-view__actions flex gap-2">
           {progress ? (
             <Button
               variant="accent"
@@ -359,7 +359,7 @@ interface StatusBadgeProps {
 
 function StatusBadge({ status }: StatusBadgeProps): JSX.Element {
   return (
-    <span className={`status-badge status-badge--${status}`}>
+    <span className={`status-badge status-badge--${status} inline-flex`}>
       {status.charAt(0).toUpperCase() + status.slice(1)}
     </span>
   )
@@ -375,6 +375,8 @@ interface DemographicBadgeProps {
 function DemographicBadge({ demographic }: DemographicBadgeProps): JSX.Element {
   const displayText = demographic.charAt(0).toUpperCase() + demographic.slice(1)
   return (
-    <span className={`demographic-badge demographic-badge--${demographic}`}>{displayText}</span>
+    <span className={`demographic-badge demographic-badge--${demographic} inline-flex`}>
+      {displayText}
+    </span>
   )
 }

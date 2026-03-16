@@ -50,9 +50,12 @@ export default function AlternativeTitlesSection({
   return (
     <div className="manga-detail-view__alt-titles">
       <h2 className="section-title">Alternative Titles</h2>
-      <div className="alt-titles-list">
+      <div className="alt-titles-list flex flex-col gap-2">
         {displayedTitles.map((item) => (
-          <div key={`${item.languageCode}-${item.title}`} className="alt-title-item">
+          <div
+            key={`${item.languageCode}-${item.title}`}
+            className="alt-title-item flex items-center gap-2"
+          >
             <span
               className="alt-title-language"
               title={getLanguageName(item.languageCode)}

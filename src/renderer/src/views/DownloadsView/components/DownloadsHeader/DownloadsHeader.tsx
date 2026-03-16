@@ -48,7 +48,7 @@ export function DownloadsHeader({
   return (
     <>
       {/* Search/Filter/Sort Bar */}
-      <div className="downloads-controls">
+      <div className="downloads-controls flex gap-3 items-start">
         <div className="downloads-controls__search">
           <SearchBar
             value={searchQuery}
@@ -77,7 +77,7 @@ export function DownloadsHeader({
       </div>
 
       {/* Stats Summary */}
-      <div className="downloads-stats">
+      <div className="downloads-stats flex justify-between items-center">
         <div className="downloads-stats__badges">
           <Badge variant="info" size="medium">
             {activeCount} Active
@@ -97,7 +97,7 @@ export function DownloadsHeader({
           )}
         </div>
 
-        <div className="downloads-stats__actions">
+        <div className="downloads-stats__actions flex gap-2">
           <Button
             variant="ghost"
             size="small"

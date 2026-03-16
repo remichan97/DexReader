@@ -35,7 +35,10 @@ export function DownloadGroup({
   return (
     <div className="download-group">
       {/* Group Header */}
-      <div className="download-group__header" onClick={() => onToggle(group.mangaId)}>
+      <div
+        className="download-group__header flex justify-between items-center"
+        onClick={() => onToggle(group.mangaId)}
+      >
         <div className="download-group__header-left">
           {group.isExpanded ? (
             <ChevronDown20Regular className="download-group__chevron" />
@@ -52,7 +55,7 @@ export function DownloadGroup({
           </a>
         </div>
 
-        <div className="download-group__header-right">
+        <div className="download-group__header-right flex items-center gap-3">
           <span className="download-group__stats">
             {group.totalChapters} chapter
             {group.totalChapters === 1 ? '' : 's'} · {formatStorageSize(group.totalStorageSize)}
@@ -73,7 +76,7 @@ export function DownloadGroup({
 
       {/* Group Chapters */}
       {group.isExpanded && (
-        <div className="download-group__chapters">
+        <div className="download-group__chapters flex flex-col">
           {group.downloads.map((download) => (
             <DownloadCard
               key={download.id}

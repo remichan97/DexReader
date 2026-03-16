@@ -496,7 +496,7 @@ export function MangaDetailView(): JSX.Element {
     const isOfflineError = state.error.message.toLowerCase().includes('offline')
 
     return (
-      <div className="manga-detail-view">
+      <div className="manga-detail-view flex flex-col">
         <div className="manga-detail-view__back-button">
           <Button variant="ghost" onClick={handleBackClick} icon={<ArrowLeftRegular />}>
             Back
@@ -558,7 +558,7 @@ export function MangaDetailView(): JSX.Element {
   // Render manga not found
   if (!state.manga) {
     return (
-      <div className="manga-detail-view">
+      <div className="manga-detail-view flex flex-col">
         <div className="manga-detail-view__back-button">
           <Button variant="ghost" onClick={handleBackClick} icon={<ArrowLeftRegular />}>
             Back
@@ -576,9 +576,9 @@ export function MangaDetailView(): JSX.Element {
   }
 
   return (
-    <div className="manga-detail-view" ref={scrollContainerRef}>
+    <div className="manga-detail-view flex flex-col" ref={scrollContainerRef}>
       {/* Back button with optional sticky title */}
-      <div className="manga-detail-view__back-button">
+      <div className="manga-detail-view__back-button flex items-center gap-3">
         <Button variant="ghost" onClick={handleBackClick} icon={<ArrowLeftRegular />}>
           Back
         </Button>
@@ -636,7 +636,7 @@ export function MangaDetailView(): JSX.Element {
  */
 function MangaDetailSkeleton(): JSX.Element {
   return (
-    <div className="manga-detail-view manga-detail-view--loading">
+    <div className="manga-detail-view manga-detail-view--loading flex flex-col">
       {/* Back button */}
       <div className="manga-detail-view__back-button">
         <Skeleton width={80} height={32} />
@@ -647,7 +647,7 @@ function MangaDetailSkeleton(): JSX.Element {
         <div style={{ aspectRatio: '2/3' }}>
           <Skeleton className="manga-detail-view__cover" />
         </div>
-        <div className="manga-detail-view__info">
+        <div className="manga-detail-view__info flex flex-col gap-3">
           <Skeleton width="80%" height={32} />
           <div className="flex gap-2 mt-3 flex-wrap">
             {Array.from({ length: 6 }).map((_, i) => (

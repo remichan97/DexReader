@@ -93,7 +93,7 @@ export function DownloadsView(): JSX.Element {
           message="No downloads. When you start downloading chapters, they will appear here."
         />
       ) : (
-        <div className="downloads-groups">
+        <div className="downloads-groups flex flex-col gap-4">
           {groupedDownloads.map((group) => (
             <DownloadGroup
               key={group.mangaId}
