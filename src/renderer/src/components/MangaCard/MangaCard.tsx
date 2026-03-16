@@ -155,7 +155,7 @@ export function MangaCard({
 
   return (
     <div
-      className={classNames}
+      className={classNames + ' flex flex-col'}
       onClick={handleClick}
       role="button"
       tabIndex={0}
@@ -171,7 +171,7 @@ export function MangaCard({
         {!imageLoaded && <div className="manga-card__cover-skeleton" />}
 
         {imageError ? (
-          <div className="manga-card__cover-error">
+          <div className="manga-card__cover-error flex items-center justify-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="48"
@@ -200,7 +200,10 @@ export function MangaCard({
 
         {/* Favourite indicator badge (always visible when favourited) */}
         {isFavourite && showFavouriteBadge && (
-          <div className="manga-card__favorite-badge" aria-hidden="true">
+          <div
+            className="manga-card__favorite-badge flex items-center justify-center"
+            aria-hidden="true"
+          >
             <svg
               className="manga-card__favorite-badge-icon"
               viewBox="0 0 24 24"
@@ -215,7 +218,7 @@ export function MangaCard({
         {/* Update indicator badge (new chapters available) */}
         {hasNewChapters && (
           <div
-            className="manga-card__update-badge"
+            className="manga-card__update-badge flex items-center justify-center"
             title="New chapters available"
             aria-label="New chapters available"
           >
@@ -225,9 +228,9 @@ export function MangaCard({
 
         {/* Hover overlay with favourite button */}
         {onFavourite && (
-          <div className="manga-card__overlay">
+          <div className="manga-card__overlay flex items-center justify-center">
             <button
-              className="manga-card__favorite-button"
+              className="manga-card__favorite-button flex items-center justify-center"
               onClick={handleFavouriteClick}
               aria-label={isFavourite ? 'Unfavourite' : 'Add to favourites'}
               type="button"
@@ -261,22 +264,24 @@ export function MangaCard({
         )}
       </div>
 
-      <div className="manga-card__content">
+      <div className="manga-card__content flex flex-col gap-2">
         <h3 className="manga-card__title" title={title}>
           {title}
         </h3>
 
         {(author || status || languages) && (
-          <div className="manga-card__metadata">
+          <div className="manga-card__metadata flex items-center gap-2 flex-wrap">
             {author && <span className="manga-card__author">{author}</span>}
             {status && (
-              <span className={`manga-card__status manga-card__status--${status}`}>
+              <span
+                className={`manga-card__status manga-card__status--${status} inline-flex items-center`}
+              >
                 {statusLabels[status]}
               </span>
             )}
             {languages && languages.length > 0 && (
               <span
-                className="manga-card__languages"
+                className="manga-card__languages inline-flex items-center"
                 title={languages.map((code) => getLanguageName(code)).join(', ')}
               >
                 {languages

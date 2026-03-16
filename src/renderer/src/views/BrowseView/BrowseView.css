@@ -1,10 +1,6 @@
 /* BrowseView Error Styles */
 
 .browse-error {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-3);
   max-width: 500px;
   margin: 0 auto;
   padding: var(--space-6);
@@ -31,8 +27,6 @@
 }
 
 .browse-error__actions {
-  display: flex;
-  gap: var(--space-2);
   margin-top: var(--space-2);
 }
 
@@ -81,10 +75,6 @@
 /* BrowseView Offline State */
 
 .browse-view__offline-message {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   text-align: center;
   padding: var(--space-8);
   max-width: 500px;

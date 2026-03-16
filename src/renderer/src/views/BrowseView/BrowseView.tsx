@@ -333,7 +333,7 @@ export function BrowseView(): JSX.Element {
 
       {/* Error State */}
       {error && !loading && (
-        <div className="browse-error">
+        <div className="browse-error flex flex-col items-center gap-3">
           <div className="browse-error__icon">
             <Warning48Regular />
           </div>
@@ -342,7 +342,7 @@ export function BrowseView(): JSX.Element {
             Something went wrong while searching. This might be a connection issue or the service
             might be temporarily unavailable.
           </p>
-          <div className="browse-error__actions">
+          <div className="browse-error__actions flex gap-2">
             <Button variant="primary" onClick={handleRetry}>
               Try Again
             </Button>
