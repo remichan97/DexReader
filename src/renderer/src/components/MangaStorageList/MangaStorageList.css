@@ -1,0 +1,104 @@
+/* MangaStorageList Component Styles */
+
+.manga-storage-list {
+  border: 1px solid var(--win-border-default);
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: var(--win-surface-default);
+}
+
+.manga-storage-list__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: var(--win-surface-secondary);
+  border-bottom: 1px solid var(--win-border-default);
+}
+
+.manga-storage-list__header-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--win-text-primary);
+}
+
+.manga-storage-list__item {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  gap: 12px;
+  align-items: start;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background-color 0.1s;
+}
+
+.manga-storage-list__item--selected {
+  background-color: var(--win-surface-tertiary);
+}
+
+.manga-storage-list__item:not(.manga-storage-list__item--selected):hover {
+  background-color: var(--win-surface-secondary);
+}
+
+.manga-storage-list__cover {
+  width: 48px;
+  height: 48px;
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: var(--win-surface-tertiary);
+  flex-shrink: 0;
+}
+
+.manga-storage-list__cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.manga-storage-list__cover-empty {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--win-text-tertiary);
+}
+
+.manga-storage-list__title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--win-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+
+.manga-storage-list__chapter-info {
+  font-size: 12px;
+  color: var(--win-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.manga-storage-list__storage-size {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--win-text-primary);
+  text-align: right;
+  white-space: nowrap;
+  padding-top: 2px;
+}
+
+.manga-storage-list__divider {
+  height: 1px;
+  background: repeating-linear-gradient(
+    to right,
+    var(--win-border-default) 0,
+    var(--win-border-default) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+  margin: 0;
+}

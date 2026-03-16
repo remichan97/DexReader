@@ -1,5 +1,6 @@
 import type { JSX } from 'react'
 import { formatBytes } from '@renderer/utils/formatBytes'
+import './StorageChart.css'
 
 interface DiskSpaceData {
   total: number
@@ -43,58 +44,28 @@ export function StorageChart({
   const shouldShowLabel = (percent: number): boolean => percent > 8
 
   return (
-    <div
-      className="p-4"
-      style={{
-        border: '1px solid var(--win-border-default)',
-        borderRadius: '6px',
-        backgroundColor: 'var(--win-surface-default)'
-      }}
-    >
+    <div className="storage-chart p-4">
       {/* Chart Header */}
-      <h3
-        className="mb-3"
-        style={{ fontSize: '14px', fontWeight: 600, color: 'var(--win-text-primary)' }}
-      >
-        DexReader Storage Breakdown
-      </h3>
+      <h3 className="storage-chart__title mb-3">DexReader Storage Breakdown</h3>
 
       {/* Top Bar: Disk-Level Context */}
       <div className="mb-2">
-        <div
-          style={{
-            display: 'flex',
-            height: '40px',
-            borderRadius: '4px',
-            overflow: 'hidden',
-            backgroundColor: 'var(--win-surface-tertiary)'
-          }}
-        >
+        <div className="storage-chart__bar storage-chart__bar--large">
           {/* DexReader Segment */}
           {dexReaderPercent > 0 && (
             <div
+              className="storage-chart__segment"
               style={{
                 width: `${dexReaderPercent}%`,
                 backgroundColor: 'var(--accent-color)',
-                opacity: 0.9,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '0 8px',
-                position: 'relative'
+                opacity: 0.9
               }}
               title={`DexReader: ${formatBytes(dexReaderSize)}`}
             >
               {shouldShowLabel(dexReaderPercent) && (
                 <span
-                  style={{
-                    fontSize: '12px',
-                    fontWeight: 500,
-                    color: 'white',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                  }}
+                  className="storage-chart__label storage-chart__label--large"
+                  style={{ color: 'white' }}
                 >
                   DexReader • {formatBytes(dexReaderSize)}
                 </span>
@@ -105,26 +76,17 @@ export function StorageChart({
           {/* Other Apps Segment */}
           {otherAppsPercent > 0 && (
             <div
+              className="storage-chart__segment"
               style={{
                 width: `${otherAppsPercent}%`,
-                backgroundColor: 'color-mix(in srgb, var(--win-text-secondary) 15%, transparent)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '0 8px'
+                backgroundColor: 'color-mix(in srgb, var(--win-text-secondary) 15%, transparent)'
               }}
               title={`Other Apps: ${formatBytes(otherAppsSize)}`}
             >
               {shouldShowLabel(otherAppsPercent) && (
                 <span
-                  style={{
-                    fontSize: '12px',
-                    fontWeight: 500,
-                    color: 'var(--win-text-primary)',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                  }}
+                  className="storage-chart__label storage-chart__label--large"
+                  style={{ color: 'var(--win-text-primary)' }}
                 >
                   Other • {formatBytes(otherAppsSize)}
                 </span>
@@ -135,26 +97,17 @@ export function StorageChart({
           {/* Free Space Segment */}
           {freePercent > 0 && (
             <div
+              className="storage-chart__segment"
               style={{
                 width: `${freePercent}%`,
-                backgroundColor: 'color-mix(in srgb, var(--win-text-secondary) 8%, transparent)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '0 8px'
+                backgroundColor: 'color-mix(in srgb, var(--win-text-secondary) 8%, transparent)'
               }}
               title={`Free Space: ${formatBytes(diskSpace.free)}`}
             >
               {shouldShowLabel(freePercent) && (
                 <span
-                  style={{
-                    fontSize: '12px',
-                    fontWeight: 500,
-                    color: 'var(--win-text-secondary)',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                  }}
+                  className="storage-chart__label storage-chart__label--large"
+                  style={{ color: 'var(--win-text-secondary)' }}
                 >
                   Free • {formatBytes(diskSpace.free)}
                 </span>
@@ -164,42 +117,25 @@ export function StorageChart({
         </div>
       </div>
 
-      {/* Bottom Bar: Manga Breakdown */}
+      {/* Bottom Bar: DexReader's Manga Breakdown */}
       {dexReaderSize > 0 && (
-        <div>
-          <div
-            style={{
-              display: 'flex',
-              height: '32px',
-              borderRadius: '4px',
-              overflow: 'hidden',
-              backgroundColor: 'var(--win-surface-tertiary)'
-            }}
-          >
+        <div className="mt-3">
+          <div className="storage-chart__bar storage-chart__bar--small">
             {/* Individual Manga Segments */}
             {mangaSegments.map((manga, index) => (
               <div
                 key={manga.mangaId}
+                className="storage-chart__segment"
                 style={{
                   width: `${manga.percent}%`,
-                  backgroundColor: `color-mix(in srgb, var(--accent-color) ${90 - index * 15}%, transparent)`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '0 8px'
+                  backgroundColor: `color-mix(in srgb, var(--accent-color) ${90 - index * 15}%, transparent)`
                 }}
                 title={`${manga.title}: ${formatBytes(manga.size)}`}
               >
                 {shouldShowLabel(manga.percent) && (
                   <span
-                    style={{
-                      fontSize: '11px',
-                      fontWeight: 500,
-                      color: index === 0 ? 'white' : 'var(--win-text-primary)',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis'
-                    }}
+                    className="storage-chart__label storage-chart__label--small"
+                    style={{ color: index === 0 ? 'white' : 'var(--win-text-primary)' }}
                   >
                     {manga.title} • {formatBytes(manga.size)}
                   </span>
@@ -210,26 +146,17 @@ export function StorageChart({
             {/* Others Segment */}
             {othersPercent > 0 && (
               <div
+                className="storage-chart__segment"
                 style={{
                   width: `${othersPercent}%`,
-                  backgroundColor: 'color-mix(in srgb, var(--win-text-secondary) 20%, transparent)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '0 8px'
+                  backgroundColor: 'color-mix(in srgb, var(--win-text-secondary) 20%, transparent)'
                 }}
                 title={`Others: ${formatBytes(othersSize)}`}
               >
                 {shouldShowLabel(othersPercent) && (
                   <span
-                    style={{
-                      fontSize: '11px',
-                      fontWeight: 500,
-                      color: 'var(--win-text-secondary)',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis'
-                    }}
+                    className="storage-chart__label storage-chart__label--small"
+                    style={{ color: 'var(--win-text-secondary)' }}
                   >
                     Others • {formatBytes(othersSize)}
                   </span>

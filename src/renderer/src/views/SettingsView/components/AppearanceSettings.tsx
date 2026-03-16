@@ -2,6 +2,7 @@ import React from 'react'
 import { Button } from '@renderer/components/Button'
 import { Input } from '@renderer/components/Input'
 import { Select, type SelectOption } from '@renderer/components/Select'
+import './AppearanceSettings.css'
 
 interface AppearanceSettingsProps {
   themeMode: 'light' | 'dark' | 'system'
@@ -51,9 +52,7 @@ export function AppearanceSettings({
   return (
     <div className="py-4 flex flex-col gap-5">
       <div>
-        <h4 className="mb-3" style={{ fontSize: '16px', fontWeight: 600 }}>
-          Theme
-        </h4>
+        <h4 className="appearance-settings__section-title mb-3">Theme</h4>
         <Select
           value={themeMode}
           onChange={(value) => onThemeModeChange(value as typeof themeMode)}
@@ -64,45 +63,28 @@ export function AppearanceSettings({
       </div>
 
       <div>
-        <h4 className="mb-3" style={{ fontSize: '16px', fontWeight: 600 }}>
-          Accent Color
-        </h4>
+        <h4 className="appearance-settings__section-title mb-3">Accent Color</h4>
         <div className="mb-3">
-          <div
-            style={{
-              display: 'block',
-              fontSize: '14px',
-              fontWeight: 500,
-              marginBottom: '8px'
-            }}
-          >
-            Primary accent color
-          </div>
+          <div className="appearance-settings__label">Primary accent color</div>
           <div className="flex gap-3 items-center">
             <input
               type="color"
               value={accentColor}
               onChange={(e) => onAccentColorChange(e.target.value)}
-              style={{
-                width: '60px',
-                height: '40px',
-                border: '1px solid var(--win-border-default)',
-                borderRadius: 'var(--radius-sm)',
-                cursor: 'pointer'
-              }}
+              className="appearance-settings__color-picker"
             />
             <Input
               type="text"
               value={accentColor}
               onChange={handleColorInputChange}
-              style={{ width: '120px', fontFamily: 'monospace' }}
+              className="appearance-settings__hex-input"
               placeholder="#0078d4"
             />
             <Button variant="secondary" onClick={onUseSystemColor}>
               Use System
             </Button>
           </div>
-          <p className="text-secondary mt-2" style={{ fontSize: '13px' }}>
+          <p className="text-secondary appearance-settings__helper-text mt-2">
             {isUsingSystemColor
               ? `Using system accent color (${systemAccentColor})`
               : 'Using custom accent color. Click "Use System" to restore system color.'}
@@ -111,17 +93,15 @@ export function AppearanceSettings({
       </div>
 
       <div>
-        <h4 className="mb-3" style={{ fontSize: '16px', fontWeight: 600 }}>
-          Date & Time Format
-        </h4>
-        <p className="text-secondary mb-3" style={{ fontSize: '14px' }}>
+        <h4 className="appearance-settings__section-title mb-3">Date & Time Format</h4>
+        <p className="text-secondary appearance-settings__description mb-3">
           DexReader uses your system&lsquo;s date and time format settings. Dates are displayed in
           chapter lists, reading history, and error logs.
         </p>
         <Button variant="secondary" onClick={handleOpenDateSettings}>
           Configure Date Format in System Settings
         </Button>
-        <p className="text-secondary mt-2" style={{ fontSize: '13px' }}>
+        <p className="text-secondary appearance-settings__helper-text mt-2">
           This will open your operating system&apos;s regional settings where you can customize date
           and time formats.
         </p>

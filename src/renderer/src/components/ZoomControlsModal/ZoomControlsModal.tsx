@@ -1,6 +1,7 @@
 import type { JSX, ReactElement } from 'react'
 import { Popover } from '@renderer/components/Popover'
 import { Button } from '@renderer/components/Button'
+import './ZoomControlsModal.css'
 
 interface ZoomControlsModalProps {
   readonly isOpen: boolean
@@ -34,12 +35,10 @@ export function ZoomControlsModal({
   const zoomPercentage = Math.round(zoomLevel * 100)
 
   const popoverContent = (
-    <div className="flex flex-col gap-4 p-4" style={{ minWidth: '220px' }}>
+    <div className="zoom-controls-modal__content flex flex-col gap-4 p-4">
       {/* Fit modes section */}
       <div>
-        <h5 className="mb-2" style={{ margin: '0 0 8px 0', fontSize: '13px', fontWeight: 600 }}>
-          Fit Mode
-        </h5>
+        <h5 className="zoom-controls-modal__section-title mb-2">Fit Mode</h5>
         <div className="flex gap-2">
           <Button
             variant={fitMode === 'width' ? 'primary' : 'ghost'}
@@ -85,9 +84,7 @@ export function ZoomControlsModal({
 
       {/* Zoom controls section */}
       <div>
-        <h5 className="mb-2" style={{ margin: '0 0 8px 0', fontSize: '13px', fontWeight: 600 }}>
-          Zoom
-        </h5>
+        <h5 className="zoom-controls-modal__section-title mb-2">Zoom</h5>
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
@@ -100,13 +97,8 @@ export function ZoomControlsModal({
             −
           </Button>
           <span
-            style={{
-              flex: 1,
-              textAlign: 'center',
-              fontSize: '14px',
-              fontWeight: 500,
-              minWidth: '60px'
-            }}
+            className="flex-1 text-center"
+            style={{ fontSize: '14px', fontWeight: 500, minWidth: '60px' }}
             title="Current zoom level"
           >
             {zoomPercentage}%

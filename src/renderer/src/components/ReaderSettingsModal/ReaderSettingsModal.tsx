@@ -2,6 +2,7 @@ import type { JSX, ReactElement } from 'react'
 import { Popover } from '@renderer/components/Popover'
 import { Select, type SelectOption } from '@renderer/components/Select'
 import type { MangaReadingSettings } from '../../../../preload/index.d'
+import './ReaderSettingsModal.css'
 
 interface ReaderSettingsModalProps {
   readonly isOpen: boolean
@@ -60,7 +61,7 @@ export function ReaderSettingsModal({
   }
 
   const popoverContent = (
-    <div className="flex flex-col gap-4 p-4" style={{ minWidth: '280px', maxWidth: '320px' }}>
+    <div className="reader-settings-modal__content flex flex-col gap-4 p-4">
       {/* Reading Mode Settings */}
       <div>
         <div className="flex flex-col gap-3">
@@ -73,38 +74,27 @@ export function ReaderSettingsModal({
           />
 
           {settings.readingMode === 'double' && (
-            <div
-              className="p-4 flex flex-col gap-3"
-              style={{ background: 'var(--win-bg-subtle)', borderRadius: 'var(--radius-md)' }}
-            >
-              <h5 className="m-0" style={{ fontSize: '13px', fontWeight: 600 }}>
-                Double Page Options
-              </h5>
-              <label
-                className="flex items-center gap-2"
-                style={{ cursor: 'pointer', fontSize: '14px' }}
-              >
+            <div className="reader-settings-modal__double-page-options p-4 flex flex-col gap-3">
+              <h5 className="reader-settings-modal__options-title m-0">Double Page Options</h5>
+              <label className="reader-settings-modal__checkbox-label flex items-center gap-2">
                 <input
                   type="checkbox"
+                  className="reader-settings-modal__checkbox"
                   checked={settings.doublePageMode?.skipCoverPages ?? true}
                   onChange={(e) =>
                     handleDoublePageSettingChange('skipCoverPages', e.target.checked)
                   }
-                  style={{ cursor: 'pointer' }}
                 />{' '}
                 Skip cover pages
               </label>
-              <label
-                className="flex items-center gap-2"
-                style={{ cursor: 'pointer', fontSize: '14px' }}
-              >
+              <label className="reader-settings-modal__checkbox-label flex items-center gap-2">
                 <input
                   type="checkbox"
+                  className="reader-settings-modal__checkbox"
                   checked={settings.doublePageMode?.readRightToLeft ?? true}
                   onChange={(e) =>
                     handleDoublePageSettingChange('readRightToLeft', e.target.checked)
                   }
-                  style={{ cursor: 'pointer' }}
                 />{' '}
                 Read right-to-left
               </label>
@@ -114,10 +104,7 @@ export function ReaderSettingsModal({
       </div>
 
       {/* Info Text */}
-      <p
-        className="m-0 text-secondary pt-3"
-        style={{ fontSize: '12px', borderTop: '1px solid var(--win-border)' }}
-      >
+      <p className="reader-settings-modal__info m-0 text-secondary pt-3">
         Saved for this manga only
       </p>
     </div>

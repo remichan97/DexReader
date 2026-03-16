@@ -175,17 +175,10 @@ export function StorageManagementSettings(): JSX.Element {
     <div className="py-4 flex flex-col gap-5">
       {/* Disk Space Header */}
       <div>
-        <h3
-          style={{
-            fontSize: '16px',
-            fontWeight: 600,
-            marginBottom: '8px',
-            color: 'var(--win-text-primary)'
-          }}
-        >
+        <h3 className="text-subtitle mb-2">
           Total Disk Space: {(storageData.diskSpace.total / 1024 ** 3).toFixed(1)} GB
         </h3>
-        <p className="text-secondary" style={{ fontSize: '13px' }}>
+        <p className="text-secondary text-caption">
           Used: {(storageData.diskSpace.used / 1024 ** 3).toFixed(1)} GB • Free:{' '}
           {(storageData.diskSpace.free / 1024 ** 3).toFixed(1)} GB
         </p>

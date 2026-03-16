@@ -220,7 +220,7 @@ export function LibraryView(): JSX.Element {
               icon={<Add24Regular />}
               aria-label="Create collection"
               title="Create a new collection"
-              style={{ height: '35px' }}
+              className="h-9"
             >
               Collection
             </Button>
@@ -234,7 +234,7 @@ export function LibraryView(): JSX.Element {
           disabled={!isOnline}
           aria-label="Check for updates"
           title={!isOnline ? 'Check for updates (offline)' : 'Check for updates (Ctrl+Shift+U)'}
-          style={{ height: '35px' }}
+          className="h-9"
         />
       </div>
 

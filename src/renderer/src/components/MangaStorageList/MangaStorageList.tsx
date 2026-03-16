@@ -3,6 +3,7 @@ import { Book20Regular } from '@fluentui/react-icons'
 import { Select, type SelectOption } from '@renderer/components/Select'
 import { Checkbox } from '@renderer/components/Checkbox'
 import { formatBytes } from '@renderer/utils/formatBytes'
+import './MangaStorageList.css'
 
 interface MangaStorageItem {
   mangaId: string
@@ -48,32 +49,10 @@ export function MangaStorageList({
   }
 
   return (
-    <div
-      style={{
-        border: '1px solid var(--win-border-default)',
-        borderRadius: '6px',
-        overflow: 'hidden',
-        backgroundColor: 'var(--win-surface-default)'
-      }}
-    >
+    <div className="manga-storage-list">
       {/* Semi-Header */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '12px 16px',
-          backgroundColor: 'var(--win-surface-secondary)',
-          borderBottom: '1px solid var(--win-border-default)'
-        }}
-      >
-        <span
-          style={{
-            fontSize: '14px',
-            fontWeight: 600,
-            color: 'var(--win-text-primary)'
-          }}
-        >
+      <div className="manga-storage-list__header">
+        <span className="manga-storage-list__header-title">
           Manga Storage ({formatBytes(totalSize)})
         </span>
         <div style={{ minWidth: '200px' }}>
@@ -96,26 +75,7 @@ export function MangaStorageList({
                 <div
                   role="button"
                   tabIndex={0}
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'auto auto 1fr auto',
-                    gap: '12px',
-                    alignItems: 'start',
-                    padding: '12px 16px',
-                    backgroundColor: isSelected ? 'var(--win-surface-tertiary)' : 'transparent',
-                    cursor: 'pointer',
-                    transition: 'background-color 0.1s'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isSelected) {
-                      e.currentTarget.style.backgroundColor = 'var(--win-surface-secondary)'
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isSelected) {
-                      e.currentTarget.style.backgroundColor = 'transparent'
-                    }
-                  }}
+                  className={`manga-storage-list__item ${isSelected ? 'manga-storage-list__item--selected' : ''}`}
                   onClick={() => onToggleSelect(item.mangaId)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
@@ -125,7 +85,7 @@ export function MangaStorageList({
                   }}
                 >
                   {/* Checkbox */}
-                  <div style={{ paddingTop: '14px' }}>
+                  <div className="pt-3">
                     <Checkbox
                       checked={isSelected}
                       onChange={() => onToggleSelect(item.mangaId)}
@@ -134,37 +94,15 @@ export function MangaStorageList({
                   </div>
 
                   {/* Cover Image */}
-                  <div
-                    style={{
-                      width: '48px',
-                      height: '48px',
-                      borderRadius: '4px',
-                      overflow: 'hidden',
-                      backgroundColor: 'var(--win-surface-tertiary)',
-                      flexShrink: 0
-                    }}
-                  >
+                  <div className="manga-storage-list__cover">
                     {item.coverUrl ? (
                       <img
                         src={item.coverUrl}
                         alt={item.mangaTitle}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover'
-                        }}
+                        className="manga-storage-list__cover-img"
                       />
                     ) : (
-                      <div
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: 'var(--win-text-tertiary)'
-                        }}
-                      >
+                      <div className="manga-storage-list__cover-empty">
                         <Book20Regular />
                       </div>
                     )}
@@ -172,59 +110,21 @@ export function MangaStorageList({
 
                   {/* Title + Chapter Info */}
                   <div style={{ minWidth: 0 }}>
-                    <div
-                      style={{
-                        fontSize: '14px',
-                        fontWeight: 500,
-                        color: 'var(--win-text-primary)',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        marginBottom: '4px'
-                      }}
-                    >
-                      {item.mangaTitle}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: '12px',
-                        color: 'var(--win-text-secondary)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px'
-                      }}
-                    >
+                    <div className="manga-storage-list__title">{item.mangaTitle}</div>
+                    <div className="manga-storage-list__chapter-info">
                       <Book20Regular style={{ fontSize: '14px' }} />
                       <span>{item.chapterCount} chapters</span>
                     </div>
                   </div>
 
                   {/* Storage Size */}
-                  <div
-                    style={{
-                      fontSize: '14px',
-                      fontWeight: 500,
-                      color: 'var(--win-text-primary)',
-                      textAlign: 'right',
-                      whiteSpace: 'nowrap',
-                      paddingTop: '2px'
-                    }}
-                  >
+                  <div className="manga-storage-list__storage-size">
                     {formatBytes(item.totalStorageSize)}
                   </div>
                 </div>
 
                 {/* Dashed Divider (except for last item) */}
-                {index < items.length - 1 && (
-                  <div
-                    style={{
-                      height: '1px',
-                      background:
-                        'repeating-linear-gradient(to right, var(--win-border-default) 0, var(--win-border-default) 4px, transparent 4px, transparent 8px)',
-                      margin: '0'
-                    }}
-                  />
-                )}
+                {index < items.length - 1 && <div className="manga-storage-list__divider" />}
               </div>
             )
           })

@@ -2,23 +2,14 @@ import React, { type JSX, useState, useEffect, useCallback, useRef } from 'react
 import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { ImageQuality } from '../../../../main/api/enums/image-quality.enum'
 import { Button } from '@renderer/components/Button'
-import { EmptyState } from '@renderer/components/EmptyState'
 import { LoadingState } from '@renderer/components/LoadingState'
 import { ErrorState } from '@renderer/components/ErrorState'
-import {
-  ArrowLeftRegular,
-  BookRegular,
-  EyeOff20Regular,
-  Settings20Regular
-} from '@fluentui/react-icons'
+import { Settings20Regular } from '@fluentui/react-icons'
 import { useProgressStore } from '@renderer/stores/progressStore'
 import { useAppStore } from '@renderer/stores'
 import { ReaderSettingsModal } from '@renderer/components/ReaderSettingsModal'
 import { ZoomControlsModal } from '@renderer/components/ZoomControlsModal'
-import {
-  StreamSourceIndicator,
-  type StreamSource
-} from '@renderer/components/StreamSourceIndicator'
+import { type StreamSource } from '@renderer/components/StreamSourceIndicator'
 import {
   useReaderSettings,
   usePagePairs,
@@ -33,17 +24,13 @@ import { PageDisplay } from './components/PageDisplay'
 import { DoublePageDisplay } from './components/DoublePageDisplay'
 import { VerticalScrollDisplay } from './components/VerticalScrollDisplay'
 import { EndOfChapterOverlay } from './components/EndOfChapterOverlay'
+import { ReaderHeader } from './components/ReaderHeader'
+import { ChapterListSidebar, type ChapterEntity } from './components/ChapterListSidebar'
 import './ReaderView.css'
 
 /**
  * Reader state interface
  */
-// Extract types from global window interface
-/**
- * Chapter Entity type from MangaDex feed response
- */
-export type ChapterEntity = Awaited<ReturnType<Window['mangadex']['getMangaFeed']>>['data'][number]
-
 interface ReaderState {
   // Navigation
   currentPage: number
@@ -55,191 +42,6 @@ interface ReaderState {
   // Settings
   imageQuality: ImageQuality
   forceReaderDarkMode: boolean // Whether to force dark theme for reader
-}
-
-/**
- * Reader Header Component
- */
-interface ReaderHeaderProps {
-  readonly chapterTitle: string
-  readonly currentPage: number
-  readonly totalPages: number
-  readonly onBackClick: () => void
-  readonly onToggleChapterList: () => void
-  readonly showChapterList: boolean
-  // Incognito mode
-  readonly isIncognito: boolean
-  // Reader settings
-  readonly settingsPopover: React.ReactNode
-  // Zoom controls popover
-  readonly zoomControlsPopover: React.ReactNode
-  // Reading mode info for page counter
-  readonly readingMode: 'single' | 'double' | 'vertical'
-  readonly currentPagePair?: [number] | [number, number]
-  readonly readRightToLeft?: boolean
-  // Stream source indicator
-  readonly streamSource: StreamSource
-}
-
-function ReaderHeader({
-  chapterTitle,
-  currentPage,
-  totalPages,
-  onBackClick,
-  onToggleChapterList,
-  showChapterList,
-  isIncognito,
-  settingsPopover,
-  zoomControlsPopover,
-  readingMode,
-  currentPagePair,
-  readRightToLeft,
-  streamSource
-}: ReaderHeaderProps): JSX.Element {
-  return (
-    <header className="reader-header">
-      <div className="reader-header__left">
-        <Button variant="ghost" onClick={onBackClick} icon={<ArrowLeftRegular />} size="medium">
-          Back
-        </Button>
-      </div>
-
-      <h1 className="reader-header__title">
-        <StreamSourceIndicator source={streamSource} />
-        {chapterTitle}
-      </h1>
-
-      <div className="reader-header__right">
-        {/* Incognito mode indicator */}
-        {isIncognito && (
-          <div
-            className="reader-header__incognito-badge"
-            title="Progress tracking is disabled. Go to Settings or File menu to enable."
-          >
-            <EyeOff20Regular />
-            <span>Incognito</span>
-          </div>
-        )}
-        {/* Reader settings popover */}
-        {settingsPopover}
-        {/* Zoom controls popover */}
-        {zoomControlsPopover}
-
-        <div className="reader-header__page-counter">
-          {readingMode === 'double' && currentPagePair && currentPagePair.length === 2
-            ? readRightToLeft
-              ? `Page ${currentPagePair[1] + 1}-${currentPagePair[0] + 1}/${totalPages}`
-              : `Page ${currentPagePair[0] + 1}-${currentPagePair[1] + 1}/${totalPages}`
-            : `${currentPage + 1}/${totalPages}`}
-        </div>
-        <Button
-          variant="ghost"
-          onClick={onToggleChapterList}
-          icon={<BookRegular />}
-          size="medium"
-          aria-label={showChapterList ? 'Close chapter list' : 'Open chapter list'}
-        >
-          Chapters
-        </Button>
-      </div>
-    </header>
-  )
-}
-
-/**
- * Chapter List Sidebar Component
- */
-interface ChapterListSidebarProps {
-  readonly chapters: ChapterEntity[]
-  readonly currentChapterId: string
-  readonly isOpen: boolean
-  readonly onClose: () => void
-  readonly onChapterClick: (chapterId: string) => void
-}
-
-function ChapterListSidebar({
-  chapters,
-  currentChapterId,
-  isOpen,
-  onClose,
-  onChapterClick
-}: ChapterListSidebarProps): JSX.Element {
-  return (
-    <>
-      {/* Overlay */}
-      {isOpen && (
-        <div
-          className="chapter-list-overlay"
-          onClick={onClose}
-          onKeyDown={(e) => {
-            if (e.key === 'Escape') {
-              onClose()
-            }
-          }}
-          role="button"
-          tabIndex={0}
-          aria-label="Close chapter list"
-        />
-      )}
-
-      {/* Sidebar */}
-      <aside className={`chapter-list-sidebar ${isOpen ? 'chapter-list-sidebar--open' : ''}`}>
-        <header className="chapter-list-sidebar__header">
-          <h2>Chapters</h2>
-          <Button onClick={onClose} size="small">
-            Close
-          </Button>
-        </header>
-
-        <div className="chapter-list-sidebar__content">
-          {chapters.length === 0 ? (
-            <EmptyState message="No chapters available" />
-          ) : (
-            <ul className="chapter-list-sidebar__list">
-              {chapters.map((chapter) => {
-                const chapterNumber = chapter.attributes.chapter || 'N/A'
-                const chapterTitle = chapter.attributes.title
-                const ariaLabel = chapterTitle
-                  ? `Chapter ${chapterNumber}: ${chapterTitle}`
-                  : `Chapter ${chapterNumber}`
-
-                return (
-                  <li
-                    key={chapter.id}
-                    className={`chapter-list-sidebar__item ${
-                      chapter.id === currentChapterId ? 'chapter-list-sidebar__item--active' : ''
-                    }`}
-                    onClick={() => onChapterClick(chapter.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault()
-                        onChapterClick(chapter.id)
-                      }
-                    }}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={ariaLabel}
-                    aria-current={chapter.id === currentChapterId ? 'true' : undefined}
-                  >
-                    <div className="chapter-list-sidebar__item-number">
-                      Ch. {chapterNumber}
-                      {chapter.attributes.volume && ` Vol. ${chapter.attributes.volume}`}
-                    </div>
-                    {chapterTitle && (
-                      <div className="chapter-list-sidebar__item-title">{chapterTitle}</div>
-                    )}
-                    <div className="chapter-list-sidebar__item-meta">
-                      {chapter.attributes.pages} pages
-                    </div>
-                  </li>
-                )
-              })}
-            </ul>
-          )}
-        </div>
-      </aside>
-    </>
-  )
 }
 
 export function ReaderView(): JSX.Element {

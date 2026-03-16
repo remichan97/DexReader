@@ -1,0 +1,30 @@
+/* ReaderSettingsModal Component Styles */
+
+.reader-settings-modal__content {
+  min-width: 280px;
+  max-width: 320px;
+}
+
+.reader-settings-modal__double-page-options {
+  background: var(--win-bg-subtle);
+  border-radius: var(--radius-md);
+}
+
+.reader-settings-modal__options-title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.reader-settings-modal__checkbox-label {
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.reader-settings-modal__checkbox {
+  cursor: pointer;
+}
+
+.reader-settings-modal__info {
+  font-size: 12px;
+  border-top: 1px solid var(--win-border);
+}
