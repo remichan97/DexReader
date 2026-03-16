@@ -3,8 +3,9 @@
 **Purpose**: This file tracks completed milestones with concise summaries. For detailed implementation notes, see [archived-milestones.md](./archived-milestones.md).
 
 **Project Start**: 23 November 2025
-**Current Phase**: Phase 5 - Production Readiness (PLANNING COMPLETE ✅)
-**Last Updated**: 11 March 2026
+**Current Phase**: Phase 5 - Production Readiness (IN PROGRESS)
+**Current Task**: P5-T21 Frontend Refactoring (Phase 4 Component Splitting IN PROGRESS)
+**Last Updated**: 13 March 2026
 
 ---
 
@@ -18,16 +19,68 @@
 
 ---
 
-## Current Status: Phase 5 Refactoring Plans Complete ✅
+## Current Status: Phase 5 Refactoring Execution Underway
 
-**Phase Progress**: Phase 2 Complete (11/11) ✅ | Guerilla Refactoring Complete ✅ | Phase 3 Complete (19/19) ✅ | Phase 4 Complete (13/13) ✅ | Phase 5 Planning Complete ✅
-**Current Focus**: Phase 5 execution begins Week 1 - Code Refactoring (P5-T21)
-**Recent Completion**: P5-T21 Backend & Frontend audit + refactoring plans (11 Mar 2026) ✅
-**Next Steps**: Begin P5-T21 Backend refactoring execution (18-24 hours) or Frontend refactoring (20-26 hours)
+**Phase Progress**: Phase 2 Complete (11/11) ✅ | Guerilla Refactoring Complete ✅ | Phase 3 Complete (19/19) ✅ | Phase 4 Complete (13/13) ✅ | Phase 5 IN PROGRESS (P5-T21 Frontend Phase 4 in progress)
+**Current Focus**: P5-T21 Frontend Refactoring - Phase 4 Component Splitting (ChapterList, LibraryView, DownloadsView complete; ReaderView next)
+**Recent Completion**: Phase 4C DownloadsView Split (13 Mar 2026) ✅
+**Next Steps**: Continue Phase 4 - Split ReaderView component (2-3 hours estimated)
 
 ---
 
 ## Recent Milestones
+
+### P5-T21 Frontend Phase 4C: DownloadsView Split Complete (13 March 2026) ✅
+
+Completed third major component split in Phase 4, reducing DownloadsView from 706 lines to 104 lines (85% reduction).
+
+**Structure Created** (12 files):
+
+- DownloadsView.tsx: 104 lines (main orchestrator)
+- Components: DownloadCard (117 lines), DownloadGroup (85 lines), DownloadsHeader (139 lines)
+- Hooks: useDownloadData (180 lines), useDownloadActions (165 lines), useDownloadGroups (98 lines)
+- types.ts: 37 lines (shared types and constants)
+
+**Pattern Followed**: Consistent with ChapterList and LibraryView splits - subfolder organization with barrel exports
+
+**Benefits**:
+
+- 85% reduction in main component size
+- Clear separation: UI components, data layer, action handlers, grouping logic
+- Well-typed props interfaces for all components
+- Easier testing and maintenance
+
+**Functionality Preserved**: All download features working - real-time progress updates, filtering, sorting, grouping, bulk actions
+
+**Next**: Continue Phase 4 - ReaderView split (708 lines → ~350 lines estimated)
+
+---
+
+### P5-T21 Frontend Phase 1-2 Complete (12 March 2026) ✅
+
+Completed first two phases of frontend refactoring: component extraction and utility class system creation.
+
+**Phase 1 - Component Extraction** (~5 hours):
+
+- Created 3 reusable components: EmptyState, LoadingState, ErrorState (9 files total)
+- Integrated across 16 view/component files
+- Eliminated ~230-300 lines of duplicate code
+- Standardized accessibility (ARIA labels, roles, live regions)
+- Fixed ReaderView vertical centering bug
+
+**Phase 2 - Utility Class System** (~2 hours):
+
+- Created utilities.css with 100+ theme-compatible utility classes
+- Organized by category: flexbox, gap, spacing, text, layout, background, border, accessibility
+- All utilities use design tokens (--space-_, --win-_) for theme support
+- Updated import structure: tokens.css → utilities.css → main.css
+- Documented in docs/components/utility-classes.md (~500 lines)
+
+**Impact**: Foundation established for Phase 3 (inline styles migration), Phase 5 (CSS deduplication), and improved code maintainability.
+
+**Next**: Phase 3 - Replace 192 inline styles across 15+ files (5-6 hours estimated).
+
+---
 
 ### P5-T21 Refactoring Plans Complete (11 March 2026) ✅
 

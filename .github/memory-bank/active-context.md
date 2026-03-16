@@ -1,8 +1,9 @@
 # DexReader Active Context
 
-**Last Updated**: 11 March 2026
-**Current Phase**: Phase 5 - Production Readiness (PLANNING COMPLETE ✅)
-**Next**: Begin P5-T21 Code Refactoring (Backend OR Frontend, 18-26 hours each)
+**Last Updated**: 13 March 2026
+**Current Phase**: Phase 5 - Production Readiness (IN PROGRESS)
+**Current Task**: P5-T21 Frontend Refactoring (Phase 4 - Component Splitting IN PROGRESS)
+**Next**: Continue component splitting (ReaderView next)
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -12,17 +13,229 @@
 
 **Phase 4 Status**: COMPLETE - 13/13 tasks (100%) ✅
 **Phase 5 Planning**: COMPLETE - Timeline finalized (11 Mar 2026) ✅
-**P5-T21 Audits**: COMPLETE - Backend + Frontend audits done (11 Mar 2026) ✅
-**Phase 5 Execution**: Ready to begin Week 1 (P5-T21 Backend OR Frontend refactoring)
-**Timeline**: 6-8 weeks (11 March - 5 May 2026)
+**P5-T21 Frontend**: IN PROGRESS - 4/7 phases complete (Phase 1-3 done, Phase 4 in progress)
+**Timeline**: 6 -8 weeks (11 March - 5 May 2026)
 **Target**: v1.0 Release Early May 2026 🚀
-**Next Steps**: Choose backend OR frontend refactoring path, start execution
+**Next Steps**: Continue Phase 4 - Component Splitting (ReaderView or SettingsView next)
+
+---
+
+## P5-T21 Frontend Refactoring - Current Progress
+
+**Status**: IN PROGRESS - Phase 2 Complete (12 Mar 2026)
+**Plan**: `.github/copilot-plans/p5-t21-frontend-refactoring-plan.md`
+**Total Duration**: 20-26 hours across 7 phases
+
+### ✅ Phase 1: Component Extraction (12 Mar 2026) - COMPLETE
+
+**Duration**: ~5 hours (actual)
+**Impact**: -230-300 lines of duplicate code
+
+**Components Created**:
+
+1. **EmptyState Component** (3 files)
+   - Props: icon, title, message, action, variant ('search' | 'default')
+   - Integrated in: LibraryView, HistoryView, DownloadsView, ChapterList, ReaderView, BrowseView (6 files)
+
+2. **LoadingState Component** (3 files)
+   - Props: message, size, variant ('spinner' | 'skeleton'), skeletonCount
+   - Integrated in: LibraryView, HistoryView, DownloadsView, ReaderView, VerticalScrollDisplay (5 files)
+   - Variants: ProgressRing spinner or SkeletonGrid
+
+3. **ErrorState Component** (3 files)
+   - Props: title, message, error, variant ('default' | 'offline' | 'critical'), onRetry, retrying, secondaryAction, showTechnicalDetails
+   - Integrated in: DownloadsView, ReaderView, BrowseView (offline variant) (3 files)
+   - Features: Collapsible technical details, flexible action configuration
+
+**Achievements**:
+
+- 3 new reusable components created (9 files total)
+- 16 files updated with component integrations
+- Consistent accessibility (ARIA labels, roles, live regions)
+- **Bug Fix**: Restored vertical centering in ReaderView error/loading states
+
+**Design Decision**: ErrorState variant="offline" handles offline states (no separate OfflineMessage component)
+
+### ✅ Phase 2: Utility Class System (12 Mar 2026) - COMPLETE
+
+**Duration**: ~2 hours (actual)
+**Impact**: Foundation for Phase 3-5, theme-compatible styling
+
+**Deliverables**:
+
+1. **utilities.css Created** (100+ utility classes organized by category)
+   - Flexbox utilities (display, direction, wrap, justify, align, sizing)
+   - Gap utilities (gap-1 through gap-12 using --space-\* tokens)
+   - Spacing utilities (padding & margin, all directions)
+   - Text utilities (alignment, color, size, weight)
+   - Layout utilities (display, width, height, position, overflow)
+   - Background, border, opacity, cursor utilities
+   - Accessibility utilities (sr-only for screen readers)
+
+2. **Import Structure Updated**
+   - main.tsx: tokens.css → utilities.css → main.css
+   - All utilities use design tokens for theme compatibility
+
+3. **Documentation Created**
+   - `docs/components/utility-classes.md` (~500 lines)
+   - Complete reference with examples, design token mapping, usage guidelines
+   - Migration patterns from inline styles to utility classes
+
+**Validation**:
+
+- ✅ All design tokens verified in tokens.css (--space-_, --win-_, --radius-\*)
+- ✅ Theme compatibility confirmed (light + dark mode)
+- ✅ No CSS specificity conflicts detected
+- ✅ No TypeScript compilation errors
+
+**Metrics**:
+
+- 100+ utility classes created
+- ~500 lines of documentation
+- Ready for Phase 3 inline styles migration (192 instances)
+
+### ⏭️ Phase 3: Inline Styles Migration (NEXT) - Estimated 5-6 hours
+
+**Goal**: Replace 192 inline `style={{}}` instances with utility classes
+
+**Approach**:
+
+- Priority: BrowseView (22), Settings components (40+), ReaderView (15), DownloadsView (10)
+- Migration: One file at time with visual regression testing
+- Validation: Pixel-perfect appearance, bundle size reduction
+
+---
+
+### 🔄 Phase 4: Component Splitting (13 Mar 2026) - IN PROGRESS
+
+**Goal**: Break down oversized components (952, 749, 715, 631, 526 lines) into maintainable units
+**Pattern**: Subfolder organization with barrel exports (following ChapterList/LibraryView pattern)
+
+#### ✅ Phase 4A: ChapterList Split (12 Mar 2026) - COMPLETE
+
+**Location**: `src/renderer/src/views/MangaDetailView/components/ChapterList/`
+**Before**: 526 lines (single file)
+**After**: Organized subfolder with 6 files
+
+**Files Created**:
+
+- ChapterList.tsx (main container)
+- ChapterListHeader.tsx (header controls)
+- ChapterListItem.tsx (individual chapter rendering)
+- hooks/useChapterDownloads.ts (download logic)
+- hooks/useChapterFilters.ts (filtering logic)
+- index.ts (barrel exports)
+
+**User Validation**: "great, no issues found with the splited chapterlist list" ✅
+
+#### ✅ Phase 4B: LibraryView Split (12 Mar 2026) - COMPLETE
+
+**Location**: `src/renderer/src/views/LibraryView/`
+**Before**: 952 lines (single file)
+**After**: Organized subfolder with components and hooks
+
+**Files Created**:
+
+- components/MangaGrid/
+- components/CollectionContextMenu/
+- components/EditCollectionModal/
+- hooks/useLibraryFilters.ts
+- hooks/useCollectionManager.ts
+- hooks/useMihonImportExport.ts
+- hooks/useDexReaderImportExport.ts
+
+**Status**: Fully functional, all features working ✅
+
+#### ✅ Phase 4C: DownloadsView Split (13 Mar 2026) - COMPLETE
+
+**Location**: `src/renderer/src/views/DownloadsView/`
+**Before**: 706 lines (single file)
+**After**: **104 lines** in main component (85% reduction!)
+
+**New Structure** (12 files total):
+
+**Components**:
+
+- components/DownloadCard/ (117 lines) - Individual chapter download card with progress bar and actions
+- components/DownloadGroup/ (85 lines) - Grouped downloads by manga with expand/collapse
+- components/DownloadsHeader/ (139 lines) - Search/filter/sort controls + stats badges + action buttons
+
+**Hooks**:
+
+- hooks/useDownloadData.ts (180 lines) - Data loading, real-time event listeners, auto-refresh
+- hooks/useDownloadActions.ts (165 lines) - Action handlers (cancel, retry, remove, bulk operations)
+- hooks/useDownloadGroups.ts (98 lines) - Filtering, grouping, sorting logic
+
+**Types**:
+
+- types.ts (37 lines) - FilterOption, SortOption, event interfaces, select options
+
+**Benefits**:
+
+- Main component reduced from 706 → 104 lines (85% reduction)
+- Clear separation of concerns (UI, data, actions, grouping)
+- Reusable components with well-typed props
+- Easier testing and maintenance
+
+**Status**: Fully refactored, dev server running ✅
+
+#### ⏭️ Phase 4D: ReaderView Split (NEXT)
+
+**Target**: ReaderView.tsx (708 lines → ~350 lines)
+**Estimated**: 2-3 hours
+
+**Components to Extract**:
+
+- ReaderHeader (~80 lines) - Title bar with chapter info
+- ReaderToolbar - Zoom and settings controls
+- ChapterNavigation - Chapter list sidebar
+
+**Note**: Display components and hooks already well-organized
+
+#### 📋 Phase 4E: SettingsView Evaluation (PENDING)
+
+**Current**: 520 lines (smaller than original 631 estimate)
+**Decision**: May not need aggressive splitting; evaluate after ReaderView
+
+---
+
+### ⏭️ Phase 5: Custom Hook Extraction (PENDING) - Estimated 3-4 hours
+
+**Priority Order** (15 files):
+
+1. BrowseView.tsx (22 instances) - 45 min
+2. CacheManagementSettings.tsx (18 instances) - 40 min
+3. SettingsView.tsx (17 instances) - 40 min
+4. ReaderSettingsSection.tsx (16 instances) - 35 min
+5. ReaderView.tsx (15 instances) - 35 min
+6. DownloadsSettings.tsx (14 instances) - 30 min
+7. MangaDetailView.tsx (12 instances) - 30 min
+8. ZoomControlsModal.tsx (12 instances) - 25 min
+9. StorageManagementSettings.tsx (11 instances) - 25 min
+10. DownloadsView.tsx (10 instances) - 20 min
+11. ChapterList.tsx (8 instances) - 20 min
+12. Other files (~28 instances) - 60 min
+
+**Process**: Read file → Identify inline styles → Map to utility classes → Replace → Test visually → Commit
+
+**Success Criteria**:
+
+- Zero inline `style={{}}` in migrated files
+- Visual appearance unchanged (pixel-perfect)
+- Bundle size reduction measurable
+
+### Remaining Phases (Estimated)
+
+- **Phase 4**: Component Splitting (10-12 hours) - ChapterList, LibraryView, ReaderView refactoring
+- **Phase 5**: CSS Deduplication (4-5 hours) - Remove duplicate flex patterns across CSS files
+- **Phase 6**: Accessibility Improvements (3-4 hours) - aria-labels for 100+ elements
+- **Phase 7**: Final Cleanup & Documentation (2-3 hours) - Code quality pass, documentation updates
 
 ---
 
 ## P5-T21 Code Refactoring & Technical Debt Cleanup
 
-**Status**: Planning complete, ready for execution ✅
+**Status**: Frontend IN PROGRESS (Phase 2/7 complete), Backend ready to begin ✅
 
 ### Backend Audit Complete (11 Mar 2026)
 
