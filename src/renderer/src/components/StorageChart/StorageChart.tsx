@@ -50,11 +50,11 @@ export function StorageChart({
 
       {/* Top Bar: Disk-Level Context */}
       <div className="mb-2">
-        <div className="storage-chart__bar storage-chart__bar--large">
+        <div className="storage-chart__bar storage-chart__bar--large flex">
           {/* DexReader Segment */}
           {dexReaderPercent > 0 && (
             <div
-              className="storage-chart__segment"
+              className="storage-chart__segment flex items-center justify-center"
               style={{
                 width: `${dexReaderPercent}%`,
                 backgroundColor: 'var(--accent-color)',
@@ -76,7 +76,7 @@ export function StorageChart({
           {/* Other Apps Segment */}
           {otherAppsPercent > 0 && (
             <div
-              className="storage-chart__segment"
+              className="storage-chart__segment flex items-center justify-center"
               style={{
                 width: `${otherAppsPercent}%`,
                 backgroundColor: 'color-mix(in srgb, var(--win-text-secondary) 15%, transparent)'
@@ -97,7 +97,7 @@ export function StorageChart({
           {/* Free Space Segment */}
           {freePercent > 0 && (
             <div
-              className="storage-chart__segment"
+              className="storage-chart__segment flex items-center justify-center"
               style={{
                 width: `${freePercent}%`,
                 backgroundColor: 'color-mix(in srgb, var(--win-text-secondary) 8%, transparent)'
@@ -120,12 +120,12 @@ export function StorageChart({
       {/* Bottom Bar: DexReader's Manga Breakdown */}
       {dexReaderSize > 0 && (
         <div className="mt-3">
-          <div className="storage-chart__bar storage-chart__bar--small">
+          <div className="storage-chart__bar storage-chart__bar--small flex">
             {/* Individual Manga Segments */}
             {mangaSegments.map((manga, index) => (
               <div
                 key={manga.mangaId}
-                className="storage-chart__segment"
+                className="storage-chart__segment flex items-center justify-center"
                 style={{
                   width: `${manga.percent}%`,
                   backgroundColor: `color-mix(in srgb, var(--accent-color) ${90 - index * 15}%, transparent)`
@@ -146,7 +146,7 @@ export function StorageChart({
             {/* Others Segment */}
             {othersPercent > 0 && (
               <div
-                className="storage-chart__segment"
+                className="storage-chart__segment flex items-center justify-center"
                 style={{
                   width: `${othersPercent}%`,
                   backgroundColor: 'color-mix(in srgb, var(--win-text-secondary) 20%, transparent)'

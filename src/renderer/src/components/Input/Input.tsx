@@ -125,7 +125,7 @@ export function Input({
   const hasMaxLength = maxLength !== undefined
 
   const classNames = [
-    'input-wrapper',
+    'input-wrapper flex flex-col gap-2',
     hasError && 'input-wrapper--error',
     disabled && 'input-wrapper--disabled',
     className
@@ -167,9 +167,9 @@ export function Input({
         </label>
       )}
 
-      <div className="input-container">
+      <div className="input-container flex items-center">
         {icon && (
-          <span className="input-icon" aria-hidden="true">
+          <span className="input-icon flex items-center justify-center" aria-hidden="true">
             {icon}
           </span>
         )}
@@ -192,7 +192,7 @@ export function Input({
         {type === 'search' && value && !disabled && (
           <button
             type="button"
-            className="input-action input-action--clear"
+            className="input-action input-action--clear flex items-center justify-center"
             onClick={handleClear}
             aria-label="Clear search"
             tabIndex={-1}
@@ -216,7 +216,7 @@ export function Input({
         {type === 'password' && !disabled && (
           <button
             type="button"
-            className="input-action input-action--toggle"
+            className="input-action input-action--toggle flex items-center justify-center"
             onClick={togglePasswordVisibility}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
             tabIndex={-1}
@@ -256,7 +256,7 @@ export function Input({
       </div>
 
       {(error || helperText || (showCounter && hasMaxLength)) && (
-        <div className="input-footer">
+        <div className="input-footer flex justify-between items-start gap-2">
           {hasError && (
             <span id={errorId} className="input-error" role="alert">
               {error}

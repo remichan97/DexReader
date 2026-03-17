@@ -88,13 +88,13 @@ export function AppShell({ children }: AppShellProps): JSX.Element {
   }, [])
 
   return (
-    <div className="app-shell" data-theme={theme}>
+    <div className="app-shell flex flex-col" data-theme={theme}>
       <a href="#main-content" className="skip-link">
         Skip to main content
       </a>
       <OfflineStatusBar />
       <IncognitoStatusBar />
-      <div className="app-shell__body">
+      <div className="app-shell__body flex flex-1">
         <Sidebar />
         <main className="app-shell__content" id="main-content">
           {children}

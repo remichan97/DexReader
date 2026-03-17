@@ -4,8 +4,8 @@
 
 **Project Start**: 23 November 2025
 **Current Phase**: Phase 5 - Production Readiness (IN PROGRESS)
-**Current Task**: P5-T21 Frontend Refactoring (Phase 4 Component Splitting IN PROGRESS)
-**Last Updated**: 13 March 2026
+**Current Task**: P5-T21 Frontend Refactoring (Phase 5 CSS Deduplication COMPLETE ✅)
+**Last Updated**: 17 March 2026
 
 ---
 
@@ -21,14 +21,43 @@
 
 ## Current Status: Phase 5 Refactoring Execution Underway
 
-**Phase Progress**: Phase 2 Complete (11/11) ✅ | Guerilla Refactoring Complete ✅ | Phase 3 Complete (19/19) ✅ | Phase 4 Complete (13/13) ✅ | Phase 5 IN PROGRESS (P5-T21 Frontend Phase 4 in progress)
-**Current Focus**: P5-T21 Frontend Refactoring - Phase 4 Component Splitting (ChapterList, LibraryView, DownloadsView complete; ReaderView next)
-**Recent Completion**: Phase 4C DownloadsView Split (13 Mar 2026) ✅
-**Next Steps**: Continue Phase 4 - Split ReaderView component (2-3 hours estimated)
+**Phase Progress**: Phase 2 Complete (11/11) ✅ | Guerilla Refactoring Complete ✅ | Phase 3 Complete (19/19) ✅ | Phase 4 Complete (13/13) ✅ | Phase 5 IN PROGRESS (P5-T21 Phases 1-5 complete)
+**Current Focus**: P5-T21 Frontend Refactoring - Phase 5 CSS Deduplication COMPLETE (17 Mar 2026) ✅
+**Recent Completion**: Phase 5 CSS Deduplication - All 9 batches complete (17 Mar 2026) ✅
+**Next Steps**: Continue P5-T21 - Phase 6 Accessibility improvements or other refactoring phases
 
 ---
 
 ## Recent Milestones
+
+### P5-T21 Frontend Phase 5: CSS Deduplication Complete (17 March 2026) ✅
+
+Completed systematic removal of duplicate flexbox patterns across entire codebase, replacing with utility classes from Phase 2.
+
+**Scope**: 9 batches covering 40+ CSS files and 40+ TSX files
+**Duration**: ~3-4 hours
+**Impact**: ~135 flex patterns removed, consistent utility class usage throughout
+
+**Batches Completed**:
+
+1. Settings Components (11 flex) - GeneralSettings, AppearanceSettings, DownloadSettings
+2. Dialog Components (42 flex) - All modal/dialog components
+3. HistoryView (11 flex) - Full view deduplication
+4. Form Components (20 flex) - Input, Select, SearchBar, Checkbox
+5. UI Components (22 flex) - Toast, Tabs, Switch, Badge, Button, ProgressBar, Sidebar
+6. Status/Indicator Components (8 flex) - Various status indicators
+7. Storage/Layout Components (10 flex) - StorageChart, MangaStorageList, AppShell, DownloadsView
+8. Context Menu + Remaining (11 flex) - ContextMenu, ReaderView, MangaDetailView, DangerZoneSettings
+
+**Results**:
+
+- 100% batch completion rate
+- 0 new build errors introduced
+- All visual layouts preserved
+- Consistent utility class system usage
+- Improved maintainability
+
+See [archived-milestones.md](./archived-milestones.md) for detailed implementation notes.
 
 ### P5-T21 Frontend Phase 4C: DownloadsView Split Complete (13 March 2026) ✅
 

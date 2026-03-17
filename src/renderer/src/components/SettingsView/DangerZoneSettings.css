@@ -18,15 +18,11 @@
 }
 
 .danger-zone-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  /* Removed display: flex, flex-direction, gap - using utility classes */
 }
 
 .danger-zone-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  /* Removed display: flex, align-items, justify-content - using utility classes */
   padding: 16px;
   background: var(--colorNeutralBackground3);
   border-radius: 8px;

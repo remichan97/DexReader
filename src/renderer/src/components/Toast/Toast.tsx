@@ -115,7 +115,7 @@ export function Toast({
 
   return (
     <div
-      className={classNames}
+      className={`${classNames} flex items-center gap-3`}
       role="alert"
       aria-live="assertive"
       aria-label={ariaLabel || `${variant}: ${title}`}

@@ -50,17 +50,14 @@
 
 /* List */
 .context-menu__list {
-  display: flex;
-  flex-direction: column;
+  /* Removed display: flex, flex-direction - using utility classes */
   padding: var(--space-1);
   margin: 0;
 }
 
 /* Item */
 .context-menu__item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
+  /* Removed display: flex, align-items, gap - using utility classes */
   width: 100%;
   padding: var(--space-1-5) var(--space-2);
   background: none;

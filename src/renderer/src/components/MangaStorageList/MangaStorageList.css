@@ -8,9 +8,7 @@
 }
 
 .manga-storage-list__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  /* Removed display: flex, justify-content, align-items - using utility classes */
   padding: 12px 16px;
   background-color: var(--win-surface-secondary);
   border-bottom: 1px solid var(--win-border-default);
@@ -58,9 +56,7 @@
 .manga-storage-list__cover-empty {
   width: 100%;
   height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  /* Removed display: flex, align-items, justify-content - using utility classes */
   color: var(--win-text-tertiary);
 }
 
@@ -77,9 +73,7 @@
 .manga-storage-list__chapter-info {
   font-size: 12px;
   color: var(--win-text-secondary);
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  /* Removed display: flex, align-items, gap - using utility classes */
 }
 
 .manga-storage-list__storage-size {

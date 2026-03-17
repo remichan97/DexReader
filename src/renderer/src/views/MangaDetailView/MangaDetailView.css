@@ -108,9 +108,7 @@
   bottom: 8px;
   left: 8px;
   right: 8px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  /* Removed display: flex, align-items, gap - using utility classes */
   padding: 6px 10px;
   background: rgba(0, 120, 212, 0.95);
   backdrop-filter: blur(10px);
@@ -320,7 +318,7 @@
 }
 
 .tag {
-  display: inline-flex;
+  /* Removed display: inline-flex - using utility class */
   padding: 6px 12px;
   border-radius: var(--radius-sm);
   font-size: 13px;
@@ -394,10 +392,7 @@
   text-align: center;
   color: var(--win-text-tertiary);
   background: var(--win-bg-card);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-3);
+  /* Removed display: flex, flex-direction, align-items, gap - using utility classes */
 }
 
 .chapter-list-empty p {
@@ -571,20 +566,14 @@
 
 /* Error State */
 .manga-detail-error {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  /* Removed display: flex, flex-direction, align-items, justify-content - using utility classes */
   padding: var(--space-6);
   text-align: center;
   min-height: 400px;
 }
 
 .manga-detail-error .error-recovery {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-3);
+  /* Removed display: flex, flex-direction, align-items, gap - using utility classes */
   max-width: 500px;
 }
 
@@ -608,8 +597,7 @@
 }
 
 .manga-detail-error .error-recovery__actions {
-  display: flex;
-  gap: var(--space-2);
+  /* Removed display: flex, gap - using utility classes */
   margin-top: var(--space-2);
 }
 

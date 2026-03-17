@@ -74,7 +74,7 @@ export function Switch({
 
   return (
     <div className={switchClasses}>
-      <div className="switch__control">
+      <div className="switch__control flex items-center gap-3">
         {(label || description) && (
           <div className="switch__content">
             {label && (

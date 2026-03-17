@@ -72,9 +72,9 @@ export const DangerZoneSettings: React.FC = () => {
       <h3>Danger Zone</h3>
       <p className="danger-zone-description">Irreversible actions. Proceed with caution.</p>
 
-      <div className="danger-zone-actions">
+      <div className="danger-zone-actions flex flex-col gap-4">
         {/* Open Settings File */}
-        <div className="danger-zone-item">
+        <div className="danger-zone-item flex items-center justify-between">
           <div className="danger-zone-item-info">
             <h4>Open Settings File</h4>
             <p>Edit settings.json directly in your default editor</p>
@@ -85,7 +85,7 @@ export const DangerZoneSettings: React.FC = () => {
         </div>
 
         {/* Reset to Default */}
-        <div className="danger-zone-item">
+        <div className="danger-zone-item flex items-center justify-between">
           <div className="danger-zone-item-info">
             <h4>Reset to Default</h4>
             <p>Restore all settings to their default values</p>
@@ -101,7 +101,7 @@ export const DangerZoneSettings: React.FC = () => {
         </div>
 
         {/* Clear All Data */}
-        <div className="danger-zone-item danger-zone-item-critical">
+        <div className="danger-zone-item danger-zone-item-critical flex items-center justify-between">
           <div className="danger-zone-item-info">
             <h4>Clear Data & Reset App</h4>
             <p>Delete all data (library, progress, settings) and restart</p>

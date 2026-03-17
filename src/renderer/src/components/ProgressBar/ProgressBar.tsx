@@ -119,10 +119,10 @@ export function ProgressBar({
   return (
     <div className={classNames}>
       {(displayLabel || hasMetadata) && (
-        <div className="progress-bar__header">
+        <div className="progress-bar__header flex items-center justify-between gap-2">
           {displayLabel && <div className="progress-bar__label">{displayLabel}</div>}
           {hasMetadata && (
-            <div className="progress-bar__metadata">
+            <div className="progress-bar__metadata flex items-center gap-2">
               {speed && <span className="progress-bar__speed">{speed}</span>}
               {speed && eta && <span className="progress-bar__separator">•</span>}
               {eta && <span className="progress-bar__eta">{eta}</span>}

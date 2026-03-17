@@ -82,6 +82,7 @@ export function ProgressRing({
     `progress-ring--${variant}`,
     isIndeterminate && 'progress-ring--indeterminate',
     animated && 'progress-ring--animated',
+    'inline-flex items-center justify-center',
     className
   ]
     .filter(Boolean)

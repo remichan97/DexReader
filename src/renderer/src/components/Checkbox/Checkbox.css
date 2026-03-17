@@ -5,9 +5,6 @@
 
 /* Checkbox Container */
 .checkbox {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
   cursor: pointer;
   user-select: none;
   position: relative;
@@ -29,9 +26,6 @@
 
 /* Custom Checkbox Box */
 .checkbox__box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   width: 20px;
   height: 20px;
   border: 1.5px solid var(--win-border-default);
@@ -122,9 +116,7 @@
   color: var(--win-text-primary);
   line-height: 1.5;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  /* Removed display: flex, align-items, gap - using utility classes */
 }
 
 .checkbox--disabled .checkbox__label {

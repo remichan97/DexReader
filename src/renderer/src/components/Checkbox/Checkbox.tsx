@@ -71,7 +71,7 @@ export function Checkbox({
   }
 
   const checkboxClasses = [
-    'checkbox',
+    'checkbox inline-flex items-center gap-2',
     checked && 'checkbox--checked',
     indeterminate && 'checkbox--indeterminate',
     disabled && 'checkbox--disabled',
@@ -94,7 +94,7 @@ export function Checkbox({
         aria-checked={indeterminate ? 'mixed' : checked}
       />
       <div
-        className="checkbox__box"
+        className="checkbox__box flex items-center justify-center"
         role="presentation"
         tabIndex={disabled ? undefined : 0}
         onKeyDown={handleKeyDown}
@@ -127,7 +127,7 @@ export function Checkbox({
           )
         )}
       </div>
-      {label && <span className="checkbox__label">{label}</span>}
+      {label && <span className="checkbox__label flex items-center gap-1-5">{label}</span>}
     </label>
   )
 }

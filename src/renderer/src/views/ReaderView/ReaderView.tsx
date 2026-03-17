@@ -353,7 +353,7 @@ export function ReaderView(): JSX.Element {
   const readerTheme = state.forceReaderDarkMode || theme === 'dark' ? 'dark' : 'light'
 
   return (
-    <main className="reader-view" data-theme={readerTheme}>
+    <main className="reader-view flex flex-col" data-theme={readerTheme}>
       {chapterData.loading && (
         <div className="reader-view__loading flex flex-col items-center justify-center">
           <LoadingState message="Loading chapter..." />

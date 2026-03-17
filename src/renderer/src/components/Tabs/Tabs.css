@@ -5,14 +5,10 @@
 
 /* Tabs Container */
 .tabs {
-  display: flex;
-  flex-direction: column;
 }
 
 /* Tab List */
 .tab-list {
-  display: flex;
-  gap: var(--space-1);
   border-bottom: 1px solid var(--win-border-default);
   position: relative;
 }

@@ -9,8 +9,7 @@
   width: 100%;
   height: 100vh; /* Fixed height to constrain flex children */
   background-color: var(--color-bg-primary);
-  display: flex;
-  flex-direction: column;
+  /* Removed display: flex, flex-direction - using utility classes */
   overflow: hidden;
 }
 

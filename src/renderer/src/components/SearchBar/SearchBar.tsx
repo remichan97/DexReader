@@ -137,15 +137,19 @@ export function SearchBar({
     onFilterClick?.()
   }
 
-  const classNames = ['search-bar', disabled && 'search-bar--disabled', className]
+  const classNames = [
+    'search-bar flex flex-col gap-2',
+    disabled && 'search-bar--disabled',
+    className
+  ]
     .filter(Boolean)
     .join(' ')
 
   return (
     <div className={classNames}>
-      <div className="search-bar__container">
+      <div className="search-bar__container flex items-center">
         {/* Search Icon */}
-        <span className="search-bar__icon" aria-hidden="true">
+        <span className="search-bar__icon flex items-center justify-center" aria-hidden="true">
           <svg
             className="search-bar__icon-svg"
             viewBox="0 0 20 20"
@@ -179,7 +183,7 @@ export function SearchBar({
         {internalValue && !disabled && (
           <button
             type="button"
-            className="search-bar__clear"
+            className="search-bar__clear flex items-center justify-center"
             onClick={handleClear}
             aria-label="Clear search"
             tabIndex={-1}
@@ -204,7 +208,7 @@ export function SearchBar({
         {onFilterClick && (
           <button
             type="button"
-            className="search-bar__filter"
+            className="search-bar__filter flex items-center justify-center"
             onClick={handleFilterClick}
             disabled={disabled}
             aria-label={`Filters${filterCount > 0 ? ` (${filterCount} active)` : ''}`}
@@ -223,14 +227,22 @@ export function SearchBar({
                 strokeLinejoin="round"
               />
             </svg>
-            {filterCount > 0 && <span className="search-bar__filter-badge">{filterCount}</span>}
+            {filterCount > 0 && (
+              <span className="search-bar__filter-badge flex items-center justify-center">
+                {filterCount}
+              </span>
+            )}
           </button>
         )}
       </div>
 
       {/* Helper Text */}
       {!disabled && (
-        <div className="search-bar__hint" aria-live="polite" aria-atomic="true">
+        <div
+          className="search-bar__hint flex items-center gap-1"
+          aria-live="polite"
+          aria-atomic="true"
+        >
           Press <kbd>Ctrl+F</kbd> to focus, <kbd>Esc</kbd> to clear
         </div>
       )}

@@ -27,8 +27,8 @@ export function IncognitoStatusBar(): JSX.Element | null {
   }
 
   return (
-    <output className="incognito-status-bar" aria-live="polite">
-      <div className="incognito-status-bar__content">
+    <output className="incognito-status-bar flex items-center justify-between" aria-live="polite">
+      <div className="incognito-status-bar__content flex items-center gap-3">
         <EyeOff24Regular className="incognito-status-bar__icon" />
         <span className="incognito-status-bar__text">
           <strong>You&apos;ve gone Incognito</strong> — Progress tracking is disabled

@@ -252,7 +252,7 @@ export default function MangaHeroSection({
               <Button
                 key={tag.id}
                 variant="ghost"
-                className="tag tag--theme"
+                className="tag tag--theme inline-flex"
                 onClick={() => handleTagClick(tag.id)}
               >
                 {tag.name}

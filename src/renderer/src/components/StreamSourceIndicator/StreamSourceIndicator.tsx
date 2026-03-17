@@ -22,7 +22,7 @@ export function StreamSourceIndicator({ source }: StreamSourceIndicatorProps): J
 
   return (
     <div
-      className={`stream-source-indicator stream-source-indicator--${source}`}
+      className={`stream-source-indicator stream-source-indicator--${source} inline-flex items-center justify-center`}
       title={isOnline ? 'Streaming from MangaDex' : 'Reading from local storage'}
       aria-label={isOnline ? 'Streaming from MangaDex' : 'Reading from local storage'}
     >

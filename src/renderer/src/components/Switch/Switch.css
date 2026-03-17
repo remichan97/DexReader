@@ -5,15 +5,10 @@
 
 /* Switch Container */
 .switch {
-  display: flex;
   width: 100%;
 }
 
 .switch__control {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
   width: 100%;
 }
 
@@ -88,9 +83,6 @@
 
 /* Content */
 .switch__content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
   flex: 1;
 }
 

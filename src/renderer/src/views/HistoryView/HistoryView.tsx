@@ -48,13 +48,13 @@ function ReadingHistoryCard({
   }
 
   return (
-    <div className="reading-history-card">
+    <div className="reading-history-card flex items-center gap-3">
       {/* Cover Image */}
       <div className="reading-history-card__cover">
         {progress.coverUrl ? (
           <img src={progress.coverUrl} alt={`${progress.title} cover`} />
         ) : (
-          <div className="reading-history-card__cover-placeholder">
+          <div className="reading-history-card__cover-placeholder flex items-center justify-center">
             <History24Regular />
           </div>
         )}
@@ -63,11 +63,11 @@ function ReadingHistoryCard({
       {/* Info */}
       <div className="reading-history-card__info">
         <h3 className="reading-history-card__title">{progress.title}</h3>
-        <p className="reading-history-card__progress">
+        <p className="reading-history-card__progress flex items-center gap-2 flex-wrap">
           Ch. {progress.lastChapterNumber || '?'}
           {progress.lastChapterTitle && `: ${progress.lastChapterTitle}`}
           {progress.language && (
-            <span className="reading-history-card__language">
+            <span className="reading-history-card__language inline-flex items-center">
               {getLanguageName(progress.language)}
             </span>
           )}
@@ -78,7 +78,7 @@ function ReadingHistoryCard({
       </div>
 
       {/* Actions */}
-      <div className="reading-history-card__actions">
+      <div className="reading-history-card__actions flex gap-2">
         <Button
           variant="primary"
           size="small"
@@ -152,26 +152,26 @@ export function HistoryView(): JSX.Element {
   }
 
   return (
-    <div className="history-view">
+    <div className="history-view flex flex-col">
       {/* Screen reader heading for page structure */}
       <h1 className="sr-only">Reading History</h1>
 
       {/* Statistics */}
       {statistics && (
         <div className="history-view__stats">
-          <div className="stat-card">
+          <div className="stat-card flex flex-col items-center">
             <span className="stat-card__value">{statistics.totalMangaRead}</span>
             <span className="stat-card__label">Manga Read</span>
           </div>
-          <div className="stat-card">
+          <div className="stat-card flex flex-col items-center">
             <span className="stat-card__value">{statistics.totalChaptersRead}</span>
             <span className="stat-card__label">Chapters</span>
           </div>
-          <div className="stat-card">
+          <div className="stat-card flex flex-col items-center">
             <span className="stat-card__value">{statistics.totalPagesRead}</span>
             <span className="stat-card__label">Pages</span>
           </div>
-          <div className="stat-card">
+          <div className="stat-card flex flex-col items-center">
             <span className="stat-card__value">{statistics.totalEstimatedMinutesRead}</span>
             <span className="stat-card__label">Minutes</span>
           </div>
@@ -211,7 +211,7 @@ export function HistoryView(): JSX.Element {
         )}
 
         {!loading && filteredProgress.length > 0 && (
-          <div className="history-view__list">
+          <div className="history-view__list flex flex-col gap-3">
             {filteredProgress.map((progress) => (
               <ReadingHistoryCard
                 key={progress.mangaId}

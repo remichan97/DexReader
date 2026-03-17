@@ -51,7 +51,7 @@ export function MangaStorageList({
   return (
     <div className="manga-storage-list">
       {/* Semi-Header */}
-      <div className="manga-storage-list__header">
+      <div className="manga-storage-list__header flex justify-between items-center">
         <span className="manga-storage-list__header-title">
           Manga Storage ({formatBytes(totalSize)})
         </span>
@@ -102,7 +102,7 @@ export function MangaStorageList({
                         className="manga-storage-list__cover-img"
                       />
                     ) : (
-                      <div className="manga-storage-list__cover-empty">
+                      <div className="manga-storage-list__cover-empty flex items-center justify-center">
                         <Book20Regular />
                       </div>
                     )}
@@ -111,7 +111,7 @@ export function MangaStorageList({
                   {/* Title + Chapter Info */}
                   <div style={{ minWidth: 0 }}>
                     <div className="manga-storage-list__title">{item.mangaTitle}</div>
-                    <div className="manga-storage-list__chapter-info">
+                    <div className="manga-storage-list__chapter-info flex items-center gap-1">
                       <Book20Regular style={{ fontSize: '14px' }} />
                       <span>{item.chapterCount} chapters</span>
                     </div>

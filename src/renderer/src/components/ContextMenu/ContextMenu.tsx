@@ -192,7 +192,7 @@ export function ContextMenu({
               : undefined
           }
         >
-          <div className="context-menu__list">
+          <div className="context-menu__list flex flex-col">
             {items.map((item, index) => {
               if (item.type === 'separator') {
                 return (
@@ -208,6 +208,9 @@ export function ContextMenu({
 
               const itemClasses = [
                 'context-menu__item',
+                'flex',
+                'items-center',
+                'gap-2',
                 item.disabled && 'context-menu__item--disabled',
                 isFocused && 'context-menu__item--focused'
               ]

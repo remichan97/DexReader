@@ -82,7 +82,7 @@ export function DownloadStatusBadge({
   return (
     <button
       type="button"
-      className={`download-badge download-badge--${status}`}
+      className={`download-badge download-badge--${status} inline-flex items-center justify-center gap-1`}
       onClick={isInteractive ? onClick : undefined}
       disabled={!isInteractive}
       title={getLabel()}

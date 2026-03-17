@@ -226,7 +226,7 @@ export function Select({
   }, [focusedIndex])
 
   const containerClasses = [
-    'select',
+    'select flex flex-col gap-1',
     isOpen && 'select--open',
     error && 'select--error',
     disabled && 'select--disabled',
@@ -245,11 +245,11 @@ export function Select({
 
       {searchable ? (
         // ComboBox pattern: trigger is an editable input
-        <div className="select__trigger-container">
+        <div className="select__trigger-container flex items-center">
           <input
             ref={triggerInputRef}
             type="text"
-            className="select__trigger select__trigger--searchable"
+            className="select__trigger select__trigger--searchable flex items-center justify-between"
             value={isOpen ? searchQuery : getSelectedLabel()}
             onChange={(e) => {
               setSearchQuery(e.target.value)
@@ -290,7 +290,7 @@ export function Select({
         <button
           ref={triggerButtonRef}
           type="button"
-          className="select__trigger"
+          className="select__trigger flex items-center justify-between"
           onClick={() => !disabled && setIsOpen(!isOpen)}
           onKeyDown={handleKeyDown}
           disabled={disabled}
@@ -317,7 +317,7 @@ export function Select({
       )}
 
       {isOpen && (
-        <div className="select__dropdown">
+        <div className="select__dropdown flex flex-col">
           <ul
             ref={listboxRef}
             className="select__listbox"
@@ -332,7 +332,7 @@ export function Select({
                 <li
                   key={option.value}
                   className={[
-                    'select__option',
+                    'select__option flex items-center gap-2',
                     isSelected(option.value) && 'select__option--selected',
                     focusedIndex === index && 'select__option--focused',
                     option.disabled && 'select__option--disabled'
@@ -345,7 +345,7 @@ export function Select({
                   onMouseEnter={() => setFocusedIndex(index)}
                 >
                   {multiple && (
-                    <div className="select__checkbox">
+                    <div className="select__checkbox flex items-center justify-center">
                       {isSelected(option.value) && (
                         <svg
                           className="select__checkmark"

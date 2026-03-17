@@ -5,9 +5,6 @@
 
 /* Badge Base */
 .badge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
   padding: var(--space-1) var(--space-2);
   font-family: var(--win-font-family);
   font-weight: var(--win-font-weight-semibold);
@@ -64,9 +61,6 @@
 
 /* Icon */
 .badge__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   flex-shrink: 0;
 }
 

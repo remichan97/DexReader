@@ -502,8 +502,8 @@ export function MangaDetailView(): JSX.Element {
             Back
           </Button>
         </div>
-        <div className="manga-detail-error">
-          <div className="error-recovery">
+        <div className="manga-detail-error flex flex-col items-center justify-center">
+          <div className="error-recovery flex flex-col items-center gap-3">
             <div className="error-recovery__icon">
               {isOfflineError ? <CloudOff48Regular /> : <Warning48Regular />}
             </div>
@@ -515,7 +515,7 @@ export function MangaDetailView(): JSX.Element {
                 ? state.error.message
                 : 'Something went wrong while trying to fetch this manga. It might be unavailable, deleted, or there could be a connection issue.'}
             </p>
-            <div className="error-recovery__actions">
+            <div className="error-recovery__actions flex gap-2">
               {isOfflineError ? (
                 <Button variant="primary" onClick={() => navigate('/library')}>
                   Go to Library
@@ -564,7 +564,7 @@ export function MangaDetailView(): JSX.Element {
             Back
           </Button>
         </div>
-        <div className="manga-detail-error">
+        <div className="manga-detail-error flex flex-col items-center justify-center">
           <h2>Manga Not Found</h2>
           <p>This manga doesn&apos;t exist or has been removed.</p>
           <Button variant="accent" onClick={() => navigate('/browse')}>

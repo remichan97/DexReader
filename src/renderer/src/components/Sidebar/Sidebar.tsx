@@ -138,7 +138,7 @@ export function Sidebar(): JSX.Element {
   }, [location.pathname])
 
   return (
-    <nav className="sidebar" ref={sidebarRef} aria-label="Main navigation">
+    <nav className="sidebar flex flex-col" ref={sidebarRef} aria-label="Main navigation">
       <div
         className="sidebar__indicator"
         style={{
@@ -154,7 +154,7 @@ export function Sidebar(): JSX.Element {
         return (
           <div
             key={item.id}
-            className={`sidebar__item ${isActive ? 'sidebar__item--active' : ''}`}
+            className={`sidebar__item flex flex-col items-center justify-center gap-1 ${isActive ? 'sidebar__item--active' : ''}`}
             data-route={item.route}
             onClick={() => handleItemClick(item.route)}
             onKeyDown={(e) => handleKeyDown(e, item.route)}

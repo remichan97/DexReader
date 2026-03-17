@@ -8,10 +8,7 @@
 
 /* Loading State */
 .downloads-view__loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  /* Removed display: flex, flex-direction, align-items, justify-content - using utility classes */
   padding: 64px 24px;
   text-align: center;
   color: var(--win-text-secondary);
@@ -35,10 +32,7 @@
 
 /* Error State */
 .downloads-view__error {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  /* Removed display: flex, flex-direction, align-items, justify-content - using utility classes */
   padding: 64px 24px;
   text-align: center;
 }
@@ -83,9 +77,7 @@
 
 /* Empty State */
 .downloads-view__empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  /* Removed display: flex, flex-direction, align-items - using utility classes */
   padding: 64px 24px;
   text-align: center;
   color: var(--win-text-secondary);

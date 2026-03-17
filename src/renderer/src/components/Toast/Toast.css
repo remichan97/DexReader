@@ -7,9 +7,6 @@
 .toast-container {
   position: fixed;
   z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
   pointer-events: none;
   max-width: 400px;
   padding: var(--space-4);
@@ -40,9 +37,6 @@
 
 /* Base Toast */
 .toast {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
   padding: var(--space-3);
   background: var(--win-bg-card);
   border: 1px solid var(--win-border-default);
@@ -102,9 +96,6 @@
 
 /* Toast Icon */
 .toast__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   width: 20px;
   height: 20px;
   flex-shrink: 0;
@@ -184,9 +175,6 @@
 /* Toast Content */
 .toast__content {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
   min-width: 0;
 }
 
@@ -208,9 +196,6 @@
 
 /* Close Button */
 .toast__close {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   width: 24px;
   height: 24px;
   padding: 0;

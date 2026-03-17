@@ -13,7 +13,7 @@
 }
 
 .storage-chart__bar {
-  display: flex;
+  /* Removed display: flex - using utility class */
   border-radius: 4px;
   overflow: hidden;
   background-color: var(--win-surface-tertiary);
@@ -28,9 +28,7 @@
 }
 
 .storage-chart__segment {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  /* Removed display: flex, align-items, justify-content - using utility classes */
   padding: 0 8px;
 }
 

@@ -17,12 +17,12 @@ export function OfflineStatusBar(): JSX.Element | null {
 
   return (
     <div
-      className="offline-status-bar"
+      className="offline-status-bar flex items-center justify-between"
       data-type={isUserInitiated ? 'user' : 'system'}
       role="alert"
       aria-live="polite"
     >
-      <div className="offline-status-bar__content">
+      <div className="offline-status-bar__content flex items-center gap-3">
         {isUserInitiated ? (
           <CloudOff24Regular className="offline-status-bar__icon" />
         ) : (

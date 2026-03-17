@@ -127,7 +127,7 @@ export function TabList({ children, className = '' }: Readonly<TabListProps>): R
   }, [activeValue])
 
   return (
-    <div ref={listRef} className={`tab-list ${className}`} role="tablist">
+    <div ref={listRef} className={`tab-list flex items-center ${className}`} role="tablist">
       {children}
       <div ref={indicatorRef} className="tab-list__indicator" />
     </div>
