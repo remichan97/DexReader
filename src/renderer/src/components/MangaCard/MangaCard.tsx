@@ -153,6 +153,15 @@ export function MangaCard({
     cancelled: 'Cancelled'
   }
 
+  // Generate comprehensive aria-label
+  const defaultAriaLabel = (): string => {
+    let label = title
+    if (author) label += ` by ${author}`
+    if (status) label += ` - ${statusLabels[status]}`
+    if (hasProgress) label += ` - ${chaptersRead} of ${totalChapters} chapters read`
+    return label
+  }
+
   return (
     <div
       className={classNames + ' flex flex-col'}
@@ -165,7 +174,7 @@ export function MangaCard({
           handleClick()
         }
       }}
-      aria-label={ariaLabel || `${title} by ${author || 'Unknown'}`}
+      aria-label={ariaLabel || defaultAriaLabel()}
     >
       <div className="manga-card__cover-container">
         {!imageLoaded && <div className="manga-card__cover-skeleton" />}

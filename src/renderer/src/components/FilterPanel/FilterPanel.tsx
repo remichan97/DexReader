@@ -248,6 +248,8 @@ export function FilterPanel({
           className="filter-panel__toggle-btn flex items-center gap-2"
           onClick={() => setIsExpanded(!isExpanded)}
           type="button"
+          aria-label={isExpanded ? 'Hide advanced filters' : 'Show advanced filters'}
+          aria-expanded={isExpanded}
         >
           {isExpanded ? '▼' : '▶'} Advanced Filters (Tags & Languages)
         </button>
@@ -296,6 +298,7 @@ export function FilterPanel({
                             handleTagInclude(tag.id, !isIncluded)
                           }}
                           title="Include this tag"
+                          aria-label={`Include ${tag.name} tag`}
                         >
                           +
                         </button>
@@ -310,6 +313,7 @@ export function FilterPanel({
                             handleTagExclude(tag.id, !isExcluded)
                           }}
                           title="Exclude this tag"
+                          aria-label={`Exclude ${tag.name} tag`}
                         >
                           −
                         </button>

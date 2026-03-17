@@ -254,6 +254,7 @@ export default function MangaHeroSection({
                 variant="ghost"
                 className="tag tag--theme inline-flex"
                 onClick={() => handleTagClick(tag.id)}
+                aria-label={`Filter by ${tag.name}`}
               >
                 {tag.name}
               </Button>

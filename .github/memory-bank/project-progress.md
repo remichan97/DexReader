@@ -4,7 +4,7 @@
 
 **Project Start**: 23 November 2025
 **Current Phase**: Phase 5 - Production Readiness (IN PROGRESS)
-**Current Task**: P5-T21 Frontend Refactoring (Phase 5 CSS Deduplication COMPLETE ✅)
+**Current Task**: P5-T21 Frontend Refactoring (Phase 6 Accessibility COMPLETE ✅)
 **Last Updated**: 17 March 2026
 
 ---
@@ -21,14 +21,42 @@
 
 ## Current Status: Phase 5 Refactoring Execution Underway
 
-**Phase Progress**: Phase 2 Complete (11/11) ✅ | Guerilla Refactoring Complete ✅ | Phase 3 Complete (19/19) ✅ | Phase 4 Complete (13/13) ✅ | Phase 5 IN PROGRESS (P5-T21 Phases 1-5 complete)
-**Current Focus**: P5-T21 Frontend Refactoring - Phase 5 CSS Deduplication COMPLETE (17 Mar 2026) ✅
-**Recent Completion**: Phase 5 CSS Deduplication - All 9 batches complete (17 Mar 2026) ✅
-**Next Steps**: Continue P5-T21 - Phase 6 Accessibility improvements or other refactoring phases
+**Phase Progress**: Phase 2 Complete (11/11) ✅ | Guerilla Refactoring Complete ✅ | Phase 3 Complete (19/19) ✅ | Phase 4 Complete (13/13) ✅ | Phase 5 IN PROGRESS (P5-T21 Phases 1-6 complete)
+**Current Focus**: P5-T21 Frontend Refactoring - Phase 6 Accessibility COMPLETE (17 Mar 2026) ✅
+**Recent Completion**: Phase 6 Accessibility Improvements - Enhanced WCAG 2.1 compliance (17 Mar 2026) ✅
+**Next Steps**: Continue P5-T21 - Phase 7 Final Cleanup & Documentation
 
 ---
 
 ## Recent Milestones
+
+### P5-T21 Frontend Phase 6: Accessibility Improvements Complete (17 March 2026) ✅
+
+Enhanced WCAG 2.1 Level AA compliance across all interactive elements by adding descriptive aria-labels where missing.
+
+**Duration**: ~1 hour (many components already had good accessibility)
+**Impact**: All interactive elements now properly labeled for screen readers
+
+**Changes Made**:
+
+1. **Tag Filters** (2 files):
+   - MangaHeroSection: Tag buttons now have `aria-label="Filter by {tag.name}"`
+   - FilterPanel: Include/exclude buttons labeled, advanced toggle has aria-expanded
+
+2. **Chapter Components** (1 file):
+   - ChapterListHeader: Download All button labeled with chapter count
+
+3. **Manga Cards** (1 file):
+   - MangaCard: Enhanced aria-label includes title, author, status, and progress
+
+**Already Verified**:
+
+- ChapterList items, download badges, reader controls, zoom buttons
+- Search bar, modals, toasts, context menus, sidebar, all properly labeled
+
+**Result**: Strong accessibility foundation confirmed, all new additions maintain WCAG 2.1 AA compliance
+
+See [archived-milestones.md](./archived-milestones.md) for detailed implementation notes.
 
 ### P5-T21 Frontend Phase 5: CSS Deduplication Complete (17 March 2026) ✅
 
