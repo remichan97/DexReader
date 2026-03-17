@@ -35,7 +35,7 @@ Completed systematic removal of duplicate flexbox patterns across entire codebas
 **Utility Class System (from Phase 2)**: Leveraged existing utilities.css infrastructure:
 
 - **Available Classes**: flex, flex-col, items-center, justify-between, gap-1 through gap-12, etc.
-- **Design Token Integration**: All gap utilities use --space-* tokens for theme compatibility
+- **Design Token Integration**: All gap utilities use --space-\* tokens for theme compatibility
 - **Consistency**: Uniform approach across all components
 - **Maintainability**: Single source of truth for layout utilities
 
