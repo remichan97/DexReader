@@ -4,6 +4,7 @@ import {
   StreamSourceIndicator,
   type StreamSource
 } from '@renderer/components/StreamSourceIndicator'
+import { type ReadingMode } from '@renderer/components/ReadingModeSelector'
 import { ArrowLeftRegular, BookRegular, EyeOff20Regular } from '@fluentui/react-icons'
 
 /**
@@ -23,7 +24,7 @@ export interface ReaderHeaderProps {
   // Zoom controls popover
   readonly zoomControlsPopover: React.ReactNode
   // Reading mode info for page counter
-  readonly readingMode: 'single' | 'double' | 'vertical'
+  readonly readingMode: ReadingMode
   readonly currentPagePair?: [number] | [number, number]
   readonly readRightToLeft?: boolean
   // Stream source indicator

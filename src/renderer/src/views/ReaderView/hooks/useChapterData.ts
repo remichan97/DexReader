@@ -39,7 +39,7 @@ interface ChapterData {
 }
 
 interface UseChapterDataReturn extends ChapterData {
-  loadChapterImages: (id: string, startAtLastPage?: boolean) => Promise<void>
+  loadChapterImages: (id: string) => Promise<void>
   setImageLoadingState: (pageIndex: number, state: 'loading' | 'loaded' | 'error') => void
   setCurrentPage: (page: number) => void
 }
@@ -76,7 +76,7 @@ export function useChapterData(
    * Load chapter images from API or local storage
    */
   const loadChapterImages = useCallback(
-    async (id: string, _startAtLastPage = false): Promise<void> => {
+    async (id: string): Promise<void> => {
       setData((prev) => ({ ...prev, loading: true, error: null }))
 
       try {
@@ -158,7 +158,7 @@ export function useChapterData(
         }))
       }
     },
-    [imageQuality, mangaId, locationState?.startPage]
+    [imageQuality, mangaId]
   )
 
   /**
@@ -285,12 +285,11 @@ export function useChapterData(
   // Load chapter images and list when chapterId changes
   useEffect(() => {
     if (chapterId && mangaId) {
-      const startAtLastPage = locationState?.startAtLastPage || false
-      loadChapterImages(chapterId, startAtLastPage).then(() => {
+      loadChapterImages(chapterId).then(() => {
         loadChapterList(mangaId, chapterId)
       })
     }
-  }, [chapterId, mangaId, loadChapterImages, loadChapterList, locationState?.startAtLastPage])
+  }, [chapterId, mangaId, loadChapterImages, loadChapterList])
 
   return {
     ...data,

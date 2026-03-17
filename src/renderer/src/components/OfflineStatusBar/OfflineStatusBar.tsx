@@ -32,7 +32,7 @@ export function OfflineStatusBar(): JSX.Element | null {
         <span className="offline-status-bar__text">
           {isUserInitiated ? (
             <>
-              <strong>You're offline</strong> — Only downloaded content is available
+              <strong>You&apos;re offline</strong> — Only downloaded content is available
             </>
           ) : (
             <>

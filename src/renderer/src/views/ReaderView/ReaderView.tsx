@@ -340,9 +340,10 @@ export function ReaderView(): JSX.Element {
 
   // Cleanup zoom indicator timeout on unmount
   useEffect(() => {
+    const timeoutId = zoomIndicatorTimeoutRef.current
     return () => {
-      if (zoomIndicatorTimeoutRef.current) {
-        clearTimeout(zoomIndicatorTimeoutRef.current)
+      if (timeoutId) {
+        clearTimeout(timeoutId)
       }
     }
   }, [])
@@ -405,7 +406,7 @@ export function ReaderView(): JSX.Element {
             onToggleChapterList={toggleChapterList}
             showChapterList={state.showChapterList}
             isIncognito={!autoSaveEnabled}
-            readingMode={readingMode as any}
+            readingMode={readingMode}
             currentPagePair={
               readingMode === 'double' && pagePairs.length > 0
                 ? pagePairs[currentPairIndex]
@@ -418,7 +419,7 @@ export function ReaderView(): JSX.Element {
                 onOpen={toggleSettingsModal}
                 onClose={toggleSettingsModal}
                 settings={{
-                  readingMode: readingMode as any,
+                  readingMode: readingMode,
                   doublePageMode: {
                     skipCoverPages: doublePageSettings.skipCoverPages,
                     readRightToLeft: doublePageSettings.readRightToLeft

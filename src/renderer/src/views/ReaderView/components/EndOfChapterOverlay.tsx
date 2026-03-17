@@ -69,7 +69,6 @@ export function EndOfChapterOverlay({
             Back to Manga Details
           </Button>
         </div>
-
       </div>
     </div>
   )

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useToast } from '@renderer/components/Toast'
 import { Download, mapChapterDownloadToFrontend } from '@renderer/types/download.types'
 import type { ChapterProgressEvent, QueueProgressEvent } from '../types'
@@ -31,7 +31,7 @@ export function useDownloadData(): UseDownloadDataReturn {
   const isInitialLoad = useRef(true)
 
   // Load downloads from backend (both DB and in-memory queue)
-  const loadDownloads = async (showLoading = true): Promise<void> => {
+  const loadDownloads = useCallback(async (showLoading = true): Promise<void> => {
     if (showLoading) {
       setLoading(true)
     }
@@ -96,7 +96,7 @@ export function useDownloadData(): UseDownloadDataReturn {
       }
       isInitialLoad.current = false
     }
-  }
+  }, [])
 
   // Handle chapter progress event
   const handleChapterProgress = (event: ChapterProgressEvent): void => {
@@ -137,22 +137,20 @@ export function useDownloadData(): UseDownloadDataReturn {
   }
 
   // Handle permanent failure event
-  const handlePermanentFailure = async ({
-    message
-  }: {
-    chapterId: string
-    message: string
-  }): Promise<void> => {
-    showToast({
-      title: 'Download Failed',
-      message: message || 'Download failed after retries',
-      variant: 'error',
-      duration: 5000
-    })
+  const handlePermanentFailure = useCallback(
+    async ({ message }: { chapterId: string; message: string }): Promise<void> => {
+      showToast({
+        title: 'Download Failed',
+        message: message || 'Download failed after retries',
+        variant: 'error',
+        duration: 5000
+      })
 
-    // Reload downloads to get updated status
-    await loadDownloads()
-  }
+      // Reload downloads to get updated status
+      await loadDownloads()
+    },
+    [showToast, loadDownloads]
+  )
 
   // Load downloads on mount + auto-refresh
   useEffect(() => {
@@ -194,7 +192,7 @@ export function useDownloadData(): UseDownloadDataReturn {
       unsubQueueProgress()
       unsubFailure()
     }
-  }, [])
+  }, [handlePermanentFailure])
 
   return {
     downloads,

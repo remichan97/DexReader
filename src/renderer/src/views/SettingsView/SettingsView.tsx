@@ -165,7 +165,7 @@ export function SettingsView(): JSX.Element {
       }
     }
     loadSettings()
-  }, [showToast])
+  }, [showToast, setThemeMode])
 
   // Listen for system accent color changes
   useEffect(() => {
