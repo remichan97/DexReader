@@ -162,7 +162,7 @@ export function useDownloadData(): UseDownloadDataReturn {
     }, 5000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [loadDownloads])
 
   // Event listeners
   useEffect(() => {

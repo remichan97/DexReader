@@ -194,17 +194,6 @@
   font-size: 20px;
 }
 
-/* Button Content */
-.button__content {
-  /* Removed display: flex - parent button handles layout */
-}display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-}
-
 .button--small .button__spinner {
   width: 14px;
   height: 14px;
@@ -218,11 +207,4 @@
 .button--large .button__spinner {
   width: 16px;
   height: 16px;
-}
-
-/* Ensure proper spacing when icon and text are both present */
-/* Spacing now handled by gap-2 utility class on button */
-.button__icon + .button__content,
-.button__spinner + .button__content {
-  /* Removed margin-left - using gap utility instead */
 }

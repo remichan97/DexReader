@@ -1,6 +1,7 @@
 import React, { type JSX, useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { ImageQuality } from '../../../../main/api/enums/image-quality.enum'
+import type { MangaReadingSettings } from '../../../../preload/index.d'
 import { Button } from '@renderer/components/Button'
 import { LoadingState } from '@renderer/components/LoadingState'
 import { ErrorState } from '@renderer/components/ErrorState'
@@ -419,7 +420,7 @@ export function ReaderView(): JSX.Element {
                 onOpen={toggleSettingsModal}
                 onClose={toggleSettingsModal}
                 settings={{
-                  readingMode: readingMode,
+                  readingMode: readingMode as MangaReadingSettings['readingMode'],
                   doublePageMode: {
                     skipCoverPages: doublePageSettings.skipCoverPages,
                     readRightToLeft: doublePageSettings.readRightToLeft
