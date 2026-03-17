@@ -198,6 +198,7 @@ export function MangaDetailView(): JSX.Element {
         status: dbManga.status,
         year: dbManga.year,
         contentRating: 'safe',
+        latestUploadedChapter: null,
         tags: [],
         state: 'published',
         chapterNumbersResetOnNewVolume: false,
@@ -251,7 +252,8 @@ export function MangaDetailView(): JSX.Element {
             createdAt: ch.createdAt.toISOString(),
             updatedAt: ch.updatedAt.toISOString(),
             publishAt: ch.publishedAt.toISOString(),
-            readableAt: ch.publishedAt.toISOString()
+            readableAt: ch.publishedAt.toISOString(),
+            isUnavailable: false
           },
           relationships: ch.scanlatorGroup
             ? [
@@ -291,8 +293,14 @@ export function MangaDetailView(): JSX.Element {
         const chapterEntities = convertDbToChapterEntities(dbChapters)
 
         // Determine language from cached chapters
-        const languages = [...new Set(dbChapters.map((ch) => ch.language))]
-        const initialLanguage = languages.includes('en') ? 'en' : languages[0] || 'en'
+        const languages = [...new Set(dbChapters.map((ch) => ch.language))].filter(
+          (lang): lang is string => typeof lang === 'string'
+        )
+        const initialLanguage = languages.includes('en')
+          ? 'en'
+          : languages.length > 0
+            ? languages[0]
+            : 'en'
 
         // Update state with cached data
         setState((prev) => ({

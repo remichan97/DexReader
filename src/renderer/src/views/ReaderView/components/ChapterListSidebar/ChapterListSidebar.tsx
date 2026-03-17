@@ -1,4 +1,4 @@
-import React, { type JSX } from 'react'
+import { type JSX } from 'react'
 import { Button } from '@renderer/components/Button'
 import { EmptyState } from '@renderer/components/EmptyState'
 

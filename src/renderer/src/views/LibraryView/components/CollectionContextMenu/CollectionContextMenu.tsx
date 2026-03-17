@@ -16,7 +16,6 @@ interface CollectionContextMenuProps {
 }
 
 export function CollectionContextMenu({
-  collection,
   position,
   onEdit,
   onDelete,

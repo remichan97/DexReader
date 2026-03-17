@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button } from '@renderer/components/Button'
-import type { ChapterEntity } from '../ReaderView'
+import type { ChapterEntity } from './ChapterListSidebar'
 
 /**
  * End of Chapter Overlay Component
@@ -39,7 +39,7 @@ export function EndOfChapterOverlay({
               onClick={onPreviousChapter}
               className="flex flex-col items-center gap-1"
             >
-              <span>← Previous Chapter</span>
+              <span>← Previous Chapter </span>
               <span className="end-of-chapter-overlay__chapter-info">
                 Ch. {previousChapter.attributes.chapter}
                 {previousChapter.attributes.title && `: ${previousChapter.attributes.title}`}
@@ -54,7 +54,7 @@ export function EndOfChapterOverlay({
               onClick={onNextChapter}
               className="flex flex-col items-center gap-1"
             >
-              <span>Next Chapter →</span>
+              <span>Next Chapter → </span>
               <span className="end-of-chapter-overlay__chapter-info">
                 Ch. {nextChapter.attributes.chapter}
                 {nextChapter.attributes.title && `: ${nextChapter.attributes.title}`}
@@ -65,11 +65,11 @@ export function EndOfChapterOverlay({
           {!nextChapter && !previousChapter && (
             <p className="end-of-chapter-overlay__no-chapters">No more chapters available</p>
           )}
+          <Button variant="ghost" onClick={onBackToDetail} className="end-of-chapter-overlay__back">
+            Back to Manga Details
+          </Button>
         </div>
 
-        <Button variant="ghost" onClick={onBackToDetail} className="end-of-chapter-overlay__back">
-          Back to Manga Details
-        </Button>
       </div>
     </div>
   )
