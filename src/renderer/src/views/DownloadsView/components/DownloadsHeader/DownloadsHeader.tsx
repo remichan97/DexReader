@@ -78,7 +78,7 @@ export function DownloadsHeader({
 
       {/* Stats Summary */}
       <div className="downloads-stats flex justify-between items-center">
-        <div className="downloads-stats__badges">
+        <div className="downloads-stats__badges flex items-center gap-2 flex-wrap">
           <Badge variant="info" size="medium">
             {activeCount} Active
           </Badge>

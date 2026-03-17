@@ -73,6 +73,10 @@ export function Button({
 }: ButtonProps): React.JSX.Element {
   const classNames = [
     'button',
+    'flex',
+    'items-center',
+    'justify-center',
+    'gap-2',
     `button--${variant}`,
     `button--${size}`,
     disabled && 'button--disabled',
