@@ -77,11 +77,6 @@ export function CacheManagementSettings(): JSX.Element {
       const response = await globalThis.storage.setCoverCacheLimit(limitMB)
       if (response.success) {
         setCoverCacheLimit(limitMB)
-        showToast({
-          variant: 'success',
-          title: 'Cover cache limit updated',
-          message: limitMB === 0 ? 'Cache is now unlimited' : `Set to ${limitMB} MB`
-        })
       } else {
         showToast({
           variant: 'error',
