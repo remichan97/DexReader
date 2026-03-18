@@ -5,6 +5,14 @@ import path from 'node:path'
 
 export default defineConfig({
   main: {
+    build: {
+      rollupOptions: {
+        external: [
+          // Exclude scripts directory from production build
+          /^.*\/scripts\/.*/
+        ]
+      }
+    },
     plugins: [
       externalizeDepsPlugin(),
       {

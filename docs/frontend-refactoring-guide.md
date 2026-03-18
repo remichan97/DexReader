@@ -289,16 +289,16 @@ Replaced with utility classes: `.flex`, `.flex-col`, `.items-center`, `.justify-
 
 ### Quantitative Results
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| **Component Complexity (total LOC)** | 2,942 | ~1,300 | -56% |
-| **LibraryView** | 952 lines | ~400 lines | -58% |
-| **ReaderView** | 749 lines | ~521 lines | -26% |
-| **DownloadsView** | 715 lines | 104 lines | -85% |
-| **ChapterList** | 526 lines | ~200 lines | -62% |
-| **Inline Styles** | 192 instances | 37 instances | -81% |
-| **CSS Flex Patterns** | 135+ duplicates | 0 duplicates | -100% |
-| **Reusable Components** | 0 | 3 new | +3 |
+| Metric                               | Before          | After        | Improvement |
+| ------------------------------------ | --------------- | ------------ | ----------- |
+| **Component Complexity (total LOC)** | 2,942           | ~1,300       | -56%        |
+| **LibraryView**                      | 952 lines       | ~400 lines   | -58%        |
+| **ReaderView**                       | 749 lines       | ~521 lines   | -26%        |
+| **DownloadsView**                    | 715 lines       | 104 lines    | -85%        |
+| **ChapterList**                      | 526 lines       | ~200 lines   | -62%        |
+| **Inline Styles**                    | 192 instances   | 37 instances | -81%        |
+| **CSS Flex Patterns**                | 135+ duplicates | 0 duplicates | -100%       |
+| **Reusable Components**              | 0               | 3 new        | +3          |
 
 ### Qualitative Improvements
 
@@ -459,14 +459,26 @@ import { EmptyState, LoadingState, ErrorState } from '@renderer/components'
 
 ```tsx
 // ✅ Consistent naming
-const handleClick = () => { /* ... */ }
-const handleSearch = (query: string) => { /* ... */ }
-const handleFilterChange = (filters: Filters) => { /* ... */ }
+const handleClick = () => {
+  /* ... */
+}
+const handleSearch = (query: string) => {
+  /* ... */
+}
+const handleFilterChange = (filters: Filters) => {
+  /* ... */
+}
 
 // ❌ Inconsistent naming
-const onClick = () => { /* ... */ }
-const doSearch = (query: string) => { /* ... */ }
-const updateFilters = (filters: Filters) => { /* ... */ }
+const onClick = () => {
+  /* ... */
+}
+const doSearch = (query: string) => {
+  /* ... */
+}
+const updateFilters = (filters: Filters) => {
+  /* ... */
+}
 ```
 
 ---
@@ -486,9 +498,7 @@ const updateFilters = (filters: Filters) => { /* ... */ }
     padding: '16px'
   }}
 >
-  <div style={{ color: 'var(--win-text-secondary)' }}>
-    Loading...
-  </div>
+  <div style={{ color: 'var(--win-text-secondary)' }}>Loading...</div>
 </div>
 ```
 
@@ -496,9 +506,7 @@ const updateFilters = (filters: Filters) => { /* ... */ }
 
 ```tsx
 <div className="flex flex-col gap-5 p-4">
-  <div className="text-secondary">
-    Loading...
-  </div>
+  <div className="text-secondary">Loading...</div>
 </div>
 ```
 
@@ -515,7 +523,9 @@ export function HistoryView() {
 
   return (
     <div>
-      {progress.map(p => <ReadingHistoryCard key={p.id} progress={p} />)}
+      {progress.map((p) => (
+        <ReadingHistoryCard key={p.id} progress={p} />
+      ))}
     </div>
   )
 }
@@ -535,7 +545,9 @@ import { ReadingHistoryCard } from './components/ReadingHistoryCard'
 export function HistoryView() {
   return (
     <div>
-      {progress.map(p => <ReadingHistoryCard key={p.id} progress={p} />)}
+      {progress.map((p) => (
+        <ReadingHistoryCard key={p.id} progress={p} />
+      ))}
     </div>
   )
 }

@@ -187,16 +187,16 @@
 
 ### Quantitative Results
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Component Complexity (LOC) | 2,942 | ~1,300 | -56% |
-| LibraryView | 952 lines | ~400 lines | -58% |
-| ReaderView | 749 lines | ~521 lines | -26% |
-| DownloadsView | 715 lines | 104 lines | -85% |
-| ChapterList | 526 lines | ~200 lines | -62% |
-| Inline Styles | 192 instances | 37 instances | -81% |
-| CSS Flex Patterns | 135+ duplicates | 0 duplicates | -100% |
-| Reusable Components | 0 | 3 new | +3 |
+| Metric                     | Before          | After        | Improvement |
+| -------------------------- | --------------- | ------------ | ----------- |
+| Component Complexity (LOC) | 2,942           | ~1,300       | -56%        |
+| LibraryView                | 952 lines       | ~400 lines   | -58%        |
+| ReaderView                 | 749 lines       | ~521 lines   | -26%        |
+| DownloadsView              | 715 lines       | 104 lines    | -85%        |
+| ChapterList                | 526 lines       | ~200 lines   | -62%        |
+| Inline Styles              | 192 instances   | 37 instances | -81%        |
+| CSS Flex Patterns          | 135+ duplicates | 0 duplicates | -100%       |
+| Reusable Components        | 0               | 3 new        | +3          |
 
 ### Qualitative Improvements
 
