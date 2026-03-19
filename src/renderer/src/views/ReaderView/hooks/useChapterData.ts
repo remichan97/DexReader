@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { ImageQuality } from '../../../../../main/api/enums/image-quality.enum'
 import type { ImageUrlResponse } from '../../../../../preload/index.d'
+import { useConnectivityStore } from '@renderer/stores/connectivityStore'
 
 type ChapterEntity = Awaited<ReturnType<Window['mangadex']['getMangaFeed']>>['data'][number]
 
@@ -99,7 +100,6 @@ export function useChapterData(
           }))
         } else {
           // Chapter not downloaded - check if online before fetching from MangaDex API
-          const { useConnectivityStore } = await import('@renderer/stores/connectivityStore')
           const isOnline = useConnectivityStore.getState().isOnline
 
           if (!isOnline) {
@@ -188,7 +188,6 @@ export function useChapterData(
 
       try {
         // Check if online before fetching chapter list
-        const { useConnectivityStore } = await import('@renderer/stores/connectivityStore')
         const isOnline = useConnectivityStore.getState().isOnline
 
         if (!isOnline) {

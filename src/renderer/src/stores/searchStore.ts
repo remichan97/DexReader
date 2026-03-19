@@ -14,6 +14,7 @@
  */
 
 import { create } from 'zustand'
+import { useConnectivityStore } from './connectivityStore'
 
 // Re-export enum values for convenience
 export enum ContentRating {
@@ -160,7 +161,6 @@ export const useSearchStore = create<SearchState>((set, get) => ({
     }
 
     // Check if online before making API call
-    const { useConnectivityStore } = await import('./connectivityStore')
     const isOnline = useConnectivityStore.getState().isOnline
 
     if (!isOnline) {
@@ -262,7 +262,6 @@ export const useSearchStore = create<SearchState>((set, get) => ({
     }
 
     // Check if online before making API call
-    const { useConnectivityStore } = await import('./connectivityStore')
     const isOnline = useConnectivityStore.getState().isOnline
 
     if (!isOnline) {
