@@ -4,8 +4,8 @@
 
 **Project Start**: 23 November 2025
 **Current Phase**: Phase 5 - Production Readiness (IN PROGRESS)
-**Current Task**: P5-T21 Frontend Refactoring COMPLETE ✅ - Ready for next Phase 5 task
-**Last Updated**: 17 March 2026
+**Current Task**: P5-T01 Database Optimization COMPLETE ✅ - Ready for next Phase 5 task
+**Last Updated**: 19 March 2026
 
 ---
 
@@ -19,16 +19,44 @@
 
 ---
 
-## Current Status: Phase 5 Frontend Refactoring Complete
+## Current Status: Phase 5 Database Optimization Complete
 
-**Phase Progress**: Phase 2 Complete (11/11) ✅ | Guerilla Refactoring Complete ✅ | Phase 3 Complete (19/19) ✅ | Phase 4 Complete (13/13) ✅ | Phase 5 IN PROGRESS (P5-T21 Complete ✅)
-**Current Focus**: Phase 5 - Continue with remaining tasks (Backend implementation, Testing, etc.)
-**Recent Completion**: P5-T21 Frontend Refactoring - All 7 phases complete (11-17 Mar 2026) ✅
-**Next Steps**: Continue Phase 5 with remaining tasks (Performance Optimization, Build Pipeline, Testing, or Documentation)
+**Phase Progress**: Phase 2 Complete (11/11) ✅ | Guerilla Refactoring Complete ✅ | Phase 3 Complete (19/19) ✅ | Phase 4 Complete (13/13) ✅ | Phase 5 IN PROGRESS (P5-T21 Complete ✅, P5-T01 Complete ✅)
+**Current Focus**: Phase 5 - Continue with P5-T02 (Error Handling) or P5-T03 (Logging Infrastructure)
+**Recent Completion**: P5-T01 Database Query Optimization - Validated production-ready performance (19 Mar 2026) ✅
+**Next Steps**: Continue Phase 5 with remaining tasks (Error Handling, Logging, Build Pipeline, Testing, or Documentation)
 
 ---
 
 ## Recent Milestones
+
+### P5-T01 Database Query Optimization Complete (19 March 2026) ✅
+
+Validated database performance with production-scale datasets (1000 manga, 10k chapters). Built comprehensive testing infrastructure including database seeding, accurate benchmark suite, and query plan analysis tools. All 7 critical queries passed with 0.32-5.97ms performance (88-99% faster than 50-150ms thresholds). EXPLAIN QUERY PLAN analysis confirmed 100% index usage with zero table scans - database already optimally indexed.
+
+**Duration**: ~6 hours (vs 12-16 estimated)
+**Scope**: Phase 1 complete (Setup & Baseline), Phase 2 skipped (indexes optimal)
+**Documentation**: `src/main/scripts/database-performance/README.md`
+
+**Key Results**:
+
+- **Performance Validated**: All queries 88-99% faster than thresholds
+  - Library: 5.97ms / 2.04ms (threshold 50ms)
+  - History: 1.45ms (threshold 75ms)
+  - Downloads: 1.21ms (threshold 75ms)
+  - Collections: 0.80ms (threshold 75ms)
+  - Reader: 0.32ms (threshold 100ms)
+  - Cleanup: 0.86ms (threshold 150ms)
+- **Index Analysis**: 100% index usage, 0 table scans, 1 covering index
+- **Infrastructure**: Seeding (17s for 1000 manga), benchmarks (accurate queries), query analysis
+- **File Organization**: Logical subdirectories (seeding, benchmarking, analysis, shared)
+- **CI/CD Decision**: One-off validation approach (maintenance burden vs ROI)
+
+**Critical Discovery**: Initial benchmarks used simplified queries missing 80% of production complexity. User identified accuracy flaw - all queries rewritten to match repository implementations with JOINs, aggregations, GROUP BY.
+
+**Decision**: Database is production-ready. No optimization needed - Phase 2 (Index Strategy Design) skipped. Tools remain available for future validation (major releases, refactoring, debugging).
+
+See `archived-milestones.md` for full implementation details.
 
 ### P5-T21 Frontend Refactoring Complete (17 March 2026) ✅
 

@@ -2,7 +2,394 @@
 
 **Purpose**: This file contains detailed implementation notes from completed milestones in reverse chronological order (newest first). These are historical records that provide context for past decisions and serve as essential reference material.
 
-**Last Updated**: 17 March 2026
+**Last Updated**: 19 March 2026
+
+---
+
+## P5-T01 Database Query Optimization (19 March 2026)
+
+### Overview
+
+Validated database performance with production-scale datasets (1000 manga, 10,000 chapters) and confirmed optimal indexing strategy. Built comprehensive testing infrastructure including database seeding (17s for full dataset), accurate benchmark suite matching repository code, and EXPLAIN QUERY PLAN analysis tools. All 7 critical queries passed with 0.32-5.97ms performance (88-99% faster than 50-150ms thresholds). Analysis confirmed 100% index usage with zero table scans - database already optimally indexed, no optimization needed.
+
+**Time Invested**: ~6 hours (vs 12-16 estimated)
+**Status**: Complete - Phase 1 finished, Phase 2 skipped (indexes optimal) ✅
+**Quality**: Production-ready for 1000+ manga, 10k+ chapters scale
+**Documentation**: `src/main/scripts/database-performance/README.md` (~6KB comprehensive guide)
+
+### Strategic Approach
+
+**One-Time Validation Philosophy**: Database performance testing as on-demand validation tool rather than continuous CI/CD integration:
+
+- **Rationale**: Benchmarks drift from code changes, require manual synchronization when repository methods evolve
+- **Maintenance Burden**: Keeping benchmarks accurate has high ROI-negative cost vs benefit
+- **Better Alternatives**: Integration tests with query counting (N+1 detection), migration reviews, production monitoring
+- **Use Cases**: Major releases (quarterly), major refactoring (schema redesigns), performance debugging
+- **Decision**: Tools remain available but not in automated pipelines
+
+**Accuracy-First Benchmarking**: Critical mid-project discovery reshaped approach:
+
+- **Initial Problem**: Benchmarks used simplified SELECT * queries missing JOINs, aggregations, GROUP BY
+- **User Feedback**: "Does the benchmark code simulate how the repository code would query the database? or are we making stuff up for the numbers?"
+- **Root Cause**: 80% complexity gap between benchmark queries and production repository methods
+- **Resolution**: Complete rewrite of all 6 benchmark queries to match repository implementations exactly
+- **Learning**: Benchmark accuracy more important than early results - validate methodology first
+
+**Electron Runtime Compatibility**: Navigated better-sqlite3 native module constraints:
+
+- **Challenge**: better-sqlite3 compiled for Electron NODE_MODULE_VERSION 145, cannot run in pure Node.js
+- **Solution**: Created Electron wrappers (run-seed.js, run-benchmark.js, run-analyze-plans.js) with ELECTRON_RUN_AS_NODE=1
+- **Pattern**: Spawn tsx via electron with ELECTRON_RUN_AS_NODE=1 to inherit correct native bindings
+- **Benefit**: Benchmark results reflect actual production runtime (same binary, same performance characteristics)
+
+**Lazy Loading for Test Scripts**: Avoided Electron app.isReady() timing issues:
+
+- **Problem**: Test scripts need database paths but can't call app.getPath() before app.ready
+- **Solution**: Lazy-loaded path initialization in path-validator.ts, connection.ts, cleanup-repo.ts
+- **Pattern**: Defer initialization until first actual use, not at module load time
+- **Result**: Test scripts can import modules without triggering premature Electron API calls
+
+### Phase 1: Setup & Baseline (Complete)
+
+**Duration**: ~6 hours (seeding 2h, benchmarking 2h, analysis 1h, organization 1h)
+
+#### Database Seeding Infrastructure
+
+**Created Files**:
+
+- `database-performance/seeding/seed-database.ts` (DatabaseSeeder class, 250 lines)
+- `database-performance/seeding/seed-cli.ts` (CLI runner, 100 lines)
+- `database-performance/shared/database-helpers.ts` (DatabaseTestHelper, 150 lines)
+- `scripts/run-seed.js` (Electron wrapper, 50 lines)
+
+**DatabaseSeeder Implementation**:
+
+```typescript
+class DatabaseSeeder {
+  async seed(options: SeedOptions): Promise<SeedResults> {
+    // 1. Generate 1000 manga with realistic distributions
+    //    - 60% ongoing, 25% completed, 10% hiatus, 5% cancelled
+    //    - 20% favourited (200 manga)
+    //    - lastAccessedAt spread over 90 days
+    //    - Titles, descriptions, authors, tags
+
+    // 2. Generate 10,000 chapters
+    //    - Average 10 per manga, range 1-500
+    //    - Sequential chapter numbers
+    //    - Volume numbers where applicable
+
+    // 3. Generate 5 collections with varying sizes
+    //    - 50%, 30%, 15%, 5%, 1% of favourited manga
+
+    // 4. Generate 200 chapter downloads
+    //    - 80% Completed, 10% Downloading, 5% Failed, 5% Pending
+
+    // 5. Generate 300 reading progress records
+    //    - 30% of manga library
+    //    - 40% completed, 60% in-progress
+  }
+}
+```
+
+**Performance**: ~17 seconds for full dataset (1000 manga, 10k chapters)
+**Validation**: Foreign keys satisfied, record counts match expectations
+**CLI**: `npm run seed:benchmark --manga 1000 --chapters 10000`
+
+#### Accurate Benchmark Suite
+
+**Created Files**:
+
+- `database-performance/benchmarking/benchmark-suite.ts` (DatabaseBenchmark class, 300 lines)
+- `database-performance/benchmarking/benchmark-cli.ts` (CLI runner, 80 lines)
+- `scripts/run-benchmark.js` (Electron wrapper, 50 lines)
+- `benchmark-baseline.json` (baseline results, committed)
+
+**DatabaseBenchmark Features**:
+
+- Warmup iterations (exclude from measurements)
+- Statistical analysis (avg, min, max, P95)
+- Pass/Warn/Fail status against thresholds
+- JSON export for baseline comparison
+- Accurate queries matching repository code
+
+**Critical Query Rewrites** (Fixed 80% Complexity Gap):
+
+1. **Library View - getLibraryManga()**:
+   - Before: `SELECT * FROM manga WHERE is_favourite = 1`
+   - After: `LEFT JOIN chapter_downloads + COUNT + GROUP BY + OR condition`
+   - Complexity: Multi-table aggregation with download counts
+
+2. **History View - getAllProgressWithMetadata()**:
+   - Before: `SELECT * FROM manga_progress`
+   - After: `INNER JOIN manga + LEFT JOIN chapter + 11 explicit columns`
+   - Complexity: Two JOINs with metadata columns
+
+3. **Downloads View - getAllDownloads()**:
+   - Before: `SELECT * FROM chapter_downloads`
+   - After: `2 INNER JOINs (manga, chapter) + WHERE isHidden + 16 explicit columns`
+   - Complexity: Multi-table JOIN with filtering
+
+4. **Collections View - getAllCollectionsWithMetadata()**:
+   - Before: `SELECT * FROM collections`
+   - After: `2 LEFT JOINs + COUNT + MAX + GROUP BY`
+   - Complexity: Aggregation with subquery for cover images
+
+5. **Reader View - getChaptersByMangaId()**:
+   - Before: `SELECT * FROM chapter WHERE manga_id = ?`
+   - After: `SELECT explicit columns WHERE manga_id = ? ORDER BY chapter_number`
+   - Complexity: Explicit columns, proper indexing
+
+6. **Cleanup - cleanupMangaCache()**:
+   - Before: Simple WHERE clause
+   - After: `WHERE is_favourite + NOT EXISTS subquery with status check`
+   - Complexity: Correlated subquery
+
+**Benchmark Results** (All Passing ✅):
+
+| Query | View | Avg Time | Threshold | Status | % Faster |
+|-------|------|----------|-----------|--------|----------|
+| getLibraryManga() | Library | 5.97ms | 50ms | ✅ PASS | 88% |
+| getLibraryManga({search}) | Library | 2.04ms | 50ms | ✅ PASS | 96% |
+| getAllProgressWithMetadata() | History | 1.45ms | 75ms | ✅ PASS | 98% |
+| getAllDownloads() | Downloads | 1.21ms | 75ms | ✅ PASS | 98% |
+| getAllCollectionsWithMetadata() | Collections | 0.80ms | 75ms | ✅ PASS | 99% |
+| getChaptersByMangaId() | Reader | 0.32ms | 100ms | ✅ PASS | 99% |
+| cleanupMangaCache() | Cleanup | 0.86ms | 150ms | ✅ PASS | 99% |
+
+**CLI**: `npm run benchmark:db --iterations 10 --output baseline.json`
+
+#### EXPLAIN QUERY PLAN Analysis
+
+**Created Files**:
+
+- `database-performance/analysis/analyze-query-plans.ts` (Analysis tool, 250 lines)
+- `scripts/run-analyze-plans.js` (Electron wrapper, 50 lines)
+- `query-plan-analysis.json` (analysis results, committed)
+
+**Analysis Results**:
+
+```
+Index Usage Summary:
+- SEARCH manga USING INTEGER PRIMARY KEY: 3 operations
+- SEARCH chapter USING INDEX idx_chapter_manga: 2 operations
+- SEARCH chapter_downloads USING INDEX idx_chapter_manga_downloads: 1 operation
+- SEARCH collection_items USING COVERING INDEX uq_collection_manga: 1 operation
+- Using index idx_chapter_status_downloads: 1 operation
+- USING INDEX idx_manga_favourite: 2 operations
+- LIST SUBQUERY: 1 operation (correlated subquery for cleanup)
+
+Total: 11 index operations, 0 table scans
+```
+
+**Key Findings**:
+
+- ✅ 100% index usage across all queries
+- ✅ Zero SCAN TABLE operations (optimal)
+- ✅ One covering index (uq_collection_manga) - most efficient query pattern
+- ✅ All multi-table JOINs use indexes
+- ✅ All WHERE clauses use indexes
+
+**Existing Indexes Validated**:
+
+- Primary keys (automatic)
+- `idx_chapter_manga` (chapter.manga_id)
+- `idx_chapter_manga_downloads` (chapter_downloads.manga_id)
+- `idx_chapter_status_downloads` (chapter_downloads.status)
+- `idx_manga_favourite` (manga.is_favourite)
+- `uq_collection_manga` (collection_items.collection_id, manga_id) - COVERING INDEX
+
+**Conclusion**: Database schema already optimally indexed for current workload. No additional indexes needed.
+
+**CLI**: `npm run analyze:plans`
+
+#### File Organization
+
+Reorganized all tools into logical subdirectories after validation:
+
+```
+src/main/scripts/database-performance/
+├── seeding/
+│   ├── seed-database.ts      # DatabaseSeeder class
+│   └── seed-cli.ts            # CLI runner
+├── benchmarking/
+│   ├── benchmark-suite.ts     # DatabaseBenchmark class
+│   └── benchmark-cli.ts       # CLI runner
+├── analysis/
+│   └── analyze-query-plans.ts # EXPLAIN QUERY PLAN tool
+├── shared/
+│   └── database-helpers.ts    # DatabaseTestHelper utilities
+└── README.md                  # Comprehensive guide (6KB)
+
+scripts/ (root level)
+├── run-seed.js                # Electron wrapper for seeding
+├── run-benchmark.js           # Electron wrapper for benchmarks
+└── run-analyze-plans.js       # Electron wrapper for analysis
+```
+
+**Benefits**:
+
+- Clear separation of concerns (seeding, benchmarking, analysis)
+- Shared utilities centralized
+- Electron wrappers isolated at project root
+- Comprehensive documentation for future reference
+- Easy to locate tools when needed
+
+### Phase 2: Index Strategy Design (Skipped)
+
+**Original Plan**: Design and implement optimized index strategy based on EXPLAIN QUERY PLAN findings
+
+**Decision**: SKIPPED - Analysis confirmed 100% index usage with zero table scans
+
+**Rationale**:
+
+- All queries already use indexes effectively
+- No table scans detected
+- Performance well within thresholds (88-99% faster)
+- One covering index identified (optimal query pattern)
+- No optimization opportunities found
+
+**Conclusion**: Database is production-ready for 1000+ manga, 10,000+ chapters scale
+
+### CI/CD Integration Decision
+
+**Question**: Should benchmarks run in CI/CD pipeline?
+
+**Decision**: No - One-off validation approach instead
+
+**Analysis**:
+
+**Maintenance Burden**:
+
+- Benchmarks must stay synchronized with repository code
+- Every repository method change requires benchmark update
+- Changes to query structure (JOINs, filters) break benchmarks
+- High maintenance cost vs limited benefit
+
+**Better Alternatives**:
+
+1. **Integration Tests with Query Counting**: Detect N+1 query patterns in test suite
+2. **Migration Reviews**: Validate index strategy when schema changes
+3. **Production Monitoring**: Track real user query performance
+4. **On-Demand Validation**: Run benchmarks before major releases, after refactoring
+
+**When to Re-run Benchmarks**:
+
+- Major releases (quarterly validation)
+- Major database refactoring (schema redesigns, ORM changes)
+- Adding complex new features (multi-JOIN queries, aggregations)
+- Performance issue debugging (compare with baseline)
+
+**Documented in README**: Complete usage guide with when-to-re-run guidelines
+
+### Technical Notes
+
+**Schema Naming Convention**: SQLite uses snake_case, TypeScript uses camelCase:
+
+- SQL: `manga_id`, `is_favourite`, `last_accessed_at`
+- TypeScript: `mangaId`, `isFavourite`, `lastAccessedAt`
+- Impact: EXPLAIN QUERY PLAN queries must use snake_case column names
+
+**Enum Value Quoting**: DownloadStatus enum values must be quoted in SQL:
+
+- Wrong: `WHERE status = ${DownloadStatus.Completed}` → `WHERE status = completed` (syntax error)
+- Correct: `WHERE status = '${DownloadStatus.Completed}'` → `WHERE status = 'completed'`
+- Drizzle ORM handles this automatically, raw SQL queries need manual quoting
+
+**Better-sqlite3 Constraints**: Native addon compiled for specific NODE_MODULE_VERSION:
+
+- Cannot run in pure Node.js (different binary)
+- Requires Electron wrappers with ELECTRON_RUN_AS_NODE=1
+- Test results reflect actual production runtime
+
+**File Corruption from Bulk Edits**: Multiple sequential replace_string_in_file operations overlapped when rewriting benchmark queries, creating corrupted file with merged method fragments. Resolved by single-operation file replacement instead of sequential edits.
+
+### Integration with P5-T12 (Testing & Quality Assurance)
+
+**Reusable Components for Test Suite**:
+
+- `DatabaseSeeder` can be imported by integration tests
+- `DatabaseBenchmark` can be integrated into test suites
+- `DatabaseTestHelper` provides shared test database utilities
+
+**Recommended Testing Strategy**:
+
+- Use DatabaseSeeder for test data generation
+- Focus testing effort on integration tests with query counting
+- Monitor for N+1 query patterns (queries in loops)
+- Validate database operations, not raw query performance
+
+### Lessons Learned
+
+1. **Benchmark Accuracy is Critical**: Must match production complexity exactly, not simplified approximations. User feedback caught 80% complexity gap early.
+
+2. **Multiple Edits Risk Corruption**: Rapid sequential file edits can overlap if patterns match modified regions. Prefer single-operation replacements.
+
+3. **One-off Validation Appropriate**: Database benchmarks drift from code changes. Better as on-demand tools than CI/CD automation.
+
+4. **Maintenance Burden Matters**: Keeping benchmarks synchronized with evolving repository code has high ROI-negative cost.
+
+5. **Schema Naming Conventions**: Always verify SQL column naming (snake_case) vs ORM property naming (camelCase) in raw queries.
+
+6. **Native Module Runtime**: Test with same runtime as production (Electron, not pure Node.js) for accurate performance characteristics.
+
+### Deliverables
+
+**Infrastructure** (9 core files):
+
+- ✅ DatabaseSeeder class (realistic test data generation)
+- ✅ DatabaseBenchmark class (accurate query benchmarks)
+- ✅ EXPLAIN QUERY PLAN analysis tool
+- ✅ DatabaseTestHelper (test database utilities)
+- ✅ 3 Electron wrappers (run-seed, run-benchmark, run-analyze-plans)
+- ✅ 3 CLI scripts (seed-cli, benchmark-cli, analyze-query-plans)
+
+**Documentation**:
+
+- ✅ Comprehensive README.md (6KB guide)
+- ✅ Performance validation results table
+- ✅ When to re-run guidelines
+- ✅ CI/CD decision rationale
+- ✅ Technical notes (Electron runtime, schema naming, enum quoting)
+- ✅ Integration guidance for P5-T12
+
+**Artifacts** (2 baseline files):
+
+- ✅ benchmark-baseline.json (committed)
+- ✅ query-plan-analysis.json (committed)
+
+**NPM Scripts** (3 commands):
+
+- ✅ `npm run seed:benchmark` (generate test data)
+- ✅ `npm run benchmark:db` (run performance benchmarks)
+- ✅ `npm run analyze:plans` (EXPLAIN QUERY PLAN analysis)
+
+**Validation**:
+
+- ✅ All 7 queries passing (0.32-5.97ms, 88-99% faster than thresholds)
+- ✅ 100% index usage confirmed (11 operations, 0 table scans)
+- ✅ Database production-ready for 1000+ manga, 10k+ chapters
+- ✅ No optimization needed (Phase 2 skipped)
+
+### Quick Reference
+
+**Full Validation Workflow**:
+
+```bash
+# 1. Seed benchmark database
+npm run seed:benchmark
+
+# 2. Run performance benchmarks
+npm run benchmark:db
+
+# 3. Analyze query plans
+npm run analyze:plans
+```
+
+**Results**:
+
+- Seeding: ~17 seconds (1000 manga, 10k chapters)
+- Benchmarks: ~0.4 seconds (7 queries, 10 iterations each)
+- Analysis: ~0.2 seconds (7 EXPLAIN QUERY PLAN operations)
 
 ---
 

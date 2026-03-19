@@ -1,9 +1,9 @@
 # DexReader Active Context
 
-**Last Updated**: 17 March 2026
+**Last Updated**: 19 March 2026
 **Current Phase**: Phase 5 - Production Readiness (IN PROGRESS)
-**Current Task**: P5-T21 Frontend Refactoring COMPLETE ✅
-**Next**: Continue with other Phase 5 tasks (Backend audit implementation, Testing, etc.)
+**Current Task**: P5-T01 Database Query Optimization COMPLETE ✅
+**Next**: Continue with other Phase 5 tasks (P5-T02 Error Handling, P5-T03 Logging, etc.)
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -16,12 +16,96 @@
 **P5-T21 Audits**: COMPLETE - Backend + Frontend audits done (11 Mar 2026) ✅
 **Electron Upgrade**: COMPLETE - Upgraded to 41.0.2 (15 Mar 2026) ✅
 **P5-T21 Frontend**: COMPLETE - All 7 phases finished (12-17 Mar 2026) ✅
+**P5-T01 Database**: COMPLETE - Optimization validated (19 Mar 2026) ✅
 **Phase 5 Execution**: IN PROGRESS - Continue with remaining P5 tasks
 **Timeline**: 6-8 weeks (11 March - 5 May 2026)
 **Target**: v1.0 Release Early May 2026 🚀
-**Next Steps**: Backend refactoring implementation or other P5 tasks
+**Next Steps**: P5-T02 Error Handling or P5-T03 Logging Infrastructure
 
 ---
+01 Database Query Optimization - COMPLETE ✅
+
+**Status**: COMPLETE - Phase 1 finished, Phase 2 skipped (indexes already optimal) (19 Mar 2026)
+**Plan**: Deleted (task complete)
+**Total Duration**: ~6 hours actual (vs 12-16 estimated)
+**Documentation**: `src/main/scripts/database-performance/README.md`
+
+### ✅ Phase 1: Setup & Baseline (19 Mar 2026) - COMPLETE
+
+**Duration**: ~6 hours (seeding, benchmarking, query analysis, organization)
+**Impact**: Production-ready database validated with 100% index usage
+
+**Infrastructure Created**:
+
+1. **Database Seeding** (`database-performance/seeding/`)
+   - DatabaseSeeder class: Generates 1000 manga, 10k chapters, 5 collections, 200 downloads, 300 progress records
+   - Realistic distributions: 60% ongoing, 25% completed manga; 20% favourited
+   - Seeding time: ~17 seconds for full dataset
+   - CLI: `npm run seed:benchmark`
+
+2. **Benchmark Suite** (`database-performance/benchmarking/`)
+   - DatabaseBenchmark class with statistical analysis (avg, min, max, P95)
+   - Accurate queries matching repository implementations (JOINs, aggregations, GROUP BY)
+   - 7 queries benchmarked against production thresholds (50-150ms)
+   - CLI: `npm run benchmark:db`
+
+3. **Query Analysis** (`database-performance/analysis/`)
+   - EXPLAIN QUERY PLAN analysis for all 7 critical queries
+   - Identifies index usage, table scans, join operations
+   - CLI: `npm run analyze:plans`
+
+**Critical Mid-Project Discovery**: Initial benchmarks used simplified SELECT * queries missing 80% of production complexity (no JOINs, aggregations). User identified this accuracy flaw. All queries rewritten to match repository implementations exactly.
+
+**Performance Results** (All Queries Passing ✅):
+
+- Library View: 5.97ms / 2.04ms (50ms threshold, 88-96% faster)
+- History View: 1.45ms (75ms threshold, 98% faster)
+- Downloads View: 1.21ms (75ms threshold, 98% faster)
+- Collections View: 0.80ms (75ms threshold, 99% faster)
+- Reader View: 0.32ms (100ms threshold, 99% faster)
+- Cleanup: 0.86ms (150ms threshold, 99% faster)
+- Baseline saved: `benchmark-baseline.json`
+
+**Index Analysis Results**:
+
+- 100% index usage (11 index operations across all queries)
+- 0 table scans (optimal)
+- 1 covering index identified (uq_collection_manga)
+- Analysis saved: `query-plan-analysis.json`
+
+**File Organization**: Reorganized into logical subdirectories:
+
+- `src/main/scripts/database-performance/` (seeding, benchmarking, analysis, shared)
+- `scripts/` (Electron runtime wrappers)
+- `README.md` (comprehensive guide: 6KB documentation)
+
+### ⏭️ Phase 2: Index Strategy Design - SKIPPED
+
+**Reason**: EXPLAIN QUERY PLAN analysis confirmed 100% index usage across all queries with zero table scans. Existing indexes are already optimal for current workload. No optimization needed.
+
+**Decision**: Database is production-ready for 1000+ manga, 10k+ chapters scale.
+
+### 📊 CI/CD Integration Decision
+
+**Decision**: One-off validation approach instead of CI/CD integration
+**Rationale**:
+
+- Benchmarks require manual updates when repository code changes (high maintenance burden)
+- Better ROI from integration tests with query counting (N+1 detection)
+- Database performance stable once optimized - doesn't regress without code changes
+- Tools remain available for future validation (major releases, refactoring, debugging)
+
+**Better Alternatives**:
+
+- Integration tests with query counters (detects N+1 patterns)
+- Migration reviews (index strategy validation)
+- Production monitoring (real user performance tracking)
+
+See `archived-milestones.md` for full implementation details.
+
+---
+
+## P5-T
 
 ## P5-T21 Frontend Refactoring - COMPLETE ✅
 
