@@ -9,3 +9,5 @@ copilot-plans/
 # SQLite database files (WAL and SHM)
 *.db-wal
 *.db-shm
+# Benchmark results (local reference only)
+benchmark-results/

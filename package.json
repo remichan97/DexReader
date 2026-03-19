@@ -20,8 +20,9 @@
     "build:win": "npm run build && electron-builder --win",
     "build:mac": "electron-vite build && electron-builder --mac",
     "build:linux": "electron-vite build && electron-builder --linux",
-    "seed:benchmark": "node run-seed.js",
-    "benchmark:db": "node run-benchmark.js"
+    "seed:benchmark": "node scripts/run-seed.js",
+    "benchmark:db": "node scripts/run-benchmark.js",
+    "analyze:plans": "node scripts/run-analyze-plans.js"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",
