@@ -7,16 +7,24 @@ import * as schema from './schemas'
 class DatabaseConnection {
   private db: Database.Database | undefined = undefined
   private drizzle: ReturnType<typeof drizzle> | undefined = undefined
-  private readonly dbPath: string =
-    process.env.NODE_ENV_ELECTRON_VITE === 'development'
-      ? path.join(process.cwd(), 'dexreader-dev.db') // Project root: .\dexreader-dev.db
-      : path.join(getAppDataPath(), 'dexreader.db') // AppData: %APPDATA%\DexReader\dexreader.db
+  private dbPath: string | undefined = undefined
+
+  private getDbPath(): string {
+    if (!this.dbPath) {
+      // Lazy-load the path only when needed (after Electron app is ready)
+      this.dbPath =
+        process.env.NODE_ENV_ELECTRON_VITE === 'development'
+          ? path.join(process.cwd(), 'dexreader-dev.db') // Project root: .\dexreader-dev.db
+          : path.join(getAppDataPath(), 'dexreader.db') // AppData: %APPDATA%\DexReader\dexreader.db
+    }
+    return this.dbPath
+  }
 
   init(): void {
     // Development: Use project root (easy to find, reset, inspect with DataGrip)
     // Production: Use AppData (proper user data storage location)
 
-    this.db = new Database(this.dbPath)
+    this.db = new Database(this.getDbPath())
 
     this.db.pragma('journal_mode = WAL')
     this.db.pragma('synchronous = NORMAL')

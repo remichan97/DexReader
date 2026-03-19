@@ -19,10 +19,18 @@ export class CleanUpRepository {
     return databaseConnection.getDb()
   }
 
-  private readonly dbPath: string =
-    process.env.NODE_ENV_ELECTRON_VITE === 'development'
-      ? path.join(process.cwd(), 'dexreader-dev.db') // Project root: .\dexreader-dev.db
-      : path.join(getAppDataPath(), 'dexreader.db') // AppData: %APPDATA%\DexReader\dexreader.db
+  private dbPath: string | undefined = undefined
+
+  private getDbPath(): string {
+    if (!this.dbPath) {
+      // Lazy-load the path only when needed (after Electron app is ready)
+      this.dbPath =
+        process.env.NODE_ENV_ELECTRON_VITE === 'development'
+          ? path.join(process.cwd(), 'dexreader-dev.db') // Project root: .\dexreader-dev.db
+          : path.join(getAppDataPath(), 'dexreader.db') // AppData: %APPDATA%\DexReader\dexreader.db
+    }
+    return this.dbPath
+  }
 
   clearAllData(): void {
     this.db().transaction((tx) => {
@@ -58,7 +66,7 @@ export class CleanUpRepository {
   }
 
   private async getDatabaseFileSize(): Promise<number> {
-    const dbPath = path.resolve(this.dbPath)
+    const dbPath = path.resolve(this.getDbPath())
     try {
       const stats = await fs.stat(dbPath)
       return stats.size

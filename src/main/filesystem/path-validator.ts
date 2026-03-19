@@ -9,31 +9,41 @@ interface IAllowedPath {
 }
 
 // Define allowed paths
-// By default, allow app data and a downloads folder within app data
-const allowedPaths: IAllowedPath = {
-  appData: path.join(app.app.getPath('userData'), 'dexreader'),
-  downloads: path.join(app.app.getPath('userData'), 'dexreader', 'downloads'),
-  cachedCover: path.join(app.app.getPath('userData'), 'dexreader', 'cached', 'covers')
+// Lazy-loaded to avoid accessing app.getPath() before Electron is ready
+let allowedPaths: IAllowedPath | undefined = undefined
+
+function initializePaths(): void {
+  if (!allowedPaths) {
+    allowedPaths = {
+      appData: path.join(app.app.getPath('userData'), 'dexreader'),
+      downloads: path.join(app.app.getPath('userData'), 'dexreader', 'downloads'),
+      cachedCover: path.join(app.app.getPath('userData'), 'dexreader', 'cached', 'covers')
+    }
+  }
 }
 
 // Get the application data path
 export function getAppDataPath(): string {
-  return allowedPaths.appData
+  initializePaths()
+  return allowedPaths!.appData
 }
 
 // Get the downloads path
 export function getDownloadsPath(): string {
-  return allowedPaths.downloads
+  initializePaths()
+  return allowedPaths!.downloads
 }
 
 export function getCachedCoverPath(): string {
-  return allowedPaths.cachedCover
+  initializePaths()
+  return allowedPaths!.cachedCover
 }
 
 // Update the downloads path in memory (should be called by settingsManager after validation)
 export function updateDownloadsPath(newPath: string): void {
+  initializePaths()
   const normalized = normalizePath(newPath)
-  allowedPaths.downloads = normalized
+  allowedPaths!.downloads = normalized
 }
 
 // Validate that a path exists and is a directory
@@ -66,21 +76,22 @@ function normalizePath(inputPath: string): string {
 }
 
 function isPathAllowed(inputPath: string): boolean {
+  initializePaths()
   const normalizedInputPath = normalizePath(inputPath)
 
   // Always allow paths within appData
-  if (normalizedInputPath.startsWith(allowedPaths.appData)) {
+  if (normalizedInputPath.startsWith(allowedPaths!.appData)) {
     return true
   }
 
   // If downloads path is outside appData (custom location), check it separately
   // Note: This ensures we only allow the exact downloads directory tree, not parent directories
-  if (normalizedInputPath.startsWith(allowedPaths.downloads)) {
+  if (normalizedInputPath.startsWith(allowedPaths!.downloads)) {
     return true
   }
 
   // Cover caching folder, this isn't changed, and won't be changed by users, but we want to ensure it's always allowed
-  if (normalizedInputPath.startsWith(allowedPaths.cachedCover)) {
+  if (normalizedInputPath.startsWith(allowedPaths!.cachedCover)) {
     return true
   }
 
