@@ -4,7 +4,7 @@
 
 **Project Start**: 23 November 2025
 **Current Phase**: Phase 5 - Production Readiness (IN PROGRESS)
-**Current Task**: P5-T01 Database Optimization COMPLETE ✅ - Ready for next Phase 5 task
+**Current Task**: P5-T01 Database Optimization Complete - Ready for next Phase 5 task
 **Last Updated**: 19 March 2026
 
 ---
@@ -19,280 +19,122 @@
 
 ---
 
-## Current Status: Phase 5 Database Optimization Complete
+## Current Status
 
-**Phase Progress**: Phase 2 Complete (11/11) ✅ | Guerilla Refactoring Complete ✅ | Phase 3 Complete (19/19) ✅ | Phase 4 Complete (13/13) ✅ | Phase 5 IN PROGRESS (P5-T21 Complete ✅, P5-T01 Complete ✅)
+**Phase Progress**: Phase 2 (11/11) | Guerilla Refactoring | Phase 3 (19/19) | Phase 4 (13/13) | Phase 5 IN PROGRESS (P5-T21, P5-T01 complete)
 **Current Focus**: Phase 5 - Continue with P5-T02 (Error Handling) or P5-T03 (Logging Infrastructure)
-**Recent Completion**: P5-T01 Database Query Optimization - Validated production-ready performance (19 Mar 2026) ✅
+**Recent Completion**: P5-T01 Database Query Optimization (19 Mar 2026)
 **Next Steps**: Continue Phase 5 with remaining tasks (Error Handling, Logging, Build Pipeline, Testing, or Documentation)
 
 ---
 
 ## Recent Milestones
 
-### P5-T01 Database Query Optimization Complete (19 March 2026) ✅
+### P5-T01 Database Query Optimization (19 March 2026)
 
-Validated database performance with production-scale datasets (1000 manga, 10k chapters). Built comprehensive testing infrastructure including database seeding, accurate benchmark suite, and query plan analysis tools. All 7 critical queries passed with 0.32-5.97ms performance (88-99% faster than 50-150ms thresholds). EXPLAIN QUERY PLAN analysis confirmed 100% index usage with zero table scans - database already optimally indexed.
+Validated database performance with production-scale datasets (1000 manga, 10k chapters). Built comprehensive testing infrastructure. All 7 critical queries passed with 0.32-5.97ms performance (88-99% faster than thresholds). Confirmed 100% index usage, zero table scans - database already optimally indexed.
 
-**Duration**: ~6 hours (vs 12-16 estimated)
-**Scope**: Phase 1 complete (Setup & Baseline), Phase 2 skipped (indexes optimal)
-**Documentation**: `src/main/scripts/database-performance/README.md`
-
-**Key Results**:
-
-- **Performance Validated**: All queries 88-99% faster than thresholds
-  - Library: 5.97ms / 2.04ms (threshold 50ms)
-  - History: 1.45ms (threshold 75ms)
-  - Downloads: 1.21ms (threshold 75ms)
-  - Collections: 0.80ms (threshold 75ms)
-  - Reader: 0.32ms (threshold 100ms)
-  - Cleanup: 0.86ms (threshold 150ms)
-- **Index Analysis**: 100% index usage, 0 table scans, 1 covering index
-- **Infrastructure**: Seeding (17s for 1000 manga), benchmarks (accurate queries), query analysis
-- **File Organization**: Logical subdirectories (seeding, benchmarking, analysis, shared)
-- **CI/CD Decision**: One-off validation approach (maintenance burden vs ROI)
-
-**Critical Discovery**: Initial benchmarks used simplified queries missing 80% of production complexity. User identified accuracy flaw - all queries rewritten to match repository implementations with JOINs, aggregations, GROUP BY.
-
-**Decision**: Database is production-ready. No optimization needed - Phase 2 (Index Strategy Design) skipped. Tools remain available for future validation (major releases, refactoring, debugging).
+**Key Results**: Library 5.97ms / History 1.45ms / Downloads 1.21ms / Collections 0.80ms / Reader 0.32ms / Cleanup 0.86ms (all well under 50-150ms thresholds). Infrastructure: Seeding (17s), benchmarks (accurate queries), query analysis. Decision: Database production-ready, Phase 2 (Index Strategy) skipped.
 
 See `archived-milestones.md` for full implementation details.
 
-### P5-T21 Frontend Refactoring Complete (17 March 2026) ✅
+### P5-T21 Frontend Refactoring (17 March 2026)
 
-Comprehensive 5-day frontend refactoring effort covering component extraction, utility classes, inline styles migration, component splitting, CSS deduplication, accessibility, and code quality.
+Comprehensive 5-day frontend refactoring covering component extraction, utility classes, inline styles migration, component splitting, CSS deduplication, accessibility, and code quality.
 
-**Duration**: 5 days (11-17 Mar 2026), ~24 hours actual work
-**Scope**: 7 phases completed - Component Extraction, Utility Classes, Inline Styles, Component Splitting, CSS Deduplication, Accessibility, Final Cleanup
-**Documentation**: `docs/frontend-refactoring-guide.md`
-
-**Key Results**:
-
-- **Component Complexity**: -56% (2,942 → 1,300 LOC)
-  - LibraryView: 952 → 400 lines (-58%)
-  - DownloadsView: 715 → 104 lines (-85%)
-  - ChapterList: 526 → 200 lines (-62%)
-  - ReaderView: 749 → 521 lines (-26%)
-- **Inline Styles**: -81% (192 → 37 instances, 37 are dynamic/valid)
-- **CSS Flex Duplication**: -100% (135+ → 0 duplicates)
-- **New Reusable Components**: +3 (EmptyState, LoadingState, ErrorState)
-- **Code Quality**: ESLint clean, Prettier formatted
-- **Accessibility**: WCAG 2.1 Level AA compliance
-
-**Phase 7 Deliverables** (17 Mar 2026):
-
-- ReadingHistoryCard extracted from HistoryView
-- ESLint issues fixed (4 errors, 4 warnings resolved)
-- All code Prettier formatted
-- Comprehensive refactoring guide created
+**Key Results**: Component complexity -56% (2,942 → 1,300 LOC). LibraryView -58%, DownloadsView -85%, ChapterList -62%, ReaderView -26%. Inline styles -81% (192 → 37, remaining are dynamic). CSS flex duplication eliminated (135+ → 0). Created 3 reusable components (EmptyState, LoadingState, ErrorState). WCAG 2.1 AA compliance achieved.
 
 See `archived-milestones.md` for full per-phase implementation details.
 
-### P5-T21 Frontend Phase 6: Accessibility Improvements Complete (17 March 2026) ✅
+### P5-T21 Frontend Phase 6: Accessibility Improvements (17 March 2026)
 
-Enhanced WCAG 2.1 Level AA compliance across all interactive elements by adding descriptive aria-labels where missing.
-
-**Duration**: ~1 hour (many components already had good accessibility)
-**Impact**: All interactive elements now properly labeled for screen readers
-
-**Changes Made**:
-
-1. **Tag Filters** (2 files):
-   - MangaHeroSection: Tag buttons now have `aria-label="Filter by {tag.name}"`
-   - FilterPanel: Include/exclude buttons labeled, advanced toggle has aria-expanded
-
-2. **Chapter Components** (1 file):
-   - ChapterListHeader: Download All button labeled with chapter count
-
-3. **Manga Cards** (1 file):
-   - MangaCard: Enhanced aria-label includes title, author, status, and progress
-
-**Already Verified**:
-
-- ChapterList items, download badges, reader controls, zoom buttons
-- Search bar, modals, toasts, context menus, sidebar, all properly labeled
-
-**Result**: Strong accessibility foundation confirmed, all new additions maintain WCAG 2.1 AA compliance
+Enhanced WCAG 2.1 AA compliance by adding descriptive aria-labels to interactive elements (tag filters, chapter actions, manga cards). Verified existing accessibility across ChapterList, reader controls, search, modals, toasts, and menus.
 
 See [archived-milestones.md](./archived-milestones.md) for detailed implementation notes.
 
-### P5-T21 Frontend Phase 5: CSS Deduplication Complete (17 March 2026) ✅
+### P5-T21 Frontend Phase 5: CSS Deduplication (17 March 2026)
 
-Completed systematic removal of duplicate flexbox patterns across entire codebase, replacing with utility classes from Phase 2.
-
-**Scope**: 9 batches covering 40+ CSS files and 40+ TSX files
-**Duration**: ~3-4 hours
-**Impact**: ~135 flex patterns removed, consistent utility class usage throughout
-
-**Batches Completed**:
-
-1. Settings Components (11 flex) - GeneralSettings, AppearanceSettings, DownloadSettings
-2. Dialog Components (42 flex) - All modal/dialog components
-3. HistoryView (11 flex) - Full view deduplication
-4. Form Components (20 flex) - Input, Select, SearchBar, Checkbox
-5. UI Components (22 flex) - Toast, Tabs, Switch, Badge, Button, ProgressBar, Sidebar
-6. Status/Indicator Components (8 flex) - Various status indicators
-7. Storage/Layout Components (10 flex) - StorageChart, MangaStorageList, AppShell, DownloadsView
-8. Context Menu + Remaining (11 flex) - ContextMenu, ReaderView, MangaDetailView, DangerZoneSettings
-
-**Results**:
-
-- 100% batch completion rate
-- 0 new build errors introduced
-- All visual layouts preserved
-- Consistent utility class system usage
-- Improved maintainability
+Systematic removal of ~135 duplicate flexbox patterns across 80+ files, replacing with utility classes. Completed 9 batches covering settings, dialogs, forms, UI components, layouts, and context menus. 100% completion rate with zero build errors.
 
 See [archived-milestones.md](./archived-milestones.md) for detailed implementation notes.
 
-### P5-T21 Frontend Phase 4C: DownloadsView Split Complete (13 March 2026) ✅
+### P5-T21 Frontend Phase 4C: DownloadsView Split (13 March 2026)
 
-Completed third major component split in Phase 4, reducing DownloadsView from 706 lines to 104 lines (85% reduction).
-
-**Structure Created** (12 files):
-
-- DownloadsView.tsx: 104 lines (main orchestrator)
-- Components: DownloadCard (117 lines), DownloadGroup (85 lines), DownloadsHeader (139 lines)
-- Hooks: useDownloadData (180 lines), useDownloadActions (165 lines), useDownloadGroups (98 lines)
-- types.ts: 37 lines (shared types and constants)
-
-**Pattern Followed**: Consistent with ChapterList and LibraryView splits - subfolder organization with barrel exports
-
-**Benefits**:
-
-- 85% reduction in main component size
-- Clear separation: UI components, data layer, action handlers, grouping logic
-- Well-typed props interfaces for all components
-- Easier testing and maintenance
-
-**Functionality Preserved**: All download features working - real-time progress updates, filtering, sorting, grouping, bulk actions
-
-**Next**: Continue Phase 4 - ReaderView split (708 lines → ~350 lines estimated)
+Reduced DownloadsView from 706 lines to 104 lines (85% reduction). Created 12-file structure with DownloadCard, DownloadGroup, DownloadsHeader components, plus useDownloadData, useDownloadActions, useDownloadGroups hooks.
 
 ---
 
-### P5-T21 Frontend Phase 1-2 Complete (12 March 2026) ✅
+### P5-T21 Frontend Phase 1-2 (12 March 2026)
 
-Completed first two phases of frontend refactoring: component extraction and utility class system creation.
-
-**Phase 1 - Component Extraction** (~5 hours):
-
-- Created 3 reusable components: EmptyState, LoadingState, ErrorState (9 files total)
-- Integrated across 16 view/component files
-- Eliminated ~230-300 lines of duplicate code
-- Standardized accessibility (ARIA labels, roles, live regions)
-- Fixed ReaderView vertical centering bug
-
-**Phase 2 - Utility Class System** (~2 hours):
-
-- Created utilities.css with 100+ theme-compatible utility classes
-- Organized by category: flexbox, gap, spacing, text, layout, background, border, accessibility
-- All utilities use design tokens (--space-_, --win-_) for theme support
-- Updated import structure: tokens.css → utilities.css → main.css
-- Documented in docs/components/utility-classes.md (~500 lines)
-
-**Impact**: Foundation established for Phase 3 (inline styles migration), Phase 5 (CSS deduplication), and improved code maintainability.
-
-**Next**: Phase 3 - Replace 192 inline styles across 15+ files (5-6 hours estimated).
+Phase 1: Created 3 reusable components (EmptyState, LoadingState, ErrorState), integrated across 16 files, eliminated ~250 lines of duplicate code. Phase 2: Created utilities.css with 100+ theme-compatible utility classes organized by category (flexbox, gap, spacing, text, layout, background, border, accessibility).
 
 ---
 
-### P5-T21 Refactoring Plans Complete (11 March 2026) ✅
+### P5-T21 Refactoring Plans (11 March 2026)
 
-Conducted comprehensive backend and frontend code audits, identified technical debt, and created detailed refactoring plans.
-
-**Backend Audit** (207 files in src/main/):
-
-- 4 dead code files/exports identified (safe to delete)
-- 30+ naming inconsistencies (repositories, services, classes)
-- 13 convention violations (camelCase files should be kebab-case)
-- 5 directory naming issues (singular → plural, ~90 imports affected)
-- Estimated: 18-24 hours across 7 phases
-
-**Frontend Audit** (166 files in src/renderer/src/):
-
-- 192 inline `style={{}}` instances (needs CSS class migration)
-- 5 oversized components (952, 749, 715, 631, 526 lines - need splitting)
-- 100+ clickable elements missing descriptive aria-labels
-- 36+ CSS files with display:flex duplication (utility class system needed)
-- Estimated: 20-26 hours across 6 phases
-
-**Plans Created**:
-
-- `.github/copilot-plans/p5-t21-code-refactoring-plan.md` (Backend, ~1400 lines)
-- `.github/copilot-plans/p5-t21-frontend-refactoring-plan.md` (Frontend, ~800 lines)
-
-**Total Estimated Effort**: 38-50 hours (5-7 working days)
+Conducted comprehensive backend (207 files) and frontend (166 files) code audits. Identified 4 dead code files, 30+ naming inconsistencies, 192 inline styles, 5 oversized components, and 36+ CSS files with duplication. Created detailed refactoring plans for both tracks.
 
 ---
 
-### Phase 5 Planning Complete (11 March 2026) ✅
+### Phase 5 Planning (11 March 2026)
 
-Finalized comprehensive Phase 5 plan for production readiness. Created 3 planning documents with 21 tasks (192-236 hours) across 6-8 weeks targeting v1.0 release in early May 2026.
-
-**Key Decisions**:
-
-- Code signing deferred (saves $500-600/year, not needed for <10 users)
-- Testing philosophy: Mock external APIs, test our application logic
-- Logical task order: Refactor → Optimize → Build → Test → Document
-
-**Timeline**: Week 1 Refactoring → Week 2-3 Performance → Week 3-4 Build Pipeline → Week 5-6 Testing → Week 7-8 Documentation → v1.0 Release
+Finalized comprehensive Phase 5 plan for production readiness. Created 3 planning documents with 21 tasks (192-236 hours) targeting v1.0 release in early May 2026. Key decisions: Code signing deferred (saves $500-600/year), testing philosophy established (mock external APIs, test application logic).
 
 See [.github/copilot-plans/](../../copilot-plans/) for detailed planning documents.
 
 ---
 
-### P4-T15 Cache Management UI (10 March 2026) ✅
+### P4-T15 Cache Management UI (10 March 2026)
 
-Implemented cache management in Settings > Storage tab. Users can set cover cache limits (10MB-500MB or Unlimited), view metadata statistics, and clean browsing cache with two-tier cleanup system (90-day gentle vs immediate aggressive). Fixed EPERM error in cover cache deletion. Created CacheManagementSettings component with 4 new IPC handlers.
+Implemented cache management in Settings > Storage. Users can set cover cache limits (10MB-500MB or Unlimited), view metadata statistics, and clean browsing cache with two-tier cleanup (90-day gentle vs immediate aggressive).
 
 See [archived-milestones.md](./archived-milestones.md#p4-t15) for implementation details.
 
 ---
 
-### P4-T13 Unfavourite Dialog (4 March 2026) ✅
+### P4-T13 Unfavourite Dialog (4 March 2026)
 
-Implemented smart unfavourite workflow that detects downloads and offers granular cleanup options (remove library only, delete downloads only, remove both, or cancel). Created centralized unfavouriteHandler utility and download stats API. Discovered native dialog constraint: long titles belong in `detail` field.
+Implemented smart unfavourite workflow detecting downloads and offering granular cleanup (remove library only, delete downloads only, remove both, or cancel). Created centralized unfavouriteHandler utility and download stats API.
 
 See [archived-milestones.md](./archived-milestones.md#p4-t13) for implementation details.
 
 ---
 
-### P4-T11 Storage Management (27 February 2026) ✅
+### P4-T11 Storage Management (27 February 2026)
 
-Implemented storage visualization and bulk cleanup in Settings. Created dual-level bar chart (disk context + manga breakdown), sortable manga list with bulk selection, and safe deletion workflow with native confirmations. Added menu integration (Tools → Manage Storage, Ctrl+Shift+M) with deep linking via URL params.
+Implemented storage visualization and bulk cleanup in Settings. Created dual-level bar chart (disk context + manga breakdown), sortable manga list with bulk selection, and safe deletion workflow. Added menu integration (Tools → Manage Storage, Ctrl+Shift+M).
 
 See [archived-milestones.md](./archived-milestones.md#p4-t11) for implementation details.
 
 ---
 
-### P4-T14 DownloadsView Backend Integration (23 February 2026) ✅
+### P4-T14 DownloadsView Backend Integration (23 February 2026)
 
-Connected DownloadsView to backend with real-time event listeners. Implemented manga-grouped UI with search/filter/sort, collapsible sections, auto-collapse, speed/ETA calculation, and comprehensive action handlers for all download states.
+Connected DownloadsView to backend with real-time event listeners. Implemented manga-grouped UI with search/filter/sort, collapsible sections, auto-collapse, speed/ETA calculation, and action handlers for all download states.
 
 See [archived-milestones.md](./archived-milestones.md#p4-t14) for implementation details.
 
 ---
 
-### P4-T06 Download UI Integration (21 February 2026) ✅
+### P4-T06 Download UI Integration (21 February 2026)
 
-Implemented download UI with three components (StreamSourceIndicator, DownloadStatusBadge, DownloadConfirmationDialog). Integrated download badges in chapter lists and stream source indicator in reader. Connected to IPC handlers with automatic status checking and settings integration.
+Implemented download UI with StreamSourceIndicator, DownloadStatusBadge, and DownloadConfirmationDialog. Integrated download badges in chapter lists and stream source indicator in reader.
 
 See [archived-milestones.md](./archived-milestones.md#p4-t06) for implementation details.
 
 ---
 
-### P4-T02 Download Queue Manager (18 February 2026) ✅
+### P4-T02 Download Queue Manager (18 February 2026)
 
-Implemented download queue manager with concurrent orchestration (configurable 1-10 concurrency), silent retry logic (exponential backoff), batch database updates, progress throttling, and auto-resume on startup. Created 11 IPC handlers for queue operations.
+Implemented download queue manager with concurrent orchestration (configurable 1-10 concurrency), silent retry logic (exponential backoff), batch database updates, progress throttling, and auto-resume on startup. Created 11 IPC handlers.
 
 See [archived-milestones.md](./archived-milestones.md#p4-t02) for implementation details.
 
 ---
 
-### P4-T01 Download System Backend (12 February 2026) ✅
+### P4-T01 Download System Backend (12 February 2026)
 
-Implemented download backend with database schema (chapter_downloads table), repository layer, download service, and local-manga:// protocol handler. Established dual protocol architecture (local-manga:// for downloads, mangadex:// for network) with path resilience.
+Implemented download backend with database schema (chapter_downloads table), repository layer, download service, and local-manga:// protocol handler. Established dual protocol architecture (local-manga:// for downloads, mangadex:// for network).
 
 See [archived-milestones.md](./archived-milestones.md#p4-t01) for implementation details.
 
@@ -498,7 +340,7 @@ See [archived-milestones.md](./archived-milestones.md) for detailed P4 task impl
 
 **Track 1 - Performance Optimization (Week 2-3)**:
 
-- [⏳] **P5-T01**: Database Query Optimization & Indexing (12-16 hours)
+- [✅] **P5-T01**: Database Query Optimization & Indexing (12-16 hours) **COMPLETE** (19 Mar 2026)
 - [⏳] **P5-T02**: Memory Profiling & Leak Detection (10-12 hours)
 - [⏳] **P5-T03**: Download System Performance (8-10 hours)
 - [⏳] **P5-T04**: Image Loading Optimization (8-10 hours)
@@ -528,7 +370,7 @@ See [archived-milestones.md](./archived-milestones.md) for detailed P4 task impl
 - [⏳] **P5-T19**: User Documentation & Installation Guide (12-16 hours) **CRITICAL**
 - [⏳] **P5-T20**: Developer Documentation (8-10 hours)
 
-**Phase 5 Progress**: 1/21 tasks (5% complete) | Track 0 Complete ✅
+**Phase 5 Progress**: 2/21 tasks (~10% complete) | Track 0 Complete ✅ | Track 1: 1/5 tasks
 
 **Key Decisions**:
 

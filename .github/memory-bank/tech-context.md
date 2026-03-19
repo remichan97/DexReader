@@ -46,12 +46,11 @@ _\*Note: Electron bundles its own Node.js runtime (~v22.x). Development uses sys
 
 ---
 
-## MangaDex API Integration ✅ **IMPLEMENTED (P2-T01)**
+## MangaDex API Integration
 
 ### API Client Architecture
 
 **Location**: `src/main/api/`
-**Status**: Complete with bug fixes (12 Dec 2025)
 
 | File                     | Purpose                           | Key Exports                                                               |
 | ------------------------ | --------------------------------- | ------------------------------------------------------------------------- |
@@ -66,7 +65,7 @@ _\*Note: Electron bundles its own Node.js runtime (~v22.x). Development uses sys
 | **shared/error.shared**  | Custom error classes              | `MangaDexApiError`, `MangaDexNetworkError`                                |
 | **shared/common-types**  | Shared interfaces                 | `LocalizedString`, `EndpointLimit`                                        |
 
-### Image Proxy System ✅ **IMPLEMENTED**
+### Image Proxy System
 
 **Critical Architecture Decision**: Custom protocol handler for image proxying
 
@@ -87,7 +86,7 @@ interface CacheEntry {
   buffer: Buffer
   timestamp: number
   size: number
-  lastAccessed: number // ✅ Updated on every access
+  lastAccessed: number // Updated on every access
 }
 
 class ImageProxy {
@@ -107,19 +106,19 @@ class ImageProxy {
 - Per-image max: 5MB (larger images not cached)
 - Total: ~50MB for streaming mode
 
-**Bug Fixes Applied**:
+**Key Features**:
 
-- ✅ Fixed FIFO → true LRU (tracks `lastAccessed`)
-- ✅ Covers never expire (only chapters expire)
-- ✅ Proper size tracking and eviction
+- True LRU eviction (tracks `lastAccessed`)
+- Covers never expire (only chapters expire)
+- Proper size tracking and eviction
 
 **Caching by Phase**:
 
-- **Phase 2** ✅: Ephemeral memory cache (in-memory Maps)
+- **Phase 2**: Ephemeral memory cache (in-memory Maps)
 - **Phase 3**: Persistent covers for bookmarks (AppData/metadata/)
 - **Phase 4**: Full offline downloads (user downloads directory)
 
-### API Client Methods ✅ **IMPLEMENTED**
+### API Client Methods
 
 **Endpoints Exposed to Renderer** (via `window.mangadex`):
 
@@ -141,14 +140,7 @@ window.mangadex.getCoverUrl(id: string, fileName: string, size?: CoverSize): str
 - `mangadex:get-chapter-images` → `getChapterImages()`
 - `mangadex:get-cover-url` → `getCoverImageUrl()`
 
-**Bug Fixes Applied**:
-
-- ✅ API URL fixed: `api.mangadex.com` → `api.mangadex.org`
-- ✅ Retry logic: Only retries on 429, throws on other errors
-- ✅ All handlers use `wrapIpcHandler` for error serialization
-- ✅ TypeScript types complete (Window.mangadex interface)
-
-### Rate Limiting ✅ **IMPLEMENTED**
+### Rate Limiting
 
 **Algorithm**: Token bucket with endpoint-specific configuration
 
@@ -158,17 +150,11 @@ window.mangadex.getCoverUrl(id: string, fileName: string, size?: CoverSize): str
 - Automatic throttling via `await rateLimiter.waitForToken(endpoint)`
 - Automatic retry on HTTP 429 with `Retry-After` header support
 
-**Bug Fixes Applied**:
-
-- ✅ Added endpoint configuration system
-- ✅ At-home limit now correctly 40 req/min (was using global 5 req/s)
-- ✅ Per-endpoint capacity and refill rates
-
 **Implementation**: `src/main/api/rateLimiter.ts` (103 lines)
 
 **Integration**: Every API request calls `await rateLimiter.waitForToken(endpoint)` before fetch
 
-### Error Handling ✅ **IMPLEMENTED**
+### Error Handling
 
 **Custom Error Types**:
 
@@ -203,8 +189,8 @@ class MangaDexNetworkError extends Error {
 
 **Internal Dependencies**:
 
-- Error handling system (P1-T09): `wrapHandler`, `getUserFriendlyError`
-- IPC architecture (P1-T08): contextBridge patterns
+- Error handling system: `wrapHandler`, `getUserFriendlyError`
+- IPC architecture: contextBridge patterns
 
 ---
 
@@ -610,7 +596,6 @@ npmRebuild: false
 
 ## Filesystem Architecture
 
-**Status**: ✅ Implemented (P1-T05)
 **Documentation**: [filesystem-security.md](../../docs/architecture/filesystem-security.md)
 
 ### Core Modules
@@ -637,7 +622,6 @@ npmRebuild: false
 
 ### IPC Communication Architecture
 
-**Status**: ✅ Complete (P1-T08)
 **Documentation**: [ipc-messaging.md](../../docs/architecture/ipc-messaging.md)
 **Implementation**: 37 IPC channels across 6 categories
 
@@ -728,12 +712,12 @@ if (isIpcSuccess(response)) {
 
 #### Security Features
 
-✅ Context isolation enabled (renderer cannot access Node.js)
-✅ All filesystem paths validated against allowed directories
-✅ Runtime validation for all IPC arguments
-✅ Error sanitisation (no sensitive info in production)
-✅ Type safety prevents injection attacks
-✅ Custom error classes for clear error identification
+- Context isolation enabled (renderer cannot access Node.js)
+- All filesystem paths validated against allowed directories
+- Runtime validation for all IPC arguments
+- Error sanitisation (no sensitive info in production)
+- Type safety prevents injection attacks
+- Custom error classes for clear error identification
 
 ---
 
@@ -943,17 +927,17 @@ publish:
   url: https://example.com/auto-updates
 ```
 
-**Status**: Configured but not yet activated. Requires:
+**Implementation Requirements**:
 
-1. Update server setup
-2. UI implementation in renderer
-3. Event handlers in main process
+- Update server setup
+- UI implementation in renderer
+- Event handlers in main process
 
 ### electron-updater Integration
 
-**Already Installed**: `electron-updater@6.3.9`
+**Package**: `electron-updater@6.3.9`
 
-**Usage Pattern** (to be implemented):
+**Usage Pattern**:
 
 ```typescript
 // In main process
@@ -1075,7 +1059,7 @@ const useStore = create((set, get) => ({
    - Theme management (light/dark/system)
    - UI state (fullscreen)
    - System theme synchronization
-   - Persists: via Settings Manager IPC to settings.json (P3-T16, 22 Jan 2026)
+   - Persists: via Settings Manager IPC to settings.json
 
 2. **Toast Store** (`toastStore.ts`)
    - Global notification system
@@ -1091,7 +1075,7 @@ const useStore = create((set, get) => ({
    - Persists: critical preferences via Settings Manager IPC
 
 4. **Library Store** (`libraryStore.ts`)
-   - Bookmark management (Phase 3 complete, Jan-Feb 2026)
+   - Bookmark management
    - Collection management
    - Persists: SQLite database via IPC
 
@@ -1136,22 +1120,11 @@ show({ variant: 'success', title: 'Done!', message: 'Task completed' })
 - DevTools support
 - Automatic selector optimization
 
-### Future State Management Considerations
+### Future Considerations
 
-- **Redux Toolkit** - For highly complex state requirements
-- **Jotai** - Atomic state management for granular updates
-
-### Testing (To Be Added)
-
-- **Vitest** - Vite-native unit testing
-- **React Testing Library** - Component testing
-- **Playwright** - E2E testing for Electron
-
-### Additional Libraries (As Needed)
-
-- **TailwindCSS** - Utility-first CSS framework
-- **Radix UI** - Headless component primitives
-- **React Router** - Client-side routing (if multi-page)
+**State Management Alternatives**: Redux Toolkit (complex state), Jotai (atomic updates)
+**Testing Tools**: Vitest (unit), React Testing Library (component), Playwright (E2E)
+**Additional Libraries**: TailwindCSS (CSS), Radix UI (headless components), React Router (routing)
 
 ---
 
@@ -1186,9 +1159,7 @@ npm run build:linux            # Linux packages
 
 ### VS Code Launch Config
 
-_Note: No `.vscode/launch.json` currently configured_
-
-**Recommended Configuration** (to be added):
+**Recommended Configuration**:
 
 ```json
 {
@@ -1450,10 +1421,10 @@ if (error) return <ErrorRecovery error={error} onRetry={retry} isRetrying={isLoa
 
 ### Schemas
 
-| Schema File         | Purpose                         | Status      | Format |
-| ------------------- | ------------------------------- | ----------- | ------ |
-| **mihon.proto**     | Mihon/Tachiyomi import/export   | Complete ✅ | Proto2 |
-| **dexreader.proto** | Native DexReader backup/restore | Complete ✅ | Proto3 |
+| Schema File         | Purpose                         | Format |
+| ------------------- | ------------------------------- | ------ |
+| **mihon.proto**     | Mihon/Tachiyomi import/export   | Proto2 |
+| **dexreader.proto** | Native DexReader backup/restore | Proto3 |
 
 ### DexReader Native Backup Schema (Proto3)
 

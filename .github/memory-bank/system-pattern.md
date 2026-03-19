@@ -1,7 +1,7 @@
 # DexReader System Pattern
 
-**Last Updated**: 10 March 2026
-**Version**: 1.0.1
+**Last Updated**: 19 March 2026
+**Version**: 1.0.2
 **Architecture**: Electron Multi-Process Desktop Application
 
 ---
@@ -20,7 +20,7 @@
 - "Realise" (not "Realize")
 - "Centre" (not "Center")
 
-**Date Format Options** (Good-to-have feature for Phase 3):
+**Date Format Options** (future enhancement):
 
 - Default: DD/MM/YYYY (British format)
 - Alternative: ISO 8601 (YYYY-MM-DD) for sorting
@@ -51,7 +51,7 @@
 
 **Critical Requirement**: MangaDex **blocks direct image hotlinking** - attempting to load images directly from the renderer will return wrong/incorrect images. All images MUST be proxied through the main process.
 
-#### Network Protocol: `mangadex://` ✅ **IMPLEMENTED** (Phase 2)
+#### Network Protocol: `mangadex://`
 
 **Implementation**: Custom protocol handler for online image streaming
 
@@ -62,9 +62,9 @@
 - **Registration**: `protocol.handle('mangadex', ...)` in main process on `app.whenReady()`
 - **URL Format**: `mangadex://uploads.mangadex.org/covers/...` (replaces `https://`)
 - **Use Case**: Online chapter pages, cover images, thumbnails
-- **Status**: ✅ Implemented in `src/main/api/imageProxy.ts`
+- **Implementation**: `src/main/api/imageProxy.ts`
 
-#### Local Protocol: `local-manga://` ✅ **IMPLEMENTED** (12 Feb 2026, P4-T01)
+#### Local Protocol: `local-manga://`
 
 **Implementation**: Custom protocol handler for downloaded chapter images
 
@@ -73,9 +73,9 @@
 - **URL Format**: `local-manga://chapter/{chapterId}/page/{pageNum}` (e.g., `local-manga://chapter/abc123/page/5`)
 - **Use Case**: Downloaded chapters stored in filesystem
 - **Path Resolution**: Uses `downloadsBasePath` from database (not current settings)
-- **Status**: ✅ Implemented in `src/main/api/localImageProxy.ts`
+- **Implementation**: `src/main/api/localImageProxy.ts`
 
-**Frontend Integration** (P4-T06):
+**Frontend Integration**:
 
 ```typescript
 // Reader checks download status once per chapter
@@ -103,7 +103,7 @@ const imageUrls = pages.map((page, index) => {
 
 **IMPORTANT**: Caching is implemented progressively across phases. Each phase has different caching requirements and storage mechanisms.
 
-#### Phase 2 (Streaming Mode): Ephemeral Memory Cache ✅ **IMPLEMENTED**
+#### Phase 2 (Streaming Mode): Ephemeral Memory Cache
 
 **Scope**: Online reading only, temporary session cache
 
@@ -145,7 +145,7 @@ class ImageProxy {
 }
 ```
 
-#### Phase 3 (Bookmarks): Persistent Metadata Cache ✅ **COMPLETE** (Jan-Feb 2026)
+#### Phase 3 (Bookmarks): Persistent Metadata Cache
 
 **Scope**: Cached metadata and covers for favourited/bookmarked manga
 
@@ -157,7 +157,7 @@ class ImageProxy {
 - **Benefit**: Instant library view, offline metadata browsing
 - **Size Limit**: Configurable via `maxDiskCacheSize` setting (default: unlimited)
 
-#### Phase 4 (Downloads): Full Offline Storage ✅ **BACKEND IMPLEMENTED** (12 Feb 2026)
+#### Phase 4 (Downloads): Full Offline Storage
 
 **Scope**: Complete chapter downloads for offline reading
 
@@ -167,9 +167,9 @@ class ImageProxy {
   - Format: `local-manga://chapter/{chapterId}/page/{pageNum}`
   - Handler uses stored `downloadsBasePath` from database (not current settings)
   - Enables loading files even if user changes download directory
-- **`mangadex://`** - Existing network proxy unchanged (Phase 2 implementation)
+- **`mangadex://`** - Existing network proxy (Phase 2 implementation)
   - Continues to handle online chapter streaming
-- **Frontend decides** which protocol to use based on download status (deferred to P4-T06)
+- **Frontend decides** which protocol to use based on download status
 
 **Storage Structure**:
 
@@ -188,29 +188,19 @@ class ImageProxy {
 
 **Download Flow**:
 
-1. User triggers explicit download (P4-T06 will add UI buttons)
+1. User triggers explicit download action
 2. Backend constructs paths: base + relative structure
 3. Creates directory, downloads all pages with progress events
 4. Saves metadata in database with status tracking
 5. Reader loads via `local-manga://` protocol when available
-
-**Current Status**:
-
-- ✅ Backend complete: Database, service, protocol, IPC handlers
-- ❌ Frontend pending: Download buttons, protocol selection (P4-T06)
-- ✅ Protocol handler registered: `src/main/api/localImageProxy.ts`
-- ✅ Implementation: `src/main/services/download.service.ts`
 
 **Key Design Choices**:
 
 - **Explicit only**: No automatic background downloads
 - **Path tracking**: Survives user changing download directory setting
 - **Clean separation**: Network proxy unchanged, local protocol added
-- **Progress events**: `download:chapter-progress` emitted per-page (for P4-T05 UI)
-
-**Trigger**: Explicit "Download Chapter" action (UI in P4-T06)
-**Management**: Single-chapter foundation (P4-T01), queue management in P4-T02
-**Benefit**: Complete offline reading without network dependency
+- **Progress events**: `download:chapter-progress` emitted per-page for UI updates
+- **Implementation**: `src/main/services/download.service.ts`
 
 **Key Distinction**:
 
@@ -218,7 +208,7 @@ class ImageProxy {
 - **Bookmarks (Phase 3)**: Persistent covers/metadata, automatic on bookmark
 - **Downloads (Phase 4)**: Persistent full chapters, manual user action, dual protocol architecture
 
-### Rate Limiting ✅ **IMPLEMENTED**
+### Rate Limiting
 
 **Global Limit**: 5 requests/second per IP
 **At-Home Endpoint**: 40 requests/minute (image URLs)
@@ -230,11 +220,11 @@ class ImageProxy {
 - **Endpoint-Specific**: at-home/server has 40 tokens, refill rate 0.67 tokens/second (40/min)
 - Per-endpoint tracking for specialized limits
 - Automatic retry on 429 responses with `Retry-After` header
-- **Status**: ✅ Implemented in `src/main/api/rateLimiter.ts`
+- **Implementation**: `src/main/api/rateLimiter.ts`
 
 **Integration**: All API requests call `await rateLimiter.waitForToken(endpoint)` before fetch
 
-### Error Handling ✅ **IMPLEMENTED**
+### Error Handling
 
 **Custom Error Types**:
 
@@ -668,90 +658,8 @@ const [state, setState] = useState(initialValue)
 
 ---
 
-## Filesystem Security
-
-**Status**: ✅ Implemented (P1-T05)
-**Documentation**: [filesystem-security.md](../../docs/architecture/filesystem-security.md)
-
-### Security Model
-
-DexReader implements a **restricted filesystem access model** that limits all file operations to two explicitly allowed directory trees:
-
-1. **AppData Directory** - Automatic, managed by Electron
-   - Windows: `C:\Users\<username>\AppData\Roaming\dexreader`
-   - macOS: `~/Library/Application Support/dexreader`
-   - Linux: `~/.config/dexreader`
-   - Contents: `settings.json`, `metadata/`, `logs/`, `downloads/`
-
-2. **Downloads Directory** - User-configurable (defaults to `AppData/downloads`)
-   - Default: `<AppData>/downloads`
-   - Configurable via Settings → Storage
-   - Custom path validated before accepting
-
-### Implementation
-
-**Path Validation** (`src/main/filesystem/pathValidator.ts`):
-
-- All paths normalized to canonical form (prevents traversal attacks)
-- Validated against allowed directories before any operation
-- Symlinks resolved and checked
-
-**Secure Filesystem Wrapper** (`src/main/filesystem/secureFs.ts`):
-
-- 12 filesystem operations with automatic path validation
-- `readFile`, `writeFile`, `appendFile`, `copyFile`, `rename`
-- `mkdir`, `ensureDir`, `deleteFile`, `deleteDir`
-- `isExists`, `stat`, `readDir`
-
-**Settings Manager** (`src/main/settings/settingsManager.ts`):
-
-- Persists settings to `AppData/settings.json`
-- Schema: `AppSettings` interface with nested structure:
-  - `appearance`: `theme` (light/dark/system), `accentColor` (hex)
-  - `downloads`: `downloadPath`, `maxConcurrentDownloads`, `shouldConfirmDownload`, `defaultQuality`, `maxDiskCacheSize`
-  - `reader`: global reading settings, per-manga overrides
-- Graceful fallback to defaults if corrupted
-
-### Usage in Renderer
-
-```typescript
-// Get allowed paths
-const paths = await window.fileSystem.getAllowedPaths()
-// { appData: "C:\\Users\\...\\dexreader", downloads: "D:\\Manga" }
-
-// Read file (validated automatically)
-const data = await window.fileSystem.readFile(`${paths.appData}/settings.json`, 'utf-8')
-
-// Write file (parent dirs created automatically)
-await window.fileSystem.writeFile(`${paths.downloads}/manga/123/ch1/page1.jpg`, imageBuffer)
-
-// Select downloads folder (native OS picker)
-const result = await window.fileSystem.selectDownloadsFolder()
-if (!result.cancelled) {
-  console.log('New path:', result.path)
-}
-```
-
-### Security Guarantees
-
-✅ **Prevents**:
-
-- Path traversal attacks (`../../../etc/passwd`)
-- Access to system directories (`System32`, `/usr`, `/bin`)
-- Access to user's Documents, Pictures, Desktop (unless explicitly selected)
-- Symlink exploits pointing outside allowed directories
-
-✅ **Allows**:
-
-- Reading/writing within AppData
-- Reading/writing within Downloads (default or custom)
-- User-selected directories via native folder picker
-
----
-
 ## IPC Communication Architecture
 
-**Status**: ✅ Implemented (P1-T08), expanded in Phase 3/4
 **Documentation**: [ipc-messaging.md](../../docs/architecture/ipc-messaging.md)
 
 ### Overview
@@ -999,6 +907,121 @@ mainWindow.on('ready-to-show', () => {
 
 ---
 
+## Database Performance & Benchmarking
+
+**Documentation**: `src/main/scripts/database-performance/README.md`
+
+### Overview
+
+DexReader maintains a database benchmark suite to validate query performance at scale (1000+ manga, 10,000+ chapters). Benchmarks are **one-off validation tools**, not continuous CI/CD checks, due to the high maintenance burden of keeping them synchronized with evolving repository code.
+
+### When to Run Benchmarks
+
+**Required**:
+
+- ✅ **Before major releases** - Quarterly validation to ensure no regressions
+- ✅ **After major database refactoring** - Schema redesigns, ORM upgrades, or migration changes
+- ✅ **When adding complex queries** - New repository methods with JOINs, aggregations, or GROUP BY
+- ✅ **Performance issue debugging** - Compare with baseline to identify slowdowns
+
+**Not Required**:
+
+- ❌ Minor bug fixes in application logic
+- ❌ UI changes without database impact
+- ❌ Adding simple CRUD operations
+
+### Benchmark Accuracy Requirement
+
+**CRITICAL**: Benchmark queries must match repository implementation exactly (100% accuracy).
+
+**Why This Matters**:
+
+- Our initial benchmarks used simplified `SELECT *` queries missing 80% of production complexity
+- Missing JOINs, aggregations, GROUP BY led to unrealistic performance numbers
+- User identified this accuracy flaw: "Does the benchmark code simulate how the repository code would query the database? or are we making stuff up for the numbers?"
+
+**Accuracy Checklist** for Benchmark Queries:
+
+- ✅ Matches repository method query structure exactly
+- ✅ Includes all JOINs (LEFT, INNER, etc.)
+- ✅ Includes all aggregations (COUNT, MAX, MIN, etc.)
+- ✅ Includes all GROUP BY clauses
+- ✅ Uses explicit column selection (not SELECT *)
+- ✅ Includes all WHERE conditions
+- ✅ Matches ORDER BY clauses
+
+### Benchmark Maintenance Guidelines
+
+When database code changes, update benchmarks accordingly:
+
+1. **New Repository Method**: Add corresponding benchmark query to `benchmark-suite.ts` that mirrors exact query structure (JOINs, aggregations, GROUP BY, ORDER BY)
+2. **Modified Repository Method**: Update benchmark to match new query structure
+3. **Schema Changes**: Update `seed-database.ts` and affected benchmark queries, then re-seed
+4. **ORM Upgrades**: Update all benchmark queries to match new ORM syntax
+
+**Key Principle**: Benchmark queries must match repository implementation exactly (100% accuracy) including all JOINs, aggregations, WHERE conditions, and column selections.
+
+### Running Benchmarks
+
+**Complete Validation Workflow**:
+
+```bash
+# 1. Seed benchmark database (1000 manga, 10k chapters)
+npm run seed:benchmark                                              # ~17 seconds
+
+# 2. Run performance benchmarks (save to git-ignored folder)
+npm run benchmark:db -- --output benchmark-results/baseline.json    # ~0.4 seconds
+
+# 3. Analyze query plans (validate index usage)
+npm run analyze:plans                                                # ~1 second
+```
+
+**Expected Results**:
+
+- All queries <10ms average
+- 100% index usage (no table scans)
+- 0 warnings or failures
+
+**Output Location**: `benchmark-results/` (git-ignored, local reference only)
+
+### Benchmark Infrastructure
+
+**Location**: `src/main/scripts/database-performance/`
+
+```
+database-performance/
+├── seeding/              # Test data generation
+│   ├── seed-database.ts  # DatabaseSeeder class (1000 manga, 10k chapters)
+│   └── seed-cli.ts       # CLI runner
+├── benchmarking/         # Performance measurement
+│   ├── benchmark-suite.ts # DatabaseBenchmark class (7 queries)
+│   └── benchmark-cli.ts   # CLI runner
+├── analysis/             # Query plan analysis
+│   └── analyze-query-plans.ts # EXPLAIN QUERY PLAN tool
+├── shared/               # Common utilities
+│   └── database-helpers.ts    # DatabaseTestHelper class
+└── README.md             # Complete usage guide
+```
+
+**Electron Wrappers**: `scripts/` (run-seed.js, run-benchmark.js, run-analyze-plans.js)
+
+### Maintenance Philosophy
+
+**One-off Validation, Not CI/CD**:
+
+- Benchmarks must be manually updated when repository code changes
+- High maintenance burden vs ROI for automated pipelines
+- Better alternatives: Integration tests with query counting (N+1 detection), migration reviews, production monitoring
+- Tools remain available for on-demand validation when needed
+
+**Integration with Testing**:
+
+- `DatabaseSeeder` can be imported by integration tests
+- `DatabaseBenchmark` can be integrated into test suites
+- Focus testing effort on integration tests that detect N+1 query patterns
+
+---
+
 ## Development Principles
 
 1. **Security First**: Context isolation, CSP, sandboxing
@@ -1078,7 +1101,7 @@ const setTheme = useAppStore((state) => state.setTheme)
 - `setTheme(theme)` - Direct theme override
 - `setFullscreen(isFullscreen)` - Fullscreen toggle
 
-**Persistence**: Theme and accent color via Settings Manager IPC to `settings.json` (P3-T16, 22 Jan 2026)
+**Persistence**: Theme and accent color via Settings Manager IPC to `settings.json`
 
 #### 2. Toast Store (`toastStore.ts`)
 
@@ -1114,9 +1137,7 @@ const setTheme = useAppStore((state) => state.setTheme)
 
 #### 4. Library Store (`libraryStore.ts`)
 
-**Purpose**: Library management (Phase 3 complete, Jan-Feb 2026)
-
-**Status**: Implemented but not yet integrated
+**Purpose**: Library management for bookmarks and collections
 
 ### Store Guidelines
 
@@ -1220,62 +1241,30 @@ const setTheme = useAppStore((state) => state.setTheme)
 
 ### Message vs Detail Structure
 
-**Discovery** (4 March 2026, P4-T13): Native Electron dialogs (both `showDialog` and `showConfirmDialog`) have **fixed-width message titles** that truncate long text. Dynamic content like manga titles should be placed in the `detail` body instead.
+Native Electron dialogs have **fixed-width message titles** that truncate long text. Dynamic content should be placed in the `detail` body instead.
 
-**✅ Recommended Structure**:
+**Pattern**: Short static message + dynamic content in detail
 
 ```typescript
-// Good: Short, static message with dynamic content in detail
+// ✅ Good: Short message, full content in detail
 const result = await window.api.showDialog({
-  message: 'Remove from library?', // Short, never truncates
-  detail: `${mangaTitle}\n\nThis manga has 50 chapters...`, // Full title here
-  buttons: ['Remove', 'Cancel'],
-  type: 'warning'
-})
-```
-
-**❌ Problematic Structure**:
-
-```typescript
-// Bad: Long manga title gets truncated in message
-const result = await window.api.showDialog({
-  message: `Remove "${veryLongMangaTitle}" from library?`, // Gets cut off!
-  detail: 'Additional info...',
-  buttons: ['Remove', 'Cancel'],
-  type: 'warning'
-})
-```
-
-**Why This Matters**:
-
-- Message field has OS-imposed width constraints
-- Manga titles can be very long (e.g., "That Time I Got Reincarnated as a Slime and Started a Country...")
-- Truncated titles confuse users about what they're confirming
-- Detail field expands naturally to fit content
-
-**Application**:
-
-- **Confirmation dialogs**: Use generic message, put item name in detail
-- **Error dialogs**: Use error category in message, specifics in detail
-- **Multi-choice dialogs**: Use action in message, context in detail
-
-**Implementation Example** (`unfavouriteHandler.ts`):
-
-```typescript
-// Multi-choice dialog with long manga title
-const result = await globalThis.api.showDialog({
   message: 'Remove from library?',
-  detail: `${mangaTitle}\n\nThis manga has ${chapterCount} downloaded chapters (${formatBytes(totalBytes)}).\n\nWhat would you like to do?`,
-  buttons: [
-    'Remove from library only (keep downloads)',
-    'Delete downloads only (keep bookmark)',
-    'Remove everything',
-    'Cancel'
-  ],
-  type: 'warning',
-  defaultId: 3
+  detail: `${mangaTitle}\n\nThis manga has 50 chapters...`,
+  buttons: ['Remove', 'Cancel'],
+  type: 'warning'
+})
+
+// ❌ Bad: Long dynamic content in message gets truncated
+const result = await window.api.showDialog({
+  message: `Remove "${veryLongMangaTitle}" from library?`,
+  detail: 'Additional info...',
+  buttons: ['Remove', 'Cancel']
 })
 ```
+
+**Why**: Message field has OS width constraints, detail field expands naturally. Manga titles can be very long.
+
+**Applications**: Confirmation dialogs (item name in detail), error dialogs (specifics in detail), multi-choice dialogs (context in detail)
 
 ---
 
@@ -1289,12 +1278,11 @@ url: https://example.com/auto-updates
 updaterCacheDirName: dexreader-updater
 ```
 
-**Status**: Configured but not yet implemented
-**Next Steps**:
+**Implementation Requirements**:
 
-1. Set up update server
-2. Implement update UI in renderer
-3. Handle update events in main process
+- Set up update server
+- Implement update UI in renderer
+- Handle update events in main process
 
 ---
 
