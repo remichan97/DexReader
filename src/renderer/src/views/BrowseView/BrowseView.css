@@ -113,7 +113,9 @@
 /* Load More Error Box */
 
 .browse-view__load-more-error {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: var(--space-6);
   background: var(--win-bg-secondary);
   border-radius: var(--radius-md);

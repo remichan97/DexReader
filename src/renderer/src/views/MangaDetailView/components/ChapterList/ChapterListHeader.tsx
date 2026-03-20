@@ -41,8 +41,8 @@ export function ChapterListHeader({
             onClick={onDownloadAllClick}
             disabled={!downloadAllEnabled}
             aria-label={`Download all ${chapterCount} chapters`}
+            icon={<ArrowDownload20Regular />}
           >
-            <ArrowDownload20Regular />
             Download All
           </Button>
         )}
