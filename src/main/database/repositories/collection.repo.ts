@@ -87,6 +87,7 @@ export class CollectionRepository {
     return executeBatchOperations({
       commands: command,
       db: this.db,
+      collectResults: true, // Need to collect the generated collection IDs
       singleOperation: (cmd) => this.createCollection(cmd),
       batchOperation: (tx, cmd) => {
         const result = tx

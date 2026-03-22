@@ -8,7 +8,7 @@
  * - Pattern A: Simple bulk operations (using inArray optimization)
  * - Pattern B: Complex per-item logic (using executeBatchOperations utility)
  *
- * These benchmarks call actual repository methods to validate real-world performance.
+ * These benchmarks match actual repository methods to validate real-world performance.
  */
 
 import { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'

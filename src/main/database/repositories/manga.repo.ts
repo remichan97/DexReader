@@ -68,37 +68,46 @@ export class MangaRepository {
       .run()
   }
 
-  updateCoverCachedDate(mangaId: string[]): void {
-    if (mangaId.length === 0) return
+  updateCoverCachedDate(mangaIds: string[]): void {
+    if (mangaIds.length === 0) return
 
     const now = new Date()
+    const CHUNK_SIZE = 500 // SQLite has a 999-parameter limit for WHERE IN clauses
 
-    // Use inArray for efficient bulk update - single query instead of N queries in a transaction
-    this.db
-      .update(manga)
-      .set({
-        coverCachedAt: now,
-        updatedAt: now
-      })
-      .where(inArray(manga.mangaId, mangaId))
-      .run()
-  }
-
-  // Given an optional array of manga IDs, clear the cached cover date for the specified manga or all manga if no IDs are provided
-  clearCachedCoverDate(mangaId?: string[]): void {
-    const now = new Date()
-
-    if (mangaId && mangaId.length > 0) {
-      // Use inArray for efficient bulk update
+    // Process in chunks to avoid SQLite's parameter limit
+    for (let i = 0; i < mangaIds.length; i += CHUNK_SIZE) {
+      const chunk = mangaIds.slice(i, i + CHUNK_SIZE)
       this.db
         .update(manga)
         .set({
-          coverCachedAt: undefined,
+          coverCachedAt: now,
           updatedAt: now
         })
-        .where(inArray(manga.mangaId, mangaId))
+        .where(inArray(manga.mangaId, chunk))
         .run()
-    } else if (!mangaId) {
+    }
+  }
+
+  // Given an optional array of manga IDs, clear the cached cover date for the specified manga or all manga if no IDs are provided
+  clearCachedCoverDate(mangaIds?: string[]): void {
+    const now = new Date()
+
+    if (mangaIds && mangaIds.length > 0) {
+      const CHUNK_SIZE = 500 // SQLite has a 999-parameter limit for WHERE IN clauses
+
+      // Process in chunks to avoid SQLite's parameter limit
+      for (let i = 0; i < mangaIds.length; i += CHUNK_SIZE) {
+        const chunk = mangaIds.slice(i, i + CHUNK_SIZE)
+        this.db
+          .update(manga)
+          .set({
+            coverCachedAt: undefined,
+            updatedAt: now
+          })
+          .where(inArray(manga.mangaId, chunk))
+          .run()
+      }
+    } else if (!mangaIds) {
       // Clear for all manga
       this.db.update(manga).set({ coverCachedAt: undefined, updatedAt: now }).run()
     }
