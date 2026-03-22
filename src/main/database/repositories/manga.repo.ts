@@ -1,4 +1,4 @@
-import { and, eq, like, lt, SQL, or, sql, notExists } from 'drizzle-orm'
+import { and, eq, inArray, like, lt, SQL, or, sql, notExists } from 'drizzle-orm'
 import { UpsertMangaCommand } from '../commands/manga/upsert-manga.command'
 import { databaseConnection } from '../connection'
 import { chapterDownloads, collectionItems, manga } from '../schemas'
@@ -9,6 +9,7 @@ import { MarkMangaNewChapterCommand } from '../commands/manga/mark-new-chapter.c
 import { SearchMangaCommand } from '../commands/manga/search-manga.command'
 import { DownloadStatus } from '../enums/download-status.enum'
 import { MangaCacheStatsQuery } from '../queries/manga/manga-cache-stats.query'
+import { executeBatchOperations } from '../utils/batch-operations.util'
 
 type MangaRow = typeof manga.$inferSelect
 
@@ -20,19 +21,11 @@ export class MangaRepository {
   batchUpsertManga(mangaData: UpsertMangaCommand[]): void {
     const now: Date = new Date()
 
-    // If no data, skip
-    if (mangaData.length === 0) {
-      return
-    }
-
-    // If only one item, might as well use the single upsert method
-    if (mangaData.length === 1) {
-      this.upsertManga(mangaData[0])
-      return
-    }
-
-    this.db.transaction((tx) => {
-      for (const data of mangaData) {
+    executeBatchOperations({
+      commands: mangaData,
+      db: this.db,
+      singleOperation: (data) => this.upsertManga(data),
+      batchOperation: (tx, data) => {
         tx.insert(manga)
           .values({
             ...data,
@@ -76,38 +69,37 @@ export class MangaRepository {
   }
 
   updateCoverCachedDate(mangaId: string[]): void {
+    if (mangaId.length === 0) return
+
     const now = new Date()
 
-    this.db.transaction((tx) => {
-      for (const id of mangaId) {
-        tx.update(manga)
-          .set({
-            coverCachedAt: now,
-            updatedAt: now
-          })
-          .where(eq(manga.mangaId, id))
-          .run()
-      }
-    })
+    // Use inArray for efficient bulk update - single query instead of N queries in a transaction
+    this.db
+      .update(manga)
+      .set({
+        coverCachedAt: now,
+        updatedAt: now
+      })
+      .where(inArray(manga.mangaId, mangaId))
+      .run()
   }
 
   // Given an optional array of manga IDs, clear the cached cover date for the specified manga or all manga if no IDs are provided
   clearCachedCoverDate(mangaId?: string[]): void {
     const now = new Date()
 
-    if (mangaId) {
-      this.db.transaction((tx) => {
-        for (const id of mangaId) {
-          tx.update(manga)
-            .set({
-              coverCachedAt: undefined,
-              updatedAt: now
-            })
-            .where(eq(manga.mangaId, id))
-            .run()
-        }
-      })
-    } else {
+    if (mangaId && mangaId.length > 0) {
+      // Use inArray for efficient bulk update
+      this.db
+        .update(manga)
+        .set({
+          coverCachedAt: undefined,
+          updatedAt: now
+        })
+        .where(inArray(manga.mangaId, mangaId))
+        .run()
+    } else if (!mangaId) {
+      // Clear for all manga
       this.db.update(manga).set({ coverCachedAt: undefined, updatedAt: now }).run()
     }
   }

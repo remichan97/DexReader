@@ -5,6 +5,7 @@ import { MangaReadingSettings } from '../../settings/entities/reading-settings.e
 import { UpdateMangaOverrideCommand } from '../commands/manga/update-manga-override.command'
 import { MangaOverride } from '../queries/manga/manga-override.query'
 import { MangaMapper } from '../mappers/manga.mapper'
+import { executeBatchOperations } from '../utils/batch-operations.util'
 
 export class ReaderSettingsRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
@@ -78,17 +79,11 @@ export class ReaderSettingsRepository {
   batchUpdateOverrides(commands: UpdateMangaOverrideCommand[]): void {
     const now = new Date()
 
-    if (commands.length === 0) {
-      return
-    }
-
-    if (commands.length === 1) {
-      this.updateMangaOverride(commands[0])
-      return
-    }
-
-    this.db.transaction((tx) => {
-      for (const command of commands) {
+    executeBatchOperations({
+      commands,
+      db: this.db,
+      singleOperation: (command) => this.updateMangaOverride(command),
+      batchOperation: (tx, command) => {
         tx.insert(mangaReaderOverrides)
           .values({
             mangaId: command.mangaId,

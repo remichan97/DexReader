@@ -11,6 +11,7 @@ import { CollectionMetadataQuery } from '../queries/collections/collection-metad
 import { CollectionMapper } from '../mappers/collection.mapper'
 import { ReorderMangaInCollectionCommand } from '../commands/collections/reorder-manga-collection.command'
 import { CollectionItemQuery } from '../queries/collections/collection-item.query'
+import { executeBatchOperations } from '../utils/batch-operations.util'
 
 export class CollectionRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
@@ -82,22 +83,12 @@ export class CollectionRepository {
 
   batchCreateCollections(command: CreateCollectionCommand[]): number[] {
     const now = new Date()
-    const ids: number[] = []
 
-    // Nothing to do, bail out early
-    if (command.length === 0) {
-      return ids
-    }
-
-    // Single command, call the simple create method
-    if (command.length === 1) {
-      const id = this.createCollection(command[0])
-      ids.push(id)
-      return ids
-    }
-
-    this.db.transaction((tx) => {
-      for (const cmd of command) {
+    return executeBatchOperations({
+      commands: command,
+      db: this.db,
+      singleOperation: (cmd) => this.createCollection(cmd),
+      batchOperation: (tx, cmd) => {
         const result = tx
           .insert(collections)
           .values({
@@ -108,10 +99,9 @@ export class CollectionRepository {
           })
           .returning({ id: collections.id })
           .get()
-        ids.push(result.id)
+        return result.id
       }
     })
-    return ids
   }
 
   updateCollection(command: UpdateCollectionCommand): void {
@@ -135,17 +125,13 @@ export class CollectionRepository {
   batchAddToCollection(command: AddToCollectionCommand[]): void {
     const now = new Date()
 
-    if (command.length === 0) {
-      return
-    }
-
-    if (command.length === 1) {
-      this.addToCollection(command[0])
-      return
-    }
-
-    this.db.transaction((tx) => {
-      for (const cmd of command) {
+    executeBatchOperations({
+      commands: command,
+      db: this.db,
+      singleOperation: (cmd) => {
+        this.addToCollection(cmd)
+      },
+      batchOperation: (tx, cmd) => {
         tx.insert(collectionItems)
           .values({
             collectionId: cmd.collectionId,

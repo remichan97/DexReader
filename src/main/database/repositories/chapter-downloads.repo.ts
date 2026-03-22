@@ -8,6 +8,7 @@ import { MarkDownloadStateCommand } from '../commands/chapter-downloads/mark-sta
 import { DownloadStatus } from '../enums/download-status.enum'
 import { DeleteChapterCommand } from '../commands/chapter-downloads/delete-chapter.command'
 import { MangaStorageQuery } from '../queries/chapter-downloads/manga-storage.query'
+import { executeBatchOperations } from '../utils/batch-operations.util'
 
 export class ChapterDownloadsRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
@@ -157,20 +158,11 @@ export class ChapterDownloadsRepository {
 
   // Batch delete downloads, either permanently or soft delete (mark as hidden)
   batchDeleteDownloads(commands: DeleteChapterCommand[]): void {
-    // If no commands, skip
-    if (commands.length === 0) return
-
-    // If one command, use single delete/update for better performance
-    if (commands.length === 1) {
-      this.deleteDownload(commands[0])
-      return
-    }
-
-    // For the rest, use a transaction to batch deletes/updates
-    this.db.transaction((tx) => {
-      // Same logic as single delete, but applied to each command in the batch
-      // TODO: Maybe a dedicated method for this duplicated logic would be cleaner, but for now this is fine since it's only used in one place and the logic is pretty straightforward. The same could be said for various different batch operations in this repo, and many other repos across the codebase
-      for (const command of commands) {
+    executeBatchOperations({
+      commands,
+      db: this.db,
+      singleOperation: (command) => this.deleteDownload(command),
+      batchOperation: (tx, command) => {
         if (command.isDeletePermanent) {
           tx.delete(chapterDownloads).where(eq(chapterDownloads.chapterId, command.chapterId)).run()
         } else {
@@ -224,18 +216,11 @@ export class ChapterDownloadsRepository {
   }
 
   batchMarkDownloadsState(commands: MarkDownloadStateCommand[]): void {
-    // If no commands, skip
-    if (commands.length === 0) return
-
-    // If one command, use single update for better performance
-    if (commands.length === 1) {
-      this.markDownloadState(commands[0])
-      return
-    }
-
-    // For the rest, use a transaction to batch updates
-    this.db.transaction((tx) => {
-      for (const command of commands) {
+    executeBatchOperations({
+      commands,
+      db: this.db,
+      singleOperation: (command) => this.markDownloadState(command),
+      batchOperation: (tx, command) => {
         const updates: Partial<typeof chapterDownloads.$inferInsert> = {}
 
         if (command.isDownloaded) {
