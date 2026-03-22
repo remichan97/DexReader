@@ -119,7 +119,7 @@ export class WriteBenchmarks {
     this.verbose = options.verbose ?? false
 
     console.log('═'.repeat(70))
-    console.log('Database Write Performance Benchmarks (BASELINE)')
+    console.log('Database Write Performance Benchmarks')
     console.log('═'.repeat(70))
 
     const startTime = performance.now()
@@ -269,7 +269,7 @@ export class WriteBenchmarks {
         timestamp: new Date().toISOString(),
         iterations: options.iterations ?? 10,
         notes:
-          'Baseline write benchmarks before batch operation refactoring. Pattern A = inArray candidates, Pattern B = utility candidates.'
+          'Write benchmarks for batch operations. Pattern A uses inArray() for bulk updates, Pattern B uses executeBatchOperations for complex per-item logic.'
       }
     }
 
@@ -492,9 +492,8 @@ export class WriteBenchmarks {
 
     // Analysis notes
     console.log('\n📊 Analysis Notes:')
-    console.log('   - Pattern A operations are candidates for inArray() optimization')
-    console.log('   - Pattern B operations will use batch utility wrapper')
-    console.log('   - Compare these baseline numbers with post-refactor benchmarks')
+    console.log('   - Pattern A: Bulk operations using inArray() for efficient WHERE IN queries')
+    console.log('   - Pattern B: Complex per-item logic using executeBatchOperations utility')
 
     // Overall status
     if (summary.failed > 0) {
@@ -525,7 +524,7 @@ export class WriteBenchmarks {
 
       const json = JSON.stringify(summary, null, 2)
       fs.writeFileSync(filePath, json, 'utf-8')
-      console.log(`\n📁 Baseline results saved to: ${filePath}`)
+      console.log(`\n📁 Results saved to: ${filePath}`)
     } catch (error) {
       console.error(`Failed to save results: ${error}`)
     }

@@ -105,17 +105,23 @@ export function executeBatchOperations<TCommand, TResult = void>(
   }
 
   // Batch operation within transaction
-  const results: TResult[] = []
-
-  options.db.transaction((txn) => {
-    for (const command of options.commands) {
-      const result = options.batchOperation(txn, command)
-      // Only collect results if explicitly requested
-      if (options.collectResults) {
+  // Only allocate results array if collection is requested
+  if (options.collectResults) {
+    const results: TResult[] = []
+    options.db.transaction((txn) => {
+      for (const command of options.commands) {
+        const result = options.batchOperation(txn, command)
         results.push(result)
       }
+    })
+    return results
+  }
+
+  // Void operations - no result collection needed
+  options.db.transaction((txn) => {
+    for (const command of options.commands) {
+      options.batchOperation(txn, command)
     }
   })
-
-  return results
+  return []
 }
