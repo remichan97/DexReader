@@ -954,7 +954,7 @@ DexReader maintains a database benchmark suite to validate query performance at 
 
 When database code changes, update benchmarks accordingly:
 
-1. **New Repository Method**: Add corresponding benchmark query to `benchmark-suite.ts` that mirrors exact query structure (JOINs, aggregations, GROUP BY, ORDER BY)
+1. **New Repository Method**: Add corresponding benchmark query to `read-benchmarks.ts` that mirrors exact query structure (JOINs, aggregations, GROUP BY, ORDER BY)
 2. **Modified Repository Method**: Update benchmark to match new query structure
 3. **Schema Changes**: Update `seed-database.ts` and affected benchmark queries, then re-seed
 4. **ORM Upgrades**: Update all benchmark queries to match new ORM syntax
@@ -994,8 +994,10 @@ database-performance/
 │   ├── seed-database.ts  # DatabaseSeeder class (1000 manga, 10k chapters)
 │   └── seed-cli.ts       # CLI runner
 ├── benchmarking/         # Performance measurement
-│   ├── benchmark-suite.ts # DatabaseBenchmark class (7 queries)
-│   └── benchmark-cli.ts   # CLI runner
+│   ├── read-benchmarks.ts     # DatabaseBenchmark class (7 read queries)
+│   ├── read-benchmark-cli.ts  # Read benchmark CLI runner
+│   ├── write-benchmarks.ts    # WriteBenchmarks class (11 write operations)
+│   └── write-benchmark-cli.ts # Write benchmark CLI runner
 ├── analysis/             # Query plan analysis
 │   └── analyze-query-plans.ts # EXPLAIN QUERY PLAN tool
 ├── shared/               # Common utilities

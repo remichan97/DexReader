@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 19 March 2026
+**Last Updated**: 22 March 2026
 **Current Phase**: Phase 5 - Production Readiness (IN PROGRESS)
-**Current Task**: P5-T01 Database Optimization COMPLETE ✅
+**Current Task**: TECH-DEBT-01 Batch Operations Refactoring COMPLETE ✅
 **Next**: Continue Phase 5 tasks (P5-T02 Error Handling, P5-T03 Logging, or other optimization tasks)
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
@@ -12,7 +12,7 @@
 ## Current Status Summary
 
 **Phase 4**: COMPLETE - 13/13 tasks (100%) ✅
-**Phase 5**: IN PROGRESS - 2/21 tasks complete (P5-T21 Frontend + P5-T01 Database)
+**Phase 5**: IN PROGRESS - 2/21 tasks complete (P5-T21 Frontend + P5-T01 Database) + Tech Debt ✅
 **Electron**: Upgraded to 41.0.2 (15 Mar 2026) ✅
 **Timeline**: 6-8 weeks (11 March - 5 May 2026)
 **Target**: v1.0 Release Early May 2026 🚀
@@ -21,6 +21,18 @@
 ---
 
 ## Recent Completions (Last 2 Weeks)
+
+### TECH-DEBT-01 Batch Operations Refactoring (22 March 2026) ✅
+
+Eliminated ~250 lines of duplicated batch operation boilerplate across 5 repository files through dual-strategy refactoring. Created reusable `executeBatchOperations` utility for Pattern B operations (complex per-item logic). Optimized Pattern A operations (simple bulk operations) with `inArray` for single-query efficiency replacing N-query transaction loops.
+
+**Duration**: ~4 hours | **Pattern A**: 3 methods (inArray optimization) | **Pattern B**: 7 methods (utility wrapper)
+**Affected Files**: chapter-downloads.repo.ts, manga.repo.ts, collection.repo.ts, reader-settings.repo.ts
+**Created**: `src/main/database/utils/batch-operations.util.ts` with comprehensive JSDoc
+**Results**: Original TODO comment removed, consistent batch pattern across codebase, well-documented decision matrix for future batch operations
+**See**: [archived-milestones.md](./archived-milestones.md#tech-debt-01-batch-operations-refactoring-22-march-2026) for implementation details
+
+---
 
 ### P5-T01 Database Query Optimization (19 March 2026) ✅
 

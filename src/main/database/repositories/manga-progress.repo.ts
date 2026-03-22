@@ -79,7 +79,11 @@ export class MangaProgressRepository {
   }
 
   saveProgress(progress: SaveProgressCommand[]): void {
-    // Use a single transaction for all progress items
+    // Note: Not using executeBatchOperations utility because:
+    // 1. Each command requires TWO operations (mangaProgress + chapterProgress inserts)
+    // 2. Cleanup operations (calculateStatistics + cleanupMangaCache) run after all items
+    // 3. No corresponding single operation method exists
+    // This complex multi-step logic doesn't fit the standard batch pattern
     this.db.transaction((tx) => {
       for (const item of progress) {
         // Upsert manga progress entry
@@ -126,6 +130,10 @@ export class MangaProgressRepository {
 
   // For import operation, preserving firstReadAt timestamp
   updateFirstReadAt(command: UpdateFirstReadCommand[]): void {
+    // Note: Not using executeBatchOperations utility because:
+    // 1. Each command has a different firstReadAt value (can't use inArray Pattern A)
+    // 2. No corresponding single operation method exists (required for Pattern B utility)
+    // This method is only used during data import operations
     this.db.transaction((tx) => {
       for (const item of command) {
         tx.update(mangaProgress)

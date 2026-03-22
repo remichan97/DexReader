@@ -1,20 +1,20 @@
 /**
  * Database Write Benchmarks
  *
- * Benchmarks write operations (INSERT, UPDATE, DELETE) to establish baseline
- * performance before batch operation refactoring.
+ * Benchmarks write operations (INSERT, UPDATE, DELETE) to measure performance
+ * of refactored batch operations.
  *
  * Tests both patterns:
- * - Pattern A: Simple bulk operations (candidates for inArray optimization)
- * - Pattern B: Complex per-item logic (will use transaction utility)
+ * - Pattern A: Simple bulk operations (using inArray optimization)
+ * - Pattern B: Complex per-item logic (using executeBatchOperations utility)
  *
- * These benchmarks match actual repository implementations exactly.
+ * These benchmarks match actual repository methods to validate real-world performance.
  */
 
 import { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
-import { eq } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 import * as schema from '../../../database/schemas'
-import { BenchmarkResult, BenchmarkOptions } from './benchmark-suite'
+import { BenchmarkResult, BenchmarkOptions } from './read-benchmarks'
 import { PublicationStatus } from '../../../api/enums'
 
 export interface WriteBenchmarkSummary {
@@ -119,7 +119,7 @@ export class WriteBenchmarks {
     this.verbose = options.verbose ?? false
 
     console.log('═'.repeat(70))
-    console.log('Database Write Performance Benchmarks (BASELINE)')
+    console.log('Database Write Performance Benchmarks')
     console.log('═'.repeat(70))
 
     const startTime = performance.now()
@@ -269,7 +269,7 @@ export class WriteBenchmarks {
         timestamp: new Date().toISOString(),
         iterations: options.iterations ?? 10,
         notes:
-          'Baseline write benchmarks before batch operation refactoring. Pattern A = inArray candidates, Pattern B = utility candidates.'
+          'Write benchmarks for batch operations. Pattern A uses inArray() for bulk updates, Pattern B uses executeBatchOperations for complex per-item logic.'
       }
     }
 
@@ -310,52 +310,46 @@ export class WriteBenchmarks {
   }
 
   /**
-   * Pattern A Benchmark: updateCoverCachedDate (transaction loop - CURRENT approach)
-   * Matches: MangaRepository.updateCoverCachedDate()
+   * Pattern A Benchmark: updateCoverCachedDate (inArray optimization - REFACTORED)
+   * Tests single WHERE IN query (refactored approach)
    */
   private writeUpdateCoverCache(count: number): void {
     const now = new Date()
     const mangaIds = this.testMangaIds.slice(0, count)
 
-    // Exact match of current repository implementation
-    this.db.transaction((tx) => {
-      for (const id of mangaIds) {
-        tx.update(schema.manga)
-          .set({
-            coverCachedAt: now,
-            updatedAt: now
-          })
-          .where(eq(schema.manga.mangaId, id))
-          .run()
-      }
-    })
+    // Single query with inArray (refactored approach)
+    this.db
+      .update(schema.manga)
+      .set({
+        coverCachedAt: now,
+        updatedAt: now
+      })
+      .where(inArray(schema.manga.mangaId, mangaIds))
+      .run()
   }
 
   /**
-   * Pattern A Benchmark: clearCachedCoverDate (transaction loop - CURRENT approach)
-   * Matches: MangaRepository.clearCachedCoverDate()
+   * Pattern A Benchmark: clearCachedCoverDate (inArray optimization - REFACTORED)
+   * Tests single WHERE IN query (refactored approach)
    */
   private writeClearCoverCache(count: number): void {
     const now = new Date()
     const mangaIds = this.testMangaIds.slice(0, count)
 
-    // Exact match of current repository implementation
-    this.db.transaction((tx) => {
-      for (const id of mangaIds) {
-        tx.update(schema.manga)
-          .set({
-            coverCachedAt: undefined,
-            updatedAt: now
-          })
-          .where(eq(schema.manga.mangaId, id))
-          .run()
-      }
-    })
+    // Single query with inArray (refactored approach)
+    this.db
+      .update(schema.manga)
+      .set({
+        coverCachedAt: null,
+        updatedAt: now
+      })
+      .where(inArray(schema.manga.mangaId, mangaIds))
+      .run()
   }
 
   /**
-   * Pattern B Benchmark: batchUpsertManga (transaction with different values)
-   * Matches: MangaRepository.batchUpsertManga()
+   * Pattern B Benchmark: batchUpsertManga (executeBatchOperations utility - REFACTORED)
+   * Tests transaction pattern used by batch operations utility
    */
   private writeBatchUpsert(count: number): void {
     const now = new Date()
@@ -369,10 +363,13 @@ export class WriteBenchmarks {
       description: `Description for manga ${index}`,
       status: 'ongoing' as PublicationStatus,
       contentRating: 'safe' as const,
-      publicationDemographic: 'shounen' as const
+      publicationDemographic: 'shounen' as const,
+      authors: [`Author ${index}`],
+      artists: [`Artist ${index}`],
+      tags: ['action', 'adventure']
     }))
 
-    // Exact match of current repository implementation
+    // Transaction pattern (refactored approach via executeBatchOperations)
     this.db.transaction((tx) => {
       for (const data of mangaData) {
         tx.insert(schema.manga)
@@ -396,8 +393,8 @@ export class WriteBenchmarks {
   }
 
   /**
-   * Pattern B Benchmark: batchDeleteDownloads (conditional per item)
-   * Matches: ChapterDownloadsRepository.batchDeleteDownloads()
+   * Pattern B Benchmark: batchDeleteDownloads (executeBatchOperations utility - REFACTORED)
+   * Tests transaction pattern used by batch operations utility
    */
   private writeBatchDelete(count: number): void {
     const chapterIds = this.testChapterIds.slice(0, count)
@@ -408,7 +405,7 @@ export class WriteBenchmarks {
       isDeletePermanent: index % 3 === 0 // 33% permanent, 67% soft delete
     }))
 
-    // Exact match of current repository implementation
+    // Transaction pattern (refactored approach via executeBatchOperations)
     this.db.transaction((tx) => {
       for (const command of commands) {
         if (command.isDeletePermanent) {
@@ -495,9 +492,8 @@ export class WriteBenchmarks {
 
     // Analysis notes
     console.log('\n📊 Analysis Notes:')
-    console.log('   - Pattern A operations are candidates for inArray() optimization')
-    console.log('   - Pattern B operations will use batch utility wrapper')
-    console.log('   - Compare these baseline numbers with post-refactor benchmarks')
+    console.log('   - Pattern A: Bulk operations using inArray() for efficient WHERE IN queries')
+    console.log('   - Pattern B: Complex per-item logic using executeBatchOperations utility')
 
     // Overall status
     if (summary.failed > 0) {
@@ -528,7 +524,7 @@ export class WriteBenchmarks {
 
       const json = JSON.stringify(summary, null, 2)
       fs.writeFileSync(filePath, json, 'utf-8')
-      console.log(`\n📁 Baseline results saved to: ${filePath}`)
+      console.log(`\n📁 Results saved to: ${filePath}`)
     } catch (error) {
       console.error(`Failed to save results: ${error}`)
     }

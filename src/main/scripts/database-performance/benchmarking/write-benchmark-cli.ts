@@ -1,21 +1,20 @@
 /**
  * Write Benchmark CLI Runner
  *
- * Runs write performance benchmarks on the benchmark database to establish
- * baseline before batch operation refactoring.
+ * Runs write performance benchmarks on the benchmark database.
+ * Results are automatically saved to benchmark-results/write-benchmarks.json
  *
  * Usage:
- *   npm run benchmark:write                           # Auto-saves to benchmark-results/
- *   npm run benchmark:write -- --iterations 20        # More iterations
- *   npm run benchmark:write -- --output custom.json   # Custom filename
- *   npm run benchmark:write -- --verbose              # Detailed logs
+ *   npm run benchmark:write                    # Run benchmarks with defaults
+ *   npm run benchmark:write -- --iterations 20 # More iterations for accuracy
+ *   npm run benchmark:write -- --verbose       # Show detailed progress
  *
  * Options:
  *   --iterations <count>  Number of iterations per operation (default: 10)
  *   --warmup <count>      Number of warmup iterations (default: 2)
- *   --output <filename>   Save to benchmark-results/ folder (auto-timestamped by default)
  *   --verbose             Show detailed progress logs
  *
+ * Output: benchmark-results/write-benchmarks.json (git-ignored)
  * Note: Requires benchmark database created via 'npm run seed:benchmark'
  */
 
@@ -28,21 +27,15 @@ import fs from 'node:fs'
 interface ScriptOptions {
   iterations: number
   warmup: number
-  output: string // Always has a default (timestamped filename)
   verbose: boolean
 }
 
 function parseArgs(): ScriptOptions {
   const args = process.argv.slice(2)
 
-  // Default output to benchmark-results/ folder with timestamp
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5)
-  const defaultOutput = `benchmark-results/write-baseline-${timestamp}.json`
-
   const options: ScriptOptions = {
     iterations: 10,
     warmup: 2,
-    output: defaultOutput,
     verbose: false
   }
 
@@ -57,10 +50,6 @@ function parseArgs(): ScriptOptions {
       case '--warmup':
       case '-w':
         options.warmup = Number.parseInt(args[++i], 10)
-        break
-      case '--output':
-      case '-o':
-        options.output = args[++i]
         break
       case '--verbose':
       case '-v':
@@ -81,32 +70,31 @@ function printHelp(): void {
   console.log(`
 Write Benchmark Script
 
-Runs write performance benchmarks to establish baseline before refactoring.
+Runs write performance benchmarks for batch operations.
+Results are automatically saved to benchmark-results/write-benchmarks.json
+
 Requires benchmark database created via 'npm run seed:benchmark'.
 
 Usage:
-  npm run benchmark:write                              # Use defaults (saves to benchmark-results/)
-  npm run benchmark:write -- --iterations 20           # More iterations
-  npm run benchmark:write -- --output custom-name.json # Custom filename
-  npm run benchmark:write -- --verbose                 # Detailed logs
+  npm run benchmark:write                    # Run with defaults
+  npm run benchmark:write -- --iterations 20 # More iterations for accuracy
+  npm run benchmark:write -- --verbose       # Show detailed progress
 
 Options:
   --iterations <count>  Number of iterations per operation (default: 10)
   --warmup <count>      Number of warmup iterations (default: 2)
-  --output <filename>   Save results to JSON file in benchmark-results/ folder
-                        (default: write-baseline-<timestamp>.json)
   --verbose             Show detailed progress logs
   --help                Show this help message
 
+Output:
+  Results saved to: benchmark-results/write-benchmarks.json (git-ignored)
+
 Examples:
-  # Run baseline benchmarks (auto-saves to benchmark-results/)
+  # Run write benchmarks with defaults
   npm run benchmark:write
 
-  # Run with custom output name
-  npm run benchmark:write -- --output write-optimized.json
-
-  # Compare results
-  diff benchmark-results/write-baseline-*.json benchmark-results/write-optimized.json
+  # Run with more iterations for accuracy
+  npm run benchmark:write -- --iterations 50
   `)
 }
 
@@ -171,7 +159,7 @@ async function main(): Promise<void> {
     iterations: options.iterations,
     warmupIterations: options.warmup,
     verbose: options.verbose,
-    saveToFile: options.output // Always defined now
+    saveToFile: 'benchmark-results/write-benchmarks.json'
   })
 
   // Close database connection

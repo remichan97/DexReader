@@ -71,9 +71,17 @@ export class ChapterRepository {
       return []
     }
 
-    const results = this.db.select().from(chapter).where(inArray(chapter.mangaId, mangaIds)).all()
+    const CHUNK_SIZE = 500 // SQLite has a 999-parameter limit for WHERE IN clauses
+    const allResults: ChapterRow[] = []
 
-    return results
+    // Process in chunks to avoid SQLite's parameter limit
+    for (let i = 0; i < mangaIds.length; i += CHUNK_SIZE) {
+      const chunk = mangaIds.slice(i, i + CHUNK_SIZE)
+      const results = this.db.select().from(chapter).where(inArray(chapter.mangaId, chunk)).all()
+      allResults.push(...results)
+    }
+
+    return allResults
   }
 }
 
