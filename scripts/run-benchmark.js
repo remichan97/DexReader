@@ -13,7 +13,6 @@
  * Usage:
  *   npm run benchmark:db                           # Auto-saves to benchmark-results/
  *   npm run benchmark:db -- --iterations 20        # More iterations
- *   npm run benchmark:db -- --output custom.json   # Custom filename
  *   npm run benchmark:db -- --verbose              # Detailed logs
  */
 

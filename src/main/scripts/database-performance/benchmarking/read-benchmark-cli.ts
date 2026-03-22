@@ -76,26 +76,20 @@ Requires benchmark database created via 'npm run seed:benchmark'.
 Usage:
   npm run benchmark:db                              # Use defaults (saves to benchmark-results/)
   npm run benchmark:db -- --iterations 20           # More iterations
-  npm run benchmark:db -- --output custom-name.json # Custom filename
   npm run benchmark:db -- --verbose                 # Detailed logs
 
 Options:
   --iterations <count>  Number of iterations per query (default: 10)
   --warmup <count>      Number of warmup iterations (default: 2)
-  --output <filename>   Save results to JSON file in benchmark-results/ folder
-                        (default: read-baseline-<timestamp>.json)
   --verbose             Show detailed progress logs
   --help                Show this help message
+
+Output:
+  Results saved to: benchmark-results/read-benchmarks.json (git-ignored)
 
 Examples:
   # Run read benchmarks (auto-saves to benchmark-results/)
   npm run benchmark:db
-
-  # Run with custom output name
-  npm run benchmark:db -- --output read-optimized.json
-
-  # Compare results
-  diff benchmark-results/read-baseline-*.json benchmark-results/read-optimized.json
 
   # Run with more iterations for accurate results
   npm run benchmark:db -- --iterations 50 --verbose
