@@ -340,7 +340,7 @@ export class WriteBenchmarks {
     this.db
       .update(schema.manga)
       .set({
-        coverCachedAt: undefined,
+        coverCachedAt: null,
         updatedAt: now
       })
       .where(inArray(schema.manga.mangaId, mangaIds))

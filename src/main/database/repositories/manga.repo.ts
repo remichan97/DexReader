@@ -101,7 +101,7 @@ export class MangaRepository {
         this.db
           .update(manga)
           .set({
-            coverCachedAt: undefined,
+            coverCachedAt: null,
             updatedAt: now
           })
           .where(inArray(manga.mangaId, chunk))
@@ -109,7 +109,7 @@ export class MangaRepository {
       }
     } else if (!mangaIds) {
       // Clear for all manga
-      this.db.update(manga).set({ coverCachedAt: undefined, updatedAt: now }).run()
+      this.db.update(manga).set({ coverCachedAt: null, updatedAt: now }).run()
     }
   }
 

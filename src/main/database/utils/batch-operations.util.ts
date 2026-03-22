@@ -1,4 +1,4 @@
-import type { databaseConnection } from '../connection'
+import { databaseConnection } from '../connection'
 
 type DatabaseType = ReturnType<typeof databaseConnection.getDb>
 // Extract the transaction type from the database's transaction method
