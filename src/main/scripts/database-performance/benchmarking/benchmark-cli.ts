@@ -5,15 +5,15 @@
  * This script does NOT touch the development database (dexreader-dev.db).
  *
  * Usage:
- *   npm run benchmark:db                           # Use defaults
+ *   npm run benchmark:db                           # Auto-saves to benchmark-results/
  *   npm run benchmark:db -- --iterations 20        # More iterations
- *   npm run benchmark:db -- --output baseline.json # Save baseline
+ *   npm run benchmark:db -- --output custom.json   # Custom filename
  *   npm run benchmark:db -- --verbose              # Detailed logs
  *
  * Options:
  *   --iterations <count>  Number of iterations per query (default: 10)
  *   --warmup <count>      Number of warmup iterations (default: 2)
- *   --output <filename>   Save results to JSON file (e.g., baseline.json)
+ *   --output <filename>   Save to benchmark-results/ folder (auto-timestamped by default)
  *   --verbose             Show detailed progress logs
  *
  * Note: Requires benchmark database created via 'npm run seed:benchmark'
@@ -27,16 +27,21 @@ import fs from 'node:fs'
 interface ScriptOptions {
   iterations: number
   warmup: number
-  output: string | null
+  output: string // Always has a default (timestamped filename)
   verbose: boolean
 }
 
 function parseArgs(): ScriptOptions {
   const args = process.argv.slice(2)
+  
+  // Default output to benchmark-results/ folder with timestamp
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5)
+  const defaultOutput = `benchmark-results/read-baseline-${timestamp}.json`
+  
   const options: ScriptOptions = {
     iterations: 10,
     warmup: 2,
-    output: null,
+    output: defaultOutput,
     verbose: false
   }
 
@@ -79,24 +84,28 @@ Runs performance benchmarks on the benchmark database.
 Requires benchmark database created via 'npm run seed:benchmark'.
 
 Usage:
-  npm run benchmark:db                              # Use defaults
+  npm run benchmark:db                              # Use defaults (saves to benchmark-results/)
   npm run benchmark:db -- --iterations 20           # More iterations
-  npm run benchmark:db -- --output baseline.json    # Save baseline
+  npm run benchmark:db -- --output custom-name.json # Custom filename
   npm run benchmark:db -- --verbose                 # Detailed logs
 
 Options:
   --iterations <count>  Number of iterations per query (default: 10)
   --warmup <count>      Number of warmup iterations (default: 2)
-  --output <filename>   Save results to JSON file (relative to project root)
+  --output <filename>   Save results to JSON file in benchmark-results/ folder
+                        (default: read-baseline-<timestamp>.json)
   --verbose             Show detailed progress logs
   --help                Show this help message
 
 Examples:
-  # Run baseline benchmarks before optimization
-  npm run benchmark:db -- --output benchmark-baseline.json
+  # Run read benchmarks (auto-saves to benchmark-results/)
+  npm run benchmark:db
 
-  # Run optimized benchmarks after adding indexes
-  npm run benchmark:db -- --output benchmark-optimized.json
+  # Run with custom output name
+  npm run benchmark:db -- --output read-optimized.json
+
+  # Compare results
+  diff benchmark-results/read-baseline-*.json benchmark-results/read-optimized.json
 
   # Run with more iterations for accurate results
   npm run benchmark:db -- --iterations 50 --verbose
@@ -143,7 +152,7 @@ async function main(): Promise<void> {
       iterations: options.iterations,
       warmupIterations: options.warmup,
       verbose: options.verbose,
-      saveToFile: options.output || undefined
+      saveToFile: options.output // Always defined now
     })
 
     // Close database

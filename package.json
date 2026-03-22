@@ -23,6 +23,7 @@
     "build:linux": "electron-vite build && electron-builder --linux",
     "seed:benchmark": "node scripts/run-seed.js",
     "benchmark:db": "node scripts/run-benchmark.js",
+    "benchmark:write": "node scripts/run-write-benchmark.js",
     "analyze:plans": "node scripts/run-analyze-plans.js"
   },
   "dependencies": {

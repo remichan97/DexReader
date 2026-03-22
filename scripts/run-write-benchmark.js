@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Run Database Benchmarks - Electron Runner
+ * Run Write Benchmarks - Electron Runner
  *
- * Runs the database benchmark script through Electron's Node.js runtime.
+ * Runs the write benchmark script through Electron's Node.js runtime.
  * This ensures better-sqlite3 (compiled for Electron) works correctly.
  *
  * Why this is needed:
@@ -11,10 +11,10 @@
  * - Solution: Use Electron's bundled Node.js runtime via ELECTRON_RUN_AS_NODE
  *
  * Usage:
- *   npm run benchmark:db                           # Auto-saves to benchmark-results/
- *   npm run benchmark:db -- --iterations 20        # More iterations
- *   npm run benchmark:db -- --output custom.json   # Custom filename
- *   npm run benchmark:db -- --verbose              # Detailed logs
+ *   npm run benchmark:write                           # Auto-saves to benchmark-results/
+ *   npm run benchmark:write -- --iterations 20        # More iterations
+ *   npm run benchmark:write -- --output custom.json   # Custom filename
+ *   npm run benchmark:write -- --verbose              # Detailed logs
  */
 
 const { spawn } = require('child_process')
@@ -32,7 +32,7 @@ const scriptPath = path.join(
   'scripts',
   'database-performance',
   'benchmarking',
-  'benchmark-cli.ts'
+  'write-benchmark-cli.ts'
 )
 
 // Forward all CLI arguments
