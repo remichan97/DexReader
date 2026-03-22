@@ -34,11 +34,11 @@ interface ScriptOptions {
 
 function parseArgs(): ScriptOptions {
   const args = process.argv.slice(2)
-  
+
   // Default output to benchmark-results/ folder with timestamp
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5)
   const defaultOutput = `benchmark-results/write-baseline-${timestamp}.json`
-  
+
   const options: ScriptOptions = {
     iterations: 10,
     warmup: 2,
