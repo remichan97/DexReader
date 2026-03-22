@@ -40,8 +40,10 @@ database-performance/
 │   ├── seed-database.ts  # DatabaseSeeder class (reusable)
 │   └── seed-cli.ts       # CLI runner for seeding
 ├── benchmarking/         # Performance measurement
-│   ├── benchmark-suite.ts # DatabaseBenchmark class (reusable)
-│   └── benchmark-cli.ts   # CLI runner for benchmarks
+│   ├── read-benchmarks.ts     # DatabaseBenchmark class (7 read queries)
+│   ├── read-benchmark-cli.ts  # Read benchmark CLI runner
+│   ├── write-benchmarks.ts    # WriteBenchmarks class (11 write operations)
+│   └── write-benchmark-cli.ts # Write benchmark CLI runner
 ├── analysis/             # Query plan analysis
 │   └── analyze-query-plans.ts # EXPLAIN QUERY PLAN tool
 ├── shared/               # Common utilities
@@ -65,8 +67,10 @@ database-performance/
 # 1. Seed test database (17 seconds)
 npm run seed:benchmark
 
-# 2. Run benchmarks (0.4 seconds)
-npm run benchmark:db
+# 2. Run benchmarks
+npm run benchmark:db     # Read queries only (0.04 seconds)
+npm run benchmark:write  # Write operations only (0.42 seconds)
+npm run benchmark:all    # Both read and write (0.46 seconds)
 
 # 3. Analyze query plans
 npm run analyze:plans
@@ -103,25 +107,34 @@ npm run seed:benchmark -- --verbose
 #### Benchmarking
 
 ```bash
-# Run with default settings (10 iterations)
+# Run read benchmarks (7 queries, ~40ms)
 npm run benchmark:db
 
-# Save to benchmark-results folder (git-ignored)
-npm run benchmark:db -- --output benchmark-results/my-benchmark.json
+# Run write benchmarks (11 operations, ~420ms)
+npm run benchmark:write
+
+# Run both read and write benchmarks (~460ms total)
+npm run benchmark:all
 
 # More iterations for accuracy
 npm run benchmark:db -- --iterations 20
+npm run benchmark:write -- --iterations 20
 
 # Verbose output
 npm run benchmark:db -- --verbose
+npm run benchmark:write -- --verbose
 ```
 
 **Options:**
 
-- `--output <file>` - Save results to JSON (default: none, use benchmark-results/ folder)
 - `--iterations <count>` - Test iterations (default: 10)
 - `--warmup <count>` - Warmup runs (default: 2)
 - `--verbose` - Show detailed progress
+
+**Output Files** (auto-saved to `benchmark-results/`, git-ignored):
+
+- `read-benchmarks.json` - Read query performance results
+- `write-benchmarks.json` - Write operation performance results
 
 #### Query Plan Analysis
 

@@ -32,7 +32,7 @@ const scriptPath = path.join(
   'scripts',
   'database-performance',
   'benchmarking',
-  'benchmark-cli.ts'
+  'read-benchmark-cli.ts'
 )
 
 // Forward all CLI arguments

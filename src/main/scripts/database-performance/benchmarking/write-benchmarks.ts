@@ -14,7 +14,7 @@
 import { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { eq, inArray } from 'drizzle-orm'
 import * as schema from '../../../database/schemas'
-import { BenchmarkResult, BenchmarkOptions } from './benchmark-suite'
+import { BenchmarkResult, BenchmarkOptions } from './read-benchmarks'
 import { PublicationStatus } from '../../../api/enums'
 
 export interface WriteBenchmarkSummary {

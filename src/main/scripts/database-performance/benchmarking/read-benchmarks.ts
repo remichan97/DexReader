@@ -68,7 +68,7 @@ export class DatabaseBenchmark {
   benchmark(
     name: string,
     view: string,
-    queryFn: () => any,
+    queryFn: () => unknown,
     threshold: number,
     options: BenchmarkOptions = {}
   ): BenchmarkResult {
@@ -271,7 +271,7 @@ export class DatabaseBenchmark {
    * Query: Get library manga (favourited manga)
    * Matches: MangaRepository.getLibraryManga()
    */
-  private queryLibraryManga(search?: string): any[] {
+  private queryLibraryManga(search?: string): unknown[] {
     // Match actual repository with LEFT JOIN, COUNT aggregation, GROUP BY
     let query = this.db
       .select({
@@ -309,7 +309,7 @@ export class DatabaseBenchmark {
    * Query: Get all progress with metadata
    * Matches: MangaProgressRepository.getAllProgressWithMetadata()
    */
-  private queryProgressWithMetadata(): any[] {
+  private queryProgressWithMetadata(): unknown[] {
     // Match actual repository with INNER JOIN manga, LEFT JOIN chapter, explicit columns
     return this.db
       .select({
@@ -336,7 +336,7 @@ export class DatabaseBenchmark {
    * Query: Get all downloads
    * Matches: ChapterDownloadsRepository.getAllDownloads()
    */
-  private queryAllDownloads(): any[] {
+  private queryAllDownloads(): unknown[] {
     // Match actual repository with 2 INNER JOINs, WHERE clause, explicit columns
     return this.db
       .select({
@@ -369,7 +369,7 @@ export class DatabaseBenchmark {
    * Query: Get collections with metadata
    * Matches: CollectionRepository.getAllCollectionsWithMetadata()
    */
-  private queryCollectionsWithMetadata(): any[] {
+  private queryCollectionsWithMetadata(): unknown[] {
     // Match actual repository with LEFT JOINs, COUNT, MAX, GROUP BY
     return this.db
       .select({
@@ -394,7 +394,7 @@ export class DatabaseBenchmark {
    * Query: Get chapters by manga ID
    * Matches: ChapterRepository.getChaptersByMangaId()
    */
-  private queryChaptersByMangaId(mangaId: string): any[] {
+  private queryChaptersByMangaId(mangaId: string): unknown[] {
     // This one already matches the repository (simple select with where)
     return this.db.select().from(schema.chapter).where(eq(schema.chapter.mangaId, mangaId)).all()
   }
@@ -403,7 +403,7 @@ export class DatabaseBenchmark {
    * Query: Cleanup manga cache (find stale manga)
    * Matches: MangaRepository.cleanupMangaCache()
    */
-  private queryCleanupMangaCache(): any[] {
+  private queryCleanupMangaCache(): unknown[] {
     const now = new Date()
     const thresholdDate = new Date()
     thresholdDate.setDate(now.getDate() - 90)
