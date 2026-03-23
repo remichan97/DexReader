@@ -85,7 +85,7 @@ app.whenReady().then(async () => {
 
   createWindow()
 
-  setupAppLifecycle()
+  setupAppLifecycle(imageProxy)
 
   setTimeout(() => {
     console.log('Resuming any incomplete downloads in the queue...')

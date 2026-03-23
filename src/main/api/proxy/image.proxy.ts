@@ -16,9 +16,11 @@ export class ImageProxy {
   private readonly MAX_CHAPTER_CACHE = 30 * 1024 * 1024 // 30 MB
   private readonly MAX_COVER_CACHE = 20 * 1024 * 1024 // 20 MB
   private readonly CACHE_TTL = 15 * 60 * 1000 // 15 minutes
+  private readonly CLEANUP_INTERVAL = 5 * 60 * 1000 // Run cleanup every 5 minutes
 
   private currentChapterCacheSize = 0
   private currentCoverCacheSize = 0
+  private cleanupTimer?: NodeJS.Timeout
 
   registerProtocol(): void {
     protocol.handle('mangadex', async (request) => {
@@ -90,8 +92,57 @@ export class ImageProxy {
         return new Response('Failed to fetch image', { status: 502 })
       }
     })
+
+    // Start background cleanup timer
+    this.startCleanupTimer()
   }
 
+  /**
+   * Start periodic cleanup of expired chapter cache entries
+   * Runs every 5 minutes to proactively remove expired entries (15min TTL)
+   */
+  private startCleanupTimer(): void {
+    this.cleanupTimer = setInterval(() => {
+      this.cleanupExpiredEntries()
+    }, this.CLEANUP_INTERVAL)
+  }
+
+  /**
+   * Proactively clean up expired chapter cache entries
+   * Only chapter images have TTL (15 minutes), covers never expire
+   */
+  private cleanupExpiredEntries(): void {
+    const now = Date.now()
+    let cleanedCount = 0
+    let freedBytes = 0
+
+    for (const [url, entry] of this.chapterCache.entries()) {
+      if (now - entry.timestamp > this.CACHE_TTL) {
+        this.chapterCache.delete(url)
+        this.currentChapterCacheSize -= entry.size
+        cleanedCount++
+        freedBytes += entry.size
+      }
+    }
+
+    if (cleanedCount > 0) {
+      const freedMB = (freedBytes / (1024 * 1024)).toFixed(2)
+      console.log(
+        `[ImageProxy] Cleaned ${cleanedCount} expired chapter images (freed ${freedMB} MB)`
+      )
+    }
+  }
+
+  /**
+   * Clean up resources on app shutdown
+   */
+  destroy(): void {
+    if (this.cleanupTimer) {
+      clearInterval(this.cleanupTimer)
+      this.cleanupTimer = undefined
+      console.log('[ImageProxy] Cleanup timer stopped')
+    }
+  }
   private isExpired(entry: CacheEntry): boolean {
     return Date.now() - entry.timestamp > this.CACHE_TTL
   }

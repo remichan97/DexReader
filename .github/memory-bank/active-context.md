@@ -1,9 +1,9 @@
 # DexReader Active Context
 
-**Last Updated**: 22 March 2026
+**Last Updated**: 23 March 2026
 **Current Phase**: Phase 5 - Production Readiness (IN PROGRESS)
-**Current Task**: TECH-DEBT-01 Batch Operations Refactoring COMPLETE ✅
-**Next**: Continue Phase 5 tasks (P5-T02 Error Handling, P5-T03 Logging, or other optimization tasks)
+**Current Task**: P5-T02 Memory Profiling & Leak Detection COMPLETE ✅
+**Next**: Continue Phase 5 optimization tasks (P5-T03 Download System Performance, P5-T04 Image Loading, P5-T05 UI Responsiveness)
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -12,15 +12,25 @@
 ## Current Status Summary
 
 **Phase 4**: COMPLETE - 13/13 tasks (100%) ✅
-**Phase 5**: IN PROGRESS - 2/21 tasks complete (P5-T21 Frontend + P5-T01 Database) + Tech Debt ✅
+**Phase 5**: IN PROGRESS - 3/21 tasks complete (P5-T21 Frontend + P5-T01 Database + P5-T02 Memory) + Tech Debt ✅
 **Electron**: Upgraded to 41.0.2 (15 Mar 2026) ✅
 **Timeline**: 6-8 weeks (11 March - 5 May 2026)
 **Target**: v1.0 Release Early May 2026 🚀
-**Next Steps**: Continue Phase 5 with Performance Optimization, Build Pipeline, Testing, or Documentation tasks
+**Next Steps**: Continue Track 1 Performance Optimization (P5-T03 Downloads, P5-T04 Images, P5-T05 UI) or move to Track 2 Build Pipeline
 
 ---
 
 ## Recent Completions (Last 2 Weeks)
+
+### P5-T02 Memory Profiling & Leak Detection (20-23 March 2026) ✅
+
+Memory profiling of dual-process Electron app using Chrome DevTools and Node.js inspector. Discovered chapter cache TTL memory leak (22-23 MB retained indefinitely). Implemented proactive cleanup timer (5-minute interval) integrated into app lifecycle. Verified fix: 175 MB → 152 MB drop after 20 minutes. Conducted event listener audit: 14 listeners + 5 timers across 10 files — 100% cleanup compliance.
+
+**Duration**: ~12 hours | **Memory Leak**: Chapter cache lazy expiry | **Fix**: Proactive cleanup timer
+**Audit**: 100% cleanup compliance (14 event listeners, 5 timers all clean)
+**See**: [archived-milestones.md](./archived-milestones.md#p5-t02-memory-profiling--leak-detection-20-23-march-2026) for full methodology and findings
+
+---
 
 ### TECH-DEBT-01 Batch Operations Refactoring (22 March 2026) ✅
 

@@ -2,8 +2,9 @@ import { app, BrowserWindow } from 'electron'
 import { createWindow } from './window'
 import { databaseConnection } from './database/connection'
 import { downloadQueueService } from './services/download-queue.service'
+import type { ImageProxy } from './api/proxy/image.proxy'
 
-export function setupAppLifecycle(): void {
+export function setupAppLifecycle(imageProxy?: ImageProxy): void {
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
@@ -22,5 +23,6 @@ export function setupAppLifecycle(): void {
   app.on('before-quit', () => {
     databaseConnection.close()
     downloadQueueService.cleanup()
+    imageProxy?.destroy() // Clean up image cache timers
   })
 }

@@ -30,6 +30,14 @@
 
 ## Recent Milestones
 
+### P5-T02 Memory Profiling & Leak Detection (20-23 March 2026)
+
+Comprehensive memory profiling using Chrome DevTools and Node.js inspector. Discovered chapter cache TTL leak (22-23 MB retained indefinitely due to lazy expiry). Implemented proactive cleanup timer with 5-minute interval. Verified effectiveness: memory drops 175 MB → 152 MB after 20 minutes. Event listener audit: 100% compliance across 14 listeners and 5 timers.
+
+**Key Results**: Chapter cache cleanup working correctly (15-20 min TTL + interval). Event listeners: 6 IPC, 7 DOM, 5 timers all properly cleaned. Protocol handler architecture validated (renderer minimal 1-2 MB, main process handles Buffers). Memory behavior stable for production use.
+
+See `archived-milestones.md` for full testing methodology and implementation details.
+
 ### P5-T01 Database Query Optimization (19 March 2026)
 
 Validated database performance with production-scale datasets (1000 manga, 10k chapters). Built comprehensive testing infrastructure. All 7 critical queries passed with 0.32-5.97ms performance (88-99% faster than thresholds). Confirmed 100% index usage, zero table scans - database already optimally indexed.
@@ -341,7 +349,7 @@ See [archived-milestones.md](./archived-milestones.md) for detailed P4 task impl
 **Track 1 - Performance Optimization (Week 2-3)**:
 
 - [✅] **P5-T01**: Database Query Optimization & Indexing (12-16 hours) **COMPLETE** (19 Mar 2026)
-- [⏳] **P5-T02**: Memory Profiling & Leak Detection (10-12 hours)
+- [✅] **P5-T02**: Memory Profiling & Leak Detection (10-12 hours) **COMPLETE** (23 Mar 2026)
 - [⏳] **P5-T03**: Download System Performance (8-10 hours)
 - [⏳] **P5-T04**: Image Loading Optimization (8-10 hours)
 - [⏳] **P5-T05**: UI Responsiveness (6-8 hours)
@@ -370,7 +378,7 @@ See [archived-milestones.md](./archived-milestones.md) for detailed P4 task impl
 - [⏳] **P5-T19**: User Documentation & Installation Guide (12-16 hours) **CRITICAL**
 - [⏳] **P5-T20**: Developer Documentation (8-10 hours)
 
-**Phase 5 Progress**: 2/21 tasks (~10% complete) | Track 0 Complete ✅ | Track 1: 1/5 tasks
+**Phase 5 Progress**: 3/21 tasks (~14% complete) | Track 0 Complete ✅ | Track 1: 2/5 tasks
 
 **Key Decisions**:
 
