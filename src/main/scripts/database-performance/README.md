@@ -8,15 +8,15 @@ This directory contains tools for validating database query performance. These a
 
 **Baseline Established**: 19 March 2026
 
-| Query View | Method | Avg Time | Status | Index Usage |
-|------------|--------|----------|--------|-------------|
-| Library | getLibraryManga() | 5.97ms | ✅ Pass | idx_chapter_manga_downloads |
-| Library | getLibraryManga({search}) | 2.04ms | ✅ Pass | idx_chapter_manga_downloads |
-| History | getAllProgressWithMetadata() | 1.45ms | ✅ Pass | Primary keys (manga, chapter) |
-| Downloads | getAllDownloads() | 1.21ms | ✅ Pass | Primary keys (manga, chapter) |
-| Collections | getAllCollectionsWithMetadata() | 0.80ms | ✅ Pass | COVERING INDEX (optimal!) |
-| Reader | getChaptersByMangaId() | 0.32ms | ✅ Pass | idx_chapter_manga |
-| Cleanup | cleanupMangaCache() | 0.86ms | ✅ Pass | idx_manga_favourite, idx_chapter_status_downloads |
+| Query View  | Method                          | Avg Time | Status  | Index Usage                                       |
+| ----------- | ------------------------------- | -------- | ------- | ------------------------------------------------- |
+| Library     | getLibraryManga()               | 5.97ms   | ✅ Pass | idx_chapter_manga_downloads                       |
+| Library     | getLibraryManga({search})       | 2.04ms   | ✅ Pass | idx_chapter_manga_downloads                       |
+| History     | getAllProgressWithMetadata()    | 1.45ms   | ✅ Pass | Primary keys (manga, chapter)                     |
+| Downloads   | getAllDownloads()               | 1.21ms   | ✅ Pass | Primary keys (manga, chapter)                     |
+| Collections | getAllCollectionsWithMetadata() | 0.80ms   | ✅ Pass | COVERING INDEX (optimal!)                         |
+| Reader      | getChaptersByMangaId()          | 0.32ms   | ✅ Pass | idx_chapter_manga                                 |
+| Cleanup     | cleanupMangaCache()             | 0.86ms   | ✅ Pass | idx_manga_favourite, idx_chapter_status_downloads |
 
 **Key Findings:**
 
@@ -220,7 +220,7 @@ These are **one-time validation tools**. Re-run when:
 - Explicit column selection
 - WHERE conditions
 
-**Lesson Learned**: Initial benchmarks used simplified queries (SELECT * from single tables) which showed misleading performance. All queries were rewritten to match production complexity.
+**Lesson Learned**: Initial benchmarks used simplified queries (SELECT \* from single tables) which showed misleading performance. All queries were rewritten to match production complexity.
 
 ### Database Schema
 

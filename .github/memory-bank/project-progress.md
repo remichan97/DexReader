@@ -340,7 +340,7 @@ See [archived-milestones.md](./archived-milestones.md) for detailed P4 task impl
 - API documentation and contribution guide
 - **v1.0 Production Release** 🎉
 
-**Key Technical Tasks** (21 tasks, 5 tracks):
+**Key Technical Tasks** (22 tasks, 5 tracks):
 
 **Track 0 - Code Refactoring (Week 1)**:
 
@@ -370,6 +370,7 @@ See [archived-milestones.md](./archived-milestones.md) for detailed P4 task impl
 - [⏸️] **P5-T14**: E2E Testing (Optional, deferred to v1.1)
 - [⏳] **P5-T15**: Accessibility Audit (8-10 hours)
 - [⏳] **P5-T16**: Performance Benchmarking (6-8 hours)
+- [⏳] **P5-T22**: Lighthouse Performance Testing (2-3 hours)
 
 **Track 4 - Production Polish (Week 6-8)**:
 
@@ -378,7 +379,7 @@ See [archived-milestones.md](./archived-milestones.md) for detailed P4 task impl
 - [⏳] **P5-T19**: User Documentation & Installation Guide (12-16 hours) **CRITICAL**
 - [⏳] **P5-T20**: Developer Documentation (8-10 hours)
 
-**Phase 5 Progress**: 3/21 tasks (~14% complete) | Track 0 Complete ✅ | Track 1: 2/5 tasks
+**Phase 5 Progress**: 3/22 tasks (~14% complete) | Track 0 Complete ✅ | Track 1: 2/5 tasks
 
 **Key Decisions**:
 

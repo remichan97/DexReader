@@ -946,7 +946,7 @@ DexReader maintains a database benchmark suite to validate query performance at 
 - ✅ Includes all JOINs (LEFT, INNER, etc.)
 - ✅ Includes all aggregations (COUNT, MAX, MIN, etc.)
 - ✅ Includes all GROUP BY clauses
-- ✅ Uses explicit column selection (not SELECT *)
+- ✅ Uses explicit column selection (not SELECT \*)
 - ✅ Includes all WHERE conditions
 - ✅ Matches ORDER BY clauses
 

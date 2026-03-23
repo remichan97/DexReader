@@ -193,7 +193,7 @@ setupAppLifecycle(imageProxy) // Passes instance for shutdown cleanup
 **Audit Results**:
 
 - **100% cleanup compliance** — every addEventListener has removeEventListener
-- **100% timer cleanup** — every setTimeout/setInterval has matching clear* call
+- **100% timer cleanup** — every setTimeout/setInterval has matching clear\* call
 - All cleanup functions in useEffect return statements (React 19 best practices)
 - P5-T21 frontend refactoring impact visible — consistent patterns across codebase
 
@@ -380,14 +380,14 @@ Eliminated ~250 lines of duplicated batch operation boilerplate across 5 reposit
 
 **Pattern Decision Matrix** (documented in utility JSDoc):
 
-| Question | If YES → Solution |
-|----------|-------------------|
-| Same UPDATE/DELETE for all items? | inArray (Pattern A) |
-| Only IDs vary, same SET values? | inArray (Pattern A) |
-| No conditional logic per item? | inArray (Pattern A) |
-| Different operations per item? | executeBatchOperations (Pattern B) |
+| Question                              | If YES → Solution                  |
+| ------------------------------------- | ---------------------------------- |
+| Same UPDATE/DELETE for all items?     | inArray (Pattern A)                |
+| Only IDs vary, same SET values?       | inArray (Pattern A)                |
+| No conditional logic per item?        | inArray (Pattern A)                |
+| Different operations per item?        | executeBatchOperations (Pattern B) |
 | Conditional logic (if/else per item)? | executeBatchOperations (Pattern B) |
-| INSERT with different values? | executeBatchOperations (Pattern B) |
+| INSERT with different values?         | executeBatchOperations (Pattern B) |
 
 **Rule of Thumb**: If expressible as single SQL WHERE IN clause → inArray. Otherwise → utility.
 
@@ -416,7 +416,7 @@ Validated database performance with production-scale datasets (1000 manga, 10,00
 
 **Accuracy-First Benchmarking**: Critical mid-project discovery reshaped approach:
 
-- **Initial Problem**: Benchmarks used simplified SELECT * queries missing JOINs, aggregations, GROUP BY
+- **Initial Problem**: Benchmarks used simplified SELECT \* queries missing JOINs, aggregations, GROUP BY
 - **User Feedback**: "Does the benchmark code simulate how the repository code would query the database? or are we making stuff up for the numbers?"
 - **Root Cause**: 80% complexity gap between benchmark queries and production repository methods
 - **Resolution**: Complete rewrite of all 6 benchmark queries to match repository implementations exactly
@@ -459,18 +459,14 @@ class DatabaseSeeder {
     //    - 20% favourited (200 manga)
     //    - lastAccessedAt spread over 90 days
     //    - Titles, descriptions, authors, tags
-
     // 2. Generate 10,000 chapters
     //    - Average 10 per manga, range 1-500
     //    - Sequential chapter numbers
     //    - Volume numbers where applicable
-
     // 3. Generate 5 collections with varying sizes
     //    - 50%, 30%, 15%, 5%, 1% of favourited manga
-
     // 4. Generate 200 chapter downloads
     //    - 80% Completed, 10% Downloading, 5% Failed, 5% Pending
-
     // 5. Generate 300 reading progress records
     //    - 30% of manga library
     //    - 40% completed, 60% in-progress
@@ -533,15 +529,15 @@ class DatabaseSeeder {
 
 **Benchmark Results** (All Passing ✅):
 
-| Query | View | Avg Time | Threshold | Status | % Faster |
-|-------|------|----------|-----------|--------|----------|
-| getLibraryManga() | Library | 5.97ms | 50ms | ✅ PASS | 88% |
-| getLibraryManga({search}) | Library | 2.04ms | 50ms | ✅ PASS | 96% |
-| getAllProgressWithMetadata() | History | 1.45ms | 75ms | ✅ PASS | 98% |
-| getAllDownloads() | Downloads | 1.21ms | 75ms | ✅ PASS | 98% |
-| getAllCollectionsWithMetadata() | Collections | 0.80ms | 75ms | ✅ PASS | 99% |
-| getChaptersByMangaId() | Reader | 0.32ms | 100ms | ✅ PASS | 99% |
-| cleanupMangaCache() | Cleanup | 0.86ms | 150ms | ✅ PASS | 99% |
+| Query                           | View        | Avg Time | Threshold | Status  | % Faster |
+| ------------------------------- | ----------- | -------- | --------- | ------- | -------- |
+| getLibraryManga()               | Library     | 5.97ms   | 50ms      | ✅ PASS | 88%      |
+| getLibraryManga({search})       | Library     | 2.04ms   | 50ms      | ✅ PASS | 96%      |
+| getAllProgressWithMetadata()    | History     | 1.45ms   | 75ms      | ✅ PASS | 98%      |
+| getAllDownloads()               | Downloads   | 1.21ms   | 75ms      | ✅ PASS | 98%      |
+| getAllCollectionsWithMetadata() | Collections | 0.80ms   | 75ms      | ✅ PASS | 99%      |
+| getChaptersByMangaId()          | Reader      | 0.32ms   | 100ms     | ✅ PASS | 99%      |
+| cleanupMangaCache()             | Cleanup     | 0.86ms   | 150ms     | ✅ PASS | 99%      |
 
 **CLI**: `npm run benchmark:db --iterations 10 --output baseline.json`
 

@@ -43,7 +43,8 @@ function analyzeQueryPlan(): void {
 
   // Get a sample manga ID for testing
   const sampleMangaResult = db.all(sql.raw('SELECT manga_id FROM manga LIMIT 1'))
-  const testMangaId = sampleMangaResult.length > 0 ? (sampleMangaResult[0] as any).manga_id : 'test-id'
+  const testMangaId =
+    sampleMangaResult.length > 0 ? (sampleMangaResult[0] as any).manga_id : 'test-id'
 
   // 1. Library View Queries
   console.log('\n📚 Library View Queries...')
