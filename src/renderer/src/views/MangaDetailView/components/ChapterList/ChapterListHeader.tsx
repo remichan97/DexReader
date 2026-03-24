@@ -13,6 +13,7 @@ interface ChapterListHeaderProps {
   readonly onSortChange: (order: 'asc' | 'desc') => void
   readonly onDownloadAllClick?: () => void
   readonly downloadAllEnabled?: boolean
+  readonly isOnline?: boolean
 }
 
 /**
@@ -26,8 +27,19 @@ export function ChapterListHeader({
   onLanguageChange,
   onSortChange,
   onDownloadAllClick,
-  downloadAllEnabled = true
+  downloadAllEnabled = true,
+  isOnline = true
 }: ChapterListHeaderProps): JSX.Element {
+  const getDownloadButtonTitle = (): string => {
+    if (!isOnline) {
+      return 'You are offline. Please go online to download'
+    }
+    if (!downloadAllEnabled) {
+      return 'Download all is not available'
+    }
+    return `Download all ${chapterCount} chapters`
+  }
+
   return (
     <div className="chapter-list-header flex justify-between items-center">
       <h2 className="section-title">Chapters ({chapterCount})</h2>
@@ -37,10 +49,11 @@ export function ChapterListHeader({
         {chapterCount > 0 && onDownloadAllClick && (
           <Button
             variant="secondary"
-            size="small"
+            size="medium"
             onClick={onDownloadAllClick}
-            disabled={!downloadAllEnabled}
-            aria-label={`Download all ${chapterCount} chapters`}
+            disabled={!downloadAllEnabled || !isOnline}
+            aria-label={getDownloadButtonTitle()}
+            title={getDownloadButtonTitle()}
             icon={<ArrowDownload20Regular />}
           >
             Download All

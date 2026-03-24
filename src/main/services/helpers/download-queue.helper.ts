@@ -37,13 +37,16 @@ export function calculateAggregateStats(
 /**
  * Emit a permanent failure notification to the renderer process
  * @param chapterId Chapter ID that permanently failed
+ * @param customMessage Optional custom error message for specific failure reasons
  */
-export function emitPermanentFailureNotification(chapterId: string): void {
+export function emitPermanentFailureNotification(chapterId: string, customMessage?: string): void {
   const browserWindow = BrowserWindow.getAllWindows()[0]
   if (browserWindow) {
     browserWindow.webContents.send('download:permanent-failure', {
       chapterId,
-      message: `Download failed after multiple attempts for chapter ${chapterId}. Please check your connection or try again later.`
+      message:
+        customMessage ||
+        `Download failed after multiple attempts for chapter ${chapterId}. Please check your connection or try again later.`
     })
   }
 }

@@ -118,7 +118,12 @@ export class MangaDexClient {
   //#endregion
 
   //#region Private helper methods
-  private async fetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  /**
+   * Internal fetch with automatic retry for rate limit errors (429)
+   * Frontend-facing calls get transparent retry, while download queue handles its own retry logic
+   */
+  private async fetch<T>(endpoint: string, options: RequestInit = {}, retryCount = 0): Promise<T> {
+    const maxRetries = 3
     const url = `${this.baseUrl}${endpoint}`
 
     const headers = {
@@ -127,7 +132,6 @@ export class MangaDexClient {
       ...options.headers
     }
 
-    // Attempt the request, handling rate limits as necessary
     try {
       const response = await fetch(url, {
         ...options,
@@ -138,32 +142,64 @@ export class MangaDexClient {
       const requestId = response.headers.get('X-Request-ID') || 'N/A'
 
       if (!response.ok) {
-        // Only retry on rate limit (429)
-        if (response.status === 429) {
-          const retryAfter = response.headers.get('X-RateLimit-Retry-After')
-          const delay = this.rateLimiter.handleRateLimitResponse(
-            retryAfter ? Number.parseInt(retryAfter) : undefined
-          )
-
-          // We got rate limited, log it and retry after the specified delay
-          console.warn(
-            `[MangaDex] Request ID: ${requestId} - Rate limited. Retrying after ${delay} ms.`
-          )
-
-          await new Promise((resolve) => setTimeout(resolve, delay))
-          return this.fetch<T>(endpoint, options) // Retry the request
+        const errorBody = await response.text()
+        let parsedError: unknown
+        try {
+          parsedError = JSON.parse(errorBody)
+        } catch {
+          // If parsing fails, leave it undefined
         }
 
-        // For other errors, throw
-        const errorBody = await response.text()
+        // Handle rate limit errors (429) with retry
+        if (response.status === 429) {
+          const retryAfter = response.headers.get('X-RateLimit-Retry-After')
+          const retryAfterSeconds = retryAfter ? Number.parseInt(retryAfter) : undefined
+
+          // Reset rate limiter state (tokens to zero, set refill time)
+          this.rateLimiter.handleRateLimitResponse(retryAfterSeconds)
+
+          // Retry if we haven't exceeded max attempts
+          if (retryCount < maxRetries) {
+            // Calculate retry delay with jitter
+            const baseDelay = retryAfterSeconds
+              ? retryAfterSeconds * 1000
+              : 1000 * Math.pow(2, retryCount)
+            const jitterFactor = 0.8 + Math.random() * 0.4 // ±20% jitter
+            const delay = Math.floor(baseDelay * jitterFactor)
+
+            console.warn(
+              `[MangaDex] Request ID: ${requestId} - Rate limited (429). ` +
+                `Retrying in ${Math.floor(delay / 1000)}s (attempt ${retryCount + 1}/${maxRetries})...`
+            )
+
+            await new Promise((resolve) => setTimeout(resolve, delay))
+            return this.fetch<T>(endpoint, options, retryCount + 1) // Recursive retry
+          }
+
+          // Max retries exceeded, throw with retry info
+          console.error(
+            `[MangaDex] Request ID: ${requestId} - Rate limit retry exhausted after ${maxRetries} attempts`
+          )
+
+          throw new MangaDexApiError(
+            `HTTP ${response.status}: ${response.statusText} (retried ${maxRetries} times)`,
+            parsedError,
+            requestId,
+            response.status,
+            retryAfterSeconds
+          )
+        }
+
+        // For other errors (404, 403, 5xx), throw immediately with status code
         throw new MangaDexApiError(
           `HTTP ${response.status}: ${response.statusText}`,
-          JSON.parse(errorBody),
-          requestId
+          parsedError,
+          requestId,
+          response.status
         )
       }
 
-      // We made it, return the JSON response
+      // Success - return the JSON response
       return response.json()
     } catch (error: unknown) {
       if (error instanceof MangaDexApiError) throw error

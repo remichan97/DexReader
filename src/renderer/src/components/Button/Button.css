@@ -155,7 +155,7 @@
 .button--disabled {
   cursor: not-allowed;
   opacity: 0.5;
-  pointer-events: none;
+  /* Removed pointer-events: none to allow tooltips on disabled buttons */
 }
 
 /* Loading State */

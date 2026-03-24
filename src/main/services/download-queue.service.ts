@@ -1,3 +1,4 @@
+import { BrowserWindow } from 'electron'
 import { DownloadStatus } from '../database/enums/download-status.enum'
 import { chapterDownloadsRepo } from '../database/repositories/chapter-downloads.repo'
 import { downloadService } from './download.service'
@@ -13,6 +14,12 @@ import {
   getRetryDelay
 } from './helpers/download-queue.helper'
 import { MarkDownloadStateCommand } from '../database/commands/chapter-downloads/mark-state.command'
+import {
+  classifyDownloadError,
+  ErrorClassification,
+  getErrorSummary
+} from './errors/download-error-classifier'
+import { DownloadErrorCategory } from './errors/enums/download-error.enum'
 
 export class DownloadQueueService {
   // Main states
@@ -223,22 +230,62 @@ export class DownloadQueueService {
   }
 
   private handleDownloadFailure(chapterId: string, error: unknown): void {
-    console.error(`Download failed for chapter ${chapterId}:`, error)
+    // Classify the error to determine retry behavior
+    const classification = classifyDownloadError(error)
 
+    console.error(`Download failed for chapter ${chapterId}:`, getErrorSummary(error))
+
+    // Check if error is retryable
+    if (!classification.isRetryable) {
+      console.warn(
+        `Permanent error for chapter ${chapterId}, not retrying: ${classification.userMessage}`
+      )
+
+      // Mark as permanently failed with user-friendly message
+      this.scheduleBatchUpdate({
+        chapterId,
+        isFailed: true,
+        errorMessage: classification.userMessage,
+        storageSize: 0,
+        totalPages: 0
+      })
+
+      // Cleanup retry counter
+      this.retryCount.delete(chapterId)
+
+      // Notify user with actionable message
+      emitPermanentFailureNotification(chapterId, classification.userMessage)
+
+      return // Don't schedule retry
+    }
+
+    // Error is retryable - proceed with retry logic
     const attempts = (this.retryCount.get(chapterId) || 0) + 1
     this.retryCount.set(chapterId, attempts)
 
     if (attempts >= this.maxRetryAttempts) {
-      console.error('[Failure] Max retry attempts reached for chapter', chapterId)
+      console.error(
+        `Max retry attempts (${this.maxRetryAttempts}) exceeded for chapter ${chapterId}`
+      )
+
+      this.scheduleBatchUpdate({
+        chapterId,
+        isFailed: true,
+        errorMessage: `Failed after ${attempts} attempts: ${classification.userMessage}`,
+        storageSize: 0,
+        totalPages: 0
+      })
 
       this.retryCount.delete(chapterId)
-      // Throw a notification to the user that the download has permanently failed and they should check their connection or try again later
-      emitPermanentFailureNotification(chapterId)
+      emitPermanentFailureNotification(chapterId, classification.userMessage)
 
       return
     }
 
-    console.log(`Scheduling retry #${attempts} for chapter ${chapterId} after failure.`)
+    console.log(
+      `Scheduling retry ${attempts}/${this.maxRetryAttempts} for chapter ${chapterId} ` +
+        `(category: ${classification.category})`
+    )
 
     const failedDownloadData = chapterDownloadsRepo.getDownload(chapterId)
 
@@ -254,13 +301,13 @@ export class DownloadQueueService {
       mangaId: failedDownloadData.mangaId,
       quality: failedDownloadData.imageQuality,
       language: failedDownloadData.language || 'en',
-      addedAt: new Date() // We can set the addedAt to now since we're retrying them, not adding them for the first time
+      addedAt: new Date()
     }
 
-    this.scheduleRetry(item)
+    this.scheduleRetry(item, classification)
   }
 
-  private scheduleRetry(item: QueuedDownloads): void {
+  private scheduleRetry(item: QueuedDownloads, classification: ErrorClassification): void {
     const attempts = this.retryCount.get(item.chapterId) || 0
 
     if (attempts >= this.maxRetryAttempts) {
@@ -275,16 +322,70 @@ export class DownloadQueueService {
       return
     }
 
-    const delay = getRetryDelay(attempts, this.retryDelays)
+    // Calculate retry delay based on error category
+    const delay = this.getRetryDelayForError(classification, attempts)
+
     console.log(
       `Scheduling retry #${attempts} for chapter ${item.chapterId} in ${delay / 1000} seconds.`
     )
 
     setTimeout(() => {
+      // Fix race condition: Check for duplicates before adding to queue
+      if (this.activeDownloads.has(item.chapterId)) {
+        console.warn(`Chapter ${item.chapterId} already downloading, skipping retry`)
+        return
+      }
+      if (this.queue.some((q) => q.chapterId === item.chapterId)) {
+        console.warn(`Chapter ${item.chapterId} already in queue, skipping retry`)
+        return
+      }
+
       // Add back to the first position in the queue to retry immediately after the delay
       this.queue.unshift(item)
       this.processQueue()
     }, delay)
+  }
+
+  /**
+   * Calculate retry delay based on error category with jitter
+   * Different error types get different retry strategies
+   * Jitter prevents thundering herd when many downloads fail simultaneously
+   */
+  private getRetryDelayForError(classification: ErrorClassification, attempt: number): number {
+    let baseDelay: number
+
+    // If classification includes a suggested delay (e.g., rate limit with Retry-After header), use it
+    if (classification.suggestedDelayMs) {
+      baseDelay = classification.suggestedDelayMs
+    } else {
+      switch (classification.category) {
+        case DownloadErrorCategory.RATE_LIMIT:
+          // Exponential backoff for rate limits: 1s, 2s, 4s, 8s (capped at 60s)
+          baseDelay = Math.min(1000 * Math.pow(2, attempt), 60000)
+          break
+
+        case DownloadErrorCategory.TRANSIENT_NETWORK:
+          // Longer delays for network issues: 10s, 30s, 60s
+          baseDelay = [10000, 30000, 60000][attempt - 1] ?? 60000
+          break
+
+        case DownloadErrorCategory.TRANSIENT_SERVER:
+          // Standard delays for server errors: 5s, 15s, 45s
+          baseDelay = getRetryDelay(attempt, this.retryDelays)
+          break
+
+        default:
+          // Unknown errors use conservative standard delays
+          baseDelay = getRetryDelay(attempt, this.retryDelays)
+      }
+    }
+
+    // Add jitter: ±20% randomization to prevent synchronized retries
+    // This spreads out retry attempts when multiple downloads fail simultaneously
+    const jitterFactor = 0.8 + Math.random() * 0.4 // Random between 0.8 and 1.2
+    const delayWithJitter = Math.floor(baseDelay * jitterFactor)
+
+    return delayWithJitter
   }
 
   private scheduleBatchUpdate(command: MarkDownloadStateCommand): void {
@@ -305,8 +406,32 @@ export class DownloadQueueService {
       return
     }
 
-    // Process the batch updates in the database
-    chapterDownloadsRepo.batchMarkDownloadsState(this.pendingUpdates)
+    try {
+      // Process the batch updates in the database
+      chapterDownloadsRepo.batchMarkDownloadsState(this.pendingUpdates)
+    } catch (error) {
+      console.error('Batch update failed, attempting individual updates:', error)
+
+      // Fallback: Try updating each item individually
+      for (const command of this.pendingUpdates) {
+        try {
+          chapterDownloadsRepo.markDownloadState(command)
+        } catch (individualError) {
+          console.error(
+            `CRITICAL: Failed to update download state for chapter ${command.chapterId}:`,
+            individualError
+          )
+          // Emit error to UI so user knows there's a problem
+          const browserWindow = BrowserWindow.getAllWindows()[0]
+          if (browserWindow) {
+            browserWindow.webContents.send('download:database-error', {
+              chapterId: command.chapterId,
+              error: 'Failed to save download progress. Data may be inconsistent.'
+            })
+          }
+        }
+      }
+    }
 
     // Clear the batch and timeout
     this.pendingUpdates = []

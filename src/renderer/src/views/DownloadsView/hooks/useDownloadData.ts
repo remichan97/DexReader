@@ -152,6 +152,22 @@ export function useDownloadData(): UseDownloadDataReturn {
     [showToast, loadDownloads]
   )
 
+  // Handle database error event (critical system error)
+  const handleDatabaseError = useCallback(
+    ({ chapterId, error }: { chapterId: string; error: string }): void => {
+      showToast({
+        title: 'Database Error',
+        message: error || 'Failed to save download progress. Data may be inconsistent.',
+        variant: 'error',
+        duration: 8000 // Longer duration for critical errors
+      })
+
+      // Log for debugging
+      console.error(`Database error for chapter ${chapterId}:`, error)
+    },
+    [showToast]
+  )
+
   // Load downloads on mount + auto-refresh
   useEffect(() => {
     loadDownloads(true) // Show loading on initial load
@@ -187,12 +203,20 @@ export function useDownloadData(): UseDownloadDataReturn {
       }
     )
 
+    const unsubDatabaseError = globalThis.electron.ipcRenderer.on(
+      'download:database-error',
+      (_event: unknown, data: { chapterId: string; error: string }) => {
+        handleDatabaseError(data)
+      }
+    )
+
     return () => {
       unsubChapterProgress()
       unsubQueueProgress()
       unsubFailure()
+      unsubDatabaseError()
     }
-  }, [handlePermanentFailure])
+  }, [handlePermanentFailure, handleDatabaseError])
 
   return {
     downloads,

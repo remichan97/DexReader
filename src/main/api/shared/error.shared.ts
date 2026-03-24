@@ -1,10 +1,10 @@
-import { ErrorResponse } from 'react-router-dom'
-
 export class MangaDexApiError extends Error {
   constructor(
     public message: string,
-    public error?: ErrorResponse,
-    public requestId?: string
+    public error?: unknown,
+    public requestId?: string,
+    public statusCode?: number,
+    public retryAfterSeconds?: number
   ) {
     super(`MangaDex API Error: ${message}`)
     this.name = 'MangaDexApiError'

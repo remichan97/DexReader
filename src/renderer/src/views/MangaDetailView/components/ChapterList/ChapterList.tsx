@@ -73,6 +73,7 @@ export default function ChapterList({
     showDownloadDialog,
     showDownloadAllDialog,
     selectedChapter,
+    isOnline,
     setShowDownloadDialog,
     setShowDownloadAllDialog,
     setSelectedChapter,
@@ -98,6 +99,7 @@ export default function ChapterList({
         onSortChange={onSortChange}
         onDownloadAllClick={() => handleDownloadAllClick(displayChapters)}
         downloadAllEnabled={!!downloadSettings}
+        isOnline={isOnline}
       />
 
       {/* Chapter items */}
@@ -186,6 +188,7 @@ export default function ChapterList({
                 isInProgress={isInProgress}
                 pageProgress={pageProgress}
                 downloadStatus={downloadStatus}
+                isOnline={isOnline}
                 onDownloadClick={() => handleDownloadClick(chapter)}
                 onClick={() =>
                   navigate(`/reader/${mangaId}/${chapter.id}`, {

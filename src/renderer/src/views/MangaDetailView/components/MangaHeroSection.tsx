@@ -11,6 +11,7 @@ import {
 import { Button } from '@renderer/components/Button'
 import { DownloadConfirmationDialog } from '@renderer/components/DownloadConfirmationDialog'
 import { useLibraryStore, useToastStore } from '@renderer/stores'
+import { useConnectivityStore } from '@renderer/stores/connectivityStore'
 import { handleUnfavourite } from '@renderer/utils/unfavouriteHandler'
 import {
   getCoverImageUrl,
@@ -47,6 +48,7 @@ export default function MangaHeroSection({
   const navigate = useNavigate()
   const { isFavourite, toggleFavourite, loadFavourites } = useLibraryStore()
   const showToast = useToastStore((state) => state.show)
+  const isOnline = useConnectivityStore((state) => state.isOnline)
   const coverUrl = getCoverImageUrl(manga, CoverSize.Large)
   const title = getMangaTitle(manga)
   const author = getAuthorName(manga)
@@ -234,6 +236,16 @@ export default function MangaHeroSection({
     }
   }
 
+  const getDownloadButtonTitle = (): string => {
+    if (!isOnline) {
+      return 'You are offline. Please go online to download'
+    }
+    if (chapters.length === 0) {
+      return 'No chapters available'
+    }
+    return 'Download all chapters'
+  }
+
   return (
     <div className="manga-detail-view__hero">
       {/* Cover Image */}
@@ -326,7 +338,8 @@ export default function MangaHeroSection({
           <Button
             variant="secondary"
             onClick={handleDownloadAllClick}
-            disabled={chapters.length === 0 || !downloadSettings}
+            disabled={chapters.length === 0 || !downloadSettings || !isOnline}
+            title={getDownloadButtonTitle()}
             icon={<ArrowDownload24Regular />}
           >
             Download All

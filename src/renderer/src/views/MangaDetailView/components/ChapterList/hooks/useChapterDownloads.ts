@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useToast } from '@renderer/components/Toast'
+import { useConnectivityStore } from '@renderer/stores/connectivityStore'
 import type { DownloadStatus } from '@renderer/components/DownloadStatusBadge'
 
 // Extract types from global window interface
@@ -23,6 +24,7 @@ interface UseChapterDownloadsResult {
   showDownloadDialog: boolean
   showDownloadAllDialog: boolean
   selectedChapter: ChapterEntity | null
+  isOnline: boolean
   setShowDownloadDialog: (show: boolean) => void
   setShowDownloadAllDialog: (show: boolean) => void
   setSelectedChapter: (chapter: ChapterEntity | null) => void
@@ -44,6 +46,7 @@ export function useChapterDownloads({
   selectedLanguage
 }: UseChapterDownloadsParams): UseChapterDownloadsResult {
   const { show: showToast } = useToast()
+  const isOnline = useConnectivityStore((state) => state.isOnline)
 
   // Download dialog state
   const [showDownloadDialog, setShowDownloadDialog] = useState(false)
@@ -278,6 +281,7 @@ export function useChapterDownloads({
     showDownloadDialog,
     showDownloadAllDialog,
     selectedChapter,
+    isOnline,
     setShowDownloadDialog,
     setShowDownloadAllDialog,
     setSelectedChapter,

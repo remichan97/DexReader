@@ -13,6 +13,7 @@ interface ChapterListItemProps {
   readonly pageProgress?: { currentPage: number; totalPages: number }
   readonly downloadStatus?: DownloadStatus
   readonly onDownloadClick?: () => void
+  readonly isOnline?: boolean
 }
 
 /**
@@ -25,7 +26,8 @@ export function ChapterListItem({
   isInProgress,
   pageProgress,
   downloadStatus = 'not-downloaded',
-  onDownloadClick
+  onDownloadClick,
+  isOnline = true
 }: ChapterListItemProps): JSX.Element {
   const chapterNum = chapter.attributes.chapter || '0'
   const title = chapter.attributes.title || 'Untitled'
@@ -74,6 +76,7 @@ export function ChapterListItem({
           )}
           <DownloadStatusBadge
             status={downloadStatus}
+            isOnline={isOnline}
             onClick={(e) => {
               e.stopPropagation()
               onDownloadClick?.()

@@ -18,6 +18,7 @@ interface DownloadStatusBadgeProps {
   }
   readonly onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
   readonly disabled?: boolean
+  readonly isOnline?: boolean
 }
 
 /**
@@ -30,7 +31,8 @@ export function DownloadStatusBadge({
   status,
   progress,
   onClick,
-  disabled = false
+  disabled = false,
+  isOnline = true
 }: DownloadStatusBadgeProps): JSX.Element {
   const getIcon = (): JSX.Element => {
     switch (status) {
@@ -48,6 +50,11 @@ export function DownloadStatusBadge({
   }
 
   const getLabel = (): string => {
+    // Check offline first - it takes precedence
+    if (!isOnline && (status === 'not-downloaded' || status === 'failed')) {
+      return 'You are offline. Please go online to download'
+    }
+
     switch (status) {
       case 'not-downloaded':
         return 'Download chapter'
@@ -77,7 +84,7 @@ export function DownloadStatusBadge({
   }
 
   const isClickable = status === 'not-downloaded' || status === 'failed'
-  const isInteractive = isClickable && !disabled
+  const isInteractive = isClickable && !disabled && isOnline
 
   return (
     <button
