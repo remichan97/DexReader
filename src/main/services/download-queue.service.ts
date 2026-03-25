@@ -20,6 +20,7 @@ import {
   getErrorSummary
 } from './errors/download-error-classifier'
 import { DownloadErrorCategory } from './errors/enums/download-error.enum'
+import { ChapterDownloadQuery } from '../database/queries/chapter-downloads/chapter-downloads.query'
 
 export class DownloadQueueService {
   // Main states
@@ -32,6 +33,11 @@ export class DownloadQueueService {
   // Progress throttling
   private lastEmit = Date.now()
   private readonly emitInterval = 100 // At most 10 updates per second
+
+  // Progress caching - cache getAllDownloads() results for 1 second to reduce DB load
+  private cachedDownloadStats: ChapterDownloadQuery[] | null = null
+  private lastCacheUpdate = 0
+  private readonly cacheValidityMs = 1000 // 1 second cache
 
   // Other fixed numerical values
   private readonly maxRetryAttempts = 3
@@ -391,13 +397,14 @@ export class DownloadQueueService {
   private scheduleBatchUpdate(command: MarkDownloadStateCommand): void {
     this.pendingUpdates.push(command)
 
-    // Process the batch after we have 10 of them, or after a second has passed, whichever comes first
-    if (this.pendingUpdates.length >= 10) {
+    // Process the batch after we have 25 of them, or after 500ms has passed, whichever comes first
+    // Optimized from 10 items / 1000ms for better throughput with parallel downloads
+    if (this.pendingUpdates.length >= 25) {
       this.flushBatchUpdates()
     } else
       this.batchUpdateTimeout ??= setTimeout(() => {
         this.flushBatchUpdates()
-      }, 1000)
+      }, 500)
   }
 
   private flushBatchUpdates(): void {
@@ -444,8 +451,18 @@ export class DownloadQueueService {
   private emitOverallProgress(): void {
     const now = Date.now()
     if (now - this.lastEmit >= this.emitInterval) {
-      const allDownloads = chapterDownloadsRepo.getAllDownloads()
-      const stats = calculateAggregateStats(this.queue, this.activeDownloads.size, allDownloads)
+      // Use cached download stats if available and fresh (< 1 second old)
+      // This reduces database queries from ~10/sec to ~1/sec during heavy download activity
+      if (!this.cachedDownloadStats || now - this.lastCacheUpdate >= this.cacheValidityMs) {
+        this.cachedDownloadStats = chapterDownloadsRepo.getAllDownloads()
+        this.lastCacheUpdate = now
+      }
+
+      const stats = calculateAggregateStats(
+        this.queue,
+        this.activeDownloads.size,
+        this.cachedDownloadStats
+      )
       emitOverallProgressEvent(stats)
       this.lastEmit = now
     }
