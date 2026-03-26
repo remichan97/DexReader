@@ -1,3 +1,4 @@
+import { ChapterCacheTier } from './enums/chapter-cache-tier.enum'
 import path from 'node:path'
 import {
   getAppDataPath,
@@ -189,6 +190,9 @@ export function getDefaultSettings(): AppSettings {
       quality: ImageQuality.High,
       global: {
         readingMode: ReadingMode.SinglePage
+      },
+      performance: {
+        cacheTier: ChapterCacheTier.Normal
       }
     }
   }

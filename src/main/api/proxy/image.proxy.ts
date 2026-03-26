@@ -9,6 +9,21 @@ interface CacheEntry {
   lastAccessed: number
 }
 
+interface CacheMetrics {
+  memoryHit: number // In-memory cache hits
+  diskHit: number // Disk cache hits (covers only)
+  miss: number // Network fetches
+  lruEviction: number // Evictions due to size limit
+  expiryCleanup: number // Entries removed by TTL cleanup
+  totalRequests: number // Total image requests
+  currentSize: number
+  maxSize: number
+  // Calculated fields
+  hitRate?: number // (memoryHit + diskHit) / totalRequests
+  memoryHitRate?: number // memoryHit / totalRequests
+  diskHitRate?: number // diskHit / totalRequests
+}
+
 export class ImageProxy {
   private readonly chapterCache: Map<string, CacheEntry> = new Map()
   private readonly coverCache: Map<string, CacheEntry> = new Map()
@@ -22,10 +37,65 @@ export class ImageProxy {
   private currentCoverCacheSize = 0
   private cleanupTimer?: NodeJS.Timeout
 
+  // TODO: Metrics tracking for cache performance monitoring
+  // Delete once we finished optimisation work
+  private readonly chapterCacheMetrics: CacheMetrics = {
+    memoryHit: 0,
+    diskHit: 0,
+    miss: 0,
+    lruEviction: 0,
+    expiryCleanup: 0,
+    totalRequests: 0,
+    currentSize: 0,
+    maxSize: this.MAX_CHAPTER_CACHE
+  }
+
+  private readonly coverCacheMetrics: CacheMetrics = {
+    memoryHit: 0,
+    diskHit: 0,
+    miss: 0,
+    lruEviction: 0,
+    expiryCleanup: 0,
+    totalRequests: 0,
+    currentSize: 0,
+    maxSize: this.MAX_COVER_CACHE
+  }
+
+  collectMetrics(): { chapterCache: CacheMetrics; coverCache: CacheMetrics } {
+    // Calculate hit rates
+    const calcHitRates = (metrics: CacheMetrics): CacheMetrics => {
+      const total = metrics.totalRequests || 1 // Avoid division by zero
+      return {
+        ...metrics,
+        hitRate: ((metrics.memoryHit + metrics.diskHit) / total) * 100,
+        memoryHitRate: (metrics.memoryHit / total) * 100,
+        diskHitRate: (metrics.diskHit / total) * 100
+      }
+    }
+
+    return {
+      chapterCache: calcHitRates({
+        ...this.chapterCacheMetrics,
+        currentSize: this.currentChapterCacheSize
+      }),
+      coverCache: calcHitRates({
+        ...this.coverCacheMetrics,
+        currentSize: this.currentCoverCacheSize
+      })
+    }
+  }
+
   registerProtocol(): void {
     protocol.handle('mangadex', async (request) => {
       const url = request.url.replace('mangadex://', 'https://')
       const isCover = url.includes('/covers/')
+
+      // Track total requests
+      if (isCover) {
+        this.coverCacheMetrics.totalRequests++
+      } else {
+        this.chapterCacheMetrics.totalRequests++
+      }
 
       const cache = isCover ? this.coverCache : this.chapterCache
       const cached = cache.get(url)
@@ -34,10 +104,17 @@ export class ImageProxy {
         // Check expiry only for chapter images, covers never expire
         const isExpired = !isCover && this.isExpired(cached)
         if (isExpired) {
-          // Remove expired entry
+          // Expired entry - this is NOT a hit, will fetch from network
           cache.delete(url)
           this.currentChapterCacheSize -= cached.size
+          // Don't return here, fall through to network fetch
         } else {
+          // Valid cache hit
+          if (isCover) {
+            this.coverCacheMetrics.memoryHit++
+          } else {
+            this.chapterCacheMetrics.memoryHit++
+          }
           // Update last accessed time for LRU
           cached.lastAccessed = Date.now()
           const cachedBuffer = Buffer.from(cached.buffer)
@@ -51,9 +128,10 @@ export class ImageProxy {
       if (isCover) {
         const diskCachedBuffer = await diskCacheUtil.loadCoverFromDisk(url)
         if (diskCachedBuffer) {
+          // Disk cache hit
+          this.coverCacheMetrics.diskHit++
           // Add to in-memory cache for faster subsequent access
           this.addToCoverCache(url, diskCachedBuffer)
-
           return new Response(diskCachedBuffer.buffer as ArrayBuffer, {
             headers: { 'Content-Type': this.getContentType(url), 'Cache-Control': 'no-store' }
           })
@@ -74,11 +152,13 @@ export class ImageProxy {
 
         // Cache the image
         if (isCover) {
+          this.coverCacheMetrics.miss++
           this.addToCoverCache(url, buffer)
           await diskCacheUtil.saveCoverToDisk(url, buffer) // Save cover to disk cache as well
         } else if (buffer.length < 5 * 1024 * 1024) {
           // Only cache chapter images < 5MB
           this.addToChapterCache(url, buffer)
+          this.chapterCacheMetrics.miss++
         }
 
         return new Response(buffer.buffer, {
@@ -120,6 +200,7 @@ export class ImageProxy {
       if (now - entry.timestamp > this.CACHE_TTL) {
         this.chapterCache.delete(url)
         this.currentChapterCacheSize -= entry.size
+        this.chapterCacheMetrics.expiryCleanup++
         cleanedCount++
         freedBytes += entry.size
       }
@@ -171,6 +252,7 @@ export class ImageProxy {
       const lruEntry = this.chapterCache.get(lruKey)!
       this.chapterCache.delete(lruKey)
       this.currentChapterCacheSize -= lruEntry.size
+      this.chapterCacheMetrics.lruEviction++
     }
 
     const now = Date.now()
@@ -201,6 +283,7 @@ export class ImageProxy {
       const lruEntry = this.coverCache.get(lruKey)!
       this.coverCache.delete(lruKey)
       this.currentCoverCacheSize -= lruEntry.size
+      this.coverCacheMetrics.lruEviction++
     }
 
     const now = Date.now()

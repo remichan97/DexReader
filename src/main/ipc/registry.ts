@@ -12,12 +12,13 @@ import { registerMihonHandlers } from './handlers/mihon.handler'
 import { registerDexReaderHandler } from './handlers/dexreader.handler'
 import { registerDownloadHandlers } from './handlers/download.handler'
 import { registerStorageHandlers } from './handlers/storage.handler'
+import type { ImageProxy } from '../api/proxy/image.proxy'
 
 /**
  * Register all IPC handlers
  * Organized by domain for better maintainability
  */
-export function registerAllHandlers(): void {
+export function registerAllHandlers(imageProxy?: ImageProxy): void {
   // Most handlers don't need window reference
   registerMangaDexHandlers()
   registerThemeHandlers()
@@ -29,7 +30,7 @@ export function registerAllHandlers(): void {
   registerMihonHandlers()
   registerDexReaderHandler()
   registerDownloadHandlers()
-  registerStorageHandlers()
+  registerStorageHandlers(imageProxy)
 
   // File system handlers need window for dialogs
   // Get window reference when handlers are actually called

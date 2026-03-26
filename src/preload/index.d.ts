@@ -106,6 +106,26 @@ export type { AppSettings } from '../main/settings/entities/app-settings.entity'
 export type { DownloadStatResult } from '../main/services/results/dexreader/download-stats.result'
 export type { MangaCacheStatsQuery } from '../main/database/queries/manga/manga-cache-stats.query'
 
+// Image cache metrics (for P5-T04 performance optimization)
+export interface SingleCacheMetrics {
+  memoryHit: number
+  diskHit: number
+  miss: number
+  lruEviction: number
+  expiryCleanup: number
+  totalRequests: number
+  currentSize: number
+  maxSize: number
+  hitRate?: number
+  memoryHitRate?: number
+  diskHitRate?: number
+}
+
+export interface ImageCacheMetrics {
+  chapterCache: SingleCacheMetrics
+  coverCache: SingleCacheMetrics
+}
+
 interface MenuState {
   canAddToFavorites?: boolean
   isFavorited?: boolean
@@ -275,16 +295,12 @@ interface Storage {
   clearMangaCache: (immediate: boolean) => Promise<IpcResponse<number>>
   optimiseMangaCache: () => Promise<IpcResponse<number>>
   setCoverCacheLimit: (limitInMB: number) => Promise<IpcResponse<void>>
+  getImageCacheMetrics: () => Promise<IpcResponse<ImageCacheMetrics>>
 }
 
 interface Settings {
   load: () => Promise<IpcResponse<AppSettings>>
   getSettingByPath: (section: string, settingsPath?: string) => Promise<IpcResponse<unknown>>
-  setSettingByPath: (
-    section: string,
-    settingsPath: string,
-    value: unknown
-  ) => Promise<IpcResponse<void>>
   save: (key: string, value: unknown) => Promise<IpcResponse<void>>
   openFile: () => Promise<IpcResponse<boolean>>
   resetToDefaults: () => Promise<IpcResponse<boolean>>

@@ -33,13 +33,15 @@
 - Integrated `useNavigationBlocker` hook to prevent data loss
 - All saves now go through validated `settings:save` IPC handler (section-level validation)
 - Settings persist only after explicit user Save action
+- **Cleanup**: Removed unsafe `settings:set` IPC handler and `setSettingByPath` API entirely
+- **Backend**: Storage handler now uses validated approach (load → update → validate section → save)
 
-**Duration**: ~2 hours | **Pattern**: Dirty tracking + validated batch operations
-**Files Modified**: SettingsView.tsx (refactored 10 handlers), app-settings.handler.ts (deprecated unvalidated handler)
+**Duration**: ~2.5 hours | **Pattern**: Dirty tracking + validated batch operations
+**Files Modified**: SettingsView.tsx (refactored 10 handlers), app-settings.handler.ts (removed unvalidated handler), storage.handler.ts (validated approach), preload/index.ts + index.d.ts (removed unsafe API)
 **Files Created**: UnsavedChangesBanner.tsx, UnsavedChangesBanner.css
-**Security Impact**: 100% validation coverage - all settings changes now validated before persistence
+**Security Impact**: 100% validation coverage - unsafe API completely removed, all settings changes validated before persistence
 **UX Impact**: Clear feedback, no accidental data loss, modern unsaved changes workflow
-**Status**: Production-ready, tested, navigation blocking active ✅
+**Status**: Production-ready, tested, unsafe handler removed ✅
 
 ---
 

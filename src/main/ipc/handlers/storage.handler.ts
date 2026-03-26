@@ -1,9 +1,11 @@
 import { cleanupRepo } from '../../database/repositories/cleanup-repo'
 import { mangaRepo } from '../../database/repositories/manga.repo'
-import { setSettingByPath } from '../../settings/settings-manager'
+import { loadSettings, saveSettings } from '../../settings/settings-manager'
+import { isDownloadsSettings } from '../../settings/validators/types.validator'
 import { wrapIpcHandler } from '../wrap-handler'
+import type { ImageProxy } from '../../api/proxy/image.proxy'
 
-export function registerStorageHandlers(): void {
+export function registerStorageHandlers(imageProxy?: ImageProxy): void {
   wrapIpcHandler('storage:get-stats', async () => {
     return mangaRepo.statsMangaTable()
   })
@@ -31,6 +33,22 @@ export function registerStorageHandlers(): void {
       throw new RangeError('Cover cache limit must be between 10 MB and 500 MB')
     }
 
-    return await setSettingByPath('downloads', 'maxDiskCacheSize', byteLimit)
+    // Use validated approach: load settings, update field, validate section, save
+    const settings = await loadSettings()
+    settings.downloads.maxDiskCacheSize = byteLimit
+
+    if (!isDownloadsSettings(settings.downloads)) {
+      throw new Error('Invalid downloads settings after updating cache limit')
+    }
+
+    await saveSettings(settings)
+  })
+
+  // Image cache metrics (for performance optimization - P5-T04)
+  wrapIpcHandler('image-proxy:get-metrics', async () => {
+    if (!imageProxy) {
+      throw new Error('ImageProxy not available')
+    }
+    return imageProxy.collectMetrics()
   })
 }

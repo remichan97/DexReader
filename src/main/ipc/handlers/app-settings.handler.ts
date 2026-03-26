@@ -5,7 +5,6 @@ import {
   getDefaultSettings,
   getSettingsFilePath,
   getSettingByPath,
-  setSettingByPath,
   loadSettings,
   saveSettings,
   updateSettings
@@ -40,22 +39,6 @@ export function registerAppSettingsHandlers(): void {
     }
 
     return await getSettingByPath(section as keyof AppSettings, path)
-  })
-
-  wrapIpcHandler('settings:set', async (_, section: unknown, path: unknown, value: unknown) => {
-    if (typeof section !== 'string') {
-      throw new TypeError('Section must be a string')
-    }
-
-    if (!validSections.has(section as keyof AppSettings)) {
-      throw new Error(`Unknown settings section: ${section}`)
-    }
-
-    if (typeof path !== 'string') {
-      throw new TypeError('Path must be a string')
-    }
-
-    return await setSettingByPath(section as keyof AppSettings, path, value)
   })
 
   wrapIpcHandler('settings:save', async (_, key: unknown, value: unknown) => {

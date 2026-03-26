@@ -270,7 +270,8 @@ const storage = {
     ipcRenderer.invoke('storage:clear-manga-cache', immediate),
   optimiseMangaCache: () => ipcRenderer.invoke('storage:optimise-manga-cache'),
   setCoverCacheLimit: (limitInMB: number) =>
-    ipcRenderer.invoke('storage:set-cover-cache-limit', limitInMB)
+    ipcRenderer.invoke('storage:set-cover-cache-limit', limitInMB),
+  getImageCacheMetrics: () => ipcRenderer.invoke('image-proxy:get-metrics')
 }
 
 const collections = {
@@ -310,8 +311,6 @@ const settings = {
   load: () => ipcRenderer.invoke('settings:load'),
   getSettingByPath: (section: string, settingsPath?: string) =>
     ipcRenderer.invoke('settings:get', section, settingsPath),
-  setSettingByPath: (section: string, settingsPath: string, value: unknown) =>
-    ipcRenderer.invoke('settings:set', section, settingsPath, value),
   save: (key: string, value: unknown) => ipcRenderer.invoke('settings:save', key, value),
   openFile: () => ipcRenderer.invoke('settings:open-settings-file'),
   resetToDefaults: () => ipcRenderer.invoke('settings:reset-to-defaults'),

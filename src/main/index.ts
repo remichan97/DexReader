@@ -81,7 +81,7 @@ app.whenReady().then(async () => {
   imageProxy.registerProtocol()
   localImageProxy.registerProtocol()
 
-  registerAllHandlers()
+  registerAllHandlers(imageProxy)
 
   createWindow()
 

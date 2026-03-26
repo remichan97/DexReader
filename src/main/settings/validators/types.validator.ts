@@ -1,3 +1,4 @@
+import { ChapterCacheTier } from './../enums/chapter-cache-tier.enum'
 import { ImageQuality } from '../../api/enums'
 import { DownloadChapterOptions } from '../../services/options/download-chapter.option'
 import { QueuedDownloads } from '../../services/types/downloads/queued-downloads.type'
@@ -166,6 +167,29 @@ export function isReaderSettings(values: unknown): values is ReaderSettings {
     !isMangaReadingSettings(readerSettings.global)
   ) {
     console.error('Refused to save reader settings: global settings are invalid')
+    return false
+  }
+
+  // Validate performance settings
+  if (
+    typeof readerSettings.performance !== 'object' ||
+    readerSettings.performance === null ||
+    !Object.values(ChapterCacheTier).includes(readerSettings.performance.cacheTier)
+  ) {
+    console.error('Refused to save reader settings: performance settings are invalid')
+    return false
+  }
+
+  // If cache tier is custom, validate the number, do not allow lower than 30MB or more than 500MB in bytes
+  if (
+    readerSettings.performance.cacheTier === ChapterCacheTier.Custom &&
+    (typeof readerSettings.performance.customCacheSize !== 'number' ||
+      readerSettings.performance.customCacheSize < 30 * 1024 * 1024 ||
+      readerSettings.performance.customCacheSize > 500 * 1024 * 1024)
+  ) {
+    console.error(
+      'Refused to save reader settings: custom cache size must be a number between 30 and 500 MB (in bytes)'
+    )
     return false
   }
 
