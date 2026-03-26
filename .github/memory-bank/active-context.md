@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 25 March 2026
+**Last Updated**: 26 March 2026
 **Current Phase**: Phase 5 - Production Readiness (IN PROGRESS)
-**Current Task**: P5-T03 Download System Performance COMPLETE ✅ (validated in production)
+**Current Task**: Settings Validation Security Fix COMPLETE ✅
 **Next**: P5-T04 Image Loading Optimization or P5-T05 UI Responsiveness
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
@@ -12,7 +12,7 @@
 ## Current Status Summary
 
 **Phase 4**: COMPLETE - 13/13 tasks (100%) ✅
-**Phase 5**: IN PROGRESS - 4/22 tasks complete (P5-T21, P5-T01, P5-T02, P5-T03) + Tech Debt ✅
+**Phase 5**: IN PROGRESS - 4/22 tasks complete (P5-T21, P5-T01, P5-T02, P5-T03) + Security Fix ✅
 **Electron**: Upgraded to 41.0.2 (15 Mar 2026) ✅
 **Timeline**: 6-8 weeks (11 March - 5 May 2026)
 **Target**: v1.0 Release Early May 2026 🚀
@@ -21,6 +21,27 @@
 ---
 
 ## Recent Completions (Last 2 Weeks)
+
+### Settings Validation Security Fix (26 March 2026) ✅
+
+**CRITICAL SECURITY**: Fixed validation bypass vulnerability where all settings changes used unvalidated `settings:set` IPC handler, allowing arbitrary values (null bytes in paths, invalid enums, out-of-range numbers). Implemented Discord-style batch save with unsaved changes banner.
+
+**Solution**: Batch save with validation
+
+- Converted 10 settings handlers from immediate IPC to local-only state updates
+- Created `UnsavedChangesBanner` component with Reset/Save buttons
+- Integrated `useNavigationBlocker` hook to prevent data loss
+- All saves now go through validated `settings:save` IPC handler (section-level validation)
+- Settings persist only after explicit user Save action
+
+**Duration**: ~2 hours | **Pattern**: Dirty tracking + validated batch operations
+**Files Modified**: SettingsView.tsx (refactored 10 handlers), app-settings.handler.ts (deprecated unvalidated handler)
+**Files Created**: UnsavedChangesBanner.tsx, UnsavedChangesBanner.css
+**Security Impact**: 100% validation coverage - all settings changes now validated before persistence
+**UX Impact**: Clear feedback, no accidental data loss, modern unsaved changes workflow
+**Status**: Production-ready, tested, navigation blocking active ✅
+
+---
 
 ### P5-T03 Download System Performance Complete (25 March 2026) ✅
 

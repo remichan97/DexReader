@@ -32,7 +32,11 @@ export function useNavigationBlocker(
   useEffect(() => {
     if (!shouldBlock) return
 
+    let isNavigating = false
+
     const handleClick = (e: MouseEvent): void => {
+      if (isNavigating) return
+
       const target = e.target as HTMLElement
       const clickable = target.closest('[role="button"], a, button')
 
@@ -47,22 +51,28 @@ export function useNavigationBlocker(
           if (targetPath && targetPath !== location.pathname) {
             e.preventDefault()
             e.stopPropagation()
+            e.stopImmediatePropagation()
 
+            isNavigating = true
             globalThis.api
               .showConfirmDialog(message, 'Your changes will be lost.')
               .then((confirmed) => {
-                if (confirmed) {
+                if (confirmed.success && confirmed.result) {
                   navigate(targetPath)
                 }
               })
               .catch(() => {
                 // Dialog cancelled or error
               })
+              .finally(() => {
+                isNavigating = false
+              })
           }
         }
       }
     }
 
+    // Capture phase to intercept before any other handlers
     document.addEventListener('click', handleClick, true)
     return (): void => {
       document.removeEventListener('click', handleClick, true)

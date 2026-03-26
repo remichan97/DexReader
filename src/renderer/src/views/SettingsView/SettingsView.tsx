@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Tabs, TabList, Tab, TabPanel } from '@renderer/components/Tabs'
 import { useToastStore, useAppStore } from '@renderer/stores'
-import type { MangaReadingSettings } from '../../../../preload/index.d'
+import { useNavigationBlocker } from '@renderer/hooks/useNavigationBlocker'
+import type { MangaReadingSettings, AppSettings } from '../../../../preload/index.d'
 import { AppearanceSettings } from './components/AppearanceSettings'
 import { ReaderSettingsSection } from './components/ReaderSettingsSection'
 import { DownloadsSettings } from './components/DownloadsSettings'
@@ -11,6 +12,7 @@ import { StorageManagementSettings } from './components/StorageManagementSetting
 import { CacheManagementSettings } from './components/CacheManagementSettings'
 import { AdvancedSettings } from './components/AdvancedSettings'
 import { DangerZoneSettings } from '../../components/SettingsView/DangerZoneSettings'
+import { UnsavedChangesBanner } from './components/UnsavedChangesBanner'
 import './SettingsView.css'
 
 interface PerMangaOverride {
@@ -29,6 +31,10 @@ export function SettingsView(): JSX.Element {
 
   // Router location for reading URL params
   const location = useLocation()
+
+  // Settings tracking for unsaved changes
+  const [originalSettings, setOriginalSettings] = useState<AppSettings | null>(null)
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
   // Local state for UI
   const [activeTab, setActiveTab] = useState('appearance')
@@ -52,6 +58,51 @@ export function SettingsView(): JSX.Element {
   const [imageQuality, setImageQuality] = useState<'data' | 'data-saver'>('data')
   const [perMangaOverrides, setPerMangaOverrides] = useState<PerMangaOverride[]>([])
   const [isLoadingReaderSettings, setIsLoadingReaderSettings] = useState(true)
+
+  // Block navigation when there are unsaved changes
+  useNavigationBlocker(
+    hasUnsavedChanges,
+    'You have unsaved changes. Are you sure you want to leave?'
+  )
+
+  // Smart dirty checking - compare current state with original settings
+  useEffect(() => {
+    if (!originalSettings) return
+
+    // Compare appearance settings
+    const appearanceChanged =
+      themeMode !== originalSettings.appearance.theme ||
+      (isUsingSystemColor
+        ? originalSettings.appearance.accentColor !== undefined
+        : originalSettings.appearance.accentColor !== accentColor)
+
+    // Compare downloads settings
+    const downloadsChanged =
+      downloadConfirmation !== originalSettings.downloads.shouldConfirmDownload ||
+      defaultQuality !== originalSettings.downloads.defaultQuality ||
+      maxConcurrentDownloads !== originalSettings.downloads.maxConcurrentDownloads ||
+      downloadsPath !== (originalSettings.downloads.downloadPath || '')
+
+    // Compare reader settings
+    const readerChanged =
+      forceDarkMode !== originalSettings.reader.forceDarkMode ||
+      imageQuality !== originalSettings.reader.quality ||
+      JSON.stringify(globalReaderSettings) !== JSON.stringify(originalSettings.reader.global)
+
+    setHasUnsavedChanges(appearanceChanged || downloadsChanged || readerChanged)
+  }, [
+    originalSettings,
+    themeMode,
+    accentColor,
+    isUsingSystemColor,
+    downloadConfirmation,
+    defaultQuality,
+    maxConcurrentDownloads,
+    downloadsPath,
+    globalReaderSettings,
+    forceDarkMode,
+    imageQuality
+  ])
 
   // Read tab from URL params on mount
   useEffect(() => {
@@ -148,6 +199,9 @@ export function SettingsView(): JSX.Element {
             }))
             setPerMangaOverrides(overrides)
           }
+
+          // Store original settings for dirty tracking
+          setOriginalSettings(settings)
         } catch {
           // Settings file doesn't exist - use system color
           setAccentColor(systemAccent)
@@ -209,127 +263,41 @@ export function SettingsView(): JSX.Element {
   }
 
   // Restore system accent color
-  const handleUseSystemColor = async (): Promise<void> => {
+  const handleUseSystemColor = (): void => {
     setAccentColor(systemAccentColor)
     setIsUsingSystemColor(true)
     applyAccentColor(systemAccentColor)
-
-    try {
-      const result = await globalThis.settings.setSettingByPath(
-        'appearance',
-        'accentColor',
-        undefined
-      )
-      if (!result.success) {
-        throw new Error('Failed to save settings')
-      }
-    } catch (error) {
-      // Silently fail - user can see the UI hasn't changed
-      console.error('Failed to save system color preference:', error)
-    }
   }
 
   // Handle accent color change
-  const handleAccentColorChange = async (color: string): Promise<void> => {
+  const handleAccentColorChange = (color: string): void => {
     setAccentColor(color)
     setIsUsingSystemColor(false)
     applyAccentColor(color)
-
-    try {
-      const result = await globalThis.settings.setSettingByPath('appearance', 'accentColor', color)
-      if (!result.success) {
-        throw new Error('Failed to save settings')
-      }
-    } catch (error) {
-      // Silently fail - user can see the UI hasn't changed
-      console.error('Failed to save accent color:', error)
-    }
   }
 
   // Handle theme mode change
-  const handleThemeModeChange = async (mode: string): Promise<void> => {
+  const handleThemeModeChange = (mode: string): void => {
     setThemeMode(mode as 'system' | 'light' | 'dark')
-
-    try {
-      const result = await globalThis.settings.setSettingByPath('appearance', 'theme', mode)
-      if (!result.success) {
-        throw new Error('Failed to save theme setting')
-      }
-    } catch (error) {
-      console.error('Failed to save theme:', error)
-    }
   }
 
   // Handle download confirmation change
-  const handleDownloadConfirmationChange = async (
-    confirmation: string | string[]
-  ): Promise<void> => {
+  const handleDownloadConfirmationChange = (confirmation: string | string[]): void => {
     const selected = Array.isArray(confirmation) ? confirmation[0] : confirmation
     setDownloadConfirmation(selected as 'always' | 'batch-only' | 'never')
-
-    try {
-      const result = await globalThis.settings.setSettingByPath(
-        'downloads',
-        'shouldConfirmDownload',
-        selected
-      )
-      if (!result.success) {
-        throw new Error('Failed to save setting')
-      }
-    } catch (error) {
-      showToast({
-        variant: 'error',
-        title: 'Failed to save setting',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      })
-    }
   }
 
   // Handle default quality change
-  const handleDefaultQualityChange = async (quality: string | string[]): Promise<void> => {
+  const handleDefaultQualityChange = (quality: string | string[]): void => {
     const selectedQuality = Array.isArray(quality) ? quality[0] : quality
     setDefaultQuality(selectedQuality as 'data' | 'data-saver')
-
-    try {
-      const result = await globalThis.settings.setSettingByPath(
-        'downloads',
-        'defaultQuality',
-        selectedQuality
-      )
-      if (!result.success) {
-        throw new Error('Failed to save setting')
-      }
-    } catch (error) {
-      showToast({
-        variant: 'error',
-        title: 'Failed to save setting',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      })
-    }
   }
 
   // Handle max concurrent downloads change
-  const handleMaxConcurrentDownloadsChange = async (count: string | string[]): Promise<void> => {
+  const handleMaxConcurrentDownloadsChange = (count: string | string[]): void => {
     const selectedCount = Array.isArray(count) ? count[0] : count
     const numericCount = Number.parseInt(selectedCount, 10)
     setMaxConcurrentDownloads(numericCount)
-
-    try {
-      const result = await globalThis.settings.setSettingByPath(
-        'downloads',
-        'maxConcurrentDownloads',
-        numericCount
-      )
-      if (!result.success) {
-        throw new Error('Failed to save setting')
-      }
-    } catch (error) {
-      showToast({
-        variant: 'error',
-        title: 'Failed to save setting',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      })
-    }
   }
 
   // Handle downloads folder selection
@@ -357,7 +325,7 @@ export function SettingsView(): JSX.Element {
   }
 
   // Handle global reading mode change
-  const handleReadingModeChange = async (mode: string | string[]): Promise<void> => {
+  const handleReadingModeChange = (mode: string | string[]): void => {
     // Select component returns string or string[], we only support single selection
     const selectedMode = Array.isArray(mode) ? mode[0] : mode
 
@@ -366,27 +334,13 @@ export function SettingsView(): JSX.Element {
       readingMode: selectedMode as MangaReadingSettings['readingMode']
     }
     setGlobalReaderSettings(updatedSettings)
-
-    try {
-      const result = await globalThis.settings.setSettingByPath('reader', 'global', updatedSettings)
-      if (!result.success) {
-        throw new Error('Failed to save reader settings')
-      }
-      // Success - no toast needed
-    } catch (error) {
-      showToast({
-        variant: 'error',
-        title: 'Failed to save settings',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      })
-    }
   }
 
   // Handle double page mode checkbox changes
-  const handleDoublePageSettingChange = async (
+  const handleDoublePageSettingChange = (
     key: 'skipCoverPages' | 'readRightToLeft',
     value: boolean
-  ): Promise<void> => {
+  ): void => {
     const updatedSettings: MangaReadingSettings = {
       ...globalReaderSettings,
       doublePageMode: {
@@ -396,63 +350,17 @@ export function SettingsView(): JSX.Element {
       }
     }
     setGlobalReaderSettings(updatedSettings)
-
-    try {
-      const result = await globalThis.settings.setSettingByPath('reader', 'global', updatedSettings)
-      if (!result.success) {
-        throw new Error('Failed to save reader settings')
-      }
-      // Success - no toast needed
-    } catch (error) {
-      showToast({
-        variant: 'error',
-        title: 'Failed to save settings',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      })
-    }
   }
 
   // Handle force dark mode toggle
-  const handleForceDarkModeChange = async (enabled: boolean): Promise<void> => {
+  const handleForceDarkModeChange = (enabled: boolean): void => {
     setForceDarkMode(enabled)
-
-    try {
-      const result = await globalThis.settings.setSettingByPath('reader', 'forceDarkMode', enabled)
-      if (!result.success) {
-        throw new Error('Failed to save reader settings')
-      }
-      // Success - no toast needed
-    } catch (error) {
-      showToast({
-        variant: 'error',
-        title: 'Failed to save settings',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      })
-    }
   }
 
   // Handle image quality change
-  const handleImageQualityChange = async (quality: string | string[]): Promise<void> => {
+  const handleImageQualityChange = (quality: string | string[]): void => {
     const selectedQuality = Array.isArray(quality) ? quality[0] : quality
     setImageQuality(selectedQuality as 'data' | 'data-saver')
-
-    try {
-      const result = await globalThis.settings.setSettingByPath(
-        'reader',
-        'quality',
-        selectedQuality
-      )
-      if (!result.success) {
-        throw new Error('Failed to save reader settings')
-      }
-      // Success - no toast needed
-    } catch (error) {
-      showToast({
-        variant: 'error',
-        title: 'Failed to save settings',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      })
-    }
   }
 
   // Reset individual manga override
@@ -495,8 +403,90 @@ export function SettingsView(): JSX.Element {
     }
   }
 
+  // Save all settings changes using validated batch save
+  const handleSaveSettings = async (): Promise<void> => {
+    if (!originalSettings) return
+
+    try {
+      // Build appearance settings object
+      const appearanceSettings = {
+        theme: themeMode,
+        accentColor: isUsingSystemColor ? undefined : accentColor
+      }
+
+      // Build downloads settings object
+      const downloadsSettings = {
+        downloadPath: downloadsPath || undefined,
+        shouldConfirmDownload: downloadConfirmation,
+        defaultQuality: defaultQuality,
+        maxConcurrentDownloads: maxConcurrentDownloads,
+        maxDiskCacheSize: originalSettings.downloads.maxDiskCacheSize
+      }
+
+      // Build reader settings object
+      const readerSettings = {
+        global: globalReaderSettings,
+        forceDarkMode: forceDarkMode,
+        quality: imageQuality,
+        performance: originalSettings.reader.performance
+      }
+
+      // Save each section using validated handlers
+      await globalThis.settings.save('appearance', appearanceSettings)
+      await globalThis.settings.save('downloads', downloadsSettings)
+      await globalThis.settings.save('reader', readerSettings)
+
+      // Update original settings to current state (load fresh to get properly typed values)
+      const freshSettings = await globalThis.settings.load()
+      if (freshSettings.success && freshSettings.data) {
+        setOriginalSettings(freshSettings.data)
+      }
+      setHasUnsavedChanges(false)
+    } catch (error) {
+      showToast({
+        variant: 'error',
+        title: 'Failed to save settings',
+        message: error instanceof Error ? error.message : 'Validation failed'
+      })
+    }
+  }
+
+  // Reset all settings to their saved values
+  const handleResetSettings = (): void => {
+    if (!originalSettings) return
+
+    // Restore appearance settings
+    setThemeMode(originalSettings.appearance.theme)
+    if (originalSettings.appearance.accentColor) {
+      setAccentColor(originalSettings.appearance.accentColor)
+      setIsUsingSystemColor(false)
+      applyAccentColor(originalSettings.appearance.accentColor)
+    } else {
+      setAccentColor(systemAccentColor)
+      setIsUsingSystemColor(true)
+      applyAccentColor(systemAccentColor)
+    }
+
+    // Restore downloads settings
+    setDownloadConfirmation(originalSettings.downloads.shouldConfirmDownload)
+    setDefaultQuality(originalSettings.downloads.defaultQuality)
+    setMaxConcurrentDownloads(originalSettings.downloads.maxConcurrentDownloads)
+
+    // Restore reader settings
+    setGlobalReaderSettings(originalSettings.reader.global)
+    setForceDarkMode(originalSettings.reader.forceDarkMode)
+    setImageQuality(originalSettings.reader.quality)
+
+    setHasUnsavedChanges(false)
+  }
+
   return (
     <div className="settings-view__container">
+      {/* Unsaved changes banner */}
+      {hasUnsavedChanges && (
+        <UnsavedChangesBanner onSave={handleSaveSettings} onReset={handleResetSettings} />
+      )}
+
       {/* Screen reader heading for page structure */}
       <h1 className="sr-only">Settings</h1>
 
