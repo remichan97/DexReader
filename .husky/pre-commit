@@ -1,1 +1,9 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Lint and format staged files
 npx lint-staged
+
+# Typecheck entire project
+echo "Running full project typecheck..."
+npm run typecheck
