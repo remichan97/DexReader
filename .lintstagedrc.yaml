@@ -1,9 +1,9 @@
 # Lint, format, and typecheck TypeScript files
 # Note: TypeScript checks entire project (needs full context), not just staged files
 '*.{ts,tsx}':
-  - eslint --cache --fix
+  - eslint --cache .
   - prettier --write
-  - npm run typecheck
+  - npm run typecheck:commit
 
 # Format other files
 '*.{json,css,scss,md,yml,yaml}':

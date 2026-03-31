@@ -12,6 +12,9 @@
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
     "typecheck:web": "tsc --noEmit -p tsconfig.web.json --composite false",
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
+    "typecheck:nodecommit": "tsc-files --noEmit -p tsconfig.node.json --composite false",
+    "typecheck:webcommit": "tsc-files --noEmit -p tsconfig.web.json --composite false",
+    "typecheck:commit": "npm run typecheck:nodecommit && npm run typecheck:webcommit",
     "start": "electron-vite preview",
     "dev": "electron-vite dev",
     "dev:inspect": "electron-vite dev --inspect=5858",
@@ -21,10 +24,6 @@
     "build:win": "npm run build && electron-builder --win",
     "build:mac": "electron-vite build && electron-builder --mac",
     "build:linux": "electron-vite build && electron-builder --linux",
-    "seed:benchmark": "node scripts/run-seed.js",
-    "benchmark:db": "node scripts/run-benchmark.js",
-    "benchmark:write": "node scripts/run-write-benchmark.js",
-    "benchmark:all": "npm run benchmark:db && npm run benchmark:write",
     "analyze:plans": "node scripts/run-analyze-plans.js",
     "prepare": "husky"
   },
@@ -66,6 +65,7 @@
     "prettier": "^3.6.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "tsc-files": "^1.1.4",
     "tsx": "^4.21.0",
     "typescript": "^5.9.2",
     "vite": "^7.1.6"
