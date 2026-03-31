@@ -1,0 +1,268 @@
+import { eq, sql, and } from 'drizzle-orm'
+import { databaseConnection } from '../connection'
+import { chapter, chapterDownloads, manga } from '../schemas'
+import { CreateDownloadCommand } from '../commands/chapter-downloads/create-download.command'
+import { ChapterDownloadQuery } from '../queries/chapter-downloads/chapter-downloads.query'
+import { ChapterDownloadMapper } from '../mappers/chapter-downloads.mapper'
+import { MarkDownloadStateCommand } from '../commands/chapter-downloads/mark-state.command'
+import { DownloadStatus } from '../enums/download-status.enum'
+import { DeleteChapterCommand } from '../commands/chapter-downloads/delete-chapter.command'
+import { MangaStorageQuery } from '../queries/chapter-downloads/manga-storage.query'
+import { executeBatchOperations } from '../utils/batch-operations.util'
+
+export class ChapterDownloadsRepository {
+  private get db(): ReturnType<typeof databaseConnection.getDb> {
+    return databaseConnection.getDb()
+  }
+
+  // Calculate total storage used by all manga downloads, and storage used by each manga grouped by title (sum of all chapters of the same manga)
+  getStorageByManga(): MangaStorageQuery {
+    const mangaStorageByTitle = this.db
+      .select({
+        mangaId: manga.mangaId,
+        mangaTitle: manga.title,
+        coverUrl: manga.coverUrl,
+        totalStorageSize: sql`SUM(${chapterDownloads.storageSize})`,
+        chapterCount: sql`COUNT(${chapterDownloads.chapterId})`
+      })
+      .from(chapterDownloads)
+      .innerJoin(manga, eq(chapterDownloads.mangaId, manga.mangaId))
+      .where(
+        and(
+          eq(chapterDownloads.isHidden, false),
+          eq(chapterDownloads.status, DownloadStatus.Completed)
+        )
+      )
+      .groupBy(manga.mangaId)
+      .all()
+
+    const totalAppStorage = mangaStorageByTitle.reduce(
+      (acc, manga) => acc + (manga.totalStorageSize as number),
+      0
+    )
+
+    return ChapterDownloadMapper.toMangaStorageQuery(totalAppStorage, mangaStorageByTitle)
+  }
+
+  getDownload(chapterId: string): ChapterDownloadQuery | undefined {
+    const result = this.db
+      .select({
+        chapterId: chapterDownloads.chapterId,
+        mangaId: chapterDownloads.mangaId,
+        status: chapterDownloads.status,
+        storageSize: chapterDownloads.storageSize,
+        downloadedAt: chapterDownloads.downloadedAt,
+        downloadsBasePath: chapterDownloads.downloadsBasePath,
+        filePath: chapterDownloads.filePath,
+        totalPages: chapterDownloads.totalPages,
+        imageQuality: chapterDownloads.imageQuality,
+        imageFormat: chapterDownloads.imageFormat,
+        errorMessage: chapterDownloads.errorMessage,
+        title: manga.title,
+        coverUrl: manga.coverUrl,
+        chapterNumber: chapter.chapterNumber,
+        chapterTitle: chapter.title,
+        volume: chapter.volume,
+        language: chapter.language
+      })
+      .from(chapterDownloads)
+      .innerJoin(manga, eq(chapterDownloads.mangaId, manga.mangaId))
+      .innerJoin(chapter, eq(chapterDownloads.chapterId, chapter.chapterId))
+      .where(eq(chapterDownloads.chapterId, chapterId))
+      .get()
+
+    if (result) {
+      return ChapterDownloadMapper.toChapterDownloadQuery(result)
+    }
+
+    return undefined
+  }
+
+  getAllDownloads(): ChapterDownloadQuery[] {
+    const results = this.db
+      .select({
+        chapterId: chapterDownloads.chapterId,
+        mangaId: chapterDownloads.mangaId,
+        status: chapterDownloads.status,
+        storageSize: chapterDownloads.storageSize,
+        downloadedAt: chapterDownloads.downloadedAt,
+        downloadsBasePath: chapterDownloads.downloadsBasePath,
+        filePath: chapterDownloads.filePath,
+        totalPages: chapterDownloads.totalPages,
+        imageQuality: chapterDownloads.imageQuality,
+        imageFormat: chapterDownloads.imageFormat,
+        errorMessage: chapterDownloads.errorMessage,
+        title: manga.title,
+        coverUrl: manga.coverUrl,
+        chapterNumber: chapter.chapterNumber,
+        chapterTitle: chapter.title,
+        volume: chapter.volume,
+        language: chapter.language
+      })
+      .from(chapterDownloads)
+      .innerJoin(manga, eq(chapterDownloads.mangaId, manga.mangaId))
+      .innerJoin(chapter, eq(chapterDownloads.chapterId, chapter.chapterId))
+      .where(eq(chapterDownloads.isHidden, false))
+      .all()
+
+    return results.map(ChapterDownloadMapper.toChapterDownloadQuery)
+  }
+
+  filterDownloadsByMangaId(mangaId: string): ChapterDownloadQuery[] {
+    const results = this.db
+      .select({
+        chapterId: chapterDownloads.chapterId,
+        mangaId: chapterDownloads.mangaId,
+        status: chapterDownloads.status,
+        storageSize: chapterDownloads.storageSize,
+        downloadedAt: chapterDownloads.downloadedAt,
+        downloadsBasePath: chapterDownloads.downloadsBasePath,
+        filePath: chapterDownloads.filePath,
+        totalPages: chapterDownloads.totalPages,
+        imageQuality: chapterDownloads.imageQuality,
+        imageFormat: chapterDownloads.imageFormat,
+        errorMessage: chapterDownloads.errorMessage,
+        title: manga.title,
+        coverUrl: manga.coverUrl,
+        chapterNumber: chapter.chapterNumber,
+        chapterTitle: chapter.title,
+        volume: chapter.volume,
+        language: chapter.language
+      })
+      .from(chapterDownloads)
+      .innerJoin(manga, eq(chapterDownloads.mangaId, manga.mangaId))
+      .innerJoin(chapter, eq(chapterDownloads.chapterId, chapter.chapterId))
+      .where(eq(chapterDownloads.mangaId, mangaId))
+      .all()
+
+    return results.map(ChapterDownloadMapper.toChapterDownloadQuery)
+  }
+
+  // Delete a download, either permanently or soft delete (mark as hidden)
+  deleteDownload(command: DeleteChapterCommand): void {
+    if (command.isDeletePermanent) {
+      // This is a permanent delete, remove the entry from the database and the files from disk (handled at service level)
+      this.db
+        .delete(chapterDownloads)
+        .where(eq(chapterDownloads.chapterId, command.chapterId))
+        .run()
+    } else {
+      // This is a soft delete, we will just mark the entry as hidden, which hides it from the UI but keep the files on disk and the entry in the database in case they want to read the chapter again without needing to redownload
+      this.db
+        .update(chapterDownloads)
+        .set({ isHidden: true })
+        .where(eq(chapterDownloads.chapterId, command.chapterId))
+        .run()
+    }
+  }
+
+  // Batch delete downloads, either permanently or soft delete (mark as hidden)
+  batchDeleteDownloads(commands: DeleteChapterCommand[]): void {
+    executeBatchOperations({
+      commands,
+      db: this.db,
+      singleOperation: (command) => this.deleteDownload(command),
+      batchOperation: (tx, command) => {
+        if (command.isDeletePermanent) {
+          tx.delete(chapterDownloads).where(eq(chapterDownloads.chapterId, command.chapterId)).run()
+        } else {
+          tx.update(chapterDownloads)
+            .set({ isHidden: true })
+            .where(eq(chapterDownloads.chapterId, command.chapterId))
+            .run()
+        }
+      }
+    })
+  }
+
+  createDownload(command: CreateDownloadCommand): void {
+    this.db
+      .insert(chapterDownloads)
+      .values({
+        chapterId: command.chapterId,
+        mangaId: command.mangaId,
+        totalPages: command.totalPages,
+        downloadsBasePath: command.downloadsBasePath,
+        filePath: command.filePath,
+        imageQuality: command.imageQuality
+      })
+      .run()
+  }
+
+  markDownloadState(command: MarkDownloadStateCommand): void {
+    const updates: Partial<typeof chapterDownloads.$inferInsert> = {}
+
+    if (command.isDownloaded) {
+      updates.status = DownloadStatus.Completed
+      updates.storageSize = command.storageSize
+      updates.totalPages = command.totalPages
+      updates.downloadedAt = new Date()
+      if (command.imageFormat) {
+        updates.imageFormat = command.imageFormat
+      }
+    }
+
+    if (command.isFailed) {
+      updates.status = DownloadStatus.Failed
+      updates.errorMessage = command.errorMessage ?? undefined
+      updates.lastAttemptedAt = new Date()
+    }
+
+    this.db
+      .update(chapterDownloads)
+      .set(updates)
+      .where(eq(chapterDownloads.chapterId, command.chapterId))
+      .run()
+  }
+
+  batchMarkDownloadsState(commands: MarkDownloadStateCommand[]): void {
+    executeBatchOperations({
+      commands,
+      db: this.db,
+      singleOperation: (command) => this.markDownloadState(command),
+      batchOperation: (tx, command) => {
+        const updates: Partial<typeof chapterDownloads.$inferInsert> = {}
+
+        if (command.isDownloaded) {
+          updates.status = DownloadStatus.Completed
+          updates.storageSize = command.storageSize
+          updates.totalPages = command.totalPages
+          updates.downloadedAt = new Date()
+          if (command.imageFormat) {
+            updates.imageFormat = command.imageFormat
+          }
+        }
+
+        if (command.isFailed) {
+          updates.status = DownloadStatus.Failed
+          updates.errorMessage = command.errorMessage ?? undefined
+          updates.lastAttemptedAt = new Date()
+        }
+
+        tx.update(chapterDownloads)
+          .set(updates)
+          .where(eq(chapterDownloads.chapterId, command.chapterId))
+          .run()
+      }
+    })
+  }
+
+  updateVerificationTimestamp(chapterId: string): void {
+    this.db
+      .update(chapterDownloads)
+      .set({ lastVerifiedAt: new Date() })
+      .where(eq(chapterDownloads.chapterId, chapterId))
+      .run()
+  }
+
+  countDownloadsByStatus(status: DownloadStatus): number {
+    const result = this.db
+      .select()
+      .from(chapterDownloads)
+      .where(eq(chapterDownloads.status, status))
+      .all()
+
+    return result.length
+  }
+}
+export const chapterDownloadsRepo = new ChapterDownloadsRepository()

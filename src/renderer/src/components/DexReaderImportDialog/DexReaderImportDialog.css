@@ -1,0 +1,161 @@
+/**
+ * DexReaderImportDialog Component Styles
+ * Following Windows 11 Fluent Design principles
+ */
+
+.dexreader-import-dialog {
+}
+
+.dexreader-import-dialog .import-file-info {
+  padding: var(--space-3);
+  background: var(--win-bg-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.dexreader-import-dialog .import-icon {
+  flex-shrink: 0;
+  color: var(--win-accent);
+  width: 20px;
+  height: 20px;
+}
+
+.dexreader-import-dialog .file-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.dexreader-import-dialog .file-label {
+  font-size: var(--win-font-size-caption);
+  color: var(--win-text-secondary);
+  font-weight: 500;
+}
+
+.dexreader-import-dialog .file-name {
+  font-size: var(--win-font-size-body);
+  color: var(--win-text-primary);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dexreader-import-dialog .import-info {
+  padding: var(--space-3);
+  background: var(--win-bg-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.dexreader-import-dialog .info-text {
+  margin: 0;
+  color: var(--win-text-secondary);
+  font-size: var(--win-font-size-caption);
+  line-height: 1.5;
+}
+
+.dexreader-import-dialog .import-sections {
+}
+
+.dexreader-import-dialog .section-item {
+  padding: var(--space-3);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-sm);
+  background: var(--win-bg-default);
+}
+
+.dexreader-import-dialog .section-icon {
+  flex-shrink: 0;
+  color: var(--win-text-secondary);
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+}
+
+.dexreader-import-dialog .section-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.dexreader-import-dialog .section-content strong {
+  display: block;
+  font-size: var(--win-font-size-body);
+  font-weight: 600;
+  color: var(--win-text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.dexreader-import-dialog .section-description {
+  margin: 0;
+  font-size: var(--win-font-size-caption);
+  color: var(--win-text-tertiary);
+  line-height: 1.4;
+}
+
+.dexreader-import-dialog .import-warning {
+  padding: var(--space-3);
+  background: var(--win-bg-subtle);
+  border-left: 3px solid var(--win-attention);
+  border-radius: var(--radius-sm);
+}
+
+.dexreader-import-dialog .warning-icon {
+  flex-shrink: 0;
+  color: var(--win-attention);
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+}
+
+.dexreader-import-dialog .warning-content {
+  flex: 1;
+}
+
+.dexreader-import-dialog .warning-content strong {
+  display: block;
+  font-size: var(--win-font-size-caption);
+  font-weight: 600;
+  color: var(--win-text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.dexreader-import-dialog .warning-content ul {
+  margin: 0;
+  padding-left: var(--space-4);
+  font-size: var(--win-font-size-caption);
+  color: var(--win-text-secondary);
+  line-height: 1.6;
+}
+
+.dexreader-import-dialog .warning-content li {
+  margin-bottom: var(--space-1);
+}
+
+.dexreader-import-dialog .warning-content li:last-child {
+  margin-bottom: 0;
+}
+
+.dexreader-import-dialog .import-error {
+  padding: var(--space-3);
+  background: var(--win-error-tint);
+  border: 1px solid var(--win-error);
+  border-radius: var(--radius-sm);
+}
+
+.dexreader-import-dialog .error-icon {
+  flex-shrink: 0;
+  color: var(--win-error);
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+}
+
+.dexreader-import-dialog .error-text {
+  margin: 0;
+  font-size: var(--win-font-size-caption);
+  color: var(--win-error);
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.dexreader-import-dialog__actions {
+  padding-top: var(--space-2);
+}

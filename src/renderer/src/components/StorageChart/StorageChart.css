@@ -1,0 +1,48 @@
+/* StorageChart Component Styles */
+
+.storage-chart {
+  border: 1px solid var(--win-border-default);
+  border-radius: 6px;
+  background-color: var(--win-surface-default);
+}
+
+.storage-chart__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--win-text-primary);
+}
+
+.storage-chart__bar {
+  /* Removed display: flex - using utility class */
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: var(--win-surface-tertiary);
+}
+
+.storage-chart__bar--large {
+  height: 40px;
+}
+
+.storage-chart__bar--small {
+  height: 32px;
+}
+
+.storage-chart__segment {
+  /* Removed display: flex, align-items, justify-content - using utility classes */
+  padding: 0 8px;
+}
+
+.storage-chart__label {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.storage-chart__label--large {
+  font-size: 12px;
+}
+
+.storage-chart__label--small {
+  font-size: 11px;
+}

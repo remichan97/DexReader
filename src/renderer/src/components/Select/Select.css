@@ -1,0 +1,364 @@
+/**
+ * Select Component Styles
+ * Following Windows 11 Fluent Design principles
+ */
+
+/* Select Container */
+.select {
+  position: relative;
+}
+
+.select__label {
+  font-family: var(--win-font-family);
+  font-size: var(--win-font-size-caption);
+  font-weight: 600;
+  color: var(--win-text-primary);
+  margin-bottom: var(--space-1);
+  user-select: none;
+}
+
+/* Select Trigger Container (for searchable variant) */
+.select__trigger-container {
+  position: relative;
+}
+
+/* Select Trigger Button */
+.select__trigger {
+  position: relative;
+  width: 100%;
+  min-height: 32px;
+  padding: var(--space-1-5) 32px var(--space-1-5) var(--space-3);
+  background: var(--win-bg-input);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-sm);
+  font-family: var(--win-font-family);
+  font-size: var(--win-font-size-body);
+  color: var(--win-text-primary);
+  cursor: pointer;
+  transition: var(--transition-all-fast);
+  outline: none;
+  text-align: left;
+}
+
+/* Searchable trigger (acts as input) */
+.select__trigger--searchable {
+  cursor: text;
+}
+
+.select__trigger:hover:not(:disabled) {
+  background: var(--win-bg-input-hover);
+  border-color: var(--win-border-hover);
+}
+
+.select__trigger:focus-visible {
+  border-bottom-color: var(--win-accent);
+  border-bottom-width: 2px;
+  padding-bottom: calc(var(--space-1-5) - 1px);
+}
+
+.select__trigger:disabled {
+  background: var(--win-bg-subtle);
+  color: var(--win-text-disabled);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Trigger Icon */
+.select__icon {
+  position: absolute;
+  right: var(--space-2);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  color: var(--win-text-secondary);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.select--open .select__icon {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+/* When dropdown opens above, icon should point up (no rotation) */
+.select--open-above .select__icon {
+  transform: translateY(-50%) rotate(0deg);
+}
+
+.select__value {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 400;
+}
+
+.select--error .select__trigger {
+  border-color: var(--win-text-error);
+}
+
+/* Dropdown */
+.select__dropdown {
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--win-bg-card);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  max-height: 280px;
+  animation: select-dropdown-scale-in 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+/* Dropdown positioned above trigger */
+.select__dropdown--above {
+  top: auto;
+  bottom: calc(100% + var(--space-1));
+  animation: select-dropdown-scale-in-above 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes select-dropdown-scale-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes select-dropdown-scale-in-above {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Placeholder styling for searchable input */
+.select__trigger--searchable::placeholder {
+  color: var(--win-text-placeholder);
+}
+
+/* Listbox */
+.select__listbox {
+  list-style: none;
+  padding: var(--space-1);
+  margin: 0;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Custom scrollbar */
+.select__listbox::-webkit-scrollbar {
+  width: 8px;
+}
+
+.select__listbox::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.select__listbox::-webkit-scrollbar-thumb {
+  background: var(--win-bg-subtle);
+  border-radius: 4px;
+}
+
+.select__listbox::-webkit-scrollbar-thumb:hover {
+  background: var(--win-bg-hover);
+}
+
+/* Option */
+.select__option {
+  padding: var(--space-1-5) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-family: var(--win-font-family);
+  font-size: var(--win-font-size-body);
+  color: var(--win-text-primary);
+  cursor: pointer;
+  transition: var(--transition-all-fast);
+  user-select: none;
+  position: relative;
+}
+
+.select__option:hover:not(.select__option--disabled) {
+  background: var(--win-bg-hover);
+}
+
+.select__option--focused:not(.select__option--disabled) {
+  background: var(--win-accent-subtle);
+  color: var(--win-accent);
+}
+
+.select__option--focused:not(.select__option--disabled)::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 16px;
+  background: var(--win-accent);
+  border-radius: 0 2px 2px 0;
+}
+
+.select__option--selected {
+  background: var(--win-bg-subtle);
+}
+
+.select__option--selected:hover {
+  background: var(--win-bg-active);
+}
+
+.select__option--disabled {
+  color: var(--win-text-disabled);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.select__option--empty {
+  color: var(--win-text-tertiary);
+  text-align: center;
+  cursor: default;
+}
+
+.select__option--empty:hover {
+  background: transparent;
+}
+
+.select__option-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Checkbox for multi-select */
+.select__checkbox {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--win-border-default);
+  border-radius: var(--radius-xs);
+  background: var(--win-bg-input);
+  flex-shrink: 0;
+  transition: var(--transition-all-fast);
+}
+
+.select__option--selected .select__checkbox {
+  background: var(--win-accent);
+  border-color: var(--win-accent);
+}
+
+.select__checkmark {
+  width: 12px;
+  height: 12px;
+  color: white;
+  stroke-width: 2;
+}
+
+/* Check icon for single-select */
+.select__check-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--win-accent);
+  flex-shrink: 0;
+}
+
+/* Helper Text */
+.select__helper {
+  font-family: var(--win-font-family);
+  font-size: var(--win-font-size-caption);
+  color: var(--win-text-secondary);
+  margin-top: var(--space-1);
+  line-height: 1.4;
+}
+
+.select--error .select__helper {
+  color: var(--win-text-error);
+}
+
+/* Disabled State */
+.select--disabled .select__label {
+  color: var(--win-text-disabled);
+  opacity: 0.6;
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .select__dropdown {
+    animation: none;
+  }
+
+  .select__icon {
+    transition: none;
+  }
+}
+
+/* Dark Mode Support */
+.popover[data-theme='dark'] .select__dropdown {
+  background: #242424;
+  border-color: #3a3a3a;
+  box-shadow:
+    0 8px 16px rgba(0, 0, 0, 0.6),
+    0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.popover[data-theme='dark'] .select__option {
+  color: #ffffff;
+}
+
+.popover[data-theme='dark'] .select__option:hover {
+  background: #2e2e2e;
+}
+
+.popover[data-theme='dark'] .select__option--selected {
+  background: #3a3a3a;
+  color: #ffffff;
+}
+
+.popover[data-theme='dark'] .select__option--focused {
+  background: #2e2e2e;
+}
+
+.popover[data-theme='dark'] .select__listbox::-webkit-scrollbar-thumb {
+  background: #3a3a3a;
+}
+
+.popover[data-theme='dark'] .select__listbox::-webkit-scrollbar-thumb:hover {
+  background: #4a4a4a;
+}
+
+.popover[data-theme='dark'] .select__trigger {
+  background: #242424;
+  border-color: #3a3a3a;
+  color: #ffffff;
+}
+
+.popover[data-theme='dark'] .select__trigger:hover:not(:disabled) {
+  background: #2e2e2e;
+  border-color: #4a4a4a;
+}
+
+.popover[data-theme='dark'] .select__label {
+  color: #ffffff;
+}
+
+.popover[data-theme='dark'] .select__helper {
+  color: #b3b3b3;
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .select__trigger,
+  .select__dropdown {
+    border-width: 2px;
+  }
+}

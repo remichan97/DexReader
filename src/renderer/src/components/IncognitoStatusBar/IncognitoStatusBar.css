@@ -1,0 +1,38 @@
+.incognito-status-bar {
+  padding: 8px 16px;
+  background: linear-gradient(to right, rgba(138, 136, 134, 0.08), transparent);
+  border-bottom: 2px solid var(--win-text-tertiary);
+  min-height: 40px;
+  animation: slideDown 0.3s ease-out;
+}
+
+.incognito-status-bar__content {
+  flex: 1;
+}
+
+.incognito-status-bar__icon {
+  flex-shrink: 0;
+  color: var(--win-text-tertiary);
+}
+
+.incognito-status-bar__text {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--win-text-primary);
+}
+
+.incognito-status-bar__text strong {
+  font-weight: 600;
+  color: var(--win-text-primary);
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

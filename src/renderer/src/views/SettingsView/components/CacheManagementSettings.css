@@ -1,0 +1,102 @@
+/* Cache Management Settings Component Styles */
+
+/* Loading State */
+
+.cache-settings__loading {
+  padding: var(--space-4) 0;
+}
+
+/* Main Container */
+
+.cache-settings__container {
+  padding: var(--space-4) 0;
+}
+
+/* Section Headings */
+
+.cache-settings__heading {
+  margin-bottom: var(--space-2);
+  font-size: var(--win-font-size-subtitle);
+  font-weight: var(--win-font-weight-semibold);
+}
+
+/* Description Text */
+
+.cache-settings__description {
+  font-size: 13px;
+  color: var(--win-text-secondary);
+  margin-bottom: var(--space-4);
+}
+
+/* Info Box */
+
+.cache-settings__info-box {
+  margin-top: var(--space-4);
+  padding: var(--space-3);
+  background-color: var(--win-bg-subtle);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+.cache-settings__info-row {
+  margin-bottom: var(--space-1-5);
+}
+
+/* Cache Location Path */
+
+.cache-settings__cache-path {
+  font-size: var(--win-font-size-caption);
+  color: var(--win-text-tertiary);
+  margin-top: var(--space-2);
+  font-family: monospace;
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+
+/* Action Buttons Container */
+
+.cache-settings__actions {
+  margin-top: var(--space-3);
+}
+
+.cache-settings__actions--multiple {
+}
+
+/* Section Divider */
+
+.cache-settings__divider {
+  border-top: 1px solid var(--win-border-default);
+  padding-top: var(--space-6);
+}
+
+/* Metadata Stats */
+
+.cache-settings__stats-box {
+  padding: var(--space-3);
+  background-color: var(--win-bg-subtle);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  margin-bottom: var(--space-4);
+}
+
+.cache-settings__stats-breakdown {
+  margin-left: var(--space-4);
+  margin-top: var(--space-1);
+}
+
+.cache-settings__stats-note {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--win-border-default);
+}
+
+.cache-settings__note-text {
+  font-size: var(--win-font-size-caption);
+  color: var(--win-text-tertiary);
+}
+
+.cache-settings__ready-to-clean {
+  margin-top: var(--space-1-5);
+  font-size: var(--win-font-size-caption);
+  color: var(--win-text-secondary);
+}

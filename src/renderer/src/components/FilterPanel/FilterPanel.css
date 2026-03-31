@@ -1,0 +1,239 @@
+/**
+ * Filter Panel Styles
+ * Horizontal filter bar spanning full width
+ */
+
+.filter-panel {
+  width: 100%;
+  background: var(--win-bg-default);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-md);
+  overflow: visible;
+}
+
+.filter-panel__quick {
+  padding: 16px;
+}
+
+.filter-panel__group {
+  min-width: 120px;
+}
+
+.filter-panel__label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--win-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.5;
+  min-height: 18px;
+}
+
+.filter-panel__checkboxes {
+  min-height: 32px;
+}
+
+.filter-panel__actions {
+  margin-left: auto;
+  margin-top: 26px; /* Label height (18px) + gap (8px) to align with other controls */
+}
+
+/* Advanced Filters Toggle */
+.filter-panel__advanced-toggle {
+  border-top: 1px solid var(--win-border-default);
+  padding: 8px 16px;
+  background: var(--win-bg-subtle);
+}
+
+.filter-panel__toggle-btn {
+  background: none;
+  border: none;
+  color: var(--win-text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.15s ease;
+}
+
+.filter-panel__toggle-btn:hover {
+  color: var(--win-accent);
+}
+
+/* Advanced Filters Section */
+.filter-panel__advanced {
+  border-top: 1px solid var(--win-border-default);
+  padding: 20px;
+  padding-bottom: 60px; /* Extra padding for sticky footer */
+  background: var(--win-bg-default);
+  max-height: 65vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Tag Mode Selection */
+.filter-panel__tag-mode {
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--win-border-default);
+}
+
+/* Tag Group */
+.filter-panel__tag-group {
+  margin-bottom: 28px;
+}
+
+.filter-panel__tag-group:last-child {
+  margin-bottom: 0;
+}
+
+.filter-panel__tag-group-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--win-text-primary);
+  margin: 0 0 16px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--win-border-default);
+}
+
+/* Tag Grid */
+.filter-panel__tag-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+/* Tag Item */
+.filter-panel__tag-item {
+  padding: 10px 12px;
+  background: var(--win-bg-subtle);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-sm);
+  transition: all 0.15s ease;
+  min-height: 40px;
+  height: 40px;
+}
+
+.filter-panel__tag-item:hover {
+  background: var(--win-bg-elevated);
+  border-color: var(--win-border-strong);
+}
+
+.filter-panel__tag-name {
+  font-size: 13px;
+  color: var(--win-text-primary);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Tag Controls */
+.filter-panel__tag-controls {
+  gap: 6px;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.filter-panel__tag-btn {
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--win-border-default);
+  background: var(--win-bg-default);
+  color: var(--win-text-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 700;
+  transition: all 0.15s ease;
+  line-height: 1;
+  padding: 0;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.filter-panel__tag-btn:hover:not(.active) {
+  border-color: var(--win-border-strong);
+  background: var(--win-bg-elevated);
+  color: var(--win-text-primary);
+}
+
+.filter-panel__tag-btn.include.active {
+  background: #107c10 !important;
+  border-color: #107c10 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+}
+
+.filter-panel__tag-btn.include.active:hover {
+  background: #0e6b0e !important;
+  border-color: #0e6b0e !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+}
+
+.filter-panel__tag-btn.exclude.active {
+  background: #d13438 !important;
+  border-color: #d13438 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+}
+
+.filter-panel__tag-btn.exclude.active:hover {
+  background: #a82c2f !important;
+  border-color: #a82c2f !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+}
+
+.filter-panel__tag-section {
+  /* Layout handled by flex utility classes */
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .filter-panel__quick {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-panel__group {
+    min-width: unset;
+  }
+
+  .filter-panel__actions {
+    margin-left: 0;
+    justify-content: flex-end;
+  }
+}
+
+/* Tag List (for languages and other list-style filters) */
+.filter-panel__tag-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+  align-items: start;
+}
+
+/* Language Filter Section */
+.filter-panel__language-item {
+  padding: 0;
+  min-height: 32px;
+}
+
+/* Sticky Footer for Action Buttons */
+.filter-panel__sticky-footer {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 16px;
+  background: var(--win-bg-card);
+  border-top: 1px solid var(--win-border-default);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+  z-index: 10;
+}

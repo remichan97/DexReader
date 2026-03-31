@@ -1,0 +1,13 @@
+.reading-mode-selector {
+  display: inline-block;
+  min-width: 160px;
+}
+
+.reading-mode-selector select {
+  cursor: pointer;
+}
+
+.reading-mode-selector select:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

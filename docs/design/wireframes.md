@@ -1,0 +1,623 @@
+# DexReader Wireframes
+
+**Created**: 24 November 2025
+**Part of**: P1-T01 - Design Main Application Layout
+**Status**: Complete
+
+---
+
+## Overview
+
+This document contains ASCII wireframes for all primary views in DexReader. All designs follow Windows 11 design language with Mica backgrounds, Acrylic blur effects, and native styling.
+
+---
+
+## Browse View
+
+**Purpose**: Search, discover, and explore manga from MangaDex
+
+```ui
+┌──────────────────────────────────────────────────────────────────────────┐
+│ DexReader - Browse                                          [_ □ X]       │
+├──────────────────────────────────────────────────────────────────────────┤
+│ File  View  Library  Tools  Help                                         │
+├────────┬─────────────────────────────────────────────────────────────────┤
+│ [🔍]   │  ┌─────────────────────────────────────────────────────────┐   │
+│ Browse │  │ Search manga...                                    [🔍] │   │
+│        │  └─────────────────────────────────────────────────────────┘   │
+│ [📚]   │                                                                  │
+│ Library│  ┌──── Filters ─────────────────────────────────────────────┐  │
+│        │  │ [v] Tags: Action, Adventure, Fantasy    [+]              │  │
+│ [⬇]    │  │ [v] Status: Ongoing    [v] Language: English             │  │
+│Download│  └──────────────────────────────────────────────────────────┘  │
+│        │                                                                  │
+│ [⚙]    │  ┌──── Latest Updates ───────────────────────────────────┐    │
+│Settings│  │                                                          │    │
+│        │  │  ┌───────┐  ┌───────┐  ┌───────┐  ┌───────┐  ┌───────┐ │   │
+│        │  │  │ _____ │  │ _____ │  │ _____ │  │ _____ │  │ _____ │ │   │
+│        │  │  │|Cover│ │  │|Cover│ │  │|Cover│ │  │|Cover│ │  │|Cover│ │   │
+│        │  │  │|Image│ │  │|Image│ │  │|Image│ │  │|Image│ │  │|Image│ │   │
+│        │  │  │|     │ │  │|     │ │  │|     │ │  │|     │ │  │|     │ │   │
+│        │  │  │|_____│ │  │|_____│ │  │|_____│ │  │|_____│ │  │|_____│ │   │
+│        │  │  │ Title │  │ Title │  │ Title │  │ Title │  │ Title │ │   │
+│        │  │  │ Ch.45 │  │ Ch.12 │  │ Ch.78 │  │ Ch.34 │  │ Ch.90 │ │   │
+│        │  │  └───────┘  └───────┘  └───────┘  └───────┘  └───────┘ │   │
+│        │  │                                                          │    │
+│        │  │  ┌───────┐  ┌───────┐  ┌───────┐  ┌───────┐  ┌───────┐ │   │
+│        │  │  │ _____ │  │ _____ │  │ _____ │  │ _____ │  │ _____ │ │   │
+│        │  │  │|Cover│ │  │|Cover│ │  │|Cover│ │  │|Cover│ │  │|Cover│ │   │
+│        │  │  │|Image│ │  │|Image│ │  │|Image│ │  │|Image│ │  │|Image│ │   │
+│        │  │  │|     │ │  │|     │ │  │|     │ │  │|     │ │  │|     │ │   │
+│        │  │  │|_____│ │  │|_____│ │  │|_____│ │  │|_____│ │  │|_____│ │   │
+│        │  │  │ Title │  │ Title │  │ Title │  │ Title │  │ Title │ │   │
+│        │  │  │ Ch.15 │  │ Ch.89 │  │ Ch.23 │  │ Ch.67 │  │ Ch.11 │ │   │
+│        │  │  └───────┘  └───────┘  └───────┘  └───────┘  └───────┘ │   │
+│        │  │                                                          │    │
+│        │  └──────────────────────────────────────────────────────────┘   │
+│        │                                                                  │
+│        │  [Load More...]                                                 │
+└────────┴──────────────────────────────────────────────────────────────────┘
+```
+
+**Key Elements**:
+
+1. **Native Menu Bar**: File, View, Library, Tools, Help
+2. **Fixed Sidebar**: Fluent icon-based navigation with animated indicator (Browse, Library, Downloads, Settings)
+3. **Search Bar**: Full-width with search icon, prominent placement
+4. **Filters Panel**: Collapsible, shows active filters with tags
+5. **Manga Grid**: 5-column responsive grid, cover image + title + latest chapter
+6. **Infinite Scroll**: "Load More" button at bottom (Phase 2 will implement auto-scroll)
+
+**Windows 11 Design Elements**:
+
+- Mica background (#f3f3f3 light, #202020 dark)
+- Rounded corners (8px) on cards
+- Subtle shadows for depth
+- Acrylic blur on sidebar
+- **Native menu bar** (no custom title bar)
+- **Fluent UI icons** with state variants (Regular/Filled)
+- **Spring animations** on sidebar indicator (400ms overshoot easing)
+
+---
+
+## Library View
+
+**Purpose**: View bookmarked manga and personal collections
+
+```ui
+┌──────────────────────────────────────────────────────────────────────────┐
+│ DexReader - My Library                                      [_ □ X]       │
+├──────────────────────────────────────────────────────────────────────────┤
+│ File  View  Library  Tools  Help                                         │
+├────────┬─────────────────────────────────────────────────────────────────┤
+│ [🔍]   │  ┌──── My Library ──────────────────────────────────────────┐   │
+│ Browse │  │  [Sort: Last Read ▼]  [Filter ▼]          [Grid ▾] [List]│  │
+│        │  └──────────────────────────────────────────────────────────┘   │
+│ [📚]   │                                                                  │
+│ Library│  ┌──── Collections ────────────────────────────────────────┐    │
+│ ───────│  │  [📂] All Manga (42)                                    │    │
+│ All    │  │  [⭐] Favorites (12)                                     │    │
+│ Favs   │  │  [📖] Currently Reading (8)                             │    │
+│ Reading│  │  [✓] Completed (15)                                      │    │
+│ Plan   │  │  [🕐] Plan to Read (7)                                   │    │
+│ ───────│  │  ───────────────────────────                             │    │
+│ Action │  │  [Custom] Action & Adventure (18)                       │    │
+│ Romance│  │  [Custom] Romance (9)                                    │    │
+│ ───────│  │  ───────────────────────────                             │    │
+│ +New   │  │  [+ Create Collection]                                   │    │
+│        │  └──────────────────────────────────────────────────────────┘   │
+│ [⬇]    │                                                                  │
+│Download│  ┌──── All Manga (42) ───────────────────────────────────┐     │
+│        │  │                                                          │     │
+│ [⚙]    │  │  ┌───────┐  ┌───────┐  ┌───────┐  ┌───────┐  ┌───────┐ │    │
+│Settings│  │  │ _____ │  │ _____ │  │ _____ │  │ _____ │  │ _____ │ │    │
+│        │  │  │|Cover│ │  │|Cover│ │  │|Cover│ │  │|Cover│ │  │|Cover│ │    │
+│        │  │  │|Image│ │  │|Image│ │  │|Image│ │  │|Image│ │  │|Image│ │    │
+│        │  │  │|     │ │  │|     │ │  │|     │ │  │|     │ │  │|     │ │    │
+│        │  │  │| NEW │ │  │|     │ │  │| 75% │ │  │|DONE│ │  │| 10% │ │    │
+│        │  │  │|_____│ │  │|_____│ │  │|_____│ │  │|_____│ │  │|_____│ │    │
+│        │  │  │ Title │  │ Title │  │ Title │  │ Title │  │ Title │ │    │
+│        │  │  │ Unread│  │ Ch. 45│  │ Ch. 18│  │Complete│ │ Ch. 3 │ │    │
+│        │  │  │ 12 ch │  │/ 120  │  │/ 24   │  │ 56 ch  │  │/ 30   │ │    │
+│        │  │  └───────┘  └───────┘  └───────┘  └───────┘  └───────┘ │    │
+│        │  │                                                          │     │
+│        │  │  ┌───────┐  ┌───────┐  ┌───────┐  ┌───────┐  ┌───────┐ │    │
+│        │  │  │ _____ │  │ _____ │  │ _____ │  │ _____ │  │ _____ │ │    │
+│        │  │  │|Cover│ │  │|Cover│ │  │|Cover│ │  │|Cover│ │  │|Cover│ │    │
+│        │  │  │|Image│ │  │|Image│ │  │|Image│ │  │|Image│ │  │|Image│ │    │
+│        │  │  └───────┘  └───────┘  └───────┘  └───────┘  └───────┘ │    │
+│        │  │                                                          │     │
+│        │  └──────────────────────────────────────────────────────────┘    │
+│        │                                                                   │
+└────────┴───────────────────────────────────────────────────────────────────┘
+```
+
+**Key Elements**:
+
+1. **Collections Sidebar**: Nested within main sidebar, shows all collections with counts
+2. **Default Collections**: All Manga, Favorites, Currently Reading, Completed, Plan to Read
+3. **Custom Collections**: User-created with custom icons/colors
+4. **Sort & Filter**: Dropdown controls (Last Read, Title, Date Added, etc.)
+5. **View Toggle**: Grid vs List view
+6. **Progress Indicators**: Visual badges on covers (NEW, percentage, DONE)
+7. **Chapter Progress**: Shows current chapter / total chapters
+
+**Windows 11 Design Elements**:
+
+- Collections sidebar uses subtle background (#ffffff light, #2c2c2c dark)
+- Hover states with accent color tint
+- Progress badges with semantic colors (green for complete, blue for in-progress)
+
+---
+
+## Reader View
+
+**Purpose**: Fullscreen manga reading experience
+
+### Single Page Mode
+
+```ui
+┌──────────────────────────────────────────────────────────────────────────┐
+│ ← Manga Title - Chapter 45: Chapter Name         Ch. 45 ▼    [≡] [X] [▭]│
+├──────────────────────────────────────────────────────────────────────────┤
+│                                                                           │
+│                                                                           │
+│                                                                           │
+│                         ┌─────────────────────┐                          │
+│                         │                     │                          │
+│                         │                     │                          │
+│                         │                     │                          │
+│                         │                     │                          │
+│                         │   Manga Page Image  │                          │
+│                         │   (fit-to-height)   │                          │
+│                         │                     │                          │
+│                         │                     │                          │
+│                         │                     │                          │
+│                         │                     │                          │
+│                         └─────────────────────┘                          │
+│                                                                           │
+│                                                                           │
+│                                                                           │
+├──────────────────────────────────────────────────────────────────────────┤
+│  [◀ Prev]        Page 12 / 24        [⚙ Settings] [🔍 Zoom]   [Next ▶]  │
+└──────────────────────────────────────────────────────────────────────────┘
+```
+
+### Double Page Mode (Right-to-Left)
+
+```ui
+┌──────────────────────────────────────────────────────────────────────────┐
+│ ← Manga Title - Chapter 45: Chapter Name         Ch. 45 ▼    [≡] [X] [▭]│
+├──────────────────────────────────────────────────────────────────────────┤
+│                                                                           │
+│     ┌────────────────────┐          ┌────────────────────┐              │
+│     │                    │          │                    │              │
+│     │                    │          │                    │              │
+│     │                    │          │                    │              │
+│     │                    │          │                    │              │
+│     │   Page 13          │          │   Page 12          │              │
+│     │   (Right Page)     │          │   (Left Page)      │              │
+│     │                    │          │                    │              │
+│     │                    │          │                    │              │
+│     │                    │          │                    │              │
+│     │                    │          │                    │              │
+│     └────────────────────┘          └────────────────────┘              │
+│                                                                           │
+├──────────────────────────────────────────────────────────────────────────┤
+│  [◀ Prev]    Pages 12-13 / 24    [⚙ Settings] [🔍 Zoom]      [Next ▶]  │
+└──────────────────────────────────────────────────────────────────────────┘
+```
+
+### Vertical Scroll Mode (Webtoon)
+
+```ui
+┌──────────────────────────────────────────────────────────────────────────┐
+│ ← Manga Title - Chapter 45: Chapter Name         Ch. 45 ▼    [≡] [X] [▭]│
+├──────────────────────────────────────────────────────────────────────────┤
+│                                                                           │
+│                     ┌─────────────────────────┐                          │
+│                     │                         │                          │
+│                     │   Page 1                │                          │
+│                     │                         │                          │
+│                     └─────────────────────────┘                          │
+│                     ┌─────────────────────────┐                          │
+│                     │                         │                          │
+│                     │   Page 2                │                          │
+│                     │                         │                          │
+│                     └─────────────────────────┘                          │
+│                     ┌─────────────────────────┐                          │
+│                     │                         │                          │
+│                     │   Page 3                │                          │
+│                     │                         │                          │
+│                     └─────────────────────────┘                          │
+│                     ┌─────────────────────────┐                          │
+│                     │                         │  ◀── Scroll              │
+│                     │   Page 4 (current)      │                          │
+│                     │                         │                          │
+│                     └─────────────────────────┘                          │
+│                                                                           │
+│                                  ...                                      │
+│                                                                           │
+└──────────────────────────────────────────────────────────────────────────┘
+   [Scroll: Page 4 / 24]              [⚙ Settings]          [🔍 Zoom]
+```
+
+**Key Elements**:
+
+1. **Top Bar** (auto-hide after 3 seconds of inactivity):
+   - Back button (returns to Library or Browse)
+   - Manga title + chapter name
+   - Chapter selector dropdown (quick jump)
+   - Menu button (chapter list overlay)
+   - Window controls
+
+2. **Main Area**:
+   - Centered image(s)
+   - Black letterboxing for fit
+   - Keyboard navigation (←→ arrows, Space, Enter)
+
+3. **Bottom Bar** (auto-hide with top bar):
+   - Previous/Next buttons (large tap targets)
+   - Page indicator (current / total)
+   - Settings button (reading mode, image fit)
+   - Zoom controls (fit-width, fit-height, actual size, custom %)
+
+4. **Reading Modes**:
+   - Single Page: One page centered, L-R or R-L navigation
+   - Double Page: Two pages side-by-side, R-L for manga
+   - Vertical Scroll: Continuous scrolling (webtoon style)
+
+5. **Side Overlays** (on-demand):
+   - Chapter list (swipe from right or click menu button)
+   - Settings panel (reading preferences)
+
+**Windows 11 Design Elements**:
+
+- Black background (#000000) for reader to maximize contrast
+- Semi-transparent bars with Acrylic blur
+- Smooth fade-in/fade-out animations (300ms)
+- Touch-friendly button sizes (minimum 44x44px)
+
+---
+
+## Settings View
+
+**Purpose**: Application configuration and preferences
+
+```ui
+┌──────────────────────────────────────────────────────────────────────────┐
+│ DexReader - Settings                                        [_ □ X]       │
+├──────────────────────────────────────────────────────────────────────────┤
+│ File  View  Library  Tools  Help                                         │
+├────────┬─────────────────────────────────────────────────────────────────┤
+│ [🔍]   │  ┌──── Settings ──────────────────────────────────────────────┐ │
+│ Browse │  │                                                             │ │
+│        │  │  ┌────────────────────────────────────────────────────┐   │ │
+│ [📚]   │  │  │ General                                            │   │ │
+│ Library│  │  ├────────────────────────────────────────────────────┤   │ │
+│        │  │  │                                                    │   │ │
+│ [⬇]    │  │  │  Theme                                             │   │ │
+│Download│  │  │  [ System Default ▼ ]  (Light / Dark / Auto)      │   │ │
+│        │  │  │                                                    │   │ │
+│ [⚙]    │  │  │  Language                                          │   │ │
+│Settings│  │  │  [ English ▼ ]                                     │   │ │
+│ ───────│  │  │                                                    │   │ │
+│General │  │  │  Check for updates                                 │   │ │
+│Reading │  │  │  [x] Check on startup                              │   │ │
+│Download│  │  │  [ Check Now ]                                     │   │ │
+│Storage │  │  │                                                    │   │ │
+│About   │  │  └────────────────────────────────────────────────────┘   │ │
+│        │  │                                                             │ │
+│        │  │  ┌────────────────────────────────────────────────────┐   │ │
+│        │  │  │ Reading Preferences                                │   │ │
+│        │  │  ├────────────────────────────────────────────────────┤   │ │
+│        │  │  │                                                    │   │ │
+│        │  │  │  Default Reading Mode                              │   │ │
+│        │  │  │  ( ) Single Page  (•) Double Page  ( ) Vertical   │   │ │
+│        │  │  │                                                    │   │ │
+│        │  │  │  Reading Direction                                 │   │ │
+│        │  │  │  (•) Right-to-Left  ( ) Left-to-Right              │   │ │
+│        │  │  │                                                    │   │ │
+│        │  │  │  Image Fit                                         │   │ │
+│        │  │  │  (•) Fit to Height  ( ) Fit to Width  ( ) Original│   │ │
+│        │  │  │                                                    │   │ │
+│        │  │  │  Preload                                           │   │ │
+│        │  │  │  [x] Preload next 3 pages                          │   │ │
+│        │  │  │                                                    │   │ │
+│        │  │  └────────────────────────────────────────────────────┘   │ │
+│        │  │                                                             │ │
+│        │  │  ┌────────────────────────────────────────────────────┐   │ │
+│        │  │  │ Downloads                                          │   │ │
+│        │  │  ├────────────────────────────────────────────────────┤   │ │
+│        │  │  │                                                    │   │ │
+│        │  │  │  Download Location                                 │   │ │
+│        │  │  │  C:\Users\...\Downloads\DexReader  [Browse...]    │   │ │
+│        │  │  │                                                    │   │ │
+│        │  │  │  Image Quality                                     │   │ │
+│        │  │  │  [ High ▼ ]  (Original / High / Medium / Low)     │   │ │
+│        │  │  │                                                    │   │ │
+│        │  │  │  Simultaneous Downloads                            │   │ │
+│        │  │  │  [ 3 ▼ ]  (1-10)                                   │   │ │
+│        │  │  │                                                    │   │ │
+│        │  │  └────────────────────────────────────────────────────┘   │ │
+│        │  │                                                             │ │
+│        │  └─────────────────────────────────────────────────────────────┘ │
+│        │                                                                  │
+└────────┴──────────────────────────────────────────────────────────────────┘
+```
+
+**Key Elements**:
+
+1. **Settings Sidebar**: Category navigation (General, Reading, Download, Storage, About)
+2. **Settings Panels**: Grouped by category with clear section headers
+3. **Form Controls**:
+   - Dropdowns for single selection
+   - Radio buttons for mutually exclusive options
+   - Checkboxes for toggles
+   - Text inputs with browse buttons for paths
+4. **Instant Apply**: Changes save immediately (no Save button needed)
+5. **Folder Picker**: Native OS dialog for downloads location
+
+**Settings Categories**:
+
+- **General**: Theme, language, update checks, product name
+- **Reading Preferences**: Default mode, direction, image fit, preload settings
+- **Downloads**: Location, quality, simultaneous downloads
+- **Storage**: Cache management, database size, backup/restore
+- **About**: Version info, credits, documentation links
+
+**Windows 11 Design Elements**:
+
+- Card-based layout with rounded corners
+- Native form controls (styled to match Windows 11)
+- Proper spacing between sections (16-24px)
+- Dropdown menus with system accent color
+
+---
+
+## Common UI Elements Across All Views
+
+### Navigation Sidebar
+
+```ui
+┌────────┐
+│ [🔍]   │  Browse
+│ Browse │
+│ ━━━    │  ← Blue indicator bar (animated)
+│        │
+│ [📚]   │  Library
+│ Library│
+│        │
+│ [⬇]    │  Downloads
+│Download│
+│        │
+│ [⚙]    │  Settings
+│Settings│
+│        │
+└────────┘
+```
+
+**Features**:
+
+- **Active State**: 3px blue accent bar on left, bold text
+- **Animated Indicator**: Spring animation (cubic-bezier with overshoot) slides between items
+- **Icons**: @fluentui/react-icons - Regular (inactive), Filled (active)
+- **Hover State**: Subtle background tint with scale transform
+- **Fixed Width**: Always 240px (no collapse functionality)
+- **Keyboard Accessible**: Tab navigation, Enter to activate
+
+### Native Menu Bar
+
+```ui
+File  View  Library  Tools  Help
+```
+
+**Menu Structures** (expanded in navigation-specification.md):
+
+- **File**: Check for Updates, Settings, Exit
+- **View**: Browse, Library, Downloads, Toggle Sidebar, Toggle Fullscreen, Reload, DevTools
+- **Library**: Add to Favorites, Create Collection, Manage Collections, Import/Export
+- **Tools**: Download Chapter, Download Manga, Clear Cache, Clear History
+- **Help**: Documentation, Keyboard Shortcuts, Report Issue, About
+
+---
+
+## Responsive Behavior Summary
+
+### Large (>720px) - Default Layout
+
+- 5-column manga grid
+- Full sidebar with text labels
+- All UI elements visible
+
+### Medium (620px-720px)
+
+- 3-column manga grid
+- Sidebar with text labels (slightly compressed)
+- Compact filter panel
+
+### Small (<620px)
+
+- 2-column manga grid
+- Sidebar remains visible (240px fixed)
+- Filters in collapsible drawer
+- Touch-optimized controls (larger tap targets)
+
+---
+
+## Loading States (Brief Overview)
+
+Full specifications in loading-feedback-states.md, but wireframes show:
+
+- **Skeleton Screens**: Gray placeholder cards with shimmer animation
+- **Progress Rings**: Circular indicator in reader (no percentage text)
+- **Progress Bars**: Horizontal bars in Downloads view
+- **Empty States**: Friendly messages with CTA buttons
+
+---
+
+## Accessibility Considerations
+
+All wireframes designed with accessibility in mind:
+
+- **Keyboard Navigation**: All actions accessible via keyboard
+- **Focus Indicators**: Clear visual focus states
+- **Screen Readers**: Semantic HTML with ARIA labels
+- **Color Contrast**: WCAG AA compliant (4.5:1 text, 3:1 UI)
+- **Touch Targets**: Minimum 44x44px for interactive elements
+- **Skip Links**: "Skip to content" for keyboard users
+
+---
+
+## Design Tokens Applied
+
+See windows11-design-tokens.md for complete specifications, but wireframes use:
+
+- **Border Radius**: 8px (cards, panels), 4px (buttons)
+- **Spacing**: 8px base unit, 16px between sections, 24px margins
+- **Typography**: Segoe UI Variable, 14px body, 20px headings
+- **Colors**: Mica backgrounds, accent color for active states
+- **Shadows**: Subtle elevation (0 2px 8px rgba(0,0,0,0.08))
+
+---
+
+## Next Steps
+
+These wireframes serve as the foundation for:
+
+1. ✅ Component hierarchy design (Step 2) - COMPLETE
+2. ✅ Routing structure (Step 3) - COMPLETE
+3. ✅ Detailed component specifications (Step 8) - COMPLETE
+4. ✅ Implementation in Phase 1 tasks - P1-T03 COMPLETE
+
+**Implementation Status**:
+
+- ✅ **P1-T01**: Design documentation complete (11 documents)
+- ✅ **P1-T02**: Menu bar and navigation implemented
+- ✅ **P1-T03**: UI Component Library complete (17 components)
+- ⏳ **Next**: P1-T04 State Management
+
+**Review Status**: ✅ Implemented and validated
+
+---
+
+## History View
+
+**Purpose**: Display reading history with all read manga, progress tracking, and statistics
+**Added**: 16 December 2025 (P2-T10 - Reading Progress Tracking)
+
+```ui
+┌──────────────────────────────────────────────────────────────────────────┐
+│ DexReader - History                                        [_ □ X]       │
+├──────────────────────────────────────────────────────────────────────────┤
+│ File  View  Library  Tools  Help                                         │
+├────────┬─────────────────────────────────────────────────────────────────┤
+│ [🔍]   │  ┌──── Reading Statistics ──────────────────────────────────┐  │
+│ Browse │  │  📚 12 Manga Read  •  📖 247 Chapters  •  📄 4,823 Pages  │  │
+│        │  │  ⏱️ ~27 hours reading time                                │  │
+│ [📚]   │  └──────────────────────────────────────────────────────────┘  │
+│ Library│                                                                  │
+│        │  ┌─────────────────────────────────────────────────────────┐   │
+│ [📖]   │  │ 🔍 Search history...              [All Time ▾] [Sort ▾] │   │
+│History │  └─────────────────────────────────────────────────────────┘   │
+│        │                                                                  │
+│ [⚙]    │  ┌─────────────────────────────────────────────────────────┐  │
+│Settings│  │ ┌──────┐                                                 │  │
+│        │  │ │ ____ │  One Piece                      2 hours ago    │  │
+│        │  │ │|Covr││  Chapter 1050: The Battle Begins               │  │
+│        │  │ │|80x ││  Page 15/20                                     │  │
+│        │  │ │|120 ││  [Continue Reading]  [Remove from History]     │  │
+│        │  │ └──────┘                                                 │  │
+│        │  ├─────────────────────────────────────────────────────────┤  │
+│        │  │ ┌──────┐                                                 │  │
+│        │  │ │ ____ │  Attack on Titan                Yesterday      │  │
+│        │  │ │|Covr││  Chapter 139: Toward the Tree on That Hill     │  │
+│        │  │ │|80x ││  Page 45/51                                     │  │
+│        │  │ │|120 ││  [Continue Reading]  [Remove from History]     │  │
+│        │  │ └──────┘                                                 │  │
+│        │  ├─────────────────────────────────────────────────────────┤  │
+│        │  │ ┌──────┐                                                 │  │
+│        │  │ │ ____ │  My Hero Academia               3 days ago     │  │
+│        │  │ │|Covr││  Chapter 405: We Are Here                      │  │
+│        │  │ │|80x ││  Completed (20/20)                             │  │
+│        │  │ │|120 ││  [Continue Reading]  [Remove from History]     │  │
+│        │  │ └──────┘                                                 │  │
+│        │  └─────────────────────────────────────────────────────────┘  │
+│        │                                                                  │
+│        │  Empty State (when no history):                                │
+│        │  ┌─────────────────────────────────────────────────────────┐  │
+│        │  │                                                           │  │
+│        │  │                    📖                                    │  │
+│        │  │         No reading history yet                           │  │
+│        │  │    Start reading to see your progress here               │  │
+│        │  │                                                           │  │
+│        │  │              [Browse Manga]                              │  │
+│        │  │                                                           │  │
+│        │  └─────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────────────────┘
+```
+
+### Layout Components
+
+**Statistics Header** (Full-width, top section):
+
+- Total manga read count
+- Total chapters read count
+- Total pages read count
+- Estimated reading time
+- Background: Subtle accent color with transparency
+
+**Search & Filter Bar**:
+
+- Search input (filter by manga title)
+- Date range filter dropdown: All Time / Last 7 Days / Last 30 Days / Last 90 Days
+- Sort dropdown: Most Recent / Oldest / Most Read / Alphabetical
+
+**History Card** (Horizontal layout):
+
+- **Left**: Cover image (80×120px, rounded corners)
+- **Right**: Info section with:
+  - Manga title (18px, bold)
+  - Chapter info (14px, muted): "Chapter [number]: [title]"
+  - Progress info (14px, muted): "Page [current]/[total]" or "Completed"
+  - Timestamp (12px, muted): Relative time ("2 hours ago") or absolute date
+  - Action buttons:
+    - "Continue Reading" (Primary button)
+    - "Remove from History" (Ghost button)
+
+**Empty State**:
+
+- Centered content with icon
+- Friendly message: "No reading history yet"
+- Call-to-action: "Browse Manga" button
+
+### Interaction Patterns
+
+1. **Continue Reading**: Navigate to `/reader/:mangaId/:chapterId` with `startPage` state
+2. **Remove from History**: Show confirmation dialog → Delete progress entry
+3. **Search**: Live filter (debounced 300ms)
+4. **Filter by Date**: Instant filter, no API call
+5. **Infinite Scroll**: Load 50 items at a time, lazy load more on scroll
+6. **Cover Loading**: Lazy load covers as they enter viewport
+
+### Responsive Behavior
+
+- **2K+ monitors**: 3-column grid layout for history cards
+- **1080p**: 2-column grid layout
+- **<1080p**: Single column (vertical stack)
+- Statistics header: Responsive text size, stacks on narrow screens
+
+### Design Tokens
+
+- **Card Background**: `rgba(255, 255, 255, 0.03)` (dark mode)
+- **Card Hover**: `rgba(255, 255, 255, 0.05)` + elevation increase
+- **Timestamp Color**: `#999` (muted gray)
+- **Statistics Background**: Accent color with 10% opacity
+- **Border Radius**: 8px (cards), 4px (buttons)
+- **Icons**: Fluent UI Icon Library (`@fluentui/react-icons`)
+
+---
+
+_Wireframes created: 24 November 2025_
+_History view added: 16 December 2025 (P2-T10)_
+_Part of P1-T01 deliverables_

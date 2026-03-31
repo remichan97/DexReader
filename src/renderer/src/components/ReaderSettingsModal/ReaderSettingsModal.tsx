@@ -1,0 +1,130 @@
+import type { JSX, ReactElement } from 'react'
+import { Popover } from '@renderer/components/Popover'
+import { Select, type SelectOption } from '@renderer/components/Select'
+import type { MangaReadingSettings } from '../../../../preload/index.d'
+import './ReaderSettingsModal.css'
+
+interface ReaderSettingsModalProps {
+  readonly isOpen: boolean
+  readonly onOpen: () => void
+  readonly onClose: () => void
+  readonly settings: MangaReadingSettings
+  readonly onSettingsChange: (settings: MangaReadingSettings) => void
+  readonly children: ReactElement
+}
+
+export function ReaderSettingsModal({
+  isOpen,
+  onOpen,
+  onClose,
+  settings,
+  onSettingsChange,
+  children
+}: ReaderSettingsModalProps): JSX.Element {
+  const readingModeOptions: SelectOption[] = [
+    { value: 'single', label: 'Single Page' },
+    { value: 'double', label: 'Double Page' },
+    { value: 'vertical', label: 'Vertical Scroll' }
+  ]
+
+  const handleReadingModeChange = (mode: string | string[]): void => {
+    const selectedMode = Array.isArray(mode) ? mode[0] : mode
+
+    // Only include doublePageMode when mode is 'double'
+    if (selectedMode === 'double') {
+      onSettingsChange({
+        readingMode: selectedMode as MangaReadingSettings['readingMode'],
+        doublePageMode: settings.doublePageMode ?? {
+          skipCoverPages: true,
+          readRightToLeft: true
+        }
+      })
+    } else {
+      onSettingsChange({
+        readingMode: selectedMode as MangaReadingSettings['readingMode']
+      })
+    }
+  }
+
+  const handleDoublePageSettingChange = (
+    key: 'skipCoverPages' | 'readRightToLeft',
+    value: boolean
+  ): void => {
+    onSettingsChange({
+      ...settings,
+      doublePageMode: {
+        skipCoverPages: settings.doublePageMode?.skipCoverPages ?? true,
+        readRightToLeft: settings.doublePageMode?.readRightToLeft ?? true,
+        [key]: value
+      }
+    })
+  }
+
+  const popoverContent = (
+    <div className="reader-settings-modal__content flex flex-col gap-4 p-4">
+      {/* Reading Mode Settings */}
+      <div>
+        <div className="flex flex-col gap-3">
+          <Select
+            value={settings.readingMode}
+            onChange={handleReadingModeChange}
+            options={readingModeOptions}
+            label="Mode"
+            helperText="How pages are displayed"
+          />
+
+          {settings.readingMode === 'double' && (
+            <div className="reader-settings-modal__double-page-options p-4 flex flex-col gap-3">
+              <h5 className="reader-settings-modal__options-title m-0">Double Page Options</h5>
+              <label className="reader-settings-modal__checkbox-label flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  className="reader-settings-modal__checkbox"
+                  checked={settings.doublePageMode?.skipCoverPages ?? true}
+                  onChange={(e) =>
+                    handleDoublePageSettingChange('skipCoverPages', e.target.checked)
+                  }
+                />{' '}
+                Skip cover pages
+              </label>
+              <label className="reader-settings-modal__checkbox-label flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  className="reader-settings-modal__checkbox"
+                  checked={settings.doublePageMode?.readRightToLeft ?? true}
+                  onChange={(e) =>
+                    handleDoublePageSettingChange('readRightToLeft', e.target.checked)
+                  }
+                />{' '}
+                Read right-to-left
+              </label>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Info Text */}
+      <p className="reader-settings-modal__info m-0 text-secondary pt-3">
+        Saved for this manga only
+      </p>
+    </div>
+  )
+
+  return (
+    <Popover
+      content={popoverContent}
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (open) {
+          onOpen()
+        } else {
+          onClose()
+        }
+      }}
+      position="bottom"
+      trigger="click"
+    >
+      {children}
+    </Popover>
+  )
+}

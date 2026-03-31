@@ -1,0 +1,87 @@
+.offline-status-bar {
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--win-border-default);
+  min-height: 40px;
+  animation: slideDown 0.2s ease-out;
+}
+
+/* User-initiated offline mode - informational (blue) */
+.offline-status-bar[data-type='user'] {
+  background: linear-gradient(to right, var(--win-info-tint), transparent);
+  border-bottom: 2px solid var(--win-info);
+}
+
+.offline-status-bar[data-type='user'] .offline-status-bar__icon {
+  color: var(--win-info);
+}
+
+.offline-status-bar[data-type='user'] .offline-status-bar__text {
+  color: var(--win-text-primary);
+}
+
+/* System no internet - warning (yellow/orange) */
+.offline-status-bar[data-type='system'] {
+  background: linear-gradient(to right, var(--win-warning-tint), transparent);
+  border-bottom: 2px solid var(--win-warning);
+}
+
+.offline-status-bar[data-type='system'] .offline-status-bar__icon {
+  color: var(--win-warning);
+}
+
+.offline-status-bar[data-type='system'] .offline-status-bar__text {
+  color: var(--win-text-primary);
+}
+
+.offline-status-bar__content {
+  flex: 1;
+}
+
+.offline-status-bar__icon {
+  flex-shrink: 0;
+}
+
+.offline-status-bar__text {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.offline-status-bar__text strong {
+  font-weight: 600;
+}
+
+.offline-status-bar__actions {
+  flex-shrink: 0;
+}
+
+/* Style buttons within status bars to have better contrast */
+.offline-status-bar[data-type='user'] .offline-status-bar__actions button {
+  border-color: var(--win-info);
+  color: var(--win-info);
+}
+
+.offline-status-bar[data-type='user'] .offline-status-bar__actions button:hover {
+  background: var(--win-info);
+  color: var(--win-text-on-accent);
+}
+
+.offline-status-bar[data-type='system'] .offline-status-bar__actions button {
+  border-color: var(--win-warning);
+  color: var(--win-warning);
+}
+
+.offline-status-bar[data-type='system'] .offline-status-bar__actions button:hover {
+  background: var(--win-warning);
+  color: var(--win-text-on-accent);
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

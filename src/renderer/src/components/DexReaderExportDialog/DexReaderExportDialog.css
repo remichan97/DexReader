@@ -1,0 +1,165 @@
+/**
+ * DexReaderExportDialog Component Styles
+ * Following Windows 11 Fluent Design principles
+ */
+
+.dexreader-export-dialog {
+}
+
+.dexreader-export-dialog .export-path-info {
+  padding: var(--space-3);
+  background: var(--win-bg-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.dexreader-export-dialog .export-icon {
+  flex-shrink: 0;
+  color: var(--win-accent);
+  width: 20px;
+  height: 20px;
+}
+
+.dexreader-export-dialog .path-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.dexreader-export-dialog .path-label {
+  font-size: var(--win-font-size-caption);
+  color: var(--win-text-secondary);
+  font-weight: 500;
+}
+
+.dexreader-export-dialog .path-name {
+  font-size: var(--win-font-size-body);
+  color: var(--win-text-primary);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dexreader-export-dialog .export-info {
+  padding: var(--space-3);
+  background: var(--win-bg-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.dexreader-export-dialog .info-text {
+  margin: 0;
+  color: var(--win-text-secondary);
+  font-size: var(--win-font-size-caption);
+  line-height: 1.5;
+}
+
+.dexreader-export-dialog .export-options {
+}
+
+.dexreader-export-dialog .option-section {
+  padding: var(--space-3);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-sm);
+  background: var(--win-bg-default);
+  transition: var(--transition-all-fast);
+}
+
+.dexreader-export-dialog .option-section:has(input[type='checkbox']:disabled) {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dexreader-export-dialog .option-header {
+  margin-bottom: var(--space-1);
+}
+
+.dexreader-export-dialog .option-section:has(input[type='checkbox']:checked) {
+  border-color: var(--win-accent);
+  background: var(--win-accent-subtle);
+}
+
+.dexreader-export-dialog .option-icon {
+  flex-shrink: 0;
+  color: var(--win-text-secondary);
+  width: 20px;
+  height: 20px;
+}
+
+.dexreader-export-dialog .option-header strong {
+  font-size: var(--win-font-size-body);
+  font-weight: 600;
+  color: var(--win-text-primary);
+  flex: 1;
+}
+
+.dexreader-export-dialog .always-included {
+  font-size: var(--win-font-size-caption);
+  font-weight: 500;
+  color: var(--win-accent);
+  background: var(--win-accent-subtle);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-xs);
+}
+
+.dexreader-export-dialog .option-description {
+  margin: 0;
+  font-size: var(--win-font-size-caption);
+  color: var(--win-text-tertiary);
+  line-height: 1.4;
+  padding-left: 56px; /* Align with checkbox + icon + text */
+}
+
+.dexreader-export-dialog .option-description.no-checkbox {
+  padding-left: 28px; /* Align with icon + text */
+}
+
+.dexreader-export-dialog .export-note {
+  padding: var(--space-3);
+  background: var(--win-bg-subtle);
+  border-left: 3px solid var(--win-accent);
+  border-radius: var(--radius-sm);
+}
+
+.dexreader-export-dialog .note-text {
+  margin: 0;
+  font-size: var(--win-font-size-caption);
+  color: var(--win-text-secondary);
+  line-height: 1.5;
+}
+
+.dexreader-export-dialog .note-text strong {
+  color: var(--win-text-primary);
+}
+
+.dexreader-export-dialog .note-text em {
+  font-style: normal;
+  color: var(--win-text-primary);
+  font-weight: 500;
+}
+
+.dexreader-export-dialog .export-error {
+  padding: var(--space-3);
+  background: var(--win-error-tint);
+  border: 1px solid var(--win-error);
+  border-radius: var(--radius-sm);
+}
+
+.dexreader-export-dialog .error-icon {
+  flex-shrink: 0;
+  color: var(--win-error);
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+}
+
+.dexreader-export-dialog .error-text {
+  margin: 0;
+  font-size: var(--win-font-size-caption);
+  color: var(--win-error);
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.dexreader-export-dialog__actions {
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--win-border-default);
+}

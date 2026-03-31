@@ -1,0 +1,1 @@
+ALTER TABLE `chapter_downloads` ADD `is_hidden` integer DEFAULT false NOT NULL;

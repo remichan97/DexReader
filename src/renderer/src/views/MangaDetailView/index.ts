@@ -1,0 +1,1 @@
+export { MangaDetailView } from './MangaDetailView'

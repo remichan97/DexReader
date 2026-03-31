@@ -1,0 +1,17 @@
+/* LoadingState Component */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  gap: var(--space-3);
+  text-align: center;
+}
+
+/* Message */
+.loading-state__message {
+  font-size: var(--win-font-size-body);
+  color: var(--win-text-secondary);
+  margin: 0;
+}

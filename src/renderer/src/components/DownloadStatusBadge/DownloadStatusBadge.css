@@ -1,0 +1,116 @@
+.download-badge {
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: var(--win-bg-subtle);
+  color: var(--win-text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: default;
+  transition: all 0.2s ease;
+  min-width: 32px;
+  min-height: 32px;
+}
+
+.download-badge__text {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Clickable states */
+.download-badge--not-downloaded,
+.download-badge--failed {
+  cursor: pointer;
+}
+
+.download-badge--not-downloaded:hover,
+.download-badge--failed:hover {
+  background: var(--win-bg-tertiary);
+  border-color: var(--win-border-default);
+}
+
+.download-badge--not-downloaded:active,
+.download-badge--failed:active {
+  transform: scale(0.95);
+}
+
+/* Not Downloaded */
+.download-badge--not-downloaded {
+  color: var(--win-text-primary);
+  background: transparent;
+  border-color: var(--win-border-default);
+}
+
+.download-badge--not-downloaded:hover {
+  color: var(--win-accent);
+  background: var(--win-accent-subtle);
+  border-color: var(--win-accent-tertiary);
+}
+
+/* Downloading */
+.download-badge--downloading {
+  color: var(--win-accent);
+  background: var(--win-accent-subtle);
+  border-color: var(--win-accent-tertiary);
+  font-weight: 600;
+}
+
+.download-badge__icon--spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Queued */
+.download-badge--queued {
+  color: var(--win-accent);
+  background: var(--win-accent-subtle);
+  border-color: var(--win-accent-tertiary);
+  font-weight: 600;
+}
+
+/* Downloaded */
+.download-badge--downloaded {
+  color: var(--win-success);
+  background: var(--win-success-tint);
+  border-color: var(--win-success-tertiary);
+  font-weight: 600;
+}
+
+/* Failed */
+.download-badge--failed {
+  color: var(--win-danger);
+  background: var(--win-danger-subtle);
+  border-color: var(--win-danger-tertiary);
+  font-weight: 600;
+}
+
+.download-badge--failed:hover {
+  background: var(--win-danger-subtle);
+  border-color: var(--win-danger);
+}
+
+/* Disabled state */
+.download-badge:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.download-badge:disabled:hover {
+  background: transparent;
+  transform: none;
+}
+
+/* Focus visible for accessibility */
+.download-badge:focus-visible {
+  outline: 2px solid var(--win-accent);
+  outline-offset: 2px;
+}

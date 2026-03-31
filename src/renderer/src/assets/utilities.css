@@ -1,0 +1,823 @@
+/**
+ * Utility Classes for DexReader
+ *
+ * Reusable utility classes based on Windows 11 design tokens.
+ * Use these to replace inline styles and reduce CSS duplication.
+ *
+ * Naming Convention:
+ * - Use abbreviated property names (e.g., p = padding, m = margin)
+ * - Use design token scale (1-12) instead of pixel values
+ * - Use directional suffixes (t = top, b = bottom, l = left, r = right, x = horizontal, y = vertical)
+ */
+
+/* ========== FLEXBOX UTILITIES ========== */
+
+/* Display */
+.flex {
+  display: flex;
+}
+
+.inline-flex {
+  display: inline-flex;
+}
+
+/* Flex Direction */
+.flex-row {
+  flex-direction: row;
+}
+
+.flex-row-reverse {
+  flex-direction: row-reverse;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.flex-col-reverse {
+  flex-direction: column-reverse;
+}
+
+/* Flex Wrap */
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.flex-nowrap {
+  flex-wrap: nowrap;
+}
+
+/* Justify Content */
+.justify-start {
+  justify-content: flex-start;
+}
+
+.justify-end {
+  justify-content: flex-end;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-around {
+  justify-content: space-around;
+}
+
+.justify-evenly {
+  justify-content: space-evenly;
+}
+
+/* Align Items */
+.items-start {
+  align-items: flex-start;
+}
+
+.items-end {
+  align-items: flex-end;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.items-baseline {
+  align-items: baseline;
+}
+
+.items-stretch {
+  align-items: stretch;
+}
+
+/* Align Self */
+.self-auto {
+  align-self: auto;
+}
+
+.self-start {
+  align-self: flex-start;
+}
+
+.self-end {
+  align-self: flex-end;
+}
+
+.self-center {
+  align-self: center;
+}
+
+.self-stretch {
+  align-self: stretch;
+}
+
+/* Flex Sizing */
+.flex-1 {
+  flex: 1 1 0%;
+}
+
+.flex-auto {
+  flex: 1 1 auto;
+}
+
+.flex-initial {
+  flex: 0 1 auto;
+}
+
+.flex-none {
+  flex: none;
+}
+
+/* ========== GAP UTILITIES ========== */
+
+/* Gap (applies to both row and column) */
+.gap-0 {
+  gap: var(--space-0);
+}
+
+.gap-1 {
+  gap: var(--space-1); /* 4px */
+}
+
+.gap-1-5 {
+  gap: var(--space-1-5); /* 6px */
+}
+
+.gap-2 {
+  gap: var(--space-2); /* 8px */
+}
+
+.gap-3 {
+  gap: var(--space-3); /* 12px */
+}
+
+.gap-4 {
+  gap: var(--space-4); /* 16px */
+}
+
+.gap-5 {
+  gap: var(--space-5); /* 20px */
+}
+
+.gap-6 {
+  gap: var(--space-6); /* 24px */
+}
+
+.gap-8 {
+  gap: var(--space-8); /* 32px */
+}
+
+.gap-10 {
+  gap: var(--space-10); /* 40px */
+}
+
+.gap-12 {
+  gap: var(--space-12); /* 48px */
+}
+
+/* Row Gap */
+.row-gap-2 {
+  row-gap: var(--space-2);
+}
+
+.row-gap-4 {
+  row-gap: var(--space-4);
+}
+
+.row-gap-6 {
+  row-gap: var(--space-6);
+}
+
+/* Column Gap */
+.col-gap-2 {
+  column-gap: var(--space-2);
+}
+
+.col-gap-4 {
+  column-gap: var(--space-4);
+}
+
+.col-gap-6 {
+  column-gap: var(--space-6);
+}
+
+/* ========== PADDING UTILITIES ========== */
+
+/* Padding - All Sides */
+.p-0 {
+  padding: var(--space-0);
+}
+
+.p-1 {
+  padding: var(--space-1);
+}
+
+.p-2 {
+  padding: var(--space-2);
+}
+
+.p-3 {
+  padding: var(--space-3);
+}
+
+.p-4 {
+  padding: var(--space-4);
+}
+
+.p-5 {
+  padding: var(--space-5);
+}
+
+.p-6 {
+  padding: var(--space-6);
+}
+
+.p-8 {
+  padding: var(--space-8);
+}
+
+.p-10 {
+  padding: var(--space-10);
+}
+
+.p-12 {
+  padding: var(--space-12);
+}
+
+/* Padding - Horizontal (left + right) */
+.px-0 {
+  padding-left: var(--space-0);
+  padding-right: var(--space-0);
+}
+
+.px-2 {
+  padding-left: var(--space-2);
+  padding-right: var(--space-2);
+}
+
+.px-3 {
+  padding-left: var(--space-3);
+  padding-right: var(--space-3);
+}
+
+.px-4 {
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+}
+
+.px-6 {
+  padding-left: var(--space-6);
+  padding-right: var(--space-6);
+}
+
+/* Padding - Vertical (top + bottom) */
+.py-0 {
+  padding-top: var(--space-0);
+  padding-bottom: var(--space-0);
+}
+
+.py-2 {
+  padding-top: var(--space-2);
+  padding-bottom: var(--space-2);
+}
+
+.py-3 {
+  padding-top: var(--space-3);
+  padding-bottom: var(--space-3);
+}
+
+.py-4 {
+  padding-top: var(--space-4);
+  padding-bottom: var(--space-4);
+}
+
+.py-6 {
+  padding-top: var(--space-6);
+  padding-bottom: var(--space-6);
+}
+
+/* Padding - Individual Sides */
+.pt-0 {
+  padding-top: var(--space-0);
+}
+
+.pt-2 {
+  padding-top: var(--space-2);
+}
+
+.pt-4 {
+  padding-top: var(--space-4);
+}
+
+.pt-6 {
+  padding-top: var(--space-6);
+}
+
+.pr-0 {
+  padding-right: var(--space-0);
+}
+
+.pr-2 {
+  padding-right: var(--space-2);
+}
+
+.pr-4 {
+  padding-right: var(--space-4);
+}
+
+.pr-6 {
+  padding-right: var(--space-6);
+}
+
+.pb-0 {
+  padding-bottom: var(--space-0);
+}
+
+.pb-2 {
+  padding-bottom: var(--space-2);
+}
+
+.pb-4 {
+  padding-bottom: var(--space-4);
+}
+
+.pb-6 {
+  padding-bottom: var(--space-6);
+}
+
+.pl-0 {
+  padding-left: var(--space-0);
+}
+
+.pl-2 {
+  padding-left: var(--space-2);
+}
+
+.pl-4 {
+  padding-left: var(--space-4);
+}
+
+.pl-6 {
+  padding-left: var(--space-6);
+}
+
+/* ========== MARGIN UTILITIES ========== */
+
+/* Margin - All Sides */
+.m-0 {
+  margin: var(--space-0);
+}
+
+.m-1 {
+  margin: var(--space-1);
+}
+
+.m-2 {
+  margin: var(--space-2);
+}
+
+.m-3 {
+  margin: var(--space-3);
+}
+
+.m-4 {
+  margin: var(--space-4);
+}
+
+.m-5 {
+  margin: var(--space-5);
+}
+
+.m-6 {
+  margin: var(--space-6);
+}
+
+.m-auto {
+  margin: auto;
+}
+
+/* Margin - Horizontal (left + right) */
+.mx-0 {
+  margin-left: var(--space-0);
+  margin-right: var(--space-0);
+}
+
+.mx-2 {
+  margin-left: var(--space-2);
+  margin-right: var(--space-2);
+}
+
+.mx-4 {
+  margin-left: var(--space-4);
+  margin-right: var(--space-4);
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Margin - Vertical (top + bottom) */
+.my-0 {
+  margin-top: var(--space-0);
+  margin-bottom: var(--space-0);
+}
+
+.my-2 {
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.my-4 {
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+/* Margin - Individual Sides */
+.mt-0 {
+  margin-top: var(--space-0);
+}
+
+.mt-1 {
+  margin-top: var(--space-1);
+}
+
+.mt-2 {
+  margin-top: var(--space-2);
+}
+
+.mt-3 {
+  margin-top: var(--space-3);
+}
+
+.mt-4 {
+  margin-top: var(--space-4);
+}
+
+.mt-5 {
+  margin-top: var(--space-5);
+}
+
+.mt-6 {
+  margin-top: var(--space-6);
+}
+
+.mt-8 {
+  margin-top: var(--space-8);
+}
+
+.mr-0 {
+  margin-right: var(--space-0);
+}
+
+.mr-2 {
+  margin-right: var(--space-2);
+}
+
+.mr-4 {
+  margin-right: var(--space-4);
+}
+
+.mr-6 {
+  margin-right: var(--space-6);
+}
+
+.mb-0 {
+  margin-bottom: var(--space-0);
+}
+
+.mb-1 {
+  margin-bottom: var(--space-1);
+}
+
+.mb-2 {
+  margin-bottom: var(--space-2);
+}
+
+.mb-3 {
+  margin-bottom: var(--space-3);
+}
+
+.mb-4 {
+  margin-bottom: var(--space-4);
+}
+
+.mb-6 {
+  margin-bottom: var(--space-6);
+}
+
+.mb-8 {
+  margin-bottom: var(--space-8);
+}
+
+.ml-0 {
+  margin-left: var(--space-0);
+}
+
+.ml-2 {
+  margin-left: var(--space-2);
+}
+
+.ml-4 {
+  margin-left: var(--space-4);
+}
+
+.ml-6 {
+  margin-left: var(--space-6);
+}
+
+/* ========== TEXT UTILITIES ========== */
+
+/* Text Alignment */
+.text-left {
+  text-align: left;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-justify {
+  text-align: justify;
+}
+
+/* Text Color */
+.text-primary {
+  color: var(--win-text-primary);
+}
+
+.text-secondary {
+  color: var(--win-text-secondary);
+}
+
+.text-tertiary {
+  color: var(--win-text-tertiary);
+}
+
+.text-disabled {
+  color: var(--win-text-disabled);
+}
+
+.text-error {
+  color: var(--win-error);
+}
+
+.text-success {
+  color: var(--win-success);
+}
+
+.text-warning {
+  color: var(--win-warning);
+}
+
+.text-accent {
+  color: var(--win-accent);
+}
+
+/* Font Size */
+.text-caption {
+  font-size: var(--win-font-size-caption);
+}
+
+.text-body {
+  font-size: var(--win-font-size-body);
+}
+
+.text-subtitle {
+  font-size: var(--win-font-size-subtitle);
+}
+
+.text-title {
+  font-size: var(--win-font-size-title);
+}
+
+/* Font Weight */
+.font-regular {
+  font-weight: var(--win-font-weight-regular);
+}
+
+.font-semibold {
+  font-weight: var(--win-font-weight-semibold);
+}
+
+.font-bold {
+  font-weight: var(--win-font-weight-bold);
+}
+
+/* ========== LAYOUT UTILITIES ========== */
+
+/* Display */
+.block {
+  display: block;
+}
+
+.inline-block {
+  display: inline-block;
+}
+
+.inline {
+  display: inline;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Width */
+.w-full {
+  width: 100%;
+}
+
+.w-auto {
+  width: auto;
+}
+
+/* Height */
+.h-full {
+  height: 100%;
+}
+
+.h-auto {
+  height: auto;
+}
+
+/* Max Width */
+.max-w-xs {
+  max-width: 320px;
+}
+
+.max-w-sm {
+  max-width: 384px;
+}
+
+.max-w-md {
+  max-width: 448px;
+}
+
+.max-w-lg {
+  max-width: 512px;
+}
+
+.max-w-xl {
+  max-width: 576px;
+}
+
+.max-w-full {
+  max-width: 100%;
+}
+
+/* Position */
+.relative {
+  position: relative;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.fixed {
+  position: fixed;
+}
+
+.sticky {
+  position: sticky;
+}
+
+/* Overflow */
+.overflow-auto {
+  overflow: auto;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.overflow-visible {
+  overflow: visible;
+}
+
+.overflow-scroll {
+  overflow: scroll;
+}
+
+.overflow-x-auto {
+  overflow-x: auto;
+}
+
+.overflow-y-auto {
+  overflow-y: auto;
+}
+
+/* ========== BACKGROUND UTILITIES ========== */
+
+.bg-base {
+  background-color: var(--win-bg-base);
+}
+
+.bg-card {
+  background-color: var(--win-bg-card);
+}
+
+.bg-elevated {
+  background-color: var(--win-bg-elevated);
+}
+
+.bg-subtle {
+  background-color: var(--win-bg-subtle);
+}
+
+.bg-hover {
+  background-color: var(--win-bg-hover);
+}
+
+/* ========== BORDER UTILITIES ========== */
+
+.rounded-none {
+  border-radius: var(--radius-none);
+}
+
+.rounded-xs {
+  border-radius: var(--radius-xs);
+}
+
+.rounded-sm {
+  border-radius: var(--radius-sm);
+}
+
+.rounded-md {
+  border-radius: var(--radius-md);
+}
+
+.rounded-lg {
+  border-radius: var(--radius-lg);
+}
+
+.rounded-full {
+  border-radius: var(--radius-full);
+}
+
+.border {
+  border: 1px solid var(--win-border-default);
+}
+
+.border-0 {
+  border: 0;
+}
+
+/* ========== OPACITY UTILITIES ========== */
+
+.opacity-0 {
+  opacity: 0;
+}
+
+.opacity-30 {
+  opacity: 0.3;
+}
+
+.opacity-50 {
+  opacity: 0.5;
+}
+
+.opacity-70 {
+  opacity: 0.7;
+}
+
+.opacity-100 {
+  opacity: 1;
+}
+
+/* ========== CURSOR UTILITIES ========== */
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-default {
+  cursor: default;
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+
+/* ========== ACCESSIBILITY UTILITIES ========== */
+
+/* Screen reader only - visually hidden but accessible to screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

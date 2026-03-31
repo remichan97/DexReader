@@ -1,0 +1,60 @@
+/* Downloads Settings Component Styles */
+
+/* Main Container */
+
+.downloads-settings__container {
+  padding: var(--space-4) 0;
+}
+
+/* Section Headings */
+
+.downloads-settings__heading {
+  margin-bottom: var(--space-3);
+  font-size: var(--win-font-size-subtitle);
+  font-weight: var(--win-font-weight-semibold);
+}
+
+/* Description Text */
+
+.downloads-settings__description {
+  font-size: 13px;
+  color: var(--win-text-secondary);
+  margin-bottom: var(--space-4);
+}
+
+/* Settings Controls Container */
+
+.downloads-settings__controls {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-3);
+  align-items: start;
+}
+
+/* Folder Path Display */
+
+.downloads-settings__path-display {
+  font-family: monospace;
+  font-size: 13px;
+  cursor: default;
+  width: 100%;
+}
+
+/* Info Box */
+
+.downloads-settings__info-box {
+  font-size: var(--win-font-size-caption);
+  color: var(--win-text-tertiary);
+  margin-top: var(--space-2);
+}
+
+.downloads-settings__info-icon {
+  flex-shrink: 0;
+}
+
+/* Section Dividers */
+
+.downloads-settings__divider {
+  border-top: 1px solid var(--win-border-default);
+  padding-top: var(--space-5);
+}

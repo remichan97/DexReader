@@ -1,0 +1,151 @@
+/* Application-specific styles */
+
+/* Code elements */
+code {
+  font-family: var(--win-font-family-mono);
+  font-size: var(--win-font-size-caption);
+  font-weight: var(--win-font-weight-semibold);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  background-color: var(--win-bg-elevated);
+  color: var(--win-text-primary);
+}
+
+/* Links */
+a {
+  color: var(--win-accent);
+  text-decoration: none;
+  transition: var(--transition-color);
+}
+
+a:hover {
+  color: var(--win-accent-hover);
+  text-decoration: underline;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--win-border-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Buttons */
+button {
+  font-family: var(--win-font-family);
+  font-size: var(--win-font-size-body);
+  font-weight: var(--win-font-weight-semibold);
+  padding: var(--padding-button);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-sm);
+  background: var(--win-bg-card);
+  color: var(--win-text-primary);
+  cursor: pointer;
+  transition: var(--transition-all-fast);
+}
+
+button:hover {
+  background: var(--win-bg-hover);
+  border-color: var(--win-border-hover);
+}
+
+button:active {
+  background: var(--win-bg-active);
+}
+
+button:disabled {
+  background: var(--win-bg-disabled);
+  color: var(--win-text-disabled);
+  cursor: not-allowed;
+  border-color: var(--win-border-default);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--win-border-focus);
+  outline-offset: 2px;
+}
+
+/* Primary button variant */
+button.primary {
+  background: var(--win-accent);
+  color: var(--win-text-on-accent);
+  border-color: var(--win-accent);
+}
+
+button.primary:hover {
+  background: var(--win-accent-hover);
+  border-color: var(--win-accent-hover);
+}
+
+button.primary:active {
+  background: var(--win-accent-active);
+  border-color: var(--win-accent-active);
+}
+
+button.primary:disabled {
+  background: var(--win-accent-disabled);
+  border-color: var(--win-accent-disabled);
+}
+
+/* Input fields */
+input,
+textarea,
+select {
+  font-family: var(--win-font-family);
+  font-size: var(--win-font-size-body);
+  padding: var(--padding-input);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-sm);
+  background: var(--win-bg-card);
+  color: var(--win-text-primary);
+  transition: var(--transition-all-fast);
+}
+
+input:hover,
+textarea:hover,
+select:hover {
+  border-color: var(--win-border-hover);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+}
+
+input:disabled,
+textarea:disabled,
+select:disabled {
+  background: var(--win-bg-disabled);
+  color: var(--win-text-disabled);
+  cursor: not-allowed;
+}
+
+/* Utility classes */
+.text-center {
+  text-align: center;
+}
+
+.mt-4 {
+  margin-top: var(--space-4);
+}
+
+.mb-4 {
+  margin-bottom: var(--space-4);
+}
+
+.p-4 {
+  padding: var(--space-4);
+}
+
+/* Screen Reader Only - Accessibility utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

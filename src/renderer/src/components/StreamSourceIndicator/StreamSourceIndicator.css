@@ -1,0 +1,35 @@
+.stream-source-indicator {
+  margin-right: 8px;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+  animation: fadeIn 0.3s ease;
+}
+
+.stream-source-indicator:hover {
+  opacity: 1;
+}
+
+.stream-source-indicator__icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Online variant - secondary color */
+.stream-source-indicator--online .stream-source-indicator__icon {
+  color: var(--win-text-secondary);
+}
+
+/* Local variant - secondary color (consistent with online) */
+.stream-source-indicator--local .stream-source-indicator__icon {
+  color: var(--win-text-secondary);
+}
+
+/* Fade-in animation when source changes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.7;
+  }
+}
