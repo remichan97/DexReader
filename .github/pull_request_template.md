@@ -6,7 +6,7 @@
 
 ## Checklist
 
-[ ] I have included a description of the changes
-[ ] I have built and tested the changes in this PR locally
-[ ] My code passed linting (`npm run lint`)
-[ ] My code passed type checking (`npm run typecheck`)
+- [ ] I have included a description of the changes
+- [ ] I have built and tested the changes in this PR locally
+- [ ] My code passed linting (`npm run lint`)
+- [ ] My code passed type checking (`npm run typecheck`)
