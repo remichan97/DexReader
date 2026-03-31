@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom'
 import { Tabs, TabList, Tab, TabPanel } from '@renderer/components/Tabs'
 import { useToastStore, useAppStore } from '@renderer/stores'
 import { useNavigationBlocker } from '@renderer/hooks/useNavigationBlocker'
-import { useUnsavedChangesContext } from '@renderer/contexts/UnsavedChangesContext'
+import { useUnsavedChanges } from '@renderer/hooks/useUnsavedChanges'
 import type { MangaReadingSettings, AppSettings } from '../../../../preload/index.d'
 import { AppearanceSettings } from './components/AppearanceSettings'
 import { ReaderSettingsSection } from './components/ReaderSettingsSection'
@@ -29,7 +29,7 @@ export function SettingsView(): JSX.Element {
   const showToast = useToastStore((state) => state.show)
 
   // Unsaved changes context for app-wide tracking
-  const { setHasUnsavedChanges: setGlobalUnsavedChanges } = useUnsavedChangesContext()
+  const { setHasUnsavedChanges: setGlobalUnsavedChanges } = useUnsavedChanges()
 
   // App state (theme)
   const { themeMode, setThemeMode } = useAppStore()

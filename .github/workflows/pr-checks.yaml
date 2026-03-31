@@ -1,0 +1,134 @@
+name: Pull Request Checks
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+    branches:
+      - main
+
+jobs:
+  # Validate PR title format, must have a prefix, accepted prefixes: [feat, fix, docs, style, refactor, perf, test, chore]
+  validate-pr-title:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    steps:
+      - name: Validate PR Title format
+        uses: amannn/action-semantic-pull-request@v6.1.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            chore
+            revert
+            build
+            ci
+          requireScope: false
+          subjectPattern: ^.+$ # Ensure there is a subject after the type (and optional scope)
+          subjectPatternError: 'PR title must follow the format: <type>(optional scope): <subject>. Accepted types: feat, fix, docs, style, refactor, perf, test, chore, revert, build, ci.'
+
+  # Validate PR description, immediately close PR if description does not have the sections in pull request template
+  validate-pr-description:
+    runs-on: ubuntu-latest
+    needs: [validate-pr-title]
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Validate PR Description format
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          # Check if PR body is empty
+          if [ -z "$PR_BODY" ] || [ "$PR_BODY" = "null" ]; then
+            echo "❌ PR description is empty. Closing PR..."
+            gh pr close $PR_NUMBER --repo $REPO --comment "This PR has been automatically closed because the description is empty. Please provide a proper description following the pull request template and reopen the PR."
+            exit 1
+          fi
+
+          # Check for required sections
+          MISSING_SECTIONS=""
+          if ! grep -q "## Description" <<< "$PR_BODY"; then
+            MISSING_SECTIONS="${MISSING_SECTIONS}- ## Description\n"
+          fi
+          if ! grep -q "## Checklist" <<< "$PR_BODY"; then
+            MISSING_SECTIONS="${MISSING_SECTIONS}- ## Checklist\n"
+          fi
+
+          # If any sections are missing, close the PR
+          if [ -n "$MISSING_SECTIONS" ]; then
+            echo "❌ PR description is missing required sections. Closing PR..."
+            gh pr close $PR_NUMBER --repo $REPO --comment "This PR has been automatically closed because the description does not follow the pull request template. Missing sections:\n\n${MISSING_SECTIONS}\nPlease update your PR description to include all required sections and reopen the PR."
+            exit 1
+          fi
+
+          echo "✅ PR description is valid."
+
+  # Validate all commit messages in the PR follow conventional commits format
+  validate-commit-messages:
+    runs-on: ubuntu-latest
+    needs: [validate-pr-description]
+    steps:
+      - name: Checkout code with full history
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate all commit messages in the PR
+        if: github.event_name == 'pull_request'
+        run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+
+      - name: Validate last commit in the PR
+        if: github.event_name == 'push'
+        run: npx commitlint --last --verbose
+
+  # Code linting
+  lint-code:
+    runs-on: ubuntu-latest
+    needs: [validate-pr-title, validate-commit-messages, validate-pr-description]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+  # Type checking
+  type-check:
+    runs-on: ubuntu-latest
+    needs: [validate-pr-title, validate-commit-messages, validate-pr-description]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Install dependencies
+        run: npm ci
+      - name: Run TypeScript type checking
+        run: npm run typecheck

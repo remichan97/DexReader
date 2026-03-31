@@ -21,10 +21,6 @@
     "build:win": "npm run build && electron-builder --win",
     "build:mac": "electron-vite build && electron-builder --mac",
     "build:linux": "electron-vite build && electron-builder --linux",
-    "seed:benchmark": "node scripts/run-seed.js",
-    "benchmark:db": "node scripts/run-benchmark.js",
-    "benchmark:write": "node scripts/run-write-benchmark.js",
-    "benchmark:all": "npm run benchmark:db && npm run benchmark:write",
     "analyze:plans": "node scripts/run-analyze-plans.js",
     "prepare": "husky"
   },
@@ -41,6 +37,8 @@
     "zustand": "^5.0.9"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
     "@electron-toolkit/eslint-config-prettier": "^3.0.0",
     "@electron-toolkit/eslint-config-ts": "^3.1.0",
     "@electron-toolkit/tsconfig": "^2.0.0",

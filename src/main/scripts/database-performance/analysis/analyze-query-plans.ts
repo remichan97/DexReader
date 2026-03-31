@@ -11,6 +11,11 @@ import { sql } from 'drizzle-orm'
 import fs from 'node:fs'
 import path from 'node:path'
 
+interface QueryPlanRow {
+  detail?: string
+  [key: string]: unknown
+}
+
 interface QueryPlan {
   query: string
   view: string
@@ -42,9 +47,10 @@ function analyzeQueryPlan(): void {
   const queries: QueryPlan[] = []
 
   // Get a sample manga ID for testing
-  const sampleMangaResult = db.all(sql.raw('SELECT manga_id FROM manga LIMIT 1'))
-  const testMangaId =
-    sampleMangaResult.length > 0 ? (sampleMangaResult[0] as any).manga_id : 'test-id'
+  const sampleMangaResult = db.all(sql.raw('SELECT manga_id FROM manga LIMIT 1')) as Array<{
+    manga_id: string
+  }>
+  const testMangaId = sampleMangaResult.length > 0 ? sampleMangaResult[0].manga_id : 'test-id'
 
   // 1. Library View Queries
   console.log('\n📚 Library View Queries...')
@@ -59,7 +65,7 @@ function analyzeQueryPlan(): void {
     WHERE manga.is_favourite = 1 OR chapter_downloads.status = '${DownloadStatus.Completed}'
     GROUP BY manga.manga_id
   `
-  const libraryPlan = db.all(sql.raw(`EXPLAIN QUERY PLAN ${libraryQuery}`))
+  const libraryPlan = db.all(sql.raw(`EXPLAIN QUERY PLAN ${libraryQuery}`)) as QueryPlanRow[]
   queries.push({
     query: 'getLibraryManga()',
     view: 'Library',
@@ -79,7 +85,9 @@ function analyzeQueryPlan(): void {
       AND manga.title LIKE '%Dragon%'
     GROUP BY manga.manga_id
   `
-  const librarySearchPlan = db.all(sql.raw(`EXPLAIN QUERY PLAN ${librarySearchQuery}`))
+  const librarySearchPlan = db.all(
+    sql.raw(`EXPLAIN QUERY PLAN ${librarySearchQuery}`)
+  ) as QueryPlanRow[]
   queries.push({
     query: 'getLibraryManga({ search })',
     view: 'Library',
@@ -109,7 +117,7 @@ function analyzeQueryPlan(): void {
     LEFT JOIN chapter ON manga_progress.last_chapter_id = chapter.chapter_id
     WHERE manga_progress.last_read_at IS NOT NULL
   `
-  const historyPlan = db.all(sql.raw(`EXPLAIN QUERY PLAN ${historyQuery}`))
+  const historyPlan = db.all(sql.raw(`EXPLAIN QUERY PLAN ${historyQuery}`)) as QueryPlanRow[]
   queries.push({
     query: 'getAllProgressWithMetadata()',
     view: 'History',
@@ -133,7 +141,7 @@ function analyzeQueryPlan(): void {
     INNER JOIN chapter ON chapter_downloads.chapter_id = chapter.chapter_id
     WHERE chapter_downloads.is_hidden = 0
   `
-  const downloadsPlan = db.all(sql.raw(`EXPLAIN QUERY PLAN ${downloadsQuery}`))
+  const downloadsPlan = db.all(sql.raw(`EXPLAIN QUERY PLAN ${downloadsQuery}`)) as QueryPlanRow[]
   queries.push({
     query: 'getAllDownloads()',
     view: 'Downloads',
@@ -156,7 +164,9 @@ function analyzeQueryPlan(): void {
     LEFT JOIN manga ON collection_items.manga_id = manga.manga_id
     GROUP BY collections.id
   `
-  const collectionsPlan = db.all(sql.raw(`EXPLAIN QUERY PLAN ${collectionsQuery}`))
+  const collectionsPlan = db.all(
+    sql.raw(`EXPLAIN QUERY PLAN ${collectionsQuery}`)
+  ) as QueryPlanRow[]
   queries.push({
     query: 'getAllCollectionsWithMetadata()',
     view: 'Collections',
@@ -172,7 +182,7 @@ function analyzeQueryPlan(): void {
     SELECT * FROM chapter
     WHERE manga_id = '${testMangaId}'
   `
-  const readerPlan = db.all(sql.raw(`EXPLAIN QUERY PLAN ${readerQuery}`))
+  const readerPlan = db.all(sql.raw(`EXPLAIN QUERY PLAN ${readerQuery}`)) as QueryPlanRow[]
   queries.push({
     query: 'getChaptersByMangaId()',
     view: 'Reader',
@@ -199,7 +209,7 @@ function analyzeQueryPlan(): void {
           AND chapter_downloads.status = '${DownloadStatus.Completed}'
       )
   `
-  const cleanupPlan = db.all(sql.raw(`EXPLAIN QUERY PLAN ${cleanupQuery}`))
+  const cleanupPlan = db.all(sql.raw(`EXPLAIN QUERY PLAN ${cleanupQuery}`)) as QueryPlanRow[]
   queries.push({
     query: 'cleanupMangaCache()',
     view: 'Cleanup',
@@ -235,14 +245,14 @@ function analyzeQueryPlan(): void {
 /**
  * Format query plan for display
  */
-function formatPlan(plan: any[]): string {
-  return plan.map((row: any) => row.detail || JSON.stringify(row)).join('\n  ')
+function formatPlan(plan: QueryPlanRow[]): string {
+  return plan.map((row) => row.detail || JSON.stringify(row)).join('\n  ')
 }
 
 /**
  * Analyze query plan details and extract insights
  */
-function analyzePlanDetail(plan: any[]): string[] {
+function analyzePlanDetail(plan: QueryPlanRow[]): string[] {
   const insights: string[] = []
 
   for (const step of plan) {

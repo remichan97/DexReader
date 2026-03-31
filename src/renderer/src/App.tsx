@@ -12,7 +12,8 @@ import { useToastStore, useProgressStore, useLibraryStore } from './stores'
 import { useConnectivityStore } from './stores/connectivityStore'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { ProgressRing } from './components/ProgressRing'
-import { UnsavedChangesProvider, useUnsavedChangesContext } from './contexts/UnsavedChangesContext'
+import { UnsavedChangesProvider } from './contexts/UnsavedChangesProvider'
+import { useUnsavedChanges } from './hooks/useUnsavedChanges'
 
 function AppContent(): React.JSX.Element {
   const location = useLocation()
@@ -56,7 +57,7 @@ function AppContent(): React.JSX.Element {
     }
   }, [startPolling, stopPolling])
 
-  const { hasUnsavedChanges } = useUnsavedChangesContext()
+  const { hasUnsavedChanges } = useUnsavedChanges()
 
   // Notify main process about unsaved changes state
   useEffect(() => {
