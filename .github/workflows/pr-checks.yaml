@@ -17,7 +17,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          types: feat, fix, docs, style, refactor, perf, test, chore, revert, build, ci
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            chore
+            revert
+            build
+            ci
           requireScope: false
           subjectPattern: ^.+$ # Ensure there is a subject after the type (and optional scope)
           subjectPatternError: 'PR title must follow the format: <type>(optional scope): <subject>. Accepted types: feat, fix, docs, style, refactor, perf, test, chore, revert, build, ci.'
