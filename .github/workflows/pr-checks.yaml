@@ -9,6 +9,8 @@ jobs:
   # Validate PR title format, must have a prefix, accepted prefixes: [feat, fix, docs, style, refactor, perf, test, chore]
   validate-pr-title:
     runs-on: ubuntu-latest
+    # Skip PR title validation for Dependabot PRs
+    if: github.actor != 'dependabot[bot]'
     permissions:
       pull-requests: read
     steps:
@@ -37,6 +39,8 @@ jobs:
   validate-pr-description:
     runs-on: ubuntu-latest
     needs: [validate-pr-title]
+    # Skip PR description validation for Dependabot PRs
+    if: github.actor != 'dependabot[bot]'
     permissions:
       pull-requests: write
     steps:
@@ -50,7 +54,8 @@ jobs:
           # Check if PR body is empty
           if [ -z "$PR_BODY" ] || [ "$PR_BODY" = "null" ]; then
             echo "❌ PR description is empty. Closing PR..."
-            gh pr close $PR_NUMBER --repo $REPO --comment "This PR has been automatically closed because the description is empty. Please provide a proper description following the pull request template and reopen the PR."
+            COMMENT="This PR has been automatically closed because the description is empty. Please provide a proper description following the pull request template and reopen the PR."
+            gh pr close $PR_NUMBER --repo $REPO --comment "$COMMENT"
             exit 1
           fi
 
@@ -66,7 +71,8 @@ jobs:
           # If any sections are missing, close the PR
           if [ -n "$MISSING_SECTIONS" ]; then
             echo "❌ PR description is missing required sections. Closing PR..."
-            gh pr close $PR_NUMBER --repo $REPO --comment "This PR has been automatically closed because the description does not follow the pull request template. Missing sections:\n\n${MISSING_SECTIONS}\nPlease update your PR description to include all required sections and reopen the PR."
+            COMMENT=$(printf "This PR has been automatically closed because the description does not follow the pull request template. Missing sections:\n\n%b\nPlease update your PR description to include all required sections and reopen the PR." "$MISSING_SECTIONS")
+            gh pr close $PR_NUMBER --repo $REPO --comment "$COMMENT"
             exit 1
           fi
 
@@ -76,6 +82,8 @@ jobs:
   validate-commit-messages:
     runs-on: ubuntu-latest
     needs: [validate-pr-description]
+    # Skip commit message validation for Dependabot PRs
+    if: github.actor != 'dependabot[bot]'
     steps:
       - name: Checkout code with full history
         uses: actions/checkout@v3
@@ -99,9 +107,17 @@ jobs:
         run: npx commitlint --last --verbose
 
   # Code linting
+  # Always run linting for Dependabot PRs, but only run for other PRs if all previous checks passed
   lint-code:
     runs-on: ubuntu-latest
     needs: [validate-pr-title, validate-commit-messages, validate-pr-description]
+    if: |
+      always() && (
+        github.actor == 'dependabot[bot]' ||
+        (needs.validate-pr-title.result == 'success' &&
+         needs.validate-commit-messages.result == 'success' &&
+         needs.validate-pr-description.result == 'success')
+      )
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -118,9 +134,17 @@ jobs:
         run: npm run lint
 
   # Type checking
+  # Always run type checking for Dependabot PRs, but only run for other PRs if all previous checks passed
   type-check:
     runs-on: ubuntu-latest
     needs: [validate-pr-title, validate-commit-messages, validate-pr-description]
+    if: |
+      always() && (
+        github.actor == 'dependabot[bot]' ||
+        (needs.validate-pr-title.result == 'success' &&
+         needs.validate-commit-messages.result == 'success' &&
+         needs.validate-pr-description.result == 'success')
+      )
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
