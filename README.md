@@ -142,23 +142,49 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit issues or pull requests.
+Contributions are welcome! We appreciate bug reports, feature requests, documentation improvements, and code contributions.
 
-### Branching Strategy
+Before contributing, please read:
 
-- `main` - Protected, production-ready code
-- `feature/*` - Feature branches (create PRs to main)
+- [Contributing Guidelines](CONTRIBUTING.md) - Development setup, code standards, commit conventions, and PR process
+- [Code of Conduct](CODE_OF_CONDUCT.md) - Expected behavior and community standards
+
+Key topics covered in the contributing guide:
+
+- Development setup and workflow
+- Code standards and style guide
+- Commit message conventions
+- Pull request process
+- Project architecture overview
+
+### Quick Start for Contributors
+
+```bash
+# Fork and clone the repository
+git clone https://github.com/YOUR_USERNAME/DexReader.git
+cd DexReader
+
+# Install dependencies (this also sets up git hooks)
+npm install
+
+# Create a feature branch
+git checkout -b feature/your-feature-name
+
+# Start development
+npm run dev
+```
 
 ### Commit Convention
 
-This project follows [Conventional Commits](https://www.conventionalcommits.org/):
+This project follows [Conventional Commits](https://www.conventionalcommits.org/). All commits must follow this format:
 
 ```
-feat: add new feature
-fix: bug fix
-docs: documentation changes
-chore: maintenance tasks
-perf: performance improvements
+<type>(<scope>): <description>
+
+Examples:
+feat(reader): add double-page spread mode
+fix(download): prevent duplicate downloads
+docs(readme): update installation instructions
 ```
 
 Pre-commit hooks will validate your commits automatically.
