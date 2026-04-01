@@ -378,11 +378,11 @@ See [archived-milestones.md](./archived-milestones.md) for detailed P4 task impl
 - [✅] **P5-T02**: Memory Profiling & Leak Detection (10-12 hours) **COMPLETE** (23 Mar 2026)
 - [✅] **P5-T03**: Download System Performance (8-10 hours) **COMPLETE** (25 Mar 2026)
 - [✅] **P5-T04**: Image Loading Optimization (8-10 hours) **COMPLETE** (30 Mar 2026)
-- [✅] **P5-T05**: UI Responsiveness (2 hours) **COMPLETE** (31 Mar 2026) ✅
+- [✅] **P5-T05**: UI Responsiveness (2 hours) **COMPLETE** (31 Mar 2026)
 
 **Track 2 - Build Pipeline & Deployment (Week 3-4)**:
 
-- [⏳] **P5-T06**: GitHub Actions CI/CD (10-12 hours) **CRITICAL**
+- [✅] **P5-T06**: GitHub Actions CI/CD (10-12 hours) **COMPLETE** (01 Apr 2026)
 - [⏸️] **P5-T07**: Code Signing **DEFERRED** (not needed for small user base)
 - [⏳] **P5-T08**: Auto-Update System (10-12 hours)
 - [⏳] **P5-T09**: Release Automation (6-8 hours)

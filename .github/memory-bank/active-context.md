@@ -1,9 +1,9 @@
 # DexReader Active Context
 
-**Last Updated**: 31 March 2026
+**Last Updated**: 1 April 2026
 **Current Phase**: Phase 5 - Production Readiness (IN PROGRESS)
-**Current Task**: P5-T05 UI Responsiveness - COMPLETE ✅ (2 hours, ahead of schedule)
-**Next**: Track 2 - Build Pipeline & Deployment (P5-T06 CI/CD, P5-T08 Auto-Update, P5-T09 Release Automation)
+**Current Task**: P5-T06 GitHub Actions CI/CD - COMPLETE ✅ (PR open, ready to merge)
+**Next**: P5-T08 Auto-Update System (electron-updater integration) or P5-T09 Release Automation
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -12,15 +12,120 @@
 ## Current Status Summary
 
 **Phase 4**: COMPLETE - 13/13 tasks (100%) ✅
-**Phase 5**: IN PROGRESS - **6/22 tasks complete** (P5-T21, P5-T01 through P5-T05 COMPLETE) ✅
+**Phase 5**: IN PROGRESS - **7/22 tasks complete** (P5-T21, P5-T01 through P5-T06 COMPLETE) ✅
 **Electron**: Upgraded to 41.0.2 (15 Mar 2026) ✅
 **Timeline**: 6-8 weeks (11 March - 5 May 2026)
 **Target**: v1.0 Release Early May 2026 🚀
-**Next Steps**: Begin Track 2 (Build Pipeline) - P5-T06 GitHub Actions CI/CD is **CRITICAL** for deployment
+**Next Steps**: Track 2 continues - P5-T08 Auto-Update System integrates with GitHub Releases created by P5-T06
 
 ---
 
 ## Recent Completions (Last 2 Weeks)
+
+### P5-T06 GitHub Actions CI/CD Pipeline - Complete (31 March - 1 April 2026) ✅
+
+**BUILD PIPELINE & DEPLOYMENT**: Implemented comprehensive CI/CD pipeline using GitHub Actions for automated testing, building, and releasing. All phases complete (0-4), PR open for testing, ready to merge. Completed in **~10-12 hours** across 2 days.
+
+**Phase 0 - Prerequisites** (1 hour):
+
+- Git history cleaned: Single comprehensive commit (3494e85)
+- Branching strategy: Simple Two-Branch Model (main protected + feature/\*)
+- Pre-commit hooks: Husky + lint-staged + commitlint for local validation
+- Repository: Public (remichan97/DexReader) = unlimited Actions minutes ✅
+
+**Phase 1 - CI Workflow & PR Validation** (2-3 hours):
+
+- Created `.github/workflows/pr-checks.yaml` (merged via PR #16, #18)
+  - validate-pr-title: Conventional commits enforcement
+  - validate-pr-description: Auto-closes if template missing
+  - validate-commit-messages: All commits must follow convention
+  - lint-code: ESLint validation
+  - type-check: TypeScript validation
+  - Dependabot exemption: Bot PRs skip validation
+- Created `.github/workflows/ci.yaml` (post-merge validation)
+  - lint, typecheck, build jobs on push to main
+  - Acts as safety net after PR merge
+- Branch protection: 5 required checks before merge
+- README badge: CI status indicator
+
+**Phase 2 - Build Workflow** (3-4 hours):
+
+- Created `.github/workflows/build.yaml`
+  - Matrix strategy: Windows, macOS, Linux (parallel builds)
+  - Triggers: workflow_dispatch (manual), tags (v\*)
+  - electron-builder packaging per platform:
+    - Windows: NSIS installer (per-user, no admin required)
+    - macOS: DMG + ZIP
+    - Linux: AppImage (portable), Snap, Deb
+  - Electron build caching (~100MB, 3-5 min savings)
+  - Artifact uploads: 30-day retention
+
+**Phase 3 - Release Workflow** (2-3 hours):
+
+- Created `.github/workflows/release.yaml`
+  - Job 1: Create GitHub Release with CHANGELOG.md extraction
+  - Job 2: Build all platforms and upload to release
+  - GitHub Releases as update server (free CDN, unlimited bandwidth)
+- Updated `electron-builder.yml`: publish provider → github
+- Automated release on version tags (v\*)
+
+**Phase 4 - Documentation** (1-2 hours):
+
+- Updated `archived-milestones.md`: Comprehensive P5-T06 implementation details
+- Updated `project-progress.md`: Marked P5-T06 complete (6/22 tasks)
+- Created professional README.md:
+  - Features, download links, installation instructions
+  - Security warning workarounds (unsigned builds)
+  - Development setup, tech stack
+  - Contributing guidelines
+- Created LICENSE file: MIT License
+
+**Key Architecture Decisions**:
+
+- **Two-layer CI strategy**: PR validation (pre-merge) + Main validation (post-merge)
+- **Job naming**: pr-checks keeps `lint-code`/`type-check`, ci.yaml uses `lint`/`typecheck`/`build`
+  - Avoids disrupting Rulesets during transition
+- **Per-user installer**: Windows NSIS installs to %LOCALAPPDATA%, no admin required
+  - Best for auto-updates (no elevation needed)
+- **Unsigned builds**: Code signing deferred (saves $500-600/year)
+  - Installation guide documents security warning workarounds
+- **Conventional commits**: Enforced locally (pre-commit) + CI (PR checks)
+  - Types: feat, fix, docs, chore, perf, test, refactor, build, ci
+
+**Files Created**:
+
+- `.github/workflows/pr-checks.yaml` (100 lines) - Merged via PR #16, #18
+- `.github/workflows/ci.yaml` (55 lines) - Current PR
+- `.github/workflows/build.yaml` (76 lines) - Current PR
+- `.github/workflows/release.yaml` (128 lines) - Current PR
+- `.github/CODEOWNERS` (1 line) - Merged
+- `.github/pull_request_template.md` (12 lines) - Merged
+- `.husky/pre-commit`, `.husky/commit-msg` - Merged
+- `.lintstagedrc.yaml`, `commitlint.config.mjs` - Merged
+- `CHANGELOG.md` (12 lines) - Current PR
+- `LICENSE` (21 lines, MIT) - Current PR
+- `README.md` (comprehensive rewrite) - Current PR
+
+**Testing Status**:
+
+- ✅ Pre-commit hooks: Validated with intentional errors
+- ✅ PR validation: Tested via merged PRs #16, #18
+- ✅ Branch protection: 5 checks enforced
+- ⏳ CI workflow: Will run after PR merge (first time)
+- ⏳ Build workflow: Ready for manual trigger or tag-based test
+- ⏳ Release workflow: Ready for version tag test
+
+**Next Steps After Merge**:
+
+1. Monitor CI workflow first run on main branch
+2. Test build workflow manually (Actions → Build → Run workflow)
+3. Test release workflow with test tag (npm version patch && git push --tags)
+4. P5-T08: Integrate auto-update system using GitHub Releases
+5. P5-T09: Refine release automation (changelog helpers, pre-release scripts)
+
+**Status**: All phases complete, PR open, ready to merge and test ✅
+
+---
 
 ### P5-T05 UI Responsiveness - Complete (31 March 2026) ✅
 
