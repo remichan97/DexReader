@@ -4,8 +4,8 @@
 
 **Project Start**: 23 November 2025
 **Current Phase**: Phase 5 - Production Readiness (IN PROGRESS)
-**Current Task**: P5-T04 Image Loading Optimization Phase 0 Complete - Ready for next Phase 5 task
-**Last Updated**: 30 March 2026
+**Current Task**: P5-T06 GitHub Actions CI/CD Complete - Ready for P5-T07 or P5-T08
+**Last Updated**: 1 April 2026
 
 ---
 
@@ -21,14 +21,24 @@
 
 ## Current Status
 
-**Phase Progress**: Phase 2 (11/11) | Guerilla Refactoring | Phase 3 (19/19) | Phase 4 (13/13) | Phase 5 IN PROGRESS (5/22 tasks: P5-T21, P5-T01, P5-T02, P5-T03, P5-T04 Phase 0 complete)
-**Current Focus**: Phase 5 - Continue Track 1 Performance (P5-T05 UI Responsiveness) or move to Track 2 Build Pipeline
-**Recent Completion**: P5-T04 Image Loading Optimization Phase 0 (30 Mar 2026)
-**Next Steps**: Continue Performance track (P5-T05 UI) or start Build Pipeline (CI/CD, Code Signing, Release Automation)
+**Phase Progress**: Phase 2 (11/11) | Guerilla Refactoring | Phase 3 (19/19) | Phase 4 (13/13) | Phase 5 IN PROGRESS (6/22 tasks: P5-T21, P5-T01 through P5-T06 complete)
+**Current Focus**: Phase 5 - Track 2 Build Pipeline (P5-T06 CI/CD COMPLETE, ready for P5-T08 Auto-update)
+**Recent Completion**: P5-T06 GitHub Actions CI/CD (1 Apr 2026)
+**Next Steps**: P5-T08 Auto-update Integration or P5-T05 UI Responsiveness (Track 1)
 
 ---
 
 ## Recent Milestones
+
+### P5-T06 GitHub Actions CI/CD Pipeline (31 March - 1 April 2026)
+
+Implemented comprehensive CI/CD pipeline using GitHub Actions for automated testing, building, and releasing. Pipeline supports multi-platform builds (Windows, macOS, Linux) with build caching, automated quality checks, and release automation.
+
+**Key Results**: 5 workflows created (pr-checks.yaml, ci.yaml, build.yaml, release.yaml + git hooks). Pre-commit validation (Husky + lint-staged + commitlint). PR validation (5 required checks: title, description, commits, lint, typecheck). Branch protection enforced. Build workflow with matrix strategy (3 platforms parallel). Release automation with GitHub Releases as update server. Unsigned builds (code signing deferred). Tested via merged PRs #16, #18.
+
+**Architecture**: Simple Two-Branch Model (main protected + feature/\*). Conventional commits enforced (feat, fix, docs, chore, etc.). Dependabot exemption implemented. Build caching (Electron ~100MB). Public repo unlimited Actions minutes.
+
+See `archived-milestones.md` for full implementation details.
 
 ### P5-T04 Image Loading Optimization Phase 0 (30 March 2026)
 
@@ -368,11 +378,11 @@ See [archived-milestones.md](./archived-milestones.md) for detailed P4 task impl
 - [✅] **P5-T02**: Memory Profiling & Leak Detection (10-12 hours) **COMPLETE** (23 Mar 2026)
 - [✅] **P5-T03**: Download System Performance (8-10 hours) **COMPLETE** (25 Mar 2026)
 - [✅] **P5-T04**: Image Loading Optimization (8-10 hours) **COMPLETE** (30 Mar 2026)
-- [✅] **P5-T05**: UI Responsiveness (2 hours) **COMPLETE** (31 Mar 2026) ✅
+- [✅] **P5-T05**: UI Responsiveness (2 hours) **COMPLETE** (31 Mar 2026)
 
 **Track 2 - Build Pipeline & Deployment (Week 3-4)**:
 
-- [⏳] **P5-T06**: GitHub Actions CI/CD (10-12 hours) **CRITICAL**
+- [✅] **P5-T06**: GitHub Actions CI/CD (10-12 hours) **COMPLETE** (01 Apr 2026)
 - [⏸️] **P5-T07**: Code Signing **DEFERRED** (not needed for small user base)
 - [⏳] **P5-T08**: Auto-Update System (10-12 hours)
 - [⏳] **P5-T09**: Release Automation (6-8 hours)

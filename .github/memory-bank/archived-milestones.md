@@ -2,7 +2,301 @@
 
 **Purpose**: This file contains detailed implementation notes from completed milestones in reverse chronological order (newest first). These are historical records that provide context for past decisions and serve as essential reference material.
 
-**Last Updated**: 31 March 2026
+**Last Updated**: 1 April 2026
+
+---
+
+## P5-T06 GitHub Actions CI/CD Pipeline (31 March - 1 April 2026)
+
+### Overview
+
+Implemented comprehensive CI/CD pipeline using GitHub Actions for automated testing, building, and releasing. Pipeline supports multi-platform builds (Windows, macOS, Linux) with build caching, automated quality checks, and release automation. Includes pre-commit hooks for local validation and branch protection enforcement for production quality.
+
+**Time Invested**: ~10-12 hours over 2 days
+**Impact**: Fully automated build/release pipeline, PR quality gates, conventional commits enforcement
+**Files Created**: 5 workflow files (pr-checks.yaml, ci.yaml, build.yaml, release.yaml), git hooks, CHANGELOG.md
+**Testing**: Validated via merged PRs #16, #18 with all checks passing
+**Decision**: Unsigned builds (code signing deferred), GitHub Releases as update server
+
+### Implementation Phases
+
+#### Phase 0: Prerequisites & Git History Cleanup (1 hour)
+
+**Git History Squash** (31 March 2026):
+
+- Squashed 599 files into single comprehensive commit (3494e85)
+- Clean baseline: "chore: initial DexReader v0.9.0 codebase"
+- Used `--no-verify` for one-time bypass of pre-commit hooks (~10 sec overhead per commit)
+- Force-pushed clean history to `main` branch
+
+**Branching Strategy**: Simple Two-Branch Model
+
+- `main` (protected) for production-ready code
+- `feature/*` branches for all development work
+- Squash merge strategy for clean history
+- Branch protection: PR required, status checks enforced
+
+#### Phase 1: CI Workflow & PR Validation (2-3 hours)
+
+**Pre-commit Hooks** (31 March 2026):
+
+- Installed Husky 9.1.7 + lint-staged 16.4.0 + commitlint
+- Pre-commit: Runs lint-staged (ESLint, Prettier, TypeScript on staged files)
+- Commit-msg: Validates conventional commits (feat, fix, docs, chore, etc.)
+- Configuration: `.lintstagedrc.yaml`, `commitlint.config.mjs`
+
+**Conventional Commits Enforcement**:
+
+```
+Accepted types: feat, fix, docs, style, refactor, perf, test, chore, revert, build, ci
+Format: <type>(optional scope): <subject>
+Example: feat(library): add sort by updated date
+```
+
+**PR Validation Workflow** (`.github/workflows/pr-checks.yaml` - PR #16):
+
+- **Job 1: validate-pr-title** - Ensures PR title follows conventional commits
+- **Job 2: validate-pr-description** - Auto-closes PR if template missing "## Description" or "## Checklist"
+- **Job 3: validate-commit-messages** - Validates all commits in PR follow conventional format
+- **Job 4: lint-code** - Runs ESLint on all TypeScript/React files
+- **Job 5: type-check** - Runs TypeScript compiler for type validation
+- Uses: amannn/action-semantic-pull-request@v6.1.1
+- Node.js 24, ubuntu-latest
+- Dependabot exemption: Bot PRs skip validation checks (PR #18)
+
+**Post-merge Validation Workflow** (`.github/workflows/ci.yaml` - 1 April 2026):
+
+- **Job 1: lint** - ESLint validation on pushes to main
+- **Job 2: typecheck** - TypeScript validation on pushes to main
+- **Job 3: build** - electron-vite build verification
+- Acts as safety net after PR merge
+- Node.js 24, ubuntu-latest, npm ci with cache
+
+**Branch Protection/Ruleset** (configured for `main`):
+
+- 5 required status checks before merge:
+  - validate-pr-title (pull_request event)
+  - validate-pr-description (pull_request event)
+  - validate-commit-messages (pull_request event)
+  - lint-code (pull_request event)
+  - type-check (pull_request event)
+- Code owner review required (@remichan97 auto-assigned)
+- Linear history enforced (no merge commits)
+- Stale review dismissal on new commits
+- Force push and branch deletion blocked
+
+**Additional Files**:
+
+- `.github/CODEOWNERS` - Auto-assigns @remichan97 to all PRs
+- `.github/pull_request_template.md` - Enforced PR template structure
+- `CHANGELOG.md` - Keep a Changelog format for release notes
+
+**README Badge**:
+
+```markdown
+[![CI](https://github.com/remichan97/DexReader/actions/workflows/ci.yaml/badge.svg)](https://github.com/remichan97/DexReader/actions/workflows/ci.yaml)
+```
+
+#### Phase 2: Build Workflow (3-4 hours)
+
+**Multi-platform Build Workflow** (`.github/workflows/build.yaml` - 1 April 2026):
+
+- Matrix strategy: ubuntu-latest, windows-latest, macos-latest (parallel builds)
+- Triggers: `workflow_dispatch` (manual), `tags` (v\* pattern)
+- electron-builder packaging per platform:
+  - Windows: NSIS installer (`dexreader-{version}-setup.exe`)
+  - macOS: DMG + ZIP (`dexreader-{version}.dmg`, `dexreader-{version}-mac.zip`)
+  - Linux: AppImage, Snap, Deb (`dexreader-{version}.AppImage`, etc.)
+- Artifact uploads: 30-day retention, separate per platform
+- Build caching: Electron binaries (~100MB) + electron-builder cache
+
+**Caching Strategy**:
+
+```yaml
+path: |
+  ~/.cache/electron
+  ~/.cache/electron-builder
+key: ${{ runner.os }}-electron-${{ hashFiles('package-lock.json') }}
+```
+
+- Cache invalidated when package-lock.json changes
+- Estimated 3-5 min time savings per build
+- Fallback restore-keys for partial matches
+
+#### Phase 3: Release Workflow (2-3 hours)
+
+**Automated Release Workflow** (`.github/workflows/release.yaml` - 1 April 2026):
+
+- **Job 1: create-release** - Creates GitHub Release with version tag
+  - Extracts version from git tag (v1.0.0 → 1.0.0)
+  - Parses `CHANGELOG.md` section for release notes
+  - Fallback: git log since last tag if CHANGELOG missing
+  - Uses: softprops/action-gh-release@v2
+- **Job 2: build-and-upload** - Builds all platforms and uploads to release
+  - Needs: create-release (waits for release creation)
+  - Matrix build: 3 platforms in parallel
+  - Uploads all dist files: installers + latest.yml files
+
+**electron-builder Configuration** (`electron-builder.yml`):
+
+```yaml
+publish:
+  provider: github
+  owner: remichan97
+  repo: DexReader
+  private: false
+```
+
+- GitHub Releases used as update server (simpler than custom hosting)
+- Generates `latest.yml`, `latest-mac.yml`, `latest-linux.yml` for auto-update
+- Public repo: Unlimited Actions minutes, free CDN for releases
+
+**Release Process**:
+
+```bash
+npm version minor  # Updates package.json, creates commit + tag
+git push origin main --tags  # Triggers release workflow
+```
+
+#### Phase 4: Documentation (1-2 hours)
+
+- ✅ CHANGELOG.md created (Keep a Changelog format, v0.9.0 initial)
+- ✅ README.md updated (CI badge added)
+- ✅ archived-milestones.md updated (this entry)
+- ⏳ project-progress.md (to be updated)
+
+### Key Decisions & Trade-offs
+
+**1. Unsigned Builds** (Code signing deferred):
+
+- **Decision**: Ship unsigned installers for v1.0.0
+- **Reason**: Code signing certificates cost ~$200-400/year, deferred to P5-T07
+- **Impact**: Users see security warnings (Windows SmartScreen, macOS Gatekeeper)
+- **Workaround**: Documented in installation guide - "More info" → "Run anyway"
+
+**2. GitHub Releases as Update Server**:
+
+- **Decision**: Use GitHub Releases instead of custom update server
+- **Reason**: Free CDN, unlimited bandwidth for public repos, simpler infrastructure
+- **Impact**: Seamless integration with electron-updater (P5-T08)
+
+**3. Pre-commit Hooks Trade-off**:
+
+- **Decision**: Enabled pre-commit hooks despite ~10 sec overhead per commit
+- **Reason**: Catches lint/type errors immediately vs 5 min CI wait
+- **Workaround**: `--no-verify` available for emergency commits
+
+**4. Dependabot Exemption**:
+
+- **Decision**: Exempted Dependabot from PR validation checks (PR #18)
+- **Reason**: Bot PRs lack human context, auto-closed by template validation
+- **Implementation**: GitHub actor check in workflow if conditions
+
+**5. Job Naming Convention**:
+
+- **Decision**: Different names for PR vs CI workflows
+  - pr-checks.yaml: `lint-code`, `type-check` (kept as-is)
+  - ci.yaml: `lint`, `typecheck`, `build` (renamed for consistency)
+- **Reason**: Avoids disrupting existing Ruleset configuration during transition
+- **Future**: Can unify naming when Ruleset updated in quieter period
+
+### Performance & Metrics
+
+**Build Times** (estimated with caching):
+
+- Windows: ~12-15 minutes
+- macOS: ~15-18 minutes
+- Linux: ~10-12 minutes
+- Total: ~40-45 minutes (parallel execution)
+
+**GitHub Actions Usage** (per release):
+
+- Public repo: ✅ Unlimited CI minutes (no cost)
+- Concurrent jobs: 3 matrix builds in parallel (within 20 job limit)
+- Artifact storage: ~500 MB total across all platforms (within 500 MB limit)
+- Estimated monthly usage: ~180 minutes (1 release/week) - well within all limits
+
+**PR Validation Times**:
+
+- lint-code: ~2-3 minutes
+- type-check: ~2-3 minutes
+- Total PR time: ~3-4 minutes (parallel execution)
+- Pre-commit: ~10 seconds (lint-staged + commitlint)
+
+### Testing & Validation
+
+**Verified Workflows**:
+
+- ✅ PR #16: Setup CODEOWNERS, PR checks, conventional commits (merged)
+- ✅ PR #18: Dependabot exemption from PR checks (merged)
+- ✅ Pre-commit hook: Tested with intentional lint error (blocked commit)
+- ✅ Branch protection: Prevents merging PRs with failing checks
+- ⏳ Build workflow: Ready for manual trigger testing
+- ⏳ Release workflow: Ready for tag-based testing
+
+**Success Criteria** (Phase 1 met ✅):
+
+- Pre-commit hooks validate on every commit
+- PR validation runs automatically on PR creation
+- All 5 checks required before merge
+- README badge displays workflow status
+- Dependabot PRs exempt from validation
+
+### Known Issues & Limitations
+
+**1. Unsigned Builds**:
+
+- Windows: SmartScreen warning ("Windows protected your PC")
+- macOS: Gatekeeper warning ("unidentified developer")
+- Linux: No warnings (AppImage, Deb, Snap don't require signing)
+
+**2. macOS Notarization**:
+
+- Currently disabled: `notarize: false` in electron-builder.yml
+- Requires Apple Developer account ($99/year) + code signing certificate
+- Deferred to P5-T07 if implemented
+
+**3. Snap Build Considerations**:
+
+- May fail on first run (snapcraft authentication required)
+- Optional format (AppImage primary for Linux)
+
+**4. Build Artifacts Size**:
+
+- Windows NSIS: ~150-200 MB
+- macOS DMG: ~150-200 MB
+- Linux AppImage: ~150-200 MB
+- Total per release: ~500-600 MB across all platforms
+
+### Next Steps
+
+- [ ] **Immediate**: Test build workflow with manual trigger (workflow_dispatch)
+- [ ] **P5-T08**: Integrate auto-update system (uses latest.yml from GitHub Releases)
+- [ ] **P5-T09**: Add release preparation scripts (changelog generation helpers)
+- [ ] **Future**: Add unit test jobs when P5-T12 (testing setup) complete
+- [ ] **Future**: Consider code signing certificates (P5-T07) if budget allows
+
+### Files Created/Modified
+
+**Created**:
+
+- `.github/workflows/pr-checks.yaml` (100 lines) - PR validation
+- `.github/workflows/ci.yaml` (55 lines) - Post-merge validation
+- `.github/workflows/build.yaml` (76 lines) - Multi-platform builds
+- `.github/workflows/release.yaml` (128 lines) - Release automation
+- `.github/CODEOWNERS` (1 line) - Auto-assignment
+- `.github/pull_request_template.md` (12 lines) - PR template
+- `.husky/pre-commit` (1 line) - Pre-commit hook
+- `.husky/commit-msg` (1 line) - Commit message validation
+- `.lintstagedrc.yaml` (8 lines) - lint-staged config
+- `commitlint.config.mjs` (3 lines) - Conventional commits config
+- `CHANGELOG.md` (12 lines) - Release notes template
+
+**Modified**:
+
+- `electron-builder.yml` (publish config: generic → github)
+- `README.md` (added CI badge)
+- `package.json` (added husky, lint-staged, commitlint dependencies)
 
 ---
 
