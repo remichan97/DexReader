@@ -1,0 +1,71 @@
+name: Feature Request
+description: Suggest an idea for this project
+title: '[FEATURE REQUEST] - '
+labels: enhancement
+assignees:
+  - remichan97
+type: enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for trying out the app! We're open to feedback and suggestions for new features. Please fill out the template below to help us understand better what you're looking for.
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      description: Please select the category that best describes your feature request.
+      options:
+        - User Interface
+        - Performance
+        - Security
+        - Integration
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: other
+    attributes:
+      label: Other Category
+      description: If you selected "Other" as the category, please specify the category of your feature request here.
+      placeholder: 'Please specify the category of your feature request'
+    validations:
+      required: false
+
+  - type: input
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of the feature you would like to see implemented.
+      placeholder: 'A clear and concise description of the feature you would like to see implemented.'
+    validations:
+      required: true
+
+  - type: textarea
+    id: benefits
+    attributes:
+      label: Benefits
+      description: How would this feature benefit you or other users? Please provide a clear and concise description of the benefits of this feature.
+      placeholder: 'A clear and concise description of the benefits of this feature.'
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: (Optional) Are there any alternative solutions or workarounds that you are currently using to achieve the same goal? Please provide a clear and concise description of any alternative solutions or workarounds you are currently using.
+      placeholder: 'A clear and concise description of any alternative solutions or workarounds you are currently using.'
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: non-duplicate
+    attributes:
+      label: Make sure this is not a duplicate
+      description: Please check this box if you have already searched for similar feature requests and believe this is a new feature that has not been requested before.
+      options:
+        - label: This feature request is not a duplicate
+          required: true
