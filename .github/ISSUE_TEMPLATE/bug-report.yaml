@@ -4,7 +4,6 @@ title: '[BUG] - '
 labels: bug
 assignees:
   - remichan97
-type: issue
 body:
   - type: markdown
     attributes:
