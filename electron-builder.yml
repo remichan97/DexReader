@@ -34,8 +34,8 @@ mac:
   notarize: false
 dmg:
   artifactName: ${name}-${version}-${arch}.${ext}
-zip:
-  artifactName: ${name}-${version}-${arch}.${ext}
+linux:
+  target:
     - AppImage
     - snap
     - deb
