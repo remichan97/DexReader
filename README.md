@@ -1,6 +1,7 @@
 # DexReader
 
 [![CI](https://github.com/remichan97/DexReader/actions/workflows/ci.yaml/badge.svg)](https://github.com/remichan97/DexReader/actions/workflows/ci.yaml)
+[![Release](https://github.com/remichan97/DexReader/actions/workflows/release.yaml/badge.svg)](https://github.com/remichan97/DexReader/actions/workflows/release.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 A modern, cross-platform manga reader for MangaDex built with Electron, React, and TypeScript.
