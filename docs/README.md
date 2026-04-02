@@ -39,6 +39,10 @@ Component specifications, hierarchy, UI patterns, and implementation library.
 - **component-specifications.md** - Detailed specs for AppShell, Sidebar, ViewContainer, and reusable components (MangaCard, SearchBar, Toast) with BEM CSS
 - **loading-feedback-states.md** - Complete loading/error/empty state system (skeleton screens, progress rings/bars, spinners, error handling)
 
+### � Maintainer Documentation
+
+- **RELEASE_PROCESS.md** - 🚀 **Release workflow and versioning** - Semantic versioning, normal releases, hotfix procedure, yank + fix strategy, pre-releases
+
 ---
 
 ## Component Library Status
