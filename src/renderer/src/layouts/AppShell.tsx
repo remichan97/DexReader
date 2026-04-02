@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Sidebar } from '../components/Sidebar'
+import { UpdateNotification } from '../components/UpdateNotification'
 import { OfflineStatusBar } from '../components/OfflineStatusBar'
 import { IncognitoStatusBar } from '../components/IncognitoStatusBar'
 import { KeyboardShortcutsDialog } from '../components/KeyboardShortcutsDialog'
@@ -92,6 +93,7 @@ export function AppShell({ children }: AppShellProps): JSX.Element {
       <a href="#main-content" className="skip-link">
         Skip to main content
       </a>
+      <UpdateNotification />
       <OfflineStatusBar />
       <IncognitoStatusBar />
       <div className="app-shell__body flex flex-1">
