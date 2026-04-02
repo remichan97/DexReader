@@ -1,11 +1,18 @@
 {
   "name": "dexreader",
   "productName": "DexReader",
-  "version": "1.0.0",
+  "version": "0.9.0",
   "description": "An Electron application with React and TypeScript",
   "main": "./out/main/index.js",
-  "author": "example.com",
+  "author": "remichan97",
   "homepage": "https://electron-vite.org",
+  "build": {
+    "publish": {
+      "provider": "github",
+      "owner": "remichan97",
+      "repo": "DexReader"
+    }
+  },
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint --cache .",

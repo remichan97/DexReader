@@ -12,6 +12,7 @@ import { ReadingMode } from '../enums/reading-mode.enum'
 import { AppTheme } from '../enums/theme-mode.enum'
 import { AppearanceSettings } from '../entities/appearance-settings.entity'
 import { ValidationError } from '../../ipc/error/validation.error'
+import { UpdateSettings } from '../entities/update-settings.entity'
 
 // Validate appearance settings
 export function isAppearanceSettings(values: unknown): values is AppearanceSettings {
@@ -242,6 +243,24 @@ export function isQueuedDownloads(values: unknown): values is QueuedDownloads {
 
   if (!('addedAt' in values) || !(values.addedAt instanceof Date)) {
     throw new TypeError('Missing or invalid addedAt')
+  }
+
+  return true
+}
+
+export function isUpdateSettings(values: unknown): values is UpdateSettings {
+  if (typeof values !== 'object' || values === null) {
+    throw new TypeError('Refused to save update settings: not an object')
+  }
+
+  const updateSettings = values as UpdateSettings
+
+  if (typeof updateSettings.autoCheck !== 'boolean') {
+    throw new TypeError('Refused to save update settings: autoCheck is not a boolean')
+  }
+
+  if (updateSettings.autoDownload && typeof updateSettings.autoDownload !== 'boolean') {
+    throw new TypeError('Refused to save update settings: autoDownload is not a boolean')
   }
 
   return true

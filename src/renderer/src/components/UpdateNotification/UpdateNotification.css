@@ -1,0 +1,211 @@
+/**
+ * UpdateNotification Component Styles
+ *
+ * Matches OfflineStatusBar/IncognitoStatusBar pattern
+ * Fixed banner at top with slide-down animation
+ */
+
+.update-notification {
+  padding: 8px 16px;
+  border-bottom: 2px solid transparent;
+  min-height: 40px;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* State-specific colors */
+
+/* Checking state - subtle info */
+.update-notification--checking {
+  background: linear-gradient(to right, var(--win-info-tint), transparent);
+  border-bottom-color: var(--win-info);
+}
+
+.update-notification--checking .spinner {
+  color: var(--win-info);
+}
+
+/* Available state - info with call-to-action */
+.update-notification--available {
+  background: linear-gradient(to right, var(--win-info-tint), transparent);
+  border-bottom-color: var(--win-info);
+}
+
+.update-notification--available .update-notification__icon {
+  color: var(--win-info);
+}
+
+/* Downloading state - info */
+.update-notification--downloading {
+  background: linear-gradient(to right, var(--win-info-tint), transparent);
+  border-bottom-color: var(--win-info);
+}
+
+.update-notification--downloading .spinner {
+  color: var(--win-info);
+}
+
+/* Downloaded state - success (ready to install) */
+.update-notification--downloaded {
+  background: linear-gradient(to right, var(--win-success-tint), transparent);
+  border-bottom-color: var(--win-success);
+}
+
+.update-notification--downloaded .update-notification__icon {
+  color: var(--win-success);
+}
+
+/* Not available state - subtle success */
+.update-notification--not-available {
+  background: linear-gradient(to right, var(--win-success-tint), transparent);
+  border-bottom-color: var(--win-success);
+}
+
+.update-notification--not-available .update-notification__icon {
+  color: var(--win-success);
+}
+
+/* Error state - error */
+.update-notification--error {
+  background: linear-gradient(to right, var(--win-error-tint), transparent);
+  border-bottom-color: var(--win-error);
+}
+
+.update-notification--error .update-notification__icon {
+  color: var(--win-error);
+}
+
+/* Content layout - matches OfflineStatusBar pattern */
+.update-notification__content {
+  flex: 1;
+}
+
+.update-notification__icon {
+  flex-shrink: 0;
+}
+
+.update-notification__text {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--win-text-primary);
+}
+
+.update-notification__text strong {
+  font-weight: 600;
+}
+
+.update-notification__actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Dismiss button (icon only) */
+.update-notification__dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--win-border-subtle);
+  border-radius: 4px;
+  color: var(--win-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.update-notification__dismiss:hover {
+  background: var(--win-bg-hover);
+  border-color: var(--win-border-default);
+  color: var(--win-text-primary);
+}
+
+.update-notification__dismiss:active {
+  background: var(--win-bg-pressed);
+}
+
+/* Download progress */
+.update-notification__progress {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  min-width: 300px;
+}
+
+.update-notification__progress strong {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+/* Native progress element styling */
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  appearance: none;
+  border: 1px solid var(--win-border-subtle);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+/* WebKit browsers (Chrome, Safari, Edge) */
+.progress-bar::-webkit-progress-bar {
+  background: var(--win-bg-subtle);
+  border-radius: 2px;
+}
+
+.progress-bar::-webkit-progress-value {
+  background: var(--win-info);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* Firefox */
+.progress-bar::-moz-progress-bar {
+  background: var(--win-info);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: var(--win-text-secondary);
+}
+
+/* Spinner */
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--win-border-subtle);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .update-notification__progress {
+    min-width: 200px;
+  }
+}
