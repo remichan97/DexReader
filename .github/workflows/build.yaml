@@ -5,13 +5,20 @@ on:
 
 jobs:
   build:
-    name: Build ${{ matrix.os }}
+    name: ${{ matrix.display_name }} Build
     runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            display_name: Linux
+          - os: windows-latest
+            display_name: Windows
+          - os: macos-latest
+            display_name: macOS
 
     steps:
       - name: Checkout code
@@ -69,6 +76,5 @@ jobs:
             dist/*.AppImage
             dist/*.snap
             dist/*.deb
-            dist/*.yml
-            dist/*.yaml
+            dist/latest*.yml
           retention-days: 30

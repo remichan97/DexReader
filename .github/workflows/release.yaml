@@ -62,7 +62,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-and-upload:
-    name: Build and Upload ${{ matrix.os }}
+    name: ${{ matrix.display_name }} Build
     needs: create-release
     runs-on: ${{ matrix.os }}
 
@@ -70,6 +70,13 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            display_name: Linux
+          - os: windows-latest
+            display_name: Windows
+          - os: macos-latest
+            display_name: macOS
 
     steps:
       - name: Checkout code
@@ -127,7 +134,6 @@ jobs:
             dist/*.AppImage
             dist/*.snap
             dist/*.deb
-            dist/*.yml
-            dist/*.yaml
+            dist/latest*.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
