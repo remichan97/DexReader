@@ -39,8 +39,8 @@ linux:
     - AppImage
     - snap
     - deb
-  maintainer: electronjs.org
-  category: Utility
+  maintainer: remichan97
+  category: Entertainment
 appImage:
   artifactName: ${name}-${version}-${arch}.${ext}
 snap:
