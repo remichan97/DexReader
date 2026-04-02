@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [0.9.3] - 2026-04-03
+
+### Fixed
+
+- Fix race condition in release workflow where builds could publish release before all platforms completed (now waits for all builds before publishing)
+
 ## [0.9.2] - 2026-04-03
 
 ### Added

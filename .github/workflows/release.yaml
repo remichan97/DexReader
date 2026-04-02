@@ -128,6 +128,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.create-release.outputs.tag_name }}
+          draft: true # Keep as draft until all builds complete
           files: |
             dist/*.exe
             dist/*.dmg
@@ -135,5 +136,19 @@ jobs:
             dist/*.snap
             dist/*.deb
             dist/latest*.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-release:
+    name: Publish Release
+    needs: [create-release, build-and-upload]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Publish Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.create-release.outputs.tag_name }}
+          draft: false # Publish the release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
