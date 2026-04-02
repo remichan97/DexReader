@@ -1,10 +1,7 @@
 name: Build
 
 on:
-  workflow_dispatch: # Manual trigger for testing
-  push:
-    tags:
-      - 'v*' # Trigger on version tags (v1.0.0, v1.1.0, etc.)
+  workflow_dispatch: # Manual trigger for testing builds without creating a release
 
 jobs:
   build:
@@ -12,6 +9,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
@@ -37,6 +35,11 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Install Snapcraft (Linux only)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo snap install snapcraft --classic
 
       - name: Build for Windows
         if: matrix.os == 'windows-latest'
