@@ -7,13 +7,14 @@ import { secureFs } from './filesystem/secure-fs'
 import { getAppDataPath, getDownloadsPath } from './filesystem/path-validator'
 import { initializeDownloadsPath, loadSettings } from './settings/settings-manager'
 import { ImageProxy } from './api/proxy/image.proxy'
-import { createWindow } from './window'
+import { createWindow, getMainWindow } from './window'
 import { setupAppLifecycle } from './app-lifecycle'
 import { registerAllHandlers } from './ipc/registry'
 import { databaseConnection } from './database/connection'
 import { runMigrations } from './database/migrations/migrations'
 import { downloadQueueService } from './services/download-queue.service'
 import { diskCacheUtil } from './api/utils/disk-cache.util'
+import { appUpdateService } from './services/app-update.service'
 
 const imageProxy = new ImageProxy()
 const localImageProxy = new LocalImageProxy()
@@ -91,4 +92,17 @@ app.whenReady().then(async () => {
     console.log('Resuming any incomplete downloads in the queue...')
     downloadQueueService.resumeIncompleteDownloads()
   })
+
+  const mainWindow = getMainWindow()
+  if (mainWindow) {
+    appUpdateService.setMainWindow(mainWindow)
+
+    setTimeout(() => {
+      console.log('Checking for app updates...')
+      appUpdateService.checkForUpdates(false).catch((error) => {
+        console.error('[Main] Startup update check failed:', error)
+        // Don't crash app if update check fails
+      })
+    }, 5000)
+  }
 })

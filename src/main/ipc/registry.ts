@@ -13,6 +13,7 @@ import { registerDexReaderHandler } from './handlers/dexreader.handler'
 import { registerDownloadHandlers } from './handlers/download.handler'
 import { registerStorageHandlers } from './handlers/storage.handler'
 import type { ImageProxy } from '../api/proxy/image.proxy'
+import { registerAppUpdateHandler } from './handlers/app-update.handler'
 
 /**
  * Register all IPC handlers
@@ -31,6 +32,7 @@ export function registerAllHandlers(imageProxy?: ImageProxy): void {
   registerDexReaderHandler()
   registerDownloadHandlers()
   registerStorageHandlers()
+  registerAppUpdateHandler()
 
   // File system handlers need window for dialogs
   // Get window reference when handlers are actually called

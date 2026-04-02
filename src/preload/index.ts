@@ -353,6 +353,48 @@ const downloads = {
   getDownloadStats: (mangaId: string) => ipcRenderer.invoke('download:get-download-stats', mangaId)
 }
 
+const appUpdate = {
+  checkForUpdates: (manual: boolean) => ipcRenderer.invoke('app-update:check', manual),
+  downloadUpdate: () => ipcRenderer.invoke('app-update:download'),
+  installUpdate: () => ipcRenderer.invoke('app-update:install'),
+  getAppVersion: () => ipcRenderer.invoke('app-update:version'),
+
+  // Event listeners
+  onUpdateChecking: (callback: () => void) => {
+    ipcRenderer.on('app-update:update-checking', callback)
+    return () => ipcRenderer.removeListener('app-update:update-checking', callback)
+  },
+  onUpdateAvailable: (
+    callback: (info: { version: string; releaseDate?: string; releaseNotes?: string }) => void
+  ) => {
+    ipcRenderer.on('app-update:update-available', (_, info) => callback(info))
+    return () => ipcRenderer.removeListener('app-update:update-available', () => {})
+  },
+
+  onUpdateNotAvailable: (callback: (info: { version: string }) => void) => {
+    ipcRenderer.on('app-update:update-not-available', (_, info) => callback(info))
+    return () => ipcRenderer.removeListener('app-update:update-not-available', () => {})
+  },
+  onUpdateDownloading: (callback: () => void) => {
+    ipcRenderer.on('app-update:update-downloading', callback)
+    return () => ipcRenderer.removeListener('app-update:update-downloading', callback)
+  },
+  onDownloadProgress: (callback: (progress: unknown) => void) => {
+    ipcRenderer.on('app-update:update-download-progress', (_, progress) => callback(progress))
+    return () => ipcRenderer.removeListener('app-update:update-download-progress', () => {})
+  },
+  onUpdateDownloaded: (
+    callback: (info: { version: string; releaseDate?: string; releaseNotes?: string }) => void
+  ) => {
+    ipcRenderer.on('app-update:update-downloaded', (_, info) => callback(info))
+    return () => ipcRenderer.removeListener('app-update:update-downloaded', () => {})
+  },
+  onUpdateError: (callback: (error: unknown) => void) => {
+    ipcRenderer.on('app-update:update-error', (_, error) => callback(error))
+    return () => ipcRenderer.removeListener('app-update:update-error', () => {})
+  }
+}
+
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
@@ -372,6 +414,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('dexreader', dexReader)
     contextBridge.exposeInMainWorld('downloads', downloads)
     contextBridge.exposeInMainWorld('storage', storage)
+    contextBridge.exposeInMainWorld('appUpdate', appUpdate)
   } catch (error) {
     console.error(error)
   }
@@ -404,4 +447,6 @@ if (process.contextIsolated) {
   globalThis.downloads = downloads
   // @ts-ignore (define in dts)
   globalThis.storage = storage
+  // @ts-ignore (define in dts)
+  globalThis.appUpdate = appUpdate
 }

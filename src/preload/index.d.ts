@@ -322,6 +322,33 @@ interface Downloads {
   clearCoverCache: () => Promise<IpcResponse<void>>
 }
 
+interface AppUpdate {
+  checkForUpdates: (manual: boolean) => Promise<IpcResponse<void>>
+  downloadUpdate: () => Promise<IpcResponse<void>>
+  installUpdate: () => Promise<IpcResponse<void>>
+  getAppVersion: () => Promise<IpcResponse<string>>
+
+  // Event listeners
+  onUpdateChecking: (callback: () => void) => () => void
+  onUpdateAvailable: (
+    callback: (info: { version: string; releaseDate?: string; releaseNotes?: string }) => void
+  ) => () => void
+  onUpdateNotAvailable: (callback: (info: { version: string }) => void) => () => void
+  onUpdateDownloading: (callback: () => void) => () => void
+  onDownloadProgress: (
+    callback: (progress: {
+      percent: number
+      transferred: number
+      total: number
+      bytesPerSecond: number
+    }) => void
+  ) => () => void
+  onUpdateDownloaded: (
+    callback: (info: { version: string; releaseDate?: string; releaseNotes?: string }) => void
+  ) => () => void
+  onUpdateError: (callback: (error: { message: string; userMessage: string }) => void) => () => void
+}
+
 declare global {
   interface Window {
     electron: ElectronAPI
@@ -338,5 +365,6 @@ declare global {
     dexreader: DexReader
     downloads: Downloads
     storage: Storage
+    appUpdate: AppUpdate
   }
 }

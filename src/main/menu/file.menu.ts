@@ -11,8 +11,9 @@ export function buildFileMenu(
       {
         label: 'Check for Updates...',
         accelerator: 'CmdOrCtrl+U',
-        click: () => {
-          mainWindow.webContents.send('check-for-updates')
+        click: async () => {
+          const { appUpdateService } = await import('../services/app-update.service')
+          appUpdateService.checkForUpdates(true) // true = manual check
         }
       },
       { type: 'separator' },

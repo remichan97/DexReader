@@ -211,6 +211,10 @@ export function getDefaultSettings(): AppSettings {
       performance: {
         cacheTier: ChapterCacheTier.Normal
       }
+    },
+    update: {
+      autoCheck: true,
+      autoDownload: false
     }
   }
 }
