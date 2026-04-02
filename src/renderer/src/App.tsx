@@ -1,4 +1,4 @@
-import { BrowserRouter, useLocation } from 'react-router-dom'
+import { HashRouter, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { AppShell } from './layouts/AppShell'
 import { AppRoutes } from './router'
@@ -146,12 +146,12 @@ function App(): React.JSX.Element {
         console.error('[App Error]', error, errorInfo)
       }}
     >
-      <BrowserRouter>
+      <HashRouter>
         <UnsavedChangesProvider>
           <AppContent />
         </UnsavedChangesProvider>
         <ToastContainer toasts={toasts} onDismiss={dismissToast} position="bottom-right" />
-      </BrowserRouter>
+      </HashRouter>
     </ErrorBoundary>
   )
 }
