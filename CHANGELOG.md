@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [0.9.2] - 2026-04-03
+
+### Added
+
+- Add comprehensive release process documentation for maintainers
+
+### Changed
+
+- Create draft release before uploading build artifacts (supports immutable release enforcement)
+
 ## [0.9.1] - 2026-04-02
 
 ### Fixed
