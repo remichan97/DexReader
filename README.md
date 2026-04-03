@@ -9,10 +9,10 @@ A modern, cross-platform manga reader for MangaDex built with Electron, React, a
 ## Features
 
 - 🔍 **Browse & Search** - Search MangaDex's extensive library with advanced filters (tags, content rating, status)
-- 📚 **Library Management** - Organize manga with favorites, collections, and reading history
+- 📚 **Library Management** - Organise your manga library with favourites, collections, and reading history
 - 📖 **Flexible Reader** - Multiple reading modes (single page, double page, vertical scroll) with zoom and pan controls
 - ⬇️ **Offline Reading** - Download chapters for offline access with parallel download support
-- 🎨 **Modern UI** - Clean, responsive interface following Windows 11 design principles
+- 🎨 **Modern UI** - Clean, responsive interface following Windows 11 design principles (to our best abilities)
 - ⚡ **High Performance** - Optimized database queries, image caching, and React rendering for smooth experience
 
 ## Download
@@ -22,53 +22,19 @@ A modern, cross-platform manga reader for MangaDex built with Electron, React, a
 > - **Windows**: Click "More info" → "Run anyway"
 > - **macOS**: Right-click → "Open" → Confirm
 
-### Stable Releases
+> **📢 macOS Testing Notice**: DexReader is built and tested primarily on Windows and Linux. While macOS builds are generated automatically via CI/CD, we haven't conduct any extensive testing on real hardware due to device availability. If you're a Mac user, we'd really appreciate your feedback! Please report any issues you encounter on [GitHub Issues](https://github.com/remichan97/DexReader/issues) or offer to help with testing in [Discussions](https://github.com/remichan97/DexReader/discussions).
 
-Download the latest version from [GitHub Releases](https://github.com/remichan97/DexReader/releases):
+### Installation
+
+We provide installation binaries on the [GitHub Releases](https://github.com/remichan97/DexReader/releases) page:
 
 - **Windows**: `dexreader-{version}-setup.exe` (NSIS installer)
 - **macOS**: `dexreader-{version}.dmg` (Disk image)
 - **Linux**:
   - `dexreader-{version}.AppImage` (Portable, recommended)
   - `dexreader-{version}.deb` (Debian/Ubuntu)
-  - `dexreader-{version}.snap` (Snap package)
 
-## Installation
-
-### Windows
-
-1. Download `dexreader-{version}-setup.exe`
-2. Run the installer (click "More info" → "Run anyway" if SmartScreen appears)
-3. The app will install per-user to `%LOCALAPPDATA%\Programs\dexreader`
-4. Launch from Start Menu or desktop shortcut
-
-### macOS
-
-1. Download `dexreader-{version}.dmg`
-2. Mount the disk image
-3. Drag `dexreader.app` to your Applications folder
-4. Right-click the app → "Open" (first launch only, to bypass Gatekeeper)
-
-### Linux
-
-**AppImage** (Recommended):
-
-```bash
-chmod +x dexreader-{version}.AppImage
-./dexreader-{version}.AppImage
-```
-
-**Debian/Ubuntu**:
-
-```bash
-sudo dpkg -i dexreader-{version}.deb
-```
-
-**Snap**:
-
-```bash
-sudo snap install dexreader-{version}.snap --dangerous
-```
+Or, you can also build from the source code by downloading the tarball, or ZIP files provided in each release
 
 ## Development
 
@@ -93,7 +59,8 @@ npm run dev
 
 ### Available Scripts
 
-- `npm run dev` - Start development server with hot reload
+- `npm run dev` - Start development app with hot reload
+- `npm run dev:inspect` - Same as above, but expose DevTools port for debugging main processes
 - `npm run build` - Build for production (no packaging)
 - `npm run lint` - Run ESLint
 - `npm run typecheck` - Run TypeScript type checking
@@ -102,7 +69,7 @@ npm run dev
 ### Building Installers
 
 ```bash
-# Windows (requires Windows)
+# Windows (requires Windows, and escalated permission)
 npm run build:win
 
 # macOS (requires macOS)
@@ -149,10 +116,25 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
 
 Contributions are welcome! We appreciate bug reports, feature requests, documentation improvements, and code contributions.
 
+### 🙋 Help Wanted: macOS Testing
+
+We're currently looking for Mac users to help test DexReader! No coding required—just download the app, try it out, and let us know if anything doesn't work as expected.
+
+**How to help**:
+
+1. Download the latest macOS `.dmg` from [Releases](https://github.com/remichan97/DexReader/releases)
+2. Test the core features (browse, read, download)
+3. Report any bugs or quirks on [GitHub Issues](https://github.com/remichan97/DexReader/issues)
+4. Share your experience in [Discussions](https://github.com/remichan97/DexReader/discussions)
+
+Your feedback helps make DexReader better for all Mac users!
+
+---
+
 Before contributing, please read:
 
 - [Contributing Guidelines](CONTRIBUTING.md) - Development setup, code standards, commit conventions, and PR process
-- [Code of Conduct](CODE_OF_CONDUCT.md) - Expected behavior and community standards
+- [Code of Conduct](CODE_OF_CONDUCT.md) - Expected behaviour and community standards
 
 Key topics covered in the contributing guide:
 

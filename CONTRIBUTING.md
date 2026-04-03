@@ -14,6 +14,12 @@ Thank you for your interest in contributing to DexReader! This document provides
 - [Testing](#testing)
 - [Project Documentation](#project-documentation)
 
+---
+
+> **📢 Help Wanted**: We're looking for **Mac users** to help test DexReader! See the [Testing](#testing) section for details. No coding required—just download, try it out, and report your experience.
+
+---
+
 ## Code of Conduct
 
 This project adheres to a Code of Conduct that all contributors are expected to follow. Please read [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) to understand what behaviours are expected and what will not be tolerated.
@@ -26,6 +32,7 @@ This project adheres to a Code of Conduct that all contributors are expected to 
 - **npm**: Version 11.x or later (comes with Node.js)
 - **Git**: For version control
 - **Code Editor**: We recommend VS Code, as we have some project-level settings, and extensions recommendation that would make your development experience smoother, but feel free to use other editor of your choice
+- **Database Management tool** (optional): We use SQLite 3 as the local database for the app, which you can easily inspect the database using said tool. It's not required to work with the app, but having it should allows you an easier time debugging database code should you ever need to
 
 ### Initial Setup
 
@@ -367,6 +374,8 @@ See `docs/architecture/` for detailed information.
 - **Drizzle ORM**: Type-safe database queries
 - **Migrations**: SQLite schema migrations in `src/main/database/migrations/`
 
+When you first start the app, you should see the development database located at the root of the project directory
+
 ### Project Documentation
 
 Comprehensive documentation is available in `docs/`:
@@ -376,6 +385,33 @@ Comprehensive documentation is available in `docs/`:
 - `docs/design/` - Design system and wireframes
 
 ## Testing
+
+### 🙋 Help Wanted: macOS Testing
+
+**We're looking for Mac users to help test DexReader!** No coding experience required—just download, try it out, and let us know any issues you find.
+
+**Why we need help**: DexReader is developed and tested primarily on Windows and Linux. While macOS builds are generated automatically via CI/CD, they haven't been extensively tested on real Mac hardware due to device availability constraints.
+
+**How to help**:
+
+1. Download the latest `.dmg` from [Releases](https://github.com/remichan97/DexReader/releases)
+2. Install and test the core features:
+   - Browse and search manga
+   - Read chapters (single page, double page, vertical scroll modes)
+   - Download chapters for offline reading
+   - Manage your library (favorites, collections, history)
+3. Check for macOS-specific issues:
+   - Menu bar integration
+   - Keyboard shortcuts (Cmd vs Ctrl)
+   - Notifications
+   - Retina display rendering
+   - File path handling
+4. Report bugs on [GitHub Issues](https://github.com/remichan97/DexReader/issues)
+5. Share your experience in [Discussions](https://github.com/remichan97/DexReader/discussions)
+
+Your feedback is incredibly valuable and helps ensure DexReader works great for all Mac users! 🎉
+
+---
 
 ### Manual Testing
 
