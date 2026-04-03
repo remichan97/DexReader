@@ -24,7 +24,10 @@ export function createWindow(): void {
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
-      contextIsolation: true
+      contextIsolation: true,
+      // Disable DevTools in production for security
+      // Can still be opened programmatically if needed for debugging
+      devTools: is.dev
     }
   })
 
@@ -97,6 +100,13 @@ export function createWindow(): void {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+  }
+
+  // Allow opening DevTools in production for debugging if ENABLE_DEVTOOLS=1
+  // Usage: ENABLE_DEVTOOLS=1 ./dexreader.exe
+  if (!is.dev && process.env['ENABLE_DEVTOOLS'] === '1') {
+    mainWindow.webContents.openDevTools()
+    console.log('[DevTools] Enabled in production mode via ENABLE_DEVTOOLS flag')
   }
 }
 
