@@ -111,7 +111,7 @@ export class AppUpdateService {
       }
     }
 
-    return `Something went wrong: ${error.message}`
+    return `Something went wrong and we could't check for updates. Please try again later.`
   }
 
   private async shouldAutoDownload(): Promise<boolean> {

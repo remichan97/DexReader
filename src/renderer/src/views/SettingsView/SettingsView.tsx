@@ -72,6 +72,10 @@ export function SettingsView(): JSX.Element {
   const [customCacheSize, setCustomCacheSize] = useState<number>(200)
   const [sanityMaxCacheMB, setSanityMaxCacheMB] = useState<number>(4800) // Will be loaded from backend
 
+  // Update settings state
+  const [autoCheckForUpdates, setAutoCheckForUpdates] = useState<boolean>(true)
+  const [autoDownloadUpdates, setAutoDownloadUpdates] = useState<boolean>(false)
+
   // Load sanity maximum on mount (30% of RAM)
   useEffect(() => {
     async function loadSanityMax(): Promise<void> {
@@ -123,7 +127,12 @@ export function SettingsView(): JSX.Element {
         customCacheSize * 1024 * 1024 !==
           (originalSettings.reader.performance.customCacheSize ?? 200 * 1024 * 1024))
 
-    setHasUnsavedChanges(appearanceChanged || downloadsChanged || readerChanged)
+    // Compare update settings
+    const updateChanged =
+      autoCheckForUpdates !== originalSettings.update.autoCheck ||
+      autoDownloadUpdates !== originalSettings.update.autoDownload
+
+    setHasUnsavedChanges(appearanceChanged || downloadsChanged || readerChanged || updateChanged)
   }, [
     originalSettings,
     themeMode,
@@ -138,7 +147,9 @@ export function SettingsView(): JSX.Element {
     forceDarkMode,
     imageQuality,
     chapterCacheTier,
-    customCacheSize
+    customCacheSize,
+    autoCheckForUpdates,
+    autoDownloadUpdates
   ])
 
   // Read tab from URL params on mount
@@ -237,6 +248,12 @@ export function SettingsView(): JSX.Element {
                   : settings.reader.performance.customCacheSize / (1024 * 1024)
               setCustomCacheSize(loadedCustomCacheSize)
             }
+          }
+
+          // Load update settings
+          if (settings.update) {
+            setAutoCheckForUpdates(settings.update.autoCheck ?? true)
+            setAutoDownloadUpdates(settings.update.autoDownload ?? false)
           }
 
           // Load per-manga overrides from database
@@ -566,6 +583,17 @@ Are you absolutely certain you want to proceed with this cache size?`,
         throw new Error(readerResult.error?.message || 'Failed to save reader settings')
       }
 
+      // Build update settings object
+      const updateSettings = {
+        autoCheck: autoCheckForUpdates,
+        autoDownload: autoDownloadUpdates
+      }
+
+      const updateResult = await globalThis.settings.save('update', updateSettings)
+      if (!updateResult.success) {
+        throw new Error(updateResult.error?.message || 'Failed to save update settings')
+      }
+
       // Update original settings to current state (load fresh to get properly typed values)
       const freshSettings = await globalThis.settings.load()
       if (freshSettings.success && freshSettings.data) {
@@ -616,6 +644,10 @@ Are you absolutely certain you want to proceed with this cache size?`,
       // Convert from bytes to MB
       setCustomCacheSize(originalSettings.reader.performance.customCacheSize / (1024 * 1024))
     }
+
+    // Restore update settings
+    setAutoCheckForUpdates(originalSettings.update.autoCheck ?? true)
+    setAutoDownloadUpdates(originalSettings.update.autoDownload ?? false)
 
     setHasUnsavedChanges(false)
   }
@@ -720,7 +752,12 @@ Are you absolutely certain you want to proceed with this cache size?`,
 
         {/* Advanced Settings */}
         <TabPanel value="advanced">
-          <AdvancedSettings />
+          <AdvancedSettings
+            autoCheckForUpdates={autoCheckForUpdates}
+            autoDownloadUpdates={autoDownloadUpdates}
+            onAutoCheckChange={setAutoCheckForUpdates}
+            onAutoDownloadChange={setAutoDownloadUpdates}
+          />
           <DangerZoneSettings />
         </TabPanel>
       </Tabs>
