@@ -8,7 +8,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for trying the app and taking the time to report a bug. Please help us understand the issue you're experiencing better by filling out the template below.
+        Thanks for trying out the app and for your help in reporting a bug. Please help us understand the issue you're experiencing better by filling out the template below.
 
   - type: input
     id: description
@@ -70,12 +70,12 @@ body:
     attributes:
       label: Installation Method
       description: |
-        How did you install DexReader? For Linux users: different installation methods (AppImage vs Snap vs .deb) have different sandboxing and filesystem access that can affect bug behaviour.
+        How did you install DexReader? For Linux users: different installation methods (AppImage vs RPM package vs .deb) have different sandboxing and filesystem access that can affect bug behaviour.
       options:
         - Windows - Installer
         - macOS - DMG
         - Linux - AppImage
-        - Linux - Snap
+        - Linux - RPM package
         - Linux - .deb package
         - Built from source
         - Other (please specify in Additional Context)

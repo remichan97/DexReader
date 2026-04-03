@@ -37,16 +37,18 @@ dmg:
 linux:
   target:
     - AppImage
-    - snap
     - deb
+    - rpm
   maintainer: remichan97
   category: Entertainment
 appImage:
   artifactName: ${name}-${version}-${arch}.${ext}
-snap:
-  artifactName: ${name}-${version}-${arch}.${ext}
 deb:
   artifactName: ${name}-${version}-${arch}.${ext}
+rpm:
+  artifactName: ${name}-${version}-${arch}.${ext}
+  fpm:
+    - --rpm-os=linux
 npmRebuild: false
 publish:
   provider: github
