@@ -73,6 +73,36 @@ export default defineConfig({
         '@renderer': path.resolve('src/renderer/src')
       }
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            // Split React core (including scheduler) into its own chunk
+            if (
+              id.includes('node_modules/react/') ||
+              id.includes('node_modules/react-dom/') ||
+              id.includes('node_modules/scheduler/')
+            ) {
+              return 'react-vendor'
+            }
+            // Split React Router
+            if (
+              id.includes('node_modules/react-router-dom/') ||
+              id.includes('node_modules/react-router/') ||
+              id.includes('node_modules/@remix-run/')
+            ) {
+              return 'router-vendor'
+            }
+            // Split Fluent Icons and Zustand
+            if (id.includes('node_modules/@fluentui/') || id.includes('node_modules/zustand/')) {
+              return 'ui-vendor'
+            }
+            // App code stays in main chunk (don't split other node_modules to avoid circular deps)
+            return undefined
+          }
+        }
+      }
+    },
     plugins: [react()]
   }
 })

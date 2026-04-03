@@ -9,6 +9,16 @@ files:
   - '!{.eslintcache,eslint.config.mjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
   - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+  - '!commitlint.config.mjs'
+  - '!bundle-analysis.html'
+  - '!docs/**'
+  - '!benchmark-results/**'
+  - '!scripts/**'
+  - '!.github/**'
+  - '!.husky/**'
+  - '!**/.DS_Store'
+  - '!**/Thumbs.db'
+  - '!**/*.map'
 asar: true
 asarUnpack:
   - resources/**
@@ -36,14 +46,11 @@ dmg:
   artifactName: ${name}-${version}-${arch}.${ext}
 linux:
   target:
-    - AppImage
-    - snap
-    - deb
+    - AppImage # Universal format - works on all distros
+    - deb # Native packages for Ubuntu/Debian/Mint users
   maintainer: remichan97
   category: Entertainment
 appImage:
-  artifactName: ${name}-${version}-${arch}.${ext}
-snap:
   artifactName: ${name}-${version}-${arch}.${ext}
 deb:
   artifactName: ${name}-${version}-${arch}.${ext}

@@ -4,8 +4,8 @@
 
 **Project Start**: 23 November 2025
 **Current Phase**: Phase 5 - Production Readiness (IN PROGRESS)
-**Current Task**: P5-T06 GitHub Actions CI/CD Complete - Ready for P5-T07 or P5-T08
-**Last Updated**: 1 April 2026
+**Current Task**: Phase 5 Track 2 Build Pipeline - 3/6 complete, P5-T07+P5-T09 deferred
+**Last Updated**: 3 April 2026
 
 ---
 
@@ -21,14 +21,34 @@
 
 ## Current Status
 
-**Phase Progress**: Phase 2 (11/11) | Guerilla Refactoring | Phase 3 (19/19) | Phase 4 (13/13) | Phase 5 IN PROGRESS (6/22 tasks: P5-T21, P5-T01 through P5-T06 complete)
-**Current Focus**: Phase 5 - Track 2 Build Pipeline (P5-T06 CI/CD COMPLETE, ready for P5-T08 Auto-update)
-**Recent Completion**: P5-T06 GitHub Actions CI/CD (1 Apr 2026)
-**Next Steps**: P5-T08 Auto-update Integration or P5-T05 UI Responsiveness (Track 1)
+**Phase Progress**: Phase 2 (11/11) | Guerilla Refactoring | Phase 3 (19/19) | Phase 4 (13/13) | Phase 5 IN PROGRESS (8/22 tasks complete, 2 deferred)
+**Current Focus**: Phase 5 - Track 2 Build Pipeline (3/6 tasks complete: P5-T06 CI/CD ✅, P5-T08 Auto-update ✅, P5-T10 Build Optimization ✅)
+**Recent Completion**: P5-T10 Build Optimization (3 Apr 2026)
+**Next Steps**: P5-T11 Multi-Platform Testing, or Track 3 Testing tasks (P5-T12, P5-T13), or P5-T18 Logging System
 
 ---
 
 ## Recent Milestones
+
+### P5-T10 Build Optimization (3 April 2026)
+
+Optimized Electron build process for faster updates and reduced installer size. Implemented vendor code splitting, optimized file exclusions, security hardening, and reduced Linux build targets. Focus on update efficiency over initial installer size, as Electron runtime (100-110 MB) is 90% of build.
+
+**Key Results**: Vendor code splitting (react-vendor 555KB, ui-vendor 51KB, router-vendor 44KB, index 529KB). Update efficiency improved 55% (529 KB vs 1,180 KB on app code changes). Installer size reduced 1 MB (122 MB → 121 MB, 0.8%). DevTools disabled in production (security hardening). Linux targets reduced from 4 to 2 formats (AppImage + deb, 99% coverage). Lazy loading tested and reverted (desktop apps need instant UX, not web-style loading spinners).
+
+**Architecture**: manualChunks function in electron.vite.config.ts for vendor splitting. electron-builder file exclusions (docs/, benchmarks/, .github/, \*.map). webPreferences.devTools = is.dev for security. .blockmap files preserved (enable differential updates, save 90-95% bandwidth). Key learning: Desktop apps prioritize perceived performance (instant load) over bundle size.
+
+See `archived-milestones.md` for full implementation details.
+
+### P5-T08 Auto-Update System (2-3 April 2026)
+
+Implemented complete auto-update system using electron-updater with GitHub Releases as update server. Features automatic update checks on startup, background downloads with progress tracking, user-configurable preferences (Settings > Advanced), and seamless offline mode integration.
+
+**Key Results**: AppUpdateService with 6 event handlers. UpdateNotification component with 6 states (checking, available, downloading, downloaded, not-available, error). Settings UI with auto-check/auto-download toggles. Manual check via File menu (Ctrl+U). Offline integration (suppresses errors when offline). Startup check with 5-second delay.
+
+**Architecture**: autoDownload = false (user control). Settings defaults: autoCheck = true, autoDownload = false. GitHub Releases as CDN. Non-intrusive UX (background downloads, user chooses install time).
+
+See `archived-milestones.md` for full implementation details.
 
 ### P5-T06 GitHub Actions CI/CD Pipeline (31 March - 1 April 2026)
 
@@ -374,7 +394,7 @@ See [archived-milestones.md](./archived-milestones.md) for detailed P4 task impl
 
 **Track 1 - Performance Optimization (Week 2-3)**:
 
-- [✅] **P5-T01**: Database Query Optimization & Indexing (12-16 hours) **COMPLETE** (19 Mar 2026)
+- [✅] **P5-T08**: Auto-Update System (10-12 hours) **COMPLETE** (03 Apr 2026ndexing (12-16 hours) **COMPLETE** (19 Mar 2026)
 - [✅] **P5-T02**: Memory Profiling & Leak Detection (10-12 hours) **COMPLETE** (23 Mar 2026)
 - [✅] **P5-T03**: Download System Performance (8-10 hours) **COMPLETE** (25 Mar 2026)
 - [✅] **P5-T04**: Image Loading Optimization (8-10 hours) **COMPLETE** (30 Mar 2026)
@@ -384,9 +404,9 @@ See [archived-milestones.md](./archived-milestones.md) for detailed P4 task impl
 
 - [✅] **P5-T06**: GitHub Actions CI/CD (10-12 hours) **COMPLETE** (01 Apr 2026)
 - [⏸️] **P5-T07**: Code Signing **DEFERRED** (not needed for small user base)
-- [⏳] **P5-T08**: Auto-Update System (10-12 hours)
-- [⏳] **P5-T09**: Release Automation (6-8 hours)
-- [⏳] **P5-T10**: Build Optimization (4-6 hours)
+- [✅] **P5-T08**: Auto-Update System (11 hours) **COMPLETE** (03 Apr 2026)
+- [⏸️] **P5-T09**: Release Automation **DEFERRED** (P5-T06 already provides 95% of functionality)
+- [✅] **P5-T10**: Build Optimization (3 hours) **COMPLETE** (03 Apr 2026)
 - [⏳] **P5-T11**: Multi-Platform Testing (8-10 hours)
 
 **Track 3 - Testing & Quality Assurance (Week 5-6)**:
@@ -405,7 +425,7 @@ See [archived-milestones.md](./archived-milestones.md) for detailed P4 task impl
 - [⏳] **P5-T19**: User Documentation & Installation Guide (12-16 hours) **CRITICAL**
 - [⏳] **P5-T20**: Developer Documentation (8-10 hours)
 
-**Phase 5 Progress**: 3/22 tasks (~14% complete) | Track 0 Complete ✅ | Track 1: 2/5 tasks
+**Phase 5 Progress**: 8/22 tasks (~36% complete) | Track 0 Complete ✅ | Track 1 Complete ✅ | Track 2: 3/6 tasks
 
 **Key Decisions**:
 

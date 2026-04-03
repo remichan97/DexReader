@@ -1,9 +1,9 @@
 # DexReader Active Context
 
-**Last Updated**: 1 April 2026
+**Last Updated**: 3 April 2026
 **Current Phase**: Phase 5 - Production Readiness (IN PROGRESS)
-**Current Task**: P5-T06 GitHub Actions CI/CD - COMPLETE ✅ (PR open, ready to merge)
-**Next**: P5-T08 Auto-Update System (electron-updater integration) or P5-T09 Release Automation
+**Current Task**: P5-T10 Build Optimization Complete ✅ | Ready for next task
+**Next**: P5-T11 Multi-Platform Testing, Track 3 Testing (P5-T12, P5-T13), or P5-T18 Logging System
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -12,15 +12,103 @@
 ## Current Status Summary
 
 **Phase 4**: COMPLETE - 13/13 tasks (100%) ✅
-**Phase 5**: IN PROGRESS - **7/22 tasks complete** (P5-T21, P5-T01 through P5-T06 COMPLETE) ✅
+**Phase 5**: IN PROGRESS - **8/22 tasks** (P5-T21, P5-T01-06, P5-T08, P5-T10 ✅ | P5-T07, P5-T09 deferred)
 **Electron**: Upgraded to 41.0.2 (15 Mar 2026) ✅
 **Timeline**: 6-8 weeks (11 March - 5 May 2026)
 **Target**: v1.0 Release Early May 2026 🚀
-**Next Steps**: Track 2 continues - P5-T08 Auto-Update System integrates with GitHub Releases created by P5-T06
+**Next Steps**: Track 2 (P5-T11 Multi-Platform Testing) or Track 3 Testing (P5-T12, P5-T13) or Track 4 (P5-T18 Logging)
 
 ---
 
 ## Recent Completions (Last 2 Weeks)
+
+### P5-T10 Build Optimization - Complete (3 April 2026) ✅
+
+**BUILD OPTIMIZATION**: Optimized Electron build process for distribution efficiency, focusing on update bandwidth reduction and installer size. Implemented vendor code splitting, security hardening, and build target optimization. Completed in **~3 hours** (faster than 4-6 hour estimate).
+
+**Key Achievements**:
+
+- **Vendor Code Splitting**: Split 1.18 MB bundle into 4 optimized chunks (react-vendor 555KB, index 529KB, ui-vendor 51KB, router-vendor 44KB)
+- **Update Efficiency**: 55% improvement - app code changes download 529 KB vs 1,180 KB (vendor chunks cached)
+- **Installer Size**: Reduced from 122 MB → 121 MB (1 MB reduction, 0.8%)
+- **Security Hardening**: DevTools disabled in production builds (`webPreferences.devTools = is.dev`), emergency access via ENABLE_DEVTOOLS=1
+- **Linux Build Targets**: Reduced from 4 formats to 2 (AppImage + deb), 99% coverage retained, faster CI/CD builds
+- **Lazy Loading**: Tested and reverted - desktop apps need instant UX, not 50-150ms delays with spinners
+
+**Key Learnings**:
+
+- **Desktop vs Web**: Lazy loading hurts desktop UX (local disk loads fast, spinners feel broken)
+- **Update Efficiency > Installer Size**: Vendor splitting saves bandwidth on updates, not initial install
+- **Electron Reality**: 90% of installer is Chromium runtime (100-110 MB unchangeable)
+- **.blockmap Files Critical**: electron-updater uses them for differential updates (90-95% bandwidth savings)
+
+**Files Modified**:
+
+- `electron.vite.config.ts` - Added manualChunks for vendor splitting
+- `electron-builder.yml` - File exclusions (docs/, benchmarks/, .github/, \*.map), Linux targets reduced
+- `src/main/window.ts` - DevTools security (`devTools: is.dev`, ENABLE_DEVTOOLS=1 backdoor)
+
+**Status**: Complete, production-ready for v1.0 ✅
+
+---
+
+### P5-T08 Auto-Update System - Complete (2-3 April 2026) ✅
+
+**AUTO-UPDATE INTEGRATION**: Implemented complete auto-update system using electron-updater with GitHub Releases as update server. Features automatic update checks on startup, background downloads with progress tracking, user-configurable preferences, and seamless offline mode integration. Completed in **~11 hours** over 2 days.
+
+**Backend Infrastructure** (8 hours):
+
+- Created `AppUpdateService` with full update lifecycle management
+- 6 event handlers: checking, available, not-available, downloading, progress, downloaded, error
+- Integrated into main process with 5-second startup delay
+- 4 IPC handlers: check, download, install, get-version
+- Configuration: `dev-app-update.yml` pointing to remichan97/DexReader GitHub repo
+
+**Frontend Integration** (2 hours):
+
+- Preload API with 7 event listeners and proper TypeScript types
+- `UpdateNotification` component with 6 states and smart visibility logic
+- Offline mode integration - suppresses error banners when offline
+- CSS animations with slide-down effect and state-specific colors
+- File menu integration - "Check for Updates..." (Ctrl+U)
+
+**Settings UI** (1 hour - 3 April 2026):
+
+- Added UpdateSettings section to Advanced tab
+- Checkboxes: Auto-check for updates, Auto-download updates (disabled when auto-check off)
+- Manual check button with loading state
+- Current version display via IPC
+- Full state management: load, save, reset, dirty tracking
+
+**Key Architecture**:
+
+- **Auto-download control**: `autoDownload = false` lets users control when to download
+- **Settings defaults**: autoCheck = true, autoDownload = false (safe defaults)
+- **Offline handling**: electron-updater naturally fails offline, no special handling needed
+- **User experience**: Non-intrusive (background downloads), transparent (progress shown), configurable (Settings UI)
+- **Update server**: GitHub Releases (free CDN, unlimited bandwidth)
+
+**Files Created**:
+
+- `app-update.service.ts` (~200 lines) - Main process service
+- `app-update.handler.ts` (~23 lines) - IPC handlers
+- `UpdateNotification.tsx` (~280 lines) - React component
+- `UpdateNotification.css` (~150 lines) - Styling
+- Settings UI integration in `AdvancedSettings.tsx` (~135 lines)
+
+**Files Modified**:
+
+- `index.ts` - Startup check integration
+- `registry.ts` - Handler registration
+- `preload/index.ts` + `index.d.ts` - API exposure with types
+- `SettingsView.tsx` - State management for update preferences
+- `file.menu.ts` - "Check for Updates..." menu item
+- `dev-app-update.yml` - GitHub configuration
+
+**Testing**: Manual verification with startup check, menu trigger, notification states
+**Status**: Complete, production-ready for v1.0 ✅
+
+---
 
 ### P5-T06 GitHub Actions CI/CD Pipeline - Complete (31 March - 1 April 2026) ✅
 
@@ -202,8 +290,6 @@ set((prevState) => ({ results: [...prevState.results, ...uniqueNewResults], ... 
 **Status**: Phase 0 complete, clean baseline established for Phase 1 analysis ✅
 
 ---
-
-### P5-T04 Cleanup: Cache Metrics Removal (30 March 2026) ✅
 
 ### P5-T04 Cleanup: Cache Metrics Removal (30 March 2026) ✅
 

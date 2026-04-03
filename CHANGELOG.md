@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [0.10.0] - 2026-04-03
+
+### Added
+
+- Add auto-update settings UI in Advanced preferences (auto-check and auto-download toggles)
+- Add manual update check button in settings with current version display
+
+### Changed
+
+- Optimize build process with vendor code splitting (55% faster updates for app code changes)
+- Reduce installer size by 1 MB through optimized file exclusions
+- Reduce Linux build targets from 4 to 2 formats (AppImage + deb, maintaining 99% distribution coverage)
+- Disable DevTools in production builds for security hardening (emergency access via ENABLE_DEVTOOLS=1)
+- Abandon Snap and RPM build targets due to publishing complexity
+
+### Fixed
+
+- Fix vendor code splitting to improve update download efficiency (529 KB vs 1,180 KB for app-only changes)
+
 ## [0.9.3] - 2026-04-03
 
 ### Fixed
