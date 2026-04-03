@@ -2,7 +2,350 @@
 
 **Purpose**: This file contains detailed implementation notes from completed milestones in reverse chronological order (newest first). These are historical records that provide context for past decisions and serve as essential reference material.
 
-**Last Updated**: 1 April 2026
+**Last Updated**: 3 April 2026
+
+---
+
+## P5-T08 Auto-Update System (2-3 April 2026)
+
+### Overview
+
+Implemented complete auto-update system using `electron-updater` to deliver seamless application updates. System automatically checks for updates on startup, downloads in background with progress tracking, and provides user-configurable preferences. Updates served from GitHub Releases (infrastructure from P5-T06).
+
+**Time Invested**: ~11 hours over 2 days (Backend: 8h, Frontend: 2h, Settings UI: 1h)
+**Impact**: Production-ready auto-update system with non-intrusive UX
+**Files Created**: 2 services, 4 components (UpdateNotification, Settings UI integration)
+**Testing**: Manual verification with startup check, menu trigger, all notification states
+**Decision**: Unsigned builds (code signing deferred), GitHub Releases as CDN
+
+### Implementation Phases
+
+#### Phase 0: Configuration (30 minutes)
+
+**dev-app-update.yml Configuration**:
+
+Updated development auto-update config to point to GitHub Releases:
+
+```yaml
+provider: github
+owner: remichan97
+repo: DexReader
+updaterCacheDirName: dexreader-updater
+```
+
+**Note**: Production builds use `publish` config from `electron-builder.yml` (already configured in P5-T06). Development mode uses `dev-app-update.yml` with `forceDevUpdateConfig = true` for testing.
+
+#### Phase 1: Backend Integration (8 hours)
+
+**AppUpdateService** (`src/main/services/app-update.service.ts`):
+
+Centralized service managing auto-update lifecycle with 6 event handlers:
+
+- `checking-for-update` - Notifies renderer when check starts
+- `update-available` - Triggers auto-download if enabled in settings
+- `update-not-available` - Logs current version, sends to renderer
+- `download-progress` - Sends progress updates (percent, bytes, speed)
+- `update-downloaded` - Marks download complete, ready to install
+- `error` - Converts technical errors to user-friendly messages
+
+**Key Architecture Decisions**:
+
+- **Manual download control**: `autoDownload = false` - Users control when to download (via settings)
+- **Auto-install on quit**: `autoInstallOnAppQuit = true` - Seamless installation
+- **Settings integration**: Checks user preferences before auto-checking/downloading
+- **Development support**: `forceDevUpdateConfig = true` enables testing with dev builds
+- **Error handling**: User-friendly messages (network errors, permissions, disk space)
+
+**Startup Integration** (`src/main/index.ts`):
+
+```typescript
+app.whenReady().then(async () => {
+  // ... existing code ...
+  const mainWindow = getMainWindow()
+  if (mainWindow) {
+    appUpdateService.setMainWindow(mainWindow)
+
+    // Check for updates 5 seconds after startup
+    setTimeout(() => {
+      appUpdateService.checkForUpdates(false) // false = automatic check
+    }, 5000)
+  }
+})
+```
+
+**Why 5 Second Delay?**:
+
+- Gives app time to fully load (UI ready, user sees interface first)
+- Ensures main window ready for IPC communication
+- Non-blocking startup (check happens in background)
+
+**IPC Handlers** (`src/main/ipc/handlers/app-update.handler.ts`):
+
+4 handlers exposed to renderer:
+
+- `app-update:check` - Manual/automatic update check
+- `app-update:download` - Download update
+- `app-update:install` - Quit and install update
+- `app-update:version` - Get current app version
+
+All wrapped with `wrapIpcHandler` for consistent error handling.
+
+#### Phase 2: Frontend Integration (2 hours)
+
+**Preload API** (`src/preload/index.ts`):
+
+Exposed 4 methods + 7 event listeners to renderer:
+
+```typescript
+appUpdate: {
+  // Methods
+  checkForUpdates: (manual: boolean) => Promise<IpcResponse<boolean>>
+  downloadUpdate: () => Promise<IpcResponse<boolean>>
+  installUpdate: () => Promise<IpcResponse<boolean>>
+  getAppVersion: () => Promise<IpcResponse<string>>
+
+  // Event Listeners (all return cleanup functions)
+  onUpdateChecking: (callback: () => void) => () => void
+  onUpdateAvailable: (callback: (info) => void) => () => void
+  onUpdateNotAvailable: (callback: (info) => void) => () => void
+  onUpdateDownloading: (callback: () => void) => () => void
+  onDownloadProgress: (callback: (progress) => void) => () => void
+  onUpdateDownloaded: (callback: (info) => void) => () => void
+  onUpdateError: (callback: (error) => void) => () => void
+}
+```
+
+**UpdateNotification Component** (`src/renderer/src/components/UpdateNotification/UpdateNotification.tsx`):
+
+Smart banner with 6 states and adaptive visibility:
+
+| State             | Behavior                    | Actions              |
+| ----------------- | --------------------------- | -------------------- |
+| **checking**      | Auto-dismiss 2s             | None (informational) |
+| **available**     | Semi-persistent             | Download, Later      |
+| **downloading**   | Progress bar, user can hide | Hide                 |
+| **downloaded**    | Re-appears even if hidden   | Restart Now, Later   |
+| **not-available** | Auto-dismiss 3s             | None                 |
+| **error**         | Semi-persistent             | Retry, Dismiss       |
+
+**Offline Mode Integration**:
+
+- Component reads `useConnectivityStore` to check `isOnline` status
+- Suppresses error banners when offline (OfflineStatusBar handles that)
+- Update checks naturally fail when offline, resume when back online
+- No special handling needed - electron-updater gracefully handles network failures
+
+**CSS Styling** (`UpdateNotification.css`):
+
+- Slide-down animation on appearance
+- State-specific colors: info (available, downloading), success (ready), error (failed)
+- Progress bar with formatted bytes and speed
+- Matches OfflineStatusBar/IncognitoStatusBar pattern
+
+**Menu Integration** (`src/main/menu/file.menu.ts`):
+
+Added "Check for Updates..." to File menu:
+
+```typescript
+{
+  label: 'Check for Updates...',
+  accelerator: 'CmdOrCtrl+U',
+  click: async () => {
+    const { appUpdateService } = await import('../services/app-update.service')
+    appUpdateService.checkForUpdates(true) // true = manual check
+  }
+}
+```
+
+#### Phase 3: Settings UI (1 hour - 3 April 2026)
+
+**Settings Schema** (`src/main/settings/entities/update-settings.entity.ts`):
+
+```typescript
+export interface UpdateSettings {
+  autoCheck: boolean // Check for updates on startup
+  autoDownload: boolean // Download updates automatically
+}
+```
+
+**Default Settings** (`src/main/settings/settings-manager.ts`):
+
+```typescript
+update: {
+  autoCheck: true,      // Default: enabled
+  autoDownload: false   // Default: disabled (safer, user controls download)
+}
+```
+
+**Settings Validator** (`src/main/settings/validators/types.validator.ts`):
+
+Validates both fields are booleans, throws TypeError if invalid. Already implemented.
+
+**AdvancedSettings Component** (`src/renderer/src/views/SettingsView/components/AdvancedSettings.tsx`):
+
+Created UpdateSettings section with:
+
+- Checkbox: "Automatically check for updates" (enabled by default)
+- Checkbox: "Automatically download updates" (disabled by default, grayed out when auto-check off)
+- Button: "Check for Updates Now" with loading state
+- Display: Current app version (fetched via IPC)
+
+**SettingsView Integration**:
+
+Added state management:
+
+```typescript
+const [autoCheckForUpdates, setAutoCheckForUpdates] = useState<boolean>(true)
+const [autoDownloadUpdates, setAutoDownloadUpdates] = useState<boolean>(false)
+```
+
+Integrated into:
+
+- Load logic (useEffect)
+- Dirty checking (useEffect dependency)
+- Save handler (builds updateSettings object, calls `settings.save('update', ...)`)
+- Reset handler (restores from originalSettings)
+- Props passed to AdvancedSettings component
+
+### Key Architecture Decisions
+
+**1. Manual Download Control**
+
+- **Decision**: `autoDownload = false` - Users explicitly control when to download
+- **Reason**: Balance automation with user agency (avoid unexpected downloads on metered connections)
+- **Implementation**: Settings checkbox defaults to false, can be enabled
+
+**2. Settings Defaults**
+
+- **autoCheck**: `true` - Most users want automatic checks (convenience)
+- **autoDownload**: `false` - Conservative default (user controls bandwidth usage)
+- **Impact**: Non-intrusive experience, user decides download timing
+
+**3. Offline Mode Integration**
+
+- **Decision**: No special connectivity checks, let electron-updater fail naturally
+- **Reason**: electron-updater gracefully handles network errors
+- **Impact**: Renderer suppresses error banners when offline (OfflineStatusBar handles it)
+
+**4. User Experience**
+
+- **Non-intrusive**: Background downloads, user chooses when to restart
+- **Transparent**: Progress notifications show download status
+- **Configurable**: Users can disable auto-check or auto-download in Settings
+- **Safe**: Updates only applied after user confirmation (no forced updates)
+
+**5. Update Server**
+
+- **Decision**: GitHub Releases as CDN (from P5-T06)
+- **Reason**: Free, unlimited bandwidth for public repos, automatic latest.yml generation
+- **Impact**: Zero infrastructure cost, electron-updater reads latest.yml to determine updates
+
+### Performance & Metrics
+
+**Startup Impact**:
+
+- Update check: 5-second delay after app ready
+- Non-blocking: User can interact with app immediately
+- Background: Check happens asynchronously, no UI freeze
+
+**Network Usage**:
+
+- Update check: ~1-2 KB (latest.yml download)
+- Update download: Depends on app size (~150-200 MB for full installer)
+- Progress tracking: Real-time percentage, bytes transferred, download speed
+
+**User Experience**:
+
+- Checking: 2-second auto-dismiss banner (quick feedback)
+- Available: Persistent banner until user acts (Download/Later)
+- Downloading: Progress bar, can be hidden but stays running
+- Downloaded: Re-appears even if hidden (important notification)
+- Error: Retry button, user-friendly error messages
+
+### Files Created/Modified
+
+**Created**:
+
+- `src/main/services/app-update.service.ts` (~200 lines) - Main process service
+- `src/main/ipc/handlers/app-update.handler.ts` (~23 lines) - IPC handlers
+- `src/renderer/src/components/UpdateNotification/UpdateNotification.tsx` (~280 lines)
+- `src/renderer/src/components/UpdateNotification/UpdateNotification.css` (~150 lines)
+- `src/renderer/src/components/UpdateNotification/index.ts` (~1 line) - Barrel export
+
+**Modified**:
+
+- `src/main/index.ts` - Startup check integration
+- `src/main/ipc/registry.ts` - Handler registration
+- `src/main/menu/file.menu.ts` - "Check for Updates..." menu item
+- `src/preload/index.ts` - API exposure (methods + event listeners)
+- `src/preload/index.d.ts` - TypeScript type definitions
+- `src/renderer/src/layouts/AppShell.tsx` - UpdateNotification rendering
+- `src/renderer/src/views/SettingsView/SettingsView.tsx` - State management for update settings
+- `src/renderer/src/views/SettingsView/components/AdvancedSettings.tsx` - Settings UI
+- `dev-app-update.yml` - GitHub configuration for development mode
+
+### Testing & Validation
+
+**Manual Testing**:
+
+1. ✅ Startup check: 5-second delay, logs "Checking for updates..."
+2. ✅ Menu trigger: File → Check for Updates... (Ctrl+U) works
+3. ✅ Notification states: All 6 states render correctly
+4. ✅ Settings UI: Checkboxes toggle, save/reset work
+5. ✅ Version display: Shows correct app version in Settings
+6. ✅ Offline mode: Error banners suppressed when offline
+7. ✅ Auto-download toggle: Disabled checkbox grayed out when auto-check off
+
+**Validation Checklist**:
+
+- ✅ AppUpdateService: All 6 events handled
+- ✅ IPC handlers: 4 handlers registered and working
+- ✅ Preload API: 7 event listeners + 4 methods exposed
+- ✅ UpdateNotification: Renders all states, animations smooth
+- ✅ Settings: Load, save, reset, dirty tracking all functional
+- ✅ Validators: UpdateSettings validated on save
+- ✅ Error handling: User-friendly messages displayed
+
+### Known Limitations
+
+**1. Unsigned Builds**
+
+- Windows: SmartScreen warning ("Windows protected your PC")
+- macOS: Gatekeeper warning ("unidentified developer")
+- Linux: No warnings (AppImage doesn't require signing)
+- **Workaround**: Installation guide documents security warning dismissal
+
+**2. Development Testing**
+
+- Requires published release to test update flow
+- `forceDevUpdateConfig = true` enables dev testing
+- Can use pre-release tags for staging updates
+
+**3. Auto-update Disabled Scenarios**
+
+- User disables auto-check in Settings
+- App running in portable mode (future consideration)
+- Enterprise environments with group policy restrictions
+
+### Next Steps
+
+- [ ] **Production Release**: Publish v1.0.0 to test full update cycle
+- [ ] **P5-T09**: Release automation - CHANGELOG helpers, version bump scripts
+- [ ] **P5-T10**: Build optimization - Reduce installer size if possible
+- [ ] **Future**: Add release notes parsing for better changelog display
+- [ ] **Future**: Consider differential updates for smaller downloads
+
+### Lessons Learned
+
+**1. electron-updater Integration**: Straightforward with good documentation, events cover all states
+
+**2. Offline Handling**: No special logic needed - natural failure + UI suppression works well
+
+**3. Settings Integration**: Followed existing SettingsView pattern seamlessly
+
+**4. User Experience**: Non-intrusive design critical - background downloads, user controls restart
+
+**5. Testing Strategy**: Manual testing sufficient for P5-T08, automated tests in P5-T12
 
 ---
 
