@@ -70,12 +70,11 @@ body:
     attributes:
       label: Installation Method
       description: |
-        How did you install DexReader? For Linux users: different installation methods (AppImage vs RPM package vs .deb) have different sandboxing and filesystem access that can affect bug behaviour.
+        How did you install DexReader? For Linux users: different installation methods (AppImage vs .deb) have different sandboxing and filesystem access that can affect bug behaviour.
       options:
         - Windows - Installer
         - macOS - DMG
         - Linux - AppImage
-        - Linux - RPM package
         - Linux - .deb package
         - Built from source
         - Other (please specify in Additional Context)
