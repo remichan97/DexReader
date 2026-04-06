@@ -205,7 +205,7 @@ export function UpdateNotification(): JSX.Element | null {
             <div className="update-notification__progress">
               <strong>Downloading update...</strong>
               <progress
-                className="progress-bar"
+                className="update-notification__progress-bar"
                 value={info.percent ?? 0}
                 max={100}
                 aria-label="Download progress"
