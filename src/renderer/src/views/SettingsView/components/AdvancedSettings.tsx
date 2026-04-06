@@ -40,12 +40,6 @@ export function AdvancedSettings({
     setIsCheckingForUpdates(true)
     try {
       await globalThis.appUpdate.checkForUpdates(true) // true = manual check
-      showToast({
-        variant: 'info',
-        title: 'Checking for updates',
-        message: 'Looking for new versions...',
-        duration: 2000
-      })
     } catch (error) {
       console.error('Update check failed:', error)
       showToast({
