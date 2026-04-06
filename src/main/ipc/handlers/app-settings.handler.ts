@@ -13,14 +13,20 @@ import {
 import {
   isAppearanceSettings,
   isDownloadsSettings,
-  isReaderSettings
+  isReaderSettings,
+  isUpdateSettings
 } from '../../settings/validators/types.validator'
 import { wrapIpcHandler } from '../wrap-handler'
 import { cleanupRepo } from '../../database/repositories/cleanup-repo'
 import type { ImageProxy } from '../../api/proxy/image.proxy'
 
 export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
-  const validSections: Set<keyof AppSettings> = new Set(['appearance', 'downloads', 'reader'])
+  const validSections: Set<keyof AppSettings> = new Set([
+    'appearance',
+    'downloads',
+    'reader',
+    'update'
+  ])
 
   wrapIpcHandler('settings:load', async () => {
     return await loadSettings()
@@ -61,6 +67,11 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
       case 'reader':
         if (!isReaderSettings(value)) {
           throw new Error('Invalid reader settings')
+        }
+        break
+      case 'update':
+        if (!isUpdateSettings(value)) {
+          throw new Error('Invalid update settings')
         }
         break
       default:
