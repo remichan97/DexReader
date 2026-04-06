@@ -7,6 +7,7 @@ export class AppUpdateService {
   private mainWindow: BrowserWindow | undefined = undefined
   private checkInProgress: boolean = false
   private updateDownloaded: boolean = false
+  private isManualCheck: boolean = false // Track if current check is user-initiated
 
   constructor() {
     this.initAutoUpdater()
@@ -36,7 +37,7 @@ export class AppUpdateService {
     }
 
     if (!isManual) {
-      const isAutoUpdate = (await getSettingByPath('update', 'autoUpdate')) as boolean
+      const isAutoUpdate = (await getSettingByPath('update', 'autoCheck')) as boolean
 
       if (!isAutoUpdate) {
         console.log('[AppUpdate] Auto-update is disabled. Skipping update check.')
@@ -46,9 +47,11 @@ export class AppUpdateService {
 
     try {
       this.checkInProgress = true
+      this.isManualCheck = isManual // Track whether this is a manual check
       await autoUpdater.checkForUpdates()
     } catch (error) {
       console.error(`[AppUpdate] Failed to check for updates: ${(error as Error).message}`)
+      // Always show errors, even for automatic checks
       this.sendToRenderer('update-error', {
         message: (error as Error).message,
         userMessage: this.getUserFriendlyErrorMessage(error as Error)
@@ -81,12 +84,13 @@ export class AppUpdateService {
       console.log('[AppUpdate] Running in development mode, using dev update config.')
     }
 
-    // Append all message logs with a prefix for better visibility in the console
+    // Use electron-updater's built-in logger for detailed internal logging
+    // Only add custom logs in event handlers where we need extra context
     autoUpdater.logger = {
-      info: (message: string) => console.log(`[AppUpdate] ${message}`),
-      warn: (message: string) => console.warn(`[AppUpdate] ${message}`),
-      error: (message: string) => console.error(`[AppUpdate] ${message}`),
-      debug: (message: string) => console.debug(`[AppUpdate] ${message}`)
+      info: (message: string) => console.log(`[AutoUpdater] ${message}`),
+      warn: (message: string) => console.warn(`[AutoUpdater] ${message}`),
+      error: (message: string) => console.error(`[AutoUpdater] ${message}`),
+      debug: (message: string) => console.debug(`[AutoUpdater] ${message}`)
     }
 
     this.setupUpdateEventListeners()
@@ -121,15 +125,20 @@ export class AppUpdateService {
 
   private setupUpdateEventListeners(): void {
     autoUpdater.on('checking-for-update', () => {
-      console.log('[AppUpdate] Checking for updates...')
-      this.sendToRenderer('update-checking')
+      // Only show "checking" banner for manual checks, silent for automatic startup checks
+      if (this.isManualCheck) {
+        this.sendToRenderer('update-checking')
+      }
     })
 
     autoUpdater.on('update-available', (info) => {
-      console.log(`[AppUpdate] Update available: version ${info.version}`)
+      // Always notify about available updates, regardless of manual/automatic
       this.shouldAutoDownload().then((shouldDownload) => {
         if (shouldDownload) {
+          console.log('[AppUpdate] Auto-download enabled, starting download...')
           this.downloadUpdate()
+        } else {
+          console.log('[AppUpdate] Auto-download disabled, waiting for user action.')
         }
       })
       this.sendToRenderer('update-available', {
@@ -140,16 +149,14 @@ export class AppUpdateService {
     })
 
     autoUpdater.on('update-not-available', (info) => {
-      console.log('[AppUpdate] Currently up-to-date. No updates available.')
-      this.sendToRenderer('update-not-available', info)
+      // Only show "up to date" banner for manual checks, silent for automatic checks
+      if (this.isManualCheck) {
+        this.sendToRenderer('update-not-available', info)
+      }
     })
 
     autoUpdater.on('download-progress', (progressObj) => {
-      // Log every 10% increment to avoid flooding the console
-      if (Math.floor(progressObj.percent) % 10 === 0) {
-        console.log(`[AppUpdate] Download progress: ${progressObj.percent.toFixed(2)}%`)
-      }
-
+      // electron-updater logs download progress internally, just send to renderer
       this.sendToRenderer('update-download-progress', {
         percent: progressObj.percent,
         transferred: progressObj.transferred,
@@ -159,9 +166,7 @@ export class AppUpdateService {
     })
 
     autoUpdater.on('update-downloaded', (info) => {
-      console.log(
-        `[AppUpdate] Update downloaded: version ${info.version}. Ready to install on quit.`
-      )
+      // electron-updater logs download completion, just track state
       this.updateDownloaded = true
       this.checkInProgress = false
       this.sendToRenderer('update-downloaded', {
@@ -172,7 +177,8 @@ export class AppUpdateService {
     })
 
     autoUpdater.on('error', (err) => {
-      console.error(`[AppUpdate] Error during update process: ${err.message}`)
+      // electron-updater logs the error, just add user-friendly message context
+      console.error(`[AppUpdate] User-friendly error: ${this.getUserFriendlyErrorMessage(err)}`)
       this.sendToRenderer('update-error', {
         message: err.message,
         userMessage: this.getUserFriendlyErrorMessage(err)
