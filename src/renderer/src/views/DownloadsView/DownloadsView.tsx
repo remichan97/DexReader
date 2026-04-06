@@ -49,7 +49,7 @@ export function DownloadsView(): JSX.Element {
   // Navigation handlers
   const handleNavigateToManga = (mangaId: string, e: React.MouseEvent): void => {
     e.stopPropagation()
-    navigate(`/manga/${mangaId}`)
+    navigate(`/browse/${mangaId}`)
   }
 
   const handleNavigateToReader = (mangaId: string, chapterId: string): void => {
