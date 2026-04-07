@@ -67,8 +67,12 @@ export default function MangaHeroSection({
     defaultQuality: 'data' | 'data-saver'
     confirmation: 'always' | 'batch-only' | 'never'
   } | null>(null)
+  const [downloadStats, setDownloadStats] = useState<{
+    chapterCount: number
+    totalBytes: number
+  } | null>(null)
 
-  // Load download settings
+  // Load download settings and stats
   useEffect(() => {
     async function loadSettings(): Promise<void> {
       const [pathResult, qualityResult, confirmationResult] = await Promise.all([
@@ -86,8 +90,16 @@ export default function MangaHeroSection({
       }
     }
 
+    async function loadDownloadStats(): Promise<void> {
+      const statsResponse = await globalThis.downloads.getDownloadStats(manga.id)
+      if (statsResponse.success && statsResponse.data) {
+        setDownloadStats(statsResponse.data)
+      }
+    }
+
     void loadSettings()
-  }, [])
+    void loadDownloadStats()
+  }, [manga.id])
 
   // Extract tags from attributes
   const tags =
@@ -140,6 +152,7 @@ export default function MangaHeroSection({
 
   const handleAddToLibrary = async (): Promise<void> => {
     const currentlyFavourited = isFavourite(manga.id)
+    const hasDownloads = downloadStats && downloadStats.chapterCount > 0
 
     if (currentlyFavourited) {
       // Unfavouriting - show dialog with download options
@@ -147,12 +160,16 @@ export default function MangaHeroSection({
         mangaId: manga.id,
         mangaTitle: getMangaTitle(manga),
         onSuccess: () => {
-          // Refresh library store to update heart icon
+          // Refresh library store and download stats
           loadFavourites()
+          void loadDownloadStatsAfterAction()
         }
       })
+    } else if (hasDownloads) {
+      // Not favorited but has downloads - offer to manage downloads or add to library
+      await handleManageDownloads()
     } else {
-      // Favouriting - simple toggle
+      // No downloads, just add to library
       try {
         await toggleFavourite(manga.id)
 
@@ -171,6 +188,88 @@ export default function MangaHeroSection({
           duration: 3000
         })
       }
+    }
+  }
+
+  const handleManageDownloads = async (): Promise<void> => {
+    if (!downloadStats) return
+
+    const result = await globalThis.api.showDialog({
+      message: 'Manage Downloads',
+      detail: `${getMangaTitle(manga)}\n\nThis manga has ${downloadStats.chapterCount} downloaded chapter${downloadStats.chapterCount > 1 ? 's' : ''}.\n\nYou can add it to your library for tracking, or delete all downloaded chapters.`,
+      buttons: ['Add to Library', 'Delete All Chapters', 'Cancel'],
+      type: 'info',
+      defaultId: 2,
+      cancelId: 2
+    })
+
+    switch (result.data.response) {
+      case 0:
+        // Add to library
+        try {
+          await toggleFavourite(manga.id)
+          showToast({
+            title: 'Added to Library!',
+            message: getMangaTitle(manga),
+            variant: 'info',
+            duration: 3000
+          })
+          loadFavourites()
+        } catch (error) {
+          console.error('Error adding to library:', error)
+          showToast({
+            title: 'Error',
+            message: 'Failed to add to library',
+            variant: 'error',
+            duration: 3000
+          })
+        }
+        break
+      case 1: {
+        // Delete downloads - confirm first
+        const confirmed = await globalThis.api.showConfirmDialog(
+          'Delete all downloaded chapters?',
+          `This will permanently delete ${downloadStats.chapterCount} chapter${downloadStats.chapterCount > 1 ? 's' : ''} from ${getMangaTitle(manga)}.\n\nThis action cannot be undone.`,
+          'Delete',
+          'Cancel'
+        )
+
+        if (!confirmed.success || !confirmed.data) {
+          // User cancelled
+          break
+        }
+
+        const deleteResult = await globalThis.downloads.deleteManga(manga.id)
+        if (deleteResult.success && deleteResult.data?.success) {
+          showToast({
+            title: 'Downloads deleted',
+            message: `Deleted ${downloadStats.chapterCount} chapter${downloadStats.chapterCount > 1 ? 's' : ''}`,
+            variant: 'success',
+            duration: 3000
+          })
+          void loadDownloadStatsAfterAction()
+        } else {
+          showToast({
+            title: 'Failed to delete downloads',
+            message: deleteResult.error || 'Unknown error',
+            variant: 'error',
+            duration: 3000
+          })
+        }
+        break
+      }
+      case 2:
+        // Cancelled
+        break
+    }
+  }
+
+  const loadDownloadStatsAfterAction = async (): Promise<void> => {
+    const statsResponse = await globalThis.downloads.getDownloadStats(manga.id)
+    if (statsResponse.success && statsResponse.data) {
+      setDownloadStats(statsResponse.data)
+    } else {
+      setDownloadStats(null)
     }
   }
 
@@ -234,6 +333,16 @@ export default function MangaHeroSection({
       // Show dialog for batch download
       setShowDownloadDialog(true)
     }
+  }
+
+  const getLibraryButtonLabel = (): string => {
+    if (isFavourite(manga.id)) {
+      return 'In Library'
+    }
+    if (downloadStats && downloadStats.chapterCount > 0) {
+      return 'Manage Downloads'
+    }
+    return 'Add to Library'
   }
 
   const getDownloadButtonTitle = (): string => {
@@ -333,7 +442,7 @@ export default function MangaHeroSection({
             onClick={handleAddToLibrary}
             icon={isFavourite(manga.id) ? <Heart24Filled /> : <Heart24Regular />}
           >
-            {isFavourite(manga.id) ? 'In Library' : 'Add to Library'}
+            {getLibraryButtonLabel()}
           </Button>
           <Button
             variant="secondary"

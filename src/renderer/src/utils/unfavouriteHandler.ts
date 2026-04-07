@@ -10,11 +10,14 @@ export interface UnfavouriteOptions {
 
 /**
  * Handle unfavouriting manga with smart download handling
+ *
+ * Library now shows ONLY explicitly favorited manga.
+ * Downloads are independent and managed in Downloads view.
+ *
  * Shows simple confirmation if no downloads exist
- * Shows 3-option dialog if downloads exist:
- * - Remove from library only (keep downloads)
- * - Delete downloads only (keep bookmark)
- * - Remove everything
+ * Shows 2-option dialog if downloads exist:
+ * - Remove from library only (keep downloads - accessible via Downloads view)
+ * - Remove from library AND delete all downloads
  */
 export async function handleUnfavourite(options: UnfavouriteOptions): Promise<void> {
   const { mangaId, mangaTitle, onSuccess, onError } = options
@@ -39,35 +42,30 @@ export async function handleUnfavourite(options: UnfavouriteOptions): Promise<vo
 
     // 2. Show appropriate dialog
     if (hasDownloads) {
-      // Multi-choice dialog - has downloads
+      // Two-choice dialog - has downloads
       const result = await globalThis.api.showDialog({
         message: 'Remove from library?',
-        detail: `${mangaTitle}\n\nThis manga has ${chapterCount} downloaded chapter${chapterCount > 1 ? 's' : ''} (${formatBytes(totalBytes)}).\n\nWhat would you like to do?`,
+        detail: `${mangaTitle}\n\nThis manga has ${chapterCount} downloaded chapter${chapterCount > 1 ? 's' : ''} (${formatBytes(totalBytes)}).\n\nDownloads will still be accessible in the Downloads view unless you choose to delete them.`,
         buttons: [
-          'Remove from library only (keep downloads)',
-          'Delete downloads only (keep bookmark)',
-          'Remove everything',
+          'Remove from library (keep downloads)',
+          'Remove everything (both bookmark and downloads will be removed)',
           'Cancel'
         ],
         type: 'warning',
-        defaultId: 3, // Cancel is safe default
-        cancelId: 3
+        defaultId: 2, // Cancel is safe default
+        cancelId: 2
       })
 
       switch (result.data.response) {
         case 0:
-          // Remove from library only
+          // Remove from library only (downloads remain accessible in Downloads view)
           await executeRemoveFromLibrary(mangaId, mangaTitle, onSuccess, onError)
           break
         case 1:
-          // Delete downloads only
-          await executeDeleteDownloads(mangaId, mangaTitle, chapterCount, onSuccess, onError)
-          break
-        case 2:
-          // Remove everything
+          // Remove from library AND delete all downloads
           await executeRemoveEverything(mangaId, mangaTitle, chapterCount, onSuccess, onError)
           break
-        case 3:
+        case 2:
           // User cancelled - do nothing
           break
       }
@@ -114,32 +112,6 @@ async function executeRemoveFromLibrary(
     useToastStore.getState().show({
       variant: 'error',
       title: 'Failed to remove from library',
-      message: result.error || 'Unknown error'
-    })
-    onError?.(result.error || 'Unknown error')
-  }
-}
-
-async function executeDeleteDownloads(
-  mangaId: string,
-  mangaTitle: string,
-  chapterCount: number,
-  onSuccess?: () => void,
-  onError?: (error: string) => void
-): Promise<void> {
-  const result = await globalThis.downloads.deleteManga(mangaId)
-
-  if (result.success && result.data?.success) {
-    useToastStore.getState().show({
-      variant: 'success',
-      title: 'Downloads deleted',
-      message: `Deleted ${chapterCount} chapter${chapterCount > 1 ? 's' : ''} from ${mangaTitle}`
-    })
-    onSuccess?.()
-  } else {
-    useToastStore.getState().show({
-      variant: 'error',
-      title: 'Failed to delete downloads',
       message: result.error || 'Unknown error'
     })
     onError?.(result.error || 'Unknown error')
