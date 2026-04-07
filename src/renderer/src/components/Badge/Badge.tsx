@@ -59,7 +59,7 @@ export function Badge({
     `badge--${variant}`,
     `badge--${size}`,
     dot && 'badge--dot',
-    !dot && (icon || children) && 'flex items-center gap-1',
+    !dot && (icon || children) && 'inline-flex items-center gap-1',
     className
   ]
     .filter(Boolean)
