@@ -215,8 +215,15 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
    * Uses MangaProgressMetadata which includes rich data via JOINs
    */
   loadAllProgress: async () => {
+    const currentMap = get().progressMetadataMap
+
     try {
-      set({ loading: true, error: null })
+      // Only set loading if this is a fresh load (no cached data)
+      if (currentMap.size === 0) {
+        set({ loading: true, error: null })
+      } else {
+        set({ error: null })
+      }
 
       const response = await globalThis.progress.getAllProgress()
 

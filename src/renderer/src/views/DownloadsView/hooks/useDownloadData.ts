@@ -14,12 +14,16 @@ export interface UseDownloadDataReturn {
   reload: () => Promise<void>
 }
 
+// Module-level flag to track if downloads have ever been loaded in this session
+// This prevents loading screens when navigating back to DownloadsView
+let hasLoadedDownloads = false
+
 export function useDownloadData(): UseDownloadDataReturn {
   const { show: showToast } = useToast()
 
   // State
   const [downloads, setDownloads] = useState<Download[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false) // Start false, will be set in useEffect
   const [error, setError] = useState<string | null>(null)
 
   // Stats from queue progress
@@ -32,7 +36,11 @@ export function useDownloadData(): UseDownloadDataReturn {
 
   // Load downloads from backend (both DB and in-memory queue)
   const loadDownloads = useCallback(async (showLoading = true): Promise<void> => {
-    if (showLoading) {
+    // Only show loading if downloads have never been loaded in this session
+    // This prevents loading screens when navigating back to DownloadsView
+    const shouldShowLoading = showLoading && !hasLoadedDownloads
+
+    if (shouldShowLoading) {
       setLoading(true)
     }
     setError(null)
@@ -94,6 +102,9 @@ export function useDownloadData(): UseDownloadDataReturn {
       if (showLoading) {
         setLoading(false)
       }
+
+      // Mark as loaded in this session
+      hasLoadedDownloads = true
       isInitialLoad.current = false
     }
   }, [])

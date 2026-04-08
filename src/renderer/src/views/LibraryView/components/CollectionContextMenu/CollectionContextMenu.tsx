@@ -1,11 +1,8 @@
 import type { JSX } from 'react'
 import { Edit20Regular, Delete20Regular } from '@fluentui/react-icons'
+import '@renderer/components/ContextMenu/ContextMenu.css'
 
 interface CollectionContextMenuProps {
-  readonly collection: {
-    readonly id: number
-    readonly name: string
-  }
   readonly position: {
     readonly top: number
     readonly left: number
@@ -15,12 +12,47 @@ interface CollectionContextMenuProps {
   readonly onClose: () => void
 }
 
+/**
+ * Context menu for collection tabs
+ *
+ * Uses the same structure and styles as the reusable ContextMenu component,
+ * but with manual positioning to work with Tab components.
+ */
 export function CollectionContextMenu({
   position,
   onEdit,
   onDelete,
   onClose
 }: CollectionContextMenuProps): JSX.Element {
+  const menuItems = [
+    {
+      id: 'edit',
+      label: 'Edit Collection',
+      icon: <Edit20Regular />,
+      onClick: () => {
+        onEdit()
+        onClose()
+      }
+    },
+    {
+      id: 'separator-1',
+      type: 'separator' as const
+    },
+    {
+      id: 'delete',
+      label: 'Delete Collection',
+      icon: <Delete20Regular />,
+      onClick: () => {
+        onDelete()
+        onClose()
+      }
+    }
+  ]
+
+  const handleBackdropClick = (): void => {
+    onClose()
+  }
+
   return (
     <>
       {/* Backdrop to close menu */}
@@ -30,7 +62,7 @@ export function CollectionContextMenu({
           inset: 0,
           zIndex: 9998
         }}
-        onClick={onClose}
+        onClick={handleBackdropClick}
         onContextMenu={(e) => {
           e.preventDefault()
           onClose()
@@ -46,34 +78,24 @@ export function CollectionContextMenu({
           zIndex: 9999
         }}
       >
-        <div className="context-menu__list">
-          <button
-            type="button"
-            className="context-menu__item"
-            onClick={() => {
-              onEdit()
-              onClose()
-            }}
-          >
-            <span className="context-menu__item-icon">
-              <Edit20Regular />
-            </span>
-            <span className="context-menu__item-label">Edit Collection</span>
-          </button>
-          <div className="context-menu__separator" />
-          <button
-            type="button"
-            className="context-menu__item"
-            onClick={() => {
-              onDelete()
-              onClose()
-            }}
-          >
-            <span className="context-menu__item-icon">
-              <Delete20Regular />
-            </span>
-            <span className="context-menu__item-label">Delete Collection</span>
-          </button>
+        <div className="context-menu__list flex flex-col">
+          {menuItems.map((item) => {
+            if (item.type === 'separator') {
+              return <div key={item.id} className="context-menu__separator" />
+            }
+
+            return (
+              <button
+                key={item.id}
+                type="button"
+                className="context-menu__item flex items-center gap-2"
+                onClick={item.onClick}
+              >
+                {item.icon && <span className="context-menu__item-icon">{item.icon}</span>}
+                <span className="context-menu__item-label">{item.label}</span>
+              </button>
+            )
+          })}
         </div>
       </div>
     </>

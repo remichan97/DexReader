@@ -123,6 +123,9 @@
 .download-group__header-left {
   flex: 1;
   min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .download-group__chevron {
@@ -135,6 +138,8 @@
   text-decoration: none;
   transition: color 0.15s ease;
   min-width: 0;
+  flex: 1;
+  overflow: hidden;
 }
 
 .download-group__title-link:hover {
@@ -218,11 +223,13 @@
 }
 
 .download-card__progress {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
+  margin-top: 8px;
 }
 
 .download-card__completed {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
+  margin-top: 8px;
 }
 
 .download-card__progress-info {
@@ -233,7 +240,8 @@
 }
 
 .download-card__error {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
+  margin-top: 8px;
 }
 
 .download-card__error-message {

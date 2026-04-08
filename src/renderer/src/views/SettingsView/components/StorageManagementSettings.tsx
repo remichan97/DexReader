@@ -80,7 +80,7 @@ export function StorageManagementSettings(): JSX.Element {
     const mangaList = selectedManga
       .map((m) => `• ${m.mangaTitle} (${formatBytes(m.totalStorageSize)})`)
       .join('\n')
-    const message = `You are about to permanently delete:\n${mangaList}\n\nTotal: ${formatBytes(totalSize)} will be freed\n\nThis action cannot be undone.`
+    const message = `You are about to permanently delete downloads for:\n\n${mangaList}\n\nYou'll regain: ${formatBytes(totalSize)} of disk space\n\nThis action cannot be undone.`
 
     const confirmed = await globalThis.api.showConfirmDialog(
       `Delete ${selectedMangaIds.size} manga?`,
@@ -141,20 +141,6 @@ export function StorageManagementSettings(): JSX.Element {
       })
     : []
 
-  // Prepare chart data
-  const topManga = sortedManga
-    .slice()
-    .sort((a, b) => b.totalStorageSize - a.totalStorageSize)
-    .slice(0, 5)
-    .map((m) => ({
-      mangaId: m.mangaId,
-      title: m.mangaTitle,
-      size: m.totalStorageSize
-    }))
-
-  const topMangaSize = topManga.reduce((sum, m) => sum + m.size, 0)
-  const othersSize = (storageData?.mangaStorage.totalAppStorage ?? 0) - topMangaSize
-
   if (isLoading) {
     return (
       <div className="py-4 flex flex-col gap-5">
@@ -188,8 +174,6 @@ export function StorageManagementSettings(): JSX.Element {
       <StorageChart
         diskSpace={storageData.diskSpace}
         dexReaderSize={storageData.mangaStorage.totalAppStorage}
-        topManga={topManga}
-        othersSize={othersSize}
       />
 
       {/* Manga Storage List */}

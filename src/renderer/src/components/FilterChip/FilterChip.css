@@ -1,0 +1,36 @@
+/**
+ * FilterChip Component Styles
+ * Following Windows 11 Fluent Design principles
+ */
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  background: var(--win-bg-subtle);
+  border: 1px solid var(--win-border-default);
+  border-radius: 12px;
+  font-size: var(--win-font-size-caption);
+  font-family: var(--win-font-family);
+  line-height: 1;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.filter-chip__label {
+  color: var(--win-text-secondary);
+  font-weight: var(--win-font-weight-semibold);
+}
+
+.filter-chip__value {
+  color: var(--win-text-primary);
+  font-weight: var(--win-font-weight-regular);
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .filter-chip {
+    background: var(--win-bg-layer);
+  }
+}

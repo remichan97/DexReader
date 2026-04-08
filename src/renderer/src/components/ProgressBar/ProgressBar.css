@@ -8,10 +8,6 @@
   width: 100%;
 }
 
-/* Header (Label + Metadata) */
-.progress-bar__header {
-}
-
 .progress-bar__label {
   font-family: var(--win-font-family);
   font-size: var(--win-font-size-caption);

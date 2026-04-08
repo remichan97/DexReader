@@ -8,37 +8,20 @@ interface DiskSpaceData {
   used: number
 }
 
-interface MangaSegment {
-  mangaId: string
-  title: string
-  size: number
-}
-
 interface StorageChartProps {
   diskSpace: DiskSpaceData
   dexReaderSize: number
-  topManga: MangaSegment[] // Top 3-5 manga by size
-  othersSize: number // Sum of remaining manga
 }
 
 export function StorageChart({
   diskSpace,
-  dexReaderSize,
-  topManga,
-  othersSize
+  dexReaderSize
 }: Readonly<StorageChartProps>): JSX.Element {
   // Calculate percentages for disk-level bar
   const dexReaderPercent = (dexReaderSize / diskSpace.total) * 100
   const otherAppsSize = diskSpace.used - dexReaderSize
   const otherAppsPercent = (otherAppsSize / diskSpace.total) * 100
   const freePercent = (diskSpace.free / diskSpace.total) * 100
-
-  // Calculate percentages for manga breakdown bar
-  const mangaSegments = topManga.map((manga) => ({
-    ...manga,
-    percent: (manga.size / dexReaderSize) * 100
-  }))
-  const othersPercent = (othersSize / dexReaderSize) * 100
 
   // Determine if segment is large enough to show label (>8% of bar)
   const shouldShowLabel = (percent: number): boolean => percent > 8
@@ -116,56 +99,6 @@ export function StorageChart({
           )}
         </div>
       </div>
-
-      {/* Bottom Bar: DexReader's Manga Breakdown */}
-      {dexReaderSize > 0 && (
-        <div className="mt-3">
-          <div className="storage-chart__bar storage-chart__bar--small flex">
-            {/* Individual Manga Segments */}
-            {mangaSegments.map((manga, index) => (
-              <div
-                key={manga.mangaId}
-                className="storage-chart__segment flex items-center justify-center"
-                style={{
-                  width: `${manga.percent}%`,
-                  backgroundColor: `color-mix(in srgb, var(--accent-color) ${90 - index * 15}%, transparent)`
-                }}
-                title={`${manga.title}: ${formatBytes(manga.size)}`}
-              >
-                {shouldShowLabel(manga.percent) && (
-                  <span
-                    className="storage-chart__label storage-chart__label--small"
-                    style={{ color: index === 0 ? 'white' : 'var(--win-text-primary)' }}
-                  >
-                    {manga.title} • {formatBytes(manga.size)}
-                  </span>
-                )}
-              </div>
-            ))}
-
-            {/* Others Segment */}
-            {othersPercent > 0 && (
-              <div
-                className="storage-chart__segment flex items-center justify-center"
-                style={{
-                  width: `${othersPercent}%`,
-                  backgroundColor: 'color-mix(in srgb, var(--win-text-secondary) 20%, transparent)'
-                }}
-                title={`Others: ${formatBytes(othersSize)}`}
-              >
-                {shouldShowLabel(othersPercent) && (
-                  <span
-                    className="storage-chart__label storage-chart__label--small"
-                    style={{ color: 'var(--win-text-secondary)' }}
-                  >
-                    Others • {formatBytes(othersSize)}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   )
 }

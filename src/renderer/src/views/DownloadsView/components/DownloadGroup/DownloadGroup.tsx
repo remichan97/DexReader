@@ -49,7 +49,10 @@ export function DownloadGroup({
           <a
             href="#"
             className="download-group__title-link"
-            onClick={(e) => onNavigateToManga(group.mangaId, e)}
+            onClick={(e) => {
+              e.preventDefault()
+              onNavigateToManga(group.mangaId, e)
+            }}
           >
             <h3 className="download-group__title">{group.mangaTitle}</h3>
           </a>

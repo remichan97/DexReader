@@ -26,6 +26,7 @@ export function HistoryView(): JSX.Element {
 
   // Load all progress on mount
   useEffect(() => {
+    // Always refresh data, but progressStore won't show loading if cache exists
     loadAllProgress()
     loadStatistics()
   }, [loadAllProgress, loadStatistics])

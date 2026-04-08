@@ -25,6 +25,11 @@ export interface CollectionPickerDialogProps {
    * Called when "Create New Collection" is clicked
    */
   onCreateNew: () => void
+
+  /**
+   * Optional callback to reload collection data after successful save
+   */
+  onSaveComplete?: () => void | Promise<void>
 }
 
 /**
@@ -44,7 +49,8 @@ export function CollectionPickerDialog({
   isOpen,
   onClose,
   mangaId,
-  onCreateNew
+  onCreateNew,
+  onSaveComplete
 }: Readonly<CollectionPickerDialogProps>): React.JSX.Element {
   const { collections, loadCollections, addToCollection, removeFromCollection } =
     useCollectionsStore()
@@ -116,6 +122,11 @@ export function CollectionPickerDialog({
         console.info(`Added to ${addedCount} collection(s)`)
       } else if (alreadyInCount > 0) {
         console.info(`Already in ${alreadyInCount} collection(s)`)
+      }
+
+      // Reload collection data if callback provided
+      if (onSaveComplete) {
+        await onSaveComplete()
       }
 
       onClose()

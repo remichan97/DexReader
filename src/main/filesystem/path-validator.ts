@@ -14,10 +14,18 @@ let allowedPaths: IAllowedPath | undefined = undefined
 
 function initializePaths(): void {
   if (!allowedPaths) {
+    // Use home directory pattern (like VS Code's .vscode/)
+    // This separates user data from Electron's internal userData files
+    // Windows: C:\Users\<user>\.dexreader
+    // macOS: ~/.dexreader
+    // Linux: ~/.dexreader
+    const homeDir = app.app.getPath('home')
+    const appDataRoot = path.join(homeDir, '.dexreader')
+
     allowedPaths = {
-      appData: path.join(app.app.getPath('userData'), 'dexreader'),
-      downloads: path.join(app.app.getPath('userData'), 'dexreader', 'downloads'),
-      cachedCover: path.join(app.app.getPath('userData'), 'dexreader', 'cached', 'covers')
+      appData: appDataRoot,
+      downloads: path.join(appDataRoot, 'downloads'),
+      cachedCover: path.join(appDataRoot, 'cache', 'covers')
     }
   }
 }

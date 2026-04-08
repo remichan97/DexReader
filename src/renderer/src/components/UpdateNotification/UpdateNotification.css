@@ -153,7 +153,7 @@
 }
 
 /* Native progress element styling */
-.progress-bar {
+.update-notification__progress-bar {
   width: 100%;
   height: 6px;
   appearance: none;
@@ -163,19 +163,19 @@
 }
 
 /* WebKit browsers (Chrome, Safari, Edge) */
-.progress-bar::-webkit-progress-bar {
+.update-notification__progress-bar::-webkit-progress-bar {
   background: var(--win-bg-subtle);
   border-radius: 2px;
 }
 
-.progress-bar::-webkit-progress-value {
+.update-notification__progress-bar::-webkit-progress-value {
   background: var(--win-info);
   border-radius: 2px;
   transition: width 0.3s ease;
 }
 
 /* Firefox */
-.progress-bar::-moz-progress-bar {
+.update-notification__progress-bar::-moz-progress-bar {
   background: var(--win-info);
   border-radius: 2px;
   transition: width 0.3s ease;

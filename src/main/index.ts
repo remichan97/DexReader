@@ -98,7 +98,6 @@ app.whenReady().then(async () => {
     appUpdateService.setMainWindow(mainWindow)
 
     setTimeout(() => {
-      console.log('Checking for app updates...')
       appUpdateService.checkForUpdates(false).catch((error) => {
         console.error('[Main] Startup update check failed:', error)
         // Don't crash app if update check fails

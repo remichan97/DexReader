@@ -1,4 +1,4 @@
-import { and, eq, inArray, like, lt, SQL, or, sql, notExists } from 'drizzle-orm'
+import { and, eq, inArray, like, lt, SQL, sql, notExists } from 'drizzle-orm'
 import { UpsertMangaCommand } from '../commands/manga/upsert-manga.command'
 import { databaseConnection } from '../connection'
 import { chapterDownloads, collectionItems, manga } from '../schemas'
@@ -147,7 +147,8 @@ export class MangaRepository {
   }
 
   getLibraryManga(options?: GetLibraryMangaCommand): MangaWithMetadata[] {
-    // If no filters provided, return everything that is favourited, or has downloaded chapters (even if not favourited)
+    // Return only explicitly favourited manga (library = curated bookmarks)
+    // Downloaded manga without favourites should be viewed in Downloads page
     if (!options) {
       const result = this.db
         .select({
@@ -156,13 +157,8 @@ export class MangaRepository {
         })
         .from(manga)
         .leftJoin(chapterDownloads, eq(manga.mangaId, chapterDownloads.mangaId))
-        .where(
-          or(
-            eq(manga.isFavourite, true), // Favourited manga
-            eq(chapterDownloads.status, DownloadStatus.Completed) // Manga with completed downloads
-          ) as SQL
-        )
-        .groupBy(manga.mangaId) // Get unique manga (one manga can have multiple downloaded chapters)
+        .where(eq(manga.isFavourite, true))
+        .groupBy(manga.mangaId)
         .all()
       return result.map((row) => ({
         ...MangaMapper.toMangaWithMetadata(row.manga),
@@ -193,10 +189,8 @@ export class MangaRepository {
       condition.push(like(manga.title, `%${options.search}%`))
     }
 
-    // Always return favourited manga, or downloaded manga regardless of other filters
-    condition.push(
-      or(eq(manga.isFavourite, true), eq(chapterDownloads.status, DownloadStatus.Completed))
-    )
+    // Only return explicitly favourited manga
+    condition.push(eq(manga.isFavourite, true))
 
     const query = this.db
       .select({
@@ -243,10 +237,8 @@ export class MangaRepository {
 
   getLibraryMangaByCustomCondition(command: SearchMangaCommand): MangaWithMetadata[] {
     const condition: (SQL | undefined)[] = []
-    // Always return favourited manga, or downloaded manga regardless of other filters
-    condition.push(
-      or(eq(manga.isFavourite, true), eq(chapterDownloads.status, DownloadStatus.Completed))
-    )
+    // Only return explicitly favourited manga (library = curated bookmarks)
+    condition.push(eq(manga.isFavourite, true))
 
     if (command.mangaId) {
       condition.push(eq(manga.mangaId, command.mangaId))

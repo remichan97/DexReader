@@ -27,7 +27,7 @@ export class CleanUpRepository {
       this.dbPath =
         process.env.NODE_ENV_ELECTRON_VITE === 'development'
           ? path.join(process.cwd(), 'dexreader-dev.db') // Project root: .\dexreader-dev.db
-          : path.join(getAppDataPath(), 'dexreader.db') // AppData: %APPDATA%\DexReader\dexreader.db
+          : path.join(getAppDataPath(), 'dexreader.db') // Production: ~/.dexreader/dexreader.db
     }
     return this.dbPath
   }

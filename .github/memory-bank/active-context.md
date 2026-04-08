@@ -2,8 +2,8 @@
 
 **Last Updated**: 3 April 2026
 **Current Phase**: Phase 5 - Production Readiness (IN PROGRESS)
-**Current Task**: P5-T10 Build Optimization Complete ✅ | Ready for next task
-**Next**: P5-T11 Multi-Platform Testing, Track 3 Testing (P5-T12, P5-T13), or P5-T18 Logging System
+**Current Task**: P5-T11 Multi-Platform Testing (IN PROGRESS - Windows testing, UI bugs fixed)
+**Next**: Continue P5-T11 testing, then Track 3 Testing (P5-T12, P5-T13), or P5-T18 Logging System
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next.
 
@@ -16,7 +16,47 @@
 **Electron**: Upgraded to 41.0.2 (15 Mar 2026) ✅
 **Timeline**: 6-8 weeks (11 March - 5 May 2026)
 **Target**: v1.0 Release Early May 2026 🚀
-**Next Steps**: Track 2 (P5-T11 Multi-Platform Testing) or Track 3 Testing (P5-T12, P5-T13) or Track 4 (P5-T18 Logging)
+**Next Steps**: Complete P5-T11 Multi-Platform Testing → Track 3 Testing (P5-T12, P5-T13) or Track 4 (P5-T18 Logging)
+
+---
+
+## In Progress
+
+### P5-T11 Multi-Platform Testing (IN PROGRESS - Windows ✅ partial)
+
+**Windows Testing**: Discovered and fixed 4 UI issues. **NEW**: Implemented advanced search syntax for Library (7 April):
+
+1. **Tab Badge Wrapping** ✅: Badge numbers wrapping to new line in Library tabs - Fixed by changing Badge from `flex` to `inline-flex` to maintain inline flow
+2. **Collection UI Not Refreshing** ✅: Add/remove manga from collections succeeded but UI didn't update counts - Fixed by adding `reloadCollectionManga()` callback to `CollectionPickerDialog` triggered after save
+3. **Context Menu Inconsistency** ✅: CollectionContextMenu used custom implementation - Refactored to use shared ContextMenu CSS classes and structure for consistency
+4. **Loading Screens on Navigation** ✅ (7 April): History and Downloads views showed loading screens when navigating back - Fixed by implementing session-level caching flags:
+   - `progressStore.loadAllProgress()` now checks for cached data before setting `loading: true`
+   - `useDownloadData` hook uses module-level `hasLoadedDownloads` flag to prevent loading screens after first load
+   - Both views now load data silently in background when returning to them (no flash of loading state)
+5. **Library Search Filtering** ✅ (7 April): Implemented Discord/GitHub-style search syntax with filter keywords:
+   - **Filters**: `status:`, `tag:`, `downloaded:`, `author:`, `artist:`, `year:` (with `>`, `<`, `=` operators)
+   - **Parser**: Created `librarySearchParser.ts` with tokenization, case-insensitive matching, quoted strings support
+   - **UI**: Filter chips show active filters, Help button reveals syntax examples
+   - **Smart filtering**: Text search works alongside filters, remove filters by clicking ×
+   - **Example**: `one piece status:ongoing author:Oda year:>2020 downloaded:yes`
+
+**Files Created**:
+
+- `utils/librarySearchParser.ts` - Search query parser with filter extraction (~200 lines)
+- `components/FilterChip/` - Removable filter chip component with Windows 11 styling
+
+**Files Modified**:
+
+- `Badge.tsx` - Changed to `inline-flex` to prevent wrapping
+- `useCollectionManager.ts` - Exported `reloadCollectionManga()` function
+- `CollectionPickerDialog.tsx` - Added `onSaveComplete` callback, triggers after save
+- `CollectionContextMenu.tsx` - Refactored to use ContextMenu styles, removed unused prop
+- `LibraryView.tsx` - Wired up reload callback to picker dialog, added search help toggle, filter chips display, removeFilter function (7 April)
+- `progressStore.ts` - Only show loading if no cached data exists (7 April)
+- `useDownloadData.ts` - Module-level flag prevents loading on navigation back (7 April)
+- `useLibraryFilters.ts` - Integrated search parser, applies all 6 filter types + text search (7 April)
+
+**Next**: Continue systematic Windows testing (performance, edge cases, auto-update), then Linux WSL2/VM, then macOS via GitHub Actions
 
 ---
 

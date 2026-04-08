@@ -32,6 +32,9 @@ interface UseCollectionManagerReturn {
   handleDeleteCollection: (collectionId: number, collectionName: string) => Promise<void>
   handleCreateCollection: (name: string, description?: string) => Promise<void>
   handleAddToCollection: (mangaId: string) => void
+
+  // Reload
+  reloadCollectionManga: () => Promise<void>
 }
 
 export function useCollectionManager(): UseCollectionManagerReturn {
@@ -208,6 +211,9 @@ export function useCollectionManager(): UseCollectionManagerReturn {
     handleUpdateCollection,
     handleDeleteCollection,
     handleCreateCollection,
-    handleAddToCollection
+    handleAddToCollection,
+
+    // Reload
+    reloadCollectionManga: loadCollectionManga
   }
 }

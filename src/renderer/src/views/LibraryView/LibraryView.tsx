@@ -5,6 +5,7 @@ import { Tabs, TabList, Tab, TabPanel } from '@renderer/components/Tabs'
 import { SearchBar } from '@renderer/components/SearchBar'
 import { Badge } from '@renderer/components/Badge'
 import { Button } from '@renderer/components/Button'
+import { FilterChip } from '@renderer/components/FilterChip'
 import { LoadingState } from '@renderer/components/LoadingState'
 import { EmptyState } from '@renderer/components/EmptyState'
 import { CreateCollectionDialog } from '@renderer/components/CreateCollectionDialog'
@@ -21,7 +22,8 @@ import {
   Search48Regular,
   Warning48Regular,
   ArrowClockwise24Regular,
-  Add24Regular
+  Add24Regular,
+  Info20Regular
 } from '@fluentui/react-icons'
 import { MangaGrid } from './components/MangaGrid'
 import { CollectionContextMenu } from './components/CollectionContextMenu'
@@ -35,6 +37,7 @@ import './LibraryView.css'
 export function LibraryView(): JSX.Element {
   const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState('')
+  const [showSearchHelp, setShowSearchHelp] = useState(false)
 
   // Stores
   const { favourites, loading, error, loadFavourites } = useLibraryStore()
@@ -43,7 +46,7 @@ export function LibraryView(): JSX.Element {
   const isOnline = useConnectivityStore((state) => state.isOnline)
 
   // Use custom hooks
-  const { filterManga } = useLibraryFilters(searchQuery)
+  const { filterManga, activeFilters } = useLibraryFilters(searchQuery)
 
   const {
     editingCollection,
@@ -64,7 +67,8 @@ export function LibraryView(): JSX.Element {
     handleUpdateCollection,
     handleDeleteCollection,
     handleCreateCollection,
-    handleAddToCollection
+    handleAddToCollection,
+    reloadCollectionManga
   } = useCollectionManager()
 
   const { isImporting, importResult, clearImportResult, handleCancelImport } = useMihonImportExport(
@@ -199,33 +203,34 @@ export function LibraryView(): JSX.Element {
       </div>
 
       {/* Search Bar with Actions */}
-      <div className="mb-6 flex gap-3 items-start">
+      <div className="mb-4 flex gap-3 items-start">
         <div className="flex-1">
           <SearchBar
             value={searchQuery}
             onChange={handleSearch}
-            placeholder="Search your library"
+            placeholder="Search your library (try: status:ongoing, author:Oda, tag:romance)"
           />
         </div>
-        <CreateCollectionDialog
-          onCreate={handleCreateCollection}
-          onClose={() => setSelectedMangaForCollection(null)}
-          open={createDialogOpen}
-          onOpenChange={setCreateDialogOpen}
-          autoAddMangaId={selectedMangaForCollection || undefined}
-          trigger={
-            <Button
-              variant="secondary"
-              size="medium"
-              icon={<Add24Regular />}
-              aria-label="Create collection"
-              title="Create a new collection"
-              className="h-9"
-            >
-              Collection
-            </Button>
-          }
+        <Button
+          variant="ghost"
+          size="medium"
+          icon={<Info20Regular />}
+          onClick={() => setShowSearchHelp(!showSearchHelp)}
+          aria-label="Search syntax help"
+          title="Show search syntax help"
+          className="h-9"
         />
+        <Button
+          variant="secondary"
+          size="medium"
+          icon={<Add24Regular />}
+          onClick={() => setCreateDialogOpen(true)}
+          aria-label="Create collection"
+          title="Create a new collection"
+          className="h-9"
+        >
+          Collection
+        </Button>
         <Button
           variant="primary"
           size="medium"
@@ -237,6 +242,66 @@ export function LibraryView(): JSX.Element {
           className="h-9"
         />
       </div>
+
+      {/* Search Help */}
+      {showSearchHelp && (
+        <div className="mb-4 p-4 bg-subtle border border-default rounded-lg">
+          <h3 className="font-semibold mb-2">Search Syntax</h3>
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div>
+              <code className="px-1 py-0.5 bg-layer rounded">status:ongoing</code> - Filter by
+              status
+            </div>
+            <div>
+              <code className="px-1 py-0.5 bg-layer rounded">tag:romance</code> - Filter by tag
+            </div>
+            <div>
+              <code className="px-1 py-0.5 bg-layer rounded">downloaded:yes</code> - Show downloaded
+            </div>
+            <div>
+              <code className="px-1 py-0.5 bg-layer rounded">author:Oda</code> - Filter by author
+            </div>
+            <div>
+              <code className="px-1 py-0.5 bg-layer rounded">artist:Inoue</code> - Filter by artist
+            </div>
+            <div>
+              <code className="px-1 py-0.5 bg-layer rounded">year:2024</code> - Filter by year
+            </div>
+            <div>
+              <code className="px-1 py-0.5 bg-layer rounded">year:&gt;2020</code> - Year greater
+              than
+            </div>
+            <div>
+              <code className="px-1 py-0.5 bg-layer rounded">year:&lt;2019</code> - Year less than
+            </div>
+          </div>
+          <p className="text-sm text-secondary mt-2">
+            Combine filters:{' '}
+            <code className="px-1 py-0.5 bg-layer rounded">
+              one piece status:ongoing author:Oda
+            </code>
+          </p>
+        </div>
+      )}
+
+      {/* Active Filters */}
+      {activeFilters.length > 0 && (
+        <div className="mb-4 flex gap-2 items-center flex-wrap">
+          <span className="text-sm text-secondary">Active filters:</span>
+          {activeFilters.map((filter) => (
+            <FilterChip key={filter.key} label={filter.label} value={filter.value} />
+          ))}
+        </div>
+      )}
+
+      {/* Create Collection Modal */}
+      <CreateCollectionDialog
+        onCreate={handleCreateCollection}
+        onClose={() => setSelectedMangaForCollection(null)}
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        autoAddMangaId={selectedMangaForCollection || undefined}
+      />
 
       {/* Edit Collection Modal */}
       <EditCollectionModal
@@ -287,7 +352,6 @@ export function LibraryView(): JSX.Element {
               {/* Context Menu Portal */}
               {contextMenuCollection && contextMenuPosition && (
                 <CollectionContextMenu
-                  collection={contextMenuCollection}
                   position={contextMenuPosition}
                   onEdit={() => handleEditCollection(contextMenuCollection)}
                   onDelete={() =>
@@ -399,6 +463,7 @@ export function LibraryView(): JSX.Element {
             // Automatically open the Create Collection dialog
             setCreateDialogOpen(true)
           }}
+          onSaveComplete={reloadCollectionManga}
         />
       )}
 
