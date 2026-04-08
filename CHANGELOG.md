@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [0.11.0] - 2026-04-08
+
+### Added
+
+- Add Library and Downloads as separate views with independent navigation
+- Add Discord/GitHub-style search syntax for Library filtering with 6 filter types:
+  - `status:` - Filter by publication status (ongoing/completed/hiatus/cancelled)
+  - `tag:` - Filter by tags
+  - `downloaded:` - Filter by download status (yes/no)
+  - `author:` - Filter by author name
+  - `artist:` - Filter by artist name
+  - `year:` - Filter by publication year with comparison operators (>, <, =)
+- Add search syntax help panel with examples in Library view
+- Add active filters display as visual chips in Library view
+
+### Changed
+
+- Split Library view into dedicated Library and Downloads sections for better organization
+- Refactor collection context menu to use reusable ContextMenu component pattern
+- Move user data out of Electron's cache folder to prevent data loss on cache clear
+
+### Fixed
+
+- Fix startup update check banner appearing on every launch (now properly suppressed when disabled)
+- Fix badge components stretching to full width (changed to inline-flex)
+- Fix loading screens appearing when navigating back to History/Downloads views (now uses session cache)
+- Fix collection list not refreshing after adding/removing manga from collections
+- Fix duplicate breakdowns in line chart visualization
+- Fix styling conflict with main ProgressBar component
+- Fix navigation issues in DownloadsView
+- Fix various styling issues in DownloadsView
+
 ## [0.10.0] - 2026-04-03
 
 ### Added
