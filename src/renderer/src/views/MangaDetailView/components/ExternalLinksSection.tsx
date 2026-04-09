@@ -82,7 +82,7 @@ export default function ExternalLinksSection({ manga }: ExternalLinksSectionProp
 
   return (
     <section className="external-links-section">
-      <h3>External Links</h3>
+      <h2>External Links</h2>
       <div className="external-links-list flex flex-wrap gap-2">
         {linkEntries.map(([key, value]) => (
           <Button

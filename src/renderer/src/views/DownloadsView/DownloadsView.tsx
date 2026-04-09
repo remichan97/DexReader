@@ -69,6 +69,9 @@ export function DownloadsView(): JSX.Element {
   // Render main UI
   return (
     <div className="downloads-view">
+      {/* Screen reader heading for page structure */}
+      <h1 className="sr-only">Downloads</h1>
+
       <DownloadsHeader
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
