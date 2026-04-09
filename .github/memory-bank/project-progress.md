@@ -21,10 +21,10 @@
 
 ## Current Status
 
-**Phase Progress**: Phase 2 (11/11) | Guerilla Refactoring | Phase 3 (19/19) | Phase 4 (13/13) | Phase 5 IN PROGRESS (8/22 tasks complete, 2 deferred)
-**Current Focus**: Phase 5 - Track 2 Build Pipeline (3/6 tasks complete: P5-T06 CI/CD ✅, P5-T08 Auto-update ✅, P5-T10 Build Optimization ✅)
+**Phase Progress**: Phase 2 (11/11) | Guerilla Refactoring | Phase 3 (19/19) | Phase 4 (13/13) | Phase 5 IN PROGRESS (8/22 tasks complete, 4 deferred)
+**Current Focus**: Phase 5 - Track 3 Testing & Quality Assurance (P5-T15 Accessibility Audit)
 **Recent Completion**: P5-T10 Build Optimization (3 Apr 2026)
-**Next Steps**: P5-T11 Multi-Platform Testing, or Track 3 Testing tasks (P5-T12, P5-T13), or P5-T18 Logging System
+**Next Steps**: P5-T15 Accessibility Audit, P5-T11 Multi-Platform Testing, P5-T18 Logging System
 
 ---
 
@@ -411,26 +411,28 @@ See [archived-milestones.md](./archived-milestones.md) for detailed P4 task impl
 
 **Track 3 - Testing & Quality Assurance (Week 5-6)**:
 
-- [⏳] **P5-T12**: Unit Testing Framework (8-10 hours)
-- [⏳] **P5-T13**: Integration Testing (12-16 hours)
-- [⏸️] **P5-T14**: E2E Testing (Optional, deferred to v1.1)
-- [⏳] **P5-T15**: Accessibility Audit (8-10 hours)
-- [⏳] **P5-T16**: Performance Benchmarking (6-8 hours)
-- [⏳] **P5-T22**: Lighthouse Performance Testing (2-3 hours)
+- [⏸️] **P5-T12**: Unit Testing Framework **DEFERRED** (Electron testing complexity not worth ROI for solo project)
+- [⏸️] **P5-T13**: Integration Testing **DEFERRED** (Covered by thorough P5-T11 manual testing)
+- [⏸️] **P5-T14**: E2E Testing **DEFERRED** (Optional, deferred to v1.1)
+- [✅] **P5-T15**: Accessibility Audit (5 hours) **COMPLETE** (09 Apr 2026)
+- [⏸️] **P5-T16**: Performance Benchmarking **DEFERRED** (Already validated via P5-T01 through P5-T05)
+- [⏸️] **P5-T22**: Lighthouse Performance Testing **DEFERRED** (Desktop app, not web - performance already validated)
 
 **Track 4 - Production Polish (Week 6-8)**:
 
-- [⏳] **P5-T17**: Error Reporting & Telemetry (10-12 hours, optional)
-- [⏳] **P5-T18**: Logging System (6-8 hours)
+- [⏸️] **P5-T17**: Error Reporting & Telemetry **DEFERRED** (Covered by P5-T18 local logging + manual sharing)
+- [⏳] **P5-T18**: Logging System (6-8 hours) - Covers telemetry needs via local logs + Help menu integration
 - [⏳] **P5-T19**: User Documentation & Installation Guide (12-16 hours) **CRITICAL**
 - [⏳] **P5-T20**: Developer Documentation (8-10 hours)
 
-**Phase 5 Progress**: 8/22 tasks (~36% complete) | Track 0 Complete ✅ | Track 1 Complete ✅ | Track 2: 3/6 tasks
+**Phase 5 Progress**: 9/22 tasks (~41% complete) | Track 0 Complete ✅ | Track 1 Complete ✅ | Track 2: 3/6 tasks | Track 3: 1/6 tasks | 7 tasks deferred
 
 **Key Decisions**:
 
 - **Code Signing Deferred**: Windows cert ($200-500) + Apple Developer ($99) not needed for personal use with <10 users. Saves $500-600/year + 12-16 hours. Installation guide will document security warning workarounds.
-- **Testing Philosophy**: Mock all MangaDex API calls, test application logic only (our data transformation, state management, database operations, download system, UI components).
+- **Testing Deferred**: Unit (P5-T12), integration (P5-T13), E2E (P5-T14) testing deferred due to Electron testing complexity and solo project context. Manual testing via thorough P5-T11 multi-platform scenarios provides better ROI.
+- **Performance Benchmarking Deferred**: P5-T16 and P5-T22 deferred as performance already comprehensively validated in P5-T01 through P5-T05. Desktop app doesn't need Lighthouse web metrics.
+- **Telemetry Strategy**: Privacy-first local logging (P5-T18) instead of cloud telemetry (P5-T17). Users manually share logs via Help > Report Issue workflow. No third-party services, consent dialogs, or privacy concerns.
 - **Logical Task Order**: Refactor first (clean foundation) → Then optimize clean code → Build/test/document stable codebase.
 
 **Planning Documents**:
