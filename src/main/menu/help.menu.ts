@@ -1,4 +1,5 @@
 import { MenuItemConstructorOptions, shell, dialog, app, BrowserWindow } from 'electron'
+import path from 'node:path'
 
 export function buildHelpMenu(mainWindow: BrowserWindow): MenuItemConstructorOptions {
   return {
@@ -20,13 +21,56 @@ export function buildHelpMenu(mainWindow: BrowserWindow): MenuItemConstructorOpt
       },
       { type: 'separator' },
       {
-        label: 'Report Issue...',
+        label: 'Report an Issue',
+        submenu: [
+          {
+            label: 'View Existing Issues',
+            click: () => {
+              shell
+                .openExternal('https://github.com/remichan97/DexReader/issues')
+                .catch(console.error)
+            }
+          },
+          {
+            label: 'New Bug Report...',
+            click: () => {
+              shell
+                .openExternal(
+                  'https://github.com/remichan97/DexReader/issues/new?template=bug-report.yaml'
+                )
+                .catch(console.error)
+            }
+          },
+          {
+            label: 'Request a Feature...',
+            click: () => {
+              shell
+                .openExternal(
+                  'https://github.com/remichan97/DexReader/issues/new?template=feature-request.yaml'
+                )
+                .catch(console.error)
+            }
+          },
+          {
+            label: 'Other Feedback...',
+            click: () => {
+              shell
+                .openExternal(
+                  'https://github.com/remichan97/DexReader/issues/new?template=other-issues.yaml'
+                )
+                .catch(console.error)
+            }
+          }
+        ]
+      },
+      {
+        label: 'Open Logs Folder',
         click: () => {
-          shell
-            .openExternal('https://github.com/remichan97/DexReader/issues/new')
-            .catch(console.error)
+          const logPath = path.join(app.getPath('userData'), 'logs')
+          shell.openPath(logPath).catch(console.error)
         }
       },
+      { type: 'separator' },
       {
         label: 'About DexReader...',
         click: () => {
