@@ -42,7 +42,7 @@ body:
     attributes:
       label: Actual Behaviour
       description: What actually happened? Please provide a clear and concise description of what actually happened.
-      placeholder: 'What happened?'
+      placeholder: 'What actually happened?'
     validations:
       required: true
 
@@ -103,16 +103,8 @@ body:
     id: attachments
     attributes:
       label: Attachments
-      description: (Optional) If possible, please attach logs, or any other relevant information that can help us understand the issue better.
-      placeholder: 'Please attach logs, or any other relevant information that can help us understand the issue better.'
-    validations:
-      required: false
-
-  - type: upload
-    id: screenshots
-    attributes:
-      label: Screenshots
-      description: (Optional) If possible, please attach screenshots that can help explain the issue.
+      description: (Optional) If possible, please attach logs, screenshots, or any other relevant information that can help us understand the issue better.
+      placeholder: 'Please attach logs, screenshots, or any other relevant information that can help us understand the issue better.'
     validations:
       required: false
 
