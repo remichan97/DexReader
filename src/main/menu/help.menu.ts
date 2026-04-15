@@ -24,7 +24,7 @@ export function buildHelpMenu(mainWindow: BrowserWindow): MenuItemConstructorOpt
         label: 'Report an Issue',
         submenu: [
           {
-            label: 'View Existing Issues',
+            label: 'View Existing Issues...',
             click: () => {
               shell
                 .openExternal('https://github.com/remichan97/DexReader/issues')

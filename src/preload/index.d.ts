@@ -349,6 +349,12 @@ interface AppUpdate {
   onUpdateError: (callback: (error: { message: string; userMessage: string }) => void) => () => void
 }
 
+interface Logger {
+  info: (message: string, ...args: unknown[]) => void
+  warn: (message: string, ...args: unknown[]) => void
+  error: (message: string, ...args: unknown[]) => void
+}
+
 declare global {
   interface Window {
     electron: ElectronAPI
@@ -366,5 +372,6 @@ declare global {
     downloads: Downloads
     storage: Storage
     appUpdate: AppUpdate
+    logger: Logger
   }
 }
