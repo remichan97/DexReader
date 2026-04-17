@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import { ErrorLogViewer } from '@renderer/components/ErrorLogViewer'
 import { Switch } from '@renderer/components/Switch'
 import { Button } from '@renderer/components/Button'
 import { useToastStore } from '@renderer/stores'
@@ -95,9 +94,6 @@ export function AdvancedSettings({
           </div>
         </div>
       </div>
-
-      {/* Error Log Viewer */}
-      <ErrorLogViewer />
     </div>
   )
 }
