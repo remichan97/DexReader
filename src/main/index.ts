@@ -15,6 +15,7 @@ import { runMigrations } from './database/migrations/migrations'
 import { downloadQueueService } from './services/download-queue.service'
 import { diskCacheUtil } from './api/utils/disk-cache.util'
 import { appUpdateService } from './services/app-update.service'
+import { logger } from './services/logging/logging.service'
 
 const imageProxy = new ImageProxy()
 const localImageProxy = new LocalImageProxy()
@@ -104,4 +105,8 @@ app.whenReady().then(async () => {
       })
     }, 5000)
   }
+
+  logger.cleanupLogs().catch((error) => {
+    console.error('Error during log cleanup on startup:', error)
+  })
 })
