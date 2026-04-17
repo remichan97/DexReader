@@ -13,6 +13,7 @@ import {
 import {
   isAppearanceSettings,
   isDownloadsSettings,
+  isLogSettings,
   isReaderSettings,
   isUpdateSettings
 } from '../../settings/validators/types.validator'
@@ -25,7 +26,8 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
     'appearance',
     'downloads',
     'reader',
-    'update'
+    'update',
+    'logs'
   ])
 
   wrapIpcHandler('settings:load', async () => {
@@ -72,6 +74,11 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
       case 'update':
         if (!isUpdateSettings(value)) {
           throw new Error('Invalid update settings')
+        }
+        break
+      case 'logs':
+        if (!isLogSettings(value)) {
+          throw new Error('Invalid log settings')
         }
         break
       default:

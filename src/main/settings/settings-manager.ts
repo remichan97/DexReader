@@ -215,6 +215,9 @@ export function getDefaultSettings(): AppSettings {
     update: {
       autoCheck: true,
       autoDownload: false
+    },
+    logs: {
+      retentionInDays: 30
     }
   }
 }

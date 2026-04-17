@@ -6,6 +6,7 @@ interface IAllowedPath {
   appData: string
   downloads: string
   cachedCover: string
+  logs: string
 }
 
 // Define allowed paths
@@ -21,11 +22,13 @@ function initializePaths(): void {
     // Linux: ~/.dexreader
     const homeDir = app.app.getPath('home')
     const appDataRoot = path.join(homeDir, '.dexreader')
+    const appLogs = path.join(app.app.getPath('userData'), 'logs')
 
     allowedPaths = {
       appData: appDataRoot,
       downloads: path.join(appDataRoot, 'downloads'),
-      cachedCover: path.join(appDataRoot, 'cache', 'covers')
+      cachedCover: path.join(appDataRoot, 'cache', 'covers'),
+      logs: appLogs
     }
   }
 }
@@ -100,6 +103,11 @@ function isPathAllowed(inputPath: string): boolean {
 
   // Cover caching folder, this isn't changed, and won't be changed by users, but we want to ensure it's always allowed
   if (normalizedInputPath.startsWith(allowedPaths!.cachedCover)) {
+    return true
+  }
+
+  // Logs folder should also be allowed, even if it's unchangeable, but we want to ensure it's always allowed
+  if (normalizedInputPath.startsWith(allowedPaths!.logs)) {
     return true
   }
 
