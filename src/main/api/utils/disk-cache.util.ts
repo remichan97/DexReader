@@ -4,6 +4,7 @@ import { secureFs } from '../../filesystem/secure-fs'
 import { getSettingByPath } from '../../settings/settings-manager'
 import { mangaRepo } from '../../database/repositories/manga.repo'
 import { DiskCacheQuery } from '../../database/queries/storage/disk-cache.query'
+import { mainLog } from '../../services/logging/main-logging.service'
 
 export class DiskCacheUtil {
   private readonly coverCachePath = getCachedCoverPath()
@@ -11,9 +12,9 @@ export class DiskCacheUtil {
   async initCachePath(): Promise<void> {
     try {
       await secureFs.ensureDir(this.coverCachePath)
-      console.log('[DiskCache] Cache path initialized:', this.coverCachePath)
+      mainLog.info('[DiskCache] Cache path initialized:', this.coverCachePath)
     } catch (error) {
-      console.error('[DiskCache] Failed to initialize cache path:', this.coverCachePath, error)
+      mainLog.error('[DiskCache] Failed to initialize cache path:', this.coverCachePath, error)
     }
   }
 
@@ -59,10 +60,10 @@ export class DiskCacheUtil {
       }
 
       const data = await secureFs.readFile(filePath)
-      console.log('[DiskCache] Loaded cover from disk:', url)
+      mainLog.info('[DiskCache] Loaded cover from disk:', url)
       return Buffer.isBuffer(data) ? data : Buffer.from(data)
     } catch (error) {
-      console.error('[DiskCache] Failed to load cover from disk:', url, error)
+      mainLog.error('[DiskCache] Failed to load cover from disk:', url, error)
       return undefined
     }
   }
@@ -85,9 +86,9 @@ export class DiskCacheUtil {
         mangaRepo.updateCoverCachedDate([mangaId])
       }
 
-      console.log('[DiskCache] Saved cover to disk:', url)
+      mainLog.info('[DiskCache] Saved cover to disk:', url)
     } catch (error) {
-      console.error('[DiskCache] Failed to save cover to disk:', url, error)
+      mainLog.error('[DiskCache] Failed to save cover to disk:', url, error)
     }
   }
 
@@ -111,9 +112,9 @@ export class DiskCacheUtil {
 
       mangaRepo.clearCachedCoverDate() // Clear cached cover dates for all manga
 
-      console.log('[DiskCache] Emptied disk cover cache successfully.')
+      mainLog.info('[DiskCache] Emptied disk cover cache successfully.')
     } catch (error) {
-      console.error('[DiskCache] Failed to empty disk cover cache:', error)
+      mainLog.error('[DiskCache] Failed to empty disk cover cache:', error)
     }
   }
 
@@ -141,7 +142,7 @@ export class DiskCacheUtil {
 
       // If maxCacheSize is 0, it means the user has allowed unlimited cache, so we skip eviction
       if (maxCacheSize === 0) {
-        console.log('[DiskCache] Unlimited cache size configured, skipping eviction.')
+        mainLog.info('[DiskCache] Unlimited cache size configured, skipping eviction.')
         return
       }
 
@@ -189,9 +190,9 @@ export class DiskCacheUtil {
 
       mangaRepo.clearCachedCoverDate(mangaIdToBeEvicted)
 
-      console.log('[DiskCache] Enforced disk cache limit. Current size:', currentSize)
+      mainLog.info('[DiskCache] Enforced disk cache limit. Current size:', currentSize)
     } catch (error) {
-      console.error('[DiskCache] Failed to enforce disk cache limit:', error)
+      mainLog.error('[DiskCache] Failed to enforce disk cache limit:', error)
     }
   }
 

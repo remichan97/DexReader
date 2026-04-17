@@ -8,6 +8,7 @@ import { URLSearchParams } from 'node:url'
 import { ApiResponse } from './responses/api.response'
 import { FeedParams } from './search-params/feed.searchparam'
 import { Chapter } from './entities/chapter.entity'
+import { mainLog } from '../services/logging/main-logging.service'
 import { ImageQuality } from './enums'
 import { ImageUrlResponse } from './responses/image-url.response'
 import { ChapterImagesResponse } from './responses/chapter-image.response'
@@ -74,7 +75,7 @@ export class MangaDexClient {
       const text = await response.text()
       return text === 'pong'
     } catch (error) {
-      console.error('[MangaDex] Ping failed:', error)
+      mainLog.error('[MangaDex] Ping failed:', error)
       return false
     }
   }
@@ -167,7 +168,7 @@ export class MangaDexClient {
             const jitterFactor = 0.8 + Math.random() * 0.4 // ±20% jitter
             const delay = Math.floor(baseDelay * jitterFactor)
 
-            console.warn(
+            mainLog.warn(
               `[MangaDex] Request ID: ${requestId} - Rate limited (429). ` +
                 `Retrying in ${Math.floor(delay / 1000)}s (attempt ${retryCount + 1}/${maxRetries})...`
             )
@@ -177,7 +178,7 @@ export class MangaDexClient {
           }
 
           // Max retries exceeded, throw with retry info
-          console.error(
+          mainLog.error(
             `[MangaDex] Request ID: ${requestId} - Rate limit retry exhausted after ${maxRetries} attempts`
           )
 

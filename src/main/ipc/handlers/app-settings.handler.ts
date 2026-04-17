@@ -10,6 +10,7 @@ import {
   updateSettings,
   getMemoryTierInfo
 } from '../../settings/settings-manager'
+import { mainLog } from '../../services/logging/main-logging.service'
 import {
   isAppearanceSettings,
   isDownloadsSettings,
@@ -89,7 +90,7 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
     // Update chapter cache size dynamically when reader settings change
     if (keyStr === 'reader' && imageProxy) {
       await imageProxy.updateChapterCacheSize()
-      console.log('[Settings] Chapter cache size updated after reader settings change')
+      mainLog.info('[Settings] Chapter cache size updated after reader settings change')
     }
 
     return true
@@ -139,7 +140,7 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
       }
       return true
     } catch (error) {
-      console.error('Failed to open system date settings:', error)
+      mainLog.error('[Settings] Failed to open system date settings:', error)
       return false
     }
   })

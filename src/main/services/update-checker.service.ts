@@ -9,6 +9,7 @@ import { getChangedFields } from '../utils/diffs.util'
 import { Manga } from '../api/entities/manga.entity'
 import { UpsertMangaCommand } from '../database/commands/manga/upsert-manga.command'
 import { UpdateResult } from './results/mihon/update.result'
+import { mainLog } from './logging/main-logging.service'
 
 export class UpdateCheckerService {
   private readonly client: MangaDexClient = new MangaDexClient()
@@ -75,7 +76,7 @@ export class UpdateCheckerService {
           })
         }
       } catch (error) {
-        console.error(`Error checking updates for manga ID ${mangaId}:`, error)
+        mainLog.error(`[UpdateChecker] Error checking updates for manga ID ${mangaId}:`, error)
         // Log the error but continue with other manga
         result.push({
           mangaId,

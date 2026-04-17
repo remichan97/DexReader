@@ -3,6 +3,7 @@ import { ApiConfig } from '../constants/api-config.constant'
 import { diskCacheUtil } from '../utils/disk-cache.util'
 import { LRUMemoryCache } from '../utils/lru-memory-cache.util'
 import { memoryCacheUtil } from '../utils/memory-cache.util'
+import { mainLog } from '../../services/logging/main-logging.service'
 
 interface CacheEntry {
   buffer: Buffer
@@ -37,11 +38,11 @@ export class ImageProxy {
       this.coverCache = new LRUMemoryCache<CacheEntry>(this.MAX_COVER_CACHE)
 
       this.isInitialized = true
-      console.log(
+      mainLog.info(
         `[ImageProxy] Initialized with chapter cache: ${(maxChapterCache / 1024 / 1024).toFixed(1)}MB, cover cache: ${(this.MAX_COVER_CACHE / 1024 / 1024).toFixed(1)}MB`
       )
     } catch (error) {
-      console.error('[ImageProxy] Failed to initialize cache:', error)
+      mainLog.error('[ImageProxy] Failed to initialize cache:', error)
       // Fallback to default size (200MB)
       this.chapterCache = new LRUMemoryCache<CacheEntry>(200 * 1024 * 1024)
       this.coverCache = new LRUMemoryCache<CacheEntry>(this.MAX_COVER_CACHE)
@@ -59,7 +60,7 @@ export class ImageProxy {
       const newMaxSize = await memoryCacheUtil.getMemoryLimit()
       this.chapterCache.updateMaxSize(newMaxSize)
     } catch (error) {
-      console.error('[ImageProxy] Failed to update cache size:', error)
+      mainLog.error('[ImageProxy] Failed to update cache size:', error)
     }
   }
 
@@ -151,7 +152,7 @@ export class ImageProxy {
           }
         })
       } catch (error) {
-        console.error('[ImageProxy] Failed to fetch image:', url, error)
+        mainLog.error('[ImageProxy] Failed to fetch image:', url, error)
         return new Response('Failed to fetch image', { status: 502 })
       }
     })
@@ -189,7 +190,7 @@ export class ImageProxy {
 
     if (cleanedCount > 0) {
       const freedMB = (freedBytes / (1024 * 1024)).toFixed(2)
-      console.log(
+      mainLog.info(
         `[ImageProxy] Cleaned ${cleanedCount} expired chapter images (freed ${freedMB} MB)`
       )
     }
@@ -202,7 +203,7 @@ export class ImageProxy {
     if (this.cleanupTimer) {
       clearInterval(this.cleanupTimer)
       this.cleanupTimer = undefined
-      console.log('[ImageProxy] Cleanup timer stopped')
+      mainLog.info('[ImageProxy] Cleanup timer stopped')
     }
   }
   private isExpired(entry: CacheEntry): boolean {

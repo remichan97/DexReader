@@ -17,6 +17,7 @@ import { readerSettingsRepo } from '../database/repositories/reader-settings.rep
 import { DownloadConfirmation } from './enums/download-confirmation.enum'
 import { MemoryTierInfo } from './response/memory-tier.response'
 import { memoryCacheUtil } from '../api/utils/memory-cache.util'
+import { mainLog } from '../services/logging/main-logging.service'
 
 const SETTINGS_FILE = path.join(getAppDataPath(), 'settings.json')
 
@@ -35,8 +36,8 @@ export async function loadSettings(): Promise<AppSettings> {
 
     return settings
   } catch (error) {
-    console.error('Error loading settings:', error)
-    console.warn('Reverting to default settings.')
+    mainLog.error('[SettingsManager] Error loading settings:', error)
+    mainLog.warn('[SettingsManager] Reverting to default settings.')
     return getDefaultSettings()
   }
 }
@@ -47,7 +48,7 @@ export async function saveSettings(settings: AppSettings): Promise<void> {
 
     await secureFs.writeFile(SETTINGS_FILE, data, 'utf-8')
   } catch (error) {
-    console.error('Error saving settings:', error)
+    mainLog.error('[SettingsManager] Error saving settings:', error)
     throw error
   }
 }
@@ -56,9 +57,11 @@ export async function updateSettings<K extends keyof AppSettings>(
   key: K,
   value: AppSettings[K]
 ): Promise<void> {
+  mainLog.debug(`[SettingsManager] Updating setting '${key}'`)
   const settings = await loadSettings()
   settings[key] = value
   await saveSettings(settings)
+  mainLog.info(`[SettingsManager] Setting '${key}' updated successfully`)
 }
 
 /**
@@ -105,6 +108,7 @@ export async function setSettingByPath<K extends keyof AppSettings>(
   settingsPath: string,
   value: unknown
 ): Promise<void> {
+  mainLog.debug(`[SettingsManager] Setting '${section}.${settingsPath}' to value:`, value)
   const settings = await loadSettings()
   const keys = settingsPath.split('.')
   // Navigate to the parent object
@@ -121,6 +125,7 @@ export async function setSettingByPath<K extends keyof AppSettings>(
   target[finalKey] = value
 
   await saveSettings(settings)
+  mainLog.info(`[SettingsManager] Updated '${section}.${settingsPath}' successfully`)
 }
 
 export function getSettingsFilePath(): string {
@@ -129,17 +134,24 @@ export function getSettingsFilePath(): string {
 
 // Set a new downloads path with validation
 export async function setDownloadsPath(newPath: string): Promise<void> {
+  mainLog.info(`[SettingsManager] Attempting to set downloads path: ${newPath}`)
   // Sanitize the new path (remove control characters including null bytes)
   // eslint-disable-next-line no-control-regex
   const sanitizedPath = newPath.replaceAll(/[\u0000-\u001F\u007F]/g, '')
 
+  if (sanitizedPath !== newPath) {
+    mainLog.warn('[SettingsManager] Path was sanitized (removed control characters)')
+  }
+
   // Prevent setting to system directories
   if (isSystemDirectory(sanitizedPath)) {
+    mainLog.error(`[SettingsManager] Rejected system directory: ${sanitizedPath}`)
     throw new Error('Setting downloads path to system directories is not allowed.')
   }
 
   // Validate that the path exists and is a directory
   await validateDirectoryPath(sanitizedPath)
+  mainLog.debug('[SettingsManager] Path validation successful')
 
   // Load and update settings
   const settings = await loadSettings()
@@ -147,6 +159,7 @@ export async function setDownloadsPath(newPath: string): Promise<void> {
   updateDownloadsPath(sanitizedPath)
   // Save to settings
   await updateSettings('downloads', { ...settings.downloads, downloadPath: sanitizedPath })
+  mainLog.info(`[SettingsManager] Downloads path changed to: ${sanitizedPath}`)
 }
 
 export async function getMangaReaderSettings(mangaId: string): Promise<MangaReadingSettings> {
@@ -183,8 +196,10 @@ export async function initializeDownloadsPath(): Promise<void> {
       await validateDirectoryPath(settings.downloads.downloadPath)
       updateDownloadsPath(settings.downloads.downloadPath)
     } catch (error) {
-      console.warn(`Failed to set saved downloads path: ${error}`)
-      console.log(`Using default downloads path at ${getDownloadsPath()} instead.`)
+      mainLog.warn(`[SettingsManager] Failed to set saved downloads path: ${error}`)
+      mainLog.info(
+        `[SettingsManager] Using default downloads path at ${getDownloadsPath()} instead.`
+      )
       // Reset to default in settings
       await updateSettings('downloads', { ...settings.downloads, downloadPath: undefined })
     }

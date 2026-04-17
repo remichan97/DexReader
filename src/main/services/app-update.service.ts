@@ -2,6 +2,7 @@ import { is } from '@electron-toolkit/utils'
 import { app, BrowserWindow } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import { getSettingByPath } from '../settings/settings-manager'
+import { mainLog } from './logging/main-logging.service'
 
 export class AppUpdateService {
   private mainWindow: BrowserWindow | undefined = undefined
@@ -19,11 +20,11 @@ export class AppUpdateService {
 
   exitAndInstall(): void {
     if (!this.updateDownloaded) {
-      console.warn('[AppUpdate] No update downloaded yet. Cannot install.')
+      mainLog.warn('[AppUpdate] No update downloaded yet. Cannot install.')
       return
     }
 
-    console.log('[AppUpdate] Installing update and restarting app...')
+    mainLog.info('[AppUpdate] Installing update and restarting app...')
 
     setImmediate(() => {
       autoUpdater.quitAndInstall(false, true)
@@ -32,7 +33,7 @@ export class AppUpdateService {
 
   async checkForUpdates(isManual: boolean = false): Promise<void> {
     if (this.checkInProgress) {
-      console.warn('[AppUpdate] Update check already in progress. Please wait.')
+      mainLog.warn('[AppUpdate] Update check already in progress. Please wait.')
       return
     }
 
@@ -40,7 +41,7 @@ export class AppUpdateService {
       const isAutoUpdate = (await getSettingByPath('update', 'autoCheck')) as boolean
 
       if (!isAutoUpdate) {
-        console.log('[AppUpdate] Auto-update is disabled. Skipping update check.')
+        mainLog.info('[AppUpdate] Auto-update is disabled. Skipping update check.')
         return
       }
     }
@@ -50,7 +51,7 @@ export class AppUpdateService {
       this.isManualCheck = isManual // Track whether this is a manual check
       await autoUpdater.checkForUpdates()
     } catch (error) {
-      console.error(`[AppUpdate] Failed to check for updates: ${(error as Error).message}`)
+      mainLog.error('[AppUpdate] Failed to check for updates:', error)
       // Always show errors, even for automatic checks
       this.sendToRenderer('update-error', {
         message: (error as Error).message,
@@ -63,11 +64,11 @@ export class AppUpdateService {
 
   async downloadUpdate(): Promise<void> {
     try {
-      console.log('[AppUpdate] Starting update download...')
+      mainLog.info('[AppUpdate] Starting update download...')
       this.sendToRenderer('update-downloading')
       await autoUpdater.downloadUpdate()
     } catch (error) {
-      console.error(`[AppUpdate] Failed to download update: ${(error as Error).message}`)
+      mainLog.error('[AppUpdate] Failed to download update:', error)
       this.sendToRenderer('update-error', {
         message: (error as Error).message,
         userMessage: this.getUserFriendlyErrorMessage(error as Error)
@@ -81,16 +82,16 @@ export class AppUpdateService {
 
     if (is.dev) {
       autoUpdater.forceDevUpdateConfig = true // Force using the dev update config in development
-      console.log('[AppUpdate] Running in development mode, using dev update config.')
+      mainLog.info('[AppUpdate] Running in development mode, using dev update config.')
     }
 
     // Use electron-updater's built-in logger for detailed internal logging
     // Only add custom logs in event handlers where we need extra context
     autoUpdater.logger = {
-      info: (message: string) => console.log(`[AutoUpdater] ${message}`),
-      warn: (message: string) => console.warn(`[AutoUpdater] ${message}`),
-      error: (message: string) => console.error(`[AutoUpdater] ${message}`),
-      debug: (message: string) => console.debug(`[AutoUpdater] ${message}`)
+      info: (message: string) => mainLog.info(`[AutoUpdater] ${message}`),
+      warn: (message: string) => mainLog.warn(`[AutoUpdater] ${message}`),
+      error: (message: string) => mainLog.error(`[AutoUpdater] ${message}`),
+      debug: (message: string) => mainLog.debug(`[AutoUpdater] ${message}`)
     }
 
     this.setupUpdateEventListeners()
@@ -135,10 +136,10 @@ export class AppUpdateService {
       // Always notify about available updates, regardless of manual/automatic
       this.shouldAutoDownload().then((shouldDownload) => {
         if (shouldDownload) {
-          console.log('[AppUpdate] Auto-download enabled, starting download...')
+          mainLog.info('[AppUpdate] Auto-download enabled, starting download...')
           this.downloadUpdate()
         } else {
-          console.log('[AppUpdate] Auto-download disabled, waiting for user action.')
+          mainLog.info('[AppUpdate] Auto-download disabled, waiting for user action.')
         }
       })
       this.sendToRenderer('update-available', {
@@ -178,7 +179,7 @@ export class AppUpdateService {
 
     autoUpdater.on('error', (err) => {
       // electron-updater logs the error, just add user-friendly message context
-      console.error(`[AppUpdate] User-friendly error: ${this.getUserFriendlyErrorMessage(err)}`)
+      mainLog.error(`[AppUpdate] User-friendly error: ${this.getUserFriendlyErrorMessage(err)}`)
       this.sendToRenderer('update-error', {
         message: err.message,
         userMessage: this.getUserFriendlyErrorMessage(err)

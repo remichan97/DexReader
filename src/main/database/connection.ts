@@ -3,6 +3,7 @@ import { drizzle } from 'drizzle-orm/better-sqlite3'
 import { getAppDataPath } from '../filesystem/path-validator'
 import path from 'node:path'
 import * as schema from './schemas'
+import { mainLog } from '../services/logging/main-logging.service'
 
 class DatabaseConnection {
   private db: Database.Database | undefined = undefined
@@ -23,8 +24,10 @@ class DatabaseConnection {
   init(): void {
     // Development: Use project root (easy to find, reset, inspect with DataGrip)
     // Production: Use home directory ~/.dexreader/ (follows VS Code pattern)
+    const dbPath = this.getDbPath()
+    mainLog.info(`[Database] Initializing database at: ${dbPath}`)
 
-    this.db = new Database(this.getDbPath())
+    this.db = new Database(dbPath)
 
     this.db.pragma('journal_mode = WAL')
     this.db.pragma('synchronous = NORMAL')
@@ -33,7 +36,9 @@ class DatabaseConnection {
     this.db.pragma('temp_store = MEMORY')
     this.db.pragma('mmap_size = 268435456') // 256MB mmap
 
+    mainLog.debug('[Database] SQLite pragmas configured (WAL, 64MB cache, 256MB mmap)')
     this.drizzle = drizzle(this.db, { schema: schema })
+    mainLog.info('[Database] Drizzle ORM initialized')
   }
 
   getDb(): ReturnType<typeof drizzle> {
@@ -45,16 +50,19 @@ class DatabaseConnection {
 
   close(): void {
     if (this.db) {
+      mainLog.info('[Database] Closing database connection...')
       try {
         // Ensure WAL checkpoint completes before closing
         this.db.pragma('wal_checkpoint(TRUNCATE)')
+        mainLog.debug('[Database] WAL checkpoint completed')
       } catch (error) {
-        console.error('Error during WAL checkpoint:', error)
+        mainLog.error('[Database] Error during WAL checkpoint:', error)
       }
 
       this.db.close()
       this.db = undefined
       this.drizzle = undefined
+      mainLog.info('[Database] Database connection closed successfully')
     }
   }
 }

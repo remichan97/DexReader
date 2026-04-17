@@ -13,6 +13,7 @@ import {
 import path from 'node:path'
 import fs from 'node:fs/promises'
 import { getAppDataPath } from '../../filesystem/path-validator'
+import { mainLog } from '../../services/logging/main-logging.service'
 
 export class CleanUpRepository {
   private db(): ReturnType<typeof databaseConnection.getDb> {
@@ -71,7 +72,7 @@ export class CleanUpRepository {
       const stats = await fs.stat(dbPath)
       return stats.size
     } catch (error) {
-      console.error('Error getting database file size:', error)
+      mainLog.error('[Database] Error getting database file size:', error)
       return 0
     }
   }

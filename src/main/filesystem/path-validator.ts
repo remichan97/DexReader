@@ -1,6 +1,7 @@
 import path from 'node:path'
 import app from 'electron'
 import fs from 'node:fs/promises'
+import { mainLog } from '../services/logging/main-logging.service'
 
 interface IAllowedPath {
   appData: string
@@ -54,6 +55,7 @@ export function getCachedCoverPath(): string {
 export function updateDownloadsPath(newPath: string): void {
   initializePaths()
   const normalized = normalizePath(newPath)
+  mainLog.debug(`[PathValidator] Downloads path updated to: ${normalized}`)
   allowedPaths!.downloads = normalized
 }
 
@@ -65,9 +67,12 @@ export async function validateDirectoryPath(dirPath: string): Promise<void> {
     const stats = await fs.stat(normalized)
 
     if (!stats.isDirectory()) {
+      mainLog.warn(`[PathValidator] Path is not a directory: ${dirPath}`)
       throw new Error(`The path "${dirPath}" is not a directory.`)
     }
+    mainLog.debug(`[PathValidator] Directory validated: ${dirPath}`)
   } catch (error) {
+    mainLog.error(`[PathValidator] Directory validation failed for ${dirPath}:`, error)
     throw new Error(`The path "${dirPath}" does not exist or is not accessible. Error: ${error}`)
   }
 }
@@ -76,6 +81,7 @@ export function validatePath(inputPath: string): string {
   const normalizedPath = normalizePath(inputPath)
 
   if (!isPathAllowed(normalizedPath)) {
+    mainLog.warn(`[PathValidator] Access denied to path: ${inputPath}`)
     throw new Error(`Access to the path "${inputPath}" is not allowed.`)
   }
 
