@@ -16,5 +16,9 @@ class MainLogService {
   public warn(message: string, ...args: unknown[]): void {
     logger.warn('main', message, ...args)
   }
+
+  public async cleanupLogs(forceCleanup = false): Promise<void> {
+    return logger.cleanupLogs(forceCleanup)
+  }
 }
 export const mainLog = new MainLogService()
