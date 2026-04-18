@@ -1,3 +1,4 @@
+import { rendererLog } from '@renderer/services/logging.service'
 import { useEffect, useState } from 'react'
 
 /**
@@ -82,7 +83,7 @@ export function useAccentColor(): void {
         }
       } catch (error) {
         // Fallback to default if everything fails
-        console.error('Failed to load accent color:', error)
+        rendererLog.error('[useAccentColor] Failed to load accent color:', error)
         applyAccentColor('#0078d4')
       }
     }

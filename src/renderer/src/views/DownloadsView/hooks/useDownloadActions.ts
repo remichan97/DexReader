@@ -1,4 +1,5 @@
 import { useToast } from '@renderer/components/Toast'
+import { rendererLog } from '@renderer/services/logging.service'
 import type { Download } from '@renderer/types/download.types'
 
 export interface UseDownloadActionsParams {
@@ -171,7 +172,7 @@ export function useDownloadActions({
         })
       }
     } catch (error) {
-      console.error('Error opening downloads folder:', error)
+      rendererLog.error('[useDownloadActions] Error opening downloads folder:', error)
       showToast({
         title: 'Error',
         message: 'Failed to open downloads folder',

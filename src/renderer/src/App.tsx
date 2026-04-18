@@ -14,6 +14,7 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 import { ProgressRing } from './components/ProgressRing'
 import { UnsavedChangesProvider } from './contexts/UnsavedChangesProvider'
 import { useUnsavedChanges } from './hooks/useUnsavedChanges'
+import { rendererLog } from './services/logging.service'
 
 function AppContent(): React.JSX.Element {
   const location = useLocation()
@@ -142,8 +143,8 @@ function App(): React.JSX.Element {
     <ErrorBoundary
       level="app"
       onError={(error, errorInfo) => {
-        // Log to console in dev, future: send to crash reporting
-        console.error('[App Error]', error, errorInfo)
+        // Log to structured logger (goes to renderer.log file)
+        rendererLog.error('[App] Critical error:', error, errorInfo)
       }}
     >
       <HashRouter>

@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { rendererLog } from '../services/logging.service'
 
 type ConnectivityStatus = 'online' | 'offline-user' | 'offline-no-internet'
 
@@ -109,7 +110,7 @@ export const useConnectivityStore = create<ConnectivityState>((set, get) => ({
       }
     } catch (error) {
       // Network error - no internet
-      console.error('[ConnectivityStore] Connectivity check failed:', error)
+      rendererLog.error('[ConnectivityStore] Connectivity check failed:', error)
 
       // Only set to no-internet if user didn't manually choose offline
       if (get().status !== 'offline-user') {

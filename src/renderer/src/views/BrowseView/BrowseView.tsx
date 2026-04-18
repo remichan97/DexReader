@@ -26,6 +26,7 @@ import {
 import { cacheMangaMetadata } from '@renderer/utils/mangaCache'
 import { handleUnfavourite } from '@renderer/utils/unfavouriteHandler'
 import './BrowseView.css'
+import { rendererLog } from '@renderer/services/logging.service'
 
 export function BrowseView(): JSX.Element {
   const navigate = useNavigate()
@@ -204,7 +205,7 @@ export function BrowseView(): JSX.Element {
         })
       }
     } catch (error) {
-      console.error('Error toggling favourite:', error)
+      rendererLog.error('[BrowseView] Error toggling favourite:', error)
       showToast({
         title: 'Error',
         message: 'Failed to update library',

@@ -5,6 +5,7 @@
  */
 
 import { create } from 'zustand'
+import { rendererLog } from '../services/logging.service'
 
 interface Collection {
   id: number
@@ -47,7 +48,7 @@ export const useCollectionsStore = create<CollectionsState>()((set, get) => ({
         set({ error: result.error || 'Failed to load collections', loading: false })
       }
     } catch (error) {
-      console.error('Error loading collections:', error)
+      rendererLog.error('[CollectionsStore] Error loading collections:', error)
       set({ error: 'Failed to load collections', loading: false })
     }
   },
@@ -67,7 +68,7 @@ export const useCollectionsStore = create<CollectionsState>()((set, get) => ({
         return null
       }
     } catch (error) {
-      console.error('Error creating collection:', error)
+      rendererLog.error('[CollectionsStore] Error creating collection:', error)
       set({ error: 'Failed to create collection' })
       return null
     }
@@ -86,7 +87,7 @@ export const useCollectionsStore = create<CollectionsState>()((set, get) => ({
         set({ error: errorMsg })
       }
     } catch (error) {
-      console.error('Error updating collection:', error)
+      rendererLog.error('[CollectionsStore] Error updating collection:', error)
       set({ error: 'Failed to update collection' })
     }
   },
@@ -104,7 +105,7 @@ export const useCollectionsStore = create<CollectionsState>()((set, get) => ({
         set({ error: errorMsg })
       }
     } catch (error) {
-      console.error('Error deleting collection:', error)
+      rendererLog.error('[CollectionsStore] Error deleting collection:', error)
       set({ error: 'Failed to delete collection' })
     }
   },
@@ -123,7 +124,7 @@ export const useCollectionsStore = create<CollectionsState>()((set, get) => ({
       // Note: We don't reload collections here as it doesn't change the collection list
       return result.data // true if added, false if already existed
     } catch (error) {
-      console.error('Error adding manga to collection:', error)
+      rendererLog.error('[CollectionsStore] Error adding manga to collection:', error)
       set({ error: 'Failed to add manga to collection' })
       return false
     }
@@ -140,7 +141,7 @@ export const useCollectionsStore = create<CollectionsState>()((set, get) => ({
       }
       // Note: We don't reload collections here as it doesn't change the collection list
     } catch (error) {
-      console.error('Error removing manga from collection:', error)
+      rendererLog.error('[CollectionsStore] Error removing manga from collection:', error)
       set({ error: 'Failed to remove manga from collection' })
     }
   }

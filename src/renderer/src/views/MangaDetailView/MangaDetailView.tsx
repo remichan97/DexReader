@@ -20,6 +20,7 @@ import type {
   MangaWithMetadata,
   ChapterWithMetadata
 } from '../../../../preload/index.d'
+import { rendererLog } from '@renderer/services/logging.service'
 
 // Extract types from global window interface
 type MangaEntity = Awaited<ReturnType<Window['mangadex']['getManga']>>['data']
@@ -172,7 +173,7 @@ export function MangaDetailView(): JSX.Element {
         setState((prev) => ({ ...prev, chapterProgress: progressMap }))
       }
     } catch (error) {
-      console.error('Failed to load chapter progress:', error)
+      rendererLog.error('[MangaDetailView] Failed to load chapter progress:', error)
     }
   }
 
@@ -389,7 +390,7 @@ export function MangaDetailView(): JSX.Element {
             }))
           }
         } catch (chapterError) {
-          console.error('Failed to load chapters:', chapterError)
+          rendererLog.error('[MangaDetailView] Failed to load chapters:', chapterError)
           setState((prev) => ({
             ...prev,
             chaptersLoading: false,
@@ -400,7 +401,7 @@ export function MangaDetailView(): JSX.Element {
       } catch (apiError) {
         // Only show API error if we don't have database data
         if (!foundInDb) {
-          console.error('Failed to load manga from API:', apiError)
+          rendererLog.error('[MangaDetailView] Failed to load manga from API:', apiError)
           setState((prev) => ({
             ...prev,
             error: apiError instanceof Error ? apiError : new Error(String(apiError)),
@@ -468,7 +469,7 @@ export function MangaDetailView(): JSX.Element {
         usingCachedData: false // Clear cached data flag when getting fresh data
       }))
     } catch (error) {
-      console.error('Failed to load chapters for language:', error)
+      rendererLog.error('[MangaDetailView] Failed to load chapters for language:', error)
       setState((prev) => ({
         ...prev,
         chapters: [],

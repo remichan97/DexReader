@@ -1,3 +1,4 @@
+import { rendererLog } from '@renderer/services/logging.service'
 import type { JSX } from 'react'
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -13,7 +14,7 @@ export function NotFoundView(): JSX.Element {
       )
 
       if (!result.success) {
-        console.error('Failed to show dialog:', result.error)
+        rendererLog.error('[NotFoundView] Failed to show dialog:', result.error)
       }
 
       // Navigate to browse regardless of response

@@ -24,6 +24,7 @@ import {
   CoverSize,
   type MangaStatus
 } from '@renderer/utils/mangaHelpers'
+import { rendererLog } from '@renderer/services/logging.service'
 
 // Extract types from global window interface
 type MangaEntity = Awaited<ReturnType<Window['mangadex']['getManga']>>['data']
@@ -180,7 +181,7 @@ export default function MangaHeroSection({
           duration: 3000
         })
       } catch (error) {
-        console.error('Error adding to library:', error)
+        rendererLog.error('[MangaHeroSection] Error adding to library:', error)
         showToast({
           title: 'Error',
           message: 'Failed to add to library',
@@ -216,7 +217,7 @@ export default function MangaHeroSection({
           })
           loadFavourites()
         } catch (error) {
-          console.error('Error adding to library:', error)
+          rendererLog.error('[MangaHeroSection] Error adding to library:', error)
           showToast({
             title: 'Error',
             message: 'Failed to add to library',

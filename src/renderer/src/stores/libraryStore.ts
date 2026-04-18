@@ -7,6 +7,7 @@
 
 import { create } from 'zustand'
 import type { MangaWithMetadata } from '../../../preload/index.d'
+import { rendererLog } from '@renderer/services/logging.service'
 
 export interface LibraryManga {
   mangaId: string
@@ -47,7 +48,7 @@ export const useLibraryStore = create<LibraryState>()((set, get) => ({
         set({ error: result.error || 'Failed to load library', loading: false })
       }
     } catch (error) {
-      console.error('Error loading favourites:', error)
+      rendererLog.error('[LibraryStore] Error loading favourites:', error)
       set({ error: 'Failed to load library', loading: false })
     }
   },
@@ -65,7 +66,7 @@ export const useLibraryStore = create<LibraryState>()((set, get) => ({
         return false
       }
     } catch (error) {
-      console.error('Error toggling favourite:', error)
+      rendererLog.error('[LibraryStore] Error toggling favourite:', error)
       set({ error: 'Failed to toggle favourite' })
       return false
     }

@@ -4,6 +4,7 @@ import { Button } from '../Button'
 import { Checkbox } from '../Checkbox'
 import { useCollectionsStore } from '@renderer/stores'
 import './CollectionPickerDialog.css'
+import { rendererLog } from '@renderer/services/logging.service'
 
 export interface CollectionPickerDialogProps {
   /**
@@ -131,7 +132,7 @@ export function CollectionPickerDialog({
 
       onClose()
     } catch (error) {
-      console.error('Error updating collections:', error)
+      rendererLog.error('[CollectionPickerDialog] Error updating collections:', error)
     } finally {
       setIsSubmitting(false)
     }

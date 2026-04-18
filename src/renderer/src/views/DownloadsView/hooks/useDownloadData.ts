@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useToast } from '@renderer/components/Toast'
 import { Download, mapChapterDownloadToFrontend } from '@renderer/types/download.types'
 import type { ChapterProgressEvent, QueueProgressEvent } from '../types'
+import { rendererLog } from '@renderer/services/logging.service'
 
 export interface UseDownloadDataReturn {
   downloads: Download[]
@@ -174,7 +175,7 @@ export function useDownloadData(): UseDownloadDataReturn {
       })
 
       // Log for debugging
-      console.error(`Database error for chapter ${chapterId}:`, error)
+      rendererLog.error(`[useDownloadData] Database error for chapter ${chapterId}:`, error)
     },
     [showToast]
   )

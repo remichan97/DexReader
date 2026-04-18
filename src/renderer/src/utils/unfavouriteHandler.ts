@@ -1,5 +1,6 @@
 import { useToastStore } from '@renderer/stores/toastStore'
 import { formatBytes } from './formatBytes'
+import { rendererLog } from '@renderer/services/logging.service'
 
 export interface UnfavouriteOptions {
   mangaId: string
@@ -83,7 +84,7 @@ export async function handleUnfavourite(options: UnfavouriteOptions): Promise<vo
       }
     }
   } catch (error) {
-    console.error('Unfavourite error:', error)
+    rendererLog.error('[UnfavouriteHandler] Unfavourite error:', error)
     useToastStore.getState().show({
       variant: 'error',
       title: 'Unexpected error',

@@ -6,6 +6,7 @@ import { useToastStore } from '@renderer/stores'
 import { formatBytes } from '@renderer/utils/formatBytes'
 import type { MangaCacheStatsQuery } from '../../../../../preload/index.d'
 import './CacheManagementSettings.css'
+import { rendererLog } from '@renderer/services/logging.service'
 
 interface CacheManagementSettingsProps {
   readonly coverCacheLimit: number // in MB, 0 = unlimited
@@ -54,7 +55,7 @@ export function CacheManagementSettings({
           setCoverCachePath(fullPath)
         }
       } catch (error) {
-        console.error('Error loading cache data:', error)
+        rendererLog.error('[CacheManagementSettings] Error loading cache data:', error)
         showToast({
           variant: 'error',
           title: 'Failed to load cache data',
@@ -112,7 +113,7 @@ export function CacheManagementSettings({
         })
       }
     } catch (error) {
-      console.error('Error clearing cover cache:', error)
+      rendererLog.error('[CacheManagementSettings] Error clearing cover cache:', error)
       showToast({
         variant: 'error',
         title: 'Failed to clear cover cache',
@@ -160,7 +161,7 @@ export function CacheManagementSettings({
         })
       }
     } catch (error) {
-      console.error('Error cleaning metadata cache:', error)
+      rendererLog.error('[CacheManagementSettings] Error cleaning metadata cache:', error)
       showToast({
         variant: 'error',
         title: 'Failed to clean metadata cache',
@@ -208,7 +209,7 @@ export function CacheManagementSettings({
         })
       }
     } catch (error) {
-      console.error('Error clearing metadata cache:', error)
+      rendererLog.error('[CacheManagementSettings] Error clearing metadata cache:', error)
       showToast({
         variant: 'error',
         title: 'Failed to clear metadata cache',

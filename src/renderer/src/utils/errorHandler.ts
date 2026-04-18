@@ -1,4 +1,5 @@
 import { useToastStore } from '@renderer/stores'
+import { rendererLog } from '../services/logging.service'
 
 interface ErrorLogEntry {
   timestamp: string
@@ -42,7 +43,8 @@ class GlobalErrorHandler {
   }
 
   private handleError(entry: ErrorLogEntry): void {
-    console.error('[Global Error]', entry)
+    // Log to structured logger (goes to renderer.log file)
+    rendererLog.error('[GlobalError]', entry)
 
     // Add to log (circular buffer)
     this.errorLog.push(entry)

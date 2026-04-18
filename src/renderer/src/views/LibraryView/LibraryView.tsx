@@ -33,6 +33,7 @@ import { useCollectionManager } from './hooks/useCollectionManager'
 import { useMihonImportExport } from './hooks/useMihonImportExport'
 import { useDexReaderImportExport } from './hooks/useDexReaderImportExport'
 import './LibraryView.css'
+import { rendererLog } from '@renderer/services/logging.service'
 
 export function LibraryView(): JSX.Element {
   const navigate = useNavigate()
@@ -154,7 +155,7 @@ export function LibraryView(): JSX.Element {
         throw new Error(response.error?.message || 'Unknown error')
       }
     } catch (error) {
-      console.error('Error checking for updates:', error)
+      rendererLog.error('[LibraryView] Error checking for updates:', error)
       show({
         title: 'Update check failed',
         message: 'Could not check for updates. Please try again.',
@@ -184,7 +185,7 @@ export function LibraryView(): JSX.Element {
         loadFavourites()
       },
       onError: (error) => {
-        console.error('Unfavourite error:', error)
+        rendererLog.error('[LibraryView] Unfavourite error:', error)
       }
     })
   }

@@ -1,5 +1,6 @@
 import { Component, ErrorInfo, ReactNode } from 'react'
 import { DefaultErrorFallback } from './ErrorFallback'
+import { rendererLog } from '@renderer/services/logging.service'
 
 interface Props {
   children: ReactNode
@@ -24,7 +25,8 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.error('[ErrorBoundary] Caught error:', error, errorInfo)
+    // Log to structured logger (goes to renderer.log file)
+    rendererLog.error('[ErrorBoundary] Caught error:', error, errorInfo)
     this.props.onError?.(error, errorInfo)
   }
 

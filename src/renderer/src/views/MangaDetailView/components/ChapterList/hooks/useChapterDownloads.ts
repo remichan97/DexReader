@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useToast } from '@renderer/components/Toast'
 import { useConnectivityStore } from '@renderer/stores/connectivityStore'
 import type { DownloadStatus } from '@renderer/components/DownloadStatusBadge'
+import { rendererLog } from '@renderer/services/logging.service'
 
 // Extract types from global window interface
 type ChapterEntity = Awaited<ReturnType<Window['mangadex']['getMangaFeed']>>['data'][number]
@@ -167,7 +168,7 @@ export function useChapterDownloads({
     if (result.success) {
       setDownloadStatusMap((prev) => new Map(prev).set(chapter.id, 'queued'))
     } else {
-      console.error('Failed to add chapter to queue:', result.error)
+      rendererLog.error('[useChapterDownloads] Failed to add chapter to queue:', result.error)
       showToast({
         title: 'Download Failed',
         message: 'Failed to add chapter to download queue',
