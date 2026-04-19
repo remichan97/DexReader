@@ -40,7 +40,6 @@ export function useMihonImportExport(
     const removeListener = globalThis.api.onImportTachiyomi(async (filePath: string) => {
       // Prevent concurrent imports with synchronous ref check
       if (importingRef.current) {
-        console.warn('Import already in progress, ignoring duplicate request')
         return
       }
 

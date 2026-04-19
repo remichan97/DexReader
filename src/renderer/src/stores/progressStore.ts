@@ -323,10 +323,6 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
    */
   toggleIncognito: async () => {
     const newState = !get().autoSaveEnabled
-    console.log('[ProgressStore] Toggling incognito:', {
-      from: get().autoSaveEnabled,
-      to: newState
-    })
     set({ autoSaveEnabled: newState })
 
     // Update menu bar label

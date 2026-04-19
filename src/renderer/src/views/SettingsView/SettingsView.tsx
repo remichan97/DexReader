@@ -286,7 +286,6 @@ export function SettingsView(): JSX.Element {
         }
       } catch {
         // Fallback to default if everything fails
-        console.log('Using default settings')
         setAccentColor('#0078d4')
         applyAccentColor('#0078d4')
       } finally {

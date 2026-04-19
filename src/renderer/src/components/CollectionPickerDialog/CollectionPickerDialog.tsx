@@ -96,7 +96,7 @@ export function CollectionPickerDialog({
 
     try {
       // Add to selected collections
-      const addResults = await Promise.all(
+      await Promise.all(
         Array.from(selectedCollections).map((collectionId) =>
           addToCollection({ collectionId, mangaId })
         )
@@ -109,20 +109,6 @@ export function CollectionPickerDialog({
 
       if (collectionsToRemove.length > 0) {
         await removeFromCollection(collectionsToRemove)
-      }
-
-      // Provide feedback based on results
-      const addedCount = addResults.filter((result) => result === true).length
-      const alreadyInCount = addResults.filter((result) => result === false).length
-
-      if (addedCount > 0 && alreadyInCount > 0) {
-        console.info(
-          `Added to ${addedCount} collection(s), already in ${alreadyInCount} collection(s)`
-        )
-      } else if (addedCount > 0) {
-        console.info(`Added to ${addedCount} collection(s)`)
-      } else if (alreadyInCount > 0) {
-        console.info(`Already in ${alreadyInCount} collection(s)`)
       }
 
       // Reload collection data if callback provided

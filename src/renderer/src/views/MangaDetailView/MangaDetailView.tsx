@@ -314,16 +314,9 @@ export function MangaDetailView(): JSX.Element {
           chaptersLoading: false,
           chaptersError: null
         }))
-
-        // If we have downloads, show appropriate message
-        if (!isOnline && dbManga.hasDownloads) {
-          console.log(
-            `Showing cached data for ${dbManga.title} (${dbManga.downloadedChapterCount} downloads)`
-          )
-        }
       }
-    } catch (dbError) {
-      console.warn('Failed to load from database:', dbError)
+    } catch {
+      // Failed to load from database - will try API next
     }
 
     // Step 2: If online, fetch from API to update (works in background if we have DB data)
@@ -348,8 +341,8 @@ export function MangaDetailView(): JSX.Element {
         // Cache to database for future offline use
         try {
           await cacheMangaMetadata(manga)
-        } catch (cacheError) {
-          console.warn('Failed to cache manga metadata:', cacheError)
+        } catch {
+          // Failed to cache - continue with API data
         }
 
         // Get available languages
@@ -407,9 +400,6 @@ export function MangaDetailView(): JSX.Element {
             error: apiError instanceof Error ? apiError : new Error(String(apiError)),
             loading: false
           }))
-        } else {
-          console.warn('API fetch failed, continuing with cached data:', apiError)
-          // Keep cached data, just log the warning
         }
       }
     } else if (!foundInDb) {

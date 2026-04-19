@@ -67,8 +67,6 @@ export default function ExternalLinksSection({ manga }: ExternalLinksSectionProp
         // User clicked "Copy Link"
         try {
           await navigator.clipboard.writeText(url)
-          // Optional: Show a toast notification that link was copied
-          console.log('Link copied to clipboard:', url)
         } catch (error) {
           rendererLog.error('[ExternalLinksSection] Failed to copy link:', error)
         }

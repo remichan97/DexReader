@@ -192,7 +192,6 @@ export function useChapterData(
         const isOnline = useConnectivityStore.getState().isOnline
 
         if (!isOnline) {
-          console.warn('Cannot load chapter list - offline')
           setData((prev) => ({ ...prev, chaptersLoading: false }))
           return
         }
@@ -206,7 +205,6 @@ export function useChapterData(
         })
 
         if (!chaptersResponse.success || !chaptersResponse.data) {
-          console.warn('Failed to load chapter list for navigation')
           setData((prev) => ({ ...prev, chaptersLoading: false }))
           return
         }

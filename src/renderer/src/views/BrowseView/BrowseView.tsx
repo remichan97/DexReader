@@ -190,8 +190,7 @@ export function BrowseView(): JSX.Element {
         // Favouriting - cache metadata and toggle
         try {
           await cacheMangaMetadata(manga)
-        } catch (cacheError) {
-          console.warn('Failed to cache manga metadata:', cacheError)
+        } catch {
           // Continue with toggle - metadata might already exist
         }
 

@@ -71,22 +71,3 @@ export function useToast(): UseToastReturn {
 
   return { show, dismiss, dismissAll, toasts }
 }
-
-/**
- * Helper functions for common toast types
- */
-export const toast = {
-  info: (title: string, message?: string): void => {
-    // This is a placeholder - actual implementation would use a global toast provider
-    console.log('Toast (info):', title, message)
-  },
-  success: (title: string, message?: string): void => {
-    console.log('Toast (success):', title, message)
-  },
-  warning: (title: string, message?: string): void => {
-    console.log('Toast (warning):', title, message)
-  },
-  error: (title: string, message?: string): void => {
-    console.log('Toast (error):', title, message)
-  }
-}

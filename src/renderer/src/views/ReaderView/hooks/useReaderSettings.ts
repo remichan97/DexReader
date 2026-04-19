@@ -40,7 +40,6 @@ export function useReaderSettings(mangaId: string | null): UseReaderSettingsRetu
       .getMangaReaderSettings(mangaId)
       .then((response) => {
         if (!response.success || !response.data) {
-          console.warn('Failed to load reader settings:', response.error)
           setSettingsLoaded(true)
           return
         }
