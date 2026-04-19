@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { ReadingMode } from '@renderer/components/ReadingModeSelector'
 import type { MangaReadingSettings } from '../../../../../preload/index.d'
+import { rendererLog } from '@renderer/services/logging.service'
 
 interface DoublePageSettings {
   skipCoverPages: boolean
@@ -39,7 +40,6 @@ export function useReaderSettings(mangaId: string | null): UseReaderSettingsRetu
       .getMangaReaderSettings(mangaId)
       .then((response) => {
         if (!response.success || !response.data) {
-          console.warn('Failed to load reader settings:', response.error)
           setSettingsLoaded(true)
           return
         }
@@ -54,7 +54,7 @@ export function useReaderSettings(mangaId: string | null): UseReaderSettingsRetu
         setSettingsLoaded(true)
       })
       .catch((error) => {
-        console.error('Failed to load reader settings:', error)
+        rendererLog.error('[useReaderSettings] Failed to load reader settings:', error)
         setSettingsLoaded(true) // Still mark as loaded to allow reading
       })
   }, [mangaId])
@@ -99,12 +99,15 @@ export function useReaderSettings(mangaId: string | null): UseReaderSettingsRetu
             }
           }
         } catch (error) {
-          console.error('Failed to load global settings for comparison:', error)
+          rendererLog.error(
+            '[useReaderSettings] Failed to load global settings for comparison:',
+            error
+          )
         }
 
         // Save override to backend (only if different from global)
         globalThis.reader.updateMangaReaderSettings(mangaId, newSettings).catch((error) => {
-          console.error('Failed to save reader settings:', error)
+          rendererLog.error('[useReaderSettings] Failed to save reader settings:', error)
         })
       })()
     },

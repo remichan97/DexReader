@@ -1,3 +1,5 @@
+import { mainLog } from '../../services/logging/main-logging.service'
+
 /**
  * Generic LRU (Least Recently Used) memory cache with size-based eviction
  */
@@ -104,7 +106,7 @@ export class LRUMemoryCache<T extends { buffer: Buffer; size: number; lastAccess
         evictedCount++
       }
 
-      console.log(
+      mainLog.info(
         `[LRUMemoryCache] Cache size updated: ${(newMaxSize / 1024 / 1024).toFixed(1)}MB (evicted ${evictedCount} entries)`
       )
     }

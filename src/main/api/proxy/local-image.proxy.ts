@@ -2,6 +2,7 @@ import { protocol } from 'electron'
 import { chapterDownloadsRepo } from '../../database/repositories/chapter-downloads.repo'
 import path from 'node:path'
 import { secureFs } from '../../filesystem/secure-fs'
+import { mainLog } from '../../services/logging/main-logging.service'
 
 export class LocalImageProxy {
   private readonly localUrlPattern: RegExp = /local-manga:\/\/chapter\/([^/]+)\/page\/(\d+)/
@@ -41,7 +42,7 @@ export class LocalImageProxy {
           }
         })
       } catch (error) {
-        console.error('[LocalImageProxy] Failed to handle request:', request.url, error)
+        mainLog.error('[LocalImageProxy] Failed to handle request:', request.url, error)
         return new Response('Failed to load local image', { status: 500 })
       }
     })

@@ -13,6 +13,7 @@ import { AppTheme } from '../enums/theme-mode.enum'
 import { AppearanceSettings } from '../entities/appearance-settings.entity'
 import { ValidationError } from '../../ipc/error/validation.error'
 import { UpdateSettings } from '../entities/update-settings.entity'
+import { LogsSettings } from '../entities/logs-settings.entity'
 
 // Validate appearance settings
 export function isAppearanceSettings(values: unknown): values is AppearanceSettings {
@@ -261,6 +262,28 @@ export function isUpdateSettings(values: unknown): values is UpdateSettings {
 
   if (updateSettings.autoDownload && typeof updateSettings.autoDownload !== 'boolean') {
     throw new TypeError('Refused to save update settings: autoDownload is not a boolean')
+  }
+
+  return true
+}
+
+export function isLogSettings(values: unknown): values is LogsSettings {
+  if (typeof values !== 'object' || values === null) {
+    throw new TypeError('Refused to save log settings: not an object')
+  }
+
+  const logSettings = values as LogsSettings
+
+  // At most 30 days of retention
+  if (
+    typeof logSettings.retentionInDays !== 'number' ||
+    !Number.isInteger(logSettings.retentionInDays) ||
+    logSettings.retentionInDays < 0 ||
+    logSettings.retentionInDays > 30
+  ) {
+    throw new TypeError(
+      'Refused to save log settings: retentionInDays is not a valid number, must be an integer between 0 and 30'
+    )
   }
 
   return true

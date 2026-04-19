@@ -8,6 +8,7 @@ import { IncognitoStatusBar } from '../components/IncognitoStatusBar'
 import { KeyboardShortcutsDialog } from '../components/KeyboardShortcutsDialog'
 import { useAppStore } from '@renderer/stores'
 import './AppShell.css'
+import { rendererLog } from '@renderer/services/logging.service'
 
 interface AppShellProps {
   readonly children: ReactNode
@@ -48,7 +49,7 @@ export function AppShell({ children }: AppShellProps): JSX.Element {
           setThemeMode(settingsResult.data.appearance.theme)
         }
       } catch (error) {
-        console.error('Failed to load theme preference:', error)
+        rendererLog.error('[AppShell] Failed to load theme preference:', error)
       }
     }
 

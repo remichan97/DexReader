@@ -1,6 +1,7 @@
 import path from 'node:path'
 import { databaseConnection } from '../connection'
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
+import { mainLog } from '../../services/logging/main-logging.service'
 
 export function runMigrations(): void {
   try {
@@ -11,9 +12,9 @@ export function runMigrations(): void {
       migrationsFolder: path.join(__dirname, 'database', 'migrations')
     })
 
-    console.log('Migrations completed successfully')
+    mainLog.info('[Migration] Migrations completed successfully')
   } catch (error) {
-    console.error('Error running migrations:', error)
+    mainLog.error('[Migration] Error running migrations:', error)
     throw error
   }
 }

@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useToastStore } from '@renderer/stores'
 
 // ImportResult interface matches src/main/services/results/import.result.ts
+import { rendererLog } from '@renderer/services/logging.service'
+
 export interface ImportResult {
   importedMangaCount: number
   skippedMangaCount: number
@@ -38,7 +40,6 @@ export function useMihonImportExport(
     const removeListener = globalThis.api.onImportTachiyomi(async (filePath: string) => {
       // Prevent concurrent imports with synchronous ref check
       if (importingRef.current) {
-        console.warn('Import already in progress, ignoring duplicate request')
         return
       }
 
@@ -74,7 +75,7 @@ export function useMihonImportExport(
           })
         }
       } catch (error) {
-        console.error('Error importing backup:', error)
+        rendererLog.error('[useMihonImportExport] Error importing backup:', error)
         show({
           title: 'Import Failed',
           message: 'An error occurred during import',
@@ -112,7 +113,7 @@ export function useMihonImportExport(
           })
         }
       } catch (error) {
-        console.error('Error exporting backup:', error)
+        rendererLog.error('[useMihonImportExport] Error exporting backup:', error)
         show({
           title: 'Export Failed',
           message: 'An error occurred during export',
@@ -137,7 +138,7 @@ export function useMihonImportExport(
         })
       }
     } catch (error) {
-      console.error('Error cancelling import:', error)
+      rendererLog.error('[useMihonImportExport] Error cancelling import:', error)
     }
   }
 

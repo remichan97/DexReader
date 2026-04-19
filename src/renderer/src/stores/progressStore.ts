@@ -19,6 +19,7 @@
 
 import { create } from 'zustand'
 import { useToastStore } from './toastStore'
+import { rendererLog } from '@renderer/services/logging.service'
 
 // Types are available globally through Window interface (see preload/index.d.ts)
 type MangaProgress = NonNullable<Awaited<ReturnType<Window['progress']['getProgress']>>['data']>
@@ -97,7 +98,7 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
         set({ loading: false })
       }
     } catch (error) {
-      console.error('Failed to load progress:', error)
+      rendererLog.error('[ProgressStore] Failed to load progress:', error)
       set({ error: error as Error, loading: false })
     }
   },
@@ -168,7 +169,7 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
         }
         // Success! Silent save - no toast notification
       } catch (error) {
-        console.error('Failed to save progress:', error)
+        rendererLog.error('[ProgressStore] Failed to save progress:', error)
         useToastStore.getState().show({
           variant: 'error',
           title: 'Failed to save progress',
@@ -202,10 +203,10 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
 
       const response = await globalThis.progress.saveProgress(commands)
       if (!response.success) {
-        console.error('Failed to flush pending saves:', response.error)
+        rendererLog.error('[ProgressStore] Failed to flush pending saves:', response.error)
       }
     } catch (error) {
-      console.error('Failed to flush pending saves:', error)
+      rendererLog.error('[ProgressStore] Failed to flush pending saves (catch):', error)
     }
   },
 
@@ -237,7 +238,7 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
         set({ loading: false })
       }
     } catch (error) {
-      console.error('Failed to load all progress:', error)
+      rendererLog.error('[ProgressStore] Failed to load all progress:', error)
       set({ error: error as Error, loading: false })
     }
   },
@@ -253,7 +254,7 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
         set({ statistics: response.data })
       }
     } catch (error) {
-      console.error('Failed to load statistics:', error)
+      rendererLog.error('[ProgressStore] Failed to load statistics:', error)
       set({ error: error as Error })
     }
   },
@@ -302,7 +303,7 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
         })
       }
     } catch (error) {
-      console.error('Failed to delete progress:', error)
+      rendererLog.error('[ProgressStore] Failed to delete progress:', error)
       set({ error: error as Error, loading: false })
 
       useToastStore.getState().show({
@@ -322,10 +323,6 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
    */
   toggleIncognito: async () => {
     const newState = !get().autoSaveEnabled
-    console.log('[ProgressStore] Toggling incognito:', {
-      from: get().autoSaveEnabled,
-      to: newState
-    })
     set({ autoSaveEnabled: newState })
 
     // Update menu bar label

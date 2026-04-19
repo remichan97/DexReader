@@ -395,6 +395,15 @@ const appUpdate = {
   }
 }
 
+const logger = {
+  info: (message: string, ...args: unknown[]) => ipcRenderer.invoke('log:info', message, ...args),
+  error: (message: string, ...args: unknown[]) => ipcRenderer.invoke('log:error', message, ...args),
+  debug: (message: string, ...args: unknown[]) => ipcRenderer.invoke('log:debug', message, ...args),
+  warn: (message: string, ...args: unknown[]) => ipcRenderer.invoke('log:warn', message, ...args),
+  cleanupLogs: (forceCleanup = false) => ipcRenderer.invoke('log:cleanup', forceCleanup),
+  openLogsFolder: () => ipcRenderer.invoke('log:open-folder')
+}
+
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
@@ -415,6 +424,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('downloads', downloads)
     contextBridge.exposeInMainWorld('storage', storage)
     contextBridge.exposeInMainWorld('appUpdate', appUpdate)
+    contextBridge.exposeInMainWorld('logger', logger)
   } catch (error) {
     console.error(error)
   }
@@ -449,4 +459,6 @@ if (process.contextIsolated) {
   globalThis.storage = storage
   // @ts-ignore (define in dts)
   globalThis.appUpdate = appUpdate
+  // @ts-ignore (define in dts)
+  globalThis.logger = logger
 }

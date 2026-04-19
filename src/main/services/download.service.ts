@@ -25,6 +25,7 @@ import { DownloadStatResult } from './results/dexreader/download-stats.result'
 import { diskCacheUtil } from '../api/utils/disk-cache.util'
 import { DiskCacheQuery } from '../database/queries/storage/disk-cache.query'
 import { ImageUrlResponse } from '../api/responses/image-url.response'
+import { mainLog } from './logging/main-logging.service'
 
 interface ChapterImageCache {
   urls: ImageUrlResponse[]
@@ -186,7 +187,7 @@ export class DownloadService {
     try {
       await secureFs.deleteDir(fullPath)
     } catch (error) {
-      console.error(`Failed to delete chapter files at ${fullPath}:`, error)
+      mainLog.error(`[DownloadService] Failed to delete chapter files at ${fullPath}:`, error)
       throw new Error(`Failed to delete chapter files: ${error}`)
     }
 
@@ -219,7 +220,7 @@ export class DownloadService {
         })
         result.successfulCount += 1
       } catch (error) {
-        console.error(`Failed to delete chapter files at ${fullPath}:`, error)
+        mainLog.error(`[DownloadService] Failed to delete chapter files at ${fullPath}:`, error)
         result.failedCount += 1
         result.failedChapters.push(download.chapterId)
       }
@@ -334,7 +335,7 @@ export class DownloadService {
         })
       }
     } catch (error) {
-      console.error(`Failed to download chapter ${chapterId}:`, error)
+      mainLog.error(`[DownloadService] Failed to download chapter ${chapterId}:`, error)
       // Tell the upstream that the download failed
       chapterDownloadsRepo.markDownloadState({
         chapterId: chapterId,
@@ -345,7 +346,10 @@ export class DownloadService {
       })
 
       await secureFs.deleteDir(downloadPath).catch((err) => {
-        console.error(`Failed to clean up after failed download at ${downloadPath}:`, err)
+        mainLog.error(
+          `[DownloadService] Failed to clean up after failed download at ${downloadPath}:`,
+          err
+        )
       })
 
       throw error

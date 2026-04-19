@@ -53,16 +53,8 @@ body:
     id: attachments
     attributes:
       label: Attachments
-      description: (Optional) If possible, please attach logs, or any other relevant information that can help us understand you better.
-      placeholder: 'Please attach logs, or any other relevant information that can help us understand you better.'
-    validations:
-      required: false
-
-  - type: upload
-    id: screenshots
-    attributes:
-      label: Screenshots
-      description: (Optional) If possible, please attach screenshots that can help explain your issue.
+      description: (Optional) If possible, please attach logs, screenshots, or any other relevant information that can help us understand you better.
+      placeholder: 'Please attach logs, screenshots, or any other relevant information that can help us understand you better.'
     validations:
       required: false
 

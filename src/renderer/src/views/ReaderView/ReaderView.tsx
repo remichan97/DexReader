@@ -28,6 +28,7 @@ import { EndOfChapterOverlay } from './components/EndOfChapterOverlay'
 import { ReaderHeader } from './components/ReaderHeader'
 import { ChapterListSidebar, type ChapterEntity } from './components/ChapterListSidebar'
 import './ReaderView.css'
+import { rendererLog } from '@renderer/services/logging.service'
 
 /**
  * Reader state interface
@@ -191,7 +192,7 @@ export function ReaderView(): JSX.Element {
           }))
         }
       } catch (error) {
-        console.error('Failed to load reader settings:', error)
+        rendererLog.error('[ReaderView] Failed to load reader settings:', error)
         // Keep default value on error
       }
     }
@@ -212,7 +213,7 @@ export function ReaderView(): JSX.Element {
           setStreamSource('online')
         }
       } catch (error) {
-        console.error('Failed to check download status:', error)
+        rendererLog.error('[ReaderView] Failed to check download status:', error)
         setStreamSource('online') // Default to online on error
       }
     }

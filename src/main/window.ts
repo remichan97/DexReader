@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { createMenu } from './menu/index'
 import { setupThemeDetection } from './theme'
 import { is } from '@electron-toolkit/utils'
+import { mainLog } from './services/logging/main-logging.service'
 
 let mainWindow: BrowserWindow | undefined = undefined
 let isQuitting = false
@@ -14,6 +15,7 @@ const menuState = {
 }
 
 export function createWindow(): void {
+  mainLog.info('[Window] Creating browser window...')
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 900,
@@ -32,11 +34,39 @@ export function createWindow(): void {
   })
 
   mainWindow.on('ready-to-show', () => {
+    mainLog.info('[Window] Window ready to show')
     mainWindow?.show()
   })
 
+  // Add window state change logging for debugging
+  mainWindow.on('minimize', () => {
+    mainLog.debug('[Window] Window minimized')
+  })
+
+  mainWindow.on('maximize', () => {
+    mainLog.debug('[Window] Window maximized')
+  })
+
+  mainWindow.on('unmaximize', () => {
+    mainLog.debug('[Window] Window restored from maximized')
+  })
+
+  mainWindow.on('restore', () => {
+    mainLog.debug('[Window] Window restored from minimized')
+  })
+
+  mainWindow.on('focus', () => {
+    mainLog.debug('[Window] Window gained focus')
+  })
+
+  mainWindow.on('blur', () => {
+    mainLog.debug('[Window] Window lost focus')
+  })
+
   mainWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url).catch(console.error)
+    shell
+      .openExternal(details.url)
+      .catch((error) => mainLog.error('[Window] Failed to open external URL:', error))
     return { action: 'deny' }
   })
 
@@ -61,16 +91,20 @@ export function createWindow(): void {
 
         // If user cancels, don't close
         if (result.response === 0) {
+          mainLog.info('[Window] User cancelled window close (unsaved changes)')
           return
         }
+        mainLog.info('[Window] User chose to discard changes and close')
       }
 
       // User confirmed or no unsaved changes - proceed with close
       // Request renderer to flush pending saves
+      mainLog.debug('[Window] Requesting renderer to flush pending saves')
       mainWindow.webContents.send('flush-pending-saves')
 
       // Set a timeout in case renderer doesn't respond (3 seconds max)
       const timeout = setTimeout(() => {
+        mainLog.warn('[Window] Flush timeout reached (3s), forcing window close')
         isQuitting = true
         mainWindow?.close()
       }, 3000)
@@ -97,16 +131,29 @@ export function createWindow(): void {
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+    mainLog.info(`[Window] Loading dev URL: ${process.env['ELECTRON_RENDERER_URL']}`)
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+    const htmlPath = join(__dirname, '../renderer/index.html')
+    mainLog.info(`[Window] Loading production HTML: ${htmlPath}`)
+    mainWindow.loadFile(htmlPath)
   }
+
+  // Log when page finishes loading
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainLog.info('[Window] Page loaded successfully')
+  })
+
+  // Log page load failures
+  mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription) => {
+    mainLog.error(`[Window] Page failed to load: ${errorCode} - ${errorDescription}`)
+  })
 
   // Allow opening DevTools in production for debugging if ENABLE_DEVTOOLS=1
   // Usage: ENABLE_DEVTOOLS=1 ./dexreader.exe
   if (!is.dev && process.env['ENABLE_DEVTOOLS'] === '1') {
     mainWindow.webContents.openDevTools()
-    console.log('[DevTools] Enabled in production mode via ENABLE_DEVTOOLS flag')
+    mainLog.info('[DevTools] Enabled in production mode via ENABLE_DEVTOOLS flag')
   }
 }
 

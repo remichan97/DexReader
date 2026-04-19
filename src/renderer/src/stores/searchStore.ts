@@ -15,6 +15,7 @@
 
 import { create } from 'zustand'
 import { useConnectivityStore } from './connectivityStore'
+import { rendererLog } from '@renderer/services/logging.service'
 
 // Re-export enum values for convenience
 export enum ContentRating {
@@ -240,7 +241,7 @@ export const useSearchStore = create<SearchState>((set, get) => ({
         loading: false
       })
     } catch (error) {
-      console.error('Search error:', error)
+      rendererLog.error('[SearchStore] Search error:', error)
       set({
         error: error instanceof Error ? error : new Error(String(error)),
         loading: false
@@ -345,7 +346,7 @@ export const useSearchStore = create<SearchState>((set, get) => ({
         loadingMore: false
       }))
     } catch (error) {
-      console.error('Load more error:', error)
+      rendererLog.error('[SearchStore] Load more error:', error)
       set({
         loadMoreError: error instanceof Error ? error : new Error(String(error)),
         loadingMore: false,

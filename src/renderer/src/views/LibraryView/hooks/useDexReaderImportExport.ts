@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useToastStore } from '@renderer/stores'
 import type { ExportOptions } from '@renderer/components/DexReaderExportDialog'
 import type { DexReaderImportResult } from '../../../../../preload/index.d'
+import { rendererLog } from '@renderer/services/logging.service'
 
 interface UseDexReaderImportExportReturn {
   // State
@@ -83,7 +84,7 @@ export function useDexReaderImportExport(
         setExportError(errorMessage)
       }
     } catch (error) {
-      console.error('Error exporting backup:', error)
+      rendererLog.error('[useDexReaderImportExport] Error exporting backup:', error)
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred'
       setExportError(errorMessage)
     } finally {

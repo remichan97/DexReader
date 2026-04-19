@@ -13,6 +13,7 @@ import { DownloadsSettings } from './components/DownloadsSettings'
 import { StorageManagementSettings } from './components/StorageManagementSettings'
 import { CacheManagementSettings } from './components/CacheManagementSettings'
 import { AdvancedSettings } from './components/AdvancedSettings'
+import { LoggingSettings } from './components/LoggingSettings'
 import { DangerZoneSettings } from '../../components/SettingsView/DangerZoneSettings'
 import { UnsavedChangesBanner } from './components/UnsavedChangesBanner'
 import './SettingsView.css'
@@ -76,6 +77,9 @@ export function SettingsView(): JSX.Element {
   const [autoCheckForUpdates, setAutoCheckForUpdates] = useState<boolean>(true)
   const [autoDownloadUpdates, setAutoDownloadUpdates] = useState<boolean>(false)
 
+  // Logging settings state
+  const [logRetentionDays, setLogRetentionDays] = useState<number>(7)
+
   // Load sanity maximum on mount (30% of RAM)
   useEffect(() => {
     async function loadSanityMax(): Promise<void> {
@@ -132,7 +136,12 @@ export function SettingsView(): JSX.Element {
       autoCheckForUpdates !== originalSettings.update.autoCheck ||
       autoDownloadUpdates !== originalSettings.update.autoDownload
 
-    setHasUnsavedChanges(appearanceChanged || downloadsChanged || readerChanged || updateChanged)
+    // Compare logging settings
+    const logsChanged = logRetentionDays !== (originalSettings.logs?.retentionInDays ?? 7)
+
+    setHasUnsavedChanges(
+      appearanceChanged || downloadsChanged || readerChanged || updateChanged || logsChanged
+    )
   }, [
     originalSettings,
     themeMode,
@@ -149,7 +158,8 @@ export function SettingsView(): JSX.Element {
     chapterCacheTier,
     customCacheSize,
     autoCheckForUpdates,
-    autoDownloadUpdates
+    autoDownloadUpdates,
+    logRetentionDays
   ])
 
   // Read tab from URL params on mount
@@ -256,6 +266,11 @@ export function SettingsView(): JSX.Element {
             setAutoDownloadUpdates(settings.update.autoDownload ?? false)
           }
 
+          // Load logging settings
+          if (settings.logs) {
+            setLogRetentionDays(settings.logs.retentionInDays ?? 7)
+          }
+
           // Load per-manga overrides from database
           const overridesResult = await globalThis.reader.getAllMangaOverrides()
           if (overridesResult.success && overridesResult.data) {
@@ -286,7 +301,6 @@ export function SettingsView(): JSX.Element {
         }
       } catch {
         // Fallback to default if everything fails
-        console.log('Using default settings')
         setAccentColor('#0078d4')
         applyAccentColor('#0078d4')
       } finally {
@@ -594,6 +608,16 @@ Are you absolutely certain you want to proceed with this cache size?`,
         throw new Error(updateResult.error?.message || 'Failed to save update settings')
       }
 
+      // Build logging settings object
+      const logsSettings = {
+        retentionInDays: logRetentionDays
+      }
+
+      const logsResult = await globalThis.settings.save('logs', logsSettings)
+      if (!logsResult.success) {
+        throw new Error(logsResult.error?.message || 'Failed to save logging settings')
+      }
+
       // Update original settings to current state (load fresh to get properly typed values)
       const freshSettings = await globalThis.settings.load()
       if (freshSettings.success && freshSettings.data) {
@@ -648,6 +672,9 @@ Are you absolutely certain you want to proceed with this cache size?`,
     // Restore update settings
     setAutoCheckForUpdates(originalSettings.update.autoCheck ?? true)
     setAutoDownloadUpdates(originalSettings.update.autoDownload ?? false)
+
+    // Restore logging settings
+    setLogRetentionDays(originalSettings.logs?.retentionInDays ?? 7)
 
     setHasUnsavedChanges(false)
   }
@@ -757,6 +784,10 @@ Are you absolutely certain you want to proceed with this cache size?`,
             autoDownloadUpdates={autoDownloadUpdates}
             onAutoCheckChange={setAutoCheckForUpdates}
             onAutoDownloadChange={setAutoDownloadUpdates}
+          />
+          <LoggingSettings
+            retentionDays={logRetentionDays}
+            onRetentionDaysChange={setLogRetentionDays}
           />
           <DangerZoneSettings />
         </TabPanel>

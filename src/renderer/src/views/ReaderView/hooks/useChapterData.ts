@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { ImageQuality } from '../../../../../main/api/enums/image-quality.enum'
 import type { ImageUrlResponse } from '../../../../../preload/index.d'
 import { useConnectivityStore } from '@renderer/stores/connectivityStore'
+import { rendererLog } from '@renderer/services/logging.service'
 
 type ChapterEntity = Awaited<ReturnType<Window['mangadex']['getMangaFeed']>>['data'][number]
 
@@ -150,7 +151,7 @@ export function useChapterData(
           }
         })
       } catch (error) {
-        console.error('Failed to load chapter images:', error)
+        rendererLog.error('[useChapterData] Failed to load chapter images:', error)
         setData((prev) => ({
           ...prev,
           error: error instanceof Error ? error : new Error(String(error)),
@@ -191,7 +192,6 @@ export function useChapterData(
         const isOnline = useConnectivityStore.getState().isOnline
 
         if (!isOnline) {
-          console.warn('Cannot load chapter list - offline')
           setData((prev) => ({ ...prev, chaptersLoading: false }))
           return
         }
@@ -205,7 +205,6 @@ export function useChapterData(
         })
 
         if (!chaptersResponse.success || !chaptersResponse.data) {
-          console.warn('Failed to load chapter list for navigation')
           setData((prev) => ({ ...prev, chaptersLoading: false }))
           return
         }
@@ -227,7 +226,7 @@ export function useChapterData(
           nextChapter
         }))
       } catch (error) {
-        console.error('Failed to load chapter list:', error)
+        rendererLog.error('[useChapterData] Failed to load chapter list:', error)
         setData((prev) => ({ ...prev, chaptersLoading: false }))
       }
     },

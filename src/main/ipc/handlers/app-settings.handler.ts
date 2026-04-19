@@ -10,9 +10,11 @@ import {
   updateSettings,
   getMemoryTierInfo
 } from '../../settings/settings-manager'
+import { mainLog } from '../../services/logging/main-logging.service'
 import {
   isAppearanceSettings,
   isDownloadsSettings,
+  isLogSettings,
   isReaderSettings,
   isUpdateSettings
 } from '../../settings/validators/types.validator'
@@ -25,7 +27,8 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
     'appearance',
     'downloads',
     'reader',
-    'update'
+    'update',
+    'logs'
   ])
 
   wrapIpcHandler('settings:load', async () => {
@@ -74,6 +77,11 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
           throw new Error('Invalid update settings')
         }
         break
+      case 'logs':
+        if (!isLogSettings(value)) {
+          throw new Error('Invalid log settings')
+        }
+        break
       default:
         throw new Error(`Unknown settings key: ${keyStr}`)
     }
@@ -82,7 +90,7 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
     // Update chapter cache size dynamically when reader settings change
     if (keyStr === 'reader' && imageProxy) {
       await imageProxy.updateChapterCacheSize()
-      console.log('[Settings] Chapter cache size updated after reader settings change')
+      mainLog.info('[Settings] Chapter cache size updated after reader settings change')
     }
 
     return true
@@ -132,7 +140,7 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
       }
       return true
     } catch (error) {
-      console.error('Failed to open system date settings:', error)
+      mainLog.error('[Settings] Failed to open system date settings:', error)
       return false
     }
   })

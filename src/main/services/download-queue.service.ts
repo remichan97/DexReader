@@ -21,6 +21,7 @@ import {
 } from './errors/download-error-classifier'
 import { DownloadErrorCategory } from './errors/enums/download-error.enum'
 import { ChapterDownloadQuery } from '../database/queries/chapter-downloads/chapter-downloads.query'
+import { mainLog } from './logging/main-logging.service'
 
 export class DownloadQueueService {
   // Main states
@@ -76,7 +77,7 @@ export class DownloadQueueService {
 
   // Resume any incomplete downloads
   resumeIncompleteDownloads(): void {
-    console.log('Looking for incomplete downloads to resume...')
+    mainLog.info('[DownloadQueue] Looking for incomplete downloads to resume...')
 
     const allDownloads = chapterDownloadsRepo.getAllDownloads()
     const incompletedDownloads = allDownloads.filter(
@@ -84,11 +85,13 @@ export class DownloadQueueService {
     )
 
     if (incompletedDownloads.length === 0) {
-      console.log('No incompleted downloads found.')
+      mainLog.info('[DownloadQueue] No incompleted downloads found.')
       return
     }
 
-    console.log(`Found ${incompletedDownloads.length} incompleted downloads. Resuming...`)
+    mainLog.info(
+      `[DownloadQueue] Found ${incompletedDownloads.length} incompleted downloads. Resuming...`
+    )
 
     const itemsToResume: QueuedDownloads[] = incompletedDownloads.map((d) => ({
       chapterId: d.chapterId,
@@ -121,7 +124,7 @@ export class DownloadQueueService {
     // Clear the queue
     this.queue = []
 
-    console.log(`Cancelled ${queuedCount} queued downloads`)
+    mainLog.info(`[DownloadQueue] Cancelled ${queuedCount} queued downloads`)
 
     return queuedCount
   }
@@ -149,7 +152,9 @@ export class DownloadQueueService {
     const downloadData = chapterDownloadsRepo.getDownload(chapterId)
 
     if (downloadData?.status !== DownloadStatus.Failed) {
-      console.warn(`Can't retry an unknown or non-failed download with chapterId ${chapterId}`)
+      mainLog.warn(
+        `[DownloadQueue] Can't retry an unknown or non-failed download with chapterId ${chapterId}`
+      )
       return
     }
 
@@ -230,7 +235,7 @@ export class DownloadQueueService {
   }
 
   private handleDownloadCompleted(chapterId: string): void {
-    console.log(`Download completed for chapter ${chapterId}`)
+    mainLog.info(`[DownloadQueue] Download completed for chapter ${chapterId}`)
     this.retryCount.delete(chapterId)
     this.emitOverallProgress()
   }
@@ -239,12 +244,15 @@ export class DownloadQueueService {
     // Classify the error to determine retry behavior
     const classification = classifyDownloadError(error)
 
-    console.error(`Download failed for chapter ${chapterId}:`, getErrorSummary(error))
+    mainLog.error(
+      `[DownloadQueue] Download failed for chapter ${chapterId}:`,
+      getErrorSummary(error)
+    )
 
     // Check if error is retryable
     if (!classification.isRetryable) {
-      console.warn(
-        `Permanent error for chapter ${chapterId}, not retrying: ${classification.userMessage}`
+      mainLog.warn(
+        `[DownloadQueue] Permanent error for chapter ${chapterId}, not retrying: ${classification.userMessage}`
       )
 
       // Mark as permanently failed with user-friendly message
@@ -270,8 +278,8 @@ export class DownloadQueueService {
     this.retryCount.set(chapterId, attempts)
 
     if (attempts >= this.maxRetryAttempts) {
-      console.error(
-        `Max retry attempts (${this.maxRetryAttempts}) exceeded for chapter ${chapterId}`
+      mainLog.error(
+        `[DownloadQueue] Max retry attempts (${this.maxRetryAttempts}) exceeded for chapter ${chapterId}`
       )
 
       this.scheduleBatchUpdate({
@@ -288,16 +296,16 @@ export class DownloadQueueService {
       return
     }
 
-    console.log(
-      `Scheduling retry ${attempts}/${this.maxRetryAttempts} for chapter ${chapterId} ` +
+    mainLog.info(
+      `[DownloadQueue] Scheduling retry ${attempts}/${this.maxRetryAttempts} for chapter ${chapterId} ` +
         `(category: ${classification.category})`
     )
 
     const failedDownloadData = chapterDownloadsRepo.getDownload(chapterId)
 
     if (!failedDownloadData) {
-      console.error(
-        `Failed to find download data for chapter ${chapterId} in the database after failure. Can't schedule retry.`
+      mainLog.error(
+        `[DownloadQueue] Failed to find download data for chapter ${chapterId} in the database after failure. Can't schedule retry.`
       )
       return
     }
@@ -317,7 +325,9 @@ export class DownloadQueueService {
     const attempts = this.retryCount.get(item.chapterId) || 0
 
     if (attempts >= this.maxRetryAttempts) {
-      console.warn(`Max retry attempts reached for chapter ${item.chapterId}. Marking as failed.`)
+      mainLog.warn(
+        `[DownloadQueue] Max retry attempts reached for chapter ${item.chapterId}. Marking as failed.`
+      )
       this.scheduleBatchUpdate({
         chapterId: item.chapterId,
         isFailed: true,
@@ -331,18 +341,20 @@ export class DownloadQueueService {
     // Calculate retry delay based on error category
     const delay = this.getRetryDelayForError(classification, attempts)
 
-    console.log(
-      `Scheduling retry #${attempts} for chapter ${item.chapterId} in ${delay / 1000} seconds.`
+    mainLog.info(
+      `[DownloadQueue] Scheduling retry #${attempts} for chapter ${item.chapterId} in ${delay / 1000} seconds.`
     )
 
     setTimeout(() => {
       // Fix race condition: Check for duplicates before adding to queue
       if (this.activeDownloads.has(item.chapterId)) {
-        console.warn(`Chapter ${item.chapterId} already downloading, skipping retry`)
+        mainLog.warn(
+          `[DownloadQueue] Chapter ${item.chapterId} already downloading, skipping retry`
+        )
         return
       }
       if (this.queue.some((q) => q.chapterId === item.chapterId)) {
-        console.warn(`Chapter ${item.chapterId} already in queue, skipping retry`)
+        mainLog.warn(`[DownloadQueue] Chapter ${item.chapterId} already in queue, skipping retry`)
         return
       }
 
@@ -417,15 +429,15 @@ export class DownloadQueueService {
       // Process the batch updates in the database
       chapterDownloadsRepo.batchMarkDownloadsState(this.pendingUpdates)
     } catch (error) {
-      console.error('Batch update failed, attempting individual updates:', error)
+      mainLog.error('[DownloadQueue] Batch update failed, attempting individual updates:', error)
 
       // Fallback: Try updating each item individually
       for (const command of this.pendingUpdates) {
         try {
           chapterDownloadsRepo.markDownloadState(command)
         } catch (individualError) {
-          console.error(
-            `CRITICAL: Failed to update download state for chapter ${command.chapterId}:`,
+          mainLog.error(
+            `[DownloadQueue] CRITICAL: Failed to update download state for chapter ${command.chapterId}:`,
             individualError
           )
           // Emit error to UI so user knows there's a problem

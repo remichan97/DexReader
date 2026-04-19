@@ -7,12 +7,14 @@ import {
 } from '../../settings/validators/types.validator'
 import { downloadQueueService } from '../../services/download-queue.service'
 import { QueuedDownloads } from '../../services/types/downloads/queued-downloads.type'
+import { mainLog } from '../../services/logging/main-logging.service'
 
 export function registerDownloadHandlers(): void {
   wrapIpcHandler('downloads:download-chapter', async (_, params: unknown) => {
     isDownloadChapterOptions(params)
 
     if (!isDownloadChapterOptions(params)) {
+      mainLog.warn('[Downloads] Invalid download chapter options')
       throw new TypeError('Invalid parameters for downloading chapter')
     }
 
@@ -23,6 +25,7 @@ export function registerDownloadHandlers(): void {
       quality: params.quality
     }
 
+    mainLog.info(`[Downloads] Chapter download requested: ${options.chapterId}`)
     return await downloadService.downloadChapter(options)
   })
 
@@ -31,6 +34,7 @@ export function registerDownloadHandlers(): void {
       throw new TypeError('Invalid chapterId for deleting chapter')
     }
 
+    mainLog.info(`[Downloads] Chapter deletion requested: ${chapterId}`)
     return await downloadService.deleteChapter(chapterId)
   })
 
@@ -39,6 +43,7 @@ export function registerDownloadHandlers(): void {
   })
 
   wrapIpcHandler('download:clear-completed', async () => {
+    mainLog.info('[Downloads] Clear completed downloads requested')
     return downloadService.clearCompletedDownloads()
   })
 
@@ -71,6 +76,7 @@ export function registerDownloadHandlers(): void {
       throw new TypeError('MangaId is required for deleting manga downloads')
     }
 
+    mainLog.info(`[Downloads] Manga deletion requested: ${mangaId}`)
     return await downloadService.deleteManga(mangaId)
   })
 
@@ -78,6 +84,8 @@ export function registerDownloadHandlers(): void {
     if (!Array.isArray(mangaIds) || mangaIds.some((id) => typeof id !== 'string')) {
       throw new TypeError('Invalid mangaIds for batch deleting manga downloads')
     }
+
+    mainLog.info(`[Downloads] Batch manga deletion requested: ${mangaIds.length} manga`)
 
     if (mangaIds.length === 0) {
       throw new TypeError('At least one mangaId is required for batch deleting manga downloads')

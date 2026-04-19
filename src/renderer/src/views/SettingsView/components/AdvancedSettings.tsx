@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { ErrorLogViewer } from '@renderer/components/ErrorLogViewer'
 import { Switch } from '@renderer/components/Switch'
 import { Button } from '@renderer/components/Button'
 import { useToastStore } from '@renderer/stores'
+import { rendererLog } from '@renderer/services/logging.service'
 
 interface AdvancedSettingsProps {
   readonly autoCheckForUpdates: boolean
@@ -30,7 +30,7 @@ export function AdvancedSettings({
           setAppVersion(result.data)
         }
       } catch (error) {
-        console.error('Failed to load app version:', error)
+        rendererLog.error('[AdvancedSettings] Failed to load app version:', error)
       }
     }
     loadVersion()
@@ -41,7 +41,7 @@ export function AdvancedSettings({
     try {
       await globalThis.appUpdate.checkForUpdates(true) // true = manual check
     } catch (error) {
-      console.error('Update check failed:', error)
+      rendererLog.error('[AdvancedSettings] Update check failed:', error)
       showToast({
         variant: 'error',
         title: 'Update check failed',
@@ -95,9 +95,6 @@ export function AdvancedSettings({
           </div>
         </div>
       </div>
-
-      {/* Error Log Viewer */}
-      <ErrorLogViewer />
     </div>
   )
 }

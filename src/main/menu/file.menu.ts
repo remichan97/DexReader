@@ -1,5 +1,6 @@
 import { BrowserWindow, MenuItemConstructorOptions } from 'electron'
 import { MenuState } from './menu-state'
+import { appUpdateService } from '../services/app-update.service'
 
 export function buildFileMenu(
   mainWindow: BrowserWindow,
@@ -11,8 +12,7 @@ export function buildFileMenu(
       {
         label: 'Check for Updates...',
         accelerator: 'CmdOrCtrl+U',
-        click: async () => {
-          const { appUpdateService } = await import('../services/app-update.service')
+        click: () => {
           appUpdateService.checkForUpdates(true) // true = manual check
         }
       },

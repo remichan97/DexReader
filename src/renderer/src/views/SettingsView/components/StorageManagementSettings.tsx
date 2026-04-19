@@ -6,6 +6,7 @@ import { Button } from '@renderer/components/Button'
 import { useToastStore } from '@renderer/stores'
 import { formatBytes } from '@renderer/utils/formatBytes'
 import type { StorageData } from '../../../../../preload/index.d'
+import { rendererLog } from '@renderer/services/logging.service'
 
 export function StorageManagementSettings(): JSX.Element {
   const [storageData, setStorageData] = useState<StorageData | null>(null)
@@ -31,7 +32,7 @@ export function StorageManagementSettings(): JSX.Element {
           })
         }
       } catch (error) {
-        console.error('Error loading storage data:', error)
+        rendererLog.error('[StorageManagementSettings] Error loading storage data:', error)
         showToast({
           variant: 'error',
           title: 'Failed to load storage data',
@@ -116,7 +117,7 @@ export function StorageManagementSettings(): JSX.Element {
         })
       }
     } catch (error) {
-      console.error('Error deleting manga:', error)
+      rendererLog.error('[StorageManagementSettings] Error deleting manga:', error)
       showToast({
         variant: 'error',
         title: 'Failed to delete manga',

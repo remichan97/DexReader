@@ -76,7 +76,8 @@ export function Radio({
   }
 
   const radioClasses = [
-    'radio inline-flex items-start gap-2',
+    'radio inline-flex gap-2',
+    description ? 'items-start' : 'items-center',
     checked && 'radio--checked',
     disabled && 'radio--disabled',
     className

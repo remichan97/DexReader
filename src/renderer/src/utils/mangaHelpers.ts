@@ -54,8 +54,7 @@ export function getCoverImageUrl(manga: MangaEntity, size: CoverSize = CoverSize
 
     // Convert to proxy protocol for renderer
     return coverUrl.replace('https://', 'mangadex://')
-  } catch (error) {
-    console.error('Error extracting cover URL:', error)
+  } catch {
     return '/placeholder-cover.jpg'
   }
 }
@@ -72,8 +71,7 @@ export function getAuthorName(manga: MangaEntity): string {
     }
 
     return (author.attributes as { name?: string }).name || 'Unknown'
-  } catch (error) {
-    console.error('Error extracting author name:', error)
+  } catch {
     return 'Unknown'
   }
 }
@@ -90,8 +88,7 @@ export function getArtistName(manga: MangaEntity): string {
     }
 
     return (artist.attributes as { name?: string }).name || 'Unknown'
-  } catch (error) {
-    console.error('Error extracting artist name:', error)
+  } catch {
     return 'Unknown'
   }
 }
@@ -116,8 +113,7 @@ export function getMangaTitle(manga: MangaEntity): string {
     // Fall back to first available title
     const titles = Object.values(titleObj)
     return titles[0] || 'Untitled'
-  } catch (error) {
-    console.error('Error extracting manga title:', error)
+  } catch {
     return 'Untitled'
   }
 }
@@ -164,8 +160,7 @@ export function getAvailableLanguages(manga: MangaEntity): string[] {
   try {
     const attrs = manga.attributes as { availableTranslatedLanguages?: string[] }
     return attrs.availableTranslatedLanguages || []
-  } catch (error) {
-    console.error('Error extracting available languages:', error)
+  } catch {
     return []
   }
 }
@@ -195,8 +190,7 @@ export function getMangaDescription(manga: MangaEntity): string {
     // Fall back to first available
     const descriptions = Object.values(descObj)
     return descriptions[0] || 'No description available.'
-  } catch (error) {
-    console.error('Error extracting manga description:', error)
+  } catch {
     return 'No description available.'
   }
 }
@@ -208,8 +202,7 @@ export function getMangaYear(manga: MangaEntity): number | null {
   try {
     const year = (manga.attributes as { year?: number | null }).year
     return year ?? null
-  } catch (error) {
-    console.error('Error extracting manga year:', error)
+  } catch {
     return null
   }
 }
@@ -240,8 +233,7 @@ export function getMangaTags(manga: MangaEntity): Array<{ id: string; name: stri
           name: (r.attributes as { name?: { en?: string } })?.name?.en || 'Unknown'
         })) || []
     )
-  } catch (error) {
-    console.error('Error extracting manga tags:', error)
+  } catch {
     return []
   }
 }
@@ -253,8 +245,7 @@ export function getAllTitles(manga: MangaEntity): Record<string, string> {
   try {
     const titleObj = (manga.attributes as { title?: Record<string, string> }).title
     return titleObj || {}
-  } catch (error) {
-    console.error('Error extracting all titles:', error)
+  } catch {
     return {}
   }
 }

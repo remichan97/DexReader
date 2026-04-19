@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { FolderOpen24Regular, ArrowReset24Regular, Delete24Regular } from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
 import './DangerZoneSettings.css'
+import { rendererLog } from '@renderer/services/logging.service'
 
 export const DangerZoneSettings: React.FC = () => {
   const [isResetting, setIsResetting] = useState(false)
@@ -14,7 +15,7 @@ export const DangerZoneSettings: React.FC = () => {
         throw new Error('Failed to open settings file')
       }
     } catch (error) {
-      console.error('Failed to open settings file:', error)
+      rendererLog.error('[DangerZoneSettings] Failed to open settings file:', error)
     }
   }
 
@@ -39,7 +40,7 @@ export const DangerZoneSettings: React.FC = () => {
       // Reload page to reflect new settings
       globalThis.location.reload()
     } catch (error) {
-      console.error('Failed to reset settings:', error)
+      rendererLog.error('[DangerZoneSettings] Failed to reset settings:', error)
       setIsResetting(false)
     }
   }
@@ -63,7 +64,7 @@ export const DangerZoneSettings: React.FC = () => {
       }
       // App will restart automatically
     } catch (error) {
-      console.error('Failed to clear data:', error)
+      rendererLog.error('[DangerZoneSettings] Failed to clear data:', error)
       setIsClearing(false)
     }
   }

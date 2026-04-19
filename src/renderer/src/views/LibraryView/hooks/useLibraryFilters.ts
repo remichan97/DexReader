@@ -7,6 +7,7 @@ import {
   type ActiveFilter
 } from '@renderer/utils/librarySearchParser'
 import type { MangaWithMetadata } from '../../../../../preload/index.d'
+import { rendererLog } from '@renderer/services/logging.service'
 
 interface UseLibraryFiltersReturn {
   filterManga: (manga: MangaWithMetadata[]) => MangaWithMetadata[]
@@ -37,7 +38,7 @@ export function useLibraryFilters(searchQuery: string): UseLibraryFiltersReturn 
           setDownloadedMangaIds(new Set())
         }
       } catch (error) {
-        console.error('Failed to load downloaded manga:', error)
+        rendererLog.error('[useLibraryFilters] Failed to load downloaded manga:', error)
         setDownloadedMangaIds(new Set())
       }
     }

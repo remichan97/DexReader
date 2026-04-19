@@ -4,6 +4,7 @@ import { Button } from '../Button'
 import { Checkbox } from '../Checkbox'
 import { useCollectionsStore } from '@renderer/stores'
 import './CollectionPickerDialog.css'
+import { rendererLog } from '@renderer/services/logging.service'
 
 export interface CollectionPickerDialogProps {
   /**
@@ -95,7 +96,7 @@ export function CollectionPickerDialog({
 
     try {
       // Add to selected collections
-      const addResults = await Promise.all(
+      await Promise.all(
         Array.from(selectedCollections).map((collectionId) =>
           addToCollection({ collectionId, mangaId })
         )
@@ -110,20 +111,6 @@ export function CollectionPickerDialog({
         await removeFromCollection(collectionsToRemove)
       }
 
-      // Provide feedback based on results
-      const addedCount = addResults.filter((result) => result === true).length
-      const alreadyInCount = addResults.filter((result) => result === false).length
-
-      if (addedCount > 0 && alreadyInCount > 0) {
-        console.info(
-          `Added to ${addedCount} collection(s), already in ${alreadyInCount} collection(s)`
-        )
-      } else if (addedCount > 0) {
-        console.info(`Added to ${addedCount} collection(s)`)
-      } else if (alreadyInCount > 0) {
-        console.info(`Already in ${alreadyInCount} collection(s)`)
-      }
-
       // Reload collection data if callback provided
       if (onSaveComplete) {
         await onSaveComplete()
@@ -131,7 +118,7 @@ export function CollectionPickerDialog({
 
       onClose()
     } catch (error) {
-      console.error('Error updating collections:', error)
+      rendererLog.error('[CollectionPickerDialog] Error updating collections:', error)
     } finally {
       setIsSubmitting(false)
     }

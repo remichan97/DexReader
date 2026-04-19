@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { GlobeRegular } from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
+import { rendererLog } from '@renderer/services/logging.service'
 
 // Extract types from global window interface
 type MangaEntity = Awaited<ReturnType<Window['mangadex']['getManga']>>['data']
@@ -66,10 +67,8 @@ export default function ExternalLinksSection({ manga }: ExternalLinksSectionProp
         // User clicked "Copy Link"
         try {
           await navigator.clipboard.writeText(url)
-          // Optional: Show a toast notification that link was copied
-          console.log('Link copied to clipboard:', url)
         } catch (error) {
-          console.error('Failed to copy link:', error)
+          rendererLog.error('[ExternalLinksSection] Failed to copy link:', error)
         }
       }
       // response === 2 means Cancel, do nothing
@@ -82,7 +81,7 @@ export default function ExternalLinksSection({ manga }: ExternalLinksSectionProp
 
   return (
     <section className="external-links-section">
-      <h3>External Links</h3>
+      <h2>External Links</h2>
       <div className="external-links-list flex flex-wrap gap-2">
         {linkEntries.map(([key, value]) => (
           <Button

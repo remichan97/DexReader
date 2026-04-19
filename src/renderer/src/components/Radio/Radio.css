@@ -36,7 +36,11 @@
   transition: var(--transition-all-fast);
   outline: none;
   position: relative;
-  margin-top: 2px; /* Align with first line of text */
+}
+
+/* Align circle with first line of text when there's a description */
+.radio.items-start .radio__circle {
+  margin-top: 2px;
 }
 
 .radio__circle:hover:not(.radio--disabled .radio__circle) {

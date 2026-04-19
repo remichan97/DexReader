@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useCollectionsStore, useToastStore } from '@renderer/stores'
+import { rendererLog } from '@renderer/services/logging.service'
 
 interface Collection {
   id: number
@@ -140,7 +141,7 @@ export function useCollectionManager(): UseCollectionManagerReturn {
 
       setEditingCollection(null)
     } catch (error) {
-      console.error('Error updating collection:', error)
+      rendererLog.error('[useCollectionManager] Error updating collection:', error)
       show({
         title: 'Update Failed',
         message: 'Could not update collection',
@@ -177,7 +178,7 @@ export function useCollectionManager(): UseCollectionManagerReturn {
         duration: 3000
       })
     } catch (error) {
-      console.error('Error deleting collection:', error)
+      rendererLog.error('[useCollectionManager] Error deleting collection:', error)
       show({
         title: 'Delete Failed',
         message: 'Could not delete collection',

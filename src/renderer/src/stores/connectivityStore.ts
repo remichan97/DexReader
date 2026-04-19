@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { rendererLog } from '../services/logging.service'
 
 type ConnectivityStatus = 'online' | 'offline-user' | 'offline-no-internet'
 
@@ -44,12 +45,10 @@ export const useConnectivityStore = create<ConnectivityState>((set, get) => ({
 
     // Toggle between online and offline states
     if (current === 'online') {
-      console.log('[ConnectivityStore] User manually went offline')
       get().setOfflineMode()
       get().stopPolling() // Stop checking when manually offline
     } else {
       // Any offline state (user or no-internet) -> user wants to go online
-      console.log('[ConnectivityStore] User manually went online')
       get().setOnline()
       get().startPolling() // Resume checking when back online
       // Immediately check connectivity to verify internet is available
@@ -98,22 +97,15 @@ export const useConnectivityStore = create<ConnectivityState>((set, get) => ({
       if (response.success && response.data === true) {
         // Internet is working - ensure we're online (unless user chose offline)
         if (get().status !== 'offline-user') {
-          if (get().status === 'offline-no-internet') {
-            console.log('[ConnectivityStore] Internet restored - going back online')
-          }
           get().setOnline()
         }
-      } else {
-        // MangaDex responded but with error - still have internet
-        console.warn('[ConnectivityStore] MangaDex ping failed:', response)
       }
     } catch (error) {
       // Network error - no internet
-      console.error('[ConnectivityStore] Connectivity check failed:', error)
+      rendererLog.error('[ConnectivityStore] Connectivity check failed:', error)
 
       // Only set to no-internet if user didn't manually choose offline
       if (get().status !== 'offline-user') {
-        console.log('[ConnectivityStore] No internet detected - showing offline banner')
         get().setNoInternet()
         // OfflineStatusBar will appear automatically with "No internet" message
       }
