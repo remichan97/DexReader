@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [0.12.0] - 2026-04-12
+
+### Added
+
+- Add privacy-first local logging system with automatic log file rotation
+- Add logging settings UI in Advanced preferences with retention period configuration (3, 7, 14, 30 days, default: 7)
+- Add "Open Logs Folder" button to view logs in native file explorer
+- Add "Clear All Logs" button with confirmation dialog to manually delete all log files
+- Add structured logging service with log levels (info, warn, error) replacing console calls
+
+### Changed
+
+- Replace 129 console.\* calls in main process with structured logging service for better debugging
+- Change default log retention from 30 to 7 days for practical storage management
+- Migrate 22 files to barrel export pattern for cleaner imports and better code organization
+
+### Fixed
+
+- Fix DownloadsView missing h1 heading for proper screen reader navigation
+- Fix heading hierarchy in ExternalLinksSection (h3 → h2) for semantic HTML compliance
+- Remove 44 development console statements from 14 renderer files for production cleanliness
+
+### Improved
+
+- Achieve 100% WCAG 2.1 AA accessibility compliance (45/45 criteria met)
+- Improve semantic HTML structure with screen-reader-only headings for all main views
+- Enhance developer experience with comprehensive logging without cloud telemetry or privacy concerns
+
 ## [0.11.0] - 2026-04-08
 
 ### Added

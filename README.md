@@ -91,7 +91,7 @@ npm run build:linux
 
 ## Project Status
 
-**Current Version**: 0.11.0 (Pre-release)
+**Current Version**: 0.12.0 (Pre-release)
 **Target Release**: v1.0.0 (May 2026)
 
 Phase 5 (Production Readiness) - In Progress:
