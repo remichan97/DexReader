@@ -47,6 +47,13 @@ class LoggingService {
   }
 
   /**
+   * Get the path to the logs folder
+   */
+  public getLogFolder(): string {
+    return this.logFolder
+  }
+
+  /**
    * Clean up old log files based on retention policy
    * Removes .log and .old files older than specified retention period
    * @param retentionDays Number of days to keep logs (default: 30)

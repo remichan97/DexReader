@@ -354,7 +354,8 @@ interface Logger {
   warn: (message: string, ...args: unknown[]) => void
   error: (message: string, ...args: unknown[]) => void
   debug: (message: string, ...args: unknown[]) => void
-  cleanupLogs: (retentionDays?: number, forceCleanup?: boolean) => Promise<void>
+  cleanupLogs: (forceCleanup?: boolean) => Promise<void>
+  openLogsFolder: () => Promise<string>
 }
 
 declare global {

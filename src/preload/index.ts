@@ -400,8 +400,8 @@ const logger = {
   error: (message: string, ...args: unknown[]) => ipcRenderer.invoke('log:error', message, ...args),
   debug: (message: string, ...args: unknown[]) => ipcRenderer.invoke('log:debug', message, ...args),
   warn: (message: string, ...args: unknown[]) => ipcRenderer.invoke('log:warn', message, ...args),
-  cleanupLogs: (retentionDays?: number, forceCleanup = false) =>
-    ipcRenderer.invoke('log:cleanup', { retentionDays, forceCleanup })
+  cleanupLogs: (forceCleanup = false) => ipcRenderer.invoke('log:cleanup', forceCleanup),
+  openLogsFolder: () => ipcRenderer.invoke('log:open-folder')
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

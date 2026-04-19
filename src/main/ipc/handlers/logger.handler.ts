@@ -1,3 +1,4 @@
+import { shell } from 'electron'
 import { logger } from '../../services/logging/logging.service'
 import { rendererLog } from '../../services/logging/renderer-logging.service'
 import { wrapIpcHandler } from '../wrap-handler'
@@ -19,7 +20,13 @@ export function registerLoggerHandlers(): void {
     return rendererLog.warn(String(message), ...args)
   })
 
-  wrapIpcHandler('log:cleanup', async () => {
-    return logger.cleanupLogs(true)
+  // Clean up log files based on retention period or delete all logs
+  wrapIpcHandler('log:cleanup', async (_, forceCleanup?: boolean) => {
+    return logger.cleanupLogs(forceCleanup ?? false)
+  })
+
+  // Open logs folder in file explorer
+  wrapIpcHandler('log:open-folder', async () => {
+    return shell.openPath(logger.getLogFolder())
   })
 }

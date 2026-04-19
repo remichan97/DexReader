@@ -236,7 +236,7 @@ export function getDefaultSettings(): AppSettings {
       autoDownload: false
     },
     logs: {
-      retentionInDays: 30
+      retentionInDays: 7 // Default: 7 days (covers 99% of debugging scenarios)
     }
   }
 }
