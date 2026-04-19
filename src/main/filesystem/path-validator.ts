@@ -1,5 +1,5 @@
 import path from 'node:path'
-import app from 'electron'
+import { app } from 'electron'
 import fs from 'node:fs/promises'
 import { mainLog } from '../services/logging/main-logging.service'
 
@@ -21,9 +21,9 @@ function initializePaths(): void {
     // Windows: C:\Users\<user>\.dexreader
     // macOS: ~/.dexreader
     // Linux: ~/.dexreader
-    const homeDir = app.app.getPath('home')
+    const homeDir = app.getPath('home')
     const appDataRoot = path.join(homeDir, '.dexreader')
-    const appLogs = path.join(app.app.getPath('userData'), 'logs')
+    const appLogs = path.join(app.getPath('userData'), 'logs')
 
     allowedPaths = {
       appData: appDataRoot,

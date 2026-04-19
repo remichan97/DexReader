@@ -19,11 +19,15 @@ import { MemoryTierInfo } from './response/memory-tier.response'
 import { memoryCacheUtil } from '../api/utils/memory-cache.util'
 import { mainLog } from '../services/logging/main-logging.service'
 
-const SETTINGS_FILE = path.join(getAppDataPath(), 'settings.json')
+// Lazy-initialized to avoid calling getAppDataPath() before Electron app is ready
+function settingsFilePath(): string {
+  return path.join(getAppDataPath(), 'settings.json')
+}
 
 export async function loadSettings(): Promise<AppSettings> {
   try {
-    const exists = await secureFs.isExists(SETTINGS_FILE)
+    const settingsFile = settingsFilePath()
+    const exists = await secureFs.isExists(settingsFile)
 
     if (!exists) {
       const defaults: AppSettings = getDefaultSettings()
@@ -31,7 +35,7 @@ export async function loadSettings(): Promise<AppSettings> {
       return defaults
     }
 
-    const data = (await secureFs.readFile(SETTINGS_FILE, 'utf-8')) as string
+    const data = (await secureFs.readFile(settingsFile, 'utf-8')) as string
     const settings = JSON.parse(data)
 
     return settings
@@ -45,8 +49,8 @@ export async function loadSettings(): Promise<AppSettings> {
 export async function saveSettings(settings: AppSettings): Promise<void> {
   try {
     const data = JSON.stringify(settings, null, 2)
-
-    await secureFs.writeFile(SETTINGS_FILE, data, 'utf-8')
+    const settingsFile = settingsFilePath()
+    await secureFs.writeFile(settingsFile, data, 'utf-8')
   } catch (error) {
     mainLog.error('[SettingsManager] Error saving settings:', error)
     throw error
@@ -129,7 +133,7 @@ export async function setSettingByPath<K extends keyof AppSettings>(
 }
 
 export function getSettingsFilePath(): string {
-  return SETTINGS_FILE
+  return settingsFilePath()
 }
 
 // Set a new downloads path with validation
