@@ -29,6 +29,10 @@ System architecture, navigation patterns, and layout specifications.
 - **database-architecture.md** - 🗄️ **SQLite database design** with Drizzle ORM, 9 tables, CQRS pattern, migration strategy (Guerilla Migration 27-28 Dec 2025)
 - **state-management.md** - Zustand stores with SQLite integration for progress tracking
 
+### 📚 API & Integration
+
+- **[api-reference.md](./api-reference.md)** - 📡 **Complete IPC API reference** with 90+ handlers across 14 categories, type definitions, error handling patterns, and usage examples
+
 ### 🧩 `/components`
 
 Component specifications, hierarchy, UI patterns, and implementation library.

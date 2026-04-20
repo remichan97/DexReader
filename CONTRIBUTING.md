@@ -380,9 +380,12 @@ When you first start the app, you should see the development database located at
 
 Comprehensive documentation is available in `docs/`:
 
+- **[API Reference](docs/api-reference.md)** - Complete IPC handler documentation with usage examples
 - `docs/architecture/` - System architecture and design decisions
 - `docs/components/` - UI component specifications
 - `docs/design/` - Design system and wireframes
+
+**For developers working with IPC**: See the [API Reference](docs/api-reference.md) for complete documentation of all available IPC handlers, including parameters, return types, error handling, and usage examples.
 
 ## Testing
 
