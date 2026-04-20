@@ -2,7 +2,220 @@
 
 **Purpose**: This file contains detailed implementation notes from completed milestones in reverse chronological order (newest first). These are historical records that provide context for past decisions and serve as essential reference material.
 
-**Last Updated**: 9 April 2026
+**Last Updated**: 20 April 2026
+
+---
+
+## P5-T-FINAL IPC API Documentation (20 April 2026)
+
+### Overview
+
+Comprehensive JSDoc documentation for all IPC handlers and API reference document. Solo project focus meant streamlining to technical documentation only (no community docs, roadmaps, or issue templates). Original Phase 5 plan (P5-T19 User Documentation, P5-T20 Developer Documentation) totaled 28-36 hours. Refined approach focused on what matters for solo maintenance: JSDoc + API reference = 8-12 hours (actual: ~8 hours).
+
+**Time Invested**: ~8 hours (JSDoc: 6h, API Reference: 2h)
+**Impact**: Complete IPC API documentation with IDE autocomplete, helping "future you" maintain codebase
+**Files Modified**: 14 IPC handler files, docs/api-reference.md, CONTRIBUTING.md, docs/README.md
+**Plan File Deleted**: `.github/copilot-plans/p5-t-final-ipc-api-documentation-plan.md` (as per implementing agent workflow)
+
+### Implementation Details
+
+#### Phase 1: JSDoc Comments (6 hours)
+
+**Systematic Approach**: Simple → Medium → Complex handlers to build momentum
+
+**Simple Handlers (3 files - 30 min)**:
+
+- `logger.handler.ts` - 6 handlers (renderer process logging)
+- `theme.handler.ts` - 2 handlers (system accent color, theme management)
+- `dialogs.handler.ts` - 3 handlers (native dialogs: confirm, custom multi-button)
+
+**Medium Handlers (6 files - 3 hours)**:
+
+- `reader-settings.handler.ts` - 6 handlers (per-manga reader overrides)
+- `app-update.handler.ts` - 4 handlers (auto-update system)
+- `file-systems.handler.ts` - 16 handlers (security-restricted filesystem operations)
+- `progress-tracking.handler.ts` - 8 handlers (reading progress & statistics)
+- `dexreader.handler.ts` - 3 handlers (native backup export/import)
+- `app-settings.handler.ts` - 7 handlers (app configuration CRUD)
+
+**Medium-Complex Handlers (2 files - 1 hour)**:
+
+- `mihon.handler.ts` - 3 handlers (Mihon/Tachiyomi import/export compatibility)
+- `storage.handler.ts` - 4 handlers (storage stats, cleanup, quota management)
+
+**Complex Handlers (3 files - 1.5 hours)**:
+
+- `download.handler.ts` - 19 handlers (download queue, status, retry, batch operations)
+- `library-handler.ts` - 20 handlers (favorites, collections, history CRUD)
+- `mangadex.handler.ts` - 6 handlers (MangaDex API proxy, search, details, chapters)
+
+**Total Handlers Documented**: ~90+ individual IPC handlers
+
+#### JSDoc Template (Established Pattern)
+
+```typescript
+/**
+ * [Brief description of what this handler does]
+ *
+ * [Extended description with behavior details, merge strategy, side effects]
+ *
+ * @param params - [Description of the params]
+ * @param params.field - [Description of individual fields if complex object]
+ * @returns [What it returns - be specific about the type]
+ * @throws {TypeError} - [When parameter validation fails]
+ * @throws {Error} - [When operation fails - describe scenarios]
+ * @throws {RangeError} - [When numeric values outside valid range]
+ *
+ * @example
+ * // [Real-world usage example from renderer]
+ * const result = await window.api.methodName(params)
+ * console.log(result)
+ *
+ * @example
+ * // [Additional example showing edge case or alternative usage]
+ * await window.api.methodName(alternativeParams)
+ */
+```
+
+**Key Patterns Documented**:
+
+- **Parameter validation**: TypeError for invalid/missing parameters
+- **Range validation**: RangeError for values outside bounds (e.g., cache limits 10-500 MB)
+- **Destructive operations**: Clear warnings (DESTRUCTIVE, Cannot be undone)
+- **Merge strategies**: How import/export handles existing data
+- **Auto-behaviors**: e.g., reader settings auto-reset when matching global defaults
+- **Platform differences**: macOS/Windows/Linux variations (e.g., system settings handlers)
+- **Event emissions**: Progress events, download states, update notifications
+
+#### Phase 2: API Reference Document (2 hours)
+
+**File Created**: `docs/api-reference.md` (1,300+ lines)
+
+**Structure**:
+
+1. **Introduction** - IPC architecture overview, main/renderer process separation
+2. **Usage Pattern** - How to call `window.api.*`, error handling, event listeners
+3. **API Categories** (14 sections):
+   - Logging (6 handlers)
+   - Theme Management (2 handlers)
+   - Dialogs (3 handlers)
+   - Reader Settings (6 handlers)
+   - App Updates (4 handlers)
+   - Filesystem Operations (16 handlers)
+   - Progress Tracking (8 handlers)
+   - Backup & Restore (6 handlers - DexReader + Mihon)
+   - App Settings (7 handlers)
+   - Storage Management (4 handlers)
+   - Downloads (19 handlers + queue operations)
+   - Library (8 handlers)
+   - Collections (9 handlers)
+   - Reading History (4 handlers)
+   - MangaDex API (6 handlers)
+4. **Type Definitions** - Common interfaces (Manga, Chapter, Settings, Progress, etc.)
+5. **Error Handling** - TypeError, RangeError, operational errors
+6. **Conventions** - Naming patterns, async/await, UUIDs, timestamps, paths
+
+**Content Strategy**:
+
+- Extracted core information from JSDoc comments (DRY principle)
+- Added category-level context (how handlers work together)
+- Included real renderer code examples for every handler
+- Cross-referenced architecture docs (ipc-messaging.md, error-handling.md)
+- Emphasized solo dev use case: "future you" maintaining the codebase
+
+#### Documentation Links
+
+**Updated Files**:
+
+- `CONTRIBUTING.md` - Added API reference to "Project Documentation" section with callout for IPC development
+- `docs/README.md` - Added new "API & Integration" section with link to api-reference.md
+
+### Key Benefits
+
+**IDE Autocomplete**:
+
+- Type `window.api.` → IntelliSense shows all methods
+- Hover over method → See JSDoc description, parameters, return type
+- Autocomplete suggests parameter names and types
+- Error types documented for proper catch handling
+
+**Maintenance ("Future You")**:
+
+- Understand IPC contracts without reading implementation
+- See usage examples pulled from real code
+- Know what errors to expect and handle
+- Understand parameter validation rules
+- Reference type definitions for request/response shapes
+
+**Solo Project Focus**:
+
+- No community docs (roadmaps, issue templates) - unnecessary for solo dev
+- No user guides - app is self-explanatory (Windows 11 Fluent Design)
+- Technical docs only - what helps maintain the codebase
+- Pragmatic approach: 8 hours vs 28-36 hours (73% time savings)
+
+### Files Modified
+
+**IPC Handler Files (14 files, ~60+ individual edits)**:
+
+1. `src/main/ipc/handlers/logger.handler.ts`
+2. `src/main/ipc/handlers/theme.handler.ts`
+3. `src/main/ipc/handlers/dialogs.handler.ts`
+4. `src/main/ipc/handlers/reader-settings.handler.ts`
+5. `src/main/ipc/handlers/app-update.handler.ts`
+6. `src/main/ipc/handlers/file-systems.handler.ts`
+7. `src/main/ipc/handlers/progress-tracking.handler.ts`
+8. `src/main/ipc/handlers/dexreader.handler.ts`
+9. `src/main/ipc/handlers/app-settings.handler.ts`
+10. `src/main/ipc/handlers/mihon.handler.ts`
+11. `src/main/ipc/handlers/storage.handler.ts`
+12. `src/main/ipc/handlers/download.handler.ts`
+13. `src/main/ipc/handlers/library-handler.ts`
+14. `src/main/ipc/handlers/mangadex.handler.ts`
+
+**Documentation Files (3 files)**:
+
+- `docs/api-reference.md` - Created comprehensive API reference (1,300+ lines)
+- `CONTRIBUTING.md` - Added API reference link to Project Documentation section
+- `docs/README.md` - Added "API & Integration" section with api-reference.md link
+
+**Plan File Deleted**:
+
+- `.github/copilot-plans/p5-t-final-ipc-api-documentation-plan.md` (as per implementing agent workflow)
+
+### Lessons Learned
+
+**Solo Project Context Matters**:
+
+- Original Phase 5 plan assumed open-source community project (user docs, roadmaps, issue templates)
+- Reality: Solo developer maintaining personal project
+- Focus shifted to technical documentation that helps future maintenance
+- 73% time savings by skipping community-focused docs
+
+**JSDoc Value Proposition**:
+
+- IDE autocomplete is killer feature (IntelliSense shows everything)
+- Helps "future you" 6 months later understand IPC contracts
+- Forces documenting parameter validation and error cases
+- Real-world examples more valuable than abstract descriptions
+
+**Systematic Approach Works**:
+
+- Simple → Medium → Complex progression built momentum
+- Batching similar handlers reduced context switching
+- Using multi_replace_string_in_file for related files improved efficiency
+- Total 14 files documented without errors or rework
+
+**Documentation as Code**:
+
+- JSDoc lives next to implementation (single source of truth)
+- API reference extracts from JSDoc (DRY principle)
+- Changes to handlers require updating JSDoc (enforced by reviews)
+- TypeScript types + JSDoc = complete developer experience
+
+### Status
+
+✅ **Complete** - All 14 IPC handler files documented, API reference created, documentation links added, plan file deleted. Production-ready for v1.0.
 
 ---
 

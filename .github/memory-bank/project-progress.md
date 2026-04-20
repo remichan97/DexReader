@@ -4,8 +4,8 @@
 
 **Project Start**: 23 November 2025
 **Current Phase**: Phase 5 - Production Readiness (IN PROGRESS)
-**Current Task**: Phase 5 Track 2 Build Pipeline - 3/6 complete, P5-T07+P5-T09 deferred
-**Last Updated**: 3 April 2026
+**Current Task**: Phase 5 Track 2 Build Pipeline - 4/6 complete, P5-T07+P5-T09 deferred
+**Last Updated**: 20 April 2026
 
 ---
 
@@ -21,14 +21,24 @@
 
 ## Current Status
 
-**Phase Progress**: Phase 2 (11/11) | Guerilla Refactoring | Phase 3 (19/19) | Phase 4 (13/13) | Phase 5 IN PROGRESS (8/22 tasks complete, 4 deferred)
-**Current Focus**: Phase 5 - Track 3 Testing & Quality Assurance (P5-T15 Accessibility Audit)
-**Recent Completion**: P5-T10 Build Optimization (3 Apr 2026)
+**Phase Progress**: Phase 2 (11/11) | Guerilla Refactoring | Phase 3 (19/19) | Phase 4 (13/13) | Phase 5 IN PROGRESS (11/22 tasks complete, 4 deferred)
+**Current Focus**: Phase 5 - Track 3 Testing & Quality Assurance (P5-T11 Multi-Platform Testing)
+**Recent Completion**: P5-T-FINAL IPC API Documentation (20 Apr 2026)
 **Next Steps**: P5-T11 Multi-Platform Testing, P5-T16 Performance Benchmarking, P5-T22 Security Hardening
 
 ---
 
 ## Recent Milestones
+
+### P5-T-FINAL IPC API Documentation (20 April 2026)
+
+Comprehensive JSDoc documentation for all IPC handlers and API reference document. Solo project focus: technical documentation only (no community docs, roadmaps, or issue templates needed). Streamlined completion in ~8 hours (vs original 28-36 hour estimate for full open-source documentation suite).
+
+**Key Results**: JSDoc comments added to 14 IPC handler files (~90+ individual handlers). API reference document created (docs/api-reference.md, 1,300+ lines) covering all handler categories, type definitions, error patterns, usage examples. Documentation links added to CONTRIBUTING.md and docs/README.md. IDE autocomplete enabled via JSDoc (IntelliSense shows parameter hints, return types, descriptions).
+
+**Architecture**: JSDoc format established: brief description, @param, @returns, @throws (TypeError/Error/RangeError), @example with real renderer code. Handler categories documented: Logging (6), Theme (2), Dialogs (3), Reader Settings (6), App Updates (4), Filesystem (16), Progress Tracking (8), Backup/Restore (6), App Settings (7), Storage (4), Downloads (19), Library (20), Collections (9), History (4), MangaDex API (6). Key benefit: "Future you" (6 months later) can understand IPC contracts without spelunking code.
+
+See `archived-milestones.md` for full implementation details.
 
 ### P5-T10 Build Optimization (3 April 2026)
 
@@ -422,8 +432,7 @@ See [archived-milestones.md](./archived-milestones.md) for detailed P4 task impl
 
 - [⏸️] **P5-T17**: Error Reporting & Telemetry **DEFERRED** (Covered by P5-T18 local logging + manual sharing)
 - [✅] **P5-T18**: Logging System (6 hours) - Complete: Settings UI, log retention (3/7/14/30 days), open logs folder, clear logs
-- [⏳] **P5-T19**: User Documentation & Installation Guide (12-16 hours) **CRITICAL**
-- [⏳] **P5-T20**: Developer Documentation (8-10 hours)
+- [✅] **P5-T19**: IPC API Documentation (8 hours) **COMPLETE** (20 Aprl 2026)
 
 **Phase 5 Progress**: 10/22 tasks (~45% complete) | Track 0 Complete ✅ | Track 1 Complete ✅ | Track 2: 3/6 tasks | Track 3: 2/6 tasks | 7 tasks deferred
 

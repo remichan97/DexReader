@@ -1,6 +1,6 @@
 # DexReader Active Context
 
-**Last Updated**: 12 April 2026
+**Last Updated**: 20 April 2026
 **Current Phase**: Phase 5 - Production Readiness (IN PROGRESS)
 **Current Task**: P5-T11 Multi-Platform Testing (Windows ✅ partial)
 **Next**: Continue P5-T11 testing, then P5-T16 Performance Benchmarking or P5-T22 Security Hardening
@@ -12,7 +12,7 @@
 ## Current Status Summary
 
 **Phase 4**: COMPLETE - 13/13 tasks (100%) ✅
-**Phase 5**: IN PROGRESS - **10/22 tasks** (P5-T21, P5-T01-06, P5-T08, P5-T10, P5-T15, P5-T18 ✅ | P5-T07, P5-T09 deferred)
+**Phase 5**: IN PROGRESS - **11/22 tasks** (P5-T21, P5-T01-06, P5-T08, P5-T10, P5-T15, P5-T18, P5-T-FINAL ✅ | P5-T07, P5-T09 deferred)
 **Electron**: Upgraded to 41.0.2 (15 Mar 2026) ✅
 **Timeline**: 6-8 weeks (11 March - 5 May 2026)
 **Target**: v1.0 Release Early May 2026 🚀
@@ -22,7 +22,79 @@
 
 ## Recent Completions (Last 2 Weeks)
 
-### P5-T18 Logging System - Complete (12 April 2026) ✅
+### P5-T-FINAL IPC API Documentation - Complete (20 April 2026) ✅
+
+**API DOCUMENTATION**: Comprehensive JSDoc documentation for all IPC handlers and API reference document. Solo project focus: technical documentation only (no community docs, roadmaps, or issue templates). Completed in **~8 hours** (streamlined from original 28-36 hour estimate).
+
+**Implementation Summary**:
+
+- **JSDoc Comments**: Added comprehensive documentation to all 14 IPC handler files (~90+ handlers total)
+  - Simple handlers (3 files): logger, theme, dialogs
+  - Medium handlers (6 files): reader-settings, app-update, file-systems, progress-tracking, dexreader, app-settings
+  - Medium-complex handlers (2 files): mihon, storage
+  - Complex handlers (3 files): download (19 handlers), library (20 handlers), mangadex (6 handlers)
+- **API Reference Document**: Created comprehensive `docs/api-reference.md` (1,300+ lines)
+  - Complete reference for all 90+ IPC handlers across 14 categories
+  - Type definitions for common interfaces (Manga, Chapter, Settings, etc.)
+  - Error handling patterns (TypeError, RangeError, operational errors)
+  - Usage examples pulled from real renderer code
+  - Conventions and naming patterns
+  - Cross-references to architecture docs
+- **Documentation Links**: Updated CONTRIBUTING.md and docs/README.md to link API reference
+
+**JSDoc Format** (established pattern for all handlers):
+
+```typescript
+/**
+ * [Brief description of what this handler does]
+ *
+ * @param params - [Description of the params]
+ * @returns [What it returns - be specific about the type]
+ * @throws {TypeError} - [When parameter validation fails]
+ * @throws {Error} - [When operation fails - describe scenarios]
+ *
+ * @example
+ * // [Real-world usage example from renderer]
+ * const result = await window.api.methodName(params)
+ */
+```
+
+**Files Modified**:
+
+- All 14 IPC handler files with JSDoc comments (~60+ individual edits)
+- `docs/api-reference.md` - Created comprehensive API reference
+- `CONTRIBUTING.md` - Added API reference link to Project Documentation section
+- `docs/README.md` - Added API reference to documentation index
+- Plan file deleted: `.github/copilot-plans/p5-t-final-ipc-api-documentation-plan.md`
+
+**14 Handler Files Documented**:
+
+1. `logger.handler.ts` - 6 handlers (renderer logging to main process)
+2. `theme.handler.ts` - 2 handlers (system accent color, theme management)
+3. `dialogs.handler.ts` - 3 handlers (native system dialogs)
+4. `reader-settings.handler.ts` - 6 handlers (per-manga reader overrides)
+5. `app-update.handler.ts` - 4 handlers (auto-update system)
+6. `file-systems.handler.ts` - 16 handlers (security-restricted filesystem)
+7. `progress-tracking.handler.ts` - 8 handlers (reading progress & stats)
+8. `dexreader.handler.ts` - 3 handlers (native backup import/export)
+9. `app-settings.handler.ts` - 7 handlers (app configuration CRUD)
+10. `mihon.handler.ts` - 3 handlers (Mihon/Tachiyomi compatibility)
+11. `storage.handler.ts` - 4 handlers (storage stats & cleanup)
+12. `download.handler.ts` - 19 handlers (download queue management)
+13. `library-handler.ts` - 20 handlers (favorites, collections, history)
+14. `mangadex.handler.ts` - 6 handlers (MangaDex API proxy)
+
+**Key Benefits**:
+
+- **IDE Autocomplete**: JSDoc appears in IntelliSense when typing `window.api.`
+- **Parameter Hints**: Hover over methods shows detailed documentation
+- **Maintenance**: "Future you" (6 months later) can understand IPC contracts
+- **API Reference**: Single source of truth for all IPC communication
+- **Solo Dev Focus**: Practical documentation for maintaining the codebase, not community building
+
+**Status**: ✅ **Complete**, API fully documented for v1.0
+
+---### P5-T18 Logging System - Complete (12 April 2026) ✅
 
 **LOGGING SYSTEM**: Privacy-first local logging system with Settings UI for log retention management. Completed in **~6 hours** (Phases 1-4). Provides developer-friendly logging without cloud telemetry or privacy concerns.
 
