@@ -159,7 +159,8 @@ export function ReaderSettingsSection({
         {!isLoading && perMangaOverrides.length === 0 ? (
           <div className="reader-settings__empty-state">
             <p className="reader-settings__empty-text">
-              No custom settings yet. Change reading modes while reading to create overrides.
+              No custom settings yet. Change reading modes in the reader to create per-manga
+              overrides!
             </p>
           </div>
         ) : null}

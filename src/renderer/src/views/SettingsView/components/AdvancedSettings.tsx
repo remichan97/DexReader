@@ -45,7 +45,7 @@ export function AdvancedSettings({
       showToast({
         variant: 'error',
         title: 'Update check failed',
-        message: 'Failed to check for updates. Please try again later.',
+        message: "Couldn't check for updates. Try again in a bit?",
         duration: 4000
       })
     } finally {

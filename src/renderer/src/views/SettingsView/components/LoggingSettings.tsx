@@ -59,7 +59,7 @@ export function LoggingSettings({
       showToast({
         variant: 'success',
         title: 'Old logs deleted',
-        message: `Logs older than ${retentionDays} days have been deleted.`,
+        message: `Cleaned up logs older than ${retentionDays} days`,
         duration: 3000
       })
     } catch (error) {
@@ -93,7 +93,7 @@ export function LoggingSettings({
       showToast({
         variant: 'success',
         title: 'Logs cleared',
-        message: 'All log files have been deleted.',
+        message: 'All logs cleared!',
         duration: 3000
       })
     } catch (error) {

@@ -191,7 +191,7 @@ export function UpdateNotification(): JSX.Element | null {
               Download
             </Button>
             <Button variant="ghost" size="small" onClick={handleLater}>
-              Later
+              Maybe Later
             </Button>
           </div>
         </>
@@ -240,7 +240,7 @@ export function UpdateNotification(): JSX.Element | null {
               Restart Now
             </Button>
             <Button variant="ghost" size="small" onClick={handleLater}>
-              Later
+              Maybe Later
             </Button>
           </div>
         </>

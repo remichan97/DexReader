@@ -103,7 +103,7 @@ export function ImportResultDialog({
           </Button>
           {onViewLibrary && importedMangaCount > 0 && (
             <Button variant="primary" onClick={onViewLibrary}>
-              View Library
+              Check Out Your Library
             </Button>
           )}
         </>

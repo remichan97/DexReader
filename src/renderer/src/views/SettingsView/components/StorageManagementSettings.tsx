@@ -108,7 +108,7 @@ export function StorageManagementSettings(): JSX.Element {
         showToast({
           variant: 'success',
           title: `Successfully deleted ${selectedMangaIds.size} manga`,
-          message: `${formatBytes(totalSize)} freed`
+          message: `Freed ${formatBytes(totalSize)} of space!`
         })
       } else {
         showToast({

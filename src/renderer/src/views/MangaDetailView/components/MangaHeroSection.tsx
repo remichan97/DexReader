@@ -302,7 +302,7 @@ export default function MangaHeroSection({
     if (successCount > 0) {
       showToast({
         title: 'Download Started',
-        message: `Queued ${successCount} chapter${successCount === 1 ? '' : 's'} for download`,
+        message: `Added ${successCount} chapter${successCount === 1 ? '' : 's'} to download queue!`,
         variant: 'success',
         duration: 3000
       })
@@ -311,7 +311,7 @@ export default function MangaHeroSection({
     if (failCount > 0) {
       showToast({
         title: 'Partial Failure',
-        message: `Failed to queue ${failCount} chapter${failCount === 1 ? '' : 's'}`,
+        message: `Couldn't queue ${failCount} chapter${failCount === 1 ? '' : 's'}`,
         variant: 'error',
         duration: 5000
       })

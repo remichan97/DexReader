@@ -104,7 +104,7 @@ export function CacheManagementSettings({
         showToast({
           variant: 'success',
           title: 'Cover cache cleared',
-          message: `Deleted ${freedCount} images, freed ${formatBytes(freedSpace)}`
+          message: `Deleted ${freedCount} images (freed ${formatBytes(freedSpace)})`
         })
       } else {
         showToast({
@@ -152,7 +152,7 @@ export function CacheManagementSettings({
         showToast({
           variant: 'success',
           title: 'Metadata cache cleaned',
-          message: `Removed ${deletedCount} cached manga`
+          message: `Cleaned up ${deletedCount} cached manga`
         })
       } else {
         showToast({
@@ -200,7 +200,7 @@ export function CacheManagementSettings({
         showToast({
           variant: 'success',
           title: 'Metadata cache cleared',
-          message: `Removed ${deletedCount} cached manga`
+          message: `Cleaned up ${deletedCount} cached manga`
         })
       } else {
         showToast({

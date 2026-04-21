@@ -124,7 +124,7 @@ export function DexReaderImportDialog({
         <div className="import-warning flex items-start gap-3">
           <Warning20Regular className="warning-icon" />
           <div className="warning-content">
-            <strong>Import Behavior:</strong>
+            <strong>Import Behaviour:</strong>
             <ul>
               <li>Existing manga will be updated with imported data</li>
               <li>Collections with the same name will be merged</li>

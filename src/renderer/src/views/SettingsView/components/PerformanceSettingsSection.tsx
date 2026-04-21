@@ -83,9 +83,9 @@ export function PerformanceSettingsSection({
 
   let helperMessage: string
   if (showLowWarning) {
-    helperMessage = `Low cache may cause frequent reloads. Recommended minimum: 30 MB`
+    helperMessage = `Low cache may cause frequent reloads. We recommend at least 30 MB`
   } else if (showHighWarning) {
-    helperMessage = `This exceeds recommended ${recommendedMax} MB (10% of system RAM). High cache may impact system performance.`
+    helperMessage = `This exceeds our recommendation of ${recommendedMax} MB (10% of system RAM). Higher values might slow things down.`
   } else if (suppressWarnings) {
     helperMessage = 'Warnings suppressed'
   } else {

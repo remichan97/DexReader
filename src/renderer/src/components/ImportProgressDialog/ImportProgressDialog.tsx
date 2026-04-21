@@ -69,7 +69,7 @@ export function ImportProgressDialog({
       onClose={() => {
         /* Prevent closing during import */
       }}
-      title="Importing Library"
+      title="Importing Your Library"
       footer={
         cancellable && onCancel ? (
           <div className="import-progress-dialog__footer flex justify-end">

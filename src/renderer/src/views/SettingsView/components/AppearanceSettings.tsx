@@ -63,9 +63,9 @@ export function AppearanceSettings({
       </div>
 
       <div>
-        <h4 className="appearance-settings__section-title mb-3">Accent Color</h4>
+        <h4 className="appearance-settings__section-title mb-3">Accent Colour</h4>
         <div className="mb-3">
-          <div className="appearance-settings__label">Primary accent color</div>
+          <div className="appearance-settings__label">Primary accent colour</div>
           <div className="flex gap-3 items-center">
             <input
               type="color"
@@ -86,8 +86,8 @@ export function AppearanceSettings({
           </div>
           <p className="text-secondary appearance-settings__helper-text mt-2">
             {isUsingSystemColor
-              ? `Using system accent color (${systemAccentColor})`
-              : 'Using custom accent color. Click "Use System" to restore system color.'}
+              ? `Using system accent colour (${systemAccentColor})`
+              : 'You\'re using a custom accent. Click "Use System" to go back to your system colour.'}
           </p>
         </div>
       </div>
@@ -102,7 +102,7 @@ export function AppearanceSettings({
           Configure Date Format in System Settings
         </Button>
         <p className="text-secondary appearance-settings__helper-text mt-2">
-          This will open your operating system&apos;s regional settings where you can customize date
+          This will open your operating system&apos;s regional settings where you can customise date
           and time formats.
         </p>
       </div>
