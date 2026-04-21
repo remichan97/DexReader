@@ -1970,7 +1970,7 @@ Always show confirmation dialogs before calling destructive operations.
 - [Error Handling Patterns](./architecture/error-handling.md) - Error propagation and handling
 - [State Management](./architecture/state-management.md) - Zustand stores and state flow
 - [MangaDex API Documentation](./architecture/mangadex-api.md) - MangaDex API reference
-- [Contributing Guide](../CONTRIBUTING.md) - Development workflow
+- [System Patterns](../.github/memory-bank/system-pattern.md) - Coding standards and best practices
 
 ---
 

@@ -131,18 +131,12 @@ Your feedback helps make DexReader better for all Mac users!
 
 ---
 
-Before contributing, please read:
-
-- [Contributing Guidelines](CONTRIBUTING.md) - Development setup, code standards, commit conventions, and PR process
-- [Code of Conduct](CODE_OF_CONDUCT.md) - Expected behaviour and community standards
-
-Key topics covered in the contributing guide:
+Key development topics:
 
 - Development setup and workflow
-- Code standards and style guide
-- Commit message conventions
-- Pull request process
-- Project architecture overview
+- Code standards and style guide (see `.github/memory-bank/system-pattern.md`)
+- Commit message conventions (Conventional Commits)
+- Project architecture overview (see `docs/` folder)
 
 ### Quick Start for Contributors
 
