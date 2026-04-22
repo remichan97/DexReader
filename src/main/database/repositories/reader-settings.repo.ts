@@ -7,7 +7,7 @@ import { MangaOverride } from '../queries/manga/manga-override.query'
 import { MangaMapper } from '../mappers/manga.mapper'
 import { executeBatchOperations } from '../utils/batch-operations.util'
 
-export class ReaderSettingsRepository {
+class ReaderSettingsRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
     return databaseConnection.getDb()
   }

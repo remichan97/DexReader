@@ -34,7 +34,7 @@ const TagIdToNameMap: Record<string, string> = Object.entries(TagList).reduce(
   {} as Record<string, string>
 )
 
-export class MihonExportHelper {
+class MihonExportHelper {
   buildMangaUrl(mangaId: string): string {
     return `/manga/${mangaId}`
   }

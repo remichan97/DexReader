@@ -15,7 +15,7 @@ import fs from 'node:fs/promises'
 import { getAppDataPath } from '../../filesystem/path-validator'
 import { mainLog } from '../../services/logging/main-logging.service'
 
-export class CleanUpRepository {
+class CleanUpRepository {
   private db(): ReturnType<typeof databaseConnection.getDb> {
     return databaseConnection.getDb()
   }

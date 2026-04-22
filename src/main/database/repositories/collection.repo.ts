@@ -13,7 +13,7 @@ import { ReorderMangaInCollectionCommand } from '../commands/collections/reorder
 import { CollectionItemQuery } from '../queries/collections/collection-item.query'
 import { executeBatchOperations } from '../utils/batch-operations.util'
 
-export class CollectionRepository {
+class CollectionRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
     return databaseConnection.getDb()
   }

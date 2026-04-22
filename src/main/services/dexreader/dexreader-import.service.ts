@@ -27,7 +27,7 @@ import { progressRepo } from '../../database/repositories/manga-progress.repo'
 import { DexReaderMangaReaderOverride } from '../types/dexreader/manga-reader-override.type'
 import { readerSettingsRepo } from '../../database/repositories/reader-settings.repo'
 
-export class DexReaderImportService {
+class DexReaderImportService {
   private readonly schemaPath = path.join(
     __dirname,
     'services',

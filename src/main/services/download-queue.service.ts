@@ -23,7 +23,7 @@ import { DownloadErrorCategory } from './errors/enums/download-error.enum'
 import { ChapterDownloadQuery } from '../database/queries/chapter-downloads/chapter-downloads.query'
 import { mainLog } from './logging/main-logging.service'
 
-export class DownloadQueueService {
+class DownloadQueueService {
   // Main states
   private queue: QueuedDownloads[] = []
   private pendingUpdates: MarkDownloadStateCommand[] = []

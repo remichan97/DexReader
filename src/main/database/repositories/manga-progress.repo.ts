@@ -11,7 +11,7 @@ import { mangaRepo } from './manga.repo'
 import { readingRepo } from './reading-stats.repo'
 import { UpdateFirstReadCommand } from '../commands/progress/update-firstread.command'
 
-export class MangaProgressRepository {
+class MangaProgressRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
     return databaseConnection.getDb()
   }

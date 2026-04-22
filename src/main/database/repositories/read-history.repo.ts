@@ -6,7 +6,7 @@ import { ReadHistoryQuery } from '../queries/history/reading-history.query'
 import { chapter, manga, readHistory } from '../schemas'
 import { ReadHistoryMapper } from '../mappers/history.mapper'
 
-export class ReadHistoryRepository {
+class ReadHistoryRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
     return databaseConnection.getDb()
   }

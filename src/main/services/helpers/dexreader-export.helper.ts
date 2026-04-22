@@ -14,7 +14,7 @@ import { DexReaderManga } from '../types/dexreader/manga.type'
 type MangaRow = typeof manga.$inferInsert
 type ChapterRow = typeof chapter.$inferSelect
 
-export class DexReaderExportHelper {
+class DexReaderExportHelper {
   buildMangaData(data: MangaRow): DexReaderManga {
     return {
       mangaId: data.mangaId,

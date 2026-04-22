@@ -13,7 +13,7 @@ import { executeBatchOperations } from '../utils/batch-operations.util'
 
 type MangaRow = typeof manga.$inferSelect
 
-export class MangaRepository {
+class MangaRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
     return databaseConnection.getDb()
   }

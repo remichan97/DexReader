@@ -4,7 +4,7 @@ import { autoUpdater } from 'electron-updater'
 import { getSettingByPath } from '../settings/settings-manager'
 import { mainLog } from './logging/main-logging.service'
 
-export class AppUpdateService {
+class AppUpdateService {
   private mainWindow: BrowserWindow | undefined = undefined
   private checkInProgress: boolean = false
   private updateDownloaded: boolean = false
