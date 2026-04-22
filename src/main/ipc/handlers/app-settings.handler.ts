@@ -31,10 +31,56 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
     'logs'
   ])
 
+  /**
+   * Load all application settings.
+   *
+   * Reads settings from settings.json file in AppData directory. Returns entire
+   * settings object with all sections (appearance, downloads, reader, update, logs).
+   *
+   * @returns Promise<AppSettings> - Complete settings object
+   *
+   * @example
+   * // Load settings on app startup
+   * const settings = await window.api.loadSettings()
+   * console.log(settings.appearance.theme) // 'light' | 'dark' | 'system'
+   */
+  /**
+   * Load all application settings.
+   *
+   * Reads settings from settings.json file in AppData directory. Returns entire
+   * settings object with all sections (appearance, downloads, reader, update, logs).
+   *
+   * @returns Promise<AppSettings> - Complete settings object
+   *
+   * @example
+   * // Load settings on app startup
+   * const settings = await window.api.loadSettings()
+   * console.log(settings.appearance.theme) // 'light' | 'dark' | 'system'
+   */
   wrapIpcHandler('settings:load', async () => {
     return await loadSettings()
   })
 
+  /**
+   * Get a specific settings section or nested property.
+   *
+   * Retrieves settings at section level (e.g., 'appearance') or nested property
+   * level (e.g., 'appearance.theme'). Validates section names for security.
+   *
+   * @param section - Top-level settings section: 'appearance' | 'downloads' | 'reader' | 'update' | 'logs'
+   * @param path - Optional dot-notation path to nested property (e.g., 'theme' for appearance.theme)
+   * @returns Promise<any> - Settings value at specified path
+   * @throws {TypeError} - If section is not a string
+   * @throws {Error} - If section is invalid or path is not a string
+   *
+   * @example
+   * // Get entire appearance section
+   * const appearance = await window.api.getSetting('appearance')
+   *
+   * @example
+   * // Get specific nested property
+   * const theme = await window.api.getSetting('appearance', 'theme')
+   */
   wrapIpcHandler('settings:get', async (_, section: unknown, path?: unknown) => {
     if (typeof section !== 'string') {
       throw new TypeError('Section must be a string')
@@ -52,6 +98,34 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
     return await getSettingByPath(section as keyof AppSettings, path)
   })
 
+  /**
+   * Save settings for a specific section.
+   *
+   * Updates an entire settings section (appearance, downloads, reader, update, or logs).
+   * Validates settings structure before saving. Automatically updates related systems
+   * (e.g., chapter cache size when reader settings change).
+   *
+   * @param key - Settings section to update: 'appearance' | 'downloads' | 'reader' | 'update' | 'logs'
+   * @param value - New settings object matching the section's structure
+   * @returns Promise<boolean> - Always returns true on success
+   * @throws {Error} - If settings structure is invalid for the section
+   *
+   * @example
+   * // Update appearance settings
+   * await window.api.saveSetting('appearance', {
+   *   theme: 'dark',
+   *   accentColor: '#0078D4'
+   * })
+   *
+   * @example
+   * // Update reader settings (triggers cache size update)
+   * await window.api.saveSetting('reader', {
+   *   readingMode: 'vertical',
+   *   fitMode: 'width',
+   *   zoom: 100,
+   *   chapterCacheSize: 200
+   * })
+   */
   wrapIpcHandler('settings:save', async (_, key: unknown, value: unknown) => {
     const keyStr = key as string
 
@@ -96,6 +170,18 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
     return true
   })
 
+  /**
+   * Open settings.json file in default text editor.
+   *
+   * Opens the settings file for manual editing. Useful for advanced users or
+   * troubleshooting. Changes made externally require app restart to take effect.
+   *
+   * @returns Promise<boolean> - Always returns true on success
+   *
+   * @example
+   * // Open settings file from Help menu
+   * await window.api.openSettingsFile()
+   */
   wrapIpcHandler('settings:open-settings-file', async () => {
     const settingsPath = getSettingsFilePath()
 
@@ -103,6 +189,18 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
     return true
   })
 
+  /**
+   * Reset all settings to default values.
+   *
+   * Overwrites settings.json with factory defaults. Does NOT clear library data
+   * (favorites, progress, downloads). User preferences are lost.
+   *
+   * @returns Promise<boolean> - Always returns true on success
+   *
+   * @example
+   * // Reset settings from Danger Zone
+   * await window.api.resetToDefaults()
+   */
   wrapIpcHandler('settings:reset-to-defaults', async () => {
     const defaultSettings = getDefaultSettings()
 
@@ -110,6 +208,19 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
     return true
   })
 
+  /**
+   * Clear ALL application data and reset to factory state.
+   *
+   * DESTRUCTIVE: Deletes entire database (favorites, progress, downloads, collections),
+   * resets settings to defaults, and restarts the app. Cannot be undone.
+   * Use only for troubleshooting or complete reset.
+   *
+   * @returns Promise<boolean> - Returns true but app exits before promise resolves
+   *
+   * @example
+   * // Nuclear option from Danger Zone
+   * await window.api.clearAllData() // App will restart
+   */
   wrapIpcHandler('settings:clear-all', async () => {
     cleanupRepo.clearAllData()
 
@@ -124,6 +235,22 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
     return true
   })
 
+  /**
+   * Open system date/time settings.
+   *
+   * Opens the operating system's region & language settings where users can change
+   * date format preferences. Platform-specific implementation (Windows/macOS only,
+   * returns false on Linux - no universal way).
+   *
+   * @returns Promise<boolean> - True if system settings opened, false if unsupported platform or failed
+   *
+   * @example
+   * // Open system settings from date format hint
+   * const opened = await window.api.openSystemDateSettings()
+   * if (!opened) {
+   *   console.log('Platform not supported or failed to open')
+   * }
+   */
   wrapIpcHandler('settings:open-system-date-settings', async () => {
     const platform = process.platform
 
@@ -145,6 +272,20 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
     }
   })
 
+  /**
+   * Get memory tier information for chapter cache sizing.
+   *
+   * Returns system RAM tier (Low/Normal/High) and recommended cache sizes based on
+   * available memory. Used in Settings UI to help users choose appropriate cache size.
+   *
+   * @returns Promise<{tier: string, totalRAM: number, recommendedSize: number}> - Memory tier info
+   *
+   * @example
+   * // Show tier-based recommendations in Settings
+   * const tierInfo = await window.api.getMemoryTierInfo()
+   * console.log(`Your system: ${tierInfo.tier} tier (${tierInfo.totalRAM} GB RAM)`)
+   * console.log(`Recommended cache: ${tierInfo.recommendedSize} MB`)
+   */
   wrapIpcHandler('settings:get-memory-tier-info', async () => {
     return await getMemoryTierInfo()
   })

@@ -129,7 +129,7 @@ function ClosingOverlay(): React.JSX.Element {
     >
       <ProgressRing size="large" />
       <div style={{ fontSize: '16px', fontWeight: 500 }}>A little bit of house keeping...</div>
-      <div style={{ fontSize: '14px', opacity: 0.7 }}>Please wait</div>
+      <div style={{ fontSize: '14px', opacity: 0.7 }}>Hang tight...</div>
     </div>
   )
 }

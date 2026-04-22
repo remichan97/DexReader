@@ -84,11 +84,7 @@ export function DownloadsSettings({
           name="download-confirmation"
           label="Confirmation behaviour"
         >
-          <Radio
-            value="always"
-            label="Always"
-            description="Show quality dialog before every download"
-          />
+          <Radio value="always" label="Always" description="Ask which quality before downloading" />
           <Radio
             value="batch-only"
             label="Batch Only"
@@ -108,7 +104,7 @@ export function DownloadsSettings({
         <p className="downloads-settings__description">
           {downloadConfirmation === 'never'
             ? 'Quality used for all downloads'
-            : 'Pre-selected value in quality dialog'}
+            : 'Default quality selection'}
         </p>
 
         <RadioGroup

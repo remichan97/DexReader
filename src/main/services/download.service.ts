@@ -32,7 +32,7 @@ interface ChapterImageCache {
   timestamp: number
 }
 
-export class DownloadService {
+class DownloadService {
   private readonly mangadexClient = new MangaDexClient()
 
   // Cache chapter image URLs for 5 minutes to avoid re-fetching on retry attempts

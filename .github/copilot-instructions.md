@@ -12,12 +12,10 @@ The memory bank consists of **core files** (required) and **supplementary files*
 
 These files are essential for me to understand the project. If any of these files are missing, I will create them based on available information or by asking for details. These include:
 
-- `active-context.md`: This file contains the **current context** of our collaboration, including recent tasks (last 2-3 weeks), immediate goals, any blockers, known issues and next steps. **This is my session dashboard** - it should be kept concise (150-300 lines) and focused on **actionable, recent information only**. Older session notes and completed work details belong in `archived-milestones.md`. This is my primary source of truth for current project state.
+- `active-context.md`: This file contains the **current context** of our collaboration, including recent tasks (last 2-3 weeks), immediate goals, any blockers, known issues and next steps. **This is my session dashboard** - it should be kept concise (150-300 lines) and focused on **actionable, recent information only**. This is my primary source of truth for current project state.
 - `project-brief.md`: This file provides a high-level overview of the project, including its purpose, target audience, and key features.
 - `system-pattern.md`: This file outlines the architectural patterns, coding standards, and best practices that should be followed in the project.
 - `tech-context.md`: This file details the technologies, frameworks, and libraries used in the project, along with their versions and configurations.
-- `project-progress.md`: This file tracks the progress of the project as a concise historical timeline. It includes phase summaries, completed milestones, key outcomes, and upcoming work. Keep entries brief with cross-references to `archived-milestones.md` for detailed implementation notes. Focus on **what was completed and when**, not **how it was implemented**.
-- `archived-milestones.md`: This file contains detailed implementation notes from completed milestones in chronological order. Use this to store comprehensive technical details, bug fix documentation, refactoring histories, and implementation decisions. **Do not include planning phase details** - plan files are deleted upon task completion, so only document what was actually implemented. This serves as essential reference material when working on related features, debugging issues, or building on previous work.
 
 ## Supplementary Files (Optional)
 
@@ -26,6 +24,15 @@ These are optional files, therefore it is not available on the get go. However, 
 - Unit Testing
 - Deployment Plans
 - Performance Metrics
+- Historical files (see the section below)
+
+## Historical Files
+
+These are historical milestones, past implementation, decision made before the project went gold, located at the `historical` folder, therefore it is preserved as historical artifact, and may be referred to should the situation arise. Files in said folders are considered locked, and may not be edited, only to be used as references. These include:
+
+- Archived Milestones (`archived-milestones.md`): This file contains detailed architectural decisions and lessons learned from all 29 milestones completed during v1.0 development (November 2025 - April 2026). It serves as essential reference material when working on related features, debugging issues, or understanding past architectural choices.
+- Project Progress (`project-progress.md`): This file contains the development timeline, including key milestones, feature/task list during the active development phase.
+- v1.0 Release Snapshots (`v1.0-release-snapshot.md`): This file captures the complete state of the project at the time of v1.0 release, including codebase, documentation, and any relevant artifacts.
 
 # Additional Material
 

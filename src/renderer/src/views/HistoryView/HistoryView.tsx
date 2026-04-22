@@ -95,7 +95,7 @@ export function HistoryView(): JSX.Element {
       <div className="history-view__search">
         <input
           type="search"
-          placeholder="Search manga titles..."
+          placeholder="Search your reading history..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="history-view__search-input"

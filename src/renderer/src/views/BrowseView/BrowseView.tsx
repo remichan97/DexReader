@@ -293,7 +293,7 @@ export function BrowseView(): JSX.Element {
           onChange={handleSearch}
           onFilterClick={handleFilterClick}
           filterCount={filterCount}
-          placeholder="Search for manga"
+          placeholder="Search by title, author, or genre..."
         />
       </div>
 
@@ -373,7 +373,11 @@ export function BrowseView(): JSX.Element {
       {!loading && !error && results.length === 0 && (
         <EmptyState
           icon={query ? <Search48Regular /> : undefined}
-          message={query ? 'No manga found' : 'Start searching to discover manga'}
+          message={
+            query
+              ? 'Hmm, nothing matched your search'
+              : "Let's find something to read! Try searching above"
+          }
           variant={query ? 'search' : 'default'}
         />
       )}

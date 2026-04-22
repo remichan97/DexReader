@@ -16,11 +16,11 @@ import { SaveProgressCommand } from '../../database/commands/progress/save-progr
 import { progressRepo } from '../../database/repositories/manga-progress.repo'
 import { chapterRepo } from '../../database/repositories/chapter.repo'
 
-export class MihonBackupService {
-  // MangaDex source ID from Tachiyomi extension
-  // See: https://github.com/tachiyomiorg/tachiyomi-extensions
-  private static readonly MangaDexSourceId = 2499283573021220255n
+// MangaDex source ID from Tachiyomi extension
+// See: https://github.com/tachiyomiorg/tachiyomi-extensions
+const MANGADEX_SOURCE_ID = 2499283573021220255n
 
+class MihonBackupService {
   private abortController?: AbortController
   private readonly schemaPath = path.join(
     __dirname,
@@ -42,7 +42,7 @@ export class MihonBackupService {
     const backup = root.lookupType('Backup').decode(decompressed).toJSON() as Backup
 
     const mangadexManga = backup.backupManga.filter((it) => {
-      const isMangaDex = BigInt(it.source) === MihonBackupService.MangaDexSourceId
+      const isMangaDex = BigInt(it.source) === MANGADEX_SOURCE_ID
 
       // Assume all manga in backup are favourite, unless explicitly marked otherwise
       const isFavourite = it.favorite ?? true

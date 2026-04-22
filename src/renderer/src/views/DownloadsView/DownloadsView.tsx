@@ -93,7 +93,7 @@ export function DownloadsView(): JSX.Element {
       {groupedDownloads.length === 0 ? (
         <EmptyState
           icon={<ArrowDownload24Regular />}
-          message="No downloads. When you start downloading chapters, they will appear here."
+          message="Nothing downloaded yet. Chapters you download will show up here!"
         />
       ) : (
         <div className="downloads-groups flex flex-col gap-4">

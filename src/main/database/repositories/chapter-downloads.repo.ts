@@ -10,7 +10,7 @@ import { DeleteChapterCommand } from '../commands/chapter-downloads/delete-chapt
 import { MangaStorageQuery } from '../queries/chapter-downloads/manga-storage.query'
 import { executeBatchOperations } from '../utils/batch-operations.util'
 
-export class ChapterDownloadsRepository {
+class ChapterDownloadsRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
     return databaseConnection.getDb()
   }

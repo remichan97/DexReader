@@ -18,7 +18,7 @@ import { version } from '../../../../package.json'
 import protobuf from 'protobufjs'
 import Pako from 'pako'
 
-export class DexReaderExportService {
+class DexReaderExportService {
   private readonly schemaPath = path.join(
     __dirname,
     'services',

@@ -13,7 +13,7 @@ import { Backup } from '../types/mihon/backup.type'
 import protobuf from 'protobufjs'
 import Pako from 'pako'
 
-export class MihonExportService {
+class MihonExportService {
   private readonly schemaPath = path.join(
     __dirname,
     'services',

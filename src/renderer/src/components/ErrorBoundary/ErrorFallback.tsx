@@ -46,8 +46,8 @@ export function DefaultErrorFallback({
         </h2>
         <p className="error-fallback__message">
           {isCritical
-            ? 'Something unexpected happened. Try reloading if this keeps happening.'
-            : "This part isn't working right now. Try again or check out other sections."}
+            ? 'Oops! Something unexpected happened. Try reloading if this keeps happening.'
+            : "This part isn't working right now. Try again or explore other sections."}
         </p>
         <div className="error-fallback__details">
           <details>

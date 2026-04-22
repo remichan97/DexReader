@@ -1,7 +1,7 @@
 # DexReader Technical Context
 
-**Last Updated**: 15 March 2026
-**Project Version**: 1.0.0
+**Last Updated**: 21 April 2026
+**Project Version**: 1.0.0 (Release Baseline)
 **Type**: Desktop Application (Electron)
 
 ---
@@ -1027,10 +1027,10 @@ autoUpdater.checkForUpdatesAndNotify()
 **Electron 38** includes:
 
 - Node.js ~20.x (not v22.x from development environment)
-- Chromium ~128.x
+- Chromium ~134.x
 - Security features enabled by default
 
-**Note**: Development uses Node v22.21.1, but production uses Electron's bundled Node ~20.x
+**Note**: Development uses Node v22.21.1, matching Electron's bundled Node ~22.x
 
 ---
 

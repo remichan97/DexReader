@@ -15,7 +15,7 @@ import { DexReaderMangaProgress } from '../types/dexreader/manga-progress.type'
 import { DexReaderMangaReaderOverride } from '../types/dexreader/manga-reader-override.type'
 import { DexReaderManga } from '../types/dexreader/manga.type'
 
-export class DexReaderImportHelper {
+class DexReaderImportHelper {
   processUpsertMangaCommand(manga: DexReaderManga): UpsertMangaCommand {
     return {
       mangaId: manga.mangaId,

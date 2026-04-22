@@ -36,7 +36,7 @@ const TagNameToIdMap: Record<string, string> = Object.entries(TagList).reduce(
   {} as Record<string, string>
 )
 
-export class MihonBackupHelper {
+class MihonBackupHelper {
   mapCategoriesToCollections(categories: BackupCategory[]): Map<number, number> {
     const categoryMap = new Map<number, number>()
     if (!categories || categories.length === 0) {

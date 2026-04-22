@@ -91,32 +91,22 @@ npm run build:linux
 
 ## Project Status
 
-**Current Version**: 0.12.0 (Pre-release)
-**Target Release**: v1.0.0 (May 2026)
+**Current Version**: 1.0.0 (Stable Release - April 22, 2026) 🎉
 
-Phase 5 (Production Readiness) - In Progress:
+DexReader v1.0.0 is now available! This golden milestone represents a manga reader with:
 
-- ✅ Frontend refactoring (56% complexity reduction)
-- ✅ Database optimization (88-99% faster queries)
-- ✅ Memory profiling and leak detection
-- ✅ Download system performance (5-10x improvement)
-- ✅ Image loading optimization (cache thrashing eliminated)
-- ✅ CI/CD pipeline with GitHub Actions
-- ✅ Auto-update system with user settings
-- ✅ Build optimization (55% faster updates)
-- ✅ Image loading optimization
-- ✅ CI/CD pipeline with GitHub Actions
-- ⏳ UI responsiveness improvements
-- ⏳ Auto-update system
-- ⏳ Testing suite
+- ✅ Complete MangaDex extensive manga library integration (browse, search, read)
+- ✅ Offline reading with download management
+- ✅ Auto-update system for all platforms
+- ✅ Mihon/Tachiyomi backup compatibility
+- ✅ WCAG 2.1 AA accessibility compliance (100%)
+- ✅ Multi-platform support (Windows, macOS, Linux)
 
-See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
+This release establishes a stable foundation for community feedback, bug fixes, and future feature development.
 
-## Contributing
+See [CHANGELOG.md](CHANGELOG.md) for detailed release notes and development history.
 
-Contributions are welcome! We appreciate bug reports, feature requests, documentation improvements, and code contributions.
-
-### 🙋 Help Wanted: macOS Testing
+## 🙋 Help Wanted: macOS Testing
 
 We're currently looking for Mac users to help test DexReader! No coding required—just download the app, try it out, and let us know if anything doesn't work as expected.
 
@@ -128,38 +118,6 @@ We're currently looking for Mac users to help test DexReader! No coding required
 4. Share your experience in [Discussions](https://github.com/remichan97/DexReader/discussions)
 
 Your feedback helps make DexReader better for all Mac users!
-
----
-
-Before contributing, please read:
-
-- [Contributing Guidelines](CONTRIBUTING.md) - Development setup, code standards, commit conventions, and PR process
-- [Code of Conduct](CODE_OF_CONDUCT.md) - Expected behaviour and community standards
-
-Key topics covered in the contributing guide:
-
-- Development setup and workflow
-- Code standards and style guide
-- Commit message conventions
-- Pull request process
-- Project architecture overview
-
-### Quick Start for Contributors
-
-```bash
-# Fork and clone the repository
-git clone https://github.com/YOUR_USERNAME/DexReader.git
-cd DexReader
-
-# Install dependencies (this also sets up git hooks)
-npm install
-
-# Create a feature branch
-git checkout -b feature/your-feature-name
-
-# Start development
-npm run dev
-```
 
 ### Commit Convention
 
@@ -174,7 +132,7 @@ fix(download): prevent duplicate downloads
 docs(readme): update installation instructions
 ```
 
-Pre-commit hooks will validate your commits automatically.
+Pre-commit hooks will validate all commits automatically.
 
 ## License
 

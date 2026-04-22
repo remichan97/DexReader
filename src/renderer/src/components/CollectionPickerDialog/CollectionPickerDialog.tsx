@@ -136,7 +136,7 @@ export function CollectionPickerDialog({
       <div className="collection-picker-dialog flex flex-col gap-4">
         {collections.length === 0 ? (
           <div className="collection-picker-dialog__empty flex flex-col items-center gap-3">
-            <p>You haven&apos;t created any collections yet.</p>
+            <p>You don&apos;t have any collections yet. Create one to start organising!</p>
             <Button variant="primary" onClick={onCreateNew}>
               Create Your First Collection
             </Button>

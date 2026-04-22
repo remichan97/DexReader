@@ -3,7 +3,7 @@ import { databaseConnection } from '../connection'
 import { chapterProgress, readingStatistics } from '../schemas'
 import { ReadingStats } from '../queries/reading-stats/reading-stats.query'
 
-export class ReadingStatisticRepository {
+class ReadingStatisticRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
     return databaseConnection.getDb()
   }

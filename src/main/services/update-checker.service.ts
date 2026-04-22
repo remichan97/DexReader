@@ -11,7 +11,7 @@ import { UpsertMangaCommand } from '../database/commands/manga/upsert-manga.comm
 import { UpdateResult } from './results/mihon/update.result'
 import { mainLog } from './logging/main-logging.service'
 
-export class UpdateCheckerService {
+class UpdateCheckerService {
   private readonly client: MangaDexClient = new MangaDexClient()
   private readonly oneHourAgo = Date.now() - 60 * 60 * 1000
   async checkForUpdates(mangaIds: string[]): Promise<UpdateResult[]> {

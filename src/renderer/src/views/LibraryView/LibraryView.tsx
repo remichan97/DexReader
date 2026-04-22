@@ -140,11 +140,11 @@ export function LibraryView(): JSX.Element {
         const updatedCount = response.data.filter((r) => r.hasNewChapters).length
 
         show({
-          title: 'Update check complete',
+          title: 'All caught up!',
           message:
             updatedCount > 0
               ? `Found updates for ${updatedCount} manga!`
-              : 'Your library is up to date',
+              : "You're all up to date!",
           variant: updatedCount > 0 ? 'success' : 'info',
           duration: 3000
         })
@@ -200,7 +200,7 @@ export function LibraryView(): JSX.Element {
 
       {/* Live region for dynamic content updates */}
       <div aria-live="polite" aria-atomic="true" className="sr-only" role="status">
-        {loading ? 'Loading library...' : `${filteredAll.length} manga in library`}
+        {loading ? 'Loading your library...' : `${filteredAll.length} manga in library`}
       </div>
 
       {/* Search Bar with Actions */}
@@ -374,7 +374,7 @@ export function LibraryView(): JSX.Element {
                     icon={searchQuery ? <Search48Regular /> : <BookOpen48Regular />}
                     message={
                       searchQuery
-                        ? "Can't find what you're looking for..."
+                        ? 'Nothing here matches your search'
                         : !isOnline
                           ? 'No downloaded manga. Go online to download manga for offline reading.'
                           : 'Nothing here yet! Start adding some manga from Browse.'
@@ -430,7 +430,7 @@ export function LibraryView(): JSX.Element {
                   icon={searchQuery ? <Search48Regular /> : <BookOpen48Regular />}
                   message={
                     searchQuery
-                      ? "Can't find what you're looking for..."
+                      ? 'Nothing here matches your search'
                       : !isOnline
                         ? 'No downloaded manga. Go online to download manga for offline reading.'
                         : 'Nothing here yet! Start adding some manga from Browse.'

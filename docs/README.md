@@ -11,9 +11,8 @@ This folder contains all design and architectural documentation for DexReader.
 
 ### 📐 `/design`
 
-Visual design, layout wireframes, and design system specifications.
+Visual design and design system specifications.
 
-- **wireframes.md** - ASCII wireframes for all 5 primary views (Browse, Library, Reader, Settings, Downloads)
 - **windows11-design-tokens.md** - Complete design token system with light/dark themes, colors, typography, spacing, effects
 - **responsive-behavior-guide.md** - Breakpoint specifications and adaptive behaviors (3 breakpoints: >720px, 620-720px, <620px)
 
@@ -23,18 +22,24 @@ System architecture, navigation patterns, and layout specifications.
 
 - **navigation-flow.md** - Complete navigation graph with 9 routes, keyboard shortcuts, back behavior, state persistence
 - **layout-specification.md** - Application shell structure, view layouts, sidebar specs, spacing system, z-index hierarchy
-- **routing-decision.md** - React Router v6 evaluation and configuration with hooks documentation
 - **reader-layout-specification.md** - 3 reading modes (single/double/vertical) with controls, interactions, preloading strategy
 - **menu-bar-structure.md** - Native Electron menu bar with 5 menus, 30+ items, keyboard accelerators, implementation code
-- **database-architecture.md** - 🗄️ **SQLite database design** with Drizzle ORM, 9 tables, CQRS pattern, migration strategy (Guerilla Migration 27-28 Dec 2025)
+- **database-architecture.md** - 🗄️ **SQLite database design** with Drizzle ORM, 9 tables, CQRS pattern, migration strategy
 - **state-management.md** - Zustand stores with SQLite integration for progress tracking
+- **error-handling.md** - Error patterns, IPC error handling, user-facing messages
+- **filesystem-security.md** - Path validation, security restrictions, safe file operations
+- **ipc-messaging.md** - IPC architecture, handler patterns, type safety
+- **mangadex-api.md** - MangaDex API integration, rate limiting, error handling
 
-### 🧩 `/components`
+### 📚 API & Integration
 
-Component specifications, hierarchy, UI patterns, and implementation library.
+- **[api-reference.md](./api-reference.md)** - 📡 **Complete IPC API reference** with 90+ handlers across 14 categories, type definitions, error handling patterns, and usage examples
+  library and UI patterns.
 
 - **ui-component-library.md** - 📚 **Complete component catalog** with 17 production-ready components, usage examples, design patterns, TypeScript types
 - **ui-polish-refinements.md** - ✨ **Polish documentation** covering 9 refinements applied after user testing (focus behavior, animations, icons)
+- **loading-feedback-states.md** - Complete loading/error/empty state system (skeleton screens, progress rings/bars, spinners, error handling)
+- **utility-classes.md** - CSS utility class system for consistent styling patternsns)
 - **component-hierarchy.md** - React component tree with 20+ components, TypeScript interfaces, file structure, communication patterns
 - **component-specifications.md** - Detailed specs for AppShell, Sidebar, ViewContainer, and reusable components (MangaCard, SearchBar, Toast) with BEM CSS
 - **loading-feedback-states.md** - Complete loading/error/empty state system (skeleton screens, progress rings/bars, spinners, error handling)

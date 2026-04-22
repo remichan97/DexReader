@@ -7,7 +7,7 @@ import { ChapterMapper } from '../mappers/chapter.mapper'
 
 type ChapterRow = typeof chapter.$inferSelect
 
-export class ChapterRepository {
+class ChapterRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
     return databaseConnection.getDb()
   }
