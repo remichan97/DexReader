@@ -1,0 +1,118 @@
+name: Bug Report
+description: Create a report to help us improve
+title: '[BUG] - '
+labels: bug
+assignees:
+  - remichan97
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for trying out the app and for your help in reporting a bug. Please help us understand the issue you're experiencing better by filling out the template below.
+
+  - type: input
+    id: description
+    attributes:
+      label: Description
+      description: What is the issue that you are facing? Please provide a clear and concise description of what the issue is.
+      placeholder: 'A clear and concise description of the issue'
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce the issue? Please provide a step-by-step description of how to reproduce the issue.
+      placeholder: "1. Go to '...'\n2. Click on '...'\n3. Scroll down to '...'\n4. See error"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behaviour
+      description: What did you expect to happen? Please provide a clear and concise description of what you expected to happen.
+      placeholder: 'What did you expect to happen?'
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behaviour
+      description: What actually happened? Please provide a clear and concise description of what actually happened.
+      placeholder: 'What actually happened?'
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      description: Which operating system are you using?
+      options:
+        - Windows 11
+        - Windows 10
+        - macOS 14 (Sonoma)
+        - macOS 13 (Ventura)
+        - macOS 12 (Monterey)
+        - Ubuntu/Debian
+        - Fedora/RHEL
+        - Arch Linux
+        - Other Linux
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install-method
+    attributes:
+      label: Installation Method
+      description: |
+        How did you install DexReader? For Linux users: different installation methods (AppImage vs .deb) have different sandboxing and filesystem access that can affect bug behaviour.
+      options:
+        - Windows - Installer
+        - macOS - DMG
+        - Linux - AppImage
+        - Linux - .deb package
+        - Built from source
+        - Other (please specify in Additional Context)
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: (Optional) Is there anything else about the problem that you think would be helpful for us? Please provide any additional information that you think would be helpful for us to understand the issue better.
+      placeholder: 'Any additional information that you think would be helpful for us to understand the issue better.'
+    validations:
+      required: false
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Please tell us which version of the app you are using? You can find this in the Help > About menu in the app.
+      placeholder: 'e.g., 1.0.0'
+    validations:
+      required: true
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments
+      description: (Optional) If possible, please attach logs, screenshots, or any other relevant information that can help us understand the issue better.
+      placeholder: 'Please attach logs, screenshots, or any other relevant information that can help us understand the issue better.'
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: non-duplicate
+    attributes:
+      label: Make sure this is not a duplicate
+      description: Please check this box if you have already searched for similar issues and believe this is a new issue that has not been reported before.
+      options:
+        - label: This issue is not a duplicate
+          required: true

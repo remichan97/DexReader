@@ -1,0 +1,68 @@
+name: Other Issues
+description: Report an issue that doesn't fit into the other categories
+title: '[ISSUE] - '
+labels: issue
+assignees:
+  - remichan97
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Having other issues or feedback that neither fit into a bug report nor a feature request? Please fill out the template below to help us understand better what you're looking for.
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      description: Please select the category that best describes your issue or feedback.
+      options:
+        - General Feedback
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: other
+    attributes:
+      label: Other Category
+      description: If you selected "Other" as the category, please let us know what it is.
+      placeholder: 'Please specify the category of your issue or feedback'
+    validations:
+      required: false
+
+  - type: input
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of the issue or feedback you would like to share with us.
+      placeholder: 'A clear and concise description of the issue or feedback you would like to share with us.'
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: Please provide any additional details, context, or information that can help us understand the issue or feedback better.
+      placeholder: 'Please provide any additional details, context, or information that can help us understand the issue or feedback better.'
+    validations:
+      required: true
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments
+      description: (Optional) If possible, please attach logs, screenshots, or any other relevant information that can help us understand you better.
+      placeholder: 'Please attach logs, screenshots, or any other relevant information that can help us understand you better.'
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: non-duplicate
+    attributes:
+      label: Make sure this is not a duplicate
+      description: Please check this box if you have already searched for similar issues and believe this is a new issue that has not been reported before.
+      options:
+        - label: This issue is not a duplicate
+          required: true
