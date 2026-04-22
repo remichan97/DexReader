@@ -1,8 +1,9 @@
 # DexReader System Pattern
 
-**Last Updated**: 19 March 2026
-**Version**: 1.0.2
+**Last Updated**: 21 April 2026
+**Version**: 1.0.0 (v1.0 Release Baseline)
 **Architecture**: Electron Multi-Process Desktop Application
+**Status**: Active - This document defines coding standards maintained post-v1.0
 
 ---
 
