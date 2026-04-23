@@ -1,5 +1,5 @@
-appId: com.electron.app
-productName: dexreader
+appId: com.remichan97.dexreader
+productName: DexReader
 directories:
   buildResources: build
 files:
