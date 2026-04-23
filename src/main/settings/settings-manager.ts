@@ -18,6 +18,7 @@ import { DownloadConfirmation } from './enums/download-confirmation.enum'
 import { MemoryTierInfo } from './response/memory-tier.response'
 import { memoryCacheUtil } from '../api/utils/memory-cache.util'
 import { mainLog } from '../services/logging/main-logging.service'
+import { StartupPage } from './enums/startup-page.enum'
 
 // Lazy-initialized to avoid calling getAppDataPath() before Electron app is ready
 function settingsFilePath(): string {
@@ -219,7 +220,8 @@ export function getDefaultSettings(): AppSettings {
       maxDiskCacheSize: 50 * 1024 * 1024 // 50 MB default cache size for covers
     },
     appearance: {
-      theme: AppTheme.System
+      theme: AppTheme.System,
+      startupPage: StartupPage.Browse
     },
     reader: {
       forceDarkMode: true,
