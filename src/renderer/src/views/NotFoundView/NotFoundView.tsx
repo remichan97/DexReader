@@ -10,7 +10,7 @@ export function NotFoundView(): JSX.Element {
     const showErrorDialog = async (): Promise<void> => {
       const result = await globalThis.api.showConfirmDialog(
         'Oops! Lost your way?',
-        "This page doesn't exist. Let's get you back to browsing manga!"
+        "What you're looking for isn't here. Let's get you back to browsing manga!"
       )
 
       if (!result.success) {
@@ -24,10 +24,6 @@ export function NotFoundView(): JSX.Element {
     showErrorDialog()
   }, [navigate])
 
-  return (
-    <div className="p-6 text-center">
-      <h1>Whoops! 404</h1>
-      <p>Taking you back...</p>
-    </div>
-  )
+  // Render nothing since we're showing a dialog and will navigate away
+  return <></>
 }
