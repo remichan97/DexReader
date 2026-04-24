@@ -14,6 +14,7 @@ import { AppearanceSettings } from '../entities/appearance-settings.entity'
 import { ValidationError } from '../../ipc/error/validation.error'
 import { UpdateSettings } from '../entities/update-settings.entity'
 import { LogsSettings } from '../entities/logs-settings.entity'
+import { StartupPage } from '../enums/startup-page.enum'
 
 // Validate appearance settings
 export function isAppearanceSettings(values: unknown): values is AppearanceSettings {
@@ -23,12 +24,32 @@ export function isAppearanceSettings(values: unknown): values is AppearanceSetti
 
   const appearanceSettings = values as AppearanceSettings
 
-  return (
-    Object.values(AppTheme).includes(appearanceSettings.theme) &&
-    (appearanceSettings.accentColor === undefined ||
-      (typeof appearanceSettings.accentColor === 'string' &&
-        /^#[0-9A-Fa-f]{6}$/.test(appearanceSettings.accentColor)))
-  )
+  // Validate theme is a valid AppTheme enum value
+  if (!Object.values(AppTheme).includes(appearanceSettings.theme)) {
+    throw new Error('Refused to save appearance settings: theme is not a valid AppTheme value')
+  }
+
+  // Validate accentColor is a valid hex color code if provided
+  if (
+    appearanceSettings.accentColor &&
+    !/^#([0-9A-F]{3}){1,2}$/i.test(appearanceSettings.accentColor)
+  ) {
+    throw new TypeError(
+      'Refused to save appearance settings: accentColor must be a valid hex color code if provided'
+    )
+  }
+
+  // Validate StartupPage is a valid StartupPage enum value
+  if (
+    appearanceSettings.startupPage &&
+    !Object.values(StartupPage).includes(appearanceSettings.startupPage)
+  ) {
+    throw new TypeError(
+      'Refused to save appearance settings: startupPage is not a valid StartupPage value if provided'
+    )
+  }
+
+  return true
 }
 
 // Validate download settings
