@@ -11,14 +11,18 @@ import { DownloadsView } from './views/DownloadsView'
 import { NotFoundView } from './views/NotFoundView'
 import { MangaDetailView } from './views/MangaDetailView'
 
-export function AppRoutes(): JSX.Element {
+interface AppRoutesProps {
+  readonly startupRoute: string
+}
+
+export function AppRoutes({ startupRoute }: AppRoutesProps): JSX.Element {
   const location = useLocation()
   const isReaderRoute = location.pathname.startsWith('/reader/')
 
   return (
     <ViewTransition key={isReaderRoute ? 'reader' : location.pathname}>
       <Routes location={location}>
-        <Route path="/" element={<Navigate to="/browse" replace />} />
+        <Route path="/" element={<Navigate to={startupRoute} replace />} />
         <Route
           path="/browse"
           element={

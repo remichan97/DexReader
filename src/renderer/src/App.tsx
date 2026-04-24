@@ -16,6 +16,21 @@ import { UnsavedChangesProvider } from './contexts/UnsavedChangesProvider'
 import { useUnsavedChanges } from './hooks/useUnsavedChanges'
 import { rendererLog } from './services/logging.service'
 
+/**
+ * Map startup page setting to route path
+ */
+function mapStartupPageToRoute(startupPage: string): string {
+  switch (startupPage) {
+    case 'library':
+      return '/library'
+    case 'downloads':
+      return '/downloads'
+    case 'browse':
+    default:
+      return '/browse'
+  }
+}
+
 function AppContent(): React.JSX.Element {
   const location = useLocation()
   const isReaderRoute = location.pathname.startsWith('/reader/')
@@ -24,6 +39,28 @@ function AppContent(): React.JSX.Element {
   const startPolling = useConnectivityStore((state) => state.startPolling)
   const stopPolling = useConnectivityStore((state) => state.stopPolling)
   const [isClosing, setIsClosing] = useState(false)
+  const [startupRoute, setStartupRoute] = useState<string | null>(null)
+
+  // Load startup page preference from settings
+  useEffect(() => {
+    async function loadStartupPreference(): Promise<void> {
+      try {
+        const settings = await globalThis.settings.load()
+        if (settings.success) {
+          const route = mapStartupPageToRoute(settings.data.appearance.startupPage)
+          setStartupRoute(route)
+          return
+        }
+        // If loading fails, fall back to default
+        setStartupRoute('/browse')
+      } catch (error) {
+        rendererLog.error('[App] Failed to load startup page setting:', error)
+        // Fall back to default
+        setStartupRoute('/browse')
+      }
+    }
+    void loadStartupPreference()
+  }, [])
 
   // Listen for navigation commands from menu
   useNavigationListener()
@@ -86,11 +123,20 @@ function AppContent(): React.JSX.Element {
     }
   }, [flushPendingSaves])
 
+  // Show loading state while fetching startup preference
+  if (!startupRoute) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <ProgressRing size="large" />
+      </div>
+    )
+  }
+
   // Reader gets full screen without sidebar
   if (isReaderRoute) {
     return (
       <>
-        <AppRoutes />
+        <AppRoutes startupRoute={startupRoute} />
         {isClosing && <ClosingOverlay />}
       </>
     )
@@ -100,7 +146,7 @@ function AppContent(): React.JSX.Element {
   return (
     <>
       <AppShell>
-        <AppRoutes />
+        <AppRoutes startupRoute={startupRoute} />
       </AppShell>
       {isClosing && <ClosingOverlay />}
     </>

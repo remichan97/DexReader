@@ -56,6 +56,7 @@ export function SettingsView(): JSX.Element {
   const [accentColor, setAccentColor] = useState<string>('#0078d4')
   const [isUsingSystemColor, setIsUsingSystemColor] = useState<boolean>(true)
   const [systemAccentColor, setSystemAccentColor] = useState<string>('#0078d4')
+  const [startupPage, setStartupPage] = useState<'library' | 'browse' | 'downloads'>('browse')
 
   // Reader settings state
   const [globalReaderSettings, setGlobalReaderSettings] = useState<MangaReadingSettings>({
@@ -109,6 +110,7 @@ export function SettingsView(): JSX.Element {
     // Compare appearance settings
     const appearanceChanged =
       themeMode !== originalSettings.appearance.theme ||
+      startupPage !== originalSettings.appearance.startupPage ||
       (isUsingSystemColor
         ? originalSettings.appearance.accentColor !== undefined
         : originalSettings.appearance.accentColor !== accentColor)
@@ -145,6 +147,7 @@ export function SettingsView(): JSX.Element {
   }, [
     originalSettings,
     themeMode,
+    startupPage,
     accentColor,
     isUsingSystemColor,
     downloadConfirmation,
@@ -204,6 +207,11 @@ export function SettingsView(): JSX.Element {
           // Load theme from settings
           if (settings.appearance.theme) {
             setThemeMode(settings.appearance.theme)
+          }
+
+          // Load startup page from settings
+          if (settings.appearance.startupPage) {
+            setStartupPage(settings.appearance.startupPage)
           }
 
           if (settings.appearance.accentColor) {
@@ -558,7 +566,8 @@ Are you absolutely certain you want to proceed with this cache size?`,
       // Build appearance settings object
       const appearanceSettings = {
         theme: themeMode,
-        accentColor: isUsingSystemColor ? undefined : accentColor
+        accentColor: isUsingSystemColor ? undefined : accentColor,
+        startupPage: startupPage
       }
 
       // Build downloads settings object
@@ -639,6 +648,7 @@ Are you absolutely certain you want to proceed with this cache size?`,
 
     // Restore appearance settings
     setThemeMode(originalSettings.appearance.theme)
+    setStartupPage(originalSettings.appearance.startupPage)
     if (originalSettings.appearance.accentColor) {
       setAccentColor(originalSettings.appearance.accentColor)
       setIsUsingSystemColor(false)
@@ -717,6 +727,8 @@ Are you absolutely certain you want to proceed with this cache size?`,
             isUsingSystemColor={isUsingSystemColor}
             systemAccentColor={systemAccentColor}
             onUseSystemColor={handleUseSystemColor}
+            startupPage={startupPage}
+            onStartupPageChange={setStartupPage}
           />
         </TabPanel>
 
