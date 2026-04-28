@@ -21,7 +21,6 @@ import {
   BookOpen48Regular,
   Search48Regular,
   Warning48Regular,
-  ArrowClockwise24Regular,
   Add24Regular,
   Info20Regular
 } from '@fluentui/react-icons'
@@ -104,67 +103,6 @@ export function LibraryView(): JSX.Element {
     navigate(`/browse/${id}`)
   }
 
-  const handleCheckUpdates = async (): Promise<void> => {
-    if (!isOnline) {
-      show({
-        title: "You're offline",
-        message: 'Check for updates requires an internet connection',
-        variant: 'warning',
-        duration: 3000
-      })
-      return
-    }
-
-    if (favourites.length === 0) {
-      show({
-        title: 'No manga in library',
-        message: 'Add some manga to your library first',
-        variant: 'info',
-        duration: 3000
-      })
-      return
-    }
-
-    show({
-      title: 'Checking for updates...',
-      message: `Checking ${favourites.length} manga...`,
-      variant: 'info',
-      duration: 2000
-    })
-
-    try {
-      const mangaIds = favourites.map((m) => m.mangaId)
-      const response = await globalThis.library.checkForUpdates(mangaIds)
-
-      if (response.success && response.data) {
-        const updatedCount = response.data.filter((r) => r.hasNewChapters).length
-
-        show({
-          title: 'All caught up!',
-          message:
-            updatedCount > 0
-              ? `Found updates for ${updatedCount} manga!`
-              : "You're all up to date!",
-          variant: updatedCount > 0 ? 'success' : 'info',
-          duration: 3000
-        })
-
-        // Reload library to show update indicators
-        await loadFavourites()
-      } else {
-        throw new Error(response.error?.message || 'Unknown error')
-      }
-    } catch (error) {
-      rendererLog.error('[LibraryView] Error checking for updates:', error)
-      show({
-        title: 'Update check failed',
-        message: 'Could not check for updates. Please try again.',
-        variant: 'error',
-        duration: 3000
-      })
-    }
-  }
-
   const handleRemoveFromLibrary = async (id: string): Promise<void> => {
     const manga = favourites.find((m) => m.mangaId === id)
 
@@ -232,16 +170,6 @@ export function LibraryView(): JSX.Element {
         >
           Collection
         </Button>
-        <Button
-          variant="primary"
-          size="medium"
-          icon={<ArrowClockwise24Regular />}
-          onClick={handleCheckUpdates}
-          disabled={!isOnline}
-          aria-label="Check for updates"
-          title={!isOnline ? 'Check for updates (offline)' : 'Check for updates (Ctrl+Shift+U)'}
-          className="h-9"
-        />
       </div>
 
       {/* Search Help */}
