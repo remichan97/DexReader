@@ -24,19 +24,12 @@ export const manga = sqliteTable(
 
     // Official publication info only. Do NOT use for any progress calculations.
     lastVolume: text('last_volume'),
-    lastChapter: text('last_chapter'),
-
-    // For displaying new chapter indicator in library
-    lastKnownChapterId: text('last_known_chapter_id'), // last chapterID we got from the API
-    lastKnownChapterNumber: text('last_known_chapter_number'), // Latest chapter number we know of
-    lastCheckForUpdates: integer('last_check_for_updates', { mode: 'timestamp' }), // When was the last time we checked for updates
-    hasNewChapters: integer('has_new_chapters', { mode: 'boolean' }).notNull().default(false) // Whether we should show the "new" indicator
+    lastChapter: text('last_chapter')
   },
   (table) => [
     index('idx_manga_favourite').on(table.isFavourite),
     index('idx_manga_added').on(desc(table.addedAt)),
     index('idx_manga_status').on(table.status),
-    index('idx_last_check_for_updates').on(table.lastCheckForUpdates),
     index('idx_last_accessed').on(desc(table.lastAccessedAt)),
     index('idx_manga_library')
       .on(desc(table.addedAt), desc(table.lastAccessedAt))

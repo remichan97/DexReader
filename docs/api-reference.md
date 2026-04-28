@@ -1245,7 +1245,7 @@ console.log(`${stats.downloaded}/${stats.totalChapters} chapters downloaded`)
 
 ### Library
 
-Favorites, manga metadata, and update checking.
+Favorites and manga metadata.
 
 #### `window.api.getLibraryManga(options)`
 
@@ -1341,28 +1341,6 @@ await window.api.upsertManga({
   authors: ['Author Name'],
   coverUrl: 'https://...'
 })
-```
-
-#### `window.api.checkForUpdates(mangaIds: string[])`
-
-Checks for new chapters.
-
-**Returns:** `Promise<Array<{mangaId: string, newChapterCount: number}>>`
-
-```typescript
-const updates = await window.api.checkForUpdates(libraryMangaIds)
-updates.forEach((u) => console.log(`${u.mangaId}: ${u.newChapterCount} new chapters`))
-```
-
-#### `window.api.getMangaWithUpdates()`
-
-Gets manga with unread new chapters.
-
-**Returns:** `Promise<Array<Manga & {newChapterCount: number}>>`
-
-```typescript
-const mangaWithUpdates = await window.api.getMangaWithUpdates()
-console.log(`${mangaWithUpdates.length} manga have new chapters`)
 ```
 
 #### `window.api.getDownloadedManga()`

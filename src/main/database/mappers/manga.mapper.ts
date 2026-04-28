@@ -46,11 +46,7 @@ export class MangaMapper {
       updatedAt: row.updatedAt,
       externalLinks: row.externalLinks ?? undefined,
       lastVolume: row.lastVolume ?? undefined,
-      lastChapter: row.lastChapter ?? undefined,
-      hasNewChapters: row.hasNewChapters ?? false,
-      lastKnownChapterId: row.lastKnownChapterId ?? undefined,
-      lastKnownChapterNumber: row.lastKnownChapterNumber ?? undefined,
-      lastCheckForUpdate: row.lastCheckForUpdates ?? new Date()
+      lastChapter: row.lastChapter ?? undefined
     }
   }
 

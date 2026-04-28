@@ -5,7 +5,6 @@ import { chapterDownloads, collectionItems, manga } from '../schemas'
 import { GetLibraryMangaCommand } from '../commands/manga/get-library-manga.command'
 import { MangaWithMetadata } from '../queries/manga/manga-with-metadata.query'
 import { MangaMapper } from '../mappers/manga.mapper'
-import { MarkMangaNewChapterCommand } from '../commands/manga/mark-new-chapter.command'
 import { SearchMangaCommand } from '../commands/manga/search-manga.command'
 import { DownloadStatus } from '../enums/download-status.enum'
 import { MangaCacheStatsQuery } from '../queries/manga/manga-cache-stats.query'
@@ -132,18 +131,6 @@ class MangaRepository {
       .run()
 
     return newStatus
-  }
-
-  markHasNewChapter(command: MarkMangaNewChapterCommand): void {
-    this.db
-      .update(manga)
-      .set({
-        hasNewChapters: command.hasNew ?? true,
-        updatedAt: new Date(),
-        lastCheckForUpdates: new Date()
-      })
-      .where(eq(manga.mangaId, command.mangaId))
-      .run()
   }
 
   getLibraryManga(options?: GetLibraryMangaCommand): MangaWithMetadata[] {
@@ -302,24 +289,6 @@ class MangaRepository {
       hasDownloads: result.downloadCount > 0,
       downloadedChapterCount: result.downloadCount
     }
-  }
-
-  getLibraryMangaWithNewChapters(): MangaWithMetadata[] {
-    const results = this.db
-      .select({
-        manga: manga,
-        downloadCount: sql<number>`COUNT(CASE WHEN ${chapterDownloads.status} = ${DownloadStatus.Completed} THEN 1 END)`
-      })
-      .from(manga)
-      .leftJoin(chapterDownloads, eq(manga.mangaId, chapterDownloads.mangaId))
-      .where(and(eq(manga.isFavourite, true), eq(manga.hasNewChapters, true)))
-      .groupBy(manga.mangaId)
-      .all()
-    return results.map((row) => ({
-      ...MangaMapper.toMangaWithMetadata(row.manga),
-      hasDownloads: row.downloadCount > 0,
-      downloadedChapterCount: row.downloadCount
-    }))
   }
 
   statsMangaTable(): MangaCacheStatsQuery {

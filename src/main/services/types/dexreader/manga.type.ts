@@ -27,10 +27,4 @@ export interface DexReaderManga {
   // Publication info (for display only, not for progress tracking)
   lastVolume?: string // Last known volume (can be null)
   lastChapter?: string // Last known chapter (can be null)
-
-  // Update tracking (optional, for library UI indicators)
-  lastKnownChapterId?: string // Last chapter ID we got from API
-  lastKnownChapterNumber?: string // Latest chapter number we know of
-  lastCheckForUpdates?: number // When we last checked for updates (0 vs not set)
-  hasNewChapters: boolean // Whether to show "new" indicator
 }
