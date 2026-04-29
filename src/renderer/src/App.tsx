@@ -40,6 +40,8 @@ function AppContent(): React.JSX.Element {
   const stopPolling = useConnectivityStore((state) => state.stopPolling)
   const [isClosing, setIsClosing] = useState(false)
   const [startupRoute, setStartupRoute] = useState<string | null>(null)
+  const [showUpdateBanner, setShowUpdateBanner] = useState(false)
+  const [updateVersion, setUpdateVersion] = useState<string>('')
 
   // Load startup page preference from settings
   useEffect(() => {
@@ -61,6 +63,64 @@ function AppContent(): React.JSX.Element {
     }
     void loadStartupPreference()
   }, [])
+
+  // Check for update completion flag on startup
+  useEffect(() => {
+    async function checkForUpdateCompletion(): Promise<void> {
+      try {
+        const flagValue = localStorage.getItem('dexreader:updateJustCompleted')
+
+        if (flagValue === 'true') {
+          // Get version from localStorage (set before quit)
+          const storedVersion = localStorage.getItem('dexreader:newVersion')
+
+          // Fallback to app version if storage failed
+          let version = storedVersion || ''
+          if (!version) {
+            const versionResult = await globalThis.appUpdate.getAppVersion()
+            version = versionResult.data || 'unknown'
+          }
+
+          setUpdateVersion(version)
+          setShowUpdateBanner(true)
+
+          // Clear flags immediately (one-time trigger)
+          localStorage.removeItem('dexreader:updateJustCompleted')
+          localStorage.removeItem('dexreader:newVersion')
+
+          rendererLog.info(`[App] Update detected, showing banner for v${version}`)
+        }
+      } catch (error) {
+        rendererLog.error('[App] Failed to check update completion flag:', error)
+        // Clean up flags even on error
+        localStorage.removeItem('dexreader:updateJustCompleted')
+        localStorage.removeItem('dexreader:newVersion')
+      }
+    }
+
+    void checkForUpdateCompletion()
+  }, [])
+
+  const handleDismissBanner = (): void => {
+    setShowUpdateBanner(false)
+    rendererLog.info('[App] Update banner dismissed by user')
+  }
+
+  const handleViewReleaseNotes = async (): Promise<void> => {
+    try {
+      const repoUrl = 'https://github.com/remichan97/DexReader'
+      const releaseUrl = `${repoUrl}/releases/tag/v${updateVersion}`
+
+      // Open in external browser
+      globalThis.open(releaseUrl, '_blank', 'noopener,noreferrer')
+
+      // Auto-dismiss banner after opening release notes
+      handleDismissBanner()
+    } catch (error) {
+      rendererLog.error('[App] Failed to open release notes:', error)
+      // Don't auto-dismiss on error - let user try again or manually dismiss
+    }
+  }
 
   // Listen for navigation commands from menu
   useNavigationListener()
@@ -145,7 +205,12 @@ function AppContent(): React.JSX.Element {
   // Other views get AppShell with sidebar
   return (
     <>
-      <AppShell>
+      <AppShell
+        showUpdateBanner={showUpdateBanner}
+        updateVersion={updateVersion}
+        onDismissBanner={handleDismissBanner}
+        onViewReleaseNotes={handleViewReleaseNotes}
+      >
         <AppRoutes startupRoute={startupRoute} />
       </AppShell>
       {isClosing && <ClosingOverlay />}

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Sidebar } from '../components/Sidebar'
 import { UpdateNotification } from '../components/UpdateNotification'
+import { UpdateBanner } from '../components/UpdateBanner'
 import { OfflineStatusBar } from '../components/OfflineStatusBar'
 import { IncognitoStatusBar } from '../components/IncognitoStatusBar'
 import { KeyboardShortcutsDialog } from '../components/KeyboardShortcutsDialog'
@@ -12,9 +13,19 @@ import { rendererLog } from '@renderer/services/logging.service'
 
 interface AppShellProps {
   readonly children: ReactNode
+  readonly showUpdateBanner?: boolean
+  readonly updateVersion?: string
+  readonly onDismissBanner?: () => void
+  readonly onViewReleaseNotes?: () => void
 }
 
-export function AppShell({ children }: AppShellProps): JSX.Element {
+export function AppShell({
+  children,
+  showUpdateBanner = false,
+  updateVersion = '',
+  onDismissBanner,
+  onViewReleaseNotes
+}: AppShellProps): JSX.Element {
   const theme = useAppStore((state) => state.theme)
   const setSystemTheme = useAppStore((state) => state.setSystemTheme)
   const setThemeMode = useAppStore((state) => state.setThemeMode)
@@ -95,6 +106,13 @@ export function AppShell({ children }: AppShellProps): JSX.Element {
         Skip to main content
       </a>
       <UpdateNotification />
+      {showUpdateBanner && onDismissBanner && onViewReleaseNotes && (
+        <UpdateBanner
+          version={updateVersion}
+          onDismiss={onDismissBanner}
+          onViewReleaseNotes={onViewReleaseNotes}
+        />
+      )}
       <OfflineStatusBar />
       <IncognitoStatusBar />
       <div className="app-shell__body flex flex-1">
