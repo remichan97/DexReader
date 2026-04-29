@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 22 April 2026
-**Version**: v1.0.0 (Golden Milestone)
-**Mode**: Post-Release Maintenance
+**Last Updated**: 29 April 2026
+**Version**: v1.1.0
+**Mode**: Post-Release Maintenance & Feature Development
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next. Keep all entries as short, concise as possible
 
@@ -10,9 +10,17 @@
 
 ## Current Status
 
-**v1.0 Released**: 22 April 2026 🎉
+**v1.1.0 Released**: 29 April 2026 🎉
 
-Clean slate - ready for post-release maintenance, bug fixes, and future feature development.
+**Active Development**: Ready for next feature cycle
+
+- All planned features for v1.1.0 completed
+- Clean slate for new feature development
+- Focus areas: User feedback, bug fixes, performance optimizations
+
+**Plans:**
+
+- No active plans - awaiting next feature cycle
 
 ---
 
@@ -39,11 +47,17 @@ Clean slate - ready for post-release maintenance, bug fixes, and future feature 
 
 ## Recent Changes (Last 1-2 Weeks)
 
-### 22 April 2026 - GitHub Templates Restored
+### 29 April 2026 - v1.1.0 Release
 
-- **Type**: Maintenance
-- **Summary**: Restored CODEOWNERS, issue templates, and PR template from git history
-- **Files**: `.github/CODEOWNERS`, `.github/ISSUE_TEMPLATE/*`, `.github/pull_request_template.md`
+- **Type**: Release
+- **Summary**: Quality-of-life release adding post-update banner, configurable startup page, settings migration system, and removal of unused manga update checking features.
+- **Key Features**:
+  - Post-update "What's New" banner with GitHub release notes link
+  - Startup page selection (Browse/Library/Downloads)
+  - Automatic settings migration infrastructure
+  - Cleaner codebase with unused features removed
+- **Impact**: Improved user experience and maintainability
+- **Status**: ✅ Released
 
 <!-- Template for future updates:
 ### [Date] - [Brief Title]

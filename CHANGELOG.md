@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [1.1.0] - 2026-04-29
+
+### Added
+
+- Add post-update "What's New" banner that displays after app updates with direct link to GitHub release notes
+- Add configurable startup page selection (Browse, Library, or Downloads) in Settings → Appearance
+- Add automatic settings migration system for seamless schema evolution across updates
+- Add markdownlint ignore rules for improved documentation workflow
+
+### Changed
+
+- Update `@xmldom/xmldom` from 0.8.11 to 0.8.13 (security dependency update)
+
+### Removed
+
+- Remove unused manga update checking features from Library view (Check for Updates button, update badges)
+- Remove manga update-related database fields and backend services for cleaner codebase
+- The Details view will always fetch new chapters, and titles metadata when the user visits the title
+
+### Fixed
+
+- Fix NotFound redirect rendering unnecessary elements
+
+---
+
 ## [1.0.0] - 2026-04-22
 
 ### 🎉 Golden Milestone - First Stable Release

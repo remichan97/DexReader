@@ -91,18 +91,20 @@ npm run build:linux
 
 ## Project Status
 
-**Current Version**: 1.0.0 (Stable Release - April 22, 2026) 🎉
+**Current Version**: 1.1.0 (April 29, 2026) 🎉
 
-DexReader v1.0.0 is now available! This golden milestone represents a manga reader with:
+DexReader v1.1.0 adds new quality-of-life features:
 
 - ✅ Complete MangaDex extensive manga library integration (browse, search, read)
 - ✅ Offline reading with download management
-- ✅ Auto-update system for all platforms
+- ✅ Auto-update system with post-update "What's New" banner
+- ✅ Configurable startup page (Browse, Library, or Downloads)
+- ✅ Automatic settings migration system
 - ✅ Mihon/Tachiyomi backup compatibility
 - ✅ WCAG 2.1 AA accessibility compliance (100%)
 - ✅ Multi-platform support (Windows, macOS, Linux)
 
-This release establishes a stable foundation for community feedback, bug fixes, and future feature development.
+This release continues building on the v1.0.0 foundation with improved user experience and cleaner codebase.
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed release notes and development history.
 
