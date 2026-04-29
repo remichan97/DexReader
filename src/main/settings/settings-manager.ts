@@ -19,6 +19,7 @@ import { MemoryTierInfo } from './response/memory-tier.response'
 import { memoryCacheUtil } from '../api/utils/memory-cache.util'
 import { mainLog } from '../services/logging/main-logging.service'
 import { StartupPage } from './enums/startup-page.enum'
+import { migrateSettings } from './utils/settings-migration.util'
 
 // Lazy-initialized to avoid calling getAppDataPath() before Electron app is ready
 function settingsFilePath(): string {
@@ -39,7 +40,9 @@ export async function loadSettings(): Promise<AppSettings> {
     const data = (await secureFs.readFile(settingsFile, 'utf-8')) as string
     const settings = JSON.parse(data)
 
-    return settings
+    // Migrate settings if needed
+    const migratedSettings = migrateSettings(settings, getDefaultSettings())
+    return migratedSettings
   } catch (error) {
     mainLog.error('[SettingsManager] Error loading settings:', error)
     mainLog.warn('[SettingsManager] Reverting to default settings.')
@@ -213,6 +216,7 @@ export async function initializeDownloadsPath(): Promise<void> {
 
 export function getDefaultSettings(): AppSettings {
   return {
+    version: 1, // Increment this if you make breaking changes to the settings structure
     downloads: {
       maxConcurrentDownloads: 3,
       shouldConfirmDownload: DownloadConfirmation.BatchDownload,
