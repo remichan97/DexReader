@@ -5,6 +5,7 @@ import { UpdateSettings } from './update-settings.entity'
 import { LogsSettings } from './logs-settings.entity'
 
 export interface AppSettings {
+  version: number
   downloads: DownloadSettings
   appearance: AppearanceSettings
   reader: ReaderSettings

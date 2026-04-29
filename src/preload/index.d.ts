@@ -60,7 +60,6 @@ import type { QueueState } from '../main/services/types/downloads/queue-state.ty
 
 // Service results
 import { ImportResult } from '../main/services/results/import.result'
-import { UpdateResult } from '../main/services/results/update.result'
 import { ExportResult } from '../main/services/results/export.result'
 import { DexReaderExportResult } from '../main/services/results/dexreader/export.result'
 import { DexReaderImportResult } from '../main/services/results/dexreader/import.result'
@@ -242,8 +241,6 @@ interface Library {
   getCachedChapters: (mangaId: string) => Promise<IpcResponse<ChapterWithMetadata[]>>
   toggleFavourite: (mangaId: string) => Promise<IpcResponse<void>>
   upsertManga: (command: UpsertMangaCommand) => Promise<IpcResponse<void>>
-  checkForUpdates: (mangaIds: string[]) => Promise<IpcResponse<UpdateResult[]>>
-  getMangaWithUpdates: () => Promise<IpcResponse<MangaWithMetadata[]>>
   getDownloadedManga: () => Promise<IpcResponse<MangaWithMetadata[]>>
 }
 

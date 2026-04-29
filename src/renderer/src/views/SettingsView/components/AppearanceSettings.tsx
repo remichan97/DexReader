@@ -5,19 +5,27 @@ import { Select, type SelectOption } from '@renderer/components/Select'
 import './AppearanceSettings.css'
 
 interface AppearanceSettingsProps {
-  themeMode: 'light' | 'dark' | 'system'
-  onThemeModeChange: (mode: 'light' | 'dark' | 'system') => void
-  accentColor: string
-  onAccentColorChange: (color: string) => void
-  isUsingSystemColor: boolean
-  systemAccentColor: string
-  onUseSystemColor: () => void
+  readonly themeMode: 'light' | 'dark' | 'system'
+  readonly onThemeModeChange: (mode: 'light' | 'dark' | 'system') => void
+  readonly accentColor: string
+  readonly onAccentColorChange: (color: string) => void
+  readonly isUsingSystemColor: boolean
+  readonly systemAccentColor: string
+  readonly onUseSystemColor: () => void
+  readonly startupPage: 'library' | 'browse' | 'downloads'
+  readonly onStartupPageChange: (page: 'library' | 'browse' | 'downloads') => void
 }
 
 const themeModeOptions: SelectOption[] = [
   { value: 'system', label: 'System Default' },
   { value: 'light', label: 'Light Mode' },
   { value: 'dark', label: 'Dark Mode' }
+]
+
+const startupPageOptions: SelectOption[] = [
+  { value: 'browse', label: 'Browse' },
+  { value: 'library', label: 'Library' },
+  { value: 'downloads', label: 'Downloads' }
 ]
 
 export function AppearanceSettings({
@@ -27,7 +35,9 @@ export function AppearanceSettings({
   onAccentColorChange,
   isUsingSystemColor,
   systemAccentColor,
-  onUseSystemColor
+  onUseSystemColor,
+  startupPage,
+  onStartupPageChange
 }: AppearanceSettingsProps): React.JSX.Element {
   const handleColorInputChange = (value: string | string[]): void => {
     const colorValue = typeof value === 'string' ? value : value[0]
@@ -59,6 +69,17 @@ export function AppearanceSettings({
           options={themeModeOptions}
           label="App theme"
           helperText="Choose between light and dark mode, or follow your system settings"
+        />
+      </div>
+
+      <div>
+        <h4 className="appearance-settings__section-title mb-3">Startup</h4>
+        <Select
+          value={startupPage}
+          onChange={(value) => onStartupPageChange(value as typeof startupPage)}
+          options={startupPageOptions}
+          label="Startup page"
+          helperText="Choose which page appears when the app launches"
         />
       </div>
 

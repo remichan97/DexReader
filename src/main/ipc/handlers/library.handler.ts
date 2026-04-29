@@ -10,7 +10,6 @@ import { collectionRepo } from '../../database/repositories/collection.repo'
 import { mangaRepo } from '../../database/repositories/manga.repo'
 import { chapterRepo } from '../../database/repositories/chapter.repo'
 import { readHistoryRepo } from '../../database/repositories/read-history.repo'
-import { updateCheckerService } from '../../services/update-checker.service'
 import { wrapIpcHandler } from '../wrap-handler'
 
 export function registerLibraryHandlers(): void {
@@ -63,7 +62,7 @@ export function registerLibraryHandlers(): void {
    * Get cached chapters for a manga.
    *
    * Retrieves chapter list from local database cache (not live API). Used to quickly
-   * display chapter list without API call. May be stale - use check-for-updates to refresh.
+   * display chapter list without API call.
    *
    * @param mangaId - MangaDex manga UUID
    * @returns Promise<Array<Chapter>> - Cached chapter list
@@ -123,42 +122,6 @@ export function registerLibraryHandlers(): void {
    */
   wrapIpcHandler('library:upsert-manga', async (_, command: unknown) => {
     return mangaRepo.upsertManga(command as UpsertMangaCommand)
-  })
-
-  /**
-   * Check for new chapters for library manga.
-   *
-   * Queries MangaDex API to check if specified manga have new chapters since last check.
-   * Updates chapter cache and returns list of manga with new chapters. Used for update
-   * notifications and library refresh.
-   *
-   * @param mangaIds - Array of MangaDex manga UUIDs to check
-   * @returns Promise<Array<{mangaId: string, newChapterCount: number}>> - Update results
-   *
-   * @example
-   * // Check for updates (all library)
-   * const updates = await window.api.checkForUpdates(libraryMangaIds)
-   * updates.forEach(u => console.log(`${u.mangaId}: ${u.newChapterCount} new chapters`))
-   */
-  wrapIpcHandler('library:check-for-updates', async (_, mangaIds: unknown) => {
-    return updateCheckerService.checkForUpdates(mangaIds as string[])
-  })
-
-  /**
-   * Get library manga that have unread new chapters.
-   *
-   * Returns favorited manga that have chapters newer than last read timestamp.
-   * Used in Updates view to show manga with new content.
-   *
-   * @returns Promise<Array<Manga & {newChapterCount: number}>> - Manga with new chapters
-   *
-   * @example
-   * // Show updates view
-   * const mangaWithUpdates = await window.api.getMangaWithUpdates()
-   * console.log(`${mangaWithUpdates.length} manga have new chapters`)
-   */
-  wrapIpcHandler('library:get-manga-with-updates', async () => {
-    return mangaRepo.getLibraryMangaWithNewChapters()
   })
 
   /**

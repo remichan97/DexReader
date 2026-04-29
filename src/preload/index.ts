@@ -258,9 +258,6 @@ const library = {
     ipcRenderer.invoke('library:get-cached-chapters', mangaId),
   toggleFavourite: (mangaId: string) => ipcRenderer.invoke('library:toggle-favourite', mangaId),
   upsertManga: (command: UpsertMangaCommand) => ipcRenderer.invoke('library:upsert-manga', command),
-  checkForUpdates: (mangaIds: string[]) =>
-    ipcRenderer.invoke('library:check-for-updates', mangaIds),
-  getMangaWithUpdates: () => ipcRenderer.invoke('library:get-manga-with-updates'),
   getDownloadedManga: () => ipcRenderer.invoke('library:get-downloaded-manga')
 }
 

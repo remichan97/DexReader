@@ -10,7 +10,6 @@ interface MangaGridProps {
     readonly authors: string[]
     readonly status: string
     readonly lastChapter?: string
-    readonly hasNewChapters?: boolean
   }>
   readonly onFavourite?: (id: string) => void
   readonly onClick?: (id: string) => void
@@ -38,7 +37,6 @@ export function MangaGrid({
                 status={manga.status as 'ongoing' | 'completed' | 'hiatus'}
                 isFavourite={true}
                 showFavouriteBadge={false}
-                hasNewChapters={manga.hasNewChapters}
                 onFavourite={onFavourite}
                 onClick={onClick}
               />

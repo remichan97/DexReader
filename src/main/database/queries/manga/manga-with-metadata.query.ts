@@ -14,8 +14,6 @@ export interface MangaWithMetadata {
   updatedAt: Date // Last updated timestamp from MangaDex
   lastVolume?: string
   lastChapter?: string
-  hasNewChapters: boolean
-  lastCheckForUpdate: Date
   lastKnownChapterId?: string
   lastKnownChapterNumber?: string
   hasDownloads?: boolean // Whether this manga has any downloaded chapters

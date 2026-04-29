@@ -16,6 +16,21 @@ import { UnsavedChangesProvider } from './contexts/UnsavedChangesProvider'
 import { useUnsavedChanges } from './hooks/useUnsavedChanges'
 import { rendererLog } from './services/logging.service'
 
+/**
+ * Map startup page setting to route path
+ */
+function mapStartupPageToRoute(startupPage: string): string {
+  switch (startupPage) {
+    case 'library':
+      return '/library'
+    case 'downloads':
+      return '/downloads'
+    case 'browse':
+    default:
+      return '/browse'
+  }
+}
+
 function AppContent(): React.JSX.Element {
   const location = useLocation()
   const isReaderRoute = location.pathname.startsWith('/reader/')
@@ -24,6 +39,88 @@ function AppContent(): React.JSX.Element {
   const startPolling = useConnectivityStore((state) => state.startPolling)
   const stopPolling = useConnectivityStore((state) => state.stopPolling)
   const [isClosing, setIsClosing] = useState(false)
+  const [startupRoute, setStartupRoute] = useState<string | null>(null)
+  const [showUpdateBanner, setShowUpdateBanner] = useState(false)
+  const [updateVersion, setUpdateVersion] = useState<string>('')
+
+  // Load startup page preference from settings
+  useEffect(() => {
+    async function loadStartupPreference(): Promise<void> {
+      try {
+        const settings = await globalThis.settings.load()
+        if (settings.success) {
+          const route = mapStartupPageToRoute(settings.data.appearance.startupPage)
+          setStartupRoute(route)
+          return
+        }
+        // If loading fails, fall back to default
+        setStartupRoute('/browse')
+      } catch (error) {
+        rendererLog.error('[App] Failed to load startup page setting:', error)
+        // Fall back to default
+        setStartupRoute('/browse')
+      }
+    }
+    void loadStartupPreference()
+  }, [])
+
+  // Check for update completion flag on startup
+  useEffect(() => {
+    async function checkForUpdateCompletion(): Promise<void> {
+      try {
+        const flagValue = localStorage.getItem('dexreader:updateJustCompleted')
+
+        if (flagValue === 'true') {
+          // Get version from localStorage (set before quit)
+          const storedVersion = localStorage.getItem('dexreader:newVersion')
+
+          // Fallback to app version if storage failed
+          let version = storedVersion || ''
+          if (!version) {
+            const versionResult = await globalThis.appUpdate.getAppVersion()
+            version = versionResult.data || 'unknown'
+          }
+
+          setUpdateVersion(version)
+          setShowUpdateBanner(true)
+
+          // Clear flags immediately (one-time trigger)
+          localStorage.removeItem('dexreader:updateJustCompleted')
+          localStorage.removeItem('dexreader:newVersion')
+
+          rendererLog.info(`[App] Update detected, showing banner for v${version}`)
+        }
+      } catch (error) {
+        rendererLog.error('[App] Failed to check update completion flag:', error)
+        // Clean up flags even on error
+        localStorage.removeItem('dexreader:updateJustCompleted')
+        localStorage.removeItem('dexreader:newVersion')
+      }
+    }
+
+    void checkForUpdateCompletion()
+  }, [])
+
+  const handleDismissBanner = (): void => {
+    setShowUpdateBanner(false)
+    rendererLog.info('[App] Update banner dismissed by user')
+  }
+
+  const handleViewReleaseNotes = async (): Promise<void> => {
+    try {
+      const repoUrl = 'https://github.com/remichan97/DexReader'
+      const releaseUrl = `${repoUrl}/releases/tag/v${updateVersion}`
+
+      // Open in external browser
+      globalThis.open(releaseUrl, '_blank', 'noopener,noreferrer')
+
+      // Auto-dismiss banner after opening release notes
+      handleDismissBanner()
+    } catch (error) {
+      rendererLog.error('[App] Failed to open release notes:', error)
+      // Don't auto-dismiss on error - let user try again or manually dismiss
+    }
+  }
 
   // Listen for navigation commands from menu
   useNavigationListener()
@@ -86,11 +183,20 @@ function AppContent(): React.JSX.Element {
     }
   }, [flushPendingSaves])
 
+  // Show loading state while fetching startup preference
+  if (!startupRoute) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <ProgressRing size="large" />
+      </div>
+    )
+  }
+
   // Reader gets full screen without sidebar
   if (isReaderRoute) {
     return (
       <>
-        <AppRoutes />
+        <AppRoutes startupRoute={startupRoute} />
         {isClosing && <ClosingOverlay />}
       </>
     )
@@ -99,8 +205,13 @@ function AppContent(): React.JSX.Element {
   // Other views get AppShell with sidebar
   return (
     <>
-      <AppShell>
-        <AppRoutes />
+      <AppShell
+        showUpdateBanner={showUpdateBanner}
+        updateVersion={updateVersion}
+        onDismissBanner={handleDismissBanner}
+        onViewReleaseNotes={handleViewReleaseNotes}
+      >
+        <AppRoutes startupRoute={startupRoute} />
       </AppShell>
       {isClosing && <ClosingOverlay />}
     </>

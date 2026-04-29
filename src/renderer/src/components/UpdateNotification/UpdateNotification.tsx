@@ -26,6 +26,7 @@ import {
 } from '@fluentui/react-icons'
 import { useConnectivityStore } from '@renderer/stores/connectivityStore'
 import { Button } from '@renderer/components/Button'
+import { rendererLog } from '@renderer/services/logging.service'
 import './UpdateNotification.css'
 
 type UpdateState =
@@ -140,7 +141,19 @@ export function UpdateNotification(): JSX.Element | null {
   }
 
   const handleInstall = async (): Promise<void> => {
-    await globalThis.appUpdate.installUpdate()
+    try {
+      // Set completion flag in localStorage (survives update)
+      localStorage.setItem('dexreader:updateJustCompleted', 'true')
+      localStorage.setItem('dexreader:newVersion', info.version || 'unknown')
+
+      rendererLog.info('[UpdateNotification] Set update completion flags in localStorage')
+
+      // Trigger app quit & install
+      await globalThis.appUpdate.installUpdate()
+      // App will quit here - next startup will be new version
+    } catch (error) {
+      rendererLog.error('[UpdateNotification] Failed to install update:', error)
+    }
   }
 
   const handleRetry = async (): Promise<void> => {

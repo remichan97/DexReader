@@ -30,11 +30,6 @@ class DexReaderImportHelper {
       externalLinks: manga.externalLinks,
       lastVolume: manga.lastVolume,
       lastChapter: manga.lastChapter,
-      lastKnownChapterId: manga.lastKnownChapterId,
-      lastKnownChapterNumber: manga.lastKnownChapterNumber,
-      lastCheckForUpdates: manga.lastCheckForUpdates
-        ? new Date(manga.lastCheckForUpdates)
-        : undefined,
       isFavourite: manga.isFavourite
     }
   }

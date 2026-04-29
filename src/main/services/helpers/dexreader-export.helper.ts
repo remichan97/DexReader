@@ -33,13 +33,7 @@ class DexReaderExportHelper {
       alternativeTitles: data.alternativeTitles || {},
       year: data.year || undefined,
       lastVolume: data.lastVolume || undefined,
-      lastChapter: data.lastChapter || undefined,
-      lastKnownChapterId: data.lastKnownChapterId || undefined,
-      lastKnownChapterNumber: data.lastKnownChapterNumber || undefined,
-      lastCheckForUpdates: data.lastCheckForUpdates
-        ? dateToUnixTimestamp(data.lastCheckForUpdates)
-        : undefined,
-      hasNewChapters: data.hasNewChapters || false
+      lastChapter: data.lastChapter || undefined
     }
   }
 
