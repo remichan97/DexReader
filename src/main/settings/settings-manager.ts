@@ -31,7 +31,6 @@ function settingsFilePath(): string {
 export async function loadSettings(): Promise<AppSettings> {
   // Return cached settings if available
   if (cachedSettingsObject) {
-    mainLog.info('[SettingsManager] Cached settings found, returning cached settings.')
     return cachedSettingsObject
   }
 
@@ -118,37 +117,6 @@ export async function getSettingByPath<K extends keyof AppSettings>(
   }
 
   return value
-}
-
-/**
- * Set a nested setting value by path (e.g., 'downloads.downloadPath')
- * @param section - Top-level settings section ('downloads', 'appearance', 'reader')
- * @param settingsPath - Dot-notation path to nested property
- * @param value - Value to set
- */
-export async function setSettingByPath<K extends keyof AppSettings>(
-  section: K,
-  settingsPath: string,
-  value: unknown
-): Promise<void> {
-  mainLog.debug(`[SettingsManager] Setting '${section}.${settingsPath}' to value:`, value)
-  const settings = await loadSettings()
-  const keys = settingsPath.split('.')
-  // Navigate to the parent object
-  let target = settings[section] as unknown as Record<string, unknown>
-  for (let i = 0; i < keys.length - 1; i++) {
-    if (target[keys[i]] === undefined) {
-      target[keys[i]] = {}
-    }
-    target = target[keys[i]] as Record<string, unknown>
-  }
-
-  // Set the final value
-  const finalKey = keys.at(-1)!
-  target[finalKey] = value
-
-  await saveSettings(settings)
-  mainLog.info(`[SettingsManager] Updated '${section}.${settingsPath}' successfully`)
 }
 
 export function getSettingsFilePath(): string {

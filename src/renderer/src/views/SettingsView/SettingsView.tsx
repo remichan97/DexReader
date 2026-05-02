@@ -590,31 +590,10 @@ Are you absolutely certain you want to proceed with this cache size?`,
         }
       }
 
-      // Save each section using validated handlers (check responses)
-      const appearanceResult = await globalThis.settings.save('appearance', appearanceSettings)
-      if (!appearanceResult.success) {
-        throw new Error(appearanceResult.error?.message || 'Failed to save appearance settings')
-      }
-
-      const downloadsResult = await globalThis.settings.save('downloads', downloadsSettings)
-      if (!downloadsResult.success) {
-        throw new Error(downloadsResult.error?.message || 'Failed to save downloads settings')
-      }
-
-      const readerResult = await globalThis.settings.save('reader', readerSettings)
-      if (!readerResult.success) {
-        throw new Error(readerResult.error?.message || 'Failed to save reader settings')
-      }
-
       // Build update settings object
       const updateSettings = {
         autoCheck: autoCheckForUpdates,
         autoDownload: autoDownloadUpdates
-      }
-
-      const updateResult = await globalThis.settings.save('update', updateSettings)
-      if (!updateResult.success) {
-        throw new Error(updateResult.error?.message || 'Failed to save update settings')
       }
 
       // Build logging settings object
@@ -622,9 +601,19 @@ Are you absolutely certain you want to proceed with this cache size?`,
         retentionInDays: logRetentionDays
       }
 
-      const logsResult = await globalThis.settings.save('logs', logsSettings)
-      if (!logsResult.success) {
-        throw new Error(logsResult.error?.message || 'Failed to save logging settings')
+      // Build complete settings object and save in one operation (single disk write)
+      const completeSettings = {
+        version: originalSettings.version,
+        appearance: appearanceSettings,
+        downloads: downloadsSettings,
+        reader: readerSettings,
+        update: updateSettings,
+        logs: logsSettings
+      }
+
+      const saveResult = await globalThis.settings.saveAll(completeSettings)
+      if (!saveResult.success) {
+        throw new Error(saveResult.error?.message || 'Failed to save settings')
       }
 
       // Update original settings to current state (load fresh to get properly typed values)

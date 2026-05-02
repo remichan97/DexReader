@@ -307,7 +307,7 @@ const settings = {
   load: () => ipcRenderer.invoke('settings:load'),
   getSettingByPath: (section: string, settingsPath?: string) =>
     ipcRenderer.invoke('settings:get', section, settingsPath),
-  save: (key: string, value: unknown) => ipcRenderer.invoke('settings:save', key, value),
+  saveAll: (settings: unknown) => ipcRenderer.invoke('settings:save-all', settings),
   openFile: () => ipcRenderer.invoke('settings:open-settings-file'),
   resetToDefaults: () => ipcRenderer.invoke('settings:reset-to-defaults'),
   clearAllData: () => ipcRenderer.invoke('settings:clear-all'),

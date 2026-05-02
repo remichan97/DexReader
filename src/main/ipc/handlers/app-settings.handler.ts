@@ -7,17 +7,10 @@ import {
   getSettingByPath,
   loadSettings,
   saveSettings,
-  updateSettings,
   getMemoryTierInfo
 } from '../../settings/settings-manager'
 import { mainLog } from '../../services/logging/main-logging.service'
-import {
-  isAppearanceSettings,
-  isDownloadsSettings,
-  isLogSettings,
-  isReaderSettings,
-  isUpdateSettings
-} from '../../settings/validators/types.validator'
+import { validateSettings } from '../../settings/validators/types.validator'
 import { wrapIpcHandler } from '../wrap-handler'
 import { cleanupRepo } from '../../database/repositories/cleanup-repo'
 import type { ImageProxy } from '../../api/proxy/image.proxy'
@@ -99,72 +92,40 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
   })
 
   /**
-   * Save settings for a specific section.
+   * Save entire settings object.
    *
-   * Updates an entire settings section (appearance, downloads, reader, update, or logs).
-   * Validates settings structure before saving. Automatically updates related systems
-   * (e.g., chapter cache size when reader settings change).
+   * Updates all settings sections (appearance, downloads, reader, update, logs) at once.
+   * Validates the entire settings structure before saving.
    *
-   * @param key - Settings section to update: 'appearance' | 'downloads' | 'reader' | 'update' | 'logs'
-   * @param value - New settings object matching the section's structure
+   * @param newSettings - Complete settings object
    * @returns Promise<boolean> - Always returns true on success
-   * @throws {Error} - If settings structure is invalid for the section
+   * @throws {Error} - If settings structure is invalid
    *
    * @example
-   * // Update appearance settings
-   * await window.api.saveSetting('appearance', {
-   *   theme: 'dark',
-   *   accentColor: '#0078D4'
-   * })
-   *
-   * @example
-   * // Update reader settings (triggers cache size update)
-   * await window.api.saveSetting('reader', {
-   *   readingMode: 'vertical',
-   *   fitMode: 'width',
-   *   zoom: 100,
-   *   chapterCacheSize: 200
+   * // Save all settings
+   * await window.api.saveAllSettings({
+   *   appearance: { theme: 'dark', accentColor: '#0078D4' },
+   *   downloads: { downloadPath: '/downloads', defaultQuality: 'high' },
+   *   reader: { readingMode: 'vertical', fitMode: 'width', zoom: 100 },
+   *   update: { autoUpdate: true },
+   *   logs: { logLevel: 'info' }
    * })
    */
-  wrapIpcHandler('settings:save', async (_, key: unknown, value: unknown) => {
-    const keyStr = key as string
-
-    // Section-level update (e.g., 'appearance', 'downloads', 'reader')
-    switch (keyStr as keyof AppSettings) {
-      case 'appearance':
-        if (!isAppearanceSettings(value)) {
-          throw new Error('Invalid appearance settings')
-        }
-        break
-      case 'downloads':
-        if (!isDownloadsSettings(value)) {
-          throw new Error('Invalid downloads settings')
-        }
-        break
-      case 'reader':
-        if (!isReaderSettings(value)) {
-          throw new Error('Invalid reader settings')
-        }
-        break
-      case 'update':
-        if (!isUpdateSettings(value)) {
-          throw new Error('Invalid update settings')
-        }
-        break
-      case 'logs':
-        if (!isLogSettings(value)) {
-          throw new Error('Invalid log settings')
-        }
-        break
-      default:
-        throw new Error(`Unknown settings key: ${keyStr}`)
+  wrapIpcHandler('settings:save-all', async (_, newSettings: unknown) => {
+    if (typeof newSettings !== 'object' || newSettings === null) {
+      throw new TypeError('Settings must be an object')
     }
-    await updateSettings(keyStr as keyof AppSettings, value)
+
+    if (!validateSettings(newSettings)) {
+      throw new Error('Invalid settings structure')
+    }
+
+    await saveSettings(newSettings)
 
     // Update chapter cache size dynamically when reader settings change
-    if (keyStr === 'reader' && imageProxy) {
+    if (imageProxy) {
       await imageProxy.updateChapterCacheSize()
-      mainLog.info('[Settings] Chapter cache size updated after reader settings change')
+      mainLog.info('[Settings] Chapter cache size updated after saving all settings')
     }
 
     return true
