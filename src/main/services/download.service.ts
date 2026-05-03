@@ -247,13 +247,12 @@ class DownloadService {
   clearCompletedDownloads(): number {
     const allDownloads = chapterDownloadsRepo.getAllDownloads()
     const completedDownloads = allDownloads.filter((d) => d.status === DownloadStatus.Completed)
+    const commands: DeleteChapterCommand[] = completedDownloads.map((download) => ({
+      chapterId: download.chapterId,
+      isDeletePermanent: false
+    }))
 
-    completedDownloads.forEach((download) => {
-      chapterDownloadsRepo.deleteDownload({
-        chapterId: download.chapterId,
-        isDeletePermanent: false // Soft delete - hide from UI but keep files
-      })
-    })
+    chapterDownloadsRepo.batchDeleteDownloads(commands)
 
     return completedDownloads.length
   }
