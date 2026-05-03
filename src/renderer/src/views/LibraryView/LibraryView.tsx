@@ -23,7 +23,9 @@ import {
   Search48Regular,
   Warning48Regular,
   Add24Regular,
-  Info20Regular
+  Info20Regular,
+  ArrowDownload20Regular,
+  ArrowDownload20Filled
 } from '@fluentui/react-icons'
 import { MangaGrid } from './components/MangaGrid'
 import { CollectionContextMenu } from './components/CollectionContextMenu'
@@ -219,49 +221,51 @@ export function LibraryView(): JSX.Element {
 
       {/* Search Bar with Actions */}
       <div className="mb-4 flex gap-3 items-start">
-        <div className="flex-1">
-          <SearchBar
-            value={searchQuery}
-            onChange={handleSearch}
-            placeholder="Search your library (try: status:ongoing, author:Oda, tag:romance)"
+        {/* Search Controls Group */}
+        <div className="library-view__search-group flex-1 flex items-center">
+          <div className="flex-1">
+            <SearchBar
+              value={searchQuery}
+              onChange={handleSearch}
+              placeholder="Search your library (try: status:ongoing, author:Oda, tag:romance)"
+            />
+          </div>
+
+          {/* Download Toggle Button */}
+          <Button
+            variant="ghost"
+            size="medium"
+            icon={includeDownloaded ? <ArrowDownload20Filled /> : <ArrowDownload20Regular />}
+            onClick={() => setIncludeDownloaded(!includeDownloaded)}
+            aria-label={
+              includeDownloaded
+                ? `Hide downloaded titles (currently showing ${downloadedCount} downloaded)`
+                : 'Include downloaded titles in library'
+            }
+            aria-pressed={includeDownloaded}
+            title={
+              includeDownloaded && downloadedCount > 0
+                ? `Including ${downloadedCount} downloaded title${downloadedCount === 1 ? '' : 's'}`
+                : 'Include downloaded manga that are not favorited'
+            }
+            className={`library-view__download-toggle h-9 ${
+              includeDownloaded ? 'library-view__download-toggle--active' : ''
+            }`}
+          />
+
+          {/* Search Help Button */}
+          <Button
+            variant="ghost"
+            size="medium"
+            icon={<Info20Regular />}
+            onClick={() => setShowSearchHelp(!showSearchHelp)}
+            aria-label="Search syntax help"
+            title="Show search syntax help"
+            className="h-9"
           />
         </div>
 
-        {/* Include Downloaded Toggle */}
-        <label className="library-view__downloaded-toggle flex items-center gap-2 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={includeDownloaded}
-            onChange={(e) => setIncludeDownloaded(e.target.checked)}
-            className="library-view__downloaded-toggle-input"
-            aria-label="Include downloaded manga that are not in your library"
-            aria-describedby={
-              includeDownloaded && downloadedCount > 0 ? 'downloaded-count' : undefined
-            }
-          />
-          <span className="library-view__downloaded-toggle-label">Include Downloaded Titles</span>
-          {includeDownloaded && downloadedCount > 0 && (
-            <span
-              id="downloaded-count"
-              className="library-view__downloaded-toggle-count"
-              aria-live="polite"
-            >
-              <Badge variant="info" size="small">
-                +{downloadedCount}
-              </Badge>
-            </span>
-          )}
-        </label>
-
-        <Button
-          variant="ghost"
-          size="medium"
-          icon={<Info20Regular />}
-          onClick={() => setShowSearchHelp(!showSearchHelp)}
-          aria-label="Search syntax help"
-          title="Show search syntax help"
-          className="h-9"
-        />
+        {/* Action Button (Separated) */}
         <Button
           variant="secondary"
           size="medium"

@@ -12,39 +12,25 @@
   margin-top: var(--space-4);
 }
 
-/* Include Downloaded Toggle */
-.library-view__downloaded-toggle {
+/* Search Controls Group - Small gap between buttons */
+.library-view__search-group {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  background: var(--color-surface-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-medium);
-  transition: background-color 0.2s ease;
-  white-space: nowrap;
-  height: 2.25rem; /* Match button height */
+  gap: 0.25rem; /* Small gap to distinguish buttons */
 }
 
-.library-view__downloaded-toggle:hover {
-  background: var(--color-surface-tertiary);
+/* Download Toggle Button */
+.library-view__download-toggle {
+  border-radius: var(--radius-medium); /* Normal rounded corners */
+  transition: all 0.2s ease;
 }
 
-.library-view__downloaded-toggle-input {
-  width: 1rem;
-  height: 1rem;
-  cursor: pointer;
-  accent-color: var(--win-accent);
+/* Active State for Download Toggle */
+.library-view__download-toggle--active {
+  background-color: var(--win-accent-subtle, rgba(0, 120, 212, 0.1));
+  color: var(--win-accent);
 }
 
-.library-view__downloaded-toggle-label {
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  color: var(--color-text-primary);
-  user-select: none;
-}
-
-.library-view__downloaded-toggle-count {
-  display: flex;
-  align-items: center;
+.library-view__download-toggle--active:hover {
+  background-color: var(--win-accent-subtle-hover, rgba(0, 120, 212, 0.15));
 }
