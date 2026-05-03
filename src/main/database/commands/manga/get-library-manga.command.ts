@@ -3,4 +3,5 @@ export interface GetLibraryMangaCommand {
   search?: string
   limit?: number
   offset?: number
+  includeDownloaded?: boolean
 }

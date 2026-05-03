@@ -134,8 +134,7 @@ class MangaRepository {
   }
 
   getLibraryManga(options?: GetLibraryMangaCommand): MangaWithMetadata[] {
-    // Return only explicitly favourited manga (library = curated bookmarks)
-    // Downloaded manga without favourites should be viewed in Downloads page
+    // If no option is provided, return all favourited manga with their download status - this is the default library view without filters
     if (!options) {
       const result = this.db
         .select({
@@ -176,8 +175,10 @@ class MangaRepository {
       condition.push(like(manga.title, `%${options.search}%`))
     }
 
-    // Only return explicitly favourited manga
-    condition.push(eq(manga.isFavourite, true))
+    // If includeDownloaded is true, include all manga with downloads regardless of favourite status, else only include favourited manga - this is because the library view should only show favourited manga, but if the user is explicitly asking for downloaded manga we should show them even if they aren't favourited
+    if (!options.includeDownloaded) {
+      condition.push(eq(manga.isFavourite, true))
+    }
 
     const query = this.db
       .select({
