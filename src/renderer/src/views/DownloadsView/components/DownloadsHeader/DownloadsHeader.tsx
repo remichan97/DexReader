@@ -113,8 +113,9 @@ export function DownloadsHeader({
             size="small"
             onClick={onClearCompleted}
             disabled={completedCount === 0}
+            title="Hide completed downloads from view (files will be kept on disk)"
           >
-            Clear Completed
+            Hide Completed
           </Button>
 
           {queuedCount > 0 && (
