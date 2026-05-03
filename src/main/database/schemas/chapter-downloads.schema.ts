@@ -29,7 +29,7 @@ export const chapterDownloads = sqliteTable(
     lastVerifiedAt: integer('last_verified_at', { mode: 'timestamp' })
       .notNull()
       .default(sql`(unixepoch())`),
-    // 0 = false (not hidden), 1 = true (hidden). This is used to "hide" completed downloads from the UI when users clear them (most likely by using the "Clear Completed Downloads" option), but still keep the files on disk and the entry in the database in case they want to read the chapter again without needing to redownload
+    // 0 = false (not hidden), 1 = true (hidden). This is used to "hide" completed downloads from the DownloadView UI when users clear them (most likely by using the "Clear Completed Downloads" option), but still keep the files on disk and the entry in the database in case they want to read the chapter again without needing to redownload
     isHidden: integer('is_hidden', { mode: 'boolean' }).notNull().default(false)
   },
   (table) => [
