@@ -164,6 +164,17 @@ export function useDownloadActions({
             })
           }
         } else if (result.response === 2) {
+          // User chose to permanently delete, give them a final chance to back out
+          const confirmation = await globalThis.api.showConfirmDialog(
+            'Are you absolutely certain?',
+            'This will be your last chance to back out before the chapter files are permanently deleted. File deletion cannot be undone, but you can always re-download the chapter if you change your mind.\n\nJust a reminder, you are deleting chapter: ' +
+              chapterTitle,
+            'Yes, Delete Permanently',
+            'Nevermind'
+          )
+
+          if (!confirmation.success || !confirmation.data) return
+
           // Delete permanently
           const response = await globalThis.downloads.deleteChapter({
             chapterId,
