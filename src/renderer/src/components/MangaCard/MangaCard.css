@@ -126,6 +126,67 @@
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
 }
 
+/* Download Badge (for non-favorited downloaded titles) - Top Right */
+.manga-card__download-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 32px;
+  height: 32px;
+  background: var(--win-accent);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1;
+  pointer-events: none;
+}
+
+[data-theme='dark'] .manga-card__download-badge {
+  background: var(--win-accent);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.manga-card__download-badge-icon {
+  width: 20px;
+  height: 20px;
+  color: #ffffff;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+/* Download Overlay Indicator (for ALL downloaded titles) - Bottom Left */
+.manga-card__download-overlay {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  width: 24px;
+  height: 24px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  border-radius: var(--radius-xs);
+  z-index: 1;
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.manga-card__download-overlay:hover {
+  opacity: 1;
+}
+
+[data-theme='dark'] .manga-card__download-overlay {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.manga-card__download-overlay-icon {
+  width: 14px;
+  height: 14px;
+  color: #ffffff;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+[data-theme='dark'] .manga-card__download-overlay-icon {
+  color: var(--color-text-primary);
+}
+
 /* Favorite Button */
 .manga-card__favorite-button {
   width: 48px;

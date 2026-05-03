@@ -11,3 +11,40 @@
   gap: var(--space-4);
   margin-top: var(--space-4);
 }
+
+/* Include Downloaded Toggle */
+.library-view__downloaded-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+  height: 2.25rem; /* Match button height */
+}
+
+.library-view__downloaded-toggle:hover {
+  background: var(--color-surface-tertiary);
+}
+
+.library-view__downloaded-toggle-input {
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+  accent-color: var(--win-accent);
+}
+
+.library-view__downloaded-toggle-label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  user-select: none;
+}
+
+.library-view__downloaded-toggle-count {
+  display: flex;
+  align-items: center;
+}
