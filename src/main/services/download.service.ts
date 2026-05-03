@@ -26,6 +26,7 @@ import { diskCacheUtil } from '../api/utils/disk-cache.util'
 import { DiskCacheQuery } from '../database/queries/storage/disk-cache.query'
 import { ImageUrlResponse } from '../api/responses/image-url.response'
 import { mainLog } from './logging/main-logging.service'
+import { DeleteChapterOptions } from './options/delete-chapter.option'
 
 interface ChapterImageCache {
   urls: ImageUrlResponse[]
@@ -173,29 +174,36 @@ class DownloadService {
     }
   }
 
-  async deleteChapter(chapterId: string): Promise<void> {
-    const download = chapterDownloadsRepo.getDownload(chapterId)
+  async deleteChapter(options: DeleteChapterOptions): Promise<void> {
+    const download = chapterDownloadsRepo.getDownload(options.chapterId)
 
     if (!download) {
-      throw new Error(`No download found for chapter ID ${chapterId}`)
+      throw new Error(`No download found for chapter ID ${options.chapterId}`)
     }
 
-    // Build full path from stored base path and relative path
-    const fullPath = path.join(download.downloadsBasePath, download.filePath)
-
-    // Request the filesystem to delete the chapter files
-    try {
-      await secureFs.deleteDir(fullPath)
-    } catch (error) {
-      mainLog.error(`[DownloadService] Failed to delete chapter files at ${fullPath}:`, error)
-      throw new Error(`Failed to delete chapter files: ${error}`)
+    // Request the filesystem to delete the chapter files if this is a permanent delete, otherwise just mark as deleted in the database
+    if (options.isDeletePermanent) {
+      try {
+        // Build full path from stored base path and relative path
+        const fullPath = path.join(download.downloadsBasePath, download.filePath)
+        await secureFs.deleteDir(fullPath)
+      } catch (error) {
+        mainLog.error(`[DownloadService] Failed to delete chapter files:`, error)
+        throw new Error(`Failed to delete chapter files: ${error}`)
+      }
     }
 
-    // Update the database to reflect the deletion (permanent delete)
+    // Update the database to reflect the deletion (either soft delete or permanent delete)
     chapterDownloadsRepo.deleteDownload({
-      chapterId,
-      isDeletePermanent: true
+      chapterId: options.chapterId,
+      isDeletePermanent: !!options.isDeletePermanent
     })
+
+    mainLog.info(
+      `[DownloadService] Successfully ` +
+        (options.isDeletePermanent ? 'deleted ' : 'hid ') +
+        `chapter ${options.chapterId}`
+    )
   }
 
   // Delete all chapters of a manga, use for single deletion
@@ -220,7 +228,7 @@ class DownloadService {
         })
         result.successfulCount += 1
       } catch (error) {
-        mainLog.error(`[DownloadService] Failed to delete chapter files at ${fullPath}:`, error)
+        mainLog.error(`[DownloadService] Failed to delete chapter files:`, error)
         result.failedCount += 1
         result.failedChapters.push(download.chapterId)
       }
