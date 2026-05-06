@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import type { MangaWithMetadata } from '../../../../preload/index.d'
 import { Tabs, TabList, Tab, TabPanel } from '@renderer/components/Tabs'
 import { SearchBar } from '@renderer/components/SearchBar'
 import { Badge } from '@renderer/components/Badge'
@@ -22,7 +23,9 @@ import {
   Search48Regular,
   Warning48Regular,
   Add24Regular,
-  Info20Regular
+  Info20Regular,
+  ArrowDownload20Regular,
+  ArrowDownload20Filled
 } from '@fluentui/react-icons'
 import { MangaGrid } from './components/MangaGrid'
 import { CollectionContextMenu } from './components/CollectionContextMenu'
@@ -39,8 +42,19 @@ export function LibraryView(): JSX.Element {
   const [searchQuery, setSearchQuery] = useState('')
   const [showSearchHelp, setShowSearchHelp] = useState(false)
 
+  // Include Downloaded Titles toggle
+  const [includeDownloaded, setIncludeDownloaded] = useState<boolean>(() => {
+    const saved = localStorage.getItem('dexreader:library:includeDownloaded')
+    return saved === 'true'
+  })
+
+  // Local manga list (loaded with includeDownloaded flag)
+  const [mangaList, setMangaList] = useState<MangaWithMetadata[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
   // Stores
-  const { favourites, loading, error, loadFavourites } = useLibraryStore()
+  const { favourites, loadFavourites } = useLibraryStore()
   const { collections, loadCollections } = useCollectionsStore()
   const show = useToastStore((state) => state.show)
   const isOnline = useConnectivityStore((state) => state.isOnline)
@@ -91,9 +105,41 @@ export function LibraryView(): JSX.Element {
 
   // Load favourites and collections on mount
   useEffect(() => {
-    loadFavourites()
+    loadFavourites() // Keep store updated for other components
     loadCollections()
   }, [loadFavourites, loadCollections])
+
+  // Load manga list (with or without downloaded titles)
+  useEffect(() => {
+    const loadMangaList = async (): Promise<void> => {
+      setLoading(true)
+      setError(null)
+      try {
+        const response = await globalThis.library.getLibraryManga({
+          includeDownloaded
+        })
+        if (response.success && response.data) {
+          setMangaList(response.data)
+        } else {
+          setError(response.error || 'Failed to load library')
+          setMangaList([])
+        }
+      } catch (err) {
+        rendererLog.error('[LibraryView] Failed to load manga list:', err)
+        setError('Failed to load library')
+        setMangaList([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    void loadMangaList()
+  }, [includeDownloaded])
+
+  // Persist toggle preference
+  useEffect(() => {
+    localStorage.setItem('dexreader:library:includeDownloaded', String(includeDownloaded))
+  }, [includeDownloaded])
 
   const handleSearch = (query: string): void => {
     setSearchQuery(query)
@@ -128,8 +174,36 @@ export function LibraryView(): JSX.Element {
     })
   }
 
-  const filteredAll = filterManga(favourites)
+  const handleAddToLibrary = async (id: string): Promise<void> => {
+    try {
+      await globalThis.library.toggleFavourite(id)
+      show({
+        title: 'Added to Library',
+        message: 'Manga added to your collection',
+        variant: 'success'
+      })
+      // Refresh to update UI
+      loadFavourites()
+      // Reload manga list to reflect the change
+      const response = await globalThis.library.getLibraryManga({ includeDownloaded })
+      if (response.success && response.data) {
+        setMangaList(response.data)
+      }
+    } catch (error) {
+      show({
+        title: 'Error',
+        message: 'Failed to add to library',
+        variant: 'error'
+      })
+      rendererLog.error('[LibraryView] handleAddToLibrary error:', error)
+    }
+  }
+
+  // Apply filters to manga list
+  const filteredManga = useMemo(() => filterManga(mangaList), [mangaList, filterManga])
   const hasCollections = collections.length > 0
+  const favouriteCount = mangaList.filter((m) => m.isFavourite).length
+  const downloadedCount = mangaList.length - favouriteCount
 
   return (
     <div className="p-6">
@@ -138,27 +212,67 @@ export function LibraryView(): JSX.Element {
 
       {/* Live region for dynamic content updates */}
       <div aria-live="polite" aria-atomic="true" className="sr-only" role="status">
-        {loading ? 'Loading your library...' : `${filteredAll.length} manga in library`}
+        {loading
+          ? 'Loading your library...'
+          : includeDownloaded
+            ? `${filteredManga.length} manga (${favouriteCount} favorited, ${downloadedCount} downloaded)`
+            : `${filteredManga.length} manga in library`}
       </div>
 
       {/* Search Bar with Actions */}
       <div className="mb-4 flex gap-3 items-start">
-        <div className="flex-1">
-          <SearchBar
-            value={searchQuery}
-            onChange={handleSearch}
-            placeholder="Search your library (try: status:ongoing, author:Oda, tag:romance)"
-          />
+        {/* Search Bar with Integrated Controls */}
+        <div className="library-view__search-wrapper flex-1">
+          <div className="library-view__search-container">
+            <SearchBar
+              value={searchQuery}
+              onChange={handleSearch}
+              placeholder="Search your library (try: status:ongoing, author:Oda, tag:romance)"
+            />
+            <div className="library-view__search-actions">
+              {/* Download Toggle Button */}
+              <button
+                type="button"
+                className={`library-view__search-button ${
+                  includeDownloaded ? 'library-view__search-button--active' : ''
+                }`}
+                onClick={() => setIncludeDownloaded(!includeDownloaded)}
+                aria-label={
+                  includeDownloaded
+                    ? `Hide downloaded titles (currently showing ${downloadedCount} downloaded)`
+                    : 'Include downloaded titles in library'
+                }
+                aria-pressed={includeDownloaded}
+                title={
+                  includeDownloaded && downloadedCount > 0
+                    ? `Including ${downloadedCount} downloaded title${
+                        downloadedCount === 1 ? '' : 's'
+                      }`
+                    : 'Include downloaded manga that are not favourited in your library'
+                }
+              >
+                <span className="library-view__search-button-icon">
+                  {includeDownloaded ? <ArrowDownload20Filled /> : <ArrowDownload20Regular />}
+                </span>
+              </button>
+
+              {/* Search Help Button */}
+              <button
+                type="button"
+                className="library-view__search-button"
+                onClick={() => setShowSearchHelp(!showSearchHelp)}
+                aria-label="Search syntax help"
+                title="Show search syntax help"
+              >
+                <span className="library-view__search-button-icon">
+                  <Info20Regular />
+                </span>
+              </button>
+            </div>
+          </div>
         </div>
-        <Button
-          variant="ghost"
-          size="medium"
-          icon={<Info20Regular />}
-          onClick={() => setShowSearchHelp(!showSearchHelp)}
-          aria-label="Search syntax help"
-          title="Show search syntax help"
-          className="h-9"
-        />
+
+        {/* Action Button (Separated) */}
         <Button
           variant="secondary"
           size="medium"
@@ -297,7 +411,7 @@ export function LibraryView(): JSX.Element {
               )}
 
               <TabPanel value="all">
-                {filteredAll.length === 0 ? (
+                {filteredManga.length === 0 ? (
                   <EmptyState
                     icon={searchQuery ? <Search48Regular /> : <BookOpen48Regular />}
                     message={
@@ -311,10 +425,11 @@ export function LibraryView(): JSX.Element {
                   />
                 ) : (
                   <MangaGrid
-                    items={filteredAll}
+                    items={filteredManga}
                     onFavourite={handleRemoveFromLibrary}
                     onClick={handleMangaClick}
                     onAddToCollection={handleAddToCollection}
+                    onAddToLibrary={handleAddToLibrary}
                   />
                 )}
               </TabPanel>
@@ -344,6 +459,7 @@ export function LibraryView(): JSX.Element {
                         onFavourite={handleRemoveFromLibrary}
                         onClick={handleMangaClick}
                         onAddToCollection={handleAddToCollection}
+                        onAddToLibrary={handleAddToLibrary}
                       />
                     )}
                   </TabPanel>
@@ -353,7 +469,7 @@ export function LibraryView(): JSX.Element {
           ) : (
             // No collections - show all manga in a simple grid
             <>
-              {filteredAll.length === 0 ? (
+              {filteredManga.length === 0 ? (
                 <EmptyState
                   icon={searchQuery ? <Search48Regular /> : <BookOpen48Regular />}
                   message={
@@ -367,10 +483,11 @@ export function LibraryView(): JSX.Element {
                 />
               ) : (
                 <MangaGrid
-                  items={filteredAll}
+                  items={filteredManga}
                   onFavourite={handleRemoveFromLibrary}
                   onClick={handleMangaClick}
                   onAddToCollection={handleAddToCollection}
+                  onAddToLibrary={handleAddToLibrary}
                 />
               )}
             </>

@@ -1,4 +1,4 @@
-import { and, eq, inArray, like, lt, SQL, sql, notExists } from 'drizzle-orm'
+import { and, eq, inArray, like, lt, SQL, sql, notExists, or, isNotNull } from 'drizzle-orm'
 import { UpsertMangaCommand } from '../commands/manga/upsert-manga.command'
 import { databaseConnection } from '../connection'
 import { chapterDownloads, collectionItems, manga } from '../schemas'
@@ -134,8 +134,7 @@ class MangaRepository {
   }
 
   getLibraryManga(options?: GetLibraryMangaCommand): MangaWithMetadata[] {
-    // Return only explicitly favourited manga (library = curated bookmarks)
-    // Downloaded manga without favourites should be viewed in Downloads page
+    // If no option is provided, return all favourited manga with their download status - this is the default library view without filters
     if (!options) {
       const result = this.db
         .select({
@@ -176,8 +175,22 @@ class MangaRepository {
       condition.push(like(manga.title, `%${options.search}%`))
     }
 
-    // Only return explicitly favourited manga
-    condition.push(eq(manga.isFavourite, true))
+    // If includeDownloaded is true, include manga that are EITHER favorited OR have completed downloads
+    // Otherwise only include favorited manga (standard library view)
+    if (options.includeDownloaded) {
+      // Include manga that are favorited OR have at least one completed download (from LEFT JOIN)
+      condition.push(
+        or(
+          eq(manga.isFavourite, true),
+          and(
+            isNotNull(chapterDownloads.mangaId), // Has at least one download
+            eq(chapterDownloads.status, DownloadStatus.Completed) // And it's completed
+          )
+        )
+      )
+    } else {
+      condition.push(eq(manga.isFavourite, true))
+    }
 
     const query = this.db
       .select({
@@ -209,7 +222,7 @@ class MangaRepository {
       .from(manga)
       .innerJoin(chapterDownloads, eq(manga.mangaId, chapterDownloads.mangaId))
       .where(
-        eq(chapterDownloads.status, DownloadStatus.Completed) // Only completed downloads
+        eq(chapterDownloads.status, DownloadStatus.Completed) // Only completed downloads (isHidden is for DownloadView only)
       )
       .groupBy(manga.mangaId) // Get unique manga (one manga can have multiple downloaded chapters)
       .all()

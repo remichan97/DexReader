@@ -62,7 +62,18 @@ export interface MangaCardProps extends BaseComponentProps {
   showFavouriteBadge?: boolean
 
   /**
+   * Show download badge indicator (for non-favorited downloaded titles)
+   * @default false
+   */
+  showDownloadBadge?: boolean
 
+  /**
+   * Has downloads available (shows subtle overlay indicator)
+   * @default false
+   */
+  hasDownloads?: boolean
+
+  /**
    * Click handler
    */
   onClick?: (id: string) => void
@@ -106,6 +117,8 @@ export const MangaCard = memo(function MangaCard({
   variant = 'grid',
   isFavourite = false,
   showFavouriteBadge = true,
+  showDownloadBadge = false,
+  hasDownloads = false,
   onClick,
   onFavourite,
   className = '',
@@ -218,6 +231,42 @@ export const MangaCard = memo(function MangaCard({
               xmlns="http://www.w3.org/2000/svg"
             >
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+            </svg>
+          </div>
+        )}
+
+        {/* Download indicator badge (for non-favorited downloads) - Top Right */}
+        {showDownloadBadge && !isFavourite && (
+          <div
+            className="manga-card__download-badge flex items-center justify-center"
+            aria-hidden="true"
+            title="Downloaded (not in library)"
+          >
+            <svg
+              className="manga-card__download-badge-icon"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M11.5 14.9429L7.5 10.9429L8.91421 9.52869L10.5 11.1145V3.5H12.5V11.1145L14.0858 9.52869L15.5 10.9429L11.5 14.9429ZM5.5 20.5C4.96957 20.5 4.51086 20.3232 4.12384 19.9696C3.73682 19.616 3.54331 19.1891 3.5 18.6889V15.5H5.5V18.5H17.5V15.5H19.5V18.6889C19.5 19.2193 19.3232 19.678 18.9696 20.0651C18.616 20.4521 18.1891 20.6456 17.6889 20.6456L5.5 20.5Z" />
+            </svg>
+          </div>
+        )}
+
+        {/* Download overlay indicator (for ALL downloaded titles) - Bottom Left */}
+        {hasDownloads && (
+          <div
+            className="manga-card__download-overlay flex items-center justify-center"
+            aria-hidden="true"
+            title="Available offline"
+          >
+            <svg
+              className="manga-card__download-overlay-icon"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M11.5 14.9429L7.5 10.9429L8.91421 9.52869L10.5 11.1145V3.5H12.5V11.1145L14.0858 9.52869L15.5 10.9429L11.5 14.9429ZM5.5 20.5C4.96957 20.5 4.51086 20.3232 4.12384 19.9696C3.73682 19.616 3.54331 19.1891 3.5 18.6889V15.5H5.5V18.5H17.5V15.5H19.5V18.6889C19.5 19.2193 19.3232 19.678 18.9696 20.0651C18.616 20.4521 18.1891 20.6456 17.6889 20.6456L5.5 20.5Z" />
             </svg>
           </div>
         )}

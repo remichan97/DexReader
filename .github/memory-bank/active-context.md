@@ -1,7 +1,7 @@
 # DexReader Active Context
 
-**Last Updated**: 29 April 2026
-**Version**: v1.1.0
+**Last Updated**: 6 May 2026
+**Version**: v1.2.0
 **Mode**: Post-Release Maintenance & Feature Development
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next. Keep all entries as short, concise as possible
@@ -10,17 +10,17 @@
 
 ## Current Status
 
-**v1.1.0 Released**: 29 April 2026 🎉
+**v1.2.0 Released**: 6 May 2026 🎉
 
-**Active Development**: Ready for next feature cycle
+**Focus**: Post-release monitoring and next feature planning
 
-- All planned features for v1.1.0 completed
-- Clean slate for new feature development
-- Focus areas: User feedback, bug fixes, performance optimizations
+- Library enhancements completed (download toggle, soft delete, UI reorganization)
+- Database and settings performance optimizations shipped
+- Ready for user feedback and next development cycle
 
 **Plans:**
 
-- No active plans - awaiting next feature cycle
+- No active plans
 
 ---
 
@@ -31,7 +31,7 @@
 - **Severity**: Low
 - **Source**: `drizzle-kit` → `esbuild` transitive dependency
 - **Status**: GitHub Dependabot alert active, not yet resolved
-- **Impact**: Development-time only (not runtime), not blocking v1.0
+- **Impact**: Development-time only (not runtime), not blocking releases
 - **Action**: Monitor for `drizzle-kit` update that addresses this
 
 <!-- Template for future issues:
@@ -47,25 +47,19 @@
 
 ## Recent Changes (Last 1-2 Weeks)
 
-### 29 April 2026 - v1.1.0 Release
+### 6 May 2026 - v1.2.0 Release
 
 - **Type**: Release
-- **Summary**: Quality-of-life release adding post-update banner, configurable startup page, settings migration system, and removal of unused manga update checking features.
+- **Summary**: Library enhancements release adding downloaded titles toggle, soft delete for chapters, improved search UI, and performance optimizations for settings and database queries.
 - **Key Features**:
-  - Post-update "What's New" banner with GitHub release notes link
-  - Startup page selection (Browse/Library/Downloads)
-  - Automatic settings migration infrastructure
-  - Cleaner codebase with unused features removed
-- **Impact**: Improved user experience and maintainability
+  - Include Downloaded Titles toggle in Library view
+  - Soft delete for downloaded chapters with confirmation dialog
+  - Reorganized Library search header matching BrowseView pattern
+  - Download and favorite status badges on manga cards
+  - Settings performance improvement (5 writes → 1 write)
+  - Optimized database queries
+- **Impact**: Better library management and improved performance
 - **Status**: ✅ Released
-
-<!-- Template for future updates:
-### [Date] - [Brief Title]
-- **Type**: Bug fix / Performance / Security / Dependency update / Feature
-- **Summary**: [1-2 sentence description]
-- **Files**: [key files changed]
-- **Impact**: [user-facing changes if any]
--->
 
 ---
 

@@ -15,6 +15,7 @@ import { ReorderMangaInCollectionCommand } from '../main/database/commands/colle
 import { RecordReadCommand } from '../main/database/commands/history/record-read.command'
 import { DexreaderExportOption } from '../main/services/options/dexreader-export.option'
 import { QueuedDownloads } from '../main/services/types/downloads/queued-downloads.type'
+import { DeleteChapterOptions } from '../main/services/options/delete-chapter.option'
 
 // Export enums for renderer
 export { DownloadConfirmation } from '../main/settings/enums/download-confirmation.enum'
@@ -307,7 +308,7 @@ const settings = {
   load: () => ipcRenderer.invoke('settings:load'),
   getSettingByPath: (section: string, settingsPath?: string) =>
     ipcRenderer.invoke('settings:get', section, settingsPath),
-  save: (key: string, value: unknown) => ipcRenderer.invoke('settings:save', key, value),
+  saveAll: (settings: unknown) => ipcRenderer.invoke('settings:save-all', settings),
   openFile: () => ipcRenderer.invoke('settings:open-settings-file'),
   resetToDefaults: () => ipcRenderer.invoke('settings:reset-to-defaults'),
   clearAllData: () => ipcRenderer.invoke('settings:clear-all'),
@@ -327,7 +328,8 @@ const dexReader = {
 const downloads = {
   downloadChapter: (options: DownloadChapterOptions) =>
     ipcRenderer.invoke('downloads:download-chapter', options),
-  deleteChapter: (chapterId: string) => ipcRenderer.invoke('downloads:delete-chapter', chapterId),
+  deleteChapter: (options: DeleteChapterOptions) =>
+    ipcRenderer.invoke('downloads:delete-chapter', options),
   getAllDownloads: () => ipcRenderer.invoke('download:get-all-downloads'),
   getStorageInfo: () => ipcRenderer.invoke('download:storage-stats'),
   clearCompleted: () => ipcRenderer.invoke('download:clear-completed'),

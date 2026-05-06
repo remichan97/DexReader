@@ -11,3 +11,98 @@
   gap: var(--space-4);
   margin-top: var(--space-4);
 }
+
+/* Search Bar Wrapper */
+.library-view__search-wrapper {
+  position: relative;
+}
+
+/* Search Container - holds SearchBar and buttons */
+.library-view__search-container {
+  position: relative;
+}
+
+/* Hide the SearchBar hint text to avoid layout conflicts */
+.library-view__search-wrapper .search-bar__hint {
+  display: none;
+}
+
+/* Prevent SearchBar component from clipping our buttons */
+.library-view__search-wrapper .search-bar {
+  overflow: visible !important;
+}
+
+.library-view__search-wrapper .search-bar__container {
+  overflow: visible !important;
+}
+
+/* Add padding to search input to make room for buttons */
+.library-view__search-wrapper .search-bar__input {
+  padding-right: calc(32px * 2 + var(--space-2) * 2); /* Two 32px buttons + spacing */
+}
+
+/* Search Actions - Buttons integrated into search bar */
+.library-view__search-actions {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 var(--space-2);
+  pointer-events: none; /* Allow clicking through container */
+}
+
+/* Search Button - Mimics SearchBar filter button style */
+.library-view__search-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--win-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  pointer-events: auto; /* Re-enable clicks on buttons */
+}
+
+/* Icon wrapper inside button */
+.library-view__search-button-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Ensure Fluent UI icons display and size correctly */
+.library-view__search-button-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.library-view__search-button:hover {
+  background: var(--win-bg-hover);
+  color: var(--win-text-primary);
+}
+
+.library-view__search-button:active {
+  background: var(--win-bg-active);
+}
+
+/* Active State for Download Toggle */
+.library-view__search-button--active {
+  color: var(--win-accent);
+}
+
+.library-view__search-button--active:hover {
+  background: var(--win-accent-subtle, rgba(0, 120, 212, 0.08));
+  color: var(--win-accent);
+}

@@ -21,12 +21,19 @@ import { mainLog } from '../services/logging/main-logging.service'
 import { StartupPage } from './enums/startup-page.enum'
 import { migrateSettings } from './utils/settings-migration.util'
 
+let cachedSettingsObject: AppSettings | undefined = undefined
+
 // Lazy-initialized to avoid calling getAppDataPath() before Electron app is ready
 function settingsFilePath(): string {
   return path.join(getAppDataPath(), 'settings.json')
 }
 
 export async function loadSettings(): Promise<AppSettings> {
+  // Return cached settings if available
+  if (cachedSettingsObject) {
+    return cachedSettingsObject
+  }
+
   try {
     const settingsFile = settingsFilePath()
     const exists = await secureFs.isExists(settingsFile)
@@ -34,6 +41,7 @@ export async function loadSettings(): Promise<AppSettings> {
     if (!exists) {
       const defaults: AppSettings = getDefaultSettings()
       await saveSettings(defaults)
+      cachedSettingsObject = defaults
       return defaults
     }
 
@@ -42,11 +50,14 @@ export async function loadSettings(): Promise<AppSettings> {
 
     // Migrate settings if needed
     const migratedSettings = migrateSettings(settings, getDefaultSettings())
+    cachedSettingsObject = migratedSettings
     return migratedSettings
   } catch (error) {
     mainLog.error('[SettingsManager] Error loading settings:', error)
     mainLog.warn('[SettingsManager] Reverting to default settings.')
-    return getDefaultSettings()
+    cachedSettingsObject = getDefaultSettings()
+    await saveSettings(cachedSettingsObject)
+    return cachedSettingsObject
   }
 }
 
@@ -55,6 +66,9 @@ export async function saveSettings(settings: AppSettings): Promise<void> {
     const data = JSON.stringify(settings, null, 2)
     const settingsFile = settingsFilePath()
     await secureFs.writeFile(settingsFile, data, 'utf-8')
+    // Update cached settings after successful save to make sure cache is always in sync with disk
+    cachedSettingsObject = settings
+    mainLog.info('[SettingsManager] Settings saved successfully.')
   } catch (error) {
     mainLog.error('[SettingsManager] Error saving settings:', error)
     throw error
@@ -103,37 +117,6 @@ export async function getSettingByPath<K extends keyof AppSettings>(
   }
 
   return value
-}
-
-/**
- * Set a nested setting value by path (e.g., 'downloads.downloadPath')
- * @param section - Top-level settings section ('downloads', 'appearance', 'reader')
- * @param settingsPath - Dot-notation path to nested property
- * @param value - Value to set
- */
-export async function setSettingByPath<K extends keyof AppSettings>(
-  section: K,
-  settingsPath: string,
-  value: unknown
-): Promise<void> {
-  mainLog.debug(`[SettingsManager] Setting '${section}.${settingsPath}' to value:`, value)
-  const settings = await loadSettings()
-  const keys = settingsPath.split('.')
-  // Navigate to the parent object
-  let target = settings[section] as unknown as Record<string, unknown>
-  for (let i = 0; i < keys.length - 1; i++) {
-    if (target[keys[i]] === undefined) {
-      target[keys[i]] = {}
-    }
-    target = target[keys[i]] as Record<string, unknown>
-  }
-
-  // Set the final value
-  const finalKey = keys.at(-1)!
-  target[finalKey] = value
-
-  await saveSettings(settings)
-  mainLog.info(`[SettingsManager] Updated '${section}.${settingsPath}' successfully`)
 }
 
 export function getSettingsFilePath(): string {

@@ -8,6 +8,7 @@ import {
 import { downloadQueueService } from '../../services/download-queue.service'
 import { QueuedDownloads } from '../../services/types/downloads/queued-downloads.type'
 import { mainLog } from '../../services/logging/main-logging.service'
+import { DeleteChapterOptions } from '../../services/options/delete-chapter.option'
 
 export function registerDownloadHandlers(): void {
   /**
@@ -55,26 +56,29 @@ export function registerDownloadHandlers(): void {
   })
 
   /**
-   * Delete a downloaded chapter from disk.
+   * Delete a downloaded chapter.
    *
-   * Permanently removes downloaded chapter images and database record. Frees disk space.
-   * Cannot be undone. Chapter can be re-downloaded if needed.
+   * Permanently deletes, or hides (soft delete), a downloaded chapter based on options. Permanent delete removes files from disk and database record. Soft delete keeps files but marks as hidden in database, effectively hides the chapter from the DownloadsView. Used in DownloadsView for managing downloaded chapters.
    *
-   * @param chapterId - MangaDex chapter UUID
+   * @param options - Delete configuration object
+   * @param options.chapterId - MangaDex chapter UUID
+   * @param options.isDeletePermanent - Whether to permanently delete files (true) or just mark as deleted in database (false)
    * @returns Promise<void>
-   * @throws {TypeError} - If chapterId is not a string
+   * @throws {TypeError} - If options object is invalid or missing required fields
    *
    * @example
-   * // Delete downloaded chapter
-   * await window.api.deleteDownloadedChapter('abc123-def456...')
+   * // Permanently delete a downloaded chapter
+   * await window.api.deleteDownloadedChapter({ chapterId: 'abc123-def456...', isDeletePermanent: true })
    */
-  wrapIpcHandler('downloads:delete-chapter', async (_, chapterId: unknown) => {
-    if (typeof chapterId !== 'string') {
-      throw new TypeError('Invalid chapterId for deleting chapter')
+  wrapIpcHandler('downloads:delete-chapter', async (_, options: unknown) => {
+    if (typeof options !== 'object' || options === null || !('chapterId' in options)) {
+      throw new TypeError('Invalid options for deleting chapter')
     }
 
-    mainLog.info(`[Downloads] Chapter deletion requested: ${chapterId}`)
-    return await downloadService.deleteChapter(chapterId)
+    const deleteOptions = options as DeleteChapterOptions
+
+    mainLog.info(`[Downloads] Chapter deletion requested: ${deleteOptions.chapterId}`)
+    return await downloadService.deleteChapter(deleteOptions)
   })
 
   /**

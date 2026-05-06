@@ -53,6 +53,7 @@ import type { MemoryTierInfo } from '../main/settings/response/memory-tier.respo
 // Service options
 import type { DexreaderExportOption } from '../main/services/options/dexreader-export.option'
 import type { DownloadChapterOptions } from '../main/services/options/download-chapter.option'
+import type { DeleteChapterOptions } from '../main/services/options/delete-chapter.option'
 
 // Service types
 import type { QueuedDownloads } from '../main/services/types/downloads/queued-downloads.type'
@@ -95,6 +96,7 @@ export type { DexReaderImportResult } from '../main/services/results/dexreader/i
 export type { DexReaderExportResult } from '../main/services/results/dexreader/export.result'
 export type { DexreaderExportOption } from '../main/services/options/dexreader-export.option'
 export type { DownloadChapterOptions } from '../main/services/options/download-chapter.option'
+export type { DeleteChapterOptions } from '../main/services/options/delete-chapter.option'
 export type { DownloadChapterResult } from '../main/services/results/dexreader/download-chapter.result'
 export type { QueuedDownloads } from '../main/services/types/downloads/queued-downloads.type'
 export type { QueueState } from '../main/services/types/downloads/queue-state.type'
@@ -279,7 +281,7 @@ interface Storage {
 interface Settings {
   load: () => Promise<IpcResponse<AppSettings>>
   getSettingByPath: (section: string, settingsPath?: string) => Promise<IpcResponse<unknown>>
-  save: (key: string, value: unknown) => Promise<IpcResponse<void>>
+  saveAll: (settings: AppSettings) => Promise<IpcResponse<boolean>>
   openFile: () => Promise<IpcResponse<boolean>>
   resetToDefaults: () => Promise<IpcResponse<boolean>>
   clearAllData: () => Promise<IpcResponse<boolean>>
@@ -299,7 +301,7 @@ interface DexReader {
 
 interface Downloads {
   downloadChapter: (options: DownloadChapterOptions) => Promise<IpcResponse<DownloadChapterResult>>
-  deleteChapter: (chapterId: string) => Promise<IpcResponse<void>>
+  deleteChapter: (options: DeleteChapterOptions) => Promise<IpcResponse<void>>
   getAllDownloads: () => Promise<IpcResponse<ChapterDownloadQuery[]>>
   clearCompleted: () => Promise<IpcResponse<number>>
   getDownload: (chapterId: string) => Promise<IpcResponse<ChapterDownloadQuery | undefined>>

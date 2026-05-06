@@ -15,6 +15,38 @@ import { ValidationError } from '../../ipc/error/validation.error'
 import { UpdateSettings } from '../entities/update-settings.entity'
 import { LogsSettings } from '../entities/logs-settings.entity'
 import { StartupPage } from '../enums/startup-page.enum'
+import { AppSettings } from '../entities/app-settings.entity'
+
+export function validateSettings(newSettings: unknown): newSettings is AppSettings {
+  if (typeof newSettings !== 'object' || newSettings === null) {
+    throw new TypeError('Settings must be an object')
+  }
+
+  const settings = newSettings as AppSettings
+
+  // Validate each section using the specific validators
+  if (!isAppearanceSettings(settings.appearance)) {
+    throw new TypeError('Invalid appearance settings')
+  }
+
+  if (!isDownloadsSettings(settings.downloads)) {
+    throw new TypeError('Invalid download settings')
+  }
+
+  if (!isReaderSettings(settings.reader)) {
+    throw new TypeError('Invalid reader settings')
+  }
+
+  if (!isUpdateSettings(settings.update)) {
+    throw new TypeError('Invalid update settings')
+  }
+
+  if (!isLogSettings(settings.logs)) {
+    throw new TypeError('Invalid log settings')
+  }
+
+  return true
+}
 
 // Validate appearance settings
 export function isAppearanceSettings(values: unknown): values is AppearanceSettings {
