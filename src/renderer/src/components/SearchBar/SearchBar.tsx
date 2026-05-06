@@ -235,17 +235,6 @@ export function SearchBar({
           </button>
         )}
       </div>
-
-      {/* Helper Text */}
-      {!disabled && (
-        <div
-          className="search-bar__hint flex items-center gap-1"
-          aria-live="polite"
-          aria-atomic="true"
-        >
-          Press <kbd>Ctrl+F</kbd> to focus, <kbd>Esc</kbd> to clear
-        </div>
-      )}
     </div>
   )
 }

@@ -221,48 +221,55 @@ export function LibraryView(): JSX.Element {
 
       {/* Search Bar with Actions */}
       <div className="mb-4 flex gap-3 items-start">
-        {/* Search Controls Group */}
-        <div className="library-view__search-group flex-1 flex items-center">
-          <div className="flex-1">
+        {/* Search Bar with Integrated Controls */}
+        <div className="library-view__search-wrapper flex-1">
+          <div className="library-view__search-container">
             <SearchBar
               value={searchQuery}
               onChange={handleSearch}
               placeholder="Search your library (try: status:ongoing, author:Oda, tag:romance)"
             />
+            <div className="library-view__search-actions">
+              {/* Download Toggle Button */}
+              <button
+                type="button"
+                className={`library-view__search-button ${
+                  includeDownloaded ? 'library-view__search-button--active' : ''
+                }`}
+                onClick={() => setIncludeDownloaded(!includeDownloaded)}
+                aria-label={
+                  includeDownloaded
+                    ? `Hide downloaded titles (currently showing ${downloadedCount} downloaded)`
+                    : 'Include downloaded titles in library'
+                }
+                aria-pressed={includeDownloaded}
+                title={
+                  includeDownloaded && downloadedCount > 0
+                    ? `Including ${downloadedCount} downloaded title${
+                        downloadedCount === 1 ? '' : 's'
+                      }`
+                    : 'Include downloaded manga that are not favourited in your library'
+                }
+              >
+                <span className="library-view__search-button-icon">
+                  {includeDownloaded ? <ArrowDownload20Filled /> : <ArrowDownload20Regular />}
+                </span>
+              </button>
+
+              {/* Search Help Button */}
+              <button
+                type="button"
+                className="library-view__search-button"
+                onClick={() => setShowSearchHelp(!showSearchHelp)}
+                aria-label="Search syntax help"
+                title="Show search syntax help"
+              >
+                <span className="library-view__search-button-icon">
+                  <Info20Regular />
+                </span>
+              </button>
+            </div>
           </div>
-
-          {/* Download Toggle Button */}
-          <Button
-            variant="ghost"
-            size="medium"
-            icon={includeDownloaded ? <ArrowDownload20Filled /> : <ArrowDownload20Regular />}
-            onClick={() => setIncludeDownloaded(!includeDownloaded)}
-            aria-label={
-              includeDownloaded
-                ? `Hide downloaded titles (currently showing ${downloadedCount} downloaded)`
-                : 'Include downloaded titles in library'
-            }
-            aria-pressed={includeDownloaded}
-            title={
-              includeDownloaded && downloadedCount > 0
-                ? `Including ${downloadedCount} downloaded title${downloadedCount === 1 ? '' : 's'}`
-                : 'Include downloaded manga that are not favorited'
-            }
-            className={`library-view__download-toggle h-9 ${
-              includeDownloaded ? 'library-view__download-toggle--active' : ''
-            }`}
-          />
-
-          {/* Search Help Button */}
-          <Button
-            variant="ghost"
-            size="medium"
-            icon={<Info20Regular />}
-            onClick={() => setShowSearchHelp(!showSearchHelp)}
-            aria-label="Search syntax help"
-            title="Show search syntax help"
-            className="h-9"
-          />
         </div>
 
         {/* Action Button (Separated) */}
