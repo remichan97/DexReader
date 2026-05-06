@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [1.2.0] - 2026-05-06
+
+### Added
+
+- Add "Include Downloaded Titles" toggle in Library view to display non-favorited downloaded manga alongside favorited titles
+- Add soft delete functionality for downloaded chapters with ability to hide from Download view
+- Add confirmation dialog for chapter download deletion with option to undo
+- Add download and favorite status badges on manga cards in Library view for better visual distinction
+- Add dual-badge system: heart badge for favorited titles, download badge for temporary downloads
+
+### Changed
+
+- Reorganize Library search header layout with integrated toggle buttons matching BrowseView pattern
+- Improve Library search bar UI with buttons positioned absolutely within search container
+- Update library database queries to merge favorited and downloaded manga efficiently
+
+### Fixed
+
+- Reduce settings file writes from 5 operations to 1 for better performance
+- Optimize library database queries by avoiding subqueries
+- Fix batch deletion of completed downloads to use batch method instead of loop
+
+---
+
 ## [1.1.0] - 2026-04-29
 
 ### Added

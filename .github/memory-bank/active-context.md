@@ -1,7 +1,7 @@
 # DexReader Active Context
 
-**Last Updated**: 3 May 2026
-**Version**: v1.1.0
+**Last Updated**: 6 May 2026
+**Version**: v1.2.0
 **Mode**: Post-Release Maintenance & Feature Development
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next. Keep all entries as short, concise as possible
@@ -10,15 +10,13 @@
 
 ## Current Status
 
-**v1.1.0 Released**: 29 April 2026 🎉
+**v1.2.0 Released**: 6 May 2026 🎉
 
-**Active Development**: Library enhancements
+**Focus**: Post-release monitoring and next feature planning
 
-- ✅ Implemented "Include Downloaded Titles" toggle in Library view
-- ✅ Reorganized Library header UI - converted checkbox to icon toggle button
-- Next: Testing and user feedback
-- Focus: Improving library management and download visibility
-- Revamped DownloadView with soft delete for chapters
+- Library enhancements completed (download toggle, soft delete, UI reorganization)
+- Database and settings performance optimizations shipped
+- Ready for user feedback and next development cycle
 
 **Plans:**
 
@@ -33,7 +31,7 @@
 - **Severity**: Low
 - **Source**: `drizzle-kit` → `esbuild` transitive dependency
 - **Status**: GitHub Dependabot alert active, not yet resolved
-- **Impact**: Development-time only (not runtime), not blocking v1.0
+- **Impact**: Development-time only (not runtime), not blocking releases
 - **Action**: Monitor for `drizzle-kit` update that addresses this
 
 <!-- Template for future issues:
@@ -49,49 +47,23 @@
 
 ## Recent Changes (Last 1-2 Weeks)
 
-### 3 May 2026 - Library Header UI Reorganization
-
-- **Type**: UI Enhancement
-- **Summary**: Reorganized Library header layout by converting "Include Downloaded Titles" checkbox to an icon-only toggle button. Groups search-related controls (search bar + download toggle + info button) together with small gaps for visual distinction, separating the Collection action button. Uses ArrowDownload20 icons (Regular/Filled) with tooltip showing download count on hover.
-- **Files**:
-  - `src/renderer/src/views/LibraryView/LibraryView.tsx` - Icon imports, JSX restructure with search group
-  - `src/renderer/src/views/LibraryView/LibraryView.css` - Removed checkbox styles, added toggle button active states
-- **Impact**: Cleaner, more consistent UI following Windows 11 command bar patterns. Download count in tooltip only (no inline badge)
-- **Status**: ✅ Implemented, ready for testing
-- **Design**: Small gap (0.25rem) between buttons, ghost variant for toggle, subtle accent background when active
-
-### 3 May 2026 - Library Downloaded Titles Toggle
-
-- **Type**: Feature Enhancement
-- **Summary**: Added "Include Downloaded Titles" toggle to Library view that shows both favorited manga AND non-favorited downloads. Backend handles merging via `includeDownloaded` flag in `getLibraryManga()`. Visual distinction with dual-badge system: heart badge for favorited, download badge for temporary downloads, download overlay for offline availability.
-- **Files**:
-  - `src/main/database/repositories/manga.repo.ts` - Added OR logic for favorited/downloaded filtering
-  - `src/renderer/src/views/LibraryView/LibraryView.tsx` - Single query with flag, simplified state
-  - `src/renderer/src/components/MangaCard/MangaCard.tsx` - Download badge and overlay rendering
-  - CSS files - Badge and toggle styling
-- **Impact**: Users can now see downloaded manga in Library without favoriting them first
-- **Status**: ✅ Implemented, ready for testing
-- **Note**: `isHidden` flag is exclusively for DownloadView (browser-style download manager), NOT filtered in library queries
-
-### 29 April 2026 - v1.1.0 Release
+### 6 May 2026 - v1.2.0 Release
 
 - **Type**: Release
-- **Summary**: Quality-of-life release adding post-update banner, configurable startup page, settings migration system, and removal of unused manga update checking features.
+- **Summary**: Library enhancements release adding downloaded titles toggle, soft delete for chapters, improved search UI, and performance optimizations for settings and database queries.
 - **Key Features**:
-  - Post-update "What's New" banner with GitHub release notes link
-  - Startup page selection (Browse/Library/Downloads)
-  - Automatic settings migration infrastructure
-  - Cleaner codebase with unused features removed
-- **Impact**: Improved user experience and maintainability
+  - Include Downloaded Titles toggle in Library view
+  - Soft delete for downloaded chapters with confirmation dialog
+  - Reorganized Library search header matching BrowseView pattern
+  - Download and favorite status badges on manga cards
+  - Settings performance improvement (5 writes → 1 write)
+  - Optimized database queries
+- **Impact**: Better library management and improved performance
 - **Status**: ✅ Released
-
-<!-- Template for future updates:
-### [Date] - [Brief Title]
-- **Type**: Bug fix / Performance / Security / Dependency update / Feature
 - **Summary**: [1-2 sentence description]
 - **Files**: [key files changed]
 - **Impact**: [user-facing changes if any]
--->
+  -->
 
 ---
 
