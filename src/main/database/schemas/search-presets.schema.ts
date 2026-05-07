@@ -7,9 +7,8 @@ export const searchPresets = sqliteTable(
   {
     id: integer('id').primaryKey({ autoIncrement: true }),
     name: text('name').notNull(),
-    description: text('description'),
 
-    seachQuery: text('search_query').default(''),
+    searchQuery: text('search_query').default(''),
     filters: text('filters', { mode: 'json' }).notNull().$type<SearchFiltersData>(),
     limit: integer('limit').notNull().default(20),
 
