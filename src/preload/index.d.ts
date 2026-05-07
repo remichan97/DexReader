@@ -31,6 +31,7 @@ import type { ChapterDownloadQuery } from '../main/database/queries/chapter-down
 import { ReadHistoryEntry } from '../main/database/queries/read-history/read-history.query'
 import type { ChapterDownloadsEvent } from '../main/services/events/chapter-downloads.event'
 import type { MangaCacheStatsQuery } from '../main/database/queries/manga/manga-cache-stats.query'
+import { SearchPresetQuery } from './../main/database/queries/search-presets/search-preset.query'
 
 // Database commands
 import { CreateCollectionCommand } from '../main/database/commands/collections/create-collection.command'
@@ -107,6 +108,7 @@ export type { CollectionEntity } from '../main/database/schemas/collections.sche
 export type { AppSettings } from '../main/settings/entities/app-settings.entity'
 export type { DownloadStatResult } from '../main/services/results/dexreader/download-stats.result'
 export type { MangaCacheStatsQuery } from '../main/database/queries/manga/manga-cache-stats.query'
+export type { SearchPresetQuery } from '../main/database/queries/search-presets/search-preset.query'
 export type { MemoryTierInfo } from '../main/settings/response/memory-tier.response'
 
 interface MenuState {
@@ -357,6 +359,15 @@ interface Logger {
   openLogsFolder: () => Promise<string>
 }
 
+interface SearchPresets {
+  getAll: () => Promise<IpcResponse<SearchPresetQuery[]>>
+  getByName: (name: string) => Promise<IpcResponse<SearchPresetQuery | undefined>>
+  getById: (id: number) => Promise<IpcResponse<SearchPresetQuery | undefined>>
+  create: (command: CreateSearchPresetCommand) => Promise<IpcResponse<SearchPresetQuery>>
+  delete: (id: number) => Promise<IpcResponse<void>>
+  updateLastUsedAt: (id: number) => Promise<IpcResponse<void>>
+}
+
 declare global {
   interface Window {
     electron: ElectronAPI
@@ -375,5 +386,6 @@ declare global {
     storage: Storage
     appUpdate: AppUpdate
     logger: Logger
+    searchPresets: SearchPresets
   }
 }
