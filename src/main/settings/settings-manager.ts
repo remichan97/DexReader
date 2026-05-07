@@ -226,7 +226,8 @@ export function getDefaultSettings(): AppSettings {
     },
     logs: {
       retentionInDays: 7 // Default: 7 days (covers 99% of debugging scenarios)
-    }
+    },
+    search: {}
   }
 }
 

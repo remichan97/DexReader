@@ -56,6 +56,10 @@ function mergeWithDefaults(userSettings: Partial<AppSettings>, defaults: AppSett
     logs: {
       ...defaults.logs,
       ...userSettings.logs
+    },
+    search: {
+      ...defaults.search,
+      ...userSettings.search
     }
   }
 }
