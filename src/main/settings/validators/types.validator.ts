@@ -16,6 +16,7 @@ import { UpdateSettings } from '../entities/update-settings.entity'
 import { LogsSettings } from '../entities/logs-settings.entity'
 import { StartupPage } from '../enums/startup-page.enum'
 import { AppSettings } from '../entities/app-settings.entity'
+import { SearchSettings } from '../entities/search-settings.entity'
 
 export function validateSettings(newSettings: unknown): newSettings is AppSettings {
   if (typeof newSettings !== 'object' || newSettings === null) {
@@ -337,6 +338,23 @@ export function isLogSettings(values: unknown): values is LogsSettings {
     throw new TypeError(
       'Refused to save log settings: retentionInDays is not a valid number, must be an integer between 0 and 30'
     )
+  }
+
+  return true
+}
+
+export function isSearchSettings(values: unknown): values is SearchSettings {
+  if (typeof values !== 'object' || values === null) {
+    throw new TypeError('Refused to save search settings: not an object')
+  }
+
+  const searchSettings = values as SearchSettings
+
+  if (
+    searchSettings.defaultPresetId !== undefined &&
+    typeof searchSettings.defaultPresetId !== 'number'
+  ) {
+    throw new TypeError('Refused to save search settings: defaultPresetId is not a number')
   }
 
   return true
