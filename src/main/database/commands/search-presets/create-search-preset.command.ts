@@ -4,4 +4,5 @@ export interface CreateSearchPresetCommand {
   name: string
   filters: SearchFiltersData
   searchQuery?: string
+  resultsPerPage?: number
 }

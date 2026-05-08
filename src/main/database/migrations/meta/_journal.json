@@ -57,6 +57,13 @@
       "when": 1778085271360,
       "tag": "0007_create_searchpresettable",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1778257250346,
+      "tag": "0008_drop_descriptioncolumn",
+      "breakpoints": true
     }
   ]
 }

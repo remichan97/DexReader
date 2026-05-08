@@ -6,7 +6,7 @@ type SearchPresetRow = {
   name: string
   searchQuery: string | null
   filters: SearchFiltersData
-  limit: number
+  resultsPerPage: number
   createdAt: Date
   updatedAt: Date
   lastUsedAt: Date
@@ -18,7 +18,8 @@ export class SearchPresetsMapper {
       id: row.id,
       name: row.name,
       searchQuery: row.searchQuery ?? undefined,
-      filters: row.filters
+      filters: row.filters,
+      resultsPerPage: row.resultsPerPage
     }
   }
 }

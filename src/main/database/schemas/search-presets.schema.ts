@@ -6,11 +6,11 @@ export const searchPresets = sqliteTable(
   'search_presets',
   {
     id: integer('id').primaryKey({ autoIncrement: true }),
-    name: text('name').notNull(),
+    name: text('name').notNull().unique(),
 
     searchQuery: text('search_query').default(''),
     filters: text('filters', { mode: 'json' }).notNull().$type<SearchFiltersData>(),
-    limit: integer('limit').notNull().default(20),
+    resultsPerPage: integer('results_per_page').notNull().default(20),
 
     createdAt: integer('created_at', { mode: 'timestamp' })
       .notNull()

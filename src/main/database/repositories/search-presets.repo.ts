@@ -58,6 +58,7 @@ class SearchPresetsRepository {
         name: command.name,
         searchQuery: command.searchQuery ?? '',
         filters: command.filters,
+        resultsPerPage: command.resultsPerPage ?? 20,
         createdAt: now,
         updatedAt: now,
         lastUsedAt: now
@@ -68,7 +69,8 @@ class SearchPresetsRepository {
           searchQuery: command.searchQuery ?? '',
           filters: command.filters,
           updatedAt: new Date(),
-          lastUsedAt: new Date()
+          lastUsedAt: new Date(),
+          resultsPerPage: command.resultsPerPage ?? searchPresets.resultsPerPage
         }
       })
       .run()
