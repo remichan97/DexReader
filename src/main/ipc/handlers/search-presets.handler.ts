@@ -88,7 +88,7 @@ export function registerSearchPresetsHandler(): void {
    * Create new, or save a search preset
    *
    * @param command - The command object containing the preset details
-   * @returns Promise<boolean> indicating success or failure
+   * @returns Promise<SearchPresetQuery> The created or updated search preset
    *
    * @example
    * // Create a new search preset
