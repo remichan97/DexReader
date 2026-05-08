@@ -4,7 +4,6 @@ import { searchPresets } from '../schemas'
 import { SearchPresetsMapper } from '../mappers/search-presets.mapper'
 import { eq } from 'drizzle-orm'
 import { CreateSearchPresetCommand } from '../commands/search-presets/create-search-preset.command'
-import { mainLog } from '../../services/logging/main-logging.service'
 
 class SearchPresetsRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
@@ -41,16 +40,6 @@ class SearchPresetsRepository {
   // Return true if the change was successfully committed to the database, false otherwise
   create(command: CreateSearchPresetCommand): boolean {
     const now = new Date()
-
-    if (command.name.length > 50) {
-      mainLog.error(
-        '[Database] Refused to create search preset with name longer than 50 characters',
-        {
-          presetName: command.name
-        }
-      )
-      throw new Error('Preset name cannot exceed 50 characters')
-    }
 
     const result = this.db
       .insert(searchPresets)

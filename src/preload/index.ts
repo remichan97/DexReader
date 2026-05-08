@@ -410,8 +410,7 @@ const searchPresets = {
   getById: (id: number) => ipcRenderer.invoke('search-presets:getById', id),
   updateLastUsedAt: (id: number) => ipcRenderer.invoke('search-presets:updateLastUsedAt', id),
   delete: (id: number) => ipcRenderer.invoke('search-presets:delete', id),
-  create: (command: CreateSearchPresetCommand) =>
-    ipcRenderer.invoke('search-presets:create', command)
+  create: (command: CreateSearchPresetCommand) => ipcRenderer.invoke('search-presets:save', command)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

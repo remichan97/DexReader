@@ -1,4 +1,5 @@
 import {
+  ContentRating,
   IncludedTagsMode,
   OrderDirection,
   OrderOptions,
@@ -45,9 +46,9 @@ function isValidSearchPresetData(filters: unknown): filters is SearchFiltersData
 
   if (
     !Array.isArray(data.contentRating) ||
-    !data.contentRating.every((r) => typeof r === 'string')
+    !data.contentRating.every((r) => Object.values(ContentRating).includes(r))
   ) {
-    throw new TypeError('Expected an array of strings for contentRating')
+    throw new TypeError('Expected an array of valid ContentRating for contentRating')
   }
 
   if (
