@@ -5,7 +5,7 @@ import { getSettingByPath, updateSettings } from '../settings/settings-manager'
 import { mainLog } from './logging/main-logging.service'
 
 class SearchPresetService {
-  createSearchPreset(command: CreateSearchPresetCommand): boolean {
+  createSearchPreset(command: CreateSearchPresetCommand): SearchPresetQuery {
     if (command.name.trim() === '') {
       mainLog.error('[SearchPresetService] Failed to create search preset with empty name')
       throw new Error('Preset name cannot be empty')
@@ -22,15 +22,15 @@ class SearchPresetService {
     }
 
     try {
-      const success = searchPresetsRepo.create(command)
+      const preset = searchPresetsRepo.create(command)
 
-      if (!success) {
+      if (!preset) {
         mainLog.error('[SearchPresetService] Failed to create or update search preset', {
           presetName: command.name
         })
         throw new Error('Failed to create or update search preset')
       }
-      return success
+      return preset
     } catch (error) {
       mainLog.error('[SearchPresetService] Error while creating or updating search preset', {
         presetName: command.name,

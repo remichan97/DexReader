@@ -38,7 +38,7 @@ class SearchPresetsRepository {
 
   // Create new, or update existing preset with the same name
   // Return true if the change was successfully committed to the database, false otherwise
-  create(command: CreateSearchPresetCommand): boolean {
+  create(command: CreateSearchPresetCommand): SearchPresetQuery {
     const now = new Date()
 
     const result = this.db
@@ -62,15 +62,21 @@ class SearchPresetsRepository {
           resultsPerPage: command.resultsPerPage ?? searchPresets.resultsPerPage
         }
       })
-      .run()
+      .returning()
+      .get()
 
-    return result.changes > 0 || result.lastInsertRowid !== 0
+    return SearchPresetsMapper.toQuery(result)
   }
 
   // Update lastUsedAt to the current date for the preset with the given id
   // Use this when the user selects a preset on the UI
   // Return true if the change was successfully committed to the database, false otherwise
   updateLastUsedAt(id: number): boolean {
+    const existingPreset = this.getPresetById(id)
+    if (!existingPreset) {
+      return false
+    }
+
     const result = this.db
       .update(searchPresets)
       .set({ lastUsedAt: new Date() })
@@ -81,15 +87,14 @@ class SearchPresetsRepository {
   }
 
   delete(id: number): boolean {
+    const existingPreset = this.getPresetById(id)
+    if (!existingPreset) {
+      return false
+    }
+
     const result = this.db.delete(searchPresets).where(eq(searchPresets.id, id)).run()
 
     return result.changes > 0
-  }
-
-  isExists(name: string): boolean {
-    const results = this.db.select().from(searchPresets).where(eq(searchPresets.name, name)).get()
-
-    return results !== undefined
   }
 }
 export const searchPresetsRepo = new SearchPresetsRepository()

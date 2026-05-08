@@ -363,7 +363,7 @@ interface SearchPresets {
   getAll: () => Promise<IpcResponse<SearchPresetQuery[]>>
   getByName: (name: string) => Promise<IpcResponse<SearchPresetQuery | undefined>>
   getById: (id: number) => Promise<IpcResponse<SearchPresetQuery | undefined>>
-  create: (command: CreateSearchPresetCommand) => Promise<IpcResponse<boolean>>
+  create: (command: CreateSearchPresetCommand) => Promise<IpcResponse<SearchPresetQuery>>
   delete: (id: number) => Promise<IpcResponse<void>>
   updateLastUsedAt: (id: number) => Promise<IpcResponse<void>>
 }

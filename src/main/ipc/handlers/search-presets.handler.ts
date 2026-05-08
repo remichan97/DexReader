@@ -99,30 +99,10 @@ export function registerSearchPresetsHandler(): void {
    * })
    */
   wrapIpcHandler('search-presets:save', async (command: unknown) => {
-    if (typeof command !== 'object' || command === null) {
-      throw new TypeError('Expected an object for the create search preset command')
-    }
-
-    const { name, searchQuery, filters } = command as {
-      name: unknown
-      searchQuery: unknown
-      filters: unknown
-    }
-
-    if (typeof name !== 'string') {
-      throw new TypeError('Expected a string for the preset name')
-    }
-
-    if (searchQuery !== undefined && typeof searchQuery !== 'string') {
-      throw new TypeError('Expected a string or undefined for the preset search query')
-    }
-
-    if (filters !== undefined && typeof filters !== 'object') {
-      throw new TypeError('Expected an object or undefined for the preset filters')
-    }
-
     const createCommand = isValidCreateSearchPresetCommand(command)
 
+    // This isn't supposed to be here, however, TypeScript would yell at me if I didn't do this check, even if the validation method
+    // never returns false, but immediately throws an error if the command is invalid, so here we are
     if (!createCommand) {
       throw new TypeError('Invalid create search preset command')
     }
