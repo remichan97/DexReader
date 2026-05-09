@@ -1,0 +1,61 @@
+{
+  "common": {
+    "required": "Trường này là bắt buộc",
+    "invalidType": "Loại không hợp lệ cho {{field}}: mong muốn {{expectedType}}, nhưng nhận được {{actualType}}",
+    "notAnObject": "{{field}} phải là một object",
+    "validationFailed": "Xác thực thất bại cho trường \"{{field}}\": {{reason}}"
+  },
+  "settings": {
+    "appearance": {
+      "notAnObject": "Từ chối lưu cài đặt giao diện: không phải là một object",
+      "invalidTheme": "Từ chối lưu cài đặt giao diện: chủ đề không phải là giá trị AppTheme hợp lệ",
+      "invalidAccentColor": "Từ chối lưu cài đặt giao diện: accentColor phải là mã màu hex hợp lệ nếu được cung cấp",
+      "invalidStartupPage": "Từ chối lưu cài đặt giao diện: startupPage không phải là giá trị StartupPage hợp lệ nếu được cung cấp"
+    },
+    "downloads": {
+      "notAnObject": "Từ chối lưu cài đặt tải xuống: không phải là một object",
+      "invalidDownloadPath": "Từ chối lưu cài đặt tải xuống: downloadPath phải là chuỗi nếu được cung cấp",
+      "nullBytesInPath": "Từ chối lưu cài đặt tải xuống: downloadPath chứa byte null",
+      "invalidConfirmation": "Từ chối lưu cài đặt tải xuống: shouldConfirmDownload không phải là giá trị DownloadConfirmation hợp lệ",
+      "invalidQuality": "Từ chối lưu cài đặt tải xuống: defaultQuality không phải là giá trị ImageQuality hợp lệ",
+      "invalidCacheSize": "Từ chối lưu cài đặt tải xuống: maxDiskCacheSize phải là số nguyên không âm, hoặc nằm trong khoảng 10MB đến 500MB. Nếu bạn muốn đặt nó là không giới hạn, vui lòng đặt nó thành 0.",
+      "invalidConcurrentDownloads": "Từ chối lưu cài đặt tải xuống: maxConcurrentDownloads phải là 1-10"
+    },
+    "reader": {
+      "notAnObject": "Từ chối lưu cài đặt trình đọc: không phải là một object",
+      "invalidForceDarkMode": "Từ chối lưu cài đặt trình đọc: forceDarkMode không phải là giá trị boolean",
+      "invalidQuality": "Từ chối lưu cài đặt trình đọc: quality không phải là giá trị ImageQuality hợp lệ",
+      "invalidGlobalSettings": "Từ chối lưu cài đặt trình đọc: cài đặt toàn cục không hợp lệ",
+      "invalidPerformanceSettings": "Từ chối lưu cài đặt trình đọc: cài đặt hiệu suất không hợp lệ"
+    },
+    "generic": {
+      "invalidSettings": "Cài đặt {{settingType}} không hợp lệ",
+      "settingsMustBeObject": "Cài đặt phải là một object"
+    }
+  },
+  "performance": {
+    "mustBeNumber": "Phải là một số",
+    "minimumCache": "Yêu cầu tối thiểu 10 MB (nhận được {{size}} MB)",
+    "maximumCache": "Tối đa {{maxSize}} MB (30% của {{ramSize}} GB RAM). Nhận được {{actualSize}} MB.",
+    "cacheTooSmall": "Kích thước bộ nhớ đệm phải ít nhất 10 MB",
+    "cacheTooLarge": "Kích thước bộ nhớ đệm không được vượt quá {{sanityMax}} MB (30% của RAM hệ thống)",
+    "lowCacheWarning": "Bộ nhớ đệm thấp có thể gây ra việc tải lại thường xuyên. Chúng tôi khuyến nghị ít nhất 30 MB",
+    "highCacheWarning": "Điều này vượt quá khuyến nghị của chúng tôi là {{recommendedMax}} MB (10% của RAM hệ thống). Giá trị cao hơn có thể làm chậm hệ thống."
+  },
+  "path": {
+    "cannotBeEmpty": "Giá trị không hợp lệ cho {{field}}: đường dẫn không được để trống",
+    "notADirectory": "Đường dẫn \"{{path}}\" không phải là một thư mục.",
+    "doesNotExist": "Đường dẫn \"{{path}}\" không tồn tại hoặc không thể truy cập. Lỗi: {{error}}",
+    "accessDenied": "Không được phép truy cập đường dẫn \"{{path}}\"."
+  },
+  "encoding": {
+    "unsupported": "Giá trị không hợp lệ cho {{field}}: mã hóa không được hỗ trợ \"{{encoding}}\""
+  },
+  "collection": {
+    "nameRequired": "Tên bộ sưu tập là bắt buộc"
+  },
+  "ui": {
+    "invalidSettings": "Một số cài đặt không hợp lệ. Sửa các lỗi xác thực trước khi lưu.",
+    "characterCount": "{{count}}/50 ký tự"
+  }
+}

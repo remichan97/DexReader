@@ -1,0 +1,67 @@
+{
+  "pageTitle": "Trình đọc",
+  "header": {
+    "backButton": "Quay lại",
+    "chaptersButton": "Chương",
+    "settingsButton": "Cài đặt",
+    "settingsLabel": "Cài đặt trình đọc (chế độ đọc)",
+    "zoomLabel": "Điều khiển phóng to (Z để chuyển đổi chế độ phù hợp)",
+    "zoomPercentage": "{percent}%",
+    "pageCounter": {
+      "single": "{current}/{total}",
+      "double": "Trang {left}-{right}/{total}",
+      "doubleRtl": "Trang {right}-{left}/{total}"
+    },
+    "incognitoBadge": "Ẩn danh",
+    "incognitoTooltip": "Theo dõi tiến trình bị vô hiệu hóa. Vào Cài đặt hoặc menu Tệp để bật.",
+    "closeChapterList": "Đóng danh sách chương",
+    "openChapterList": "Mở danh sách chương"
+  },
+  "endOfChapter": {
+    "title": "Kết thúc Chương {number}",
+    "subtitle": "{title}",
+    "previousChapter": "← Chương trước",
+    "nextChapter": "Chương tiếp theo →",
+    "chapterInfo": "Ch. {number}: {title}",
+    "noMoreChapters": "Không còn chương nào",
+    "backToDetail": "Quay lại Chi tiết Manga"
+  },
+  "loadingState": {
+    "message": "Đang tải chương..."
+  },
+  "errorState": {
+    "offline": {
+      "title": "Bạn đang ngoại tuyến",
+      "message": "Chương này chưa được tải xuống"
+    },
+    "generic": {
+      "title": "Không thể tải chương này",
+      "message": "Chúng tôi gặp sự cố khi tải các trang cho chương này. Đây có thể là sự cố mạng tạm thời, hoặc dữ liệu chương có thể không khả dụng ngay bây giờ."
+    },
+    "retryButton": "Thử lại",
+    "goBackButton": "Quay lại",
+    "goToLibraryButton": "Đi tới Thư viện",
+    "showTechnicalDetails": "Hiển thị chi tiết kỹ thuật"
+  },
+  "settings": {
+    "readingMode": "Chế độ đọc",
+    "singlePage": "Trang đơn",
+    "doublePage": "Trang đôi",
+    "verticalScroll": "Cuộn dọc",
+    "doublePageOptions": "Tùy chọn chế độ trang đôi",
+    "skipCoverPages": "Bỏ qua trang bìa (chỉ hiển thị trang đầu tiên)",
+    "readRightToLeft": "Đọc từ phải sang trái (giống manga)"
+  },
+  "zoomControls": {
+    "fitWidth": "Vừa chiều rộng",
+    "fitHeight": "Vừa chiều cao",
+    "actualSize": "Kích thước thực",
+    "zoomIn": "Phóng to",
+    "zoomOut": "Thu nhỏ",
+    "reset": "Đặt lại"
+  },
+  "documentTitle": {
+    "loading": "Đang tải... - DexReader",
+    "reading": "{manga} - {chapter} - Trang {current}/{total} - DexReader"
+  }
+}

@@ -1,0 +1,282 @@
+{
+  "pageTitle": "Cài đặt",
+  "unsavedChangesBanner": {
+    "message": "Cẩn thận! Bạn có các thay đổi chưa được lưu",
+    "saveButton": "Lưu thay đổi",
+    "discardButton": "Bỏ qua"
+  },
+  "tabs": {
+    "appearance": "Giao diện",
+    "downloads": "Tải xuống",
+    "reader": "Trình đọc",
+    "storage": "Lưu trữ",
+    "advanced": "Nâng cao"
+  },
+  "appearance": {
+    "sectionTitle": "Giao diện",
+    "themeLabel": "Chủ đề ứng dụng",
+    "themeHelper": "Chọn giữa chế độ sáng và tối, hoặc theo cài đặt hệ thống của bạn",
+    "themeOptions": {
+      "system": "Mặc định hệ thống",
+      "light": "Chế độ sáng",
+      "dark": "Chế độ tối"
+    },
+    "startupSection": "Khởi động",
+    "startupLabel": "Trang khởi động",
+    "startupHelper": "Chọn trang xuất hiện khi ứng dụng khởi chạy",
+    "startupOptions": {
+      "browse": "Duyệt",
+      "library": "Thư viện",
+      "downloads": "Tải xuống"
+    },
+    "accentSection": "Màu chủ đạo",
+    "accentLabel": "Màu chủ đạo",
+    "useSystemButton": "Sử dụng hệ thống",
+    "usingSystem": "Đang sử dụng màu chủ đạo hệ thống ({color})",
+    "usingCustom": "Bạn đang sử dụng màu chủ đạo tùy chỉnh. Nhấp vào \"Sử dụng hệ thống\" để quay lại màu chủ đạo hệ thống của bạn.",
+    "dateTimeSection": "Định dạng Ngày & Giờ",
+    "dateTimeDescription": "DexReader sử dụng cài đặt định dạng ngày và giờ của hệ thống của bạn. Ngày được hiển thị trong danh sách chương, lịch sử đọc và nhật ký lỗi.",
+    "configureDateButton": "Cấu hình định dạng ngày trong cài đặt hệ thống",
+    "configureDateHelper": "Điều này sẽ mở cài đặt khu vực của hệ điều hành, nơi bạn có thể tùy chỉnh định dạng ngày và giờ."
+  },
+  "downloads": {
+    "locationSection": "Vị trí Tải xuống",
+    "locationDescription": "Chúng tôi nên lưu các chương đã tải xuống ở đâu?",
+    "browseButton": "Duyệt...",
+    "locationTip": "Mẹo: Chọn một vị trí có nhiều dung lượng trống cho bộ sưu tập manga của bạn.",
+    "confirmationSection": "Xác nhận Tải xuống",
+    "confirmationDescription": "Khi nào chúng tôi nên hỏi trước khi tải xuống các chương?",
+    "confirmationLabel": "Hành vi xác nhận tải xuống",
+    "confirmationOptions": {
+      "always": {
+        "label": "Luôn luôn",
+        "description": "Hỏi chất lượng trước khi tải xuống"
+      },
+      "batchOnly": {
+        "label": "Chỉ khi tải nhiều",
+        "description": "Chỉ hỏi khi tải nhiều chương cùng lúc"
+      },
+      "never": {
+        "label": "Không bao giờ",
+        "description": "Bắt đầu tải xuống ngay lập tức mà không cần xác nhận"
+      }
+    },
+    "qualitySection": "Chất lượng Tải xuống",
+    "qualityDescription": "Chất lượng sử dụng cho tất cả các tải xuống",
+    "qualityDescriptionWithConfirm": "Chọn chất lượng mặc định",
+    "qualityLabel": "Chất lượng mặc định",
+    "qualityOptions": {
+      "data": {
+        "label": "Chất lượng cao",
+        "description": "Hình ảnh độ phân giải đầy đủ, chất lượng hình ảnh tốt nhất"
+      },
+      "dataSaver": {
+        "label": "Tiết kiệm dữ liệu",
+        "description": "Hình ảnh nén, kích thước tệp nhỏ hơn"
+      }
+    },
+    "concurrentSection": "Tải xuống đồng thời",
+    "concurrentDescription": "Bao nhiêu chương nên được tải xuống cùng một lúc?",
+    "concurrentLabel": "Số lượng tải xuống đồng thời tối đa",
+    "concurrentHelper": "Giá trị cao hơn tải xuống nhanh hơn nhưng sử dụng nhiều băng thông và tài nguyên hơn",
+    "concurrentOptions": {
+      "1": "1 (Tuần tự)",
+      "2": "2",
+      "3": "3",
+      "4": "4",
+      "5": "5"
+    }
+  },
+  "reader": {
+    "displaySection": "Cài đặt hiển thị trình đọc",
+    "loadingSettings": "Đang tải cài đặt...",
+    "forceDarkMode": {
+      "label": "Bắt buộc chế độ tối trong trình đọc",
+      "description": "Luôn sử dụng nền tối khi đọc, bất kể chủ đề ứng dụng"
+    },
+    "imageQuality": {
+      "label": "Chất lượng hình ảnh",
+      "highQuality": {
+        "label": "Chất lượng cao",
+        "description": "Hình ảnh độ phân giải đầy đủ, sử dụng nhiều băng thông hơn"
+      },
+      "dataSaver": {
+        "label": "Tiết kiệm dữ liệu",
+        "description": "Hình ảnh nén, giảm sử dụng băng thông"
+      }
+    },
+    "globalSettingsSection": "Cài đặt trình đọc mặc định",
+    "globalSettingsDescription": "Các cài đặt này áp dụng cho tất cả manga theo mặc định. Bạn có thể ghi đè chúng cho từng manga trong trình đọc.",
+    "readingModeLabel": "Chế độ đọc mặc định",
+    "readingModeHelper": "Cách các trang được hiển thị khi đọc manga",
+    "readingModeOptions": {
+      "single": "Trang đơn",
+      "double": "Trang đôi",
+      "vertical": "Cuộn dọc"
+    },
+    "doublePageOptions": "Tùy chọn chế độ trang đôi",
+    "skipCoverPages": "Bỏ qua trang bìa (chỉ hiển thị trang đầu tiên)",
+    "readRightToLeft": "Đọc từ phải sang trái (phong cách manga)",
+    "overridesSection": "Ghi đè theo manga",
+    "overridesDescription": "Manga với cài đặt chế độ đọc tùy chỉnh. Đặt lại để sử dụng mặc định toàn cục.",
+    "clearAllButton": "Xóa tất cả ghi đè",
+    "emptyOverrides": "Chưa có cài đặt tùy chỉnh nào. Thay đổi chế độ đọc trong trình đọc để tạo ghi đè theo manga!",
+    "overrideMode": "Chế độ: {mode}",
+    "overrideDetails": "{rtl} • Bỏ qua trang bìa",
+    "resetButton": "Đặt lại",
+    "loadingOverrides": "Đang tải ghi đè..."
+  },
+  "performance": {
+    "sectionTitle": "Hiệu suất",
+    "description": "Cấu hình lượng bộ nhớ mà DexReader có thể sử dụng để lưu trữ các chương manga. Các cấp cao hơn tải nhiều chương hơn trước.",
+    "systemInfo": "RAM hệ thống: {ram} GB | Đề xuất: {recommended} MB (10%) | Tối đa: {max} MB (30%)",
+    "cacheTierLabel": "Kích thước bộ nhớ đệm chương",
+    "cacheTierOptions": {
+      "low": {
+        "label": "Thấp ({size} MB)",
+        "description": "1-2 chương được lưu trong bộ nhớ đệm | Tốt nhất cho hệ thống cấu hình thấp"
+      },
+      "normal": {
+        "label": "Bình thường ({size} MB) - Đề xuất",
+        "description": "3-4 chương được lưu trong bộ nhớ đệm | Hiệu suất cân bằng"
+      },
+      "high": {
+        "label": "Cao ({size} MB)",
+        "description": "5-7 chương được lưu trong bộ nhớ đệm | Trải nghiệm đọc mượt mà hơn"
+      },
+      "custom": {
+        "label": "Tùy chỉnh",
+        "description": "Chỉ dành cho người dùng nâng cao"
+      }
+    },
+    "customCacheLabel": "Kích thước bộ nhớ đệm tùy chỉnh (MB)",
+    "customCachePlaceholder": "200",
+    "customCacheHelper": "Nhập kích thước bộ nhớ đệm bằng MB (10 - {max})",
+    "customCacheError": {
+      "tooLow": "Kích thước bộ nhớ đệm phải ít nhất 10 MB",
+      "tooHigh": "Kích thước bộ nhớ đệm không được vượt quá {max} MB (30% RAM hệ thống)"
+    },
+    "customCacheWarning": {
+      "low": "Bộ nhớ đệm thấp có thể gây ra việc tải lại thường xuyên. Chúng tôi khuyến nghị ít nhất 30 MB",
+      "high": "Điều này vượt quá khuyến nghị của chúng tôi là {recommended} MB (10% RAM hệ thống). Giá trị cao hơn có thể làm chậm hệ thống."
+    },
+    "warningsSuppressed": "Cảnh báo đã bị tắt",
+    "resetWarningsButton": "Đặt lại cảnh báo"
+  },
+  "storage": {
+    "diskSpaceTitle": "Tổng dung lượng đĩa: {total} GB",
+    "diskSpaceUsage": "Đã sử dụng: {used} GB • Còn trống: {free} GB",
+    "loadingStorage": "Đang tải dữ liệu lưu trữ...",
+    "failedToLoad": "Không thể tải dữ liệu lưu trữ",
+    "deleteSelectedButton": "Xóa đã chọn ({count})",
+    "deleteConfirm": {
+      "title": "Xóa {count} manga?",
+      "message": "Bạn sắp xóa vĩnh viễn các bản tải xuống cho:\n\n{list}\n\nBạn sẽ giải phóng: {size} dung lượng đĩa\n\nHành động này không thể hoàn tác.",
+      "deleteButton": "Xóa",
+      "cancelButton": "Hủy"
+    },
+    "deleteSuccess": "Đã xóa thành công {count} manga",
+    "deletedSpace": "Đã giải phóng {size} dung lượng!"
+  },
+  "cacheManagement": {
+    "sectionTitle": "Quản lý bộ nhớ đệm",
+    "sectionDescription": "Quản lý dữ liệu tạm thời để cân bằng hiệu suất và sử dụng bộ nhớ.",
+    "coverCacheSection": "Bộ nhớ đệm hình bìa",
+    "coverCacheDescription": "Quản lý bộ nhớ đệm hình bìa tạm thời để cải thiện hiệu suất duyệt.",
+    "coverCacheLimitLabel": "Giới hạn kích thước bộ nhớ đệm hình bìa",
+    "coverCacheLimitHelper": {
+      "unlimited": "Lưu lại tất cả ảnh bìa mà không có giới hạn dung lượng. Các ảnh bìa cũ hơn vẫn sẽ bị xóa bớt khi cần thiết.",
+      "limited": "Các ảnh bìa cũ hơn sẽ tự động bị xóa khi đạt đến giới hạn."
+    },
+    "coverCacheLimitOptions": {
+      "10": "10 MB",
+      "25": "25 MB",
+      "50": "50 MB",
+      "100": "100 MB",
+      "250": "250 MB",
+      "500": "500 MB",
+      "unlimited": "Không giới hạn"
+    },
+    "currentUsage": "Mức sử dụng hiện tại:",
+    "usageUnlimited": "{size} (Không giới hạn)",
+    "usageLimited": "{size} / {limit} ({percent}%)",
+    "cachedCovers": "Ảnh bìa đã lưu: {count} ảnh",
+    "cacheLocation": "Vị trí bộ nhớ đệm: {path}",
+    "clearAllCoversButton": "Xóa tất cả ảnh bìa",
+    "clearCoversSuccess": "Đã xóa bộ nhớ đệm ảnh bìa",
+    "clearedCovers": "Đã xóa {count} ảnh (giải phóng {size})",
+    "metadataCacheSection": "Bộ nhớ đệm thông tin Manga",
+    "metadataCacheDescription": "Quản lý thông tin manga đã lưu trong bộ nhớ đệm để truy cập ngoại tuyến.",
+    "cleanMetadataButton": "Dọn dẹp",
+    "cleanMetadataSuccess": "Đã dọn dẹp bộ nhớ đệm thông tin",
+    "cleanedMetadata": "Đã dọn dẹp {count} manga trong bộ nhớ đệm",
+    "clearAllMetadataButton": "Xóa tất cả",
+    "clearAllMetadataSuccess": "Đã xóa bộ nhớ đệm thông tin"
+  },
+  "advanced": {
+    "updatesSection": "Cập nhật ứng dụng",
+    "updatesDescription": "Cấu hình cách DexReader kiểm tra và cài đặt các bản cập nhật",
+    "autoCheck": {
+      "label": "Tự động kiểm tra cập nhật",
+      "description": "Kiểm tra phiên bản mới khi ứng dụng khởi động"
+    },
+    "autoDownload": {
+      "label": "Tự động tải xuống cập nhật",
+      "description": "Tải xuống các bản cập nhật trong nền. Bạn chọn khi nào cài đặt."
+    },
+    "checkNowButton": "Kiểm tra cập nhật ngay",
+    "checkingButton": "Đang kiểm tra...",
+    "currentVersion": "Phiên bản hiện tại: {version}"
+  },
+  "logging": {
+    "sectionTitle": "Ghi nhật ký",
+    "sectionDescription": "DexReader duy trì các tệp nhật ký để giúp chẩn đoán sự cố và theo dõi hành vi ứng dụng. Bạn có thể cấu hình thời gian giữ nhật ký và quản lý các tệp nhật ký hiện có từ phần này.",
+    "retentionLabel": "Thời gian giữ nhật ký",
+    "retentionOptions": {
+      "3": "3 ngày",
+      "7": "7 ngày (mặc định, Khuyến nghị)",
+      "14": "14 ngày",
+      "30": "30 ngày"
+    },
+    "openFolderButton": "Mở thư mục nhật ký",
+    "deleteOldButton": "Xóa nhật ký cũ",
+    "deleteOldSuccess": "Đã xóa nhật ký cũ",
+    "deletedOldLogs": "Đã dọn dẹp nhật ký cũ hơn {days} ngày",
+    "clearAllButton": "Xóa tất cả nhật ký",
+    "clearAllSuccess": "Đã xóa tất cả nhật ký",
+    "clearedAllLogs": "Đã xóa tất cả nhật ký!"
+  },
+  "dangerZone": {
+    "title": "Khu vực nguy hiểm",
+    "description": "Các hành động không thể hoàn tác. Hãy cẩn thận.",
+    "openFile": {
+      "title": "Mở tệp cài đặt",
+      "description": "Chỉnh sửa trực tiếp settings.json trong trình soạn thảo mặc định của bạn",
+      "button": "Mở tệp"
+    },
+    "reset": {
+      "title": "Đặt lại về mặc định",
+      "description": "Khôi phục tất cả cài đặt về giá trị mặc định",
+      "button": "Đặt lại cài đặt",
+      "buttonLoading": "Đang đặt lại...",
+      "confirm": {
+        "title": "Đặt lại cài đặt về mặc định?",
+        "message": "Điều này sẽ khôi phục tất cả cài đặt về giá trị mặc định.\n\nThư viện và tiến trình đọc của bạn sẽ KHÔNG bị ảnh hưởng.",
+        "confirmButton": "Đặt lại cài đặt",
+        "cancelButton": "Hủy"
+      }
+    },
+    "clearAll": {
+      "title": "Xóa dữ liệu & Đặt lại ứng dụng",
+      "description": "Xóa tất cả dữ liệu (thư viện, tiến trình, cài đặt) và khởi động lại",
+      "button": "Xóa tất cả dữ liệu",
+      "buttonLoading": "Đang xóa...",
+      "confirm": {
+        "title": "Xóa tất cả dữ liệu?",
+        "message": "Hành động này không thể hoàn tác.\n\nTất cả các mục sau sẽ bị xóa vĩnh viễn:\n• Thư viện và bộ sưu tập\n• Tiến trình và lịch sử đọc\n• Tất cả cài đặt và tùy chọn\n\nỨng dụng sẽ khởi động lại sau khi xóa dữ liệu.",
+        "confirmButton": "Xóa tất cả dữ liệu",
+        "cancelButton": "Hủy"
+      }
+    }
+  }
+}

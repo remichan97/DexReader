@@ -1,0 +1,419 @@
+{
+  "createCollection": {
+    "title": "Tạo bộ sưu tập mới",
+    "fields": {
+      "name": {
+        "label": "Tên bộ sưu tập",
+        "placeholder": "ví dụ: Đang đọc, Muốn đọc",
+        "required": true,
+        "error": "Tên bộ sưu tập là bắt buộc"
+      },
+      "description": {
+        "label": "Mô tả (Tùy chọn)",
+        "placeholder": "Thêm mô tả"
+      }
+    },
+    "buttons": {
+      "cancel": "Hủy",
+      "create": "Tạo",
+      "creating": "Đang tạo..."
+    },
+    "errors": {
+      "createFailed": "Tạo bộ sưu tập thất bại"
+    }
+  },
+  "collectionPicker": {
+    "title": "Quản lý bộ sưu tập",
+    "emptyState": {
+      "message": "Bạn chưa có bộ sưu tập nào. Tạo một bộ sưu tập để bắt đầu tổ chức!",
+      "button": "Tạo bộ sưu tập đầu tiên của bạn"
+    },
+    "createNewButton": "+ Tạo bộ sưu tập mới",
+    "buttons": {
+      "cancel": "Hủy",
+      "save": "Lưu",
+      "saving": "Đang lưu..."
+    }
+  },
+  "importResult": {
+    "titles": {
+      "success": "Nhập thành công",
+      "warning": "Nhập hoàn tất với cảnh báo",
+      "error": "Nhập hoàn tất với lỗi"
+    },
+    "stats": {
+      "imported": "Đã nhập",
+      "skipped": "Bỏ qua",
+      "failed": "Thất bại"
+    },
+    "summary": {
+      "main": "Đã nhập thành công {{count}} trong tổng số {{total}} manga từ sao lưu của bạn.",
+      "skipped": "{{count}} manga đã bị bỏ qua (đã có trong thư viện hoặc không phải từ MangaDex)."
+    },
+    "errors": {
+      "toggle": "Xem chi tiết lỗi ({{count}})",
+      "unknownManga": "Manga không xác định"
+    },
+    "buttons": {
+      "close": "Đóng",
+      "viewLibrary": "Xem Thư viện của bạn"
+    }
+  },
+  "savePreset": {
+    "title": "Lưu cài đặt trước",
+    "fields": {
+      "name": {
+        "label": "Tên cài đặt trước",
+        "placeholder": "ví dụ: Hành động đang diễn ra",
+        "maxLength": 50,
+        "helperText": "{{count}}/50 ký tự"
+      },
+      "setDefault": {
+        "label": "Đặt làm mặc định"
+      }
+    },
+    "buttons": {
+      "cancel": "Hủy",
+      "saveCopy": "Lưu bản sao",
+      "save": "Lưu",
+      "saving": "Đang lưu..."
+    },
+    "preview": {
+      "search": "Tìm kiếm: \"{{query}}\"",
+      "contentRating": "Đánh giá nội dung: {{values}}",
+      "status": "Trạng thái: {{values}}",
+      "demographic": "Đối tượng: {{values}}",
+      "includedTags": "Thẻ bao gồm: {{tags}}",
+      "excludedTags": "Thẻ loại trừ: {{tags}}",
+      "languages": "Ngôn ngữ: {{languages}}",
+      "sort": "Sắp xếp: {{by}} ({{direction}})",
+      "resultsPerPage": "Kết quả mỗi trang: {{count}}"
+    }
+  },
+  "downloadConfirmation": {
+    "titles": {
+      "single": "Tải chương?",
+      "batch": "Tải nhiều chương?"
+    },
+    "messages": {
+      "batch": "Bạn sắp tải <strong>{{count}} chương</strong>.",
+      "single": "{{title}}"
+    },
+    "quality": {
+      "label": "Chất lượng tải xuống:",
+      "options": {
+        "high": "Chất lượng cao",
+        "dataSaver": "Tiết kiệm dữ liệu"
+      },
+      "helperText": {
+        "high": "Chất lượng hình ảnh tốt nhất, kích thước tệp lớn hơn",
+        "dataSaver": "Hình ảnh nén, kích thước tệp nhỏ hơn"
+      }
+    },
+    "location": {
+      "label": "Vị trí tải xuống:",
+      "changeLink": "Thay đổi trong Cài đặt →"
+    },
+    "batchInfo": "Các tải xuống sẽ chạy trong nền. Bạn có thể tiếp tục duyệt trong khi chúng hoàn tất.",
+    "buttons": {
+      "cancel": "Hủy",
+      "download": "Tải xuống"
+    }
+  },
+  "confirmations": {
+    "deleteCollection": {
+      "title": "Xóa \"{{name}}\"?",
+      "message": "Điều này sẽ không xóa manga, chỉ xóa bộ sưu tập.",
+      "buttons": {
+        "delete": "Xóa",
+        "cancel": "Hủy"
+      }
+    },
+    "deleteMangaDownloads": {
+      "title": "Xóa tất cả các chương đã tải xuống?",
+      "message": "Điều này sẽ xóa vĩnh viễn {{count}} chương từ {{title}}.\n\nHành động này không thể hoàn tác.",
+      "buttons": {
+        "delete": "Xóa",
+        "cancel": "Hủy"
+      }
+    },
+    "deleteChapterDownload": {
+      "title": "Xóa tải xuống",
+      "message": "Bạn sắp xóa \"{{title}}\", điều này sẽ xóa các tệp chương đã tải xuống.\nBạn cũng có thể chọn chỉ ẩn nó khỏi danh sách nếu bạn muốn giữ các tệp để đọc ngoại tuyến.\n\nBạn muốn làm gì tiếp theo?",
+      "buttons": {
+        "cancel": "Hủy",
+        "hide": "Ẩn khỏi chế độ xem (Giữ tệp để đọc ngoại tuyến)",
+        "deletePermanent": "Xóa vĩnh viễn (Không thể hoàn tác)"
+      },
+      "finalConfirmation": {
+        "title": "Bạn có chắc chắn không?",
+        "message": "Đây sẽ là cơ hội cuối cùng để bạn có thể dừng thao tác này trước khi các tệp chương bị xóa vĩnh viễn. Việc xóa tệp không thể hoàn tác, nhưng bạn luôn có thể tải lại chương nếu thay đổi ý định.\n\nNhắc lại, bạn đang xóa chương: {{title}}",
+        "buttons": {
+          "delete": "Có, Xóa vĩnh viễn",
+          "cancel": "Hủy"
+        }
+      }
+    },
+    "clearCoverCache": {
+      "title": "Xóa tất cả bìa đã lưu trong bộ nhớ đệm?",
+      "message": "Điều này sẽ xóa {{count}} hình ảnh đã lưu trong bộ nhớ đệm ({{size}}).\n\nHình ảnh bìa sẽ được tải lại khi cần thiết khi duyệt. Điều này có thể tạm thời làm chậm hiệu suất.",
+      "buttons": {
+        "clear": "Xóa tất cả",
+        "cancel": "Hủy"
+      }
+    },
+    "cleanMetadataCache": {
+      "title": "Dọn dẹp bộ nhớ đệm metadata?",
+      "message": "Điều này sẽ xóa bộ nhớ đệm duyệt cũ hơn 90 ngày.\n\nManga yêu thích và manga đã tải xuống sẽ không bị ảnh hưởng.\n\nƯớc tính sẽ xóa: {{count}} manga",
+      "buttons": {
+        "clean": "Dọn dẹp",
+        "cancel": "Hủy"
+      }
+    },
+    "clearAllMetadata": {
+      "title": "Xóa tất cả bộ nhớ đệm metadata?",
+      "message": "Điều này sẽ xóa tất cả bộ nhớ đệm duyệt ({{count}} manga).\n\nChỉ manga yêu thích và manga đã tải xuống sẽ được giữ lại.\n\nHành động này không thể hoàn tác.",
+      "buttons": {
+        "clear": "Xóa tất cả",
+        "cancel": "Hủy"
+      }
+    },
+    "deleteOldLogs": {
+      "title": "Dọn dẹp các logs cũ?",
+      "message": "Điều này sẽ xóa vĩnh viễn tất cả các tệp logs cũ hơn {{days}} ngày. Hành động này không thể hoàn tác.",
+      "buttons": {
+        "delete": "OK",
+        "cancel": "Hủy"
+      }
+    },
+    "clearAllLogs": {
+      "title": "Xóa tất cả logs?",
+      "message": "Điều này sẽ xóa vĩnh viễn tất cả các tệp logs. Hành động này không thể hoàn tác.",
+      "buttons": {
+        "clear": "OK",
+        "cancel": "Hủy"
+      }
+    },
+    "clearAllOverrides": {
+      "title": "Xóa tất cả cài đặt đọc tùy chỉnh?",
+      "message": "Bạn có cài đặt tùy chỉnh cho {{count}} manga. Tất cả sẽ được đặt lại về mặc định toàn cục của bạn. Bạn không thể hoàn tác điều này!",
+      "buttons": {
+        "clear": "Xóa tất cả",
+        "cancel": "Hủy"
+      }
+    },
+    "unsavedChanges": {
+      "message": "Bạn có các thay đổi chưa được lưu. Bạn có chắc chắn muốn rời đi không?"
+    },
+    "notFound": {
+      "title": "Ôi! Lạc đường?",
+      "message": "Những gì bạn đang tìm kiếm không có ở đây. Hãy quay lại duyệt manga!"
+    },
+    "manageMangaDownloads": {
+      "title": "Quản lý Tải xuống",
+      "message": "{{title}}\n\nManga này có {{count}} chương đã tải xuống.\n\nBạn có thể thêm nó vào thư viện của mình để theo dõi, hoặc xóa tất cả các chương đã tải xuống.",
+      "buttons": {
+        "addToLibrary": "Thêm vào Thư viện",
+        "deleteDownloads": "Xóa Tải xuống",
+        "cancel": "Hủy"
+      }
+    },
+    "highMemoryWarning": {
+      "title": "Cảnh báo Sử dụng Bộ nhớ Cao",
+      "message": "Kích thước bộ nhớ đệm được chọn ({{selected}} MB) vượt quá mức tối đa được khuyến nghị cho hệ thống của bạn.\n\nThông tin hệ thống:\n• RAM tổng: {{totalRAM}} GB\n• Mức tối đa được khuyến nghị: {{recommended}} MB (10% RAM hệ thống)\n• Giới hạn cứng: {{maxAllowed}} MB (30% RAM hệ thống)\n• Lựa chọn của bạn: {{selected}} MB\n\nSử dụng bộ nhớ đệm lớn hơn mức khuyến nghị có thể gây ra:\n• Hiệu suất ứng dụng chậm hơn\n• Cảnh báo áp lực bộ nhớ hệ thống\n• Xóa bộ nhớ đệm tự động bởi hệ điều hành\n\nBạn có chắc chắn muốn tiếp tục với kích thước bộ nhớ đệm này không?",
+      "buttons": {
+        "proceed": "Tiếp tục",
+        "goBack": "Quay lại"
+      },
+      "checkbox": "Đừng cảnh báo tôi về kích thước bộ nhớ đệm nữa"
+    }
+  },
+  "toasts": {
+    "library": {
+      "addedToLibrary": {
+        "title": "Đã thêm vào Thư viện!",
+        "message": "{{title}}"
+      },
+      "errorAdding": {
+        "title": "Lỗi",
+        "message": "Không thể thêm vào thư viện"
+      },
+      "mangaNotFound": {
+        "title": "Lỗi",
+        "message": "Không tìm thấy manga"
+      }
+    },
+    "collections": {
+      "deleted": {
+        "title": "Đã xóa bộ sưu tập",
+        "message": "\"{{name}}\" đã bị xóa"
+      },
+      "deleteFailed": {
+        "title": "Xóa thất bại",
+        "message": "Không thể xóa bộ sưu tập"
+      }
+    },
+    "downloads": {
+      "started": {
+        "title": "Bắt đầu tải xuống",
+        "message": "Đã thêm {{count}} chương vào hàng đợi tải xuống!"
+      },
+      "queued": {
+        "title": "Đang xếp hàng tải xuống",
+        "message": "Đã xếp hàng {{count}} chương để tải xuống"
+      },
+      "deleted": {
+        "title": "Đã xóa tải xuống",
+        "message": "Đã xóa {{count}} chương"
+      },
+      "deletedPermanent": {
+        "title": "Đã xóa vĩnh viễn",
+        "message": "Tải xuống và tệp đã bị xóa vĩnh viễn"
+      },
+      "deleteFailed": {
+        "title": "Xóa thất bại",
+        "message": "{{error}}"
+      },
+      "errorHiding": {
+        "title": "Lỗi",
+        "message": "Không thể ẩn tải xuống"
+      },
+      "errorDeleting": {
+        "title": "Lỗi",
+        "message": "Không thể xóa tải xuống"
+      },
+      "partialFailure": {
+        "title": "Thất bại một phần",
+        "message": "Không thể xếp hàng {{count}} chương để tải xuống"
+      }
+    },
+    "storage": {
+      "mangaDeleted": {
+        "title": "Đã xóa {{count}} manga",
+        "message": "Giải phóng {{size}} dung lượng!"
+      },
+      "deleteFailed": {
+        "title": "Xóa thất bại",
+        "message": "{{error}}"
+      },
+      "loadFailed": {
+        "title": "Tải dữ liệu lưu trữ thất bại",
+        "message": "{{error}}"
+      }
+    },
+    "cache": {
+      "coversCleared": {
+        "title": "Đã xóa bộ nhớ đệm bìa",
+        "message": "Đã xóa {{count}} hình ảnh (giải phóng {{size}})"
+      },
+      "coversClearFailed": {
+        "title": "Xóa bộ nhớ đệm bìa thất bại",
+        "message": "{{error}}"
+      },
+      "metadataCleaned": {
+        "title": "Đã dọn dẹp bộ nhớ đệm metadata",
+        "message": "Đã dọn dẹp {{count}} manga trong bộ nhớ đệm"
+      },
+      "metadataCleanFailed": {
+        "title": "Dọn dẹp bộ nhớ đệm metadata thất bại",
+        "message": "{{error}}"
+      },
+      "metadataCleared": {
+        "title": "Đã xóa bộ nhớ đệm metadata",
+        "message": "Đã xóa {{count}} manga trong bộ nhớ đệm"
+      },
+      "metadataClearFailed": {
+        "title": "Xóa bộ nhớ đệm metadata thất bại",
+        "message": "{{error}}"
+      }
+    },
+    "logs": {
+      "oldDeleted": {
+        "title": "Đã xóa logs cũ",
+        "message": "Đã dọn dẹp logs cũ hơn {{days}} ngày"
+      },
+      "deleteFailed": {
+        "title": "Xóa logs cũ thất bại",
+        "message": "Không thể xóa các tệp logs cũ. Vui lòng thử lại."
+      },
+      "allCleared": {
+        "title": "Đã xóa tất cả logs",
+        "message": "Đã xóa tất cả logs!"
+      },
+      "clearFailed": {
+        "title": "Xóa logs thất bại",
+        "message": "Không thể xóa các tệp logs. Vui lòng thử lại."
+      },
+      "openFolderFailed": {
+        "title": "Mở thư mục logs thất bại",
+        "message": "{{error}}"
+      }
+    },
+    "settings": {
+      "changeFolderFailed": {
+        "title": "Không thể thay đổi thư mục tải xuống",
+        "message": "{{error}}"
+      },
+      "saveFailed": {
+        "title": "Lưu cài đặt thất bại",
+        "message": "{{error}}"
+      },
+      "resetOverrideFailed": {
+        "title": "Đặt lại ghi đè thất bại",
+        "message": "{{error}}"
+      },
+      "clearOverridesFailed": {
+        "title": "Xóa ghi đè thất bại",
+        "message": "{{error}}"
+      }
+    },
+    "presets": {
+      "loaded": {
+        "title": "Đã nạp các cài đặt trước",
+        "message": "{{name}}"
+      },
+      "saved": {
+        "title": "Đã lưu cài đặt trước",
+        "message": "{{name}}"
+      },
+      "saveFailed": {
+        "title": "Lưu cài đặt trước thất bại",
+        "message": "Không thể lưu cài đặt trước"
+      },
+      "deleted": {
+        "title": "Đã xóa cài đặt trước",
+        "message": "{{name}}"
+      },
+      "deleteFailed": {
+        "title": "Xóa cài đặt trước thất bại",
+        "message": "Không thể xóa cài đặt trước"
+      }
+    }
+  },
+  "updates": {
+    "notification": {
+      "checking": "Đang kiểm tra cập nhật...",
+      "available": "Cập nhật có sẵn — Phiên bản {{version}} sẵn sàng để tải xuống",
+      "downloading": "Đang tải xuống cập nhật...",
+      "progress": "Đang tải xuống: {{percent}}%",
+      "downloaded": "Cập nhật sẵn sàng — Phiên bản {{version}} sẵn sàng để cài đặt",
+      "notAvailable": "Bạn đã có phiên bản mới nhất — Phiên bản {{version}}",
+      "error": "Kiểm tra cập nhật thất bại — {{message}}",
+      "buttons": {
+        "download": "Tải xuống",
+        "later": "Để sau",
+        "install": "Khởi động lại & Cài đặt",
+        "hide": "Ẩn",
+        "retry": "Thử lại",
+        "dismiss": "Bỏ qua"
+      }
+    },
+    "banner": {
+      "welcome": "Chào mừng đến với DexReader v{{version}}!",
+      "buttons": {
+        "viewReleaseNotes": "Xem Ghi chú Phiên bản",
+        "letsGo": "Tuyệt vời!"
+      }
+    }
+  }
+}

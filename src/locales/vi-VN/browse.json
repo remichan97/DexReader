@@ -1,0 +1,82 @@
+{
+  "pageTitle": "Duyệt Manga",
+  "searchPlaceholder": "Tìm kiếm theo tiêu đề, tác giả hoặc thể loại...",
+  "filterButton": "Bộ lọc",
+  "applyFiltersButton": "Áp dụng bộ lọc",
+  "clearFiltersButton": "Xóa bộ lọc",
+  "savePresetButton": "Lưu cài đặt trước",
+  "offlineState": {
+    "title": "Bạn đang ngoại tuyến",
+    "message": "Duyệt và tìm kiếm yêu cầu kết nối internet. Kiểm tra Thư viện của bạn để đọc manga đã tải xuống.",
+    "action": "Đi tới Thư viện"
+  },
+  "emptyState": {
+    "searching": "Đang tìm kiếm manga...",
+    "noResults": "Không tìm thấy manga",
+    "scrollForMore": "cuộn để xem thêm"
+  },
+  "errorState": {
+    "title": "Không thể tải manga",
+    "message": "Đã xảy ra sự cố khi tìm kiếm. Đây có thể là vấn đề kết nối hoặc dịch vụ có thể tạm thời không khả dụng.",
+    "retryButton": "Thử lại",
+    "showDetailsButton": "Xem chi tiết kỹ thuật",
+    "hideDetailsButton": "Ẩn chi tiết"
+  },
+  "filterInfo": {
+    "activeFilters": "{count} bộ lọc đang hoạt động",
+    "browsingAll": "Duyệt tất cả manga",
+    "scrollToFilters": "Cuộn đến Bộ lọc",
+    "resetToDefault": "Đặt lại về Mặc định"
+  },
+  "toasts": {
+    "addedToLibrary": "Đã thêm vào Thư viện!",
+    "presetLoaded": "Cài đặt trước đã được tải",
+    "presetSaved": "Cài đặt trước đã được lưu",
+    "presetDeleted": "Cài đặt trước đã bị xóa",
+    "error": "Lỗi",
+    "failedToUpdate": "Cập nhật thư viện thất bại",
+    "failedToSave": "Lưu cài đặt trước thất bại",
+    "failedToDelete": "Xóa cài đặt trước thất bại"
+  },
+  "liveRegion": {
+    "searching": "Đang tìm kiếm manga...",
+    "found": "Đã tìm thấy {count} manga",
+    "hasMore": ", cuộn để xem thêm",
+    "noResults": "Không tìm thấy manga"
+  },
+  "import": {
+    "imported": "Đã nhập",
+    "skipped": "Bỏ qua",
+    "failed": "Thất bại",
+    "cancelImport": "Hủy nhập",
+    "importBackup": "Nhập sao lưu",
+    "importBehaviour": "Hành vi nhập:",
+    "importMessage": "Đang nhập manga từ sao lưu Tachiyomi/Mihon của bạn. Quá trình này có thể mất một vài phút tùy thuộc vào kích thước thư viện của bạn.",
+    "importInfo": "Sao lưu này sẽ được hợp nhất với thư viện hiện có của bạn. Dữ liệu sau sẽ được nhập:",
+    "successMessage": "Đã nhập thành công {count} trong tổng số {total} manga từ sao lưu của bạn.",
+    "skippedMessage": "{count} manga đã bị bỏ qua (đã có trong thư viện hoặc không phải từ MangaDex)."
+  },
+  "export": {
+    "exportBackup": "Xuất sao lưu",
+    "saveTo": "Lưu vào:",
+    "chooseWhatToInclude": "Chọn những gì sẽ được đưa vào tệp sao lưu của bạn. Metadata manga trong thư viện luôn được sao lưu.",
+    "noteSettings": "Lưu ý: Cài đặt ứng dụng (giao diện, ngôn ngữ, phím tắt) được lưu trữ riêng. Hãy vào Cài đặt → Nâng cao → Mở tệp cài đặt để sao lưu chúng."
+  },
+  "download": {
+    "downloadChapter": "Tải xuống chương",
+    "downloading": "Đang tải xuống...",
+    "downloadingPages": "Đang tải xuống... {current} trong tổng số {total} trang",
+    "downloadQueued": "Đang xếp hàng tải xuống",
+    "chapterDownloaded": "Chương đã tải xuống",
+    "downloadFailed": "Tải xuống thất bại. Nhấp để thử lại",
+    "downloadMessage": "Bạn sắp tải xuống {count} chương."
+  },
+  "preset": {
+    "searchPreset": "Cài đặt trước tìm kiếm",
+    "noPreset": "Không có cài đặt trước",
+    "loadingPresets": "Đang tải cài đặt trước...",
+    "selectAPreset": "Chọn một cài đặt trước",
+    "setAsDefault": "Đặt làm mặc định",
+    "previewCurrentFilters": "Xem trước: Bộ lọc hiện tại"
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "dialogTitle": "Phím tắt bàn phím",
+  "dialogSubtitle": "Tất cả các phím tắt có sẵn trong DexReader",
+  "categories": {
+    "global": {
+      "title": "Toàn cục",
+      "shortcuts": {
+        "checkUpdates": "Kiểm tra cập nhật ứng dụng",
+        "openSettings": "Mở Cài đặt",
+        "toggleIncognito": "Chuyển đổi chế độ ẩn danh",
+        "toggleFullscreen": "Chuyển đổi toàn màn hình",
+        "reload": "Tải lại chế độ xem hiện tại",
+        "openHelp": "Mở Trợ giúp",
+        "showShortcuts": "Hiển thị phím tắt bàn phím",
+        "exitApp": "Thoát ứng dụng"
+      }
+    },
+    "navigation": {
+      "title": "Điều hướng",
+      "shortcuts": {
+        "goToBrowse": "Đi đến Duyệt",
+        "goToLibrary": "Đi đến Thư viện",
+        "goToDownloads": "Đi đến Tải xuống",
+        "goToHistory": "Đi đến Lịch sử đọc",
+        "focusSearch": "Tập trung vào thanh tìm kiếm"
+      }
+    },
+    "library": {
+      "title": "Thư viện",
+      "shortcuts": {
+        "toggleFavorite": "Thêm/Xóa khỏi Yêu thích",
+        "createCollection": "Tạo bộ sưu tập mới",
+        "manageCollections": "Quản lý bộ sưu tập",
+        "checkForUpdates": "Kiểm tra cập nhật thư viện",
+        "downloadChapter": "Tải xuống chương",
+        "downloadManga": "Tải xuống toàn bộ manga",
+        "editCollection": "Chỉnh sửa bộ sưu tập",
+        "exportLibrary": "Xuất Thư viện sang Sao lưu DexReader"
+      }
+    },
+    "reader": {
+      "title": "Trình đọc",
+      "pageNavigation": {
+        "subtitle": "Điều hướng trang",
+        "shortcuts": {
+          "nextPage": "Trang tiếp theo",
+          "nextPageKeys": "Mũi tên phải, PageDown hoặc Enter",
+          "previousPage": "Trang trước",
+          "previousPageKeys": "Mũi tên trái hoặc PageUp",
+          "nextPageSpace": "Trang tiếp theo",
+          "previousPageShiftSpace": "Trang trước",
+          "firstPage": "Trang đầu",
+          "lastPage": "Trang cuối"
+        }
+      },
+      "chapterNavigation": {
+        "subtitle": "Điều hướng chương",
+        "shortcuts": {
+          "previousChapter": "Chương trước",
+          "nextChapter": "Chương tiếp theo",
+          "toggleChapterList": "Chuyển đổi danh sách chương"
+        }
+      },
+      "readingModes": {
+        "subtitle": "Chế độ đọc",
+        "shortcuts": {
+          "cycleReadingModes": "Chuyển đổi chế độ đọc"
+        }
+      },
+      "zoomAndFit": {
+        "subtitle": "Phóng to & Điều chỉnh",
+        "shortcuts": {
+          "cycleFitModes": "Chuyển đổi chế độ điều chỉnh",
+          "resetZoom": "Đặt lại phóng to",
+          "zoomIn": "Phóng to",
+          "zoomOut": "Thu nhỏ",
+          "zoomAtCursor": "Phóng to tại con trỏ"
+        }
+      },
+      "exit": {
+        "subtitle": "Thoát",
+        "shortcuts": {
+          "backOrCloseSidebar": "Quay lại / Đóng thanh bên"
+        }
+      }
+    },
+    "search": {
+      "title": "Tìm kiếm",
+      "shortcuts": {
+        "clearSearch": "Xóa tìm kiếm (khi đang ở thanh tìm kiếm)"
+      }
+    },
+    "accessibility": {
+      "title": "Trợ năng",
+      "note": "Điều hướng bàn phím tiêu chuẩn có sẵn trong toàn bộ ứng dụng",
+      "shortcuts": {
+        "navigateFocusable": "Điều hướng các phần tử có thể lấy nét",
+        "activateElements": "Kích hoạt nút, công tắc, tab",
+        "navigateControls": "Điều hướng menu thả xuống, tab, menu"
+      }
+    }
+  }
+}

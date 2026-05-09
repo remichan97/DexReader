@@ -1,0 +1,33 @@
+{
+  "pageTitle": "Chi tiết Manga",
+  "backButton": "Quay lại",
+  "offlineError": {
+    "title": "Bạn đang ngoại tuyến",
+    "message": "Bạn đang ngoại tuyến và manga này chưa được lưu vào bộ nhớ đệm. Kết nối internet để xem.",
+    "action": "Đi tới Thư viện"
+  },
+  "errorState": {
+    "title": "Không thể tải manga",
+    "message": "Chúng tôi gặp sự cố khi tải manga này. Đây có thể là vấn đề kết nối hoặc dịch vụ tạm thời không khả dụng.",
+    "retryButton": "Thử lại",
+    "showDetails": "Hiển thị chi tiết kỹ thuật",
+    "hideDetails": "Ẩn chi tiết"
+  },
+  "cachedDataBanner": {
+    "message": "Bạn đang xem dữ liệu đã lưu trước đó. Kết nối internet để xem thông tin mới nhất."
+  },
+  "chapterError": {
+    "title": "Không thể tải chương",
+    "message": "Không thể tải chương. Bạn đang ngoại tuyến hoặc các chương không có sẵn.",
+    "offlineMessage": "Bạn đang ngoại tuyến. Thay đổi ngôn ngữ hoặc làm mới các chương yêu cầu kết nối internet."
+  },
+  "documentTitle": {
+    "loading": "Đang tải... - DexReader",
+    "detail": "{manga} - DexReader"
+  },
+  "liveRegion": {
+    "loading": "Đang tải chi tiết manga...",
+    "loaded": "Đã tải {title} của {author}"
+  },
+  "stickyTitle": "{title}"
+}

@@ -1,0 +1,272 @@
+{
+  "button": {
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "delete": "Xóa",
+    "close": "Đóng",
+    "confirm": "Xác nhận",
+    "ok": "OK",
+    "tryAgain": "Thử lại",
+    "apply": "Áp dụng",
+    "create": "Tạo",
+    "creating": "Đang tạo...",
+    "download": "Tải xuống",
+    "downloading": "Đang tải xuống...",
+    "import": "Nhập",
+    "importing": "Đang nhập...",
+    "export": "Xuất",
+    "exporting": "Đang xuất...",
+    "reset": "Đặt lại",
+    "retry": "Thử lại",
+    "retrying": "Đang thử lại...",
+    "back": "Quay lại",
+    "next": "Tiếp theo",
+    "previous": "Trước",
+    "finish": "Hoàn tất",
+    "continue": "Tiếp tục",
+    "dismiss": "Đóng",
+    "later": "Sau",
+    "install": "Cài đặt",
+    "restart": "Khởi động lại",
+    "checkOut": "Xem Thư viện của bạn",
+    "viewLibrary": "Xem Thư viện của bạn",
+    "goOnline": "Go Online",
+    "openSettings": "Open Settings",
+    "saveCopy": "Save a Copy",
+    "savePreset": "Save Preset",
+    "saving": "Saving..."
+  },
+  "action": {
+    "add": "Thêm",
+    "edit": "Chỉnh sửa",
+    "remove": "Xóa",
+    "search": "Tìm kiếm",
+    "filter": "Lọc",
+    "sort": "Sắp xếp",
+    "download": "Tải xuống",
+    "upload": "Tải lên",
+    "import": "Nhập",
+    "export": "Xuất",
+    "create": "Tạo",
+    "update": "Cập nhật",
+    "refresh": "Làm mới",
+    "clear": "Xóa",
+    "select": "Chọn",
+    "browse": "Duyệt",
+    "view": "Xem",
+    "open": "Mở",
+    "show": "Hiển thị",
+    "hide": "Ẩn",
+    "load": "Tải"
+  },
+  "state": {
+    "loading": "Đang tải",
+    "loadingEllipsis": "Đang tải...",
+    "success": "Thành công",
+    "error": "Lỗi",
+    "empty": "Trống",
+    "pending": "Đang chờ",
+    "completed": "Hoàn tất",
+    "failed": "Thất bại",
+    "processing": "Đang xử lý",
+    "queued": "Đang xếp hàng",
+    "retrying": "Đang thử lại...",
+    "checking": "Đang kiểm tra",
+    "available": "Có sẵn",
+    "notAvailable": "Không có sẵn",
+    "downloaded": "Đã tải xuống",
+    "offline": "Ngoại tuyến",
+    "online": "Trực tuyến"
+  },
+  "label": {
+    "name": "Tên",
+    "title": "Tiêu đề",
+    "description": "Mô tả",
+    "author": "Tác giả",
+    "status": "Trạng thái",
+    "type": "Loại",
+    "tags": "Thẻ",
+    "language": "Ngôn ngữ",
+    "languages": "Ngôn ngữ",
+    "quality": "Chất lượng",
+    "file": "Tệp",
+    "path": "Đường dẫn",
+    "presetName": "Tên cài đặt trước",
+    "collectionName": "Tên bộ sưu tập",
+    "readingMode": "Chế độ đọc",
+    "contentRating": "Đánh giá nội dung",
+    "sortBy": "Sắp xếp theo",
+    "order": "Thứ tự",
+    "perPage": "Mỗi trang",
+    "demographic": "Đối tượng",
+    "progress": "Tiến trình",
+    "resultsPerPage": "Kết quả mỗi trang"
+  },
+  "navigation": {
+    "browse": "Duyệt",
+    "library": "Thư viện",
+    "downloads": "Tải xuống",
+    "settings": "Cài đặt",
+    "history": "Lịch sử",
+    "readingHistory": "Lịch sử đọc",
+    "home": "Trang chủ",
+    "reader": "Trình đọc",
+    "goToBrowse": "Đi đến Duyệt",
+    "goToLibrary": "Đi đến Thư viện"
+  },
+  "time": {
+    "today": "Hôm nay",
+    "yesterday": "Hôm qua",
+    "hour": "giờ",
+    "minute": "phút",
+    "second": "giây",
+    "day": "ngày",
+    "week": "tuần",
+    "month": "tháng",
+    "year": "năm",
+    "ago": "trước"
+  },
+  "form": {
+    "optional": "Tùy chọn",
+    "required": "Bắt buộc",
+    "placeholder": {
+      "search": "Tìm kiếm...",
+      "searchManga": "Tìm kiếm manga...",
+      "searchHistory": "Tìm kiếm lịch sử đọc của bạn...",
+      "collectionName": "ví dụ: Đang đọc, Muốn đọc",
+      "description": "Thêm mô tả",
+      "presetName": "ví dụ: Hành động đang diễn ra",
+      "selectPreset": "Chọn cài đặt trước"
+    },
+    "helperText": {
+      "characterCount": "ký tự",
+      "pressMToCycle": "Nhấn M để chuyển đổi chế độ",
+      "highQuality": "Chất lượng hình ảnh tốt nhất, kích thước tệp lớn hơn",
+      "dataSaver": "Hình ảnh nén, kích thước tệp nhỏ hơn"
+    }
+  },
+  "message": {
+    "success": {
+      "importSuccessful": "Nhập thành công",
+      "changesSaved": "Đã lưu thay đổi"
+    },
+    "warning": {
+      "importCompletedWithWarnings": "Nhập dữ liệu hoàn tất với cảnh báo"
+    },
+    "error": {
+      "somethingWentWrong": "Đã xảy ra sự cố",
+      "importCompletedWithErrors": "Nhập dữ liệu hoàn tất với lỗi",
+      "downloadFailed": "Tải xuống thất bại. Nhấn để thử lại",
+      "failedToLoad": "Không thể tải dữ liệu",
+      "couldntLoadChapter": "Không thể tải chương",
+      "networkError": "Đã xảy ra lỗi mạng",
+      "unexpectedError": "Đã xảy ra lỗi không mong muốn",
+      "unknownError": "Đã xảy ra lỗi không xác định",
+      "failedToCreateCollection": "Không thể tạo bộ sưu tập",
+      "oopsUnexpected": "Ôi! Đã xảy ra sự cố không mong muốn. Thử tải lại nếu điều này tiếp tục xảy ra."
+    },
+    "info": {
+      "youreOffline": "Bạn đang ngoại tuyến",
+      "noInternet": "Không có kết nối internet",
+      "youAreOffline": "Bạn đang ngoại tuyến. Vui lòng kết nối internet để tải xuống",
+      "downloadedContentAvailable": "Nội dung đã tải xuống vẫn hoạt động",
+      "onlyDownloadedContent": "Chỉ có nội dung đã tải xuống khả dụng",
+      "browseRequiresInternet": "Duyệt yêu cầu kết nối internet",
+      "filtersActive": "Bộ lọc đang hoạt động",
+      "scrollToFilters": "Cuộn đến Bộ lọc"
+    },
+    "confirmation": {
+      "downloadChapter": "Tải xuống Chương?",
+      "downloadMultipleChapters": "Tải xuống nhiều Chương?",
+      "deletePreset": "Xóa cài đặt trước này",
+      "cantBeUndone": "Điều này không thể hoàn tác. Tìm kiếm hiện tại của bạn sẽ vẫn hoạt động."
+    }
+  },
+  "quality": {
+    "highQuality": "Chất lượng cao",
+    "dataSaver": "Tiết kiệm dữ liệu"
+  },
+  "sort": {
+    "relevance": "Liên quan",
+    "latestUpdate": "Cập nhật mới nhất",
+    "recentlyAdded": "Mới thêm",
+    "mostFollows": "Nhiều người theo dõi nhất",
+    "highestRated": "Đánh giá cao nhất",
+    "title": "Tiêu đề",
+    "year": "Năm",
+    "ascending": "Tăng dần",
+    "descending": "Giảm dần"
+  },
+  "status": {
+    "ongoing": "Đang tiến hành",
+    "completed": "Hoàn thành",
+    "hiatus": "Tạm ngưng",
+    "cancelled": "Đã hủy",
+    "all": "Tất cả"
+  },
+  "demographic": {
+    "shounen": "Shounen",
+    "shoujo": "Shoujo",
+    "seinen": "Seinen",
+    "josei": "Josei",
+    "none": "Không có",
+    "all": "Tất cả"
+  },
+  "contentRating": {
+    "safe": "An toàn",
+    "suggestive": "Gợi dục",
+    "erotica": "Erotica",
+    "pornographic": "Khiêu dâm"
+  },
+  "readingMode": {
+    "singlePage": "Từng trang",
+    "doublePage": "Hai trang",
+    "verticalScroll": "Cuộn dọc"
+  },
+  "badge": {
+    "downloadChapter": "Tải xuống chương",
+    "downloadQueued": "Đang xếp hàng tải xuống",
+    "chapterDownloaded": "Chương đã tải xuống",
+    "alwaysIncluded": "Luôn bao gồm"
+  },
+  "emptyState": {
+    "noFavourites": "Chưa có mục yêu thích nào!",
+    "noReadingHistory": "Chưa có lịch sử đọc nào",
+    "noResults": "Không tìm thấy kết quả cho tìm kiếm của bạn.",
+    "noResultsFound": "Không tìm thấy kết quả",
+    "noCollections": "Bạn chưa có bộ sưu tập nào. Tạo một bộ sưu tập để bắt đầu tổ chức!",
+    "createFirstCollection": "Tạo bộ sưu tập đầu tiên của bạn",
+    "startReading": "Bắt đầu đọc manga để xem tiến trình của bạn ở đây.",
+    "browseManga": "Duyệt Manga"
+  },
+  "section": {
+    "library": "Thư viện",
+    "collections": "Bộ sưu tập",
+    "readingProgress": "Tiến trình đọc",
+    "readerSettings": "Cài đặt trình đọc",
+    "advancedFilters": "Bộ lọc nâng cao (Thẻ & Ngôn ngữ)",
+    "showAdvancedFilters": "Hiển thị bộ lọc nâng cao",
+    "hideAdvancedFilters": "Ẩn bộ lọc nâng cao",
+    "technicalDetails": "Chi tiết kỹ thuật",
+    "errorDetails": "Chi tiết lỗi",
+    "viewErrorDetails": "Xem chi tiết lỗi"
+  },
+  "general": {
+    "and": "VÀ",
+    "or": "HOẶC",
+    "of": "của",
+    "items": "mục",
+    "chapters": "chương",
+    "pages": "trang",
+    "manga": "manga",
+    "includedTags": "Thẻ bao gồm",
+    "excludedTags": "Thẻ loại trừ",
+    "matchAllTags": "Khớp TẤT CẢ các thẻ (VÀ)",
+    "matchAnyTag": "Khớp BẤT KỲ thẻ nào (HOẶC)",
+    "includeTagsMode": "Chế độ bao gồm thẻ:",
+    "version": "Phiên bản",
+    "unknown": "Không xác định",
+    "untitled": "Chưa đặt tiêu đề",
+    "notAvailable": "Không có sẵn"
+  }
+}

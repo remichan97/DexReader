@@ -1,0 +1,34 @@
+{
+  "pageTitle": "Tải xuống",
+  "searchPlaceholder": "Tìm kiếm tải xuống...",
+  "filterByStatus": "Lọc theo trạng thái",
+  "sortBy": "Sắp xếp theo",
+  "stats": {
+    "active": "{count} Đang tải",
+    "queued": "{count} Đang chờ",
+    "completed": "{count} Đã hoàn thành",
+    "failed": "{count} Thất bại"
+  },
+  "actions": {
+    "openFolder": "Mở thư mục",
+    "hideCompleted": "Ẩn đã hoàn thành",
+    "hideCompletedTooltip": "Ẩn các tải xuống đã hoàn thành khỏi chế độ xem (tệp sẽ được giữ trên đĩa)",
+    "cancelAllQueued": "Hủy tất cả đang chờ",
+    "cancelAllQueuedTooltip": "Hủy tất cả các tải xuống đang chờ",
+    "retryAllFailed": "Thử lại tất cả thất bại",
+    "retryAllFailedTooltip": "Thử lại tất cả các tải xuống thất bại",
+    "retryAllFailedDisabled": "Chờ các tải xuống hiện tại hoàn tất"
+  },
+  "emptyState": {
+    "title": "Chưa có tải xuống nào. Các chương bạn tải xuống sẽ hiển thị ở đây!"
+  },
+  "downloadGroup": {
+    "chapterCount": "{count} chương",
+    "storageSize": "{size}",
+    "activeBadge": "{count} đang hoạt động",
+    "failedBadge": "{count} thất bại"
+  },
+  "loadingState": {
+    "message": "Đang tải xuống..."
+  }
+}

@@ -21,7 +21,9 @@ locales/
 │   ├── history.json        # Reading history view strings
 │   ├── mangaDetail.json    # Manga detail view strings
 │   └── index.ts            # Exports all locale files
-└── en-US/          # American English (future)
+└── en-US/          # American English
+    └── (same structure as en-GB)
+└── vi-VN/          # Vietnamese
     └── (same structure as en-GB)
 ```
 
