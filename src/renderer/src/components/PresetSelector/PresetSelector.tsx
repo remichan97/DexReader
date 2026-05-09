@@ -46,9 +46,8 @@ export function PresetSelector({
   }
 
   return (
-    <div className="preset-selector">
+    <div className="gap-2 flex">
       <Select
-        label="Search Preset"
         value={currentPresetId ? String(currentPresetId) : ''}
         onChange={handleChange}
         options={options}
