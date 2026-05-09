@@ -1,0 +1,358 @@
+{
+  "network": {
+    "offline": {
+      "title": "You're offline",
+      "message": "Offline mode is on. You can only see downloaded stuff.",
+      "action": "Go online to browse and download more.",
+      "variants": {
+        "browse": "Browse and search require an internet connection. Check out your Library to read downloaded manga.",
+        "search": "You're offline. Search is only available when connected to the internet."
+      }
+    },
+    "no_internet": {
+      "title": "No internet",
+      "message": "Can't connect right now, but you can still read what's downloaded.",
+      "action": "Check your connection if you want to browse online."
+    },
+    "connection_issues": {
+      "title": "Connection issues",
+      "message": "Can't reach the internet right now.",
+      "action": "Check your connection and try again."
+    },
+    "connection_refused": {
+      "title": "Can't connect",
+      "message": "The server refused the connection.",
+      "action": "The service might be down. Try again later."
+    },
+    "timeout": {
+      "title": "That took too long",
+      "message": "The request timed out.",
+      "action": "Try again, or check your connection."
+    }
+  },
+  "file": {
+    "not_found": {
+      "title": "File not found",
+      "message": "Can't find that file. Maybe it was moved or deleted?",
+      "action": "Double-check the location and try again."
+    },
+    "access_denied": {
+      "title": "Can't access that",
+      "message": "Don't have permission to access this file or folder.",
+      "action": "Make sure nothing else is using it and check the permissions."
+    },
+    "disk_full": {
+      "title": "Running out of space",
+      "message": "Not enough room on your drive.",
+      "action": "Clear up some space and give it another shot."
+    },
+    "file_system_error": {
+      "title": "File system hiccup",
+      "message": "Something went wrong with file access.",
+      "action": "Try again, or restart if it keeps happening."
+    },
+    "is_directory": {
+      "title": "That's a folder",
+      "message": "Expected a file but got a folder instead.",
+      "action": "Select a file, not a folder."
+    },
+    "already_exists": {
+      "title": "That already exists",
+      "message": "A file or folder with that name already exists.",
+      "action": "Pick a different name or delete the existing one."
+    },
+    "too_many_files_open": {
+      "title": "Too many files open",
+      "message": "Can't open any more files right now.",
+      "action": "Close some files or restart the app."
+    }
+  },
+  "validation": {
+    "invalid_input": {
+      "title": "That doesn't look right",
+      "message": "The info you entered isn't valid.",
+      "action": "Check what you typed and try again."
+    },
+    "invalid_path": {
+      "title": "Invalid path",
+      "message": "That path doesn't look right.",
+      "action": "Make sure the path is valid and try again."
+    }
+  },
+  "api": {
+    "rate_limit": {
+      "title": "Going too fast",
+      "message": "You've hit the rate limit.",
+      "action": "Wait a bit and try again."
+    },
+    "not_found": {
+      "title": "Not found",
+      "message": "Couldn't find what you're looking for.",
+      "action": "Check the ID or URL and try again."
+    },
+    "invalid_response": {
+      "title": "Garbled data",
+      "message": "Got some data that doesn't make sense.",
+      "action": "Try reloading or check if the file is corrupted."
+    }
+  },
+  "manga": {
+    "load_failed": {
+      "title": "Couldn't load this manga",
+      "message": "Something went wrong while trying to fetch this manga. It might be unavailable, deleted, or there could be a connection issue.",
+      "action": "Try Again"
+    },
+    "not_found": {
+      "title": "Manga not found",
+      "message": "This manga couldn't be found. It might have been deleted or the ID is incorrect.",
+      "action": "Go back and try another manga."
+    }
+  },
+  "chapter": {
+    "load_failed": {
+      "title": "Couldn't load this chapter",
+      "message": "We ran into a problem loading the pages for this chapter. This might be a temporary network hiccup, or the chapter data might not be available right now.",
+      "action": "Try Again"
+    },
+    "not_available": {
+      "title": "Chapter not available",
+      "message": "This chapter isn't available right now.",
+      "action": "Try again later or check for updates."
+    },
+    "corrupted": {
+      "title": "Corrupted chapter data",
+      "message": "The chapter data appears to be corrupted or incomplete.",
+      "action": "Try redownloading or contact support."
+    }
+  },
+  "download": {
+    "failed": {
+      "title": "Download Failed",
+      "message": "Download failed after retries",
+      "action": "Retry",
+      "badge": "Download failed. Click to retry"
+    },
+    "permanent_failure": {
+      "title": "Download Failed",
+      "message": "This download has permanently failed after multiple attempts.",
+      "action": "Check your connection and try again later."
+    },
+    "database_error": {
+      "title": "Database Error",
+      "message": "Failed to save download information to the database.",
+      "action": "Try again or check storage space."
+    },
+    "load_failed": {
+      "title": "Failed to load downloads",
+      "message": "Couldn't load your downloads list.",
+      "action": "Try refreshing or restart the app."
+    }
+  },
+  "library": {
+    "add_failed": {
+      "title": "Failed to add to library",
+      "message": "Couldn't add this manga to your library.",
+      "action": "Try again."
+    },
+    "update_failed": {
+      "title": "Failed to update library",
+      "message": "Couldn't update your library.",
+      "action": "Try again or restart the app."
+    },
+    "load_failed": {
+      "title": "Failed to load library",
+      "message": "Couldn't load your library items.",
+      "action": "Try refreshing or restart the app."
+    },
+    "toggle_failed": {
+      "title": "Failed to toggle favourite",
+      "message": "Couldn't update favourite status.",
+      "action": "Try again."
+    },
+    "delete_downloads_failed": {
+      "title": "Failed to delete downloads",
+      "message": "Couldn't delete the downloaded chapters.",
+      "action": "Try again or check file permissions."
+    }
+  },
+  "collections": {
+    "load_failed": {
+      "title": "Failed to load collections",
+      "message": "Couldn't load your collections.",
+      "action": "Try refreshing or restart the app."
+    },
+    "create_failed": {
+      "title": "Failed to create collection",
+      "message": "Couldn't create the new collection.",
+      "action": "Try again."
+    },
+    "update_failed": {
+      "title": "Failed to update collection",
+      "message": "Couldn't update the collection.",
+      "action": "Try again."
+    },
+    "delete_failed": {
+      "title": "Failed to delete collection",
+      "message": "Couldn't delete the collection.",
+      "action": "Try again."
+    },
+    "add_manga_failed": {
+      "title": "Failed to add manga to collection",
+      "message": "Couldn't add this manga to the collection.",
+      "action": "Try again."
+    },
+    "remove_manga_failed": {
+      "title": "Failed to remove manga from collection",
+      "message": "Couldn't remove this manga from the collection.",
+      "action": "Try again."
+    }
+  },
+  "presets": {
+    "load_failed": {
+      "title": "Failed to load presets",
+      "message": "Couldn't load your search presets.",
+      "action": "Try refreshing."
+    },
+    "save_failed": {
+      "title": "Failed to save preset",
+      "message": "Couldn't save the search preset.",
+      "action": "Try again."
+    },
+    "delete_failed": {
+      "title": "Failed to delete preset",
+      "message": "Couldn't delete the preset.",
+      "action": "Try again."
+    }
+  },
+  "progress": {
+    "save_failed": {
+      "title": "Failed to save progress",
+      "message": "Your reading progress could not be saved.",
+      "action": "Try again or restart the app."
+    },
+    "delete_failed": {
+      "title": "Failed to delete progress",
+      "message": "An error occurred while removing progress.",
+      "action": "Try again."
+    }
+  },
+  "settings": {
+    "downloads_folder_change_failed": {
+      "title": "Couldn't change downloads folder",
+      "message": "Failed to update the downloads folder location.",
+      "action": "Try again or check permissions."
+    },
+    "reset_override_failed": {
+      "title": "Failed to reset override",
+      "message": "Couldn't reset the setting override.",
+      "action": "Try again."
+    },
+    "clear_overrides_failed": {
+      "title": "Failed to clear overrides",
+      "message": "Couldn't clear all setting overrides.",
+      "action": "Try again."
+    },
+    "save_settings_failed": {
+      "title": "Failed to save settings",
+      "message": "Your settings couldn't be saved.",
+      "action": "Try again or restart the app."
+    },
+    "check_updates_failed": {
+      "title": "Couldn't check for updates",
+      "message": "Couldn't check for updates. Try again in a bit?",
+      "action": "Try again later."
+    }
+  },
+  "storage": {
+    "load_failed": {
+      "title": "Failed to load storage data",
+      "message": "Couldn't load storage information.",
+      "action": "Try refreshing."
+    },
+    "delete_manga_failed": {
+      "title": "Failed to delete manga",
+      "message": "Couldn't delete the manga data.",
+      "action": "Try again or check file permissions."
+    }
+  },
+  "cache": {
+    "load_failed": {
+      "title": "Failed to load cache data",
+      "message": "Couldn't load cache information.",
+      "action": "Try refreshing."
+    },
+    "clear_cover_cache_failed": {
+      "title": "Failed to clear cover cache",
+      "message": "Couldn't clear the cover image cache.",
+      "action": "Try again or restart the app."
+    },
+    "clean_metadata_cache_failed": {
+      "title": "Failed to clean metadata cache",
+      "message": "Couldn't clean old metadata from the cache.",
+      "action": "Try again."
+    },
+    "clear_metadata_cache_failed": {
+      "title": "Failed to clear metadata cache",
+      "message": "Couldn't clear the metadata cache.",
+      "action": "Try again or restart the app."
+    }
+  },
+  "logging": {
+    "open_folder_failed": {
+      "title": "Failed to open logs folder",
+      "message": "Couldn't open the logs folder.",
+      "action": "Try again or check file permissions."
+    },
+    "delete_old_logs_failed": {
+      "title": "Failed to delete old logs",
+      "message": "Couldn't delete old log files.",
+      "action": "Try again or check file permissions."
+    },
+    "clear_logs_failed": {
+      "title": "Failed to clear logs",
+      "message": "Couldn't clear the log files.",
+      "action": "Try again or check file permissions."
+    }
+  },
+  "ipc": {
+    "generic_error": {
+      "title": "Something didn't work",
+      "message": "Couldn't complete that action.",
+      "action": "Give it another try, or restart if it's stuck."
+    },
+    "theme_error": {
+      "title": "Theme issue",
+      "message": "Couldn't load or change the theme.",
+      "action": "Try switching themes or restart the app."
+    }
+  },
+  "boundary": {
+    "component_error": {
+      "title": "Can't load this right now",
+      "message": "This part isn't working right now. Try again or explore other sections.",
+      "action": "Try Again"
+    },
+    "page_error": {
+      "title": "Can't load this right now",
+      "message": "This part isn't working right now. Try again or explore other sections.",
+      "action": "Try Again"
+    },
+    "app_error": {
+      "title": "Oops, something broke",
+      "message": "Oops! Something unexpected happened. Try reloading if this keeps happening.",
+      "actions": ["Try Again", "Reload App"]
+    }
+  },
+  "generic": {
+    "unknown": {
+      "title": "Well, that's weird",
+      "message": "Something unexpected happened.",
+      "action": "Try again or restart the app if it keeps happening."
+    },
+    "unexpected": {
+      "title": "Something went wrong",
+      "message": "An error occurred.",
+      "action": "Try again or restart the app."
+    }
+  }
+}

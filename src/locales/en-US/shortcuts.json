@@ -1,0 +1,103 @@
+{
+  "dialogTitle": "Keyboard Shortcuts",
+  "dialogSubtitle": "All keyboard shortcuts available in DexReader",
+  "categories": {
+    "global": {
+      "title": "Global",
+      "shortcuts": {
+        "checkUpdates": "Check for app updates",
+        "openSettings": "Open Settings",
+        "toggleIncognito": "Toggle Incognito mode",
+        "toggleFullscreen": "Toggle fullscreen",
+        "reload": "Reload current view",
+        "openHelp": "Open Help",
+        "showShortcuts": "Show keyboard shortcuts",
+        "exitApp": "Exit app"
+      }
+    },
+    "navigation": {
+      "title": "Navigation",
+      "shortcuts": {
+        "goToBrowse": "Go to Browse",
+        "goToLibrary": "Go to Library",
+        "goToDownloads": "Go to Downloads",
+        "goToHistory": "Go to Reading History",
+        "focusSearch": "Focus search bar"
+      }
+    },
+    "library": {
+      "title": "Library",
+      "shortcuts": {
+        "toggleFavorite": "Add/Remove from Favorites",
+        "createCollection": "Create new collection",
+        "manageCollections": "Manage collections",
+        "checkForUpdates": "Check library for updates",
+        "downloadChapter": "Download chapter",
+        "downloadManga": "Download entire manga",
+        "editCollection": "Edit collection",
+        "exportLibrary": "Export Library to DexReader Backup"
+      }
+    },
+    "reader": {
+      "title": "Reader",
+      "pageNavigation": {
+        "subtitle": "Page Navigation",
+        "shortcuts": {
+          "nextPage": "Next page",
+          "nextPageKeys": "Arrow Right, PageDown, or Enter",
+          "previousPage": "Previous page",
+          "previousPageKeys": "Arrow Left or PageUp",
+          "nextPageSpace": "Next page",
+          "previousPageShiftSpace": "Previous page",
+          "firstPage": "First page",
+          "lastPage": "Last page"
+        }
+      },
+      "chapterNavigation": {
+        "subtitle": "Chapter Navigation",
+        "shortcuts": {
+          "previousChapter": "Previous chapter",
+          "nextChapter": "Next chapter",
+          "toggleChapterList": "Toggle chapter list"
+        }
+      },
+      "readingModes": {
+        "subtitle": "Reading Modes",
+        "shortcuts": {
+          "cycleReadingModes": "Cycle reading modes"
+        }
+      },
+      "zoomAndFit": {
+        "subtitle": "Zoom & Fit",
+        "shortcuts": {
+          "cycleFitModes": "Cycle fit modes",
+          "resetZoom": "Reset zoom",
+          "zoomIn": "Zoom in",
+          "zoomOut": "Zoom out",
+          "zoomAtCursor": "Zoom at cursor"
+        }
+      },
+      "exit": {
+        "subtitle": "Exit",
+        "shortcuts": {
+          "backOrCloseSidebar": "Back / Close sidebar"
+        }
+      }
+    },
+    "search": {
+      "title": "Search",
+      "shortcuts": {
+        "clearSearch": "Clear search (when focused)"
+      }
+    },
+    "accessibility": {
+      "title": "Accessibility",
+      "note": "Standard keyboard navigation is available throughout the app",
+      "shortcuts": {
+        "navigateFocusable": "Navigate focusable elements",
+        "activateElements": "Activate buttons, switches, tabs",
+        "navigateControls": "Navigate dropdowns, tabs, menus"
+      }
+    }
+  }
+}

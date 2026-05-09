@@ -1,0 +1,272 @@
+{
+  "button": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "close": "Close",
+    "confirm": "Confirm",
+    "ok": "OK",
+    "tryAgain": "Try Again",
+    "apply": "Apply",
+    "create": "Create",
+    "creating": "Creating...",
+    "download": "Download",
+    "downloading": "Downloading...",
+    "import": "Import",
+    "importing": "Importing...",
+    "export": "Export",
+    "exporting": "Exporting...",
+    "reset": "Reset",
+    "retry": "Retry",
+    "retrying": "Retrying...",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "finish": "Finish",
+    "continue": "Continue",
+    "dismiss": "Dismiss",
+    "later": "Later",
+    "install": "Install",
+    "restart": "Restart",
+    "checkOut": "Check Out Your Library",
+    "viewLibrary": "Check Out Your Library",
+    "goOnline": "Go Online",
+    "openSettings": "Open Settings",
+    "saveCopy": "Save a Copy",
+    "savePreset": "Save Preset",
+    "saving": "Saving..."
+  },
+  "action": {
+    "add": "Add",
+    "edit": "Edit",
+    "remove": "Remove",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "download": "Download",
+    "upload": "Upload",
+    "import": "Import",
+    "export": "Export",
+    "create": "Create",
+    "update": "Update",
+    "refresh": "Refresh",
+    "clear": "Clear",
+    "select": "Select",
+    "browse": "Browse",
+    "view": "View",
+    "open": "Open",
+    "show": "Show",
+    "hide": "Hide",
+    "load": "Load"
+  },
+  "state": {
+    "loading": "Loading",
+    "loadingEllipsis": "Loading...",
+    "success": "Success",
+    "error": "Error",
+    "empty": "Empty",
+    "pending": "Pending",
+    "completed": "Completed",
+    "failed": "Failed",
+    "processing": "Processing",
+    "queued": "Queued",
+    "retrying": "Retrying...",
+    "checking": "Checking",
+    "available": "Available",
+    "notAvailable": "Not Available",
+    "downloaded": "Downloaded",
+    "offline": "Offline",
+    "online": "Online"
+  },
+  "label": {
+    "name": "Name",
+    "title": "Title",
+    "description": "Description",
+    "author": "Author",
+    "status": "Status",
+    "type": "Type",
+    "tags": "Tags",
+    "language": "Language",
+    "languages": "Languages",
+    "quality": "Quality",
+    "file": "File",
+    "path": "Path",
+    "presetName": "Preset Name",
+    "collectionName": "Collection Name",
+    "readingMode": "Reading Mode",
+    "contentRating": "Content Rating",
+    "sortBy": "Sort By",
+    "order": "Order",
+    "perPage": "Per Page",
+    "demographic": "Demographic",
+    "progress": "Progress",
+    "resultsPerPage": "Results per page"
+  },
+  "navigation": {
+    "browse": "Browse",
+    "library": "Library",
+    "downloads": "Downloads",
+    "settings": "Settings",
+    "history": "History",
+    "readingHistory": "Reading History",
+    "home": "Home",
+    "reader": "Reader",
+    "goToBrowse": "Go to Browse",
+    "goToLibrary": "Go to Library"
+  },
+  "time": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "hour": "hour",
+    "minute": "minute",
+    "second": "second",
+    "day": "day",
+    "week": "week",
+    "month": "month",
+    "year": "year",
+    "ago": "ago"
+  },
+  "form": {
+    "optional": "Optional",
+    "required": "Required",
+    "placeholder": {
+      "search": "Search...",
+      "searchManga": "Search manga...",
+      "searchHistory": "Search your reading history...",
+      "collectionName": "e.g., Reading, Want to Read",
+      "description": "Add a description",
+      "presetName": "e.g., Ongoing Action",
+      "selectPreset": "Select a preset"
+    },
+    "helperText": {
+      "characterCount": "characters",
+      "pressMToCycle": "Press M to cycle modes",
+      "highQuality": "Best image quality, larger file size",
+      "dataSaver": "Compressed images, smaller file size"
+    }
+  },
+  "message": {
+    "success": {
+      "importSuccessful": "Import Successful",
+      "changesSaved": "Changes saved"
+    },
+    "warning": {
+      "importCompletedWithWarnings": "Import Completed with Warnings"
+    },
+    "error": {
+      "somethingWentWrong": "Something went wrong",
+      "importCompletedWithErrors": "Import Completed with Errors",
+      "downloadFailed": "Download failed. Click to retry",
+      "failedToLoad": "Failed to load data",
+      "couldntLoadChapter": "Couldn't load chapter",
+      "networkError": "Network error occurred",
+      "unexpectedError": "An unexpected error occurred",
+      "unknownError": "An unknown error occurred",
+      "failedToCreateCollection": "Failed to create collection",
+      "oopsUnexpected": "Oops! Something unexpected happened. Try reloading if this keeps happening."
+    },
+    "info": {
+      "youreOffline": "You're offline",
+      "noInternet": "No internet",
+      "youAreOffline": "You are offline. Please go online to download",
+      "downloadedContentAvailable": "Downloaded content still works",
+      "onlyDownloadedContent": "Only downloaded content is available",
+      "browseRequiresInternet": "Browse requires an internet connection",
+      "filtersActive": "filters active",
+      "scrollToFilters": "Scroll to Filters"
+    },
+    "confirmation": {
+      "downloadChapter": "Download Chapter?",
+      "downloadMultipleChapters": "Download Multiple Chapters?",
+      "deletePreset": "Delete this preset",
+      "cantBeUndone": "This can't be undone. Your current search will remain active."
+    }
+  },
+  "quality": {
+    "highQuality": "High Quality",
+    "dataSaver": "Data Saver"
+  },
+  "sort": {
+    "relevance": "Relevance",
+    "latestUpdate": "Latest Update",
+    "recentlyAdded": "Recently Added",
+    "mostFollows": "Most Follows",
+    "highestRated": "Highest Rated",
+    "title": "Title",
+    "year": "Year",
+    "ascending": "Ascending",
+    "descending": "Descending"
+  },
+  "status": {
+    "ongoing": "Ongoing",
+    "completed": "Completed",
+    "hiatus": "Hiatus",
+    "cancelled": "Cancelled",
+    "all": "All"
+  },
+  "demographic": {
+    "shounen": "Shounen",
+    "shoujo": "Shoujo",
+    "seinen": "Seinen",
+    "josei": "Josei",
+    "none": "None",
+    "all": "All"
+  },
+  "contentRating": {
+    "safe": "Safe",
+    "suggestive": "Suggestive",
+    "erotica": "Erotica",
+    "pornographic": "Pornographic"
+  },
+  "readingMode": {
+    "singlePage": "Single Page",
+    "doublePage": "Double Page",
+    "verticalScroll": "Vertical Scroll"
+  },
+  "badge": {
+    "downloadChapter": "Download chapter",
+    "downloadQueued": "Download queued",
+    "chapterDownloaded": "Chapter downloaded",
+    "alwaysIncluded": "Always included"
+  },
+  "emptyState": {
+    "noFavourites": "No favourites yet!",
+    "noReadingHistory": "No reading history yet",
+    "noResults": "No results found for your search.",
+    "noResultsFound": "No results found",
+    "noCollections": "You don't have any collections yet. Create one to start organising!",
+    "createFirstCollection": "Create Your First Collection",
+    "startReading": "Start reading manga to see your progress here.",
+    "browseManga": "Browse Manga"
+  },
+  "section": {
+    "library": "Library",
+    "collections": "Collections",
+    "readingProgress": "Reading Progress",
+    "readerSettings": "Reader Settings",
+    "advancedFilters": "Advanced Filters (Tags & Languages)",
+    "showAdvancedFilters": "Show advanced filters",
+    "hideAdvancedFilters": "Hide advanced filters",
+    "technicalDetails": "technical details",
+    "errorDetails": "Error Details",
+    "viewErrorDetails": "View Error Details"
+  },
+  "general": {
+    "and": "AND",
+    "or": "OR",
+    "of": "of",
+    "items": "items",
+    "chapters": "chapters",
+    "pages": "pages",
+    "manga": "manga",
+    "includedTags": "Included Tags",
+    "excludedTags": "Excluded Tags",
+    "matchAllTags": "Match ALL tags (AND)",
+    "matchAnyTag": "Match ANY tag (OR)",
+    "includeTagsMode": "Include Tags Mode:",
+    "version": "Version",
+    "unknown": "Unknown",
+    "untitled": "Untitled",
+    "notAvailable": "Not available"
+  }
+}

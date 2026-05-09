@@ -1,0 +1,419 @@
+{
+  "createCollection": {
+    "title": "Create Collection",
+    "fields": {
+      "name": {
+        "label": "Collection Name",
+        "placeholder": "e.g., Reading, Want to Read",
+        "required": true,
+        "error": "Collection name is required"
+      },
+      "description": {
+        "label": "Description (Optional)",
+        "placeholder": "Add a description"
+      }
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "create": "Create",
+      "creating": "Creating..."
+    },
+    "errors": {
+      "createFailed": "Failed to create collection"
+    }
+  },
+  "collectionPicker": {
+    "title": "Manage Collections",
+    "emptyState": {
+      "message": "You don't have any collections yet. Create one to start organising!",
+      "button": "Create Your First Collection"
+    },
+    "createNewButton": "+ Create New Collection",
+    "buttons": {
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving..."
+    }
+  },
+  "importResult": {
+    "titles": {
+      "success": "Import Successful",
+      "warning": "Import Completed with Warnings",
+      "error": "Import Completed with Errors"
+    },
+    "stats": {
+      "imported": "Imported",
+      "skipped": "Skipped",
+      "failed": "Failed"
+    },
+    "summary": {
+      "main": "Successfully imported {{count}} out of {{total}} manga from your backup.",
+      "skipped": "{{count}} manga were skipped (already in library or not from MangaDex)."
+    },
+    "errors": {
+      "toggle": "View Error Details ({{count}})",
+      "unknownManga": "Unknown Manga"
+    },
+    "buttons": {
+      "close": "Close",
+      "viewLibrary": "Check Out Your Library"
+    }
+  },
+  "savePreset": {
+    "title": "Save Preset",
+    "fields": {
+      "name": {
+        "label": "Preset Name",
+        "placeholder": "e.g., Ongoing Action",
+        "maxLength": 50,
+        "helperText": "{{count}}/50 characters"
+      },
+      "setDefault": {
+        "label": "Set as default"
+      }
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "saveCopy": "Save a Copy",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "preview": {
+      "search": "Search: \"{{query}}\"",
+      "contentRating": "Content Rating: {{values}}",
+      "status": "Status: {{values}}",
+      "demographic": "Demographic: {{values}}",
+      "includedTags": "Included Tags: {{tags}}",
+      "excludedTags": "Excluded Tags: {{tags}}",
+      "languages": "Languages: {{languages}}",
+      "sort": "Sort: {{by}} ({{direction}})",
+      "resultsPerPage": "Results per page: {{count}}"
+    }
+  },
+  "downloadConfirmation": {
+    "titles": {
+      "single": "Download Chapter?",
+      "batch": "Download Multiple Chapters?"
+    },
+    "messages": {
+      "batch": "You're about to download <strong>{{count}} chapters</strong>.",
+      "single": "{{title}}"
+    },
+    "quality": {
+      "label": "Quality",
+      "options": {
+        "high": "High Quality",
+        "dataSaver": "Data Saver"
+      },
+      "helperText": {
+        "high": "Best image quality, larger file size",
+        "dataSaver": "Compressed images, smaller file size"
+      }
+    },
+    "location": {
+      "label": "Download location:",
+      "changeLink": "Change in Settings →"
+    },
+    "batchInfo": "Downloads will run in the background. You can continue browsing while they complete.",
+    "buttons": {
+      "cancel": "Cancel",
+      "download": "Download"
+    }
+  },
+  "confirmations": {
+    "deleteCollection": {
+      "title": "Delete \"{{name}}\"?",
+      "message": "This will not delete the manga, only the collection.",
+      "buttons": {
+        "delete": "Delete",
+        "cancel": "Cancel"
+      }
+    },
+    "deleteMangaDownloads": {
+      "title": "Delete all downloaded chapters?",
+      "message": "This will permanently delete {{count}} chapter{{plural}} from {{title}}.\n\nThis action cannot be undone.",
+      "buttons": {
+        "delete": "Delete",
+        "cancel": "Cancel"
+      }
+    },
+    "deleteChapterDownload": {
+      "title": "Remove Download",
+      "message": "You are about to remove \"{{title}}\", which will delete downloaded chapter files.\nYou can also choose to just hide it from the list if you want to keep the files for offline reading.\n\nHow should we proceed?",
+      "buttons": {
+        "cancel": "Cancel",
+        "hide": "Hide from View (Keep Files for Offline Reading)",
+        "deletePermanent": "Delete Forever (Cannot be Undone)"
+      },
+      "finalConfirmation": {
+        "title": "Are you absolutely certain?",
+        "message": "This will be your last chance to back out before the chapter files are permanently deleted. File deletion cannot be undone, but you can always re-download the chapter if you change your mind.\n\nJust a reminder, you are deleting chapter: {{title}}",
+        "buttons": {
+          "delete": "Yes, Delete Permanently",
+          "cancel": "Nevermind"
+        }
+      }
+    },
+    "clearCoverCache": {
+      "title": "Clear all cached covers?",
+      "message": "This will delete {{count}} cached images ({{size}}).\n\nCover images will be re-downloaded as needed when browsing. This may temporarily slow down performance.",
+      "buttons": {
+        "clear": "Clear All",
+        "cancel": "Cancel"
+      }
+    },
+    "cleanMetadataCache": {
+      "title": "Clean up metadata cache?",
+      "message": "This will remove browsing cache older than 90 days.\n\nFavourited manga and manga with downloads will not be affected.\n\nEstimated to remove: {{count}} manga",
+      "buttons": {
+        "clean": "Clean Up",
+        "cancel": "Cancel"
+      }
+    },
+    "clearAllMetadata": {
+      "title": "Clear all metadata cache?",
+      "message": "This will remove ALL browsing cache ({{count}} manga).\n\nOnly favourited manga and manga with downloads will be kept.\n\nThis action cannot be undone.",
+      "buttons": {
+        "clear": "Clear All",
+        "cancel": "Cancel"
+      }
+    },
+    "deleteOldLogs": {
+      "title": "Cleanup old logs?",
+      "message": "This will permanently delete all log files older than {{days}} days. This action cannot be undone.",
+      "buttons": {
+        "delete": "OK",
+        "cancel": "Cancel"
+      }
+    },
+    "clearAllLogs": {
+      "title": "Clear all logs?",
+      "message": "This will permanently delete all log files. This action cannot be undone.",
+      "buttons": {
+        "clear": "OK",
+        "cancel": "Cancel"
+      }
+    },
+    "clearAllOverrides": {
+      "title": "Clear all custom reading settings?",
+      "message": "You have custom settings for {{count}} manga. They'll all be reset to your global defaults. You can't undo this!",
+      "buttons": {
+        "clear": "Clear All",
+        "cancel": "Cancel"
+      }
+    },
+    "unsavedChanges": {
+      "message": "You have unsaved changes. Are you sure you want to leave?"
+    },
+    "notFound": {
+      "title": "Oops! Lost your way?",
+      "message": "What you're looking for isn't here. Let's get you back to browsing manga!"
+    },
+    "manageMangaDownloads": {
+      "title": "Manage Downloads",
+      "message": "{{title}}\n\nThis manga has {{count}} downloaded chapter{{plural}}.\n\nYou can add it to your library for tracking, or delete all downloaded chapters.",
+      "buttons": {
+        "addToLibrary": "Add to Library",
+        "deleteDownloads": "Delete Downloads",
+        "cancel": "Cancel"
+      }
+    },
+    "highMemoryWarning": {
+      "title": "High Memory Usage Warning",
+      "message": "The selected cache size ({{selected}} MB) exceeds the recommended maximum for your system.\n\nSystem Info:\n• Total RAM: {{totalRAM}} GB\n• Recommended maximum: {{recommended}} MB (10% of system RAM)\n• Hard ceiling: {{maxAllowed}} MB (30% of system RAM)\n• Your selection: {{selected}} MB\n\nUsing a cache larger than recommended may cause:\n• Slower application performance\n• System memory pressure warnings\n• Automatic cache eviction by the OS\n\nAre you absolutely certain you want to proceed with this cache size?",
+      "buttons": {
+        "proceed": "Proceed Anyway",
+        "goBack": "Go Back"
+      },
+      "checkbox": "Don't warn me again about cache sizes"
+    }
+  },
+  "toasts": {
+    "library": {
+      "addedToLibrary": {
+        "title": "Added to Library!",
+        "message": "{{title}}"
+      },
+      "errorAdding": {
+        "title": "Error",
+        "message": "Failed to add to library"
+      },
+      "mangaNotFound": {
+        "title": "Error",
+        "message": "Manga not found"
+      }
+    },
+    "collections": {
+      "deleted": {
+        "title": "Collection Deleted",
+        "message": "\"{{name}}\" has been removed"
+      },
+      "deleteFailed": {
+        "title": "Delete Failed",
+        "message": "Could not delete collection"
+      }
+    },
+    "downloads": {
+      "started": {
+        "title": "Download Started",
+        "message": "Added {{count}} chapter{{plural}} to download queue!"
+      },
+      "queued": {
+        "title": "Download Started",
+        "message": "Queued {{count}} chapter{{plural}} for download"
+      },
+      "deleted": {
+        "title": "Downloads deleted",
+        "message": "Deleted {{count}} chapter{{plural}}"
+      },
+      "deletedPermanent": {
+        "title": "Deleted",
+        "message": "Download and files permanently deleted"
+      },
+      "deleteFailed": {
+        "title": "Failed to delete downloads",
+        "message": "{{error}}"
+      },
+      "errorHiding": {
+        "title": "Error",
+        "message": "Failed to hide download"
+      },
+      "errorDeleting": {
+        "title": "Error",
+        "message": "Failed to delete download"
+      },
+      "partialFailure": {
+        "title": "Partial Failure",
+        "message": "Failed to queue {{count}} chapter{{plural}}"
+      }
+    },
+    "storage": {
+      "mangaDeleted": {
+        "title": "Successfully deleted {{count}} manga",
+        "message": "Freed {{size}} of space!"
+      },
+      "deleteFailed": {
+        "title": "Failed to delete manga",
+        "message": "{{error}}"
+      },
+      "loadFailed": {
+        "title": "Failed to load storage data",
+        "message": "{{error}}"
+      }
+    },
+    "cache": {
+      "coversCleared": {
+        "title": "Cover cache cleared",
+        "message": "Deleted {{count}} images (freed {{size}})"
+      },
+      "coversClearFailed": {
+        "title": "Failed to clear cover cache",
+        "message": "{{error}}"
+      },
+      "metadataCleaned": {
+        "title": "Metadata cache cleaned",
+        "message": "Cleaned up {{count}} cached manga"
+      },
+      "metadataCleanFailed": {
+        "title": "Failed to clean metadata cache",
+        "message": "{{error}}"
+      },
+      "metadataCleared": {
+        "title": "Metadata cache cleared",
+        "message": "Cleared {{count}} cached manga"
+      },
+      "metadataClearFailed": {
+        "title": "Failed to clear metadata cache",
+        "message": "{{error}}"
+      }
+    },
+    "logs": {
+      "oldDeleted": {
+        "title": "Old logs deleted",
+        "message": "Cleaned up logs older than {{days}} days"
+      },
+      "deleteFailed": {
+        "title": "Failed to delete old logs",
+        "message": "Could not delete old log files. Please try again."
+      },
+      "allCleared": {
+        "title": "Logs cleared",
+        "message": "All logs cleared!"
+      },
+      "clearFailed": {
+        "title": "Failed to clear logs",
+        "message": "Could not delete log files. Please try again."
+      },
+      "openFolderFailed": {
+        "title": "Failed to open logs folder",
+        "message": "{{error}}"
+      }
+    },
+    "settings": {
+      "changeFolderFailed": {
+        "title": "Couldn't change downloads folder",
+        "message": "{{error}}"
+      },
+      "saveFailed": {
+        "title": "Failed to save settings",
+        "message": "{{error}}"
+      },
+      "resetOverrideFailed": {
+        "title": "Failed to reset override",
+        "message": "{{error}}"
+      },
+      "clearOverridesFailed": {
+        "title": "Failed to clear overrides",
+        "message": "{{error}}"
+      }
+    },
+    "presets": {
+      "loaded": {
+        "title": "Preset loaded",
+        "message": "{{name}}"
+      },
+      "saved": {
+        "title": "Preset saved",
+        "message": "{{name}}"
+      },
+      "saveFailed": {
+        "title": "Error",
+        "message": "Failed to save preset"
+      },
+      "deleted": {
+        "title": "Preset deleted",
+        "message": "{{name}}"
+      },
+      "deleteFailed": {
+        "title": "Error",
+        "message": "Failed to delete preset"
+      }
+    }
+  },
+  "updates": {
+    "notification": {
+      "checking": "Checking for updates...",
+      "available": "Update available — Version {{version}} is ready to download",
+      "downloading": "Downloading update...",
+      "progress": "Downloading: {{percent}}%",
+      "downloaded": "Update ready — Version {{version}} is ready to install",
+      "notAvailable": "You're up to date — Version {{version}}",
+      "error": "Update check failed — {{message}}",
+      "buttons": {
+        "download": "Download",
+        "later": "Maybe Later",
+        "install": "Restart & Install",
+        "hide": "Hide",
+        "retry": "Retry",
+        "dismiss": "Dismiss"
+      }
+    },
+    "banner": {
+      "welcome": "Welcome to DexReader v{{version}}!",
+      "buttons": {
+        "viewReleaseNotes": "View Release Notes",
+        "letsGo": "Let's Go!"
+      }
+    }
+  }
+}

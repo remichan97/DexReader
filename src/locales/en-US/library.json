@@ -1,0 +1,49 @@
+{
+  "pageTitle": "Library",
+  "searchPlaceholder": "Search your library (try: status:ongoing, author:Oda, tag:romance)",
+  "createCollectionButton": "Collection",
+  "searchSyntax": {
+    "title": "Search Syntax",
+    "examples": {
+      "status": "status:ongoing - Filter by status",
+      "tag": "tag:romance - Filter by tag",
+      "downloaded": "downloaded:yes - Show downloaded",
+      "author": "author:Oda - Filter by author",
+      "artist": "artist:Inoue - Filter by artist",
+      "year": "year:2024 - Filter by year",
+      "yearGreater": "year:>2020 - Year greater than",
+      "yearLess": "year:<2019 - Year less than"
+    },
+    "combine": "Combine filters: one piece status:ongoing author:Oda"
+  },
+  "downloadToggle": {
+    "includeDownloaded": "Include downloaded titles in library",
+    "hideDownloaded": "Hide downloaded titles",
+    "showing": "Including {count} downloaded title{s}"
+  },
+  "searchHelpButton": "Search syntax help",
+  "activeFilters": "Active filters:",
+  "tabs": {
+    "all": "All",
+    "collections": "{name}"
+  },
+  "emptyState": {
+    "noManga": "Nothing here yet! Start adding some manga from Browse.",
+    "noDownloaded": "No downloaded manga. Go online to download manga for offline reading.",
+    "noSearchResults": "Nothing here matches your search",
+    "emptyCollection": "Your \"{name}\" collection is empty!",
+    "noMatchInCollection": "Nothing in \"{name}\" matches that..."
+  },
+  "toasts": {
+    "addedToLibrary": "Added to Library",
+    "addedSuccess": "Manga added to your collection",
+    "error": "Error",
+    "mangaNotFound": "Manga not found",
+    "failedToAdd": "Failed to add to library"
+  },
+  "liveRegion": {
+    "loading": "Loading your library...",
+    "count": "{count} manga in library",
+    "countWithDownloads": "{count} manga ({favorited} favorited, {downloaded} downloaded)"
+  }
+}

@@ -1,0 +1,282 @@
+{
+  "pageTitle": "Settings",
+  "unsavedChangesBanner": {
+    "message": "Careful! You have unsaved changes",
+    "saveButton": "Save Changes",
+    "discardButton": "Discard"
+  },
+  "tabs": {
+    "appearance": "Appearance",
+    "downloads": "Downloads",
+    "reader": "Reader",
+    "storage": "Storage",
+    "advanced": "Advanced"
+  },
+  "appearance": {
+    "sectionTitle": "Theme",
+    "themeLabel": "App theme",
+    "themeHelper": "Choose between light and dark mode, or follow your system settings",
+    "themeOptions": {
+      "system": "System Default",
+      "light": "Light Mode",
+      "dark": "Dark Mode"
+    },
+    "startupSection": "Startup",
+    "startupLabel": "Startup page",
+    "startupHelper": "Choose which page appears when the app launches",
+    "startupOptions": {
+      "browse": "Browse",
+      "library": "Library",
+      "downloads": "Downloads"
+    },
+    "accentSection": "Accent Colour",
+    "accentLabel": "Primary accent colour",
+    "useSystemButton": "Use System",
+    "usingSystem": "Using system accent colour ({color})",
+    "usingCustom": "You're using a custom accent. Click \"Use System\" to go back to your system colour.",
+    "dateTimeSection": "Date & Time Format",
+    "dateTimeDescription": "DexReader uses your system's date and time format settings. Dates are displayed in chapter lists, reading history, and error logs.",
+    "configureDateButton": "Configure Date Format in System Settings",
+    "configureDateHelper": "This will open your operating system's regional settings where you can customise date and time formats."
+  },
+  "downloads": {
+    "locationSection": "Downloads Location",
+    "locationDescription": "Where should we save your downloaded chapters?",
+    "browseButton": "Browse...",
+    "locationTip": "Tip: Choose a location with plenty of free space for your manga collection.",
+    "confirmationSection": "Download Confirmation",
+    "confirmationDescription": "When should we ask before downloading chapters?",
+    "confirmationLabel": "Confirmation behaviour",
+    "confirmationOptions": {
+      "always": {
+        "label": "Always",
+        "description": "Ask which quality before downloading"
+      },
+      "batchOnly": {
+        "label": "Batch Only",
+        "description": "Only ask when downloading multiple chapters at once"
+      },
+      "never": {
+        "label": "Never",
+        "description": "Start downloads immediately without confirmation"
+      }
+    },
+    "qualitySection": "Download Quality",
+    "qualityDescription": "Quality used for all downloads",
+    "qualityDescriptionWithConfirm": "Default quality selection",
+    "qualityLabel": "Default quality",
+    "qualityOptions": {
+      "data": {
+        "label": "High Quality",
+        "description": "Full resolution images, best visual quality"
+      },
+      "dataSaver": {
+        "label": "Data Saver",
+        "description": "Compressed images, smaller file sizes"
+      }
+    },
+    "concurrentSection": "Concurrent Downloads",
+    "concurrentDescription": "How many chapters should download at the same time?",
+    "concurrentLabel": "Maximum concurrent downloads",
+    "concurrentHelper": "Higher values download faster but use more bandwidth and resources",
+    "concurrentOptions": {
+      "1": "1 (Sequential)",
+      "2": "2",
+      "3": "3",
+      "4": "4",
+      "5": "5"
+    }
+  },
+  "reader": {
+    "displaySection": "Reader Display Settings",
+    "loadingSettings": "Loading settings...",
+    "forceDarkMode": {
+      "label": "Force dark mode in reader",
+      "description": "Always use dark background when reading, regardless of app theme"
+    },
+    "imageQuality": {
+      "label": "Image quality",
+      "highQuality": {
+        "label": "High Quality",
+        "description": "Full resolution images, uses more bandwidth"
+      },
+      "dataSaver": {
+        "label": "Data Saver",
+        "description": "Compressed images, reduces bandwidth usage"
+      }
+    },
+    "globalSettingsSection": "Global Reader Settings",
+    "globalSettingsDescription": "These settings apply to all manga by default. You can override them per-manga in the reader.",
+    "readingModeLabel": "Default reading mode",
+    "readingModeHelper": "How pages are displayed when reading manga",
+    "readingModeOptions": {
+      "single": "Single Page",
+      "double": "Double Page",
+      "vertical": "Vertical Scroll"
+    },
+    "doublePageOptions": "Double Page Mode Options",
+    "skipCoverPages": "Skip cover pages (show first page alone)",
+    "readRightToLeft": "Read right-to-left (manga style)",
+    "overridesSection": "Per-Manga Overrides",
+    "overridesDescription": "Manga with custom reading mode settings. Reset them to use global defaults.",
+    "clearAllButton": "Clear All",
+    "emptyOverrides": "No custom settings yet. Change reading modes in the reader to create per-manga overrides!",
+    "overrideMode": "Mode: {mode}",
+    "overrideDetails": "{rtl} • Skip covers",
+    "resetButton": "Reset",
+    "loadingOverrides": "Loading overrides..."
+  },
+  "performance": {
+    "sectionTitle": "Performance",
+    "description": "Configure how much memory DexReader can use for caching manga chapters. Higher tiers load more chapters in advance.",
+    "systemInfo": "System RAM: {ram} GB | Recommended: {recommended} MB (10%) | Maximum: {max} MB (30%)",
+    "cacheTierLabel": "Chapter Cache Size",
+    "cacheTierOptions": {
+      "low": {
+        "label": "Low ({size} MB)",
+        "description": "1-2 chapters cached | Best for low-end systems"
+      },
+      "normal": {
+        "label": "Normal ({size} MB) - Recommended",
+        "description": "3-4 chapters cached | Balanced performance"
+      },
+      "high": {
+        "label": "High ({size} MB)",
+        "description": "5-7 chapters cached | Smoother reading"
+      },
+      "custom": {
+        "label": "Custom",
+        "description": "Advanced users only"
+      }
+    },
+    "customCacheLabel": "Custom Cache Size (MB)",
+    "customCachePlaceholder": "200",
+    "customCacheHelper": "Enter cache size in MB (10 - {max})",
+    "customCacheError": {
+      "tooLow": "Cache size must be at least 10 MB",
+      "tooHigh": "Cache size cannot exceed {max} MB (30% of system RAM)"
+    },
+    "customCacheWarning": {
+      "low": "Low cache may cause frequent reloads. We recommend at least 30 MB",
+      "high": "This exceeds our recommendation of {recommended} MB (10% of system RAM). Higher values might slow things down."
+    },
+    "warningsSuppressed": "Warnings suppressed",
+    "resetWarningsButton": "Reset warnings"
+  },
+  "storage": {
+    "diskSpaceTitle": "Total Disk Space: {total} GB",
+    "diskSpaceUsage": "Used: {used} GB • Free: {free} GB",
+    "loadingStorage": "Loading storage data...",
+    "failedToLoad": "Failed to load storage data",
+    "deleteSelectedButton": "Delete Selected ({count})",
+    "deleteConfirm": {
+      "title": "Delete {count} manga?",
+      "message": "You are about to permanently delete downloads for:\n\n{list}\n\nYou'll regain: {size} of disk space\n\nThis action cannot be undone.",
+      "deleteButton": "Delete",
+      "cancelButton": "Cancel"
+    },
+    "deleteSuccess": "Successfully deleted {count} manga",
+    "deletedSpace": "Freed {size} of space!"
+  },
+  "cacheManagement": {
+    "sectionTitle": "Cache Management",
+    "sectionDescription": "Manage temporary data to balance performance and storage usage.",
+    "coverCacheSection": "Cover Image Cache",
+    "coverCacheDescription": "Manage temporary cover image storage to improve browsing performance.",
+    "coverCacheLimitLabel": "Cache Size Limit",
+    "coverCacheLimitHelper": {
+      "unlimited": "Cache all covers without limits. Older covers are automatically removed when needed.",
+      "limited": "Older covers are automatically removed when the limit is reached."
+    },
+    "coverCacheLimitOptions": {
+      "10": "10 MB",
+      "25": "25 MB",
+      "50": "50 MB",
+      "100": "100 MB",
+      "250": "250 MB",
+      "500": "500 MB",
+      "unlimited": "Unlimited"
+    },
+    "currentUsage": "Current Usage:",
+    "usageUnlimited": "{size} (Unlimited)",
+    "usageLimited": "{size} / {limit} ({percent}%)",
+    "cachedCovers": "Cached Covers: {count} images",
+    "cacheLocation": "Cache Location: {path}",
+    "clearAllCoversButton": "Clear All Covers",
+    "clearCoversSuccess": "Cover cache cleared",
+    "clearedCovers": "Deleted {count} images (freed {size})",
+    "metadataCacheSection": "Manga Metadata Cache",
+    "metadataCacheDescription": "Manage cached manga information for offline access.",
+    "cleanMetadataButton": "Clean Up",
+    "cleanMetadataSuccess": "Metadata cache cleaned",
+    "cleanedMetadata": "Cleaned up {count} cached manga",
+    "clearAllMetadataButton": "Clear All",
+    "clearAllMetadataSuccess": "Metadata cache cleared"
+  },
+  "advanced": {
+    "updatesSection": "Application Updates",
+    "updatesDescription": "Configure how DexReader checks for and installs updates",
+    "autoCheck": {
+      "label": "Automatically check for updates",
+      "description": "Check for new versions when the app starts"
+    },
+    "autoDownload": {
+      "label": "Automatically download updates",
+      "description": "Download updates in the background. You choose when to install."
+    },
+    "checkNowButton": "Check for Updates Now",
+    "checkingButton": "Checking...",
+    "currentVersion": "Current version: {version}"
+  },
+  "logging": {
+    "sectionTitle": "Logging",
+    "sectionDescription": "DexReader maintains log files to help diagnose issues and track application behaviour. You can configure how long logs are retained and manage existing log files from this section.",
+    "retentionLabel": "Log Retention Period",
+    "retentionOptions": {
+      "3": "3 days",
+      "7": "7 days (default, Recommended)",
+      "14": "14 days",
+      "30": "30 days"
+    },
+    "openFolderButton": "Open Logs Folder",
+    "deleteOldButton": "Delete Old Logs",
+    "deleteOldSuccess": "Old logs deleted",
+    "deletedOldLogs": "Cleaned up logs older than {days} days",
+    "clearAllButton": "Clear All Logs",
+    "clearAllSuccess": "Logs cleared",
+    "clearedAllLogs": "All logs cleared!"
+  },
+  "dangerZone": {
+    "title": "Danger Zone",
+    "description": "Irreversible actions. Proceed with caution.",
+    "openFile": {
+      "title": "Open Settings File",
+      "description": "Edit settings.json directly in your default editor",
+      "button": "Open File"
+    },
+    "reset": {
+      "title": "Reset to Default",
+      "description": "Restore all settings to their default values",
+      "button": "Reset Settings",
+      "buttonLoading": "Resetting...",
+      "confirm": {
+        "title": "Reset Settings to Default?",
+        "message": "This will restore all settings to their default values.\n\nYour library and reading progress will NOT be affected.",
+        "confirmButton": "Reset Settings",
+        "cancelButton": "Cancel"
+      }
+    },
+    "clearAll": {
+      "title": "Clear Data & Reset App",
+      "description": "Delete all data (library, progress, settings) and restart",
+      "button": "Clear All Data",
+      "buttonLoading": "Clearing...",
+      "confirm": {
+        "title": "Clear All Data?",
+        "message": "This action cannot be undone.\n\nAll of the following will be permanently deleted:\n• Library and collections\n• Reading progress and history\n• All settings and preferences\n\nThe app will restart after clearing data.",
+        "confirmButton": "Clear All Data",
+        "cancelButton": "Cancel"
+      }
+    }
+  }
+}
