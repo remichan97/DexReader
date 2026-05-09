@@ -10,6 +10,7 @@ import { useState } from 'react'
 import { Select } from '@renderer/components/Select'
 import { Checkbox } from '@renderer/components/Checkbox'
 import { Button } from '@renderer/components/Button'
+import { PresetSelector } from '@renderer/components/PresetSelector'
 import {
   ContentRating,
   PublicationStatus,
@@ -19,6 +20,7 @@ import {
   IncludedTagsMode,
   type SearchFilters
 } from '@renderer/stores/searchStore'
+import { useSearchPresetsStore } from '@renderer/stores'
 import { getAllTagsGrouped } from '@renderer/utils/tagHelpers'
 import { LanguageList } from '@renderer/constants/language-list.constant'
 import './FilterPanel.css'
@@ -30,6 +32,10 @@ interface FilterPanelProps {
   readonly onLimitChange: (limit: number) => void
   readonly onApply: () => void
   readonly onClear: () => void
+  readonly onSavePreset?: () => void
+  readonly currentPresetId?: number | null
+  readonly onPresetSelect?: (presetId: number | null) => void
+  readonly onPresetDelete?: (id: number, name: string) => void
 }
 
 export function FilterPanel({
@@ -38,9 +44,14 @@ export function FilterPanel({
   onChange,
   onLimitChange,
   onApply,
-  onClear
+  onClear,
+  onSavePreset,
+  currentPresetId,
+  onPresetSelect,
+  onPresetDelete
 }: FilterPanelProps): JSX.Element {
   const [isExpanded, setIsExpanded] = useState(false)
+  const { presets } = useSearchPresetsStore()
   const tagGroups = getAllTagsGrouped()
 
   const handleContentRatingChange = (rating: ContentRating, checked: boolean): void => {
@@ -110,6 +121,18 @@ export function FilterPanel({
     <div className="filter-panel">
       {/* Quick Filters Row */}
       <div className="filter-panel__quick flex items-start gap-4 flex-wrap">
+        {/* Search Preset - Only show if presets exist */}
+        {onPresetSelect && onPresetDelete && presets.length > 0 && (
+          <div className="filter-panel__group flex flex-col gap-2">
+            <span className="filter-panel__label">Search Preset</span>
+            <PresetSelector
+              currentPresetId={currentPresetId ?? null}
+              onSelect={onPresetSelect}
+              onDelete={onPresetDelete}
+            />
+          </div>
+        )}
+
         {/* Content Rating */}
         <div className="filter-panel__group flex flex-col gap-2">
           <span className="filter-panel__label">Content Rating</span>
@@ -355,6 +378,11 @@ export function FilterPanel({
           <Button variant="secondary" size="small" onClick={onClear}>
             Clear ({activeFilterCount})
           </Button>
+          {onSavePreset && (
+            <Button variant="secondary" size="small" onClick={onSavePreset}>
+              Save Preset
+            </Button>
+          )}
           <Button variant="primary" size="small" onClick={onApply}>
             Apply Filters
           </Button>

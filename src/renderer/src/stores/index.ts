@@ -13,6 +13,7 @@ export { useProgressStore } from './progressStore'
 export { useLibraryStore } from './libraryStore'
 export { useCollectionsStore } from './collectionsStore'
 export { useConnectivityStore } from './connectivityStore'
+export { useSearchPresetsStore } from './searchPresetsStore'
 export {
   useSearchStore,
   DEFAULT_FILTERS,

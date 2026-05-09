@@ -1,0 +1,42 @@
+/**
+ * PresetSelector Styles
+ */
+
+.preset-selector {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.preset-selector__delete {
+  padding: var(--space-2);
+  background: var(--win-bg-elevated);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-sm);
+  color: var(--win-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  width: 36px;
+  flex-shrink: 0;
+}
+
+.preset-selector__delete:hover {
+  background: var(--win-bg-hover);
+  color: var(--win-text-danger);
+  border-color: var(--win-border-hover);
+}
+
+.preset-selector__delete:active {
+  transform: scale(0.95);
+}
+
+.preset-selector__delete:focus-visible {
+  outline: 2px solid var(--win-accent-default);
+  outline-offset: 2px;
+}
