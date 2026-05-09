@@ -247,10 +247,20 @@ export function FilterPanel({
         {/* Action Buttons - Only show in quick filters when advanced is collapsed */}
         {!isExpanded && (
           <div className="filter-panel__actions flex gap-2">
-            <Button variant="secondary" size="small" onClick={onClear}>
+            <Button
+              variant="secondary"
+              size="small"
+              onClick={onClear}
+              title="Restore the filters to default"
+            >
               Reset
             </Button>
-            <Button variant="primary" size="small" onClick={onApply}>
+            <Button
+              variant="primary"
+              size="small"
+              onClick={onApply}
+              title="Apply the selected filters"
+            >
               Apply
             </Button>
           </div>
@@ -367,15 +377,30 @@ export function FilterPanel({
       {/* Sticky Footer with Action Buttons - Only when advanced filters are expanded */}
       {isExpanded && (
         <div className="filter-panel__sticky-footer flex gap-2 justify-end">
-          <Button variant="secondary" size="small" onClick={onClear}>
+          <Button
+            variant="secondary"
+            size="small"
+            onClick={onClear}
+            title="Restore the filters to default"
+          >
             Reset
           </Button>
           {onSavePreset && (
-            <Button variant="secondary" size="small" onClick={onSavePreset}>
+            <Button
+              variant="secondary"
+              size="small"
+              onClick={onSavePreset}
+              title="Save the current filter settings as a preset"
+            >
               Save Preset
             </Button>
           )}
-          <Button variant="primary" size="small" onClick={onApply}>
+          <Button
+            variant="primary"
+            size="small"
+            onClick={onApply}
+            title="Apply the selected filters"
+          >
             Apply Filters
           </Button>
         </div>
