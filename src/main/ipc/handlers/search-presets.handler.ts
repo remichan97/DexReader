@@ -1,5 +1,5 @@
 import { searchPresetService } from '../../services/search-preset.service'
-import { isValidCreateSearchPresetCommand } from '../validators/search-presets.validator'
+import { isValidCreateSearchPresetOptions } from '../validators/search-presets.validator'
 import { wrapIpcHandler } from '../wrap-handler'
 
 export function registerSearchPresetsHandler(): void {
@@ -98,15 +98,15 @@ export function registerSearchPresetsHandler(): void {
    *   filters: { status: 'Ongoing' }
    * })
    */
-  wrapIpcHandler('search-presets:save', async (command: unknown) => {
-    const createCommand = isValidCreateSearchPresetCommand(command)
+  wrapIpcHandler('search-presets:save', async (options: unknown) => {
+    const createCommand = isValidCreateSearchPresetOptions(options)
 
     // This isn't supposed to be here, however, TypeScript would yell at me if I didn't do this check, even if the validation method
-    // never returns false, but immediately throws an error if the command is invalid, so here we are
+    // never returns false, but immediately throws an error if the options are invalid, so here we are
     if (!createCommand) {
-      throw new TypeError('Invalid create search preset command')
+      throw new TypeError('Invalid create search preset options')
     }
 
-    return searchPresetService.createSearchPreset(command)
+    return searchPresetService.createSearchPreset(options)
   })
 }

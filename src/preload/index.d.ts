@@ -55,6 +55,7 @@ import type { MemoryTierInfo } from '../main/settings/response/memory-tier.respo
 import type { DexreaderExportOption } from '../main/services/options/dexreader-export.option'
 import type { DownloadChapterOptions } from '../main/services/options/download-chapter.option'
 import type { DeleteChapterOptions } from '../main/services/options/delete-chapter.option'
+import type { CreateSearchPresetOptions } from './../main/services/options/create-search-preset.option'
 
 // Service types
 import type { QueuedDownloads } from '../main/services/types/downloads/queued-downloads.type'
@@ -97,6 +98,7 @@ export type { DexReaderImportResult } from '../main/services/results/dexreader/i
 export type { DexReaderExportResult } from '../main/services/results/dexreader/export.result'
 export type { DexreaderExportOption } from '../main/services/options/dexreader-export.option'
 export type { DownloadChapterOptions } from '../main/services/options/download-chapter.option'
+export type { CreateSearchPresetOptions } from '../main/services/options/create-search-preset.option'
 export type { DeleteChapterOptions } from '../main/services/options/delete-chapter.option'
 export type { DownloadChapterResult } from '../main/services/results/dexreader/download-chapter.result'
 export type { QueuedDownloads } from '../main/services/types/downloads/queued-downloads.type'
@@ -363,7 +365,7 @@ interface SearchPresets {
   getAll: () => Promise<IpcResponse<SearchPresetQuery[]>>
   getByName: (name: string) => Promise<IpcResponse<SearchPresetQuery | undefined>>
   getById: (id: number) => Promise<IpcResponse<SearchPresetQuery | undefined>>
-  create: (command: CreateSearchPresetCommand) => Promise<IpcResponse<SearchPresetQuery>>
+  create: (options: CreateSearchPresetOptions) => Promise<IpcResponse<SearchPresetQuery>>
   delete: (id: number) => Promise<IpcResponse<void>>
   updateLastUsedAt: (id: number) => Promise<IpcResponse<void>>
 }

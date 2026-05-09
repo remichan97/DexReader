@@ -6,17 +6,17 @@ import {
   PublicationDemographic,
   PublicationStatus
 } from '../../api/enums'
-import { CreateSearchPresetCommand } from '../../database/commands/search-presets/create-search-preset.command'
 import { SearchFiltersData } from '../../database/types/search-preset.type'
+import { CreateSearchPresetOptions } from '../../services/options/create-search-preset.option'
 
-export function isValidCreateSearchPresetCommand(
-  command: unknown
-): command is CreateSearchPresetCommand {
-  if (typeof command !== 'object' || command === undefined || command === null) {
+export function isValidCreateSearchPresetOptions(
+  options: unknown
+): options is CreateSearchPresetOptions {
+  if (typeof options !== 'object' || options === undefined || options === null) {
     throw new TypeError('Expected an object for the create search preset command')
   }
 
-  const createCommand = command as CreateSearchPresetCommand
+  const createCommand = options as CreateSearchPresetOptions
 
   if (typeof createCommand.name !== 'string') {
     throw new TypeError('Expected a string for the preset name')
@@ -32,6 +32,10 @@ export function isValidCreateSearchPresetCommand(
 
   if (createCommand.filters !== undefined && !isValidSearchPresetData(createCommand.filters)) {
     throw new TypeError('Invalid search preset filters data')
+  }
+
+  if (createCommand.setAsDefault !== undefined && typeof createCommand.setAsDefault !== 'boolean') {
+    throw new TypeError('Expected a boolean or undefined for setAsDefault')
   }
 
   return true
