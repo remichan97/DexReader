@@ -5,5 +5,6 @@ export enum OrderOptions {
   UpdatedAt = 'updatedAt',
   Title = 'title',
   Year = 'year',
-  Rating = 'rating'
+  Rating = 'rating',
+  Relevance = 'relevance'
 }

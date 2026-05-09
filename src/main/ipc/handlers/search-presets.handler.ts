@@ -26,7 +26,7 @@ export function registerSearchPresetsHandler(): void {
    * // Get a search preset by name
    * const preset = await window.api.invoke('search-presets:getByName', 'My Preset')
    */
-  wrapIpcHandler('search-presets:getByName', async (name: unknown) => {
+  wrapIpcHandler('search-presets:getByName', async (_, name: unknown) => {
     if (typeof name !== 'string') {
       throw new TypeError('Expected a string for the preset name')
     }
@@ -43,7 +43,7 @@ export function registerSearchPresetsHandler(): void {
    * // Get a search preset by id
    * const preset = await window.api.invoke('search-presets:getById', 1)
    */
-  wrapIpcHandler('search-presets:getById', async (id: unknown) => {
+  wrapIpcHandler('search-presets:getById', async (_, id: unknown) => {
     if (typeof id !== 'number') {
       throw new TypeError('Expected a number for the preset id')
     }
@@ -60,7 +60,7 @@ export function registerSearchPresetsHandler(): void {
    * // Update the last used timestamp of a search preset
    * await window.api.invoke('search-presets:updateLastUsedAt', 1)
    */
-  wrapIpcHandler('search-presets:updateLastUsedAt', async (id: unknown) => {
+  wrapIpcHandler('search-presets:updateLastUsedAt', async (_, id: unknown) => {
     if (typeof id !== 'number') {
       throw new TypeError('Expected a number for the preset id')
     }
@@ -77,7 +77,7 @@ export function registerSearchPresetsHandler(): void {
    * // Delete a search preset by id
    * await window.api.invoke('search-presets:delete', 1)
    */
-  wrapIpcHandler('search-presets:delete', async (id: unknown) => {
+  wrapIpcHandler('search-presets:delete', async (_, id: unknown) => {
     if (typeof id !== 'number') {
       throw new TypeError('Expected a number for the preset id')
     }
@@ -98,7 +98,7 @@ export function registerSearchPresetsHandler(): void {
    *   filters: { status: 'Ongoing' }
    * })
    */
-  wrapIpcHandler('search-presets:save', async (options: unknown) => {
+  wrapIpcHandler('search-presets:save', async (_, options: unknown) => {
     const createCommand = isValidCreateSearchPresetOptions(options)
 
     // This isn't supposed to be here, however, TypeScript would yell at me if I didn't do this check, even if the validation method
