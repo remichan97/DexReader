@@ -109,14 +109,6 @@ export function FilterPanel({
     onChange({ availableTranslatedLanguage: newLanguages })
   }
 
-  // Calculate active filter count (excluding sort)
-  const activeFilterCount =
-    filters.contentRating.length +
-    filters.publicationStatus.length +
-    filters.publicationDemographic.length +
-    filters.includedTags.length +
-    filters.excludedTags.length
-
   return (
     <div className="filter-panel">
       {/* Quick Filters Row */}
@@ -256,7 +248,7 @@ export function FilterPanel({
         {!isExpanded && (
           <div className="filter-panel__actions flex gap-2">
             <Button variant="secondary" size="small" onClick={onClear}>
-              Clear ({activeFilterCount})
+              Reset
             </Button>
             <Button variant="primary" size="small" onClick={onApply}>
               Apply
@@ -376,7 +368,7 @@ export function FilterPanel({
       {isExpanded && (
         <div className="filter-panel__sticky-footer flex gap-2 justify-end">
           <Button variant="secondary" size="small" onClick={onClear}>
-            Clear ({activeFilterCount})
+            Reset
           </Button>
           {onSavePreset && (
             <Button variant="secondary" size="small" onClick={onSavePreset}>

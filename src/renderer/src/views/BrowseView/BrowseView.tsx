@@ -287,13 +287,7 @@ export function BrowseView(): JSX.Element {
   }
 
   const handleClearFilters = (): void => {
-    setFilters({
-      contentRating: [],
-      publicationStatus: [],
-      publicationDemographic: [],
-      includedTags: [],
-      excludedTags: []
-    })
+    setFilters(DEFAULT_FILTERS)
     setAppliedPresetId(null) // Clear preset selection
     search()
   }
