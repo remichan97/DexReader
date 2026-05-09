@@ -15,6 +15,7 @@ import { registerStorageHandlers } from './handlers/storage.handler'
 import type { ImageProxy } from '../api/proxy/image.proxy'
 import { registerAppUpdateHandler } from './handlers/app-update.handler'
 import { registerLoggerHandlers } from './handlers/logger.handler'
+import { registerSearchPresetsHandler } from './handlers/search-presets.handler'
 
 /**
  * Register all IPC handlers
@@ -35,6 +36,7 @@ export function registerAllHandlers(imageProxy?: ImageProxy): void {
   registerStorageHandlers()
   registerLoggerHandlers()
   registerAppUpdateHandler()
+  registerSearchPresetsHandler()
 
   // File system handlers need window for dialogs
   // Get window reference when handlers are actually called

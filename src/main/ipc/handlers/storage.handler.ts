@@ -1,4 +1,4 @@
-import { cleanupRepo } from '../../database/repositories/cleanup-repo'
+import { cleanupRepo } from '../../database/repositories/cleanup.repo'
 import { mangaRepo } from '../../database/repositories/manga.repo'
 import { loadSettings, saveSettings } from '../../settings/settings-manager'
 import { isDownloadsSettings } from '../../settings/validators/types.validator'

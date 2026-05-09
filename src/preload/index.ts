@@ -16,6 +16,7 @@ import { RecordReadCommand } from '../main/database/commands/history/record-read
 import { DexreaderExportOption } from '../main/services/options/dexreader-export.option'
 import { QueuedDownloads } from '../main/services/types/downloads/queued-downloads.type'
 import { DeleteChapterOptions } from '../main/services/options/delete-chapter.option'
+import { CreateSearchPresetCommand } from '../main/database/commands/search-presets/create-search-preset.command'
 
 // Export enums for renderer
 export { DownloadConfirmation } from '../main/settings/enums/download-confirmation.enum'
@@ -403,6 +404,15 @@ const logger = {
   openLogsFolder: () => ipcRenderer.invoke('log:open-folder')
 }
 
+const searchPresets = {
+  getAll: () => ipcRenderer.invoke('search-presets:getAll'),
+  getByName: (name: string) => ipcRenderer.invoke('search-presets:getByName', name),
+  getById: (id: number) => ipcRenderer.invoke('search-presets:getById', id),
+  updateLastUsedAt: (id: number) => ipcRenderer.invoke('search-presets:updateLastUsedAt', id),
+  delete: (id: number) => ipcRenderer.invoke('search-presets:delete', id),
+  create: (command: CreateSearchPresetCommand) => ipcRenderer.invoke('search-presets:save', command)
+}
+
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
@@ -424,6 +434,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('storage', storage)
     contextBridge.exposeInMainWorld('appUpdate', appUpdate)
     contextBridge.exposeInMainWorld('logger', logger)
+    contextBridge.exposeInMainWorld('searchPresets', searchPresets)
   } catch (error) {
     console.error(error)
   }
@@ -460,4 +471,6 @@ if (process.contextIsolated) {
   globalThis.appUpdate = appUpdate
   // @ts-ignore (define in dts)
   globalThis.logger = logger
+  // @ts-ignore (define in dts)
+  globalThis.searchPresets = searchPresets
 }

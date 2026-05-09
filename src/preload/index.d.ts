@@ -31,6 +31,7 @@ import type { ChapterDownloadQuery } from '../main/database/queries/chapter-down
 import { ReadHistoryEntry } from '../main/database/queries/read-history/read-history.query'
 import type { ChapterDownloadsEvent } from '../main/services/events/chapter-downloads.event'
 import type { MangaCacheStatsQuery } from '../main/database/queries/manga/manga-cache-stats.query'
+import { SearchPresetQuery } from './../main/database/queries/search-presets/search-preset.query'
 
 // Database commands
 import { CreateCollectionCommand } from '../main/database/commands/collections/create-collection.command'
@@ -54,6 +55,7 @@ import type { MemoryTierInfo } from '../main/settings/response/memory-tier.respo
 import type { DexreaderExportOption } from '../main/services/options/dexreader-export.option'
 import type { DownloadChapterOptions } from '../main/services/options/download-chapter.option'
 import type { DeleteChapterOptions } from '../main/services/options/delete-chapter.option'
+import type { CreateSearchPresetOptions } from './../main/services/options/create-search-preset.option'
 
 // Service types
 import type { QueuedDownloads } from '../main/services/types/downloads/queued-downloads.type'
@@ -96,6 +98,7 @@ export type { DexReaderImportResult } from '../main/services/results/dexreader/i
 export type { DexReaderExportResult } from '../main/services/results/dexreader/export.result'
 export type { DexreaderExportOption } from '../main/services/options/dexreader-export.option'
 export type { DownloadChapterOptions } from '../main/services/options/download-chapter.option'
+export type { CreateSearchPresetOptions } from '../main/services/options/create-search-preset.option'
 export type { DeleteChapterOptions } from '../main/services/options/delete-chapter.option'
 export type { DownloadChapterResult } from '../main/services/results/dexreader/download-chapter.result'
 export type { QueuedDownloads } from '../main/services/types/downloads/queued-downloads.type'
@@ -107,6 +110,7 @@ export type { CollectionEntity } from '../main/database/schemas/collections.sche
 export type { AppSettings } from '../main/settings/entities/app-settings.entity'
 export type { DownloadStatResult } from '../main/services/results/dexreader/download-stats.result'
 export type { MangaCacheStatsQuery } from '../main/database/queries/manga/manga-cache-stats.query'
+export type { SearchPresetQuery } from '../main/database/queries/search-presets/search-preset.query'
 export type { MemoryTierInfo } from '../main/settings/response/memory-tier.response'
 
 interface MenuState {
@@ -357,6 +361,15 @@ interface Logger {
   openLogsFolder: () => Promise<string>
 }
 
+interface SearchPresets {
+  getAll: () => Promise<IpcResponse<SearchPresetQuery[]>>
+  getByName: (name: string) => Promise<IpcResponse<SearchPresetQuery | undefined>>
+  getById: (id: number) => Promise<IpcResponse<SearchPresetQuery | undefined>>
+  create: (options: CreateSearchPresetOptions) => Promise<IpcResponse<SearchPresetQuery>>
+  delete: (id: number) => Promise<IpcResponse<void>>
+  updateLastUsedAt: (id: number) => Promise<IpcResponse<void>>
+}
+
 declare global {
   interface Window {
     electron: ElectronAPI
@@ -375,5 +388,6 @@ declare global {
     storage: Storage
     appUpdate: AppUpdate
     logger: Logger
+    searchPresets: SearchPresets
   }
 }

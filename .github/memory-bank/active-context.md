@@ -1,7 +1,7 @@
 # DexReader Active Context
 
-**Last Updated**: 6 May 2026
-**Version**: v1.2.0
+**Last Updated**: 9 May 2026
+**Version**: v1.3.0
 **Mode**: Post-Release Maintenance & Feature Development
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next. Keep all entries as short, concise as possible
@@ -10,12 +10,14 @@
 
 ## Current Status
 
-**v1.2.0 Released**: 6 May 2026 🎉
+**v1.3.0 Released**: 9 May 2026 🎉
 
 **Focus**: Post-release monitoring and next feature planning
 
-- Library enhancements completed (download toggle, soft delete, UI reorganization)
-- Database and settings performance optimizations shipped
+- Search preset functionality completed (save, load, delete, set as default)
+- Database schema and full CRUD operations implemented
+- UI components for preset management integrated into Browse view
+- Dependency updates applied (fast-uri, ip-address, drizzle-kit)
 - Ready for user feedback and next development cycle
 
 **Plans:**
@@ -47,10 +49,25 @@
 
 ## Recent Changes (Last 1-2 Weeks)
 
+### 9 May 2026 - v1.3.0 Release
+
+- **Type**: Release
+- **Summary**: Search preset feature release enabling users to save, load, and reuse search configurations in Browse view with full database persistence.
+- **Key Features**:
+  - Save search query + filters as named presets (up to 50 characters)
+  - Load presets from dropdown with integrated delete button
+  - Set default preset for automatic application on startup
+  - Complete CRUD operations with IPC handlers and database schema
+  - SavePresetDialog and PresetSelector UI components
+  - Improved Select/Option component styling with hover states
+  - Security updates: fast-uri 3.0.3 → 3.0.5
+- **Impact**: Enhanced user experience with reusable search configurations
+- **Status**: ✅ Released
+
 ### 6 May 2026 - v1.2.0 Release
 
 - **Type**: Release
-- **Summary**: Library enhancements release adding downloaded titles toggle, soft delete for chapters, improved search UI, and performance optimizations for settings and database queries.
+- **Summary**: Library enhancements release adding downloaded titles toggle, soft delete for chapters, improved search UI, and performance optimizations.
 - **Key Features**:
   - Include Downloaded Titles toggle in Library view
   - Soft delete for downloaded chapters with confirmation dialog
@@ -58,8 +75,6 @@
   - Download and favorite status badges on manga cards
   - Settings performance improvement (5 writes → 1 write)
   - Optimized database queries
-- **Impact**: Better library management and improved performance
-- **Status**: ✅ Released
 
 ---
 

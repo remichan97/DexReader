@@ -9,13 +9,21 @@ import { MangaCard } from '@renderer/components/MangaCard'
 import { SkeletonGrid } from '@renderer/components/Skeleton'
 import { Button } from '@renderer/components/Button'
 import { InfoBar } from '@renderer/components/InfoBar'
+import { SavePresetDialog } from '@renderer/components/SavePresetDialog'
 import {
   useSearchStore,
   useLibraryStore,
   useToastStore,
-  useConnectivityStore
+  useConnectivityStore,
+  useSearchPresetsStore
 } from '@renderer/stores'
-import { PublicationStatus, DEFAULT_FILTERS } from '@renderer/stores/searchStore'
+import {
+  PublicationStatus,
+  DEFAULT_FILTERS,
+  type IncludedTagsMode,
+  type OrderOptions,
+  type OrderDirection
+} from '@renderer/stores/searchStore'
 import {
   getCoverImageUrl,
   getAuthorName,
@@ -54,10 +62,18 @@ export function BrowseView(): JSX.Element {
   const showToast = useToastStore((state) => state.show)
   const isOnline = useConnectivityStore((state) => state.isOnline)
 
+  // Search presets store
+  const { presets, loadPresets, createPreset, deletePreset, updateLastUsedAt } =
+    useSearchPresetsStore()
+
   // Hide filters by default - users reveal when needed
   const [showFilters, setShowFilters] = useState(false)
   const [showFilterBar, setShowFilterBar] = useState(false) // Show info bar when filters out of view
   const filterPanelRef = useRef<HTMLDivElement>(null)
+
+  // Preset state
+  const [appliedPresetId, setAppliedPresetId] = useState<number | null>(null)
+  const [showSaveDialog, setShowSaveDialog] = useState(false)
 
   // Calculate active filter count (excluding default content ratings)
   const filterCount =
@@ -70,6 +86,44 @@ export function BrowseView(): JSX.Element {
   // Ref for infinite scroll sentinel
   const sentinelRef = useRef<HTMLDivElement>(null)
   const initialLoadRef = useRef(false)
+
+  // Helper functions to convert between backend and frontend filter types
+  const convertToFrontendFilters = (
+    backendFilters: (typeof presets)[number]['filters']
+  ): typeof filters => {
+    return {
+      contentRating: backendFilters.contentRating,
+      publicationStatus: backendFilters.publicationStatus ? [backendFilters.publicationStatus] : [],
+      publicationDemographic: backendFilters.publicationDemographic
+        ? [backendFilters.publicationDemographic]
+        : [],
+      includedTags: backendFilters.includedTags || [],
+      excludedTags: backendFilters.excludedTags || [],
+      includedTagsMode: backendFilters.includedTagsMode as unknown as IncludedTagsMode,
+      availableTranslatedLanguage: backendFilters.availableTranslatedLanguages,
+      sortBy: backendFilters.sortBy as unknown as OrderOptions,
+      sortDirection: backendFilters.sortDirection as unknown as OrderDirection
+    }
+  }
+
+  const convertToBackendFilters = (
+    frontendFilters: typeof filters
+  ): (typeof presets)[number]['filters'] => {
+    return {
+      contentRating: frontendFilters.contentRating,
+      publicationStatus: frontendFilters.publicationStatus[0], // Take first item or undefined
+      publicationDemographic: frontendFilters.publicationDemographic[0] || undefined, // Take first or undefined
+      includedTags: frontendFilters.includedTags,
+      excludedTags: frontendFilters.excludedTags,
+      includedTagsMode:
+        frontendFilters.includedTagsMode as unknown as (typeof presets)[number]['filters']['includedTagsMode'],
+      availableTranslatedLanguages: frontendFilters.availableTranslatedLanguage,
+      resultPerPage: limit,
+      sortBy: frontendFilters.sortBy as unknown as (typeof presets)[number]['filters']['sortBy'],
+      sortDirection:
+        frontendFilters.sortDirection as unknown as (typeof presets)[number]['filters']['sortDirection']
+    }
+  }
 
   // Handle tag parameter from URL and apply to filters
   useEffect(() => {
@@ -90,6 +144,12 @@ export function BrowseView(): JSX.Element {
       search()
       initialLoadRef.current = true
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Load presets on mount
+  useEffect(() => {
+    loadPresets()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -227,14 +287,97 @@ export function BrowseView(): JSX.Element {
   }
 
   const handleClearFilters = (): void => {
-    setFilters({
-      contentRating: [],
-      publicationStatus: [],
-      publicationDemographic: [],
-      includedTags: [],
-      excludedTags: []
-    })
+    setFilters(DEFAULT_FILTERS)
+    setAppliedPresetId(null) // Clear preset selection
     search()
+  }
+
+  // Preset handlers
+  const handlePresetSelect = (presetId: number | null): void => {
+    if (presetId === null) {
+      // Clear preset
+      setAppliedPresetId(null)
+      return
+    }
+
+    const preset = presets.find((p) => p.id === presetId)
+    if (!preset) return
+
+    // Apply preset to search state - convert backend format to frontend format
+    setQuery(preset.searchQuery || '')
+    setFilters(convertToFrontendFilters(preset.filters))
+    setLimit(preset.resultsPerPage)
+
+    // Mark as applied and update last used
+    setAppliedPresetId(preset.id)
+    updateLastUsedAt(preset.id)
+
+    // Trigger search
+    search()
+
+    showToast({
+      title: 'Preset loaded',
+      message: preset.name,
+      variant: 'info',
+      duration: 2000
+    })
+  }
+
+  const handleSavePreset = async (name: string, setAsDefault: boolean): Promise<void> => {
+    try {
+      const backendFilters = convertToBackendFilters(filters)
+      const preset = await createPreset({
+        name,
+        searchQuery: query,
+        filters: backendFilters,
+        resultsPerPage: limit,
+        setAsDefault
+      })
+
+      setAppliedPresetId(preset?.id ?? null)
+
+      showToast({
+        title: 'Preset saved',
+        message: name,
+        variant: 'success',
+        duration: 2000
+      })
+    } catch (error) {
+      rendererLog.error('[BrowseView] Error saving preset:', error)
+      showToast({
+        title: 'Error',
+        message: error instanceof Error ? error.message : 'Failed to save preset',
+        variant: 'error',
+        duration: 4000
+      })
+      throw error // Re-throw to let dialog handle it
+    }
+  }
+
+  const handleDeletePreset = async (id: number, name: string): Promise<void> => {
+    try {
+      await deletePreset(id)
+
+      // Clear applied preset if it was deleted
+      if (appliedPresetId === id) {
+        setAppliedPresetId(null)
+      }
+
+      showToast({
+        title: 'Preset deleted',
+        message: name,
+        variant: 'info',
+        duration: 2000
+      })
+    } catch (error) {
+      rendererLog.error('[BrowseView] Error deleting preset:', error)
+      showToast({
+        title: 'Error',
+        message: 'Failed to delete preset',
+        variant: 'error',
+        duration: 3000
+      })
+    }
   }
 
   const handleRetry = (): void => {
@@ -307,6 +450,10 @@ export function BrowseView(): JSX.Element {
             onLimitChange={setLimit}
             onApply={handleApplyFilters}
             onClear={handleClearFilters}
+            onSavePreset={() => setShowSaveDialog(true)}
+            currentPresetId={appliedPresetId}
+            onPresetSelect={handlePresetSelect}
+            onPresetDelete={handleDeletePreset}
           />
         </div>
       )}
@@ -434,6 +581,21 @@ export function BrowseView(): JSX.Element {
           )}
         </>
       )}
+
+      {/* Save Preset Dialog */}
+      <SavePresetDialog
+        isOpen={showSaveDialog}
+        onClose={() => setShowSaveDialog(false)}
+        initialName={
+          appliedPresetId ? presets.find((p) => p.id === appliedPresetId)?.name || '' : ''
+        }
+        currentSearchState={{
+          searchQuery: query,
+          filters,
+          resultsPerPage: limit
+        }}
+        onSave={handleSavePreset}
+      />
     </div>
   )
 }

@@ -12,7 +12,7 @@ import {
 import { mainLog } from '../../services/logging/main-logging.service'
 import { validateSettings } from '../../settings/validators/types.validator'
 import { wrapIpcHandler } from '../wrap-handler'
-import { cleanupRepo } from '../../database/repositories/cleanup-repo'
+import { cleanupRepo } from '../../database/repositories/cleanup.repo'
 import type { ImageProxy } from '../../api/proxy/image.proxy'
 
 export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {

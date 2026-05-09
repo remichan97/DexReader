@@ -1,0 +1,53 @@
+/**
+ * SavePresetDialog Styles
+ */
+
+.save-preset-dialog__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+}
+
+.save-preset-dialog__footer {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: flex-end;
+}
+
+.save-preset-dialog__preview {
+  padding: var(--space-3);
+  background: var(--win-bg-subtle);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--win-border-default);
+}
+
+.save-preset-dialog__preview-title {
+  margin: 0 0 var(--space-2) 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--win-text-secondary);
+}
+
+.save-preset-dialog__preview-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.save-preset-dialog__preview-item {
+  font-size: 0.8125rem;
+  color: var(--win-text-secondary);
+  padding-left: var(--space-3);
+  position: relative;
+}
+
+.save-preset-dialog__preview-item::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--win-text-tertiary);
+}

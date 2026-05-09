@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [1.3.0] - 2026-05-09
+
+### Added
+
+- Add search preset functionality to save and reuse search configurations in Browse view
+  - Save current search query + filters as named presets (up to 50 characters)
+  - Load saved presets from dropdown selector with one click
+  - Delete presets with confirmation dialog
+  - Set default preset option for automatic application on app startup
+  - Presets include search query, all filters, and results per page setting
+  - Automatic upsert: updating existing preset replaces it (no duplicates)
+- Add database schema for search presets with proper indexing and constraints
+- Add complete IPC handlers for search preset CRUD operations (create, read, update, delete)
+- Add search presets store in renderer for centralized state management
+- Add SavePresetDialog component for creating/updating presets with preview
+- Add PresetSelector component with integrated delete button
+- Add hover tooltips on search UI elements for better discoverability
+
+### Changed
+
+- Update clear filter button on BrowseView to reset back to default filters instead of completely clear out the filter list
+- Update Select and Option components with improved styling and hover states
+- Refactor search preset service, repository, and handler structure for maintainability
+- Update `fast-uri` dependency from 3.0.3 to 3.0.5 (security vulnerability fix)
+- Update `ip-address` dependency from 10.1.1 to 10.2.0
+- Update `drizzle-kit` dependency from 0.32.2 to 0.32.3
+
+### Fixed
+
+- Fix missing PublicationStatus enum export in main process
+- Fix IPC event parameter types for improved type safety
+
+---
+
 ## [1.2.0] - 2026-05-06
 
 ### Added
