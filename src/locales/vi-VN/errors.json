@@ -96,16 +96,6 @@
       "action": "Thử tải lại hoặc kiểm tra xem tệp có bị hỏng không."
     }
   },
-  "progress": {
-    "saveFailed": {
-      "title": "Không thể lưu tiến trình",
-      "message": "Không thể lưu tiến trình đọc của bạn."
-    },
-    "deleteFailed": {
-      "title": "Không thể xóa tiến trình",
-      "message": "Đã xảy ra lỗi khi xóa tiến trình."
-    }
-  },
   "manga": {
     "load_failed": {
       "title": "Không thể tải manga này",

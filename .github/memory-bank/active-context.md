@@ -22,7 +22,7 @@
 
 **Plans:**
 
-- No active plans
+- i18n Implementation: Phase 2 (Extraction) completed. 40 locale files created (13 en-GB, 13 en-US, 13 vi-VN, 1 README). Ready for Phase 3 (Component Updates).
 
 ---
 
@@ -48,6 +48,19 @@
 ---
 
 ## Recent Changes (Last 1-2 Weeks)
+
+### 9 May 2026 - i18n Locale Extraction Completed
+
+- **Type**: Feature Development
+- **Summary**: Completed extraction and organization of all UI strings for internationalization support. Created comprehensive locale files for British English (en-GB) and American English (en-US).
+- **Key Deliverables**:
+  - 13 locale JSON files per language (~1,500+ translation keys total)
+  - Namespaces: common, menu, errors, dialogs, validation, shortcuts, browse, library, downloads, reader, settings, history, mangaDetail
+  - British → American spelling conversions applied systematically
+  - Comprehensive README documentation for translation guidelines
+  - TypeScript index files for both locales
+- **Implementation Plan**: `.github/copilot-plans/i18n-implementation-plan.md`
+- **Status**: Phase 2 (Extraction) ✅ Complete | Phase 3 (Component Updates) pending
 
 ### 9 May 2026 - v1.3.0 Release
 

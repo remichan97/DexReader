@@ -1,38 +1,4 @@
 {
-  "common": {
-    "required": "This field is required",
-    "invalidType": "Invalid type for {{field}}: expected {{expectedType}}, but got {{actualType}}",
-    "notAnObject": "{{field}} must be an object",
-    "validationFailed": "Validation failed for field \"{{field}}\": {{reason}}"
-  },
-  "settings": {
-    "appearance": {
-      "notAnObject": "Refused to save appearance settings: not an object",
-      "invalidTheme": "Refused to save appearance settings: theme is not a valid AppTheme value",
-      "invalidAccentColor": "Refused to save appearance settings: accentColor must be a valid hex color code if provided",
-      "invalidStartupPage": "Refused to save appearance settings: startupPage is not a valid StartupPage value if provided"
-    },
-    "downloads": {
-      "notAnObject": "Refused to save download settings: not an object",
-      "invalidDownloadPath": "Refused to save download settings: downloadPath must be string if provided",
-      "nullBytesInPath": "Refused to save download settings: downloadPath contains null bytes",
-      "invalidConfirmation": "Refused to save download settings: shouldConfirmDownload is not a valid DownloadConfirmation value",
-      "invalidQuality": "Refused to save download settings: defaultQuality is not a valid ImageQuality value",
-      "invalidCacheSize": "Refused to save download settings: maxDiskCacheSize must be a non-negative integer, or between 10MB and 500MB. If you mean to set it to unlimited, please set it to 0.",
-      "invalidConcurrentDownloads": "Refused to save download settings: maxConcurrentDownloads must be 1-10"
-    },
-    "reader": {
-      "notAnObject": "Refused to save reader settings: not an object",
-      "invalidForceDarkMode": "Refused to save reader settings: forceDarkMode is not a boolean",
-      "invalidQuality": "Refused to save reader settings: quality is not a valid ImageQuality value",
-      "invalidGlobalSettings": "Refused to save reader settings: global settings are invalid",
-      "invalidPerformanceSettings": "Refused to save reader settings: performance settings are invalid"
-    },
-    "generic": {
-      "invalidSettings": "Invalid {{settingType}} settings",
-      "settingsMustBeObject": "Settings must be an object"
-    }
-  },
   "performance": {
     "mustBeNumber": "Must be a number",
     "minimumCache": "Minimum 10 MB required (got {{size}} MB)",
@@ -41,18 +7,6 @@
     "cacheTooLarge": "Cache size cannot exceed {{sanityMax}} MB (30% of system RAM)",
     "lowCacheWarning": "Low cache may cause frequent reloads. We recommend at least 30 MB",
     "highCacheWarning": "This exceeds our recommendation of {{recommendedMax}} MB (10% of system RAM). Higher values might slow things down."
-  },
-  "path": {
-    "cannotBeEmpty": "Invalid value for {{field}}: path cannot be empty",
-    "notADirectory": "The path \"{{path}}\" is not a directory.",
-    "doesNotExist": "The path \"{{path}}\" does not exist or is not accessible. Error: {{error}}",
-    "accessDenied": "Access to the path \"{{path}}\" is not allowed."
-  },
-  "encoding": {
-    "unsupported": "Invalid value for {{field}}: unsupported encoding \"{{encoding}}\""
-  },
-  "collection": {
-    "nameRequired": "Collection name is required"
   },
   "ui": {
     "invalidSettings": "Some settings are invalid. Fix validation errors before saving.",

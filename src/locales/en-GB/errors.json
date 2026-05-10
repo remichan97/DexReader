@@ -96,16 +96,6 @@
       "action": "Try reloading or check if the file is corrupted."
     }
   },
-  "progress": {
-    "saveFailed": {
-      "title": "Failed to save progress",
-      "message": "Your reading progress could not be saved."
-    },
-    "deleteFailed": {
-      "title": "Failed to delete progress",
-      "message": "An error occurred while removing progress."
-    }
-  },
   "manga": {
     "load_failed": {
       "title": "Couldn't load this manga",
