@@ -39,7 +39,23 @@
     "addedSuccess": "Manga added to your collection",
     "error": "Error",
     "mangaNotFound": "Manga not found",
-    "failedToAdd": "Failed to add to library"
+    "failedToAdd": "Failed to add to library",
+    "removedFromLibrary": "Removed from library",
+    "removedCompletely": "Removed completely",
+    "partiallyRemoved": {
+      "title": "Partially removed",
+      "libraryOnly": "Removed from library, but failed to delete some downloads",
+      "downloadsOnly": "Downloads deleted, but failed to remove from library"
+    }
+  },
+  "collections": {
+    "toasts": {
+      "created": "Collection Created",
+      "updated": "Collection Updated",
+      "deleted": "Collection Deleted",
+      "updateFailed": "Could not update collection",
+      "deleteFailed": "Could not delete collection"
+    }
   },
   "liveRegion": {
     "loading": "Loading your library...",

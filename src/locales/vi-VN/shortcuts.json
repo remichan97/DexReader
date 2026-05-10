@@ -18,11 +18,11 @@
     "navigation": {
       "title": "Điều hướng",
       "shortcuts": {
-        "goToBrowse": "Đi đến Duyệt",
+        "goToBrowse": "Đi đến Khám phá",
         "goToLibrary": "Đi đến Thư viện",
         "goToDownloads": "Đi đến Tải xuống",
         "goToHistory": "Đi đến Lịch sử đọc",
-        "focusSearch": "Tập trung vào thanh tìm kiếm"
+        "focusSearch": "Đặt con trỏ vào thanh tìm kiếm"
       }
     },
     "library": {

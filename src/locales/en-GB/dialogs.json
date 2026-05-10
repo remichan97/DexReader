@@ -202,6 +202,15 @@
         "cancel": "Cancel"
       }
     },
+    "openExternalLink": {
+      "title": "Open {{serviceName}}?",
+      "message": "You're about to open an external website in your default browser. Just so you know where you're headed:\n\n{{url}}",
+      "buttons": {
+        "open": "Open in Browser",
+        "copy": "Copy Link",
+        "cancel": "Cancel"
+      }
+    },
     "unsavedChanges": {
       "message": "You have unsaved changes. Are you sure you want to leave?"
     },
@@ -390,19 +399,38 @@
       }
     }
   },
+  "memoryWarning": {
+    "title": "High Memory Usage Warning",
+    "message": "Setting cache size above {{threshold}} MB may impact performance on systems with limited RAM.",
+    "buttons": {
+      "proceedAnyway": "Proceed Anyway",
+      "goBack": "Go Back"
+    }
+  },
+  "unfavouriteWithDownloads": {
+    "title": "Remove from library?",
+    "message": "This manga has downloaded chapters. What would you like to do?",
+    "options": {
+      "keepDownloads": "Remove from library (keep downloads)",
+      "deleteEverything": "Remove everything (both bookmark and downloads will be removed)"
+    },
+    "buttons": {
+      "cancel": "Cancel"
+    }
+  },
   "updates": {
     "notification": {
       "checking": "Checking for updates...",
       "available": "Update available — Version {{version}} is ready to download",
       "downloading": "Downloading update...",
       "progress": "Downloading: {{percent}}%",
-      "downloaded": "Update ready — Version {{version}} is ready to install",
-      "notAvailable": "You're up to date — Version {{version}}",
-      "error": "Update check failed — {{message}}",
+      "downloaded": "Update ready to install — Version {{version}} has been downloaded",
+      "notAvailable": "You're up to date ({{version}})",
+      "error": "Update failed — {{message}}",
       "buttons": {
         "download": "Download",
         "later": "Maybe Later",
-        "install": "Restart & Install",
+        "install": "Restart Now",
         "hide": "Hide",
         "retry": "Retry",
         "dismiss": "Dismiss"

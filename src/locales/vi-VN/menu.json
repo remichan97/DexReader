@@ -4,14 +4,14 @@
     "checkForUpdates": "Kiểm tra Cập nhật...",
     "settings": "Cài đặt...",
     "leaveIncognito": "Rời khỏi Chế độ Ẩn danh",
-    "goIncognito": "Chế độ Ẩn danh",
-    "goOnline": "Kết nối Internet",
-    "goOffline": "Ngoại tuyến",
+    "goIncognito": "Vào Chế độ Ẩn danh",
+    "goOnline": "Kết nối lại",
+    "goOffline": "Ngắt kết nối",
     "exit": "Thoát"
   },
   "view": {
     "label": "Xem",
-    "browseManga": "Duyệt Manga",
+    "browseManga": "Khám phá Manga",
     "myLibrary": "Thư viện của tôi",
     "downloads": "Tải xuống",
     "readingHistory": "Lịch sử đọc",
@@ -33,8 +33,8 @@
     "fromDexReaderBackup": "Từ Sao lưu DexReader...",
     "fromMihonTachiyomiBackup": "Từ Sao lưu Mihon/Tachiyomi...",
     "exportLibrary": "Xuất Thư viện",
-    "toDexReaderBackup": "Thành Sao lưu DexReader...",
-    "toMihonTachiyomiFormat": "Thành Định dạng Mihon/Tachiyomi...",
+    "toDexReaderBackup": "Sang Sao lưu DexReader...",
+    "toMihonTachiyomiFormat": "Sang Định dạng Mihon/Tachiyomi...",
     "dialogs": {
       "importLibrary": {
         "title": "Nhập Thư viện",
@@ -50,7 +50,7 @@
       },
       "exportMihonTachiyomiWarning": {
         "title": "Xuất sang Mihon/Tachiyomi",
-        "message": "Trước khi tiếp tục, hành động này sẽ xuất thư viện manga của bạn bao gồm:",
+        "message": "Trước khi tiếp tục, thao tác này sẽ xuất thư viện manga của bạn bao gồm:",
         "detail": "• Metadata và bìa manga\n• Bộ sưu tập (như danh mục)\n• Tiến trình và lịch sử đọc\n• Metadata chương\n\nLưu ý: Cài đặt ứng dụng (giao diện, tùy chọn) là riêng của DexReader và không thể xuất sang Tachiyomi/Mihon.",
         "buttonCancel": "Hủy",
         "buttonProceed": "Tiếp tục..."
@@ -66,7 +66,7 @@
     "label": "Công cụ",
     "downloadChapter": "Tải xuống Chương",
     "downloadManga": "Tải xuống Manga",
-    "manageStorage": "Quản lý Bộ nhớ...",
+    "manageStorage": "Quản lý Dung lượng...",
     "clearCache": "Xóa Bộ nhớ đệm...",
     "clearReadingHistory": "Xóa Lịch sử đọc..."
   },

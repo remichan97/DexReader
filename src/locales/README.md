@@ -72,6 +72,12 @@ Some strings support variable interpolation using `{{variable}}` syntax:
 5. **Pluralization**: Use i18next pluralization features when needed (see i18next documentation).
 6. **Date/Time**: Date and time formatting is handled separately by the system locale settings.
 
+### Language-Specific Guides
+
+For languages with unique translation challenges, see the dedicated translation guides:
+
+- **Vietnamese (vi-VN)**: [vi-VN-translation-guide.md](vi-VN-translation-guide.md) - Covers terminology challenges, borrowed terms, and localization strategies for Vietnamese speakers
+
 ## File Organization
 
 ### common.json (350+ strings)
@@ -179,7 +185,7 @@ const label = i18n.t('menu.file.settings')
 
 - **Total namespaces**: 13
 - **Total translation keys**: ~1,500+
-- **Supported languages**: 1 (en-GB)
+- **Supported languages**: 3 (en-GB, en-US, vi-VN)
 - **Planned languages**: en-US (American English)
 
 ## Notes

@@ -205,6 +205,7 @@
     "clearAllCoversButton": "Clear All Covers",
     "clearCoversSuccess": "Cover cache cleared",
     "clearedCovers": "Deleted {count} images (freed {size})",
+    "clearCoversFailed": "Failed to clear cover cache",
     "metadataCacheSection": "Manga Metadata Cache",
     "metadataCacheDescription": "Manage cached manga information for offline access.",
     "cleanMetadataButton": "Clean Up",
@@ -226,7 +227,11 @@
     },
     "checkNowButton": "Check for Updates Now",
     "checkingButton": "Checking...",
-    "currentVersion": "Current version: {version}"
+    "currentVersion": "Current version: {version}",
+    "updateCheckFailed": {
+      "title": "Update check failed",
+      "message": "Couldn't check for updates. Try again in a bit?"
+    }
   },
   "logging": {
     "sectionTitle": "Logging",
@@ -244,7 +249,11 @@
     "deletedOldLogs": "Cleaned up logs older than {days} days",
     "clearAllButton": "Clear All Logs",
     "clearAllSuccess": "Logs cleared",
-    "clearedAllLogs": "All logs cleared!"
+    "clearedAllLogs": "All logs cleared!",
+    "failedToOpen": {
+      "title": "Failed to open logs folder",
+      "message": "Could not open the logs folder. Please try again."
+    }
   },
   "dangerZone": {
     "title": "Danger Zone",
@@ -278,5 +287,9 @@
         "cancelButton": "Cancel"
       }
     }
+  },
+  "toasts": {
+    "failedToResetOverride": "Failed to reset override",
+    "failedToClearOverrides": "Failed to clear overrides"
   }
 }

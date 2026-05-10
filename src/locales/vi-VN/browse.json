@@ -1,13 +1,13 @@
 {
-  "pageTitle": "Duyệt Manga",
+  "pageTitle": "Khám phá Manga",
   "searchPlaceholder": "Tìm kiếm theo tiêu đề, tác giả hoặc thể loại...",
   "filterButton": "Bộ lọc",
   "applyFiltersButton": "Áp dụng bộ lọc",
   "clearFiltersButton": "Xóa bộ lọc",
-  "savePresetButton": "Lưu cài đặt trước",
+  "savePresetButton": "Lưu mẫu tìm kiếm",
   "offlineState": {
     "title": "Bạn đang ngoại tuyến",
-    "message": "Duyệt và tìm kiếm yêu cầu kết nối internet. Kiểm tra Thư viện của bạn để đọc manga đã tải xuống.",
+    "message": "Khám phá và tìm kiếm yêu cầu kết nối internet. Kiểm tra Thư viện của bạn để đọc manga đã tải xuống.",
     "action": "Đi tới Thư viện"
   },
   "emptyState": {
@@ -24,19 +24,19 @@
   },
   "filterInfo": {
     "activeFilters": "{count} bộ lọc đang hoạt động",
-    "browsingAll": "Duyệt tất cả manga",
+    "browsingAll": "Khám phá tất cả manga",
     "scrollToFilters": "Cuộn đến Bộ lọc",
     "resetToDefault": "Đặt lại về Mặc định"
   },
   "toasts": {
     "addedToLibrary": "Đã thêm vào Thư viện!",
-    "presetLoaded": "Cài đặt trước đã được tải",
-    "presetSaved": "Cài đặt trước đã được lưu",
-    "presetDeleted": "Cài đặt trước đã bị xóa",
+    "presetLoaded": "Mẫu tìm kiếm đã được tải",
+    "presetSaved": "Mẫu tìm kiếm đã được lưu",
+    "presetDeleted": "Mẫu tìm kiếm đã bị xóa",
     "error": "Lỗi",
     "failedToUpdate": "Cập nhật thư viện thất bại",
-    "failedToSave": "Lưu cài đặt trước thất bại",
-    "failedToDelete": "Xóa cài đặt trước thất bại"
+    "failedToSave": "Lưu mẫu tìm kiếm thất bại",
+    "failedToDelete": "Xóa mẫu tìm kiếm thất bại"
   },
   "liveRegion": {
     "searching": "Đang tìm kiếm manga...",
@@ -72,10 +72,10 @@
     "downloadMessage": "Bạn sắp tải xuống {count} chương."
   },
   "preset": {
-    "searchPreset": "Cài đặt trước tìm kiếm",
-    "noPreset": "Không có cài đặt trước",
-    "loadingPresets": "Đang tải cài đặt trước...",
-    "selectAPreset": "Chọn một cài đặt trước",
+    "searchPreset": "Mẫu tìm kiếm",
+    "noPreset": "Không có mẫu",
+    "loadingPresets": "Đang tải mẫu tìm kiếm...",
+    "selectAPreset": "Chọn một mẫu tìm kiếm",
     "setAsDefault": "Đặt làm mặc định",
     "previewCurrentFilters": "Xem trước: Bộ lọc hiện tại"
   }

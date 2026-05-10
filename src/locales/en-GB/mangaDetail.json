@@ -29,5 +29,15 @@
     "loading": "Loading manga details...",
     "loaded": "Loaded {title} by {author}"
   },
-  "stickyTitle": "{title}"
+  "stickyTitle": "{title}",
+  "toasts": {
+    "downloadsDeleted": {
+      "title": "Downloads deleted",
+      "message": "Deleted {count} chapter{s}"
+    },
+    "downloadStarted": {
+      "title": "Download Started",
+      "message": "Added {count} chapter{s} to download queue!"
+    }
+  }
 }

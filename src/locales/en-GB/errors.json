@@ -96,6 +96,16 @@
       "action": "Try reloading or check if the file is corrupted."
     }
   },
+  "progress": {
+    "saveFailed": {
+      "title": "Failed to save progress",
+      "message": "Your reading progress could not be saved."
+    },
+    "deleteFailed": {
+      "title": "Failed to delete progress",
+      "message": "An error occurred while removing progress."
+    }
+  },
   "manga": {
     "load_failed": {
       "title": "Couldn't load this manga",
@@ -146,7 +156,8 @@
       "title": "Failed to load downloads",
       "message": "Couldn't load your downloads list.",
       "action": "Try refreshing or restart the app."
-    }
+    },
+    "openFolderFailed": "Failed to open downloads folder"
   },
   "library": {
     "add_failed": {
@@ -173,6 +184,10 @@
       "title": "Failed to delete downloads",
       "message": "Couldn't delete the downloaded chapters.",
       "action": "Try again or check file permissions."
+    },
+    "checkDownloadsFailed": {
+      "title": "Failed to check downloads",
+      "message": "Please try again"
     }
   },
   "collections": {

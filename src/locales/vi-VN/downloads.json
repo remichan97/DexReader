@@ -12,7 +12,7 @@
   "actions": {
     "openFolder": "Mở thư mục",
     "hideCompleted": "Ẩn đã hoàn thành",
-    "hideCompletedTooltip": "Ẩn các tải xuống đã hoàn thành khỏi chế độ xem (tệp sẽ được giữ trên đĩa)",
+    "hideCompletedTooltip": "Ẩn các tải xuống đã hoàn thành khỏi chế độ xem (tệp sẽ được giữ trên ổ cứng)",
     "cancelAllQueued": "Hủy tất cả đang chờ",
     "cancelAllQueuedTooltip": "Hủy tất cả các tải xuống đang chờ",
     "retryAllFailed": "Thử lại tất cả thất bại",
@@ -30,5 +30,25 @@
   },
   "loadingState": {
     "message": "Đang tải xuống..."
+  },
+  "toasts": {
+    "cancelled": {
+      "title": "Đã hủy",
+      "message": "Đã hủy tải xuống"
+    },
+    "retrying": {
+      "title": "Đang thử lại",
+      "message": "Tải xuống đã được xếp hàng đợi để thử lại"
+    },
+    "removed": {
+      "title": "Đã xóa",
+      "message": "Đã xóa tải xuống thất bại khỏi chế độ xem"
+    },
+    "deleted": {
+      "title": "Đã xóa vĩnh viễn",
+      "message": "Tải xuống và tệp đã được xóa vĩnh viễn"
+    },
+    "retryAllQueued": "Đã xếp hàng {count} tải xuống thất bại để thử lại",
+    "cancelledAll": "Đã hủy {count} tải xuống đang chờ"
   }
 }

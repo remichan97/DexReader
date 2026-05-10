@@ -30,11 +30,11 @@
     "restart": "Khởi động lại",
     "checkOut": "Xem Thư viện của bạn",
     "viewLibrary": "Xem Thư viện của bạn",
-    "goOnline": "Go Online",
-    "openSettings": "Open Settings",
-    "saveCopy": "Save a Copy",
-    "savePreset": "Save Preset",
-    "saving": "Saving..."
+    "goOnline": "Kết nối lại",
+    "openSettings": "Mở Cài đặt",
+    "saveCopy": "Lưu một Bản sao",
+    "savePreset": "Lưu Mẫu tìm kiếm",
+    "saving": "Đang lưu..."
   },
   "action": {
     "add": "Thêm",
@@ -52,7 +52,7 @@
     "refresh": "Làm mới",
     "clear": "Xóa",
     "select": "Chọn",
-    "browse": "Duyệt",
+    "browse": "Khám phá",
     "view": "Xem",
     "open": "Mở",
     "show": "Hiển thị",
@@ -91,7 +91,7 @@
     "quality": "Chất lượng",
     "file": "Tệp",
     "path": "Đường dẫn",
-    "presetName": "Tên cài đặt trước",
+    "presetName": "Tên mẫu",
     "collectionName": "Tên bộ sưu tập",
     "readingMode": "Chế độ đọc",
     "contentRating": "Đánh giá nội dung",
@@ -103,7 +103,7 @@
     "resultsPerPage": "Kết quả mỗi trang"
   },
   "navigation": {
-    "browse": "Duyệt",
+    "browse": "Khám phá",
     "library": "Thư viện",
     "downloads": "Tải xuống",
     "settings": "Cài đặt",
@@ -111,7 +111,7 @@
     "readingHistory": "Lịch sử đọc",
     "home": "Trang chủ",
     "reader": "Trình đọc",
-    "goToBrowse": "Đi đến Duyệt",
+    "goToBrowse": "Đi đến Khám phá",
     "goToLibrary": "Đi đến Thư viện"
   },
   "time": {
@@ -136,7 +136,7 @@
       "collectionName": "ví dụ: Đang đọc, Muốn đọc",
       "description": "Thêm mô tả",
       "presetName": "ví dụ: Hành động đang diễn ra",
-      "selectPreset": "Chọn cài đặt trước"
+      "selectPreset": "Chọn mẫu tìm kiếm"
     },
     "helperText": {
       "characterCount": "ký tự",
@@ -171,14 +171,14 @@
       "youAreOffline": "Bạn đang ngoại tuyến. Vui lòng kết nối internet để tải xuống",
       "downloadedContentAvailable": "Nội dung đã tải xuống vẫn hoạt động",
       "onlyDownloadedContent": "Chỉ có nội dung đã tải xuống khả dụng",
-      "browseRequiresInternet": "Duyệt yêu cầu kết nối internet",
+      "browseRequiresInternet": "Khám phá yêu cầu kết nối internet",
       "filtersActive": "Bộ lọc đang hoạt động",
       "scrollToFilters": "Cuộn đến Bộ lọc"
     },
     "confirmation": {
       "downloadChapter": "Tải xuống Chương?",
       "downloadMultipleChapters": "Tải xuống nhiều Chương?",
-      "deletePreset": "Xóa cài đặt trước này",
+      "deletePreset": "Xóa mẫu này",
       "cantBeUndone": "Điều này không thể hoàn tác. Tìm kiếm hiện tại của bạn sẽ vẫn hoạt động."
     }
   },
@@ -234,10 +234,10 @@
     "noReadingHistory": "Chưa có lịch sử đọc nào",
     "noResults": "Không tìm thấy kết quả cho tìm kiếm của bạn.",
     "noResultsFound": "Không tìm thấy kết quả",
-    "noCollections": "Bạn chưa có bộ sưu tập nào. Tạo một bộ sưu tập để bắt đầu tổ chức!",
+    "noCollections": "Bạn chưa có bộ sưu tập nào. Tạo một bộ sưu tập để bắt đầu sắp xếp manga của bạn!",
     "createFirstCollection": "Tạo bộ sưu tập đầu tiên của bạn",
     "startReading": "Bắt đầu đọc manga để xem tiến trình của bạn ở đây.",
-    "browseManga": "Duyệt Manga"
+    "browseManga": "Khám phá Manga"
   },
   "section": {
     "library": "Thư viện",
@@ -268,5 +268,8 @@
     "unknown": "Không xác định",
     "untitled": "Chưa đặt tiêu đề",
     "notAvailable": "Không có sẵn"
+  },
+  "statusBar": {
+    "incognitoActive": "Bạn đã vào Chế độ Ẩn danh — Không ghi nhận tiến trình đọc"
   }
 }

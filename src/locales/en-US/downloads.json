@@ -30,5 +30,25 @@
   },
   "loadingState": {
     "message": "Loading downloads..."
+  },
+  "toasts": {
+    "cancelled": {
+      "title": "Canceled",
+      "message": "Download canceled"
+    },
+    "retrying": {
+      "title": "Retrying",
+      "message": "Download queued for retry"
+    },
+    "removed": {
+      "title": "Removed",
+      "message": "Failed download removed from view"
+    },
+    "deleted": {
+      "title": "Deleted",
+      "message": "Download and files permanently deleted"
+    },
+    "retryAllQueued": "Queued {count} failed download{s} for retry",
+    "cancelledAll": "Canceled {count} queued download{s}"
   }
 }

@@ -20,5 +20,11 @@
     "loading": "Loading reading history...",
     "loaded": "{count} manga in history"
   },
-  "documentTitle": "Reading History - DexReader"
+  "documentTitle": "Reading History - DexReader",
+  "toasts": {
+    "progressDeleted": {
+      "title": "Progress deleted",
+      "message": "Reading progress removed from history."
+    }
+  }
 }

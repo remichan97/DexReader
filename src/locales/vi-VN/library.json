@@ -28,7 +28,7 @@
     "collections": "{name}"
   },
   "emptyState": {
-    "noManga": "Chưa có gì ở đây! Bắt đầu thêm một số manga từ Duyệt.",
+    "noManga": "Chưa có gì ở đây! Bắt đầu thêm một số manga từ Khám phá.",
     "noDownloaded": "Chưa có manga đã tải xuống. Kết nối internet để tải manga về đọc offline.",
     "noSearchResults": "Không có kết quả nào phù hợp với tìm kiếm của bạn",
     "emptyCollection": "Bộ sưu tập \"{name}\" của bạn đang trống!",
@@ -39,7 +39,23 @@
     "addedSuccess": "Manga đã được thêm vào bộ sưu tập của bạn",
     "error": "Lỗi",
     "mangaNotFound": "Không tìm thấy Manga",
-    "failedToAdd": "Không thể thêm vào thư viện"
+    "failedToAdd": "Không thể thêm vào thư viện",
+    "removedFromLibrary": "Đã xóa khỏi thư viện",
+    "removedCompletely": "Đã xóa hoàn toàn",
+    "partiallyRemoved": {
+      "title": "Xóa một phần",
+      "libraryOnly": "Đã xóa khỏi thư viện, nhưng không thể xóa một số tải xuống",
+      "downloadsOnly": "Đã xóa tải xuống, nhưng không thể xóa khỏi thư viện"
+    }
+  },
+  "collections": {
+    "toasts": {
+      "created": "Đã tạo bộ sưu tập",
+      "updated": "Đã cập nhật bộ sưu tập",
+      "deleted": "Đã xóa bộ sưu tập",
+      "updateFailed": "Không thể cập nhật bộ sưu tập",
+      "deleteFailed": "Không thể xóa bộ sưu tập"
+    }
   },
   "liveRegion": {
     "loading": "Đang tải thư viện của bạn...",

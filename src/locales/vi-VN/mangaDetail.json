@@ -14,7 +14,7 @@
     "hideDetails": "Ẩn chi tiết"
   },
   "cachedDataBanner": {
-    "message": "Bạn đang xem dữ liệu đã lưu trước đó. Kết nối internet để xem thông tin mới nhất."
+    "message": "Bạn đang xem dữ liệu đệm đã lưu trước đó. Kết nối internet để xem thông tin mới nhất."
   },
   "chapterError": {
     "title": "Không thể tải chương",
@@ -29,5 +29,15 @@
     "loading": "Đang tải chi tiết manga...",
     "loaded": "Đã tải {title} của {author}"
   },
-  "stickyTitle": "{title}"
+  "stickyTitle": "{title}",
+  "toasts": {
+    "downloadsDeleted": {
+      "title": "Đã xóa tải xuống",
+      "message": "Đã xóa {count} chương"
+    },
+    "downloadStarted": {
+      "title": "Đã bắt đầu tải xuống",
+      "message": "Đã thêm {count} chương vào hàng đợi tải xuống!"
+    }
+  }
 }

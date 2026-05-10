@@ -3,16 +3,16 @@
     "offline": {
       "title": "Bạn đang ngoại tuyến",
       "message": "Chế độ ngoại tuyến đang bật. Bạn chỉ có thể xem các nội dung đã tải xuống.",
-      "action": "Kết nối trực tuyến để duyệt và tải xuống thêm.",
+      "action": "Kết nối trực tuyến để khám phá và tải xuống thêm.",
       "variants": {
-        "browse": "Duyệt và tìm kiếm yêu cầu kết nối internet. Kiểm tra Thư viện của bạn để đọc manga đã tải xuống.",
+        "browse": "Khám phá và tìm kiếm yêu cầu kết nối internet. Kiểm tra Thư viện của bạn để đọc manga đã tải xuống.",
         "search": "Bạn đang ngoại tuyến. Tìm kiếm chỉ khả dụng khi kết nối internet."
       }
     },
     "no_internet": {
       "title": "Không có internet",
       "message": "Không thể kết nối ngay bây giờ, nhưng bạn vẫn có thể đọc những gì đã tải xuống.",
-      "action": "Kiểm tra kết nối của bạn nếu bạn muốn duyệt trực tuyến."
+      "action": "Kiểm tra kết nối của bạn nếu bạn muốn khám phá trực tuyến."
     },
     "connection_issues": {
       "title": "Sự cố kết nối",
@@ -96,6 +96,16 @@
       "action": "Thử tải lại hoặc kiểm tra xem tệp có bị hỏng không."
     }
   },
+  "progress": {
+    "saveFailed": {
+      "title": "Không thể lưu tiến trình",
+      "message": "Không thể lưu tiến trình đọc của bạn."
+    },
+    "deleteFailed": {
+      "title": "Không thể xóa tiến trình",
+      "message": "Đã xảy ra lỗi khi xóa tiến trình."
+    }
+  },
   "manga": {
     "load_failed": {
       "title": "Không thể tải manga này",
@@ -146,7 +156,8 @@
       "title": "Không thể tải danh sách tải xuống",
       "message": "Không thể tải danh sách tải xuống của bạn.",
       "action": "Thử làm mới hoặc khởi động lại ứng dụng."
-    }
+    },
+    "openFolderFailed": "Không thể mở thư mục tải xuống"
   },
   "library": {
     "add_failed": {
@@ -173,6 +184,10 @@
       "title": "Không thể xóa tải xuống",
       "message": "Không thể xóa các chương đã tải xuống.",
       "action": "Thử lại hoặc kiểm tra quyền truy cập tệp."
+    },
+    "checkDownloadsFailed": {
+      "title": "Không thể kiểm tra tải xuống",
+      "message": "Vui lòng thử lại"
     }
   },
   "collections": {
@@ -243,13 +258,13 @@
       "action": "Thử lại hoặc kiểm tra quyền truy cập."
     },
     "reset_override_failed": {
-      "title": "Không thể đặt lại ghi đè",
-      "message": "Không thể đặt lại ghi đè cài đặt.",
+      "title": "Không thể đặt lại cài đặt ghi đè",
+      "message": "Không thể đặt lại cài đặt ghi đè.",
       "action": "Thử lại."
     },
     "clear_overrides_failed": {
-      "title": "Không thể xóa ghi đè",
-      "message": "Không thể xóa tất cả ghi đè cài đặt.",
+      "title": "Không thể xóa cài đặt ghi đè",
+      "message": "Không thể xóa tất cả cài đặt ghi đè.",
       "action": "Thử lại."
     },
     "save_settings_failed": {
@@ -338,8 +353,8 @@
       "action": "Thử lại"
     },
     "app_error": {
-      "title": "Oops, có lỗi xảy ra",
-      "message": "Oops! Có điều gì đó không mong muốn đã xảy ra. Thử tải lại nếu vấn đề vẫn tiếp diễn.",
+      "title": "Ối, có lỗi xảy ra",
+      "message": "Ối! Có điều gì đó không mong muốn đã xảy ra. Thử tải lại nếu vấn đề vẫn tiếp diễn.",
       "actions": ["Thử lại", "Tải lại ứng dụng"]
     }
   },

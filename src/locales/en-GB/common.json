@@ -268,5 +268,8 @@
     "unknown": "Unknown",
     "untitled": "Untitled",
     "notAvailable": "Not available"
+  },
+  "statusBar": {
+    "incognitoActive": "You've gone Incognito — Progress tracking is disabled"
   }
 }
