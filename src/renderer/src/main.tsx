@@ -6,6 +6,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
 import { globalErrorHandler } from './utils/errorHandler'
+import './i18n/config' // Import i18n configuration to initialize translations
 
 // Initialize global error handlers
 globalErrorHandler.initialize()
