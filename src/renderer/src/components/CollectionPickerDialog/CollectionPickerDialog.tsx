@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Modal } from '../Modal'
 import { Button } from '../Button'
 import { Checkbox } from '../Checkbox'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import { useCollectionsStore } from '@renderer/stores'
 import './CollectionPickerDialog.css'
 import { rendererLog } from '@renderer/services/logging.service'
@@ -53,6 +54,7 @@ export function CollectionPickerDialog({
   onCreateNew,
   onSaveComplete
 }: Readonly<CollectionPickerDialogProps>): React.JSX.Element {
+  const { t } = useTranslation('dialogs')
   const { collections, loadCollections, addToCollection, removeFromCollection } =
     useCollectionsStore()
   const [selectedCollections, setSelectedCollections] = useState<Set<number>>(new Set())
@@ -132,13 +134,13 @@ export function CollectionPickerDialog({
   }
 
   return (
-    <Modal open={isOpen} onClose={handleClose} title="Manage Collections" size="small">
+    <Modal open={isOpen} onClose={handleClose} title={t('collectionPicker.title')} size="small">
       <div className="collection-picker-dialog flex flex-col gap-4">
         {collections.length === 0 ? (
           <div className="collection-picker-dialog__empty flex flex-col items-center gap-3">
-            <p>You don&apos;t have any collections yet. Create one to start organising!</p>
+            <p>{t('collectionPicker.emptyState.message')}</p>
             <Button variant="primary" onClick={onCreateNew}>
-              Create Your First Collection
+              {t('collectionPicker.emptyState.button')}
             </Button>
           </div>
         ) : (
@@ -168,7 +170,7 @@ export function CollectionPickerDialog({
               className="collection-picker-dialog__create-new flex items-center justify-center"
               onClick={onCreateNew}
             >
-              + Create New Collection
+              {t('collectionPicker.createNewButton')}
             </button>
 
             <div className="collection-picker-dialog__actions flex justify-end gap-2">
@@ -178,10 +180,12 @@ export function CollectionPickerDialog({
                 onClick={handleClose}
                 disabled={isSubmitting}
               >
-                Cancel
+                {t('collectionPicker.buttons.cancel')}
               </Button>
               <Button type="button" variant="primary" onClick={handleSave} disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : 'Save'}
+                {isSubmitting
+                  ? t('collectionPicker.buttons.saving')
+                  : t('collectionPicker.buttons.save')}
               </Button>
             </div>
           </>

@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import { ToastVariant, BaseComponentProps } from '@renderer/types/components'
 import { ProgressRing } from '../ProgressRing'
 import './Toast.css'
@@ -60,6 +61,8 @@ export function Toast({
   className = '',
   'aria-label': ariaLabel
 }: ToastProps): React.JSX.Element {
+  const { t } = useTranslation()
+
   useEffect(() => {
     if (duration > 0) {
       const timer = setTimeout(() => {
@@ -110,7 +113,7 @@ export function Toast({
         <path d="M7 7l6 6M13 7l-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       </svg>
     ),
-    loading: <ProgressRing size="small" aria-label="Loading" />
+    loading: <ProgressRing size="small" aria-label={t('state.loading')} />
   }
 
   return (
@@ -133,7 +136,7 @@ export function Toast({
         type="button"
         className="toast__close"
         onClick={handleClose}
-        aria-label="Close notification"
+        aria-label={t('aria.closeNotification')}
       >
         <svg
           className="toast__close-icon"

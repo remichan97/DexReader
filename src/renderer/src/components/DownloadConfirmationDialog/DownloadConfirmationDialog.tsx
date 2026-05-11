@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Modal } from '@renderer/components/Modal'
 import { Select, type SelectOption } from '@renderer/components/Select'
 import { Button } from '@renderer/components/Button'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import { Folder20Regular, Info20Regular } from '@fluentui/react-icons'
 import './DownloadConfirmationDialog.css'
 
@@ -56,11 +57,6 @@ export interface DownloadConfirmationDialogProps {
   readonly onOpenSettings?: () => void
 }
 
-const qualityOptions: SelectOption[] = [
-  { value: 'data', label: 'High Quality' },
-  { value: 'data-saver', label: 'Data Saver' }
-]
-
 /**
  * DownloadConfirmationDialog - Unified dialog for download confirmation and quality selection
  *
@@ -81,10 +77,18 @@ export function DownloadConfirmationDialog({
   showBatchInfo = false,
   onOpenSettings
 }: DownloadConfirmationDialogProps): JSX.Element {
+  const { t } = useTranslation(['dialogs', 'common'])
   const [selectedQuality, setSelectedQuality] = useState<'data' | 'data-saver'>(defaultQuality)
 
   const isBatch = chapterCount > 1
-  const title = isBatch ? 'Download Multiple Chapters?' : 'Download Chapter?'
+  const title = isBatch
+    ? t('dialogs:downloadConfirmation.titles.batch')
+    : t('dialogs:downloadConfirmation.titles.single')
+
+  const qualityOptions: SelectOption[] = [
+    { value: 'data', label: t('dialogs:downloadConfirmation.quality.options.high') },
+    { value: 'data-saver', label: t('dialogs:downloadConfirmation.quality.options.dataSaver') }
+  ]
 
   const handleQualityChange = (value: string | string[]): void => {
     const quality = Array.isArray(value) ? value[0] : value
@@ -106,10 +110,10 @@ export function DownloadConfirmationDialog({
   const footer = (
     <div className="download-dialog__footer flex justify-end gap-2">
       <Button variant="secondary" onClick={onClose}>
-        Cancel
+        {t('common:button.cancel')}
       </Button>
       <Button variant="primary" onClick={handleConfirm}>
-        Download
+        {t('common:button.download')}
       </Button>
     </div>
   )
@@ -128,11 +132,17 @@ export function DownloadConfirmationDialog({
         {/* Chapter info */}
         <div className="download-dialog__info">
           {isBatch ? (
-            <p className="download-dialog__description">
-              You&apos;re about to download <strong>{chapterCount} chapters</strong>.
-            </p>
+            <p
+              className="download-dialog__description"
+              dangerouslySetInnerHTML={{
+                __html: t('dialogs:downloadConfirmation.messages.batch', { count: chapterCount })
+              }}
+            />
           ) : (
-            <p className="download-dialog__chapter-title">{chapterTitle || 'Chapter'}</p>
+            <p className="download-dialog__chapter-title">
+              {chapterTitle ||
+                t('dialogs:downloadConfirmation.messages.single', { title: 'Chapter' })}
+            </p>
           )}
         </div>
 
@@ -142,18 +152,20 @@ export function DownloadConfirmationDialog({
             value={selectedQuality}
             onChange={handleQualityChange}
             options={qualityOptions}
-            label="Quality"
+            label={t('dialogs:downloadConfirmation.quality.label')}
             helperText={
               selectedQuality === 'data'
-                ? 'Best image quality, larger file size'
-                : 'Compressed images, smaller file size'
+                ? t('dialogs:downloadConfirmation.quality.helperText.high')
+                : t('dialogs:downloadConfirmation.quality.helperText.dataSaver')
             }
           />
         </div>
 
         {/* Download location */}
         <div className="download-dialog__section flex flex-col gap-2">
-          <div className="download-dialog__label">Download location:</div>
+          <div className="download-dialog__label">
+            {t('dialogs:downloadConfirmation.location.label')}
+          </div>
           <div className="download-dialog__location flex items-center gap-2">
             <Folder20Regular className="download-dialog__folder-icon" />
             <span className="download-dialog__path" title={downloadsPath}>
@@ -166,7 +178,7 @@ export function DownloadConfirmationDialog({
               className="download-dialog__settings-link"
               onClick={handleOpenSettings}
             >
-              Change in Settings →
+              {t('dialogs:downloadConfirmation.location.changeLink')}
             </button>
           )}
         </div>
@@ -176,7 +188,7 @@ export function DownloadConfirmationDialog({
           <div className="download-dialog__batch-info flex items-start gap-2">
             <Info20Regular className="download-dialog__info-icon" />
             <p className="download-dialog__info-text">
-              Downloads will run in the background. You can continue browsing while they complete.
+              {t('dialogs:downloadConfirmation.batchInfo')}
             </p>
           </div>
         )}

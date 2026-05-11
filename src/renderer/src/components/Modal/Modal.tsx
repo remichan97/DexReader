@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { ModalSize, BaseComponentProps } from '@renderer/types/components'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import './Modal.css'
 
 export interface ModalProps extends BaseComponentProps {
@@ -74,6 +75,7 @@ export function Modal({
   className = '',
   'aria-label': ariaLabel
 }: Readonly<ModalProps>): React.JSX.Element | null {
+  const { t } = useTranslation('common')
   const dialogRef = useRef<HTMLDivElement>(null)
   const previousActiveElement = useRef<HTMLElement | null>(null)
 
@@ -168,7 +170,7 @@ export function Modal({
             type="button"
             className="modal__close flex items-center justify-center"
             onClick={onClose}
-            aria-label="Close dialog"
+            aria-label={t('aria.closeDialog')}
           >
             <svg
               className="modal__close-icon"

@@ -1,6 +1,7 @@
 import { JSX, useState } from 'react'
 import { Warning48Regular, CloudOff48Regular } from '@fluentui/react-icons'
 import { Button } from '../Button'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import './ErrorState.css'
 
 export interface ErrorStateProps {
@@ -103,10 +104,14 @@ export function ErrorState({
   showTechnicalDetails = false,
   retrying = false
 }: Readonly<ErrorStateProps>): JSX.Element {
+  const { t } = useTranslation(['common', 'errors'])
   const [detailsExpanded, setDetailsExpanded] = useState(false)
 
   const icon = variant === 'offline' ? <CloudOff48Regular /> : <Warning48Regular />
-  const defaultTitle = variant === 'offline' ? "You're offline" : 'Something went wrong'
+  const defaultTitle =
+    variant === 'offline'
+      ? t('errors:network.offline.title')
+      : t('common:message.error.somethingWentWrong')
 
   return (
     <div className={`error-state error-state--${variant}`} role="alert" aria-live="assertive">
@@ -126,7 +131,7 @@ export function ErrorState({
               loading={retrying}
               size="medium"
             >
-              {retrying ? 'Retrying...' : 'Try Again'}
+              {retrying ? t('common:button.retrying') : t('common:button.tryAgain')}
             </Button>
           )}
 
@@ -142,7 +147,8 @@ export function ErrorState({
               onClick={() => setDetailsExpanded(!detailsExpanded)}
               size="medium"
             >
-              {detailsExpanded ? 'Hide' : 'Show'} technical details
+              {detailsExpanded ? t('common:action.hide') : t('common:action.show')} technical
+              details
             </Button>
           )}
         </div>

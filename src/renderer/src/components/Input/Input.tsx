@@ -1,4 +1,5 @@
 import { useState, InputHTMLAttributes, useId } from 'react'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import { InputType, BaseComponentProps, DisableableProps } from '@renderer/types/components'
 import './Input.css'
 
@@ -115,6 +116,7 @@ export function Input({
   'aria-label': ariaLabel,
   ...rest
 }: InputProps): React.JSX.Element {
+  const { t } = useTranslation('common')
   const [showPassword, setShowPassword] = useState(false)
   const inputId = useId()
   const errorId = useId()
@@ -194,7 +196,7 @@ export function Input({
             type="button"
             className="input-action input-action--clear flex items-center justify-center"
             onClick={handleClear}
-            aria-label="Clear search"
+            aria-label={t('aria.clearSearch')}
             tabIndex={-1}
           >
             <svg
@@ -218,7 +220,7 @@ export function Input({
             type="button"
             className="input-action input-action--toggle flex items-center justify-center"
             onClick={togglePasswordVisibility}
-            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            aria-label={showPassword ? t('aria.hidePassword') : t('aria.showPassword')}
             tabIndex={-1}
           >
             <svg

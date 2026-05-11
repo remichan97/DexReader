@@ -1,5 +1,6 @@
 import React from 'react'
 import { Modal } from '../Modal'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import './KeyboardShortcutsDialog.css'
 
 interface KeyboardShortcutsDialogProps {
@@ -7,102 +8,127 @@ interface KeyboardShortcutsDialogProps {
   readonly onClose: () => void
 }
 
-type ShortcutCategory = 'global' | 'navigation' | 'library' | 'reader' | 'search' | 'accessibility'
+interface ShortcutItem {
+  key: string
+  translationKey: string
+  ariaLabelKey?: string
+}
 
 interface ShortcutItem {
   key: string
-  description: string
-  category: ShortcutCategory
-  ariaLabel?: string
+  translationKey: string
+  ariaLabelKey?: string
 }
 
-const SHORTCUTS: ShortcutItem[] = [
-  // Global
-  { key: 'Ctrl+U', description: 'Check for app updates', category: 'global' },
-  { key: 'Ctrl+,', description: 'Open Settings', category: 'global' },
-  { key: 'Ctrl+Shift+N', description: 'Toggle Incognito mode', category: 'global' },
-  { key: 'F11', description: 'Toggle fullscreen', category: 'global' },
-  { key: 'Ctrl+R', description: 'Reload current view', category: 'global' },
-  { key: 'F1', description: 'Open Help', category: 'global' },
-  { key: 'Ctrl+/', description: 'Show keyboard shortcuts', category: 'global' },
-  { key: 'Alt+F4', description: 'Exit app', category: 'global' },
+// Shortcuts data mapped to translation keys
+const GLOBAL_SHORTCUTS: ShortcutItem[] = [
+  { key: 'Ctrl+U', translationKey: 'shortcuts:categories.global.shortcuts.checkUpdates' },
+  { key: 'Ctrl+,', translationKey: 'shortcuts:categories.global.shortcuts.openSettings' },
+  { key: 'Ctrl+Shift+N', translationKey: 'shortcuts:categories.global.shortcuts.toggleIncognito' },
+  { key: 'F11', translationKey: 'shortcuts:categories.global.shortcuts.toggleFullscreen' },
+  { key: 'Ctrl+R', translationKey: 'shortcuts:categories.global.shortcuts.reload' },
+  { key: 'F1', translationKey: 'shortcuts:categories.global.shortcuts.openHelp' },
+  { key: 'Ctrl+/', translationKey: 'shortcuts:categories.global.shortcuts.showShortcuts' },
+  { key: 'Alt+F4', translationKey: 'shortcuts:categories.global.shortcuts.exitApp' }
+]
 
-  // Navigation
-  { key: 'Ctrl+1', description: 'Go to Browse', category: 'navigation' },
-  { key: 'Ctrl+2', description: 'Go to Library', category: 'navigation' },
-  { key: 'Ctrl+3', description: 'Go to Downloads', category: 'navigation' },
-  { key: 'Ctrl+4', description: 'Go to Reading History', category: 'navigation' },
-  { key: 'Ctrl+F', description: 'Focus search bar', category: 'navigation' },
+const NAVIGATION_SHORTCUTS: ShortcutItem[] = [
+  { key: 'Ctrl+1', translationKey: 'shortcuts:categories.navigation.shortcuts.goToBrowse' },
+  { key: 'Ctrl+2', translationKey: 'shortcuts:categories.navigation.shortcuts.goToLibrary' },
+  { key: 'Ctrl+3', translationKey: 'shortcuts:categories.navigation.shortcuts.goToDownloads' },
+  { key: 'Ctrl+4', translationKey: 'shortcuts:categories.navigation.shortcuts.goToHistory' },
+  { key: 'Ctrl+F', translationKey: 'shortcuts:categories.navigation.shortcuts.focusSearch' }
+]
 
-  // Library
-  { key: 'Ctrl+D', description: 'Add/Remove from Favourites', category: 'library' },
-  { key: 'Ctrl+Shift+N', description: 'Create new collection', category: 'library' },
-  { key: 'Ctrl+Shift+C', description: 'Manage collections', category: 'library' },
-  { key: 'Ctrl+Shift+U', description: 'Check library for updates', category: 'library' },
-  { key: 'Ctrl+Shift+D', description: 'Download chapter', category: 'library' },
-  { key: 'Ctrl+Alt+D', description: 'Download entire manga', category: 'library' },
-  { key: 'Ctrl+Shift+E', description: 'Edit collection', category: 'library' },
+const LIBRARY_SHORTCUTS: ShortcutItem[] = [
+  { key: 'Ctrl+D', translationKey: 'shortcuts:categories.library.shortcuts.toggleFavorite' },
+  {
+    key: 'Ctrl+Shift+N',
+    translationKey: 'shortcuts:categories.library.shortcuts.createCollection'
+  },
+  {
+    key: 'Ctrl+Shift+C',
+    translationKey: 'shortcuts:categories.library.shortcuts.manageCollections'
+  },
+  { key: 'Ctrl+Shift+U', translationKey: 'shortcuts:categories.library.shortcuts.checkForUpdates' },
+  { key: 'Ctrl+Shift+D', translationKey: 'shortcuts:categories.library.shortcuts.downloadChapter' },
+  { key: 'Ctrl+Alt+D', translationKey: 'shortcuts:categories.library.shortcuts.downloadManga' },
+  { key: 'Ctrl+Shift+E', translationKey: 'shortcuts:categories.library.shortcuts.editCollection' }
+]
 
-  // Reader - Page Navigation
+const READER_PAGE_NAV_SHORTCUTS: ShortcutItem[] = [
   {
     key: '→ / PageDown / Enter',
-    description: 'Next page',
-    category: 'reader',
-    ariaLabel: 'Arrow Right, PageDown, or Enter: Next page'
+    translationKey: 'shortcuts:categories.reader.pageNavigation.shortcuts.nextPage',
+    ariaLabelKey: 'shortcuts:categories.reader.pageNavigation.shortcuts.nextPageKeys'
   },
   {
     key: '← / PageUp',
-    description: 'Previous page',
-    category: 'reader',
-    ariaLabel: 'Arrow Left or PageUp: Previous page'
+    translationKey: 'shortcuts:categories.reader.pageNavigation.shortcuts.previousPage',
+    ariaLabelKey: 'shortcuts:categories.reader.pageNavigation.shortcuts.previousPageKeys'
   },
-  { key: 'Space', description: 'Next page', category: 'reader' },
-  { key: 'Shift+Space', description: 'Previous page', category: 'reader' },
-  { key: 'Home', description: 'First page', category: 'reader' },
-  { key: 'End', description: 'Last page', category: 'reader' },
+  {
+    key: 'Space',
+    translationKey: 'shortcuts:categories.reader.pageNavigation.shortcuts.nextPageSpace'
+  },
+  {
+    key: 'Shift+Space',
+    translationKey: 'shortcuts:categories.reader.pageNavigation.shortcuts.previousPageShiftSpace'
+  },
+  { key: 'Home', translationKey: 'shortcuts:categories.reader.pageNavigation.shortcuts.firstPage' },
+  { key: 'End', translationKey: 'shortcuts:categories.reader.pageNavigation.shortcuts.lastPage' }
+]
 
-  // Reader - Chapter Navigation
+const READER_CHAPTER_NAV_SHORTCUTS: ShortcutItem[] = [
   {
     key: '↑',
-    description: 'Previous chapter',
-    category: 'reader',
-    ariaLabel: 'Arrow Up: Previous chapter'
+    translationKey: 'shortcuts:categories.reader.chapterNavigation.shortcuts.previousChapter'
   },
   {
     key: '↓',
-    description: 'Next chapter',
-    category: 'reader',
-    ariaLabel: 'Arrow Down: Next chapter'
+    translationKey: 'shortcuts:categories.reader.chapterNavigation.shortcuts.nextChapter'
   },
-  { key: 'L', description: 'Toggle chapter list', category: 'reader' },
+  {
+    key: 'L',
+    translationKey: 'shortcuts:categories.reader.chapterNavigation.shortcuts.toggleChapterList'
+  }
+]
 
-  // Reader - Reading Modes
-  { key: 'M', description: 'Cycle reading modes', category: 'reader' },
+const READER_READING_MODES_SHORTCUTS: ShortcutItem[] = [
+  {
+    key: 'M',
+    translationKey: 'shortcuts:categories.reader.readingModes.shortcuts.cycleReadingModes'
+  }
+]
 
-  // Reader - Zoom & Fit
-  { key: 'Z', description: 'Cycle fit modes', category: 'reader' },
-  { key: 'Ctrl+0', description: 'Reset zoom', category: 'reader' },
-  { key: 'Ctrl++', description: 'Zoom in', category: 'reader' },
-  { key: 'Ctrl+-', description: 'Zoom out', category: 'reader' },
-  { key: 'Ctrl+Wheel', description: 'Zoom at cursor', category: 'reader' },
+const READER_ZOOM_SHORTCUTS: ShortcutItem[] = [
+  { key: 'Z', translationKey: 'shortcuts:categories.reader.zoomAndFit.shortcuts.cycleFitModes' },
+  { key: 'Ctrl+0', translationKey: 'shortcuts:categories.reader.zoomAndFit.shortcuts.resetZoom' },
+  { key: 'Ctrl++', translationKey: 'shortcuts:categories.reader.zoomAndFit.shortcuts.zoomIn' },
+  { key: 'Ctrl+-', translationKey: 'shortcuts:categories.reader.zoomAndFit.shortcuts.zoomOut' },
+  {
+    key: 'Ctrl+Wheel',
+    translationKey: 'shortcuts:categories.reader.zoomAndFit.shortcuts.zoomAtCursor'
+  }
+]
 
-  // Reader - Exit
-  { key: 'Escape', description: 'Back / Close sidebar', category: 'reader' },
+const READER_EXIT_SHORTCUTS: ShortcutItem[] = [
+  { key: 'Escape', translationKey: 'shortcuts:categories.reader.exit.shortcuts.backOrCloseSidebar' }
+]
 
-  // Search
-  { key: 'Escape', description: 'Clear search (when focused)', category: 'search' },
+const SEARCH_SHORTCUTS: ShortcutItem[] = [
+  { key: 'Escape', translationKey: 'shortcuts:categories.search.shortcuts.clearSearch' }
+]
 
-  // Accessibility
-  { key: 'Tab', description: 'Navigate focusable elements', category: 'accessibility' },
+const ACCESSIBILITY_SHORTCUTS: ShortcutItem[] = [
+  { key: 'Tab', translationKey: 'shortcuts:categories.accessibility.shortcuts.navigateFocusable' },
   {
     key: 'Enter / Space',
-    description: 'Activate buttons, switches, tabs',
-    category: 'accessibility'
+    translationKey: 'shortcuts:categories.accessibility.shortcuts.activateElements'
   },
   {
     key: 'Arrow keys',
-    description: 'Navigate dropdowns, tabs, menus',
-    category: 'accessibility'
+    translationKey: 'shortcuts:categories.accessibility.shortcuts.navigateControls'
   }
 ]
 
@@ -110,195 +136,87 @@ export function KeyboardShortcutsDialog({
   isOpen,
   onClose
 }: KeyboardShortcutsDialogProps): React.JSX.Element {
-  const globalShortcuts = SHORTCUTS.filter((s) => s.category === 'global')
-  const navigationShortcuts = SHORTCUTS.filter((s) => s.category === 'navigation')
-  const libraryShortcuts = SHORTCUTS.filter((s) => s.category === 'library')
-  const readerShortcuts = SHORTCUTS.filter((s) => s.category === 'reader')
-  const searchShortcuts = SHORTCUTS.filter((s) => s.category === 'search')
-  const accessibilityShortcuts = SHORTCUTS.filter((s) => s.category === 'accessibility')
+  const { t } = useTranslation('shortcuts')
+
+  const renderShortcutList = (shortcuts: ShortcutItem[]): React.JSX.Element => (
+    <div className="shortcut-list">
+      {shortcuts.map((shortcut) => (
+        <div key={shortcut.key} className="shortcut-item">
+          <kbd
+            className="shortcut-item__key"
+            aria-label={shortcut.ariaLabelKey ? t(shortcut.ariaLabelKey) : shortcut.key}
+          >
+            {shortcut.key}
+          </kbd>
+          <span className="shortcut-item__description">{t(shortcut.translationKey)}</span>
+        </div>
+      ))}
+    </div>
+  )
 
   return (
-    <Modal open={isOpen} onClose={onClose} size="large" title="Keyboard Shortcuts">
+    <Modal open={isOpen} onClose={onClose} size="large" title={t('dialogTitle')}>
       <div className="keyboard-shortcuts-dialog flex flex-col">
-        <div className="keyboard-shortcuts-dialog__subtitle">
-          All keyboard shortcuts available in DexReader
-        </div>
+        <div className="keyboard-shortcuts-dialog__subtitle">{t('dialogSubtitle')}</div>
 
         <div className="keyboard-shortcuts-dialog__content">
           {/* Global Shortcuts */}
           <section className="shortcut-section">
-            <h3 className="shortcut-section__title">Global</h3>
-            <div className="shortcut-list">
-              {globalShortcuts.map((shortcut) => (
-                <div key={shortcut.key} className="shortcut-item">
-                  <kbd
-                    className="shortcut-item__key"
-                    aria-label={shortcut.ariaLabel || shortcut.key}
-                  >
-                    {shortcut.key}
-                  </kbd>
-                  <span className="shortcut-item__description">{shortcut.description}</span>
-                </div>
-              ))}
-            </div>
+            <h3 className="shortcut-section__title">{t('categories.global.title')}</h3>
+            {renderShortcutList(GLOBAL_SHORTCUTS)}
           </section>
 
           {/* Navigation Shortcuts */}
           <section className="shortcut-section">
-            <h3 className="shortcut-section__title">Navigation</h3>
-            <div className="shortcut-list">
-              {navigationShortcuts.map((shortcut) => (
-                <div key={shortcut.key} className="shortcut-item">
-                  <kbd
-                    className="shortcut-item__key"
-                    aria-label={shortcut.ariaLabel || shortcut.key}
-                  >
-                    {shortcut.key}
-                  </kbd>
-                  <span className="shortcut-item__description">{shortcut.description}</span>
-                </div>
-              ))}
-            </div>
+            <h3 className="shortcut-section__title">{t('categories.navigation.title')}</h3>
+            {renderShortcutList(NAVIGATION_SHORTCUTS)}
           </section>
 
           {/* Library Shortcuts */}
           <section className="shortcut-section">
-            <h3 className="shortcut-section__title">Library</h3>
-            <div className="shortcut-list">
-              {libraryShortcuts.map((shortcut) => (
-                <div key={shortcut.key} className="shortcut-item">
-                  <kbd
-                    className="shortcut-item__key"
-                    aria-label={shortcut.ariaLabel || shortcut.key}
-                  >
-                    {shortcut.key}
-                  </kbd>
-                  <span className="shortcut-item__description">{shortcut.description}</span>
-                </div>
-              ))}
-            </div>
+            <h3 className="shortcut-section__title">{t('categories.library.title')}</h3>
+            {renderShortcutList(LIBRARY_SHORTCUTS)}
           </section>
 
           {/* Reader Shortcuts */}
           <section className="shortcut-section">
-            <h3 className="shortcut-section__title">Reader</h3>
+            <h3 className="shortcut-section__title">{t('categories.reader.title')}</h3>
 
-            <h4 className="shortcut-subsection__title">Page Navigation</h4>
-            <div className="shortcut-list">
-              {readerShortcuts
-                .filter(
-                  (s) =>
-                    s.description.includes('page') &&
-                    !s.description.includes('chapter') &&
-                    !s.description.includes('mode')
-                )
-                .map((shortcut) => (
-                  <div key={shortcut.key} className="shortcut-item">
-                    <kbd
-                      className="shortcut-item__key"
-                      aria-label={shortcut.ariaLabel || shortcut.key}
-                    >
-                      {shortcut.key}
-                    </kbd>
-                    <span className="shortcut-item__description">{shortcut.description}</span>
-                  </div>
-                ))}
-            </div>
+            <h4 className="shortcut-subsection__title">
+              {t('categories.reader.pageNavigation.subtitle')}
+            </h4>
+            {renderShortcutList(READER_PAGE_NAV_SHORTCUTS)}
 
-            <h4 className="shortcut-subsection__title">Chapter Navigation</h4>
-            <div className="shortcut-list">
-              {readerShortcuts
-                .filter((s) => s.description.includes('chapter') || s.key === 'L')
-                .map((shortcut) => (
-                  <div key={shortcut.key} className="shortcut-item">
-                    <kbd
-                      className="shortcut-item__key"
-                      aria-label={shortcut.ariaLabel || shortcut.key}
-                    >
-                      {shortcut.key}
-                    </kbd>
-                    <span className="shortcut-item__description">{shortcut.description}</span>
-                  </div>
-                ))}
-            </div>
+            <h4 className="shortcut-subsection__title">
+              {t('categories.reader.chapterNavigation.subtitle')}
+            </h4>
+            {renderShortcutList(READER_CHAPTER_NAV_SHORTCUTS)}
 
-            <h4 className="shortcut-subsection__title">Zoom & Fit</h4>
-            <div className="shortcut-list">
-              {readerShortcuts
-                .filter(
-                  (s) =>
-                    s.description.includes('zoom') ||
-                    s.description.includes('fit') ||
-                    s.description.includes('mode')
-                )
-                .map((shortcut) => (
-                  <div key={shortcut.key} className="shortcut-item">
-                    <kbd
-                      className="shortcut-item__key"
-                      aria-label={shortcut.ariaLabel || shortcut.key}
-                    >
-                      {shortcut.key}
-                    </kbd>
-                    <span className="shortcut-item__description">{shortcut.description}</span>
-                  </div>
-                ))}
-            </div>
+            <h4 className="shortcut-subsection__title">
+              {t('categories.reader.readingModes.subtitle')}
+            </h4>
+            {renderShortcutList(READER_READING_MODES_SHORTCUTS)}
 
-            <h4 className="shortcut-subsection__title">Exit</h4>
-            <div className="shortcut-list">
-              {readerShortcuts
-                .filter((s) => s.key === 'Escape')
-                .map((shortcut) => (
-                  <div key={shortcut.key} className="shortcut-item">
-                    <kbd
-                      className="shortcut-item__key"
-                      aria-label={shortcut.ariaLabel || shortcut.key}
-                    >
-                      {shortcut.key}
-                    </kbd>
-                    <span className="shortcut-item__description">{shortcut.description}</span>
-                  </div>
-                ))}
-            </div>
+            <h4 className="shortcut-subsection__title">
+              {t('categories.reader.zoomAndFit.subtitle')}
+            </h4>
+            {renderShortcutList(READER_ZOOM_SHORTCUTS)}
+
+            <h4 className="shortcut-subsection__title">{t('categories.reader.exit.subtitle')}</h4>
+            {renderShortcutList(READER_EXIT_SHORTCUTS)}
           </section>
 
           {/* Search Shortcuts */}
           <section className="shortcut-section">
-            <h3 className="shortcut-section__title">Search</h3>
-            <div className="shortcut-list">
-              {searchShortcuts.map((shortcut) => (
-                <div key={shortcut.key} className="shortcut-item">
-                  <kbd
-                    className="shortcut-item__key"
-                    aria-label={shortcut.ariaLabel || shortcut.key}
-                  >
-                    {shortcut.key}
-                  </kbd>
-                  <span className="shortcut-item__description">{shortcut.description}</span>
-                </div>
-              ))}
-            </div>
+            <h3 className="shortcut-section__title">{t('categories.search.title')}</h3>
+            {renderShortcutList(SEARCH_SHORTCUTS)}
           </section>
 
           {/* Accessibility section */}
           <section className="shortcut-section shortcut-section--muted">
-            <h3 className="shortcut-section__title">Accessibility</h3>
-            <p className="shortcut-section__note">
-              Standard keyboard navigation is available throughout the app
-            </p>
-            <div className="shortcut-list">
-              {accessibilityShortcuts.map((shortcut) => (
-                <div key={shortcut.key} className="shortcut-item">
-                  <kbd
-                    className="shortcut-item__key"
-                    aria-label={shortcut.ariaLabel || shortcut.key}
-                  >
-                    {shortcut.key}
-                  </kbd>
-                  <span className="shortcut-item__description">{shortcut.description}</span>
-                </div>
-              ))}
-            </div>
+            <h3 className="shortcut-section__title">{t('categories.accessibility.title')}</h3>
+            <p className="shortcut-section__note">{t('categories.accessibility.note')}</p>
+            {renderShortcutList(ACCESSIBILITY_SHORTCUTS)}
           </section>
         </div>
       </div>

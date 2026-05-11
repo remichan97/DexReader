@@ -7,6 +7,7 @@ import {
   LoadableProps
 } from '@renderer/types/components'
 import { ProgressRing } from '../ProgressRing'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import './Button.css'
 
 export interface ButtonProps
@@ -70,7 +71,9 @@ export function Button({
   onClick,
   'aria-label': ariaLabel,
   ...rest
-}: ButtonProps): React.JSX.Element {
+}: Readonly<ButtonProps>): React.JSX.Element {
+  const { t } = useTranslation('common')
+
   const classNames = [
     'button',
     'flex',
@@ -106,7 +109,7 @@ export function Button({
     >
       {loading && (
         <span className="button__spinner" aria-hidden="true">
-          <ProgressRing size="small" aria-label="Loading" />
+          <ProgressRing size="small" aria-label={t('state.loading')} />
         </span>
       )}
       {!loading && icon && (

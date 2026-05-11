@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { BaseComponentProps, DisableableProps } from '@renderer/types/components'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import './Select.css'
 
 export interface SelectOption {
@@ -83,16 +84,17 @@ export function Select({
   onChange,
   options,
   label,
-  placeholder = 'Select an option',
+  placeholder,
   helperText,
   error,
   multiple = false,
   searchable = false,
-  emptyMessage = 'No options found',
+  emptyMessage,
   disabled = false,
   className = '',
   'aria-label': ariaLabel
 }: Readonly<SelectProps>): React.JSX.Element {
+  const { t } = useTranslation('common')
   const [isOpen, setIsOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [focusedIndex, setFocusedIndex] = useState(-1)
@@ -104,6 +106,10 @@ export function Select({
   const listboxRef = useRef<HTMLUListElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
+  // Get default values with translations
+  const defaultPlaceholder = placeholder ?? t('form.placeholder.selectOption')
+  const defaultEmptyMessage = emptyMessage ?? t('message.info.noOptionsFound')
+
   // Filter options based on search query
   const filteredOptions = searchable
     ? options.filter((option) => option.label.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -112,13 +118,13 @@ export function Select({
   // Get selected option(s) label
   const getSelectedLabel = (): string => {
     if (multiple && Array.isArray(value)) {
-      if (value.length === 0) return placeholder
+      if (value.length === 0) return defaultPlaceholder
       if (value.length === 1) {
-        return options.find((opt) => opt.value === value[0])?.label || placeholder
+        return options.find((opt) => opt.value === value[0])?.label || defaultPlaceholder
       }
-      return `${value.length} items selected`
+      return t('label.itemsSelected', { count: value.length })
     }
-    return options.find((opt) => opt.value === value)?.label || placeholder
+    return options.find((opt) => opt.value === value)?.label || defaultPlaceholder
   }
 
   // Check if option is selected
@@ -351,7 +357,7 @@ export function Select({
             aria-multiselectable={multiple}
           >
             {filteredOptions.length === 0 ? (
-              <li className="select__option select__option--empty">{emptyMessage}</li>
+              <li className="select__option select__option--empty">{defaultEmptyMessage}</li>
             ) : (
               filteredOptions.map((option, index) => (
                 <li
