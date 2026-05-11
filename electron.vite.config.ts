@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises'
-import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
+import { defineConfig } from 'electron-vite'
 import react from '@vitejs/plugin-react'
 import path from 'node:path'
 
@@ -11,10 +11,10 @@ export default defineConfig({
           // Exclude scripts directory from production build
           /^.*\/scripts\/.*/
         ]
-      }
+      },
+      externalizeDeps: true
     },
     plugins: [
-      externalizeDepsPlugin(),
       {
         name: 'copy-migrations',
         async writeBundle() {
@@ -61,11 +61,34 @@ export default defineConfig({
             }
           })
         }
+      },
+      {
+        name: 'copy-locales',
+        async writeBundle() {
+          const src = path.resolve(__dirname, 'src/locales')
+          const dest = path.resolve(__dirname, 'out/locales')
+
+          await fs.mkdir(dest, { recursive: true })
+
+          const files = await fs.readdir(src)
+          files.forEach(async (file: string) => {
+            const srcPath = path.join(src, file)
+            const destPath = path.join(dest, file)
+
+            if ((await fs.stat(srcPath)).isDirectory()) {
+              fs.cp(srcPath, destPath, { recursive: true })
+            } else if (file.endsWith('.json')) {
+              fs.copyFile(srcPath, destPath)
+            }
+          })
+        }
       }
     ]
   },
   preload: {
-    plugins: [externalizeDepsPlugin()]
+    build: {
+      externalizeDeps: true
+    }
   },
   renderer: {
     resolve: {
