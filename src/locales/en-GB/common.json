@@ -100,7 +100,11 @@
     "perPage": "Per Page",
     "demographic": "Demographic",
     "progress": "Progress",
-    "resultsPerPage": "Results per page"
+    "resultsPerPage": "Results per page",
+    "itemsSelected": "{{count}} items selected",
+    "technicalDetails": "technical details",
+    "error": "Error:",
+    "stackTrace": "Stack Trace:"
   },
   "navigation": {
     "browse": "Browse",
@@ -136,7 +140,8 @@
       "collectionName": "e.g., Reading, Want to Read",
       "description": "Add a description",
       "presetName": "e.g., Ongoing Action",
-      "selectPreset": "Select a preset"
+      "selectPreset": "Select a preset",
+      "selectOption": "Select an option"
     },
     "helperText": {
       "characterCount": "characters",
@@ -173,7 +178,8 @@
       "onlyDownloadedContent": "Only downloaded content is available",
       "browseRequiresInternet": "Browse requires an internet connection",
       "filtersActive": "filters active",
-      "scrollToFilters": "Scroll to Filters"
+      "scrollToFilters": "Scroll to Filters",
+      "noOptionsFound": "No options found"
     },
     "confirmation": {
       "downloadChapter": "Download Chapter?",
@@ -268,6 +274,15 @@
     "unknown": "Unknown",
     "untitled": "Untitled",
     "notAvailable": "Not available"
+  },
+  "aria": {
+    "closeDialog": "Close dialog",
+    "closeNotification": "Close notification",
+    "clearSearch": "Clear search",
+    "filters": "Filters",
+    "filtersActive": "{{count}} active",
+    "hidePassword": "Hide password",
+    "showPassword": "Show password"
   },
   "statusBar": {
     "incognitoActive": "You've gone Incognito — Progress tracking is disabled"

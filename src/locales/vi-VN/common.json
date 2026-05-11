@@ -100,7 +100,11 @@
     "perPage": "Mỗi trang",
     "demographic": "Đối tượng",
     "progress": "Tiến trình",
-    "resultsPerPage": "Kết quả mỗi trang"
+    "resultsPerPage": "Kết quả mỗi trang",
+    "itemsSelected": "{{count}} mục đã chọn",
+    "technicalDetails": "chi tiết kỹ thuật",
+    "error": "Lỗi:",
+    "stackTrace": "Stack Trace:"
   },
   "navigation": {
     "browse": "Khám phá",
@@ -136,7 +140,8 @@
       "collectionName": "ví dụ: Đang đọc, Muốn đọc",
       "description": "Thêm mô tả",
       "presetName": "ví dụ: Hành động đang diễn ra",
-      "selectPreset": "Chọn mẫu tìm kiếm"
+      "selectPreset": "Chọn mẫu tìm kiếm",
+      "selectOption": "Chọn một tùy chọn"
     },
     "helperText": {
       "characterCount": "ký tự",
@@ -173,7 +178,8 @@
       "onlyDownloadedContent": "Chỉ có nội dung đã tải xuống khả dụng",
       "browseRequiresInternet": "Khám phá yêu cầu kết nối internet",
       "filtersActive": "Bộ lọc đang hoạt động",
-      "scrollToFilters": "Cuộn đến Bộ lọc"
+      "scrollToFilters": "Cuộn đến Bộ lọc",
+      "noOptionsFound": "Không tìm thấy tùy chọn nào"
     },
     "confirmation": {
       "downloadChapter": "Tải xuống Chương?",
@@ -268,6 +274,15 @@
     "unknown": "Không xác định",
     "untitled": "Chưa đặt tiêu đề",
     "notAvailable": "Không có sẵn"
+  },
+  "aria": {
+    "closeDialog": "Đóng hộp thoại",
+    "closeNotification": "Đóng thông báo",
+    "clearSearch": "Xóa tìm kiếm",
+    "filters": "Bộ lọc",
+    "filtersActive": "{{count}} đang bật",
+    "hidePassword": "Ẩn mật khẩu",
+    "showPassword": "Hiển mật khẩu"
   },
   "statusBar": {
     "incognitoActive": "Bạn đã vào Chế độ Ẩn danh — Không ghi nhận tiến trình đọc"
