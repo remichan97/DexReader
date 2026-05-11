@@ -16,7 +16,23 @@ i18next.use(initReactI18next).init({
   fallbackLng: 'en-GB', // Fallback language if translation is missing
   interpolation: {
     escapeValue: false // React already does escaping
-  }
+  },
+  ns: [
+    'common',
+    'menu',
+    'errors',
+    'dialogs',
+    'validation',
+    'shortcuts',
+    'browse',
+    'library',
+    'downloads',
+    'reader',
+    'settings',
+    'history',
+    'mangaDetail'
+  ],
+  defaultNS: 'common'
 })
 
 export default i18next

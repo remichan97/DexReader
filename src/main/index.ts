@@ -16,6 +16,7 @@ import { downloadQueueService } from './services/download-queue.service'
 import { diskCacheUtil } from './api/utils/disk-cache.util'
 import { appUpdateService } from './services/app-update.service'
 import { mainLog } from './services/logging/main-logging.service'
+import './i18n/i18n.config'
 
 const imageProxy = new ImageProxy()
 const localImageProxy = new LocalImageProxy()
