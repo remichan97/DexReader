@@ -71,16 +71,24 @@ export default defineConfig({
           await fs.mkdir(dest, { recursive: true })
 
           const files = await fs.readdir(src)
-          files.forEach(async (file: string) => {
+          for (const file of files) {
             const srcPath = path.join(src, file)
             const destPath = path.join(dest, file)
 
             if ((await fs.stat(srcPath)).isDirectory()) {
-              fs.cp(srcPath, destPath, { recursive: true })
+              // Copy language directory, but only JSON files
+              await fs.mkdir(destPath, { recursive: true })
+              const langFiles = await fs.readdir(srcPath)
+              for (const langFile of langFiles) {
+                if (langFile.endsWith('.json')) {
+                  await fs.copyFile(path.join(srcPath, langFile), path.join(destPath, langFile))
+                }
+              }
             } else if (file.endsWith('.json')) {
-              fs.copyFile(srcPath, destPath)
+              // Copy root-level JSON files (if any)
+              await fs.copyFile(srcPath, destPath)
             }
-          })
+          }
         }
       }
     ]
