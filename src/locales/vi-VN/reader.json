@@ -53,12 +53,32 @@
     "readRightToLeft": "Đọc từ phải sang trái (giống manga)"
   },
   "zoomControls": {
-    "fitWidth": "Vừa chiều rộng",
-    "fitHeight": "Vừa chiều cao",
-    "actualSize": "Kích thước thực",
-    "zoomIn": "Phóng to",
-    "zoomOut": "Thu nhỏ",
-    "reset": "Đặt lại"
+    "sectionTitle": {
+      "fitMode": "Chế độ vừa khít",
+      "zoom": "Phóng to"
+    },
+    "fitWidth": "Chiều ngang",
+    "fitHeight": "Chiều dọc",
+    "actualSize": "100%",
+    "zoomIn": "+",
+    "zoomOut": "-",
+    "reset": "Đặt lại mặc định",
+    "tooltips": {
+      "fitWidth": "Vừa khít theo chiều ngang trang",
+      "fitHeight": "Vừa khít theo chiều dọc trang",
+      "actualSize": "Hiển thị ở kích thước 100% (kích thước thực)",
+      "zoomIn": "Phóng to (Ctrl + =)",
+      "zoomOut": "Thu nhỏ (Ctrl + -)",
+      "reset": "Đặt lại mặc định (vừa khít theo chiều dọc)",
+      "currentZoom": "Mức phóng to hiện tại"
+    },
+    "ariaLabels": {
+      "fitWidth": "Vừa khít theo chiều ngang",
+      "fitHeight": "Vừa khít theo chiều dọc",
+      "actualSize": "Kích thước thực",
+      "zoomIn": "Phóng to",
+      "zoomOut": "Thu nhỏ"
+    }
   },
   "documentTitle": {
     "loading": "Đang tải... - DexReader",

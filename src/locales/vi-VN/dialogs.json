@@ -443,5 +443,115 @@
         "letsGo": "Tuyệt vời!"
       }
     }
+  },
+  "dexreaderImport": {
+    "title": "Nhập dữ liệu từ Sao lưu DexReader",
+    "fileInfo": {
+      "label": "Tệp:",
+      "path": "{{filePath}}"
+    },
+    "description": "Bản sao lưu này sẽ được hợp nhất với thư viện hiện tại của bạn. Các dữ liệu sau sẽ được nhập:",
+    "sections": {
+      "library": {
+        "title": "Thư viện",
+        "description": "Metadata manga, chapter và URL bìa"
+      },
+      "collections": {
+        "title": "Bộ sưu tập",
+        "description": "Bộ sưu tập tùy chỉnh và manga được gán"
+      },
+      "progress": {
+        "title": "Tiến trình đọc",
+        "description": "Tiến trình chương và mốc thời gian đọc lần cuối"
+      },
+      "readerSettings": {
+        "title": "Cài đặt Trình đọc",
+        "description": "Chế độ đọc và tùy chọn hiển thị theo từng manga"
+      }
+    },
+    "behaviour": {
+      "title": "Hành vi nhập:",
+      "description": "Các mục thư viện hiện có sẽ được giữ nguyên. Chỉ dữ liệu mới sẽ được thêm vào."
+    },
+    "buttons": {
+      "cancel": "Hủy",
+      "import": "Bắt đầu nhập",
+      "importing": "Đang nhập..."
+    },
+    "errors": {
+      "importFailed": "Nhập thất bại: {{message}}",
+      "unknownError": "Đã xảy ra lỗi không xác định"
+    }
+  },
+  "dexreaderExport": {
+    "title": "Xuất sang Sao lưu DexReader",
+    "pathInfo": {
+      "label": "Lưu vào:",
+      "path": "{{savePath}}"
+    },
+    "description": "Chọn nội dung để đưa vào tệp sao lưu. Metadata manga trong thư viện luôn được sao lưu.",
+    "options": {
+      "library": {
+        "title": "Thư viện",
+        "alwaysIncluded": "Luôn bao gồm",
+        "description": "Metadata manga, URL bìa, chương, tag và tác giả"
+      },
+      "collections": {
+        "title": "Bộ sưu tập",
+        "label": "Bao gồm bộ sưu tập",
+        "description": "Bộ sưu tập tùy chỉnh và manga được gán"
+      },
+      "progress": {
+        "title": "Tiến trình đọc",
+        "label": "Bao gồm tiến trình đọc",
+        "description": "Tiến trình chương và mốc thời gian đọc lần cuối"
+      },
+      "readerSettings": {
+        "title": "Cài đặt Trình đọc",
+        "label": "Bao gồm cài đặt trình đọc",
+        "description": "Chế độ đọc và tùy chọn hiển thị theo từng manga"
+      }
+    },
+    "note": {
+      "prefix": "Lưu ý:",
+      "message": "Cài đặt ứng dụng (giao diện, ngôn ngữ, phím tắt) được lưu riêng."
+    },
+    "buttons": {
+      "cancel": "Hủy",
+      "export": "Xuất",
+      "exporting": "Đang xuất..."
+    },
+    "errors": {
+      "exportFailed": "Xuất thất bại: {{message}}",
+      "unknownError": "Đã xảy ra lỗi không xác định"
+    }
+  },
+  "importProgress": {
+    "title": "Đang nhập thư viện của bạn",
+    "progress": {
+      "current": "Đang nhập {{current}} trên {{total}}",
+      "currentTitle": "{{title}}",
+      "indeterminate": "Đang chuẩn bị nhập..."
+    },
+    "buttons": {
+      "cancel": "Hủy nhập"
+    }
+  },
+  "readerSettings": {
+    "title": "Cài đặt Trình đọc",
+    "mode": {
+      "label": "Chế độ",
+      "helperText": "Cách hiển thị các trang",
+      "options": {
+        "single": "Trang đơn",
+        "double": "Trang đôi",
+        "vertical": "Cuộn dọc"
+      }
+    },
+    "doublePageOptions": {
+      "title": "Tùy chọn trang đôi",
+      "skipCoverPages": "Bỏ qua trang bìa",
+      "readRightToLeft": "Đọc từ phải sang trái"
+    }
   }
 }

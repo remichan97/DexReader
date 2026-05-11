@@ -443,5 +443,115 @@
         "letsGo": "Let's Go!"
       }
     }
+  },
+  "dexreaderImport": {
+    "title": "Import DexReader Backup",
+    "fileInfo": {
+      "label": "File:",
+      "path": "{{filePath}}"
+    },
+    "description": "This backup will be merged with your existing library. The following data will be imported:",
+    "sections": {
+      "library": {
+        "title": "Library",
+        "description": "Manga metadata, chapters, and cover URLs"
+      },
+      "collections": {
+        "title": "Collections",
+        "description": "Custom collections and their manga assignments"
+      },
+      "progress": {
+        "title": "Reading Progress",
+        "description": "Chapter progress and last read timestamps"
+      },
+      "readerSettings": {
+        "title": "Reader Settings",
+        "description": "Reading mode and display preferences per manga"
+      }
+    },
+    "behaviour": {
+      "title": "Import Behaviour:",
+      "description": "Existing library entries will be preserved. Only new data will be added."
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "import": "Start Import",
+      "importing": "Importing..."
+    },
+    "errors": {
+      "importFailed": "Import failed: {{message}}",
+      "unknownError": "An unknown error occurred"
+    }
+  },
+  "dexreaderExport": {
+    "title": "Export DexReader Backup",
+    "pathInfo": {
+      "label": "Save to:",
+      "path": "{{savePath}}"
+    },
+    "description": "Choose what to include in your backup file. Library manga metadata is always included.",
+    "options": {
+      "library": {
+        "title": "Library",
+        "alwaysIncluded": "Always included",
+        "description": "Manga metadata, cover URLs, chapters, tags, and authors"
+      },
+      "collections": {
+        "title": "Collections",
+        "label": "Include collections",
+        "description": "Your custom collections and manga assignments"
+      },
+      "progress": {
+        "title": "Reading Progress",
+        "label": "Include reading progress",
+        "description": "Chapter progress and last read timestamps"
+      },
+      "readerSettings": {
+        "title": "Reader Settings",
+        "label": "Include reader settings",
+        "description": "Reading mode and display preferences per manga"
+      }
+    },
+    "note": {
+      "prefix": "Note:",
+      "message": "App settings (theme, language, shortcuts) are stored separately."
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "export": "Export",
+      "exporting": "Exporting..."
+    },
+    "errors": {
+      "exportFailed": "Export failed: {{message}}",
+      "unknownError": "An unknown error occurred"
+    }
+  },
+  "importProgress": {
+    "title": "Importing Your Library",
+    "progress": {
+      "current": "Importing {{current}} of {{total}}",
+      "currentTitle": "{{title}}",
+      "indeterminate": "Preparing import..."
+    },
+    "buttons": {
+      "cancel": "Cancel Import"
+    }
+  },
+  "readerSettings": {
+    "title": "Reader Settings",
+    "mode": {
+      "label": "Mode",
+      "helperText": "How pages are displayed",
+      "options": {
+        "single": "Single Page",
+        "double": "Double Page",
+        "vertical": "Vertical Scroll"
+      }
+    },
+    "doublePageOptions": {
+      "title": "Double Page Options",
+      "skipCoverPages": "Skip cover pages",
+      "readRightToLeft": "Read right-to-left"
+    }
   }
 }

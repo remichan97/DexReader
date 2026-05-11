@@ -53,12 +53,32 @@
     "readRightToLeft": "Read right-to-left (manga style)"
   },
   "zoomControls": {
-    "fitWidth": "Fit Width",
-    "fitHeight": "Fit Height",
-    "actualSize": "Actual Size",
-    "zoomIn": "Zoom In",
-    "zoomOut": "Zoom Out",
-    "reset": "Reset"
+    "sectionTitle": {
+      "fitMode": "Fit Mode",
+      "zoom": "Zoom"
+    },
+    "fitWidth": "Width",
+    "fitHeight": "Height",
+    "actualSize": "100%",
+    "zoomIn": "+",
+    "zoomOut": "-",
+    "reset": "Reset to Default",
+    "tooltips": {
+      "fitWidth": "Fit image to page width",
+      "fitHeight": "Fit image to page height",
+      "actualSize": "Show at 100% size (actual size)",
+      "zoomIn": "Zoom in (Ctrl + =)",
+      "zoomOut": "Zoom out (Ctrl + -)",
+      "reset": "Reset to default (fit to height)",
+      "currentZoom": "Current zoom level"
+    },
+    "ariaLabels": {
+      "fitWidth": "Fit to width",
+      "fitHeight": "Fit to height",
+      "actualSize": "Actual size",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out"
+    }
   },
   "documentTitle": {
     "loading": "Loading... - DexReader",
