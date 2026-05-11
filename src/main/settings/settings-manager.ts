@@ -20,6 +20,7 @@ import { memoryCacheUtil } from '../api/utils/memory-cache.util'
 import { mainLog } from '../services/logging/main-logging.service'
 import { StartupPage } from './enums/startup-page.enum'
 import { migrateSettings } from './utils/settings-migration.util'
+import { DisplayLanguage } from './enums/display-languages.enum'
 
 let cachedSettingsObject: AppSettings | undefined = undefined
 
@@ -227,7 +228,10 @@ export function getDefaultSettings(): AppSettings {
     logs: {
       retentionInDays: 7 // Default: 7 days (covers 99% of debugging scenarios)
     },
-    search: {}
+    search: {},
+    language: {
+      displayLanguage: DisplayLanguage.EnglishUK
+    }
   }
 }
 
