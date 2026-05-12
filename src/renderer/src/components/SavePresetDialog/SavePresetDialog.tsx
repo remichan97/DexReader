@@ -44,7 +44,7 @@ export function SavePresetDialog({
   currentSearchState,
   onSave
 }: Readonly<SavePresetDialogProps>): JSX.Element {
-  const { t } = useTranslation('dialogs')
+  const { t } = useTranslation(['dialogs', 'common'])
   const [name, setName] = useState(initialName)
   const [setAsDefault, setSetAsDefault] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
@@ -158,13 +158,13 @@ export function SavePresetDialog({
   const footer = (
     <div className="save-preset-dialog__footer">
       <Button variant="secondary" onClick={handleClose} disabled={isSaving}>
-        {t('savePreset.buttons.cancel')}
+        {t('common:button.cancel')}
       </Button>
       <Button variant="secondary" onClick={handleSaveCopy} disabled={isSaving || !name.trim()}>
-        {t('savePreset.buttons.saveCopy')}
+        {t('common:button.saveCopy')}
       </Button>
       <Button variant="primary" onClick={handleSave} disabled={isSaving || !name.trim()}>
-        {isSaving ? t('savePreset.buttons.saving') : t('savePreset.buttons.save')}
+        {isSaving ? t('common:button.saving') : t('common:button.save')}
       </Button>
     </div>
   )
@@ -184,7 +184,7 @@ export function SavePresetDialog({
           label={t('savePreset.fields.name.label')}
           value={name}
           onChange={setName}
-          placeholder={t('savePreset.fields.name.placeholder')}
+          placeholder={t('common:form.placeholder.presetName')}
           maxLength={50}
           helperText={t('savePreset.fields.name.helperText', { count: name.length })}
           disabled={isSaving}

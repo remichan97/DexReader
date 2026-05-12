@@ -54,7 +54,7 @@ export function CollectionPickerDialog({
   onCreateNew,
   onSaveComplete
 }: Readonly<CollectionPickerDialogProps>): React.JSX.Element {
-  const { t } = useTranslation('dialogs')
+  const { t } = useTranslation(['dialogs', 'common'])
   const { collections, loadCollections, addToCollection, removeFromCollection } =
     useCollectionsStore()
   const [selectedCollections, setSelectedCollections] = useState<Set<number>>(new Set())
@@ -180,12 +180,10 @@ export function CollectionPickerDialog({
                 onClick={handleClose}
                 disabled={isSubmitting}
               >
-                {t('collectionPicker.buttons.cancel')}
+                {t('common:button.cancel')}
               </Button>
               <Button type="button" variant="primary" onClick={handleSave} disabled={isSubmitting}>
-                {isSubmitting
-                  ? t('collectionPicker.buttons.saving')
-                  : t('collectionPicker.buttons.save')}
+                {isSubmitting ? t('common:button.saving') : t('common:button.save')}
               </Button>
             </div>
           </>

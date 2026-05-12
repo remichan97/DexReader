@@ -86,8 +86,8 @@ export function DownloadConfirmationDialog({
     : t('dialogs:downloadConfirmation.titles.single')
 
   const qualityOptions: SelectOption[] = [
-    { value: 'data', label: t('dialogs:downloadConfirmation.quality.options.high') },
-    { value: 'data-saver', label: t('dialogs:downloadConfirmation.quality.options.dataSaver') }
+    { value: 'data', label: t('common:quality.highQuality') },
+    { value: 'data-saver', label: t('common:quality.dataSaver') }
   ]
 
   const handleQualityChange = (value: string | string[]): void => {
@@ -155,8 +155,8 @@ export function DownloadConfirmationDialog({
             label={t('dialogs:downloadConfirmation.quality.label')}
             helperText={
               selectedQuality === 'data'
-                ? t('dialogs:downloadConfirmation.quality.helperText.high')
-                : t('dialogs:downloadConfirmation.quality.helperText.dataSaver')
+                ? t('common:form.helperText.highQuality')
+                : t('common:form.helperText.dataSaver')
             }
           />
         </div>

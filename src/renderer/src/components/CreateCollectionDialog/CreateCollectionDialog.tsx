@@ -100,12 +100,10 @@ export function CreateCollectionDialog({
       footer={
         <>
           <Button variant="secondary" onClick={handleClose} disabled={isSubmitting}>
-            {t('dialogs:createCollection.buttons.cancel')}
+            {t('common:button.cancel')}
           </Button>
           <Button variant="primary" onClick={handleSubmit} disabled={isSubmitting || !name.trim()}>
-            {isSubmitting
-              ? t('dialogs:createCollection.buttons.creating')
-              : t('dialogs:createCollection.buttons.create')}
+            {isSubmitting ? t('common:button.creating') : t('common:button.create')}
           </Button>
         </>
       }
@@ -116,7 +114,7 @@ export function CreateCollectionDialog({
           label={t('dialogs:createCollection.fields.name.label')}
           value={name}
           onChange={setName}
-          placeholder={t('dialogs:createCollection.fields.name.placeholder')}
+          placeholder={t('common:form.placeholder.collectionName')}
           disabled={isSubmitting}
           autoFocus
           required
@@ -125,7 +123,7 @@ export function CreateCollectionDialog({
           label={t('dialogs:createCollection.fields.description.label')}
           value={description}
           onChange={setDescription}
-          placeholder={t('dialogs:createCollection.fields.description.placeholder')}
+          placeholder={t('common:form.placeholder.description')}
           disabled={isSubmitting}
         />
       </div>
