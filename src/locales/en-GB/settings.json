@@ -65,16 +65,6 @@
     "qualityDescription": "Quality used for all downloads",
     "qualityDescriptionWithConfirm": "Default quality selection",
     "qualityLabel": "Default quality",
-    "qualityOptions": {
-      "data": {
-        "label": "High Quality",
-        "description": "Full resolution images, best visual quality"
-      },
-      "dataSaver": {
-        "label": "Data Saver",
-        "description": "Compressed images, smaller file sizes"
-      }
-    },
     "concurrentSection": "Concurrent Downloads",
     "concurrentDescription": "How many chapters should download at the same time?",
     "concurrentLabel": "Maximum concurrent downloads",
@@ -97,11 +87,9 @@
     "imageQuality": {
       "label": "Image quality",
       "highQuality": {
-        "label": "High Quality",
         "description": "Full resolution images, uses more bandwidth"
       },
       "dataSaver": {
-        "label": "Data Saver",
         "description": "Compressed images, reduces bandwidth usage"
       }
     },
@@ -109,11 +97,6 @@
     "globalSettingsDescription": "These settings apply to all manga by default. You can override them per-manga in the reader.",
     "readingModeLabel": "Default reading mode",
     "readingModeHelper": "How pages are displayed when reading manga",
-    "readingModeOptions": {
-      "single": "Single Page",
-      "double": "Double Page",
-      "vertical": "Vertical Scroll"
-    },
     "doublePageOptions": "Double Page Mode Options",
     "skipCoverPages": "Skip cover pages (show first page alone)",
     "readRightToLeft": "Read right-to-left (manga style)",

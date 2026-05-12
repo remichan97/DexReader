@@ -1,25 +1,31 @@
 {
   "pageTitle": "Chi tiết Manga",
-  "backButton": "Quay lại",
   "offlineError": {
-    "title": "Bạn đang ngoại tuyến",
     "message": "Bạn đang ngoại tuyến và manga này chưa được lưu vào bộ nhớ đệm. Kết nối internet để xem.",
     "action": "Đi tới Thư viện"
   },
   "errorState": {
     "title": "Không thể tải manga",
     "message": "Chúng tôi gặp sự cố khi tải manga này. Đây có thể là vấn đề kết nối hoặc dịch vụ tạm thời không khả dụng.",
-    "retryButton": "Thử lại",
+
     "showDetails": "Hiển thị chi tiết kỹ thuật",
     "hideDetails": "Ẩn chi tiết"
   },
   "cachedDataBanner": {
+    "title": "Đang xem dữ liệu đã lưu",
     "message": "Bạn đang xem dữ liệu đệm đã lưu trước đó. Kết nối internet để xem thông tin mới nhất."
   },
   "chapterError": {
     "title": "Không thể tải chương",
     "message": "Không thể tải chương. Bạn đang ngoại tuyến hoặc các chương không có sẵn.",
-    "offlineMessage": "Bạn đang ngoại tuyến. Thay đổi ngôn ngữ hoặc làm mới các chương yêu cầu kết nối internet."
+    "offlineMessage": "Bạn đang ngoại tuyến. Thay đổi ngôn ngữ hoặc làm mới các chương yêu cầu kết nối internet.",
+    "noChaptersInLanguage": "Không có chương nào bằng {language} ({code})",
+    "viewOnMangaDex": "Xem trên MangaDex"
+  },
+  "notFound": {
+    "title": "Không tìm thấy manga",
+    "message": "Manga này không tồn tại hoặc đã bị xóa.",
+    "action": "Quay lại Browse"
   },
   "documentTitle": {
     "loading": "Đang tải... - DexReader",
@@ -30,6 +36,45 @@
     "loaded": "Đã tải {title} của {author}"
   },
   "stickyTitle": "{title}",
+  "hero": {
+    "coverAlt": "Bìa {title}",
+    "filterByTag": "Lọc theo {name}",
+    "author": "Tác giả:",
+    "artist": "Họa sĩ:",
+    "status": "Trạng thái:",
+    "demographic": "Đối tượng:",
+    "year": "Năm:",
+    "rating": "Xếp hạng:",
+    "length": "Độ dài:",
+    "volumeCount": "{count} tập",
+    "chapterCount": "{count} chapter",
+    "continue": "Tiếp tục",
+    "startReading": "Bắt đầu đọc",
+    "inLibrary": "Trong thư viện",
+    "addedToLibrary": {
+      "title": "Đã thêm vào thư viện!"
+    },
+    "failedToAdd": "Không thể thêm vào thư viện",
+    "manageDownloads": {
+      "title": "Quản lý tải xuống",
+      "detail": "{title}\n\nManga này có {count} chapter đã tải.\n\nBạn có thể thêm vào thư viện để theo dõi, hoặc xóa tất cả các chapter đã tải.",
+      "addToLibrary": "Thêm vào thư viện",
+      "deleteAll": "Xóa tất cả chapter"
+    },
+    "deleteDownloads": {
+      "title": "Xóa tất cả chapter đã tải?",
+      "detail": "Thao tác này sẽ xóa vĩnh viễn {count} chapter từ {title}.\n\nHành động này không thể hoàn tác.",
+      "failed": "Không thể xóa tải xuống"
+    },
+    "downloadAll": {
+      "button": "Tải xuống tất cả",
+      "tooltip": "Tải xuống tất cả chapter",
+      "offlineTooltip": "Bạn đang offline. Vui lòng kết nối mạng để tải xuống",
+      "noChapters": "Không có chapter",
+      "partialFailure": "Tải một phần thất bại",
+      "couldntQueue": "Không thể thêm {count} chapter vào hàng đợi"
+    }
+  },
   "toasts": {
     "downloadsDeleted": {
       "title": "Đã xóa tải xuống",
@@ -38,6 +83,58 @@
     "downloadStarted": {
       "title": "Đã bắt đầu tải xuống",
       "message": "Đã thêm {count} chương vào hàng đợi tải xuống!"
+    }
+  },
+  "section": {
+    "description": {
+      "title": "Mô tả",
+      "noDescription": "Không có mô tả.",
+      "showMore": "Hiển thị thêm",
+      "showLess": "Hiển thị ít hơn"
+    },
+    "alternativeTitles": {
+      "title": "Tên khác",
+      "showLess": "Hiển thị ít hơn",
+      "showMore": "Hiển thị thêm {{count}}"
+    }
+  },
+  "chapters": {
+    "title": "Chapter ({{count}})",
+    "downloadAll": "Tải xuống tất cả",
+    "downloadAllTooltip": "Tải xuống tất cả {{count}} chapter",
+    "downloadAllUnavailable": "Không thể tải xuống tất cả",
+    "selectLanguage": "Chọn ngôn ngữ chapter",
+    "sortChapters": "Sắp xếp chapter",
+    "sort": {
+      "oldestFirst": "Cũ nhất trước",
+      "newestFirst": "Mới nhất trước"
+    },
+    "item": {
+      "untitled": "Không có tiêu đề",
+      "unknownGroup": "Nhóm không rõ",
+      "readChapter": "Đọc Chapter {{number}}: {{title}}",
+      "chapterPrefix": "Ch.",
+      "pagePrefix": "tr."
+    }
+  },
+  "externalLinks": {
+    "title": "Liên kết ngoài",
+    "viewOn": "Xem trên {{service}}",
+    "services": {
+      "anilist": "AniList",
+      "animePlanet": "Anime-Planet",
+      "bookwalker": "BookWalker",
+      "mangaUpdates": "MangaUpdates",
+      "myAnimeList": "MyAnimeList",
+      "kitsu": "Kitsu",
+      "amazon": "Amazon",
+      "cdJapan": "CDJapan",
+      "ebookJapan": "eBookJapan",
+      "officialRaw": "Official Raw"
+    },
+    "dialog": {
+      "openService": "Mở {{service}}?",
+      "detail": "Bạn sắp mở một trang web bên ngoài trong trình duyệt mặc định. Đây là địa chỉ bạn sẽ truy cập:\n\n{{url}}"
     }
   }
 }

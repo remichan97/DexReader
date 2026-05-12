@@ -19,6 +19,7 @@
     "reset": "Reset",
     "retry": "Retry",
     "retrying": "Retrying...",
+    "updating": "Updating...",
     "back": "Back",
     "next": "Next",
     "previous": "Previous",
@@ -29,12 +30,13 @@
     "install": "Install",
     "restart": "Restart",
     "checkOut": "Check Out Your Library",
-    "viewLibrary": "Check Out Your Library",
     "goOnline": "Go Online",
     "openSettings": "Open Settings",
     "saveCopy": "Save a Copy",
     "savePreset": "Save Preset",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "openInBrowser": "Open in Browser",
+    "copyLink": "Copy Link"
   },
   "action": {
     "add": "Add",
@@ -57,7 +59,13 @@
     "open": "Open",
     "show": "Show",
     "hide": "Hide",
-    "load": "Load"
+    "load": "Load",
+    "goToDetail": "Go to Detail",
+    "addToCollection": "Add to Collection...",
+    "removeFromLibrary": "Remove from Library",
+    "addToLibrary": "Add to Library",
+    "editCollection": "Edit Collection",
+    "deleteCollection": "Delete Collection"
   },
   "state": {
     "loading": "Loading",
@@ -128,11 +136,13 @@
     "week": "week",
     "month": "month",
     "year": "year",
-    "ago": "ago"
+    "ago": "ago",
+    "justNow": "Just now"
   },
   "form": {
     "optional": "Optional",
     "required": "Required",
+    "descriptionOptional": "Description (Optional)",
     "placeholder": {
       "search": "Search...",
       "searchManga": "Search manga...",

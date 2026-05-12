@@ -29,12 +29,14 @@
     "install": "Cài đặt",
     "restart": "Khởi động lại",
     "checkOut": "Xem Thư viện của bạn",
-    "viewLibrary": "Xem Thư viện của bạn",
+
     "goOnline": "Kết nối lại",
     "openSettings": "Mở Cài đặt",
     "saveCopy": "Lưu một Bản sao",
     "savePreset": "Lưu Mẫu tìm kiếm",
-    "saving": "Đang lưu..."
+    "saving": "Đang lưu...",
+    "openInBrowser": "Mở trong Trình duyệt",
+    "copyLink": "Sao chép Liên kết"
   },
   "action": {
     "add": "Thêm",
@@ -57,7 +59,13 @@
     "open": "Mở",
     "show": "Hiển thị",
     "hide": "Ẩn",
-    "load": "Tải"
+    "load": "Tải",
+    "goToDetail": "Xem chi tiết",
+    "addToCollection": "Thêm vào bộ sưu tập...",
+    "removeFromLibrary": "Xóa khỏi thư viện",
+    "addToLibrary": "Thêm vào thư viện",
+    "editCollection": "Sửa bộ sưu tập",
+    "deleteCollection": "Xóa bộ sưu tập"
   },
   "state": {
     "loading": "Đang tải",
@@ -128,11 +136,13 @@
     "week": "tuần",
     "month": "tháng",
     "year": "năm",
-    "ago": "trước"
+    "ago": "trước",
+    "justNow": "Vừa xong"
   },
   "form": {
     "optional": "Tùy chọn",
     "required": "Bắt buộc",
+    "descriptionOptional": "Mô tả (Tùy chọn)",
     "placeholder": {
       "search": "Tìm kiếm...",
       "searchManga": "Tìm kiếm manga...",

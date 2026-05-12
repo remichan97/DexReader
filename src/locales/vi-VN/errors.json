@@ -1,7 +1,6 @@
 {
   "network": {
     "offline": {
-      "title": "Bạn đang ngoại tuyến",
       "message": "Chế độ ngoại tuyến đang bật. Bạn chỉ có thể xem các nội dung đã tải xuống.",
       "action": "Kết nối trực tuyến để khám phá và tải xuống thêm.",
       "variants": {

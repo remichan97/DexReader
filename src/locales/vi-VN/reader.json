@@ -1,7 +1,6 @@
 {
   "pageTitle": "Trình đọc",
   "header": {
-    "backButton": "Quay lại",
     "chaptersButton": "Chương",
     "settingsButton": "Cài đặt",
     "settingsLabel": "Cài đặt trình đọc (chế độ đọc)",
@@ -26,28 +25,33 @@
     "noMoreChapters": "Không còn chương nào",
     "backToDetail": "Quay lại Chi tiết Manga"
   },
+  "chapterList": {
+    "noChapters": "Không có chương nào",
+    "chapter": "Chương {number}",
+    "chapterWithTitle": "Chương {number}: {title}",
+    "chapterShort": "Ch.",
+    "volumeShort": "Tập",
+    "pages": "{count} trang"
+  },
   "loadingState": {
     "message": "Đang tải chương..."
   },
   "errorState": {
     "offline": {
-      "title": "Bạn đang ngoại tuyến",
       "message": "Chương này chưa được tải xuống"
     },
     "generic": {
       "title": "Không thể tải chương này",
       "message": "Chúng tôi gặp sự cố khi tải các trang cho chương này. Đây có thể là sự cố mạng tạm thời, hoặc dữ liệu chương có thể không khả dụng ngay bây giờ."
     },
-    "retryButton": "Thử lại",
+
     "goBackButton": "Quay lại",
     "goToLibraryButton": "Đi tới Thư viện",
     "showTechnicalDetails": "Hiển thị chi tiết kỹ thuật"
   },
   "settings": {
     "readingMode": "Chế độ đọc",
-    "singlePage": "Trang đơn",
-    "doublePage": "Trang đôi",
-    "verticalScroll": "Cuộn dọc",
+
     "doublePageOptions": "Tùy chọn chế độ trang đôi",
     "skipCoverPages": "Bỏ qua trang bìa (chỉ hiển thị trang đầu tiên)",
     "readRightToLeft": "Đọc từ phải sang trái (giống manga)"

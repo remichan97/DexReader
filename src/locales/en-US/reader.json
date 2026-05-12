@@ -1,7 +1,6 @@
 {
   "pageTitle": "Reader",
   "header": {
-    "backButton": "Back",
     "chaptersButton": "Chapters",
     "settingsButton": "Settings",
     "settingsLabel": "Reader settings (reading mode)",
@@ -26,28 +25,31 @@
     "noMoreChapters": "No more chapters available",
     "backToDetail": "Back to Manga Details"
   },
+  "chapterList": {
+    "noChapters": "No chapters available",
+    "chapter": "Chapter {number}",
+    "chapterWithTitle": "Chapter {number}: {title}",
+    "chapterShort": "Ch.",
+    "volumeShort": "Vol.",
+    "pages": "{count} pages"
+  },
   "loadingState": {
     "message": "Loading chapter..."
   },
   "errorState": {
     "offline": {
-      "title": "You're offline",
       "message": "This chapter isn't downloaded"
     },
     "generic": {
       "title": "Couldn't load this chapter",
       "message": "We ran into a problem loading the pages for this chapter. This might be a temporary network hiccup, or the chapter data might not be available right now."
     },
-    "retryButton": "Try Again",
     "goBackButton": "Go Back",
     "goToLibraryButton": "Go to Library",
     "showTechnicalDetails": "Show technical details"
   },
   "settings": {
     "readingMode": "Reading Mode",
-    "singlePage": "Single Page",
-    "doublePage": "Double Page",
-    "verticalScroll": "Vertical Scroll",
     "doublePageOptions": "Double Page Mode Options",
     "skipCoverPages": "Skip cover pages (show first page alone)",
     "readRightToLeft": "Read right-to-left (manga style)"

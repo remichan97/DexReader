@@ -1,7 +1,6 @@
 {
   "network": {
     "offline": {
-      "title": "You're offline",
       "message": "Offline mode is on. You can only see downloaded stuff.",
       "action": "Go online to browse and download more.",
       "variants": {

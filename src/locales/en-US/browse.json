@@ -6,7 +6,6 @@
   "clearFiltersButton": "Clear Filters",
   "savePresetButton": "Save Preset",
   "offlineState": {
-    "title": "You're offline",
     "message": "Browse and search require an internet connection. Check out your Library to read downloaded manga.",
     "action": "Go to Library"
   },
@@ -18,7 +17,6 @@
   "errorState": {
     "title": "Couldn't load manga",
     "message": "Something went wrong while searching. This might be a connection issue or the service might be temporarily unavailable.",
-    "retryButton": "Try Again",
     "showDetailsButton": "Show technical details",
     "hideDetailsButton": "Hide"
   },

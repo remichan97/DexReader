@@ -4,19 +4,12 @@
     "fields": {
       "name": {
         "label": "Collection Name",
-        "placeholder": "e.g., Reading, Want to Read",
         "required": true,
         "error": "Collection name is required"
       },
       "description": {
-        "label": "Description (Optional)",
-        "placeholder": "Add a description"
+        "label": "Description (Optional)"
       }
-    },
-    "buttons": {
-      "cancel": "Cancel",
-      "create": "Create",
-      "creating": "Creating..."
     },
     "errors": {
       "createFailed": "Failed to create collection"
@@ -28,12 +21,7 @@
       "message": "You don't have any collections yet. Create one to start organising!",
       "button": "Create Your First Collection"
     },
-    "createNewButton": "+ Create New Collection",
-    "buttons": {
-      "cancel": "Cancel",
-      "save": "Save",
-      "saving": "Saving..."
-    }
+    "createNewButton": "+ Create New Collection"
   },
   "importResult": {
     "titles": {
@@ -53,10 +41,6 @@
     "errors": {
       "toggle": "View Error Details ({{count}})",
       "unknownManga": "Unknown Manga"
-    },
-    "buttons": {
-      "close": "Close",
-      "viewLibrary": "Check Out Your Library"
     }
   },
   "savePreset": {
@@ -64,19 +48,12 @@
     "fields": {
       "name": {
         "label": "Preset Name",
-        "placeholder": "e.g., Ongoing Action",
         "maxLength": 50,
         "helperText": "{{count}}/50 characters"
       },
       "setDefault": {
         "label": "Set as default"
       }
-    },
-    "buttons": {
-      "cancel": "Cancel",
-      "saveCopy": "Save a Copy",
-      "save": "Save",
-      "saving": "Saving..."
     },
     "preview": {
       "search": "Search: \"{{query}}\"",
@@ -100,116 +77,58 @@
       "single": "{{title}}"
     },
     "quality": {
-      "label": "Quality",
-      "options": {
-        "high": "High Quality",
-        "dataSaver": "Data Saver"
-      },
-      "helperText": {
-        "high": "Best image quality, larger file size",
-        "dataSaver": "Compressed images, smaller file size"
-      }
+      "label": "Quality"
     },
     "location": {
       "label": "Download location:",
       "changeLink": "Change in Settings →"
     },
-    "batchInfo": "Downloads will run in the background. You can continue browsing while they complete.",
-    "buttons": {
-      "cancel": "Cancel",
-      "download": "Download"
-    }
+    "batchInfo": "Downloads will run in the background. You can continue browsing while they complete."
   },
   "confirmations": {
     "deleteCollection": {
       "title": "Delete \"{{name}}\"?",
-      "message": "This will not delete the manga, only the collection.",
-      "buttons": {
-        "delete": "Delete",
-        "cancel": "Cancel"
-      }
+      "message": "This will not delete the manga, only the collection."
     },
     "deleteMangaDownloads": {
       "title": "Delete all downloaded chapters?",
-      "message": "This will permanently delete {{count}} chapter{{plural}} from {{title}}.\n\nThis action cannot be undone.",
-      "buttons": {
-        "delete": "Delete",
-        "cancel": "Cancel"
-      }
+      "message": "This will permanently delete {{count}} chapter{{plural}} from {{title}}.\n\nThis action cannot be undone."
     },
     "deleteChapterDownload": {
       "title": "Remove Download",
       "message": "You are about to remove \"{{title}}\", which will delete downloaded chapter files.\nYou can also choose to just hide it from the list if you want to keep the files for offline reading.\n\nHow should we proceed?",
-      "buttons": {
-        "cancel": "Cancel",
-        "hide": "Hide from View (Keep Files for Offline Reading)",
-        "deletePermanent": "Delete Forever (Cannot be Undone)"
-      },
       "finalConfirmation": {
         "title": "Are you absolutely certain?",
-        "message": "This will be your last chance to back out before the chapter files are permanently deleted. File deletion cannot be undone, but you can always re-download the chapter if you change your mind.\n\nJust a reminder, you are deleting chapter: {{title}}",
-        "buttons": {
-          "delete": "Yes, Delete Permanently",
-          "cancel": "Nevermind"
-        }
+        "message": "This will be your last chance to back out before the chapter files are permanently deleted. File deletion cannot be undone, but you can always re-download the chapter if you change your mind.\n\nJust a reminder, you are deleting chapter: {{title}}"
       }
     },
     "clearCoverCache": {
       "title": "Clear all cached covers?",
-      "message": "This will delete {{count}} cached images ({{size}}).\n\nCover images will be re-downloaded as needed when browsing. This may temporarily slow down performance.",
-      "buttons": {
-        "clear": "Clear All",
-        "cancel": "Cancel"
-      }
+      "message": "This will delete {{count}} cached images ({{size}}).\n\nCover images will be re-downloaded as needed when browsing. This may temporarily slow down performance."
     },
     "cleanMetadataCache": {
       "title": "Clean up metadata cache?",
-      "message": "This will remove browsing cache older than 90 days.\n\nFavourited manga and manga with downloads will not be affected.\n\nEstimated to remove: {{count}} manga",
-      "buttons": {
-        "clean": "Clean Up",
-        "cancel": "Cancel"
-      }
+      "message": "This will remove browsing cache older than 90 days.\n\nFavourited manga and manga with downloads will not be affected.\n\nEstimated to remove: {{count}} manga"
     },
     "clearAllMetadata": {
       "title": "Clear all metadata cache?",
-      "message": "This will remove ALL browsing cache ({{count}} manga).\n\nOnly favourited manga and manga with downloads will be kept.\n\nThis action cannot be undone.",
-      "buttons": {
-        "clear": "Clear All",
-        "cancel": "Cancel"
-      }
+      "message": "This will remove ALL browsing cache ({{count}} manga).\n\nOnly favourited manga and manga with downloads will be kept.\n\nThis action cannot be undone."
     },
     "deleteOldLogs": {
       "title": "Cleanup old logs?",
-      "message": "This will permanently delete all log files older than {{days}} days. This action cannot be undone.",
-      "buttons": {
-        "delete": "OK",
-        "cancel": "Cancel"
-      }
+      "message": "This will permanently delete all log files older than {{days}} days. This action cannot be undone."
     },
     "clearAllLogs": {
       "title": "Clear all logs?",
-      "message": "This will permanently delete all log files. This action cannot be undone.",
-      "buttons": {
-        "clear": "OK",
-        "cancel": "Cancel"
-      }
+      "message": "This will permanently delete all log files. This action cannot be undone."
     },
     "clearAllOverrides": {
       "title": "Clear all custom reading settings?",
-      "message": "You have custom settings for {{count}} manga. They'll all be reset to your global defaults. You can't undo this!",
-      "buttons": {
-        "clear": "Clear All",
-        "cancel": "Cancel"
-      }
+      "message": "You have custom settings for {{count}} manga. They'll all be reset to your global defaults. You can't undo this!"
     },
     "openExternalLink": {
       "title": "Open {{serviceName}}?",
-      "message": "You're about to open an external website in your default browser. Just so you know where you're headed:\n\n{{url}}",
-      "buttons": {
-        "open": "Open in Browser",
-        "copy": "Copy Link",
-        "cancel": "Cancel"
-      }
+      "message": "You're about to open an external website in your default browser. Just so you know where you're headed:\n\n{{url}}"
     },
     "unsavedChanges": {
       "message": "You have unsaved changes. Are you sure you want to leave?"
@@ -220,20 +139,11 @@
     },
     "manageMangaDownloads": {
       "title": "Manage Downloads",
-      "message": "{{title}}\n\nThis manga has {{count}} downloaded chapter{{plural}}.\n\nYou can add it to your library for tracking, or delete all downloaded chapters.",
-      "buttons": {
-        "addToLibrary": "Add to Library",
-        "deleteDownloads": "Delete Downloads",
-        "cancel": "Cancel"
-      }
+      "message": "{{title}}\n\nThis manga has {{count}} downloaded chapter{{plural}}.\n\nYou can add it to your library for tracking, or delete all downloaded chapters."
     },
     "highMemoryWarning": {
       "title": "High Memory Usage Warning",
       "message": "The selected cache size ({{selected}} MB) exceeds the recommended maximum for your system.\n\nSystem Info:\n• Total RAM: {{totalRAM}} GB\n• Recommended maximum: {{recommended}} MB (10% of system RAM)\n• Hard ceiling: {{maxAllowed}} MB (30% of system RAM)\n• Your selection: {{selected}} MB\n\nUsing a cache larger than recommended may cause:\n• Slower application performance\n• System memory pressure warnings\n• Automatic cache eviction by the OS\n\nAre you absolutely certain you want to proceed with this cache size?",
-      "buttons": {
-        "proceed": "Proceed Anyway",
-        "goBack": "Go Back"
-      },
       "checkbox": "Don't warn me again about cache sizes"
     }
   },
@@ -413,9 +323,6 @@
     "options": {
       "keepDownloads": "Remove from library (keep downloads)",
       "deleteEverything": "Remove everything (both bookmark and downloads will be removed)"
-    },
-    "buttons": {
-      "cancel": "Cancel"
     }
   },
   "updates": {

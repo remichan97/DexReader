@@ -6,7 +6,6 @@
   "clearFiltersButton": "Xóa bộ lọc",
   "savePresetButton": "Lưu mẫu tìm kiếm",
   "offlineState": {
-    "title": "Bạn đang ngoại tuyến",
     "message": "Khám phá và tìm kiếm yêu cầu kết nối internet. Kiểm tra Thư viện của bạn để đọc manga đã tải xuống.",
     "action": "Đi tới Thư viện"
   },
@@ -18,7 +17,6 @@
   "errorState": {
     "title": "Không thể tải manga",
     "message": "Đã xảy ra sự cố khi tìm kiếm. Đây có thể là vấn đề kết nối hoặc dịch vụ có thể tạm thời không khả dụng.",
-    "retryButton": "Thử lại",
     "showDetailsButton": "Xem chi tiết kỹ thuật",
     "hideDetailsButton": "Ẩn chi tiết"
   },

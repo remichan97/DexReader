@@ -65,16 +65,7 @@
     "qualityDescription": "Chất lượng sử dụng cho tất cả các tải xuống",
     "qualityDescriptionWithConfirm": "Chọn chất lượng mặc định",
     "qualityLabel": "Chất lượng mặc định",
-    "qualityOptions": {
-      "data": {
-        "label": "Chất lượng cao",
-        "description": "Hình ảnh độ phân giải đầy đủ, chất lượng hình ảnh tốt nhất"
-      },
-      "dataSaver": {
-        "label": "Tiết kiệm dữ liệu",
-        "description": "Hình ảnh nén, kích thước tệp nhỏ hơn"
-      }
-    },
+
     "concurrentSection": "Tải xuống đồng thời",
     "concurrentDescription": "Bao nhiêu chương nên được tải xuống cùng một lúc?",
     "concurrentLabel": "Số lượng tải xuống đồng thời tối đa",
@@ -97,11 +88,9 @@
     "imageQuality": {
       "label": "Chất lượng hình ảnh",
       "highQuality": {
-        "label": "Chất lượng cao",
         "description": "Hình ảnh độ phân giải đầy đủ, sử dụng nhiều băng thông hơn"
       },
       "dataSaver": {
-        "label": "Tiết kiệm dữ liệu",
         "description": "Hình ảnh nén, giảm sử dụng băng thông"
       }
     },
@@ -109,11 +98,6 @@
     "globalSettingsDescription": "Các cài đặt này áp dụng cho tất cả manga theo mặc định. Bạn có thể ghi đè chúng cho từng manga trong trình đọc.",
     "readingModeLabel": "Chế độ đọc mặc định",
     "readingModeHelper": "Cách các trang được hiển thị khi đọc manga",
-    "readingModeOptions": {
-      "single": "Trang đơn",
-      "double": "Trang đôi",
-      "vertical": "Cuộn dọc"
-    },
     "doublePageOptions": "Tùy chọn chế độ trang đôi",
     "skipCoverPages": "Bỏ qua trang bìa (chỉ hiển thị trang đầu tiên)",
     "readRightToLeft": "Đọc từ phải sang trái (giống manga)",

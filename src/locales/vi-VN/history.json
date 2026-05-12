@@ -21,6 +21,10 @@
     "loaded": "{count} manga trong lịch sử"
   },
   "documentTitle": "Lịch sử đọc - DexReader",
+  "card": {
+    "lastRead": "Đọc lần cuối",
+    "removeAriaLabel": "Xóa khỏi lịch sử"
+  },
   "toasts": {
     "progressDeleted": {
       "title": "Đã xóa tiến trình",
