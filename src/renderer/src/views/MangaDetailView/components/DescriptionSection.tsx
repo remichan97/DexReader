@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { useState } from 'react'
 import { Button } from '@renderer/components/Button'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 
 // Extract types from global window interface
 type MangaEntity = Awaited<ReturnType<Window['mangadex']['getManga']>>['data']
@@ -13,6 +14,7 @@ interface DescriptionSectionProps {
  * Description section with expand/collapse functionality
  */
 export default function DescriptionSection({ manga }: DescriptionSectionProps): JSX.Element {
+  const { t } = useTranslation(['mangaDetail', 'common'])
   const [expanded, setExpanded] = useState(false)
 
   // Get description (prefer English)
@@ -20,7 +22,9 @@ export default function DescriptionSection({ manga }: DescriptionSectionProps): 
     manga.attributes.description?.en ||
     manga.attributes.description?.['ja-ro'] ||
     Object.values(manga.attributes.description || {})[0] ||
-    'No description available.'
+    t('mangaDetail:section.description.noDescription', {
+      defaultValue: 'No description available.'
+    })
 
   const maxLength = 300
   const shouldTruncate = description.length > maxLength
@@ -29,7 +33,9 @@ export default function DescriptionSection({ manga }: DescriptionSectionProps): 
 
   return (
     <div className="manga-detail-view__description">
-      <h2 className="section-title">Description</h2>
+      <h2 className="section-title">
+        {t('mangaDetail:section.description.title', { defaultValue: 'Description' })}
+      </h2>
       <p className="description-text">{displayText}</p>
       {shouldTruncate && (
         <Button
@@ -37,7 +43,9 @@ export default function DescriptionSection({ manga }: DescriptionSectionProps): 
           className="description-toggle"
           onClick={() => setExpanded(!expanded)}
         >
-          {expanded ? 'Show less' : 'Show more'}
+          {expanded
+            ? t('mangaDetail:section.description.showLess', { defaultValue: 'Show less' })
+            : t('mangaDetail:section.description.showMore', { defaultValue: 'Show more' })}
         </Button>
       )}
     </div>

@@ -2,6 +2,7 @@ import type { JSX } from 'react'
 import { useState } from 'react'
 import { Button } from '@renderer/components/Button'
 import { getLanguageName, getLanguageCode } from '@renderer/utils/languageHelpers'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 
 // Extract types from global window interface
 type MangaEntity = Awaited<ReturnType<Window['mangadex']['getManga']>>['data']
@@ -20,6 +21,7 @@ const INITIAL_DISPLAY_COUNT = 5
 export default function AlternativeTitlesSection({
   manga
 }: AlternativeTitlesSectionProps): JSX.Element {
+  const { t } = useTranslation(['mangaDetail', 'common'])
   const [showAll, setShowAll] = useState(false)
 
   // Extract alternative titles from attributes
@@ -49,7 +51,9 @@ export default function AlternativeTitlesSection({
 
   return (
     <div className="manga-detail-view__alt-titles">
-      <h2 className="section-title">Alternative Titles</h2>
+      <h2 className="section-title">
+        {t('mangaDetail:section.alternativeTitles.title', { defaultValue: 'Alternative Titles' })}
+      </h2>
       <div className="alt-titles-list flex flex-col gap-2">
         {displayedTitles.map((item) => (
           <div
@@ -69,7 +73,12 @@ export default function AlternativeTitlesSection({
       </div>
       {hasMore && (
         <Button variant="ghost" onClick={() => setShowAll(!showAll)} className="alt-titles-toggle">
-          {showAll ? 'Show Less' : `Show ${titles.length - INITIAL_DISPLAY_COUNT} More`}
+          {showAll
+            ? t('mangaDetail:section.alternativeTitles.showLess', { defaultValue: 'Show Less' })
+            : t('mangaDetail:section.alternativeTitles.showMore', {
+                defaultValue: 'Show {{count}} More',
+                count: titles.length - INITIAL_DISPLAY_COUNT
+              })}
         </Button>
       )}
     </div>

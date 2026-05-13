@@ -2,6 +2,7 @@ import type { JSX } from 'react'
 import { GlobeRegular } from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
 import { rendererLog } from '@renderer/services/logging.service'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 
 // Extract types from global window interface
 type MangaEntity = Awaited<ReturnType<Window['mangadex']['getManga']>>['data']
@@ -14,20 +15,21 @@ interface ExternalLinksSectionProps {
  * External links section
  */
 export default function ExternalLinksSection({ manga }: ExternalLinksSectionProps): JSX.Element {
+  const { t } = useTranslation(['mangaDetail', 'common'])
   const links = manga.attributes.links || {}
 
   // Service name mapping
   const serviceNames: Record<string, string> = {
-    al: 'AniList',
-    ap: 'Anime-Planet',
-    bw: 'BookWalker',
-    mu: 'MangaUpdates',
-    mal: 'MyAnimeList',
-    kt: 'Kitsu',
-    amz: 'Amazon',
-    cdj: 'CDJapan',
-    ebj: 'eBookJapan',
-    raw: 'Official Raw'
+    al: t('mangaDetail:externalLinks.services.anilist', { defaultValue: 'AniList' }),
+    ap: t('mangaDetail:externalLinks.services.animePlanet', { defaultValue: 'Anime-Planet' }),
+    bw: t('mangaDetail:externalLinks.services.bookwalker', { defaultValue: 'BookWalker' }),
+    mu: t('mangaDetail:externalLinks.services.mangaUpdates', { defaultValue: 'MangaUpdates' }),
+    mal: t('mangaDetail:externalLinks.services.myAnimeList', { defaultValue: 'MyAnimeList' }),
+    kt: t('mangaDetail:externalLinks.services.kitsu', { defaultValue: 'Kitsu' }),
+    amz: t('mangaDetail:externalLinks.services.amazon', { defaultValue: 'Amazon' }),
+    cdj: t('mangaDetail:externalLinks.services.cdJapan', { defaultValue: 'CDJapan' }),
+    ebj: t('mangaDetail:externalLinks.services.ebookJapan', { defaultValue: 'eBookJapan' }),
+    raw: t('mangaDetail:externalLinks.services.officialRaw', { defaultValue: 'Official Raw' })
   }
 
   // Build URLs from link keys
@@ -50,9 +52,20 @@ export default function ExternalLinksSection({ manga }: ExternalLinksSectionProp
     const serviceName = serviceNames[key]
 
     const result = await globalThis.api.showDialog({
-      message: `Open ${serviceName}?`,
-      detail: `You're about to open an external website in your default browser. Just so you know where you're headed:\n\n${url}`,
-      buttons: ['Open in Browser', 'Copy Link', 'Cancel'],
+      message: t('mangaDetail:externalLinks.dialog.openService', {
+        defaultValue: 'Open {{service}}?',
+        service: serviceName
+      }),
+      detail: t('mangaDetail:externalLinks.dialog.detail', {
+        defaultValue:
+          "You're about to open an external website in your default browser. Just so you know where you're headed:\n\n{{url}}",
+        url
+      }),
+      buttons: [
+        t('common:button.openInBrowser'),
+        t('common:button.copyLink'),
+        t('common:button.cancel')
+      ],
       type: 'question',
       defaultId: 0,
       cancelId: 2,
@@ -81,7 +94,7 @@ export default function ExternalLinksSection({ manga }: ExternalLinksSectionProp
 
   return (
     <section className="external-links-section">
-      <h2>External Links</h2>
+      <h2>{t('mangaDetail:externalLinks.title', { defaultValue: 'External Links' })}</h2>
       <div className="external-links-list flex flex-wrap gap-2">
         {linkEntries.map(([key, value]) => (
           <Button
@@ -90,7 +103,10 @@ export default function ExternalLinksSection({ manga }: ExternalLinksSectionProp
             size="small"
             icon={<GlobeRegular />}
             onClick={() => handleExternalLinkClick(key, value)}
-            title={`View on ${serviceNames[key]}`}
+            title={t('mangaDetail:externalLinks.viewOn', {
+              defaultValue: 'View on {{service}}',
+              service: serviceNames[key]
+            })}
           >
             {serviceNames[key]}
           </Button>

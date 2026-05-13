@@ -3,6 +3,7 @@ import { Button } from '@renderer/components/Button'
 import { Select } from '@renderer/components/Select'
 import { ArrowDownload20Regular } from '@fluentui/react-icons'
 import { getLanguageName } from '@renderer/constants/language-list.constant'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 
 interface ChapterListHeaderProps {
   readonly chapterCount: number
@@ -30,19 +31,31 @@ export function ChapterListHeader({
   downloadAllEnabled = true,
   isOnline = true
 }: ChapterListHeaderProps): JSX.Element {
+  const { t } = useTranslation(['mangaDetail', 'common'])
+
   const getDownloadButtonTitle = (): string => {
     if (!isOnline) {
-      return 'You are offline. Please go online to download'
+      return t('common:message.info.youAreOffline')
     }
     if (!downloadAllEnabled) {
-      return 'Download all is not available'
+      return t('mangaDetail:chapters.downloadAllUnavailable', {
+        defaultValue: 'Download all is not available'
+      })
     }
-    return `Download all ${chapterCount} chapters`
+    return t('mangaDetail:chapters.downloadAllTooltip', {
+      defaultValue: 'Download all {{count}} chapters',
+      count: chapterCount
+    })
   }
 
   return (
     <div className="chapter-list-header flex justify-between items-center">
-      <h2 className="section-title">Chapters ({chapterCount})</h2>
+      <h2 className="section-title">
+        {t('mangaDetail:chapters.title', {
+          defaultValue: 'Chapters ({{count}})',
+          count: chapterCount
+        })}
+      </h2>
 
       <div className="chapter-controls flex gap-2">
         {/* Download All button */}
@@ -56,7 +69,7 @@ export function ChapterListHeader({
             title={getDownloadButtonTitle()}
             icon={<ArrowDownload20Regular />}
           >
-            Download All
+            {t('mangaDetail:chapters.downloadAll', { defaultValue: 'Download All' })}
           </Button>
         )}
 
@@ -69,7 +82,9 @@ export function ChapterListHeader({
               value: lang,
               label: `${getLanguageName(lang)} (${lang.toUpperCase()})`
             }))}
-            aria-label="Select chapter language"
+            aria-label={t('mangaDetail:chapters.selectLanguage', {
+              defaultValue: 'Select chapter language'
+            })}
           />
         )}
 
@@ -78,10 +93,16 @@ export function ChapterListHeader({
           value={sortOrder}
           onChange={(val) => onSortChange(val as 'asc' | 'desc')}
           options={[
-            { value: 'asc', label: 'Oldest First' },
-            { value: 'desc', label: 'Newest First' }
+            {
+              value: 'asc',
+              label: t('mangaDetail:chapters.sort.oldestFirst', { defaultValue: 'Oldest First' })
+            },
+            {
+              value: 'desc',
+              label: t('mangaDetail:chapters.sort.newestFirst', { defaultValue: 'Newest First' })
+            }
           ]}
-          aria-label="Sort chapters"
+          aria-label={t('mangaDetail:chapters.sortChapters', { defaultValue: 'Sort chapters' })}
         />
       </div>
     </div>

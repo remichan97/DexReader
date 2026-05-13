@@ -7,6 +7,7 @@ import { DownloadConfirmationDialog } from '@renderer/components/DownloadConfirm
 import { BookOpen48Regular } from '@fluentui/react-icons'
 import { getCoverImageUrl, getMangaTitle, CoverSize } from '@renderer/utils/mangaHelpers'
 import { getLanguageName } from '@renderer/constants/language-list.constant'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import { ChapterListHeader } from './ChapterListHeader'
 import { ChapterListItem } from './ChapterListItem'
 import { useChapterFilters } from './hooks/useChapterFilters'
@@ -59,6 +60,7 @@ export default function ChapterList({
   onToggleErrorDetails
 }: ChapterListProps): JSX.Element {
   const navigate = useNavigate()
+  const { t } = useTranslation(['mangaDetail', 'common'])
 
   // Use custom hooks for filters and downloads
   const { availableLanguages, displayChapters } = useChapterFilters({
@@ -116,24 +118,25 @@ export default function ChapterList({
         {/* Error state */}
         {!loading && error && (
           <div className="chapter-list-error flex flex-col items-center gap-3">
-            <p className="error-message">Couldn&apos;t load chapters for this language</p>
-            <p className="error-hint">Try refreshing or picking a different language.</p>
+            <p className="error-message">{t('mangaDetail:chapterError.title')}</p>
+            <p className="error-hint">{t('mangaDetail:chapterError.message')}</p>
             <div className="error-actions flex gap-2">
               <Button variant="secondary" onClick={onRetry}>
-                Try Again
+                {t('common:button.tryAgain')}
               </Button>
               <Button variant="ghost" onClick={onToggleErrorDetails}>
-                {showErrorDetails ? 'Hide' : 'Show'} technical details
+                {showErrorDetails ? t('common:action.hide') : t('common:action.show')}{' '}
+                {t('common:label.technicalDetails')}
               </Button>
             </div>
             {showErrorDetails && error && (
               <div className="error-technical-details">
                 <div>
-                  <strong>Error:</strong> {error.message}
+                  <strong>{t('common:label.error')}</strong> {error.message}
                 </div>
                 {error.stack && (
                   <div className="mt-2">
-                    <strong>Stack Trace:</strong>
+                    <strong>{t('common:label.stackTrace')}</strong>
                     <pre style={{ margin: '4px 0 0 0', fontSize: '11px', lineHeight: '1.4' }}>
                       {error.stack}
                     </pre>
@@ -148,9 +151,15 @@ export default function ChapterList({
         {!loading && !error && displayChapters.length === 0 && (
           <EmptyState
             icon={<BookOpen48Regular />}
-            message={`No chapters available in ${getLanguageName(selectedLanguage)} (${selectedLanguage.toUpperCase()})`}
+            message={t('mangaDetail:chapterError.noChaptersInLanguage', {
+              language: getLanguageName(selectedLanguage),
+              code: selectedLanguage.toUpperCase(),
+              defaultValue: `No chapters available in ${getLanguageName(selectedLanguage)} (${selectedLanguage.toUpperCase()})`
+            })}
             action={{
-              label: 'View on MangaDex',
+              label: t('mangaDetail:chapterError.viewOnMangaDex', {
+                defaultValue: 'View on MangaDex'
+              }),
               onClick: () =>
                 window.open(
                   `https://mangadex.org/title/${mangaId}`,

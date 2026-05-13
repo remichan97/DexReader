@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { DownloadStatusBadge } from '@renderer/components/DownloadStatusBadge'
 import type { DownloadStatus } from '@renderer/components/DownloadStatusBadge'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 
 // Extract types from global window interface
 type ChapterEntity = Awaited<ReturnType<Window['mangadex']['getMangaFeed']>>['data'][number]
@@ -29,13 +30,19 @@ export function ChapterListItem({
   onDownloadClick,
   isOnline = true
 }: ChapterListItemProps): JSX.Element {
+  const { t } = useTranslation(['mangaDetail', 'common'])
+
   const chapterNum = chapter.attributes.chapter || '0'
-  const title = chapter.attributes.title || 'Untitled'
+  const title =
+    chapter.attributes.title ||
+    t('mangaDetail:chapters.item.untitled', { defaultValue: 'Untitled' })
   const publishDate = new Date(chapter.attributes.publishAt).toLocaleDateString()
 
   // Get scanlation group name
   const scanlationGroup = chapter.relationships.find((r) => r.type === 'scanlation_group')
-  const groupName = String(scanlationGroup?.attributes?.name || 'Unknown Group')
+  const groupName =
+    (scanlationGroup?.attributes?.name as string | undefined) ||
+    t('mangaDetail:chapters.item.unknownGroup', { defaultValue: 'Unknown Group' })
 
   // Determine status classes
   let statusClass = ''
@@ -57,11 +64,17 @@ export function ChapterListItem({
       }}
       role="button"
       tabIndex={0}
-      aria-label={`Read Chapter ${chapterNum}: ${title}`}
+      aria-label={t('mangaDetail:chapters.item.readChapter', {
+        defaultValue: 'Read Chapter {{number}}: {{title}}',
+        number: chapterNum,
+        title
+      })}
     >
       <div className="chapter-item__content flex justify-between items-center gap-3">
         <div className="chapter-item__main flex gap-2 items-start">
-          <span className="chapter-item__number">Ch. {chapterNum}</span>
+          <span className="chapter-item__number">
+            {t('mangaDetail:chapters.item.chapterPrefix', { defaultValue: 'Ch.' })} {chapterNum}
+          </span>
           <div className="chapter-item__info flex flex-col gap-1">
             {title && <span className="chapter-item__title">{title}</span>}
             <span className="chapter-item__group">{groupName}</span>
@@ -71,7 +84,8 @@ export function ChapterListItem({
         <div className="chapter-item__meta flex gap-3 items-center">
           {pageProgress && (
             <span className="chapter-item__progress">
-              p. {pageProgress.currentPage + 1}/{pageProgress.totalPages}
+              {t('mangaDetail:chapters.item.pagePrefix', { defaultValue: 'p.' })}{' '}
+              {pageProgress.currentPage + 1}/{pageProgress.totalPages}
             </span>
           )}
           <DownloadStatusBadge
