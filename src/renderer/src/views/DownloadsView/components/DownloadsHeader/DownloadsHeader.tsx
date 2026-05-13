@@ -4,6 +4,7 @@ import { Button } from '@renderer/components/Button'
 import { SearchBar } from '@renderer/components/SearchBar'
 import { Select } from '@renderer/components/Select'
 import { FolderOpen20Regular } from '@fluentui/react-icons'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import type { FilterOption, SortOption } from '../../types'
 import { statusFilterOptions, sortOptions } from '../../types'
 
@@ -45,6 +46,8 @@ export function DownloadsHeader({
   onCancelAllQueued,
   onRetryAllFailed
 }: Readonly<DownloadsHeaderProps>): JSX.Element {
+  const { t } = useTranslation(['downloads', 'common'])
+
   return (
     <>
       {/* Search/Filter/Sort Bar */}
@@ -53,7 +56,7 @@ export function DownloadsHeader({
           <SearchBar
             value={searchQuery}
             onChange={onSearchChange}
-            placeholder="Search downloads..."
+            placeholder={t('downloads:searchPlaceholder')}
           />
         </div>
 
@@ -62,7 +65,7 @@ export function DownloadsHeader({
             value={statusFilter}
             onChange={(value) => onStatusFilterChange(value as FilterOption)}
             options={statusFilterOptions}
-            placeholder="Filter by status"
+            placeholder={t('downloads:filterByStatus')}
           />
         </div>
 
@@ -71,7 +74,7 @@ export function DownloadsHeader({
             value={sortOption}
             onChange={(value) => onSortChange(value as SortOption)}
             options={sortOptions}
-            placeholder="Sort by"
+            placeholder={t('downloads:sortBy')}
           />
         </div>
       </div>
@@ -80,19 +83,19 @@ export function DownloadsHeader({
       <div className="downloads-stats flex justify-between items-center">
         <div className="downloads-stats__badges flex items-center gap-2 flex-wrap">
           <Badge variant="info" size="medium">
-            {activeCount} Active
+            {t('downloads:stats.active', { count: activeCount })}
           </Badge>
           {queuedCount > 0 && (
             <Badge variant="default" size="medium">
-              {queuedCount} Queued
+              {t('downloads:stats.queued', { count: queuedCount })}
             </Badge>
           )}
           <Badge variant="success" size="medium">
-            {completedCount} Completed
+            {t('downloads:stats.completed', { count: completedCount })}
           </Badge>
           {failedCount > 0 && (
             <Badge variant="error" size="medium">
-              {failedCount} Failed
+              {t('downloads:stats.failed', { count: failedCount })}
             </Badge>
           )}
         </div>
@@ -103,9 +106,9 @@ export function DownloadsHeader({
             size="small"
             icon={<FolderOpen20Regular />}
             onClick={onOpenFolder}
-            title="Open downloads folder"
+            title={t('downloads:actions.openFolder')}
           >
-            Open Folder
+            {t('downloads:actions.openFolder')}
           </Button>
 
           <Button
@@ -113,9 +116,9 @@ export function DownloadsHeader({
             size="small"
             onClick={onClearCompleted}
             disabled={completedCount === 0}
-            title="Hide completed downloads from view (files will be kept on disk)"
+            title={t('downloads:actions.hideCompletedTooltip')}
           >
-            Hide Completed
+            {t('downloads:actions.hideCompleted')}
           </Button>
 
           {queuedCount > 0 && (
@@ -123,9 +126,9 @@ export function DownloadsHeader({
               variant="warning"
               size="small"
               onClick={onCancelAllQueued}
-              title="Cancel all queued downloads"
+              title={t('downloads:actions.cancelAllQueuedTooltip')}
             >
-              Cancel All Queued
+              {t('downloads:actions.cancelAllQueued')}
             </Button>
           )}
 
@@ -137,11 +140,11 @@ export function DownloadsHeader({
               disabled={activeCount > 0}
               title={
                 activeCount > 0
-                  ? 'Wait for current downloads to finish'
-                  : 'Retry all failed downloads'
+                  ? t('downloads:actions.retryAllFailedDisabled')
+                  : t('downloads:actions.retryAllFailedTooltip')
               }
             >
-              Retry All Failed
+              {t('downloads:actions.retryAllFailed')}
             </Button>
           )}
         </div>

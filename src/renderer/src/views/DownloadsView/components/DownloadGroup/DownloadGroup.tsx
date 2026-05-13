@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { Badge } from '@renderer/components/Badge'
 import { ChevronDown20Regular, ChevronRight20Regular } from '@fluentui/react-icons'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import { Download, formatStorageSize } from '@renderer/types/download.types'
 import { DownloadCard } from '../DownloadCard'
 
@@ -32,6 +33,8 @@ export function DownloadGroup({
   onDownloadAction,
   onNavigateToReader
 }: Readonly<DownloadGroupProps>): JSX.Element {
+  const { t } = useTranslation(['downloads', 'common'])
+
   return (
     <div className="download-group">
       {/* Group Header */}
@@ -60,18 +63,21 @@ export function DownloadGroup({
 
         <div className="download-group__header-right flex items-center gap-3">
           <span className="download-group__stats">
-            {group.totalChapters} chapter
-            {group.totalChapters === 1 ? '' : 's'} · {formatStorageSize(group.totalStorageSize)}
+            {t('downloads:downloadGroup.chapterCount', {
+              count: group.totalChapters,
+              s: group.totalChapters === 1 ? '' : 's'
+            })}{' '}
+            · {formatStorageSize(group.totalStorageSize)}
           </span>
 
           {group.activeChapters > 0 && (
             <Badge variant="info" size="small">
-              {group.activeChapters} active
+              {t('downloads:downloadGroup.activeBadge', { count: group.activeChapters })}
             </Badge>
           )}
           {group.failedChapters > 0 && (
             <Badge variant="error" size="small">
-              {group.failedChapters} failed
+              {t('downloads:downloadGroup.failedBadge', { count: group.failedChapters })}
             </Badge>
           )}
         </div>

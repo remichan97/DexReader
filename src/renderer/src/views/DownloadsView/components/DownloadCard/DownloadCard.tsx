@@ -2,6 +2,7 @@ import type { JSX } from 'react'
 import { ProgressBar } from '@renderer/components/ProgressBar'
 import { Badge } from '@renderer/components/Badge'
 import { Button } from '@renderer/components/Button'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import { Download, formatStorageSize } from '@renderer/types/download.types'
 
 interface DownloadCardProps {
@@ -39,6 +40,8 @@ export function DownloadCard({
   onRemove,
   onNavigateToReader
 }: Readonly<DownloadCardProps>): JSX.Element {
+  const { t } = useTranslation(['common'])
+
   return (
     <div
       className="download-card"
@@ -53,7 +56,7 @@ export function DownloadCard({
           </h4>
           {download.chapterTitle && <p className="download-card__title">{download.chapterTitle}</p>}
           <p className="download-card__meta">
-            {download.language?.toUpperCase()} · {download.totalPages} pages ·{' '}
+            {download.language?.toUpperCase()} · {download.totalPages} {t('common:general.pages')} ·{' '}
             {formatStorageSize(download.storageSize)}
           </p>
         </div>
@@ -106,24 +109,24 @@ export function DownloadCard({
       >
         {(download.status === 'downloading' || download.status === 'queued') && (
           <Button variant="danger" size="small" onClick={() => onCancel(download.id)}>
-            Cancel
+            {t('common:button.cancel')}
           </Button>
         )}
 
         {download.status === 'failed' && (
           <>
             <Button variant="accent" size="small" onClick={() => onRetry(download.id)}>
-              Retry
+              {t('common:button.retry')}
             </Button>
             <Button variant="secondary" size="small" onClick={() => onRemove(download.id)}>
-              Remove
+              {t('common:button.remove')}
             </Button>
           </>
         )}
 
         {download.status === 'completed' && (
           <Button variant="secondary" size="small" onClick={() => onRemove(download.id)}>
-            Remove
+            {t('common:button.remove')}
           </Button>
         )}
       </div>

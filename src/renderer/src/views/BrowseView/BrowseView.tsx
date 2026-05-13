@@ -35,8 +35,10 @@ import { cacheMangaMetadata } from '@renderer/utils/mangaCache'
 import { handleUnfavourite } from '@renderer/utils/unfavouriteHandler'
 import './BrowseView.css'
 import { rendererLog } from '@renderer/services/logging.service'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 
 export function BrowseView(): JSX.Element {
+  const { t } = useTranslation(['browse', 'common'])
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [showErrorDetails, setShowErrorDetails] = useState<boolean>(false)
@@ -257,7 +259,7 @@ export function BrowseView(): JSX.Element {
         await toggleFavourite(id)
 
         showToast({
-          title: 'Added to Library!',
+          title: t('browse:toasts.addedToLibrary'),
           message: getMangaTitle(manga),
           variant: 'info',
           duration: 3000
@@ -266,8 +268,8 @@ export function BrowseView(): JSX.Element {
     } catch (error) {
       rendererLog.error('[BrowseView] Error toggling favourite:', error)
       showToast({
-        title: 'Error',
-        message: 'Failed to update library',
+        title: t('browse:toasts.error'),
+        message: t('browse:toasts.failedToUpdate'),
         variant: 'error',
         duration: 3000
       })
@@ -316,7 +318,7 @@ export function BrowseView(): JSX.Element {
     search()
 
     showToast({
-      title: 'Preset loaded',
+      title: t('browse:toasts.presetLoaded'),
       message: preset.name,
       variant: 'info',
       duration: 2000
@@ -337,7 +339,7 @@ export function BrowseView(): JSX.Element {
       setAppliedPresetId(preset?.id ?? null)
 
       showToast({
-        title: 'Preset saved',
+        title: t('browse:toasts.presetSaved'),
         message: name,
         variant: 'success',
         duration: 2000
@@ -345,8 +347,8 @@ export function BrowseView(): JSX.Element {
     } catch (error) {
       rendererLog.error('[BrowseView] Error saving preset:', error)
       showToast({
-        title: 'Error',
-        message: error instanceof Error ? error.message : 'Failed to save preset',
+        title: t('browse:toasts.error'),
+        message: error instanceof Error ? error.message : t('browse:toasts.failedToSave'),
         variant: 'error',
         duration: 4000
       })
@@ -364,7 +366,7 @@ export function BrowseView(): JSX.Element {
       }
 
       showToast({
-        title: 'Preset deleted',
+        title: t('browse:toasts.presetDeleted'),
         message: name,
         variant: 'info',
         duration: 2000
@@ -372,8 +374,8 @@ export function BrowseView(): JSX.Element {
     } catch (error) {
       rendererLog.error('[BrowseView] Error deleting preset:', error)
       showToast({
-        title: 'Error',
-        message: 'Failed to delete preset',
+        title: t('browse:toasts.error'),
+        message: t('browse:toasts.failedToDelete'),
         variant: 'error',
         duration: 3000
       })
@@ -401,10 +403,10 @@ export function BrowseView(): JSX.Element {
         <div className="browse-view__header"></div>
         <EmptyState
           icon={<CloudOff48Regular />}
-          title="You're offline"
-          message="Browse and search require an internet connection. Check out your Library to read downloaded manga."
+          title={t('common:message.info.youreOffline')}
+          message={t('browse:offlineState.message')}
           action={{
-            label: 'Go to Library',
+            label: t('browse:offlineState.action'),
             onClick: () => navigate('/library'),
             variant: 'primary'
           }}
@@ -416,16 +418,17 @@ export function BrowseView(): JSX.Element {
   return (
     <div className="p-6">
       {/* Screen reader heading for page structure */}
-      <h1 className="sr-only">Browse Manga</h1>
+      <h1 className="sr-only">{t('browse:pageTitle')}</h1>
 
       {/* Live region for search results */}
       <div aria-live="polite" aria-atomic="true" className="sr-only" role="status">
         {loading && !results.length
-          ? 'Searching for manga...'
+          ? t('browse:liveRegion.searching')
           : results.length > 0
-            ? `Found ${results.length} manga${hasMore ? ', scroll for more' : ''}`
+            ? t('browse:liveRegion.found', { count: results.length }) +
+              (hasMore ? t('browse:liveRegion.hasMore') : '')
             : query
-              ? 'No manga found'
+              ? t('browse:liveRegion.noResults')
               : ''}
       </div>
 
@@ -436,7 +439,7 @@ export function BrowseView(): JSX.Element {
           onChange={handleSearch}
           onFilterClick={handleFilterClick}
           filterCount={filterCount}
-          placeholder="Search by title, author, or genre..."
+          placeholder={t('browse:searchPlaceholder')}
         />
       </div>
 
@@ -463,16 +466,19 @@ export function BrowseView(): JSX.Element {
         visible={showFilterBar && showFilters && results.length > 0}
         text={
           filterCount > 0
-            ? `${filterCount} filter${filterCount > 1 ? 's' : ''} active`
-            : 'Browsing all manga'
+            ? t('browse:filterInfo.activeFilters', {
+                count: filterCount,
+                s: filterCount > 1 ? 's' : ''
+              })
+            : t('browse:filterInfo.browsingAll')
         }
         actions={
           <>
             <Button variant="ghost" size="small" onClick={handleScrollToFilters}>
-              Scroll to Filters
+              {t('browse:filterInfo.scrollToFilters')}
             </Button>
             <Button variant="secondary" size="small" onClick={handleResetFilters}>
-              Reset to Default
+              {t('browse:filterInfo.resetToDefault')}
             </Button>
           </>
         }
@@ -484,27 +490,26 @@ export function BrowseView(): JSX.Element {
           <div className="browse-error__icon">
             <Warning48Regular />
           </div>
-          <h3 className="browse-error__title">Couldn&apos;t load manga</h3>
-          <p className="browse-error__message">
-            Something went wrong while searching. This might be a connection issue or the service
-            might be temporarily unavailable.
-          </p>
+          <h3 className="browse-error__title">{t('browse:errorState.title')}</h3>
+          <p className="browse-error__message">{t('browse:errorState.message')}</p>
           <div className="browse-error__actions flex gap-2">
             <Button variant="primary" onClick={handleRetry}>
-              Try Again
+              {t('common:button.tryAgain')}
             </Button>
             <Button variant="ghost" onClick={() => setShowErrorDetails(!showErrorDetails)}>
-              {showErrorDetails ? 'Hide' : 'Show'} technical details
+              {showErrorDetails
+                ? t('common:action.hide')
+                : t('browse:errorState.showDetailsButton')}
             </Button>
           </div>
           {showErrorDetails && (
             <div className="browse-error__technical-details">
               <div>
-                <strong>Error:</strong> {error.message}
+                <strong>{t('common:label.error')}</strong> {error.message}
               </div>
               {error.stack && (
                 <div className="mt-2">
-                  <strong>Stack Trace:</strong>
+                  <strong>{t('common:label.stackTrace')}</strong>
                   <pre className="browse-view__stack-trace">{error.stack}</pre>
                 </div>
               )}
@@ -520,11 +525,7 @@ export function BrowseView(): JSX.Element {
       {!loading && !error && results.length === 0 && (
         <EmptyState
           icon={query ? <Search48Regular /> : undefined}
-          message={
-            query
-              ? 'Hmm, nothing matched your search'
-              : "Let's find something to read! Try searching above"
-          }
+          message={t('browse:emptyState.noResults')}
           variant={query ? 'search' : 'default'}
         />
       )}

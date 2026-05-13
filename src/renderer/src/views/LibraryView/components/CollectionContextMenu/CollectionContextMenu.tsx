@@ -1,5 +1,6 @@
 import type { JSX } from 'react'
 import { Edit20Regular, Delete20Regular } from '@fluentui/react-icons'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import '@renderer/components/ContextMenu/ContextMenu.css'
 
 interface CollectionContextMenuProps {
@@ -24,10 +25,12 @@ export function CollectionContextMenu({
   onDelete,
   onClose
 }: CollectionContextMenuProps): JSX.Element {
+  const { t } = useTranslation(['common'])
+
   const menuItems = [
     {
       id: 'edit',
-      label: 'Edit Collection',
+      label: t('common:action.editCollection'),
       icon: <Edit20Regular />,
       onClick: () => {
         onEdit()
@@ -40,7 +43,7 @@ export function CollectionContextMenu({
     },
     {
       id: 'delete',
-      label: 'Delete Collection',
+      label: t('common:action.deleteCollection'),
       icon: <Delete20Regular />,
       onClick: () => {
         onDelete()

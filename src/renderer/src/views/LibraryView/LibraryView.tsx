@@ -36,8 +36,10 @@ import { useMihonImportExport } from './hooks/useMihonImportExport'
 import { useDexReaderImportExport } from './hooks/useDexReaderImportExport'
 import './LibraryView.css'
 import { rendererLog } from '@renderer/services/logging.service'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 
 export function LibraryView(): JSX.Element {
+  const { t } = useTranslation(['library', 'common'])
   const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState('')
   const [showSearchHelp, setShowSearchHelp] = useState(false)
@@ -154,8 +156,8 @@ export function LibraryView(): JSX.Element {
 
     if (!manga) {
       show({
-        title: 'Error',
-        message: 'Manga not found',
+        title: t('library:toasts.error'),
+        message: t('library:toasts.mangaNotFound'),
         variant: 'error'
       })
       return
@@ -178,8 +180,8 @@ export function LibraryView(): JSX.Element {
     try {
       await globalThis.library.toggleFavourite(id)
       show({
-        title: 'Added to Library',
-        message: 'Manga added to your collection',
+        title: t('library:toasts.addedToLibrary'),
+        message: t('library:toasts.addedSuccess'),
         variant: 'success'
       })
       // Refresh to update UI
@@ -191,8 +193,8 @@ export function LibraryView(): JSX.Element {
       }
     } catch (error) {
       show({
-        title: 'Error',
-        message: 'Failed to add to library',
+        title: t('library:toasts.error'),
+        message: t('library:toasts.failedToAdd'),
         variant: 'error'
       })
       rendererLog.error('[LibraryView] handleAddToLibrary error:', error)
@@ -208,15 +210,19 @@ export function LibraryView(): JSX.Element {
   return (
     <div className="p-6">
       {/* Screen reader heading for page structure */}
-      <h1 className="sr-only">Library</h1>
+      <h1 className="sr-only">{t('library:pageTitle')}</h1>
 
       {/* Live region for dynamic content updates */}
       <div aria-live="polite" aria-atomic="true" className="sr-only" role="status">
         {loading
-          ? 'Loading your library...'
+          ? t('library:liveRegion.loading')
           : includeDownloaded
-            ? `${filteredManga.length} manga (${favouriteCount} favorited, ${downloadedCount} downloaded)`
-            : `${filteredManga.length} manga in library`}
+            ? t('library:liveRegion.countWithDownloads', {
+                count: filteredManga.length,
+                favorited: favouriteCount,
+                downloaded: downloadedCount
+              })
+            : t('library:liveRegion.count', { count: filteredManga.length })}
       </div>
 
       {/* Search Bar with Actions */}
@@ -227,7 +233,7 @@ export function LibraryView(): JSX.Element {
             <SearchBar
               value={searchQuery}
               onChange={handleSearch}
-              placeholder="Search your library (try: status:ongoing, author:Oda, tag:romance)"
+              placeholder={t('library:searchPlaceholder')}
             />
             <div className="library-view__search-actions">
               {/* Download Toggle Button */}
@@ -239,16 +245,17 @@ export function LibraryView(): JSX.Element {
                 onClick={() => setIncludeDownloaded(!includeDownloaded)}
                 aria-label={
                   includeDownloaded
-                    ? `Hide downloaded titles (currently showing ${downloadedCount} downloaded)`
-                    : 'Include downloaded titles in library'
+                    ? t('library:downloadToggle.hideDownloaded')
+                    : t('library:downloadToggle.includeDownloaded')
                 }
                 aria-pressed={includeDownloaded}
                 title={
                   includeDownloaded && downloadedCount > 0
-                    ? `Including ${downloadedCount} downloaded title${
-                        downloadedCount === 1 ? '' : 's'
-                      }`
-                    : 'Include downloaded manga that are not favourited in your library'
+                    ? t('library:downloadToggle.showing', {
+                        count: downloadedCount,
+                        s: downloadedCount === 1 ? '' : 's'
+                      })
+                    : t('library:downloadToggle.includeDownloaded')
                 }
               >
                 <span className="library-view__search-button-icon">
@@ -261,8 +268,8 @@ export function LibraryView(): JSX.Element {
                 type="button"
                 className="library-view__search-button"
                 onClick={() => setShowSearchHelp(!showSearchHelp)}
-                aria-label="Search syntax help"
-                title="Show search syntax help"
+                aria-label={t('library:searchHelpButton')}
+                title={t('library:searchHelpButton')}
               >
                 <span className="library-view__search-button-icon">
                   <Info20Regular />
@@ -278,59 +285,60 @@ export function LibraryView(): JSX.Element {
           size="medium"
           icon={<Add24Regular />}
           onClick={() => setCreateDialogOpen(true)}
-          aria-label="Create collection"
-          title="Create a new collection"
+          aria-label={t('library:createCollectionButton')}
+          title={t('library:createCollectionButton')}
           className="h-9"
         >
-          Collection
+          {t('library:createCollectionButton')}
         </Button>
       </div>
 
       {/* Search Help */}
       {showSearchHelp && (
         <div className="mb-4 p-4 bg-subtle border border-default rounded-lg">
-          <h3 className="font-semibold mb-2">Search Syntax</h3>
+          <h3 className="font-semibold mb-2">{t('library:searchSyntax.title')}</h3>
           <div className="grid grid-cols-2 gap-2 text-sm">
             <div>
-              <code className="px-1 py-0.5 bg-layer rounded">status:ongoing</code> - Filter by
-              status
+              <code className="px-1 py-0.5 bg-layer rounded">status:ongoing</code> -{' '}
+              {t('library:searchSyntax.examples.status')}
             </div>
             <div>
-              <code className="px-1 py-0.5 bg-layer rounded">tag:romance</code> - Filter by tag
+              <code className="px-1 py-0.5 bg-layer rounded">tag:romance</code> -{' '}
+              {t('library:searchSyntax.examples.tag')}
             </div>
             <div>
-              <code className="px-1 py-0.5 bg-layer rounded">downloaded:yes</code> - Show downloaded
+              <code className="px-1 py-0.5 bg-layer rounded">downloaded:yes</code> -{' '}
+              {t('library:searchSyntax.examples.downloaded')}
             </div>
             <div>
-              <code className="px-1 py-0.5 bg-layer rounded">author:Oda</code> - Filter by author
+              <code className="px-1 py-0.5 bg-layer rounded">author:Oda</code> -{' '}
+              {t('library:searchSyntax.examples.author')}
             </div>
             <div>
-              <code className="px-1 py-0.5 bg-layer rounded">artist:Inoue</code> - Filter by artist
+              <code className="px-1 py-0.5 bg-layer rounded">artist:Inoue</code> -{' '}
+              {t('library:searchSyntax.examples.artist')}
             </div>
             <div>
-              <code className="px-1 py-0.5 bg-layer rounded">year:2024</code> - Filter by year
+              <code className="px-1 py-0.5 bg-layer rounded">year:2024</code> -{' '}
+              {t('library:searchSyntax.examples.year')}
             </div>
             <div>
-              <code className="px-1 py-0.5 bg-layer rounded">year:&gt;2020</code> - Year greater
-              than
+              <code className="px-1 py-0.5 bg-layer rounded">year:&gt;2020</code> -{' '}
+              {t('library:searchSyntax.examples.yearGreater')}
             </div>
             <div>
-              <code className="px-1 py-0.5 bg-layer rounded">year:&lt;2019</code> - Year less than
+              <code className="px-1 py-0.5 bg-layer rounded">year:&lt;2019</code> -{' '}
+              {t('library:searchSyntax.examples.yearLess')}
             </div>
           </div>
-          <p className="text-sm text-secondary mt-2">
-            Combine filters:{' '}
-            <code className="px-1 py-0.5 bg-layer rounded">
-              one piece status:ongoing author:Oda
-            </code>
-          </p>
+          <p className="text-sm text-secondary mt-2">{t('library:searchSyntax.combine')}</p>
         </div>
       )}
 
       {/* Active Filters */}
       {activeFilters.length > 0 && (
         <div className="mb-4 flex gap-2 items-center flex-wrap">
-          <span className="text-sm text-secondary">Active filters:</span>
+          <span className="text-sm text-secondary">{t('library:activeFilters')}</span>
           {activeFilters.map((filter) => (
             <FilterChip key={filter.key} label={filter.label} value={filter.value} />
           ))}
@@ -368,7 +376,7 @@ export function LibraryView(): JSX.Element {
             <Tabs defaultValue="all">
               <TabList>
                 <Tab value="all">
-                  All{' '}
+                  {t('library:tabs.all')}{' '}
                   <Badge variant="default" size="small">
                     {favourites.length}
                   </Badge>
@@ -416,10 +424,10 @@ export function LibraryView(): JSX.Element {
                     icon={searchQuery ? <Search48Regular /> : <BookOpen48Regular />}
                     message={
                       searchQuery
-                        ? 'Nothing here matches your search'
+                        ? t('library:emptyState.noSearchResults')
                         : !isOnline
-                          ? 'No downloaded manga. Go online to download manga for offline reading.'
-                          : 'Nothing here yet! Start adding some manga from Browse.'
+                          ? t('library:emptyState.noDownloaded')
+                          : t('library:emptyState.noManga')
                     }
                     variant={searchQuery ? 'search' : 'default'}
                   />
@@ -448,8 +456,8 @@ export function LibraryView(): JSX.Element {
                         icon={searchQuery ? <Search48Regular /> : <BookOpen48Regular />}
                         message={
                           searchQuery
-                            ? `Nothing in "${collection.name}" matches that...`
-                            : `Your "${collection.name}" collection is empty!`
+                            ? t('library:emptyState.noMatchInCollection', { name: collection.name })
+                            : t('library:emptyState.emptyCollection', { name: collection.name })
                         }
                         variant={searchQuery ? 'search' : 'default'}
                       />
@@ -474,10 +482,10 @@ export function LibraryView(): JSX.Element {
                   icon={searchQuery ? <Search48Regular /> : <BookOpen48Regular />}
                   message={
                     searchQuery
-                      ? 'Nothing here matches your search'
+                      ? t('library:emptyState.noSearchResults')
                       : !isOnline
-                        ? 'No downloaded manga. Go online to download manga for offline reading.'
-                        : 'Nothing here yet! Start adding some manga from Browse.'
+                        ? t('library:emptyState.noDownloaded')
+                        : t('library:emptyState.noManga')
                   }
                   variant={searchQuery ? 'search' : 'default'}
                 />
