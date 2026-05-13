@@ -18,7 +18,7 @@
     "title": "Couldn't load chapters",
     "message": "Failed to load chapters. You're offline or chapters aren't available.",
     "offlineMessage": "You're offline. Changing language or refreshing chapters requires an internet connection.",
-    "noChaptersInLanguage": "No chapters available in {language} ({code})",
+    "noChaptersInLanguage": "No chapters available in {{language}} ({{code}})",
     "viewOnMangaDex": "View on MangaDex"
   },
   "notFound": {
@@ -28,16 +28,16 @@
   },
   "documentTitle": {
     "loading": "Loading... - DexReader",
-    "detail": "{manga} - DexReader"
+    "detail": "{{manga}} - DexReader"
   },
   "liveRegion": {
     "loading": "Loading manga details...",
-    "loaded": "Loaded {title} by {author}"
+    "loaded": "Loaded {{title}} by {{author}}"
   },
   "stickyTitle": "{title}",
   "hero": {
-    "coverAlt": "{title} cover",
-    "filterByTag": "Filter by {name}",
+    "coverAlt": "{{title}} cover",
+    "filterByTag": "Filter by {{name}}",
     "author": "Author:",
     "artist": "Artist:",
     "status": "Status:",
@@ -45,8 +45,8 @@
     "year": "Year:",
     "rating": "Rating:",
     "length": "Length:",
-    "volumeCount": "{count} volume{s}",
-    "chapterCount": "{count} chapter{s}",
+    "volumeCount": "{{count}} volume{{s}}",
+    "chapterCount": "{{count}} chapter{{s}}",
     "continue": "Continue",
     "startReading": "Start Reading",
     "inLibrary": "In Library",
@@ -56,13 +56,13 @@
     "failedToAdd": "Failed to add to library",
     "manageDownloads": {
       "title": "Manage Downloads",
-      "detail": "{title}\n\nThis manga has {count} downloaded chapter{s}.\n\nYou can add it to your library for tracking, or delete all downloaded chapters.",
+      "detail": "{{title}}\n\nThis manga has {{count}} downloaded chapter{{s}}.\n\nYou can add it to your library for tracking, or delete all downloaded chapters.",
       "addToLibrary": "Add to Library",
       "deleteAll": "Delete All Chapters"
     },
     "deleteDownloads": {
       "title": "Delete all downloaded chapters?",
-      "detail": "This will permanently delete {count} chapter{s} from {title}.\n\nThis action cannot be undone.",
+      "detail": "This will permanently delete {{count}} chapter{{s}} from {{title}}.\n\nThis action cannot be undone.",
       "failed": "Failed to delete downloads"
     },
     "downloadAll": {
@@ -71,17 +71,17 @@
       "offlineTooltip": "You are offline. Please go online to download",
       "noChapters": "No chapters available",
       "partialFailure": "Partial Failure",
-      "couldntQueue": "Couldn't queue {count} chapter{s}"
+      "couldntQueue": "Couldn't queue {{count}} chapter{{s}}"
     }
   },
   "toasts": {
     "downloadsDeleted": {
       "title": "Downloads deleted",
-      "message": "Deleted {count} chapter{s}"
+      "message": "Deleted {{count}} chapter{{s}}"
     },
     "downloadStarted": {
       "title": "Download Started",
-      "message": "Added {count} chapter{s} to download queue!"
+      "message": "Added {{count}} chapter{{s}} to download queue!"
     }
   },
   "section": {

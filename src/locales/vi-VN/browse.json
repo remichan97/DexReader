@@ -21,7 +21,7 @@
     "hideDetailsButton": "Ẩn chi tiết"
   },
   "filterInfo": {
-    "activeFilters": "{count} bộ lọc đang hoạt động",
+    "activeFilters": "{{count}} bộ lọc đang hoạt động",
     "browsingAll": "Khám phá tất cả manga",
     "scrollToFilters": "Cuộn đến Bộ lọc",
     "resetToDefault": "Đặt lại về Mặc định"
@@ -38,7 +38,7 @@
   },
   "liveRegion": {
     "searching": "Đang tìm kiếm manga...",
-    "found": "Đã tìm thấy {count} manga",
+    "found": "Đã tìm thấy {{count}} manga",
     "hasMore": ", cuộn để xem thêm",
     "noResults": "Không tìm thấy manga"
   },
@@ -51,8 +51,8 @@
     "importBehaviour": "Hành vi nhập:",
     "importMessage": "Đang nhập manga từ sao lưu Tachiyomi/Mihon của bạn. Quá trình này có thể mất một vài phút tùy thuộc vào kích thước thư viện của bạn.",
     "importInfo": "Sao lưu này sẽ được hợp nhất với thư viện hiện có của bạn. Dữ liệu sau sẽ được nhập:",
-    "successMessage": "Đã nhập thành công {count} trong tổng số {total} manga từ sao lưu của bạn.",
-    "skippedMessage": "{count} manga đã bị bỏ qua (đã có trong thư viện hoặc không phải từ MangaDex)."
+    "successMessage": "Đã nhập thành công {{count}} trong tổng số {{total}} manga từ sao lưu của bạn.",
+    "skippedMessage": "{{count}} manga đã bị bỏ qua (đã có trong thư viện hoặc không phải từ MangaDex)."
   },
   "export": {
     "exportBackup": "Xuất sao lưu",
@@ -63,11 +63,11 @@
   "download": {
     "downloadChapter": "Tải xuống chương",
     "downloading": "Đang tải xuống...",
-    "downloadingPages": "Đang tải xuống... {current} trong tổng số {total} trang",
+    "downloadingPages": "Đang tải xuống... {{current}} trong tổng số {{total}} trang",
     "downloadQueued": "Đang xếp hàng tải xuống",
     "chapterDownloaded": "Chương đã tải xuống",
     "downloadFailed": "Tải xuống thất bại. Nhấp để thử lại",
-    "downloadMessage": "Bạn sắp tải xuống {count} chương."
+    "downloadMessage": "Bạn sắp tải xuống {{count}} chương."
   },
   "preset": {
     "searchPreset": "Mẫu tìm kiếm",

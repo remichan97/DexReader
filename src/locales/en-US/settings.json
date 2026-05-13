@@ -33,7 +33,7 @@
     "accentSection": "Accent Color",
     "accentLabel": "Primary accent color",
     "useSystemButton": "Use System",
-    "usingSystem": "Using system accent color ({color})",
+    "usingSystem": "Using system accent color ({{color}})",
     "usingCustom": "You're using a custom accent. Click \"Use System\" to go back to your system color.",
     "dateTimeSection": "Date & Time Format",
     "dateTimeDescription": "DexReader uses your system's date and time format settings. Dates are displayed in chapter lists, reading history, and error logs.",
@@ -106,27 +106,27 @@
     "overridesDescription": "Manga with custom reading mode settings. Reset them to use global defaults.",
     "clearAllButton": "Clear All",
     "emptyOverrides": "No custom settings yet. Change reading modes in the reader to create per-manga overrides!",
-    "overrideMode": "Mode: {mode}",
-    "overrideDetails": "{rtl} • Skip covers",
+    "overrideMode": "Mode: {{mode}}",
+    "overrideDetails": "{{rtl}} • Skip covers",
     "resetButton": "Reset",
     "loadingOverrides": "Loading overrides..."
   },
   "performance": {
     "sectionTitle": "Performance",
     "description": "Configure how much memory DexReader can use for caching manga chapters. Higher tiers load more chapters in advance.",
-    "systemInfo": "System RAM: {ram} GB | Recommended: {recommended} MB (10%) | Maximum: {max} MB (30%)",
+    "systemInfo": "System RAM: {{ram}} GB | Recommended: {{recommended}} MB (10%) | Maximum: {{max}} MB (30%)",
     "cacheTierLabel": "Chapter Cache Size",
     "cacheTierOptions": {
       "low": {
-        "label": "Low ({size} MB)",
+        "label": "Low ({{size}} MB)",
         "description": "1-2 chapters cached | Best for low-end systems"
       },
       "normal": {
-        "label": "Normal ({size} MB) - Recommended",
+        "label": "Normal ({{size}} MB) - Recommended",
         "description": "3-4 chapters cached | Balanced performance"
       },
       "high": {
-        "label": "High ({size} MB)",
+        "label": "High ({{size}} MB)",
         "description": "5-7 chapters cached | Smoother reading"
       },
       "custom": {
@@ -136,29 +136,29 @@
     },
     "customCacheLabel": "Custom Cache Size (MB)",
     "customCachePlaceholder": "200",
-    "customCacheHelper": "Enter cache size in MB (10 - {max})",
+    "customCacheHelper": "Enter cache size in MB (10 - {{max}})",
     "customCacheError": {
       "tooLow": "Cache size must be at least 10 MB",
-      "tooHigh": "Cache size cannot exceed {max} MB (30% of system RAM)"
+      "tooHigh": "Cache size cannot exceed {{max}} MB (30% of system RAM)"
     },
     "customCacheWarning": {
       "low": "Low cache may cause frequent reloads. We recommend at least 30 MB",
-      "high": "This exceeds our recommendation of {recommended} MB (10% of system RAM). Higher values might slow things down."
+      "high": "This exceeds our recommendation of {{recommended}} MB (10% of system RAM). Higher values might slow things down."
     },
     "warningsSuppressed": "Warnings suppressed",
     "resetWarningsButton": "Reset warnings"
   },
   "storage": {
-    "diskSpaceTitle": "Total Disk Space: {total} GB",
-    "diskSpaceUsage": "Used: {used} GB • Free: {free} GB",
+    "diskSpaceTitle": "Total Disk Space: {{total}} GB",
+    "diskSpaceUsage": "Used: {{used}} GB • Free: {{free}} GB",
     "loadingStorage": "Loading storage data...",
-    "deleteSelectedButton": "Delete Selected ({count})",
+    "deleteSelectedButton": "Delete Selected ({{count}})",
     "deleteConfirm": {
-      "title": "Delete {count} manga?",
-      "message": "You are about to permanently delete downloads for:\n\n{list}\n\nYou'll regain: {size} of disk space\n\nThis action cannot be undone."
+      "title": "Delete {{count}} manga?",
+      "message": "You are about to permanently delete downloads for:\n\n{{list}}\n\nYou'll regain: {{size}} of disk space\n\nThis action cannot be undone."
     },
-    "deleteSuccess": "Successfully deleted {count} manga",
-    "deletedSpace": "Freed {size} of space!"
+    "deleteSuccess": "Successfully deleted {{count}} manga",
+    "deletedSpace": "Freed {{size}} of space!"
   },
   "cacheManagement": {
     "sectionTitle": "Cache Management",
@@ -180,26 +180,26 @@
       "unlimited": "Unlimited"
     },
     "currentUsage": "Current Usage:",
-    "usageUnlimited": "{size} (Unlimited)",
-    "usageLimited": "{size} / {limit} ({percent}%)",
-    "cachedCovers": "Cached Covers: {count} images",
-    "cacheLocation": "Cache Location: {path}",
+    "usageUnlimited": "{{size}} (Unlimited)",
+    "usageLimited": "{{size}} / {{limit}} ({{percent}}%)",
+    "cachedCovers": "Cached Covers: {{count}} images",
+    "cacheLocation": "Cache Location: {{path}}",
     "clearAllCoversButton": "Clear All Covers",
     "clearCoversSuccess": "Cover cache cleared",
-    "clearedCovers": "Deleted {count} images (freed {size})",
+    "clearedCovers": "Deleted {{count}} images (freed {{size}})",
     "loadingCacheData": "Loading cache data...",
     "metadataCacheSection": "Manga Metadata Cache",
     "metadataCacheDescription": "Manage cached manga information for offline access.",
-    "totalCached": "Total Cached: {count} manga",
-    "inLibrary": "• In Library: {count} manga (protected)",
-    "downloaded": "• Downloaded: {count} manga (protected)",
-    "browsingCache": "• Browsing Cache: {count} manga",
+    "totalCached": "Total Cached: {{count}} manga",
+    "inLibrary": "• In Library: {{count}} manga (protected)",
+    "downloaded": "• Downloaded: {{count}} manga (protected)",
+    "browsingCache": "• Browsing Cache: {{count}} manga",
     "autoManageNote": "DexReader automatically manages this cache by removing non-library manga that haven't been accessed in 90 days.",
-    "readyToClean": "Ready to clean: {count} manga",
+    "readyToClean": "Ready to clean: {{count}} manga",
     "cleanUpNowButton": "Clean Up Now",
     "cleanMetadataButton": "Clean Up",
     "cleanMetadataSuccess": "Metadata cache cleaned",
-    "cleanedMetadata": "Cleaned up {count} cached manga",
+    "cleanedMetadata": "Cleaned up {{count}} cached manga",
     "clearAllCacheButton": "Clear All Cache",
     "clearAllMetadataButton": "Clear All",
     "clearAllMetadataSuccess": "Metadata cache cleared"
@@ -217,7 +217,7 @@
     },
     "checkNowButton": "Check for Updates Now",
     "checkingButton": "Checking...",
-    "currentVersion": "Current version: {version}"
+    "currentVersion": "Current version: {{version}}"
   },
   "logging": {
     "sectionTitle": "Logging",
@@ -232,7 +232,7 @@
     "openFolderButton": "Open Logs Folder",
     "deleteOldButton": "Delete Old Logs",
     "deleteOldSuccess": "Old logs deleted",
-    "deletedOldLogs": "Cleaned up logs older than {days} days",
+    "deletedOldLogs": "Cleaned up logs older than {{days}} days",
     "clearAllButton": "Clear All Logs",
     "clearAllSuccess": "Logs cleared",
     "clearedAllLogs": "All logs cleared!"

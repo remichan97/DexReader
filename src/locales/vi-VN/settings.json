@@ -33,7 +33,7 @@
     "accentSection": "Màu chủ đạo",
     "accentLabel": "Màu chủ đạo",
     "useSystemButton": "Sử dụng hệ thống",
-    "usingSystem": "Đang sử dụng màu chủ đạo hệ thống ({color})",
+    "usingSystem": "Đang sử dụng màu chủ đạo hệ thống ({{color}})",
     "usingCustom": "Bạn đang sử dụng màu chủ đạo tùy chỉnh. Nhấp vào \"Sử dụng hệ thống\" để quay lại màu chủ đạo hệ thống của bạn.",
     "dateTimeSection": "Định dạng Ngày & Giờ",
     "dateTimeDescription": "DexReader sử dụng cài đặt định dạng ngày và giờ của hệ thống của bạn. Ngày được hiển thị trong danh sách chương, lịch sử đọc và log lỗi.",
@@ -107,27 +107,27 @@
     "overridesDescription": "Manga có cài đặt chế độ đọc riêng (ghi đè cài đặt mặc định). Đặt lại để sử dụng cài đặt chung.",
     "clearAllButton": "Xóa tất cả",
     "emptyOverrides": "Chưa có cài đặt ghi đè nào. Thay đổi chế độ đọc trong trình đọc để tạo cài đặt riêng cho từng manga!",
-    "overrideMode": "Chế độ: {mode}",
-    "overrideDetails": "{rtl} • Bỏ qua trang bìa",
+    "overrideMode": "Chế độ: {{mode}}",
+    "overrideDetails": "{{rtl}} • Bỏ qua trang bìa",
     "resetButton": "Đặt lại",
     "loadingOverrides": "Đang tải các cài đặt ghi đè..."
   },
   "performance": {
     "sectionTitle": "Hiệu suất",
     "description": "Cấu hình dung lượng RAM mà DexReader có thể sử dụng để cache các chương manga. Các cấp cao hơn tải nhiều chương hơn trước.",
-    "systemInfo": "RAM hệ thống: {ram} GB | Đề xuất: {recommended} MB (10%) | Tối đa: {max} MB (30%)",
+    "systemInfo": "RAM hệ thống: {{ram}} GB | Đề xuất: {{recommended}} MB (10%) | Tối đa: {{max}} MB (30%)",
     "cacheTierLabel": "Kích thước Cache chương",
     "cacheTierOptions": {
       "low": {
-        "label": "Thấp ({size} MB)",
+        "label": "Thấp ({{size}} MB)",
         "description": "1-2 chương được cache | Tốt nhất cho hệ thống cấu hình thấp"
       },
       "normal": {
-        "label": "Bình thường ({size} MB) - Đề xuất",
+        "label": "Bình thường ({{size}} MB) - Đề xuất",
         "description": "3-4 chương được cache | Hiệu suất cân bằng"
       },
       "high": {
-        "label": "Cao ({size} MB)",
+        "label": "Cao ({{size}} MB)",
         "description": "5-7 chương được cache | Trải nghiệm đọc mượt mà hơn"
       },
       "custom": {
@@ -137,32 +137,32 @@
     },
     "customCacheLabel": "Kích thước Cache tùy chỉnh (MB)",
     "customCachePlaceholder": "200",
-    "customCacheHelper": "Nhập kích thước cache bằng MB (10 - {max})",
+    "customCacheHelper": "Nhập kích thước cache bằng MB (10 - {{max}})",
     "customCacheError": {
       "tooLow": "Kích thước cache phải ít nhất 10 MB",
-      "tooHigh": "Kích thước cache không được vượt quá {max} MB (30% RAM hệ thống)"
+      "tooHigh": "Kích thước cache không được vượt quá {{max}} MB (30% RAM hệ thống)"
     },
     "customCacheWarning": {
       "low": "Cache thấp có thể gây ra việc tải lại thường xuyên. Chúng tôi khuyến nghị ít nhất 30 MB",
-      "high": "Điều này vượt quá khuyến nghị của chúng tôi là {recommended} MB (10% RAM hệ thống). Giá trị cao hơn có thể làm chậm hệ thống."
+      "high": "Điều này vượt quá khuyến nghị của chúng tôi là {{recommended}} MB (10% RAM hệ thống). Giá trị cao hơn có thể làm chậm hệ thống."
     },
     "warningsSuppressed": "Cảnh báo đã bị tắt",
     "resetWarningsButton": "Đặt lại cảnh báo"
   },
   "storage": {
-    "diskSpaceTitle": "Tổng dung lượng đĩa: {total} GB",
-    "diskSpaceUsage": "Đã sử dụng: {used} GB • Còn trống: {free} GB",
+    "diskSpaceTitle": "Tổng dung lượng đĩa: {{total}} GB",
+    "diskSpaceUsage": "Đã sử dụng: {{used}} GB • Còn trống: {{free}} GB",
     "loadingStorage": "Đang tải dữ liệu lưu trữ...",
     "failedToLoad": "Không thể tải dữ liệu lưu trữ",
-    "deleteSelectedButton": "Xóa đã chọn ({count})",
+    "deleteSelectedButton": "Xóa đã chọn ({{count}})",
     "deleteConfirm": {
-      "title": "Xóa {count} manga?",
-      "message": "Bạn sắp xóa vĩnh viễn các bản tải xuống cho:\n\n{list}\n\nBạn sẽ giải phóng: {size} dung lượng ổ cứng\n\nHành động này không thể hoàn tác.",
+      "title": "Xóa {{count}} manga?",
+      "message": "Bạn sắp xóa vĩnh viễn các bản tải xuống cho:\n\n{{list}}\n\nBạn sẽ giải phóng: {{size}} dung lượng ổ cứng\n\nHành động này không thể hoàn tác.",
       "deleteButton": "Xóa",
       "cancelButton": "Hủy"
     },
-    "deleteSuccess": "Đã xóa thành công {count} manga",
-    "deletedSpace": "Đã giải phóng {size} dung lượng ổ cứng!",
+    "deleteSuccess": "Đã xóa thành công {{count}} manga",
+    "deletedSpace": "Đã giải phóng {{size}} dung lượng ổ cứng!",
     "deleteFailed": "Không thể xóa manga"
   },
   "cacheManagement": {
@@ -185,26 +185,26 @@
       "unlimited": "Không giới hạn"
     },
     "currentUsage": "Mức sử dụng hiện tại:",
-    "usageUnlimited": "{size} (Không giới hạn)",
-    "usageLimited": "{size} / {limit} ({percent}%)",
-    "cachedCovers": "Ảnh bìa đã lưu: {count} ảnh",
-    "cacheLocation": "Vị trí bộ nhớ đệm: {path}",
+    "usageUnlimited": "{{size}} (Không giới hạn)",
+    "usageLimited": "{{size}} / {{limit}} ({{percent}}%)",
+    "cachedCovers": "Ảnh bìa đã lưu: {{count}} ảnh",
+    "cacheLocation": "Vị trí bộ nhớ đệm: {{path}}",
     "clearAllCoversButton": "Xóa tất cả ảnh bìa",
     "clearCoversSuccess": "Đã xóa bộ nhớ đệm ảnh bìa",
-    "clearedCovers": "Đã xóa {count} ảnh (giải phóng {size})",
+    "clearedCovers": "Đã xóa {{count}} ảnh (giải phóng {{size}})",
     "loadingCacheData": "Đang tải dữ liệu bộ nhớ đệm...",
     "metadataCacheSection": "Bộ nhớ đệm thông tin Manga",
     "metadataCacheDescription": "Quản lý thông tin manga đã lưu trong bộ nhớ đệm để truy cập ngoại tuyến.",
-    "totalCached": "Tổng số đã lưu: {count} manga",
-    "inLibrary": "• Trong thư viện: {count} manga (được bảo vệ)",
-    "downloaded": "• Đã tải xuống: {count} manga (được bảo vệ)",
-    "browsingCache": "• Bộ nhớ đệm duyệt: {count} manga",
+    "totalCached": "Tổng số đã lưu: {{count}} manga",
+    "inLibrary": "• Trong thư viện: {{count}} manga (được bảo vệ)",
+    "downloaded": "• Đã tải xuống: {{count}} manga (được bảo vệ)",
+    "browsingCache": "• Bộ nhớ đệm duyệt: {{count}} manga",
     "autoManageNote": "DexReader tự động quản lý bộ nhớ đệm này bằng cách xóa manga không có trong thư viện và không được truy cập trong 90 ngày.",
-    "readyToClean": "Sẵn sàng dọn dẹp: {count} manga",
+    "readyToClean": "Sẵn sàng dọn dẹp: {{count}} manga",
     "cleanUpNowButton": "Dọn dẹp ngay",
     "cleanMetadataButton": "Dọn dẹp",
     "cleanMetadataSuccess": "Đã dọn dẹp bộ nhớ đệm thông tin",
-    "cleanedMetadata": "Đã dọn dẹp {count} manga trong bộ nhớ đệm",
+    "cleanedMetadata": "Đã dọn dẹp {{count}} manga trong bộ nhớ đệm",
     "clearAllCacheButton": "Xóa tất cả bộ nhớ đệm",
     "clearAllMetadataButton": "Xóa tất cả",
     "clearAllMetadataSuccess": "Đã xóa bộ nhớ đệm thông tin"
@@ -222,7 +222,7 @@
     },
     "checkNowButton": "Kiểm tra cập nhật ngay",
     "checkingButton": "Đang kiểm tra...",
-    "currentVersion": "Phiên bản hiện tại: {version}"
+    "currentVersion": "Phiên bản hiện tại: {{version}}"
   },
   "logging": {
     "sectionTitle": "Ghi log",
@@ -237,7 +237,7 @@
     "openFolderButton": "Mở thư mục log",
     "deleteOldButton": "Xóa log cũ",
     "deleteOldSuccess": "Đã xóa log cũ",
-    "deletedOldLogs": "Đã dọn dẹp log cũ hơn {days} ngày",
+    "deletedOldLogs": "Đã dọn dẹp log cũ hơn {{days}} ngày",
     "clearAllButton": "Xóa tất cả log",
     "clearAllSuccess": "Đã xóa tất cả log",
     "clearedAllLogs": "Đã xóa tất cả log!"

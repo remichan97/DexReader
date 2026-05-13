@@ -19,20 +19,20 @@
   "downloadToggle": {
     "includeDownloaded": "Include downloaded titles in library",
     "hideDownloaded": "Hide downloaded titles",
-    "showing": "Including {count} downloaded title{s}"
+    "showing": "Including {{count}} downloaded title{{s}}"
   },
   "searchHelpButton": "Search syntax help",
   "activeFilters": "Active filters:",
   "tabs": {
     "all": "All",
-    "collections": "{name}"
+    "collections": "{{name}}"
   },
   "emptyState": {
     "noManga": "Nothing here yet! Start adding some manga from Browse.",
     "noDownloaded": "No downloaded manga. Go online to download manga for offline reading.",
     "noSearchResults": "Nothing here matches your search",
-    "emptyCollection": "Your \"{name}\" collection is empty!",
-    "noMatchInCollection": "Nothing in \"{name}\" matches that..."
+    "emptyCollection": "Your \"{{name}}\" collection is empty!",
+    "noMatchInCollection": "Nothing in \"{{name}}\" matches that..."
   },
   "toasts": {
     "addedToLibrary": "Added to Library",
@@ -59,7 +59,7 @@
   },
   "liveRegion": {
     "loading": "Loading your library...",
-    "count": "{count} manga in library",
-    "countWithDownloads": "{count} manga ({favorited} favourited, {downloaded} downloaded)"
+    "count": "{{count}} manga in library",
+    "countWithDownloads": "{{count}} manga ({{favorited}} favourited, {{downloaded}} downloaded)"
   }
 }

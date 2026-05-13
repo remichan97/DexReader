@@ -4,10 +4,10 @@
   "filterByStatus": "Filter by status",
   "sortBy": "Sort by",
   "stats": {
-    "active": "{count} Active",
-    "queued": "{count} Queued",
-    "completed": "{count} Completed",
-    "failed": "{count} Failed"
+    "active": "{{count}} Active",
+    "queued": "{{count}} Queued",
+    "completed": "{{count}} Completed",
+    "failed": "{{count}} Failed"
   },
   "actions": {
     "openFolder": "Open Folder",
@@ -23,10 +23,10 @@
     "title": "Nothing downloaded yet. Chapters you download will show up here!"
   },
   "downloadGroup": {
-    "chapterCount": "{count} chapter{s}",
-    "storageSize": "{size}",
-    "activeBadge": "{count} active",
-    "failedBadge": "{count} failed"
+    "chapterCount": "{{count}} chapter{{s}}",
+    "storageSize": "{{size}}",
+    "activeBadge": "{{count}} active",
+    "failedBadge": "{{count}} failed"
   },
   "loadingState": {
     "message": "Loading downloads..."
@@ -48,7 +48,7 @@
       "title": "Deleted",
       "message": "Download and files permanently deleted"
     },
-    "retryAllQueued": "Queued {count} failed download{s} for retry",
-    "cancelledAll": "Cancelled {count} queued download{s}"
+    "retryAllQueued": "Queued {{count}} failed download{{s}} for retry",
+    "cancelledAll": "Cancelled {{count}} queued download{{s}}"
   }
 }

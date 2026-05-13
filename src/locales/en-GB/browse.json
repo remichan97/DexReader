@@ -21,7 +21,7 @@
     "hideDetailsButton": "Hide"
   },
   "filterInfo": {
-    "activeFilters": "{count} filter{s} active",
+    "activeFilters": "{{count}} filter{{s}} active",
     "browsingAll": "Browsing all manga",
     "scrollToFilters": "Scroll to Filters",
     "resetToDefault": "Reset to Default"
@@ -38,7 +38,7 @@
   },
   "liveRegion": {
     "searching": "Searching for manga...",
-    "found": "Found {count} manga",
+    "found": "Found {{count}} manga",
     "hasMore": ", scroll for more",
     "noResults": "No manga found"
   },
@@ -51,8 +51,8 @@
     "importBehaviour": "Import Behaviour:",
     "importMessage": "Importing manga from your Tachiyomi/Mihon backup. This may take a few moments depending on the size of your library.",
     "importInfo": "This backup will be merged with your existing library. The following data will be imported:",
-    "successMessage": "Successfully imported {count} out of {total} manga from your backup.",
-    "skippedMessage": "{count} manga were skipped (already in library or not from MangaDex)."
+    "successMessage": "Successfully imported {{count}} out of {{total}} manga from your backup.",
+    "skippedMessage": "{{count}} manga were skipped (already in library or not from MangaDex)."
   },
   "export": {
     "exportBackup": "Export Backup",
@@ -63,11 +63,11 @@
   "download": {
     "downloadChapter": "Download chapter",
     "downloading": "Downloading...",
-    "downloadingPages": "Downloading... {current} of {total} pages",
+    "downloadingPages": "Downloading... {{current}} of {{total}} pages",
     "downloadQueued": "Download queued",
     "chapterDownloaded": "Chapter downloaded",
     "downloadFailed": "Download failed. Click to retry",
-    "downloadMessage": "You're about to download {count} chapters."
+    "downloadMessage": "You're about to download {{count}} chapters."
   },
   "preset": {
     "searchPreset": "Search Preset",

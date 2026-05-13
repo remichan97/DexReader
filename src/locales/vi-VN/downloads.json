@@ -4,10 +4,10 @@
   "filterByStatus": "Lọc theo trạng thái",
   "sortBy": "Sắp xếp theo",
   "stats": {
-    "active": "{count} Đang tải",
-    "queued": "{count} Đang chờ",
-    "completed": "{count} Đã hoàn thành",
-    "failed": "{count} Thất bại"
+    "active": "{{count}} Đang tải",
+    "queued": "{{count}} Đang chờ",
+    "completed": "{{count}} Đã hoàn thành",
+    "failed": "{{count}} Thất bại"
   },
   "actions": {
     "openFolder": "Mở thư mục",
@@ -23,10 +23,10 @@
     "title": "Chưa có tải xuống nào. Các chương bạn tải xuống sẽ hiển thị ở đây!"
   },
   "downloadGroup": {
-    "chapterCount": "{count} chương",
-    "storageSize": "{size}",
-    "activeBadge": "{count} đang hoạt động",
-    "failedBadge": "{count} thất bại"
+    "chapterCount": "{{count}} chương",
+    "storageSize": "{{size}}",
+    "activeBadge": "{{count}} đang hoạt động",
+    "failedBadge": "{{count}} thất bại"
   },
   "loadingState": {
     "message": "Đang tải xuống..."
@@ -48,7 +48,7 @@
       "title": "Đã xóa vĩnh viễn",
       "message": "Tải xuống và tệp đã được xóa vĩnh viễn"
     },
-    "retryAllQueued": "Đã xếp hàng {count} tải xuống thất bại để thử lại",
-    "cancelledAll": "Đã hủy {count} tải xuống đang chờ"
+    "retryAllQueued": "Đã xếp hàng {{count}} tải xuống thất bại để thử lại",
+    "cancelledAll": "Đã hủy {{count}} tải xuống đang chờ"
   }
 }

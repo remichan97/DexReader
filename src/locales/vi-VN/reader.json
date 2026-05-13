@@ -5,11 +5,11 @@
     "settingsButton": "Cài đặt",
     "settingsLabel": "Cài đặt trình đọc (chế độ đọc)",
     "zoomLabel": "Điều khiển phóng to (Z để chuyển đổi chế độ phù hợp)",
-    "zoomPercentage": "{percent}%",
+    "zoomPercentage": "{{percent}}%",
     "pageCounter": {
-      "single": "{current}/{total}",
-      "double": "Trang {left}-{right}/{total}",
-      "doubleRtl": "Trang {right}-{left}/{total}"
+      "single": "{{current}}/{{total}}",
+      "double": "Trang {{left}}-{{right}}/{{total}}",
+      "doubleRtl": "Trang {{right}}-{{left}}/{{total}}"
     },
     "incognitoBadge": "Ẩn danh",
     "incognitoTooltip": "Theo dõi tiến trình bị vô hiệu hóa. Vào Cài đặt hoặc menu Tệp để bật.",
@@ -17,21 +17,21 @@
     "openChapterList": "Mở danh sách chương"
   },
   "endOfChapter": {
-    "title": "Kết thúc Chương {number}",
-    "subtitle": "{title}",
+    "title": "Kết thúc Chương {{number}}",
+    "subtitle": "{{title}}",
     "previousChapter": "← Chương trước",
     "nextChapter": "Chương tiếp theo →",
-    "chapterInfo": "Ch. {number}: {title}",
+    "chapterInfo": "Ch. {{number}}: {{title}}",
     "noMoreChapters": "Không còn chương nào",
     "backToDetail": "Quay lại Chi tiết Manga"
   },
   "chapterList": {
     "noChapters": "Không có chương nào",
-    "chapter": "Chương {number}",
-    "chapterWithTitle": "Chương {number}: {title}",
+    "chapter": "Chương {{number}}",
+    "chapterWithTitle": "Chương {{number}}: {{title}}",
     "chapterShort": "Ch.",
     "volumeShort": "Tập",
-    "pages": "{count} trang"
+    "pages": "{{count}} trang"
   },
   "loadingState": {
     "message": "Đang tải chương..."
@@ -86,6 +86,6 @@
   },
   "documentTitle": {
     "loading": "Đang tải... - DexReader",
-    "reading": "{manga} - {chapter} - Trang {current}/{total} - DexReader"
+    "reading": "{{manga}} - {{chapter}} - Trang {{current}}/{{total}} - DexReader"
   }
 }

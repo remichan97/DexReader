@@ -12,13 +12,13 @@
     "message": "Start reading manga to see your progress here.",
     "action": "Browse Manga"
   },
-  "searchEmpty": "No results found for \"{query}\"",
+  "searchEmpty": "No results found for \"{{query}}\"",
   "loadingState": {
     "message": "Loading history..."
   },
   "liveRegion": {
     "loading": "Loading reading history...",
-    "loaded": "{count} manga in history"
+    "loaded": "{{count}} manga in history"
   },
   "documentTitle": "Reading History - DexReader",
   "card": {

@@ -5,11 +5,11 @@
     "settingsButton": "Settings",
     "settingsLabel": "Reader settings (reading mode)",
     "zoomLabel": "Zoom controls (Z to cycle fit modes)",
-    "zoomPercentage": "{percent}%",
+    "zoomPercentage": "{{percent}}%",
     "pageCounter": {
-      "single": "{current}/{total}",
-      "double": "Page {left}-{right}/{total}",
-      "doubleRtl": "Page {right}-{left}/{total}"
+      "single": "{{current}}/{{total}}",
+      "double": "Page {{left}}-{{right}}/{{total}}",
+      "doubleRtl": "Page {{right}}-{{left}}/{{total}}"
     },
     "incognitoBadge": "Incognito",
     "incognitoTooltip": "Progress tracking is disabled. Go to Settings or File menu to enable.",
@@ -17,21 +17,21 @@
     "openChapterList": "Open chapter list"
   },
   "endOfChapter": {
-    "title": "End of Chapter {number}",
-    "subtitle": "{title}",
+    "title": "End of Chapter {{number}}",
+    "subtitle": "{{title}}",
     "previousChapter": "← Previous Chapter",
     "nextChapter": "Next Chapter →",
-    "chapterInfo": "Ch. {number}: {title}",
+    "chapterInfo": "Ch. {{number}}: {{title}}",
     "noMoreChapters": "No more chapters available",
     "backToDetail": "Back to Manga Details"
   },
   "chapterList": {
     "noChapters": "No chapters available",
-    "chapter": "Chapter {number}",
-    "chapterWithTitle": "Chapter {number}: {title}",
+    "chapter": "Chapter {{number}}",
+    "chapterWithTitle": "Chapter {{number}}: {{title}}",
     "chapterShort": "Ch.",
     "volumeShort": "Vol.",
-    "pages": "{count} pages"
+    "pages": "{{count}} pages"
   },
   "loadingState": {
     "message": "Loading chapter..."
@@ -84,6 +84,6 @@
   },
   "documentTitle": {
     "loading": "Loading... - DexReader",
-    "reading": "{manga} - {chapter} - Page {current}/{total} - DexReader"
+    "reading": "{{manga}} - {{chapter}} - Page {{current}}/{{total}} - DexReader"
   }
 }

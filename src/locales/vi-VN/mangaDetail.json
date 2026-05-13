@@ -19,7 +19,7 @@
     "title": "Không thể tải chương",
     "message": "Không thể tải chương. Bạn đang ngoại tuyến hoặc các chương không có sẵn.",
     "offlineMessage": "Bạn đang ngoại tuyến. Thay đổi ngôn ngữ hoặc làm mới các chương yêu cầu kết nối internet.",
-    "noChaptersInLanguage": "Không có chương nào bằng {language} ({code})",
+    "noChaptersInLanguage": "Không có chương nào bằng {{language}} ({{code}})",
     "viewOnMangaDex": "Xem trên MangaDex"
   },
   "notFound": {
@@ -29,16 +29,16 @@
   },
   "documentTitle": {
     "loading": "Đang tải... - DexReader",
-    "detail": "{manga} - DexReader"
+    "detail": "{{manga}} - DexReader"
   },
   "liveRegion": {
     "loading": "Đang tải chi tiết manga...",
-    "loaded": "Đã tải {title} của {author}"
+    "loaded": "Đã tải {{title}} của {{author}}"
   },
   "stickyTitle": "{title}",
   "hero": {
-    "coverAlt": "Bìa {title}",
-    "filterByTag": "Lọc theo {name}",
+    "coverAlt": "Bìa {{title}}",
+    "filterByTag": "Lọc theo {{name}}",
     "author": "Tác giả:",
     "artist": "Họa sĩ:",
     "status": "Trạng thái:",
@@ -46,8 +46,8 @@
     "year": "Năm:",
     "rating": "Xếp hạng:",
     "length": "Độ dài:",
-    "volumeCount": "{count} tập",
-    "chapterCount": "{count} chapter",
+    "volumeCount": "{{count}} tập",
+    "chapterCount": "{{count}} chapter",
     "continue": "Tiếp tục",
     "startReading": "Bắt đầu đọc",
     "inLibrary": "Trong thư viện",
@@ -57,13 +57,13 @@
     "failedToAdd": "Không thể thêm vào thư viện",
     "manageDownloads": {
       "title": "Quản lý tải xuống",
-      "detail": "{title}\n\nManga này có {count} chapter đã tải.\n\nBạn có thể thêm vào thư viện để theo dõi, hoặc xóa tất cả các chapter đã tải.",
+      "detail": "{{title}}\n\nManga này có {{count}} chapter đã tải.\n\nBạn có thể thêm vào thư viện để theo dõi, hoặc xóa tất cả các chapter đã tải.",
       "addToLibrary": "Thêm vào thư viện",
       "deleteAll": "Xóa tất cả chapter"
     },
     "deleteDownloads": {
       "title": "Xóa tất cả chapter đã tải?",
-      "detail": "Thao tác này sẽ xóa vĩnh viễn {count} chapter từ {title}.\n\nHành động này không thể hoàn tác.",
+      "detail": "Thao tác này sẽ xóa vĩnh viễn {{count}} chapter từ {{title}}.\n\nHành động này không thể hoàn tác.",
       "failed": "Không thể xóa tải xuống"
     },
     "downloadAll": {
@@ -72,17 +72,17 @@
       "offlineTooltip": "Bạn đang offline. Vui lòng kết nối mạng để tải xuống",
       "noChapters": "Không có chapter",
       "partialFailure": "Tải một phần thất bại",
-      "couldntQueue": "Không thể thêm {count} chapter vào hàng đợi"
+      "couldntQueue": "Không thể thêm {{count}} chapter vào hàng đợi"
     }
   },
   "toasts": {
     "downloadsDeleted": {
       "title": "Đã xóa tải xuống",
-      "message": "Đã xóa {count} chương"
+      "message": "Đã xóa {{count}} chương"
     },
     "downloadStarted": {
       "title": "Đã bắt đầu tải xuống",
-      "message": "Đã thêm {count} chương vào hàng đợi tải xuống!"
+      "message": "Đã thêm {{count}} chương vào hàng đợi tải xuống!"
     }
   },
   "section": {

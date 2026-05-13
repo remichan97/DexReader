@@ -19,20 +19,20 @@
   "downloadToggle": {
     "includeDownloaded": "Bao gồm các đầu truyện đã tải xuống trong thư viện",
     "hideDownloaded": "Ẩn các đầu truyện đã tải xuống",
-    "showing": "Bao gồm {count} đầu truyện đã tải xuống"
+    "showing": "Bao gồm {{count}} đầu truyện đã tải xuống"
   },
   "searchHelpButton": "Trợ giúp cú pháp tìm kiếm",
   "activeFilters": "Bộ lọc đang hoạt động:",
   "tabs": {
     "all": "Tất cả",
-    "collections": "{name}"
+    "collections": "{{name}}"
   },
   "emptyState": {
     "noManga": "Chưa có gì ở đây! Bắt đầu thêm một số manga từ Khám phá.",
     "noDownloaded": "Chưa có manga đã tải xuống. Kết nối internet để tải manga về đọc offline.",
     "noSearchResults": "Không có kết quả nào phù hợp với tìm kiếm của bạn",
-    "emptyCollection": "Bộ sưu tập \"{name}\" của bạn đang trống!",
-    "noMatchInCollection": "Không có gì trong \"{name}\" phù hợp với tìm kiếm..."
+    "emptyCollection": "Bộ sưu tập \"{{name}}\" của bạn đang trống!",
+    "noMatchInCollection": "Không có gì trong \"{{name}}\" phù hợp với tìm kiếm..."
   },
   "toasts": {
     "addedToLibrary": "Đã thêm vào Thư viện",
@@ -59,7 +59,7 @@
   },
   "liveRegion": {
     "loading": "Đang tải thư viện của bạn...",
-    "count": "{count} manga trong thư viện",
-    "countWithDownloads": "{count} manga ({favorited} yêu thích, {downloaded} đã tải xuống)"
+    "count": "{{count}} manga trong thư viện",
+    "countWithDownloads": "{{count}} manga ({{favorited}} yêu thích, {{downloaded}} đã tải xuống)"
   }
 }

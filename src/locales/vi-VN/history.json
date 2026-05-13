@@ -12,13 +12,13 @@
     "message": "Bắt đầu đọc manga để xem tiến trình của bạn ở đây.",
     "action": "Khám phá Manga"
   },
-  "searchEmpty": "Không tìm thấy kết quả cho \"{query}\"",
+  "searchEmpty": "Không tìm thấy kết quả cho \"{{query}}\"",
   "loadingState": {
     "message": "Đang tải lịch sử..."
   },
   "liveRegion": {
     "loading": "Đang tải lịch sử đọc...",
-    "loaded": "{count} manga trong lịch sử"
+    "loaded": "{{count}} manga trong lịch sử"
   },
   "documentTitle": "Lịch sử đọc - DexReader",
   "card": {
