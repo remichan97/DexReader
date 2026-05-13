@@ -21,14 +21,16 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
     'downloads',
     'reader',
     'update',
-    'logs'
+    'logs',
+    'search',
+    'language'
   ])
 
   /**
    * Load all application settings.
    *
    * Reads settings from settings.json file in AppData directory. Returns entire
-   * settings object with all sections (appearance, downloads, reader, update, logs).
+   * settings object with all sections (appearance, downloads, reader, update, logs, search, language).
    *
    * @returns Promise<AppSettings> - Complete settings object
    *
@@ -41,7 +43,7 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
    * Load all application settings.
    *
    * Reads settings from settings.json file in AppData directory. Returns entire
-   * settings object with all sections (appearance, downloads, reader, update, logs).
+   * settings object with all sections (appearance, downloads, reader, update, logs, search, language).
    *
    * @returns Promise<AppSettings> - Complete settings object
    *
@@ -94,7 +96,7 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
   /**
    * Save entire settings object.
    *
-   * Updates all settings sections (appearance, downloads, reader, update, logs) at once.
+   * Updates all settings sections (appearance, downloads, reader, update, logs, search, language) at once.
    * Validates the entire settings structure before saving.
    *
    * @param newSettings - Complete settings object
