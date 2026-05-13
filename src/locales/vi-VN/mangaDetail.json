@@ -25,7 +25,7 @@
   "notFound": {
     "title": "Không tìm thấy manga",
     "message": "Manga này không tồn tại hoặc đã bị xóa.",
-    "action": "Quay lại Browse"
+    "action": "Quay lại"
   },
   "documentTitle": {
     "loading": "Đang tải... - DexReader",
@@ -47,7 +47,7 @@
     "rating": "Xếp hạng:",
     "length": "Độ dài:",
     "volumeCount": "{{count}} tập",
-    "chapterCount": "{{count}} chapter",
+    "chapterCount": "{{count}} chương",
     "continue": "Tiếp tục",
     "startReading": "Bắt đầu đọc",
     "inLibrary": "Trong thư viện",
@@ -57,22 +57,22 @@
     "failedToAdd": "Không thể thêm vào thư viện",
     "manageDownloads": {
       "title": "Quản lý tải xuống",
-      "detail": "{{title}}\n\nManga này có {{count}} chapter đã tải.\n\nBạn có thể thêm vào thư viện để theo dõi, hoặc xóa tất cả các chapter đã tải.",
+      "detail": "{{title}}\n\nManga này có {{count}} chương đã tải.\n\nBạn có thể thêm vào thư viện để theo dõi, hoặc xóa tất cả các chương đã tải.",
       "addToLibrary": "Thêm vào thư viện",
-      "deleteAll": "Xóa tất cả chapter"
+      "deleteAll": "Xóa tất cả chương"
     },
     "deleteDownloads": {
-      "title": "Xóa tất cả chapter đã tải?",
-      "detail": "Thao tác này sẽ xóa vĩnh viễn {{count}} chapter từ {{title}}.\n\nHành động này không thể hoàn tác.",
+      "title": "Xóa tất cả chương đã tải?",
+      "detail": "Thao tác này sẽ xóa vĩnh viễn {{count}} chương từ {{title}}.\n\nThao tác này không thể hoàn tác.",
       "failed": "Không thể xóa tải xuống"
     },
     "downloadAll": {
       "button": "Tải xuống tất cả",
-      "tooltip": "Tải xuống tất cả chapter",
-      "offlineTooltip": "Bạn đang offline. Vui lòng kết nối mạng để tải xuống",
-      "noChapters": "Không có chapter",
-      "partialFailure": "Tải một phần thất bại",
-      "couldntQueue": "Không thể thêm {{count}} chapter vào hàng đợi"
+      "tooltip": "Tải xuống tất cả chương",
+      "offlineTooltip": "Bạn đang ngoại tuyến. Vui lòng kết nối mạng để tải xuống",
+      "noChapters": "Không có chương",
+      "partialFailure": "Tải xuống không hoàn chỉnh",
+      "couldntQueue": "Không thể thêm {{count}} chương vào hàng đợi"
     }
   },
   "toasts": {
@@ -99,20 +99,20 @@
     }
   },
   "chapters": {
-    "title": "Chapter ({{count}})",
+    "title": "Chương ({{count}})",
     "downloadAll": "Tải xuống tất cả",
-    "downloadAllTooltip": "Tải xuống tất cả {{count}} chapter",
+    "downloadAllTooltip": "Tải xuống tất cả {{count}} chương",
     "downloadAllUnavailable": "Không thể tải xuống tất cả",
-    "selectLanguage": "Chọn ngôn ngữ chapter",
-    "sortChapters": "Sắp xếp chapter",
+    "selectLanguage": "Chọn ngôn ngữ chương",
+    "sortChapters": "Sắp xếp chương",
     "sort": {
       "oldestFirst": "Cũ nhất trước",
       "newestFirst": "Mới nhất trước"
     },
     "item": {
       "untitled": "Không có tiêu đề",
-      "unknownGroup": "Nhóm không rõ",
-      "readChapter": "Đọc Chapter {{number}}: {{title}}",
+      "unknownGroup": "Không rõ nhóm",
+      "readChapter": "Đọc Chương {{number}}: {{title}}",
       "chapterPrefix": "Ch.",
       "pagePrefix": "tr."
     }
@@ -130,7 +130,7 @@
       "amazon": "Amazon",
       "cdJapan": "CDJapan",
       "ebookJapan": "eBookJapan",
-      "officialRaw": "Official Raw"
+      "officialRaw": "Bản gốc chính thức"
     },
     "dialog": {
       "openService": "Mở {{service}}?",

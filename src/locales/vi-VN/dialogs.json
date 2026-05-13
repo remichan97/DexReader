@@ -83,7 +83,7 @@
       "label": "Vị trí tải xuống:",
       "changeLink": "Thay đổi trong Cài đặt →"
     },
-    "batchInfo": "Tải xuống sẽ chạy ở chế độ nền. Bạn có thể tiếp tục duyệt trong khi quá trình hoàn tất."
+    "batchInfo": "Tải xuống sẽ chạy ở chế độ nền. Bạn có thể tiếp tục sử dụng ứng dụng trong khi quá trình hoàn tất."
   },
   "confirmations": {
     "deleteCollection": {
@@ -121,7 +121,7 @@
     },
     "clearAllMetadata": {
       "title": "Xóa tất cả bộ nhớ đệm metadata?",
-      "message": "Thao tác này sẽ xóa TẤT CẢ bộ nhớ đệm của ({{count}} manga).\n\nChỉ manga trong thư viện và manga có tải xuống được giữ lại.\n\nThao tác này không thể hoàn tác."
+      "message": "Thao tác này sẽ xóa TẤT CẢ bộ nhớ đệm của ({{count}} manga).\n\nChỉ manga trong thư viện và manga có tải xuống được giữ lại metadata.\n\nThao tác này không thể hoàn tác."
     },
     "deleteOldLogs": {
       "title": "Dọn dẹp các logs cũ?",
@@ -192,7 +192,7 @@
       },
       "queued": {
         "title": "Đang xếp hàng tải xuống",
-        "message": "Đã xếp hàng {{count}} chương để tải xuống"
+        "message": "Đã thêm {{count}} chương vào hàng đợi tải xuống"
       },
       "deleted": {
         "title": "Đã xóa tải xuống",
@@ -332,10 +332,10 @@
   },
   "unfavouriteWithDownloads": {
     "title": "Xóa khỏi thư viện?",
-    "message": "Manga này có các chương đã tải xuống. Bạn muốn làm gì?",
+    "message": "Manga này có các chương đã tải xuống. Bạn muốn làm gì tiếp theo?",
     "options": {
-      "keepDownloads": "Xóa khỏi thư viện (giữ tải xuống)",
-      "deleteEverything": "Xóa tất cả (cả dấu trang và tải xuống sẽ bị xóa)"
+      "keepDownloads": "Xóa khỏi thư viện (giữ lại các chương đã tải xuống)",
+      "deleteEverything": "Xóa tất cả (sẽ xóa khỏi thư viện và xóa các chương đã tải xuống)"
     }
   },
   "updates": {

@@ -13,14 +13,14 @@
     "openFolder": "Mở thư mục",
     "hideCompleted": "Ẩn đã hoàn thành",
     "hideCompletedTooltip": "Ẩn các tải xuống đã hoàn thành khỏi chế độ xem (tệp sẽ được giữ trên ổ cứng)",
-    "cancelAllQueued": "Hủy tất cả đang chờ",
+    "cancelAllQueued": "Hủy tất cả hàng chờ",
     "cancelAllQueuedTooltip": "Hủy tất cả các tải xuống đang chờ",
     "retryAllFailed": "Thử lại tất cả thất bại",
     "retryAllFailedTooltip": "Thử lại tất cả các tải xuống thất bại",
     "retryAllFailedDisabled": "Chờ các tải xuống hiện tại hoàn tất"
   },
   "emptyState": {
-    "title": "Chưa có tải xuống nào. Các chương bạn tải xuống sẽ hiển thị ở đây!"
+    "title": "Chưa có tải xuống nào. Các chương đã tải xuống sẽ hiển thị ở đây!"
   },
   "downloadGroup": {
     "chapterCount": "{{count}} chương",
@@ -38,7 +38,7 @@
     },
     "retrying": {
       "title": "Đang thử lại",
-      "message": "Tải xuống đã được xếp hàng đợi để thử lại"
+      "message": "Tải xuống đã được thêm vào hàng chờ để thử lại"
     },
     "removed": {
       "title": "Đã xóa",
@@ -48,7 +48,7 @@
       "title": "Đã xóa vĩnh viễn",
       "message": "Tải xuống và tệp đã được xóa vĩnh viễn"
     },
-    "retryAllQueued": "Đã xếp hàng {{count}} tải xuống thất bại để thử lại",
+    "retryAllQueued": "Đã thêm {{count}} tải xuống thất bại vào hàng chờ để thử lại",
     "cancelledAll": "Đã hủy {{count}} tải xuống đang chờ"
   }
 }

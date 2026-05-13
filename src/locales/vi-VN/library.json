@@ -29,7 +29,7 @@
   },
   "emptyState": {
     "noManga": "Chưa có gì ở đây! Bắt đầu thêm một số manga từ Khám phá.",
-    "noDownloaded": "Chưa có manga đã tải xuống. Kết nối internet để tải manga về đọc offline.",
+    "noDownloaded": "Chưa có manga đã tải xuống. Kết nối internet để tải manga về đọc ngoại tuyến.",
     "noSearchResults": "Không có kết quả nào phù hợp với tìm kiếm của bạn",
     "emptyCollection": "Bộ sưu tập \"{{name}}\" của bạn đang trống!",
     "noMatchInCollection": "Không có gì trong \"{{name}}\" phù hợp với tìm kiếm..."

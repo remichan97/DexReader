@@ -39,7 +39,15 @@
     "dateTimeDescription": "DexReader uses your system's date and time format settings. Dates are displayed in chapter lists, reading history, and error logs.",
     "configureDateButton": "Configure Date Format in System Settings",
     "configureDateHelper": "This will open your operating system's regional settings where you can customize date and time formats.",
-    "configureDateFallback": "Unable to open system settings automatically. Please open your system date/time settings manually:\n\nWindows: Settings → Time & Language → Region\nmacOS: System Preferences → Language & Region\nLinux: Check your desktop environment settings"
+    "configureDateFallback": "Unable to open system settings automatically. Please open your system date/time settings manually:\n\nWindows: Settings → Time & Language → Region\nmacOS: System Preferences → Language & Region\nLinux: Check your desktop environment settings",
+    "languageSection": "Language",
+    "languageLabel": "Display language",
+    "languageHelper": "Choose the language for DexReader's interface",
+    "languageOptions": {
+      "en-GB": "English (UK)",
+      "en-US": "English (US)",
+      "vi-VN": "Tiếng Việt (Vietnamese)"
+    }
   },
   "downloads": {
     "locationSection": "Downloads Location",

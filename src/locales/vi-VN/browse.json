@@ -6,7 +6,7 @@
   "clearFiltersButton": "Xóa bộ lọc",
   "savePresetButton": "Lưu mẫu tìm kiếm",
   "offlineState": {
-    "message": "Khám phá và tìm kiếm yêu cầu kết nối internet. Kiểm tra Thư viện của bạn để đọc manga đã tải xuống.",
+    "message": "Khám phá và tìm kiếm yêu cầu kết nối internet. Nếu cần tìm các đầu truyện đã tải xuống, hãy vào Thư viện của bạn.",
     "action": "Đi tới Thư viện"
   },
   "emptyState": {

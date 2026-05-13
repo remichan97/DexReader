@@ -39,7 +39,15 @@
     "dateTimeDescription": "DexReader sử dụng cài đặt định dạng ngày và giờ của hệ thống của bạn. Ngày được hiển thị trong danh sách chương, lịch sử đọc và log lỗi.",
     "configureDateButton": "Cấu hình định dạng ngày trong cài đặt hệ thống",
     "configureDateHelper": "Thao tác này sẽ mở cài đặt khu vực của hệ điều hành, nơi bạn có thể tùy chỉnh định dạng ngày và giờ.",
-    "configureDateFallback": "Không thể mở cài đặt hệ thống tự động. Vui lòng mở cài đặt ngày/giờ của hệ thống thủ công:\n\nWindows: Settings → Time & Language → Region\nmacOS: System Preferences → Language & Region\nLinux: Kiểm tra cài đặt môi trường desktop của bạn"
+    "configureDateFallback": "Không thể mở cài đặt hệ thống tự động. Vui lòng mở cài đặt ngày/giờ của hệ thống thủ công:\n\nWindows: Settings → Time & Language → Region\nmacOS: System Preferences → Language & Region\nLinux: Kiểm tra cài đặt môi trường desktop của bạn",
+    "languageSection": "Ngôn ngữ",
+    "languageLabel": "Ngôn ngữ hiển thị",
+    "languageHelper": "Chọn ngôn ngữ cho giao diện DexReader",
+    "languageOptions": {
+      "en-GB": "English (UK)",
+      "en-US": "English (US)",
+      "vi-VN": "Tiếng Việt (Vietnamese)"
+    }
   },
   "downloads": {
     "locationSection": "Vị trí Tải xuống",

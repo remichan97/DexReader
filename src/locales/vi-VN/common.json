@@ -19,6 +19,7 @@
     "reset": "Đặt lại",
     "retry": "Thử lại",
     "retrying": "Đang thử lại...",
+    "updating": "Đang cập nhật...",
     "back": "Quay lại",
     "next": "Tiếp theo",
     "previous": "Trước",
@@ -29,7 +30,6 @@
     "install": "Cài đặt",
     "restart": "Khởi động lại",
     "checkOut": "Xem Thư viện của bạn",
-
     "goOnline": "Kết nối lại",
     "openSettings": "Mở Cài đặt",
     "saveCopy": "Lưu một Bản sao",

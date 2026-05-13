@@ -4,7 +4,7 @@
       "message": "Chế độ ngoại tuyến đang bật. Bạn chỉ có thể xem các nội dung đã tải xuống.",
       "action": "Kết nối trực tuyến để khám phá và tải xuống thêm.",
       "variants": {
-        "browse": "Khám phá và tìm kiếm yêu cầu kết nối internet. Kiểm tra Thư viện của bạn để đọc manga đã tải xuống.",
+        "browse": "Khám phá và tìm kiếm yêu cầu kết nối internet. Nếu cần tìm các đầu truyện đã tải xuống, hãy vào Thư viện của bạn.",
         "search": "Bạn đang ngoại tuyến. Tìm kiếm chỉ khả dụng khi kết nối internet."
       }
     },
@@ -213,18 +213,18 @@
   },
   "presets": {
     "load_failed": {
-      "title": "Không thể tải các cài đặt trước của bạn",
-      "message": "Không thể tải các cài đặt tìm kiếm của bạn.",
+      "title": "Không thể tải các mẫu tìm kiếm của bạn",
+      "message": "Không thể tải các mẫu tìm kiếm của bạn.",
       "action": "Thử làm mới."
     },
     "save_failed": {
-      "title": "Không thể lưu cài đặt trước",
-      "message": "Không thể lưu cài đặt tìm kiếm.",
+      "title": "Không thể lưu mẫu tìm kiếm",
+      "message": "Không thể lưu mẫu tìm kiếm.",
       "action": "Thử lại."
     },
     "delete_failed": {
-      "title": "Không thể xóa cài đặt trước",
-      "message": "Không thể xóa cài đặt tìm kiếm.",
+      "title": "Không thể xóa mẫu tìm kiếm",
+      "message": "Không thể xóa mẫu tìm kiếm.",
       "action": "Thử lại."
     }
   },
