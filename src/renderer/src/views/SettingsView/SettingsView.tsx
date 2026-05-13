@@ -6,6 +6,7 @@ import { useToastStore, useAppStore } from '@renderer/stores'
 import { useNavigationBlocker } from '@renderer/hooks/useNavigationBlocker'
 import { useUnsavedChanges } from '@renderer/hooks/useUnsavedChanges'
 import { useTranslation } from '@renderer/hooks/useTranslation'
+import i18next from '@renderer/i18n/config'
 import type { MangaReadingSettings, AppSettings } from '../../../../preload/index.d'
 import { AppearanceSettings } from './components/AppearanceSettings'
 import { ReaderSettingsSection } from './components/ReaderSettingsSection'
@@ -61,6 +62,7 @@ export function SettingsView(): JSX.Element {
   const [isUsingSystemColor, setIsUsingSystemColor] = useState<boolean>(true)
   const [systemAccentColor, setSystemAccentColor] = useState<string>('#0078d4')
   const [startupPage, setStartupPage] = useState<'library' | 'browse' | 'downloads'>('browse')
+  const [displayLanguage, setDisplayLanguage] = useState<'en-GB' | 'en-US' | 'vi-VN'>('en-GB')
 
   // Reader settings state
   const [globalReaderSettings, setGlobalReaderSettings] = useState<MangaReadingSettings>({
@@ -124,6 +126,10 @@ export function SettingsView(): JSX.Element {
         ? originalSettings.appearance.accentColor !== undefined
         : originalSettings.appearance.accentColor !== accentColor)
 
+    // Compare language settings
+    const languageChanged =
+      displayLanguage !== (originalSettings.language?.displayLanguage ?? 'en-GB')
+
     // Compare downloads settings
     const downloadsChanged =
       downloadConfirmation !== originalSettings.downloads.shouldConfirmDownload ||
@@ -151,7 +157,12 @@ export function SettingsView(): JSX.Element {
     const logsChanged = logRetentionDays !== (originalSettings.logs?.retentionInDays ?? 7)
 
     setHasUnsavedChanges(
-      appearanceChanged || downloadsChanged || readerChanged || updateChanged || logsChanged
+      appearanceChanged ||
+        languageChanged ||
+        downloadsChanged ||
+        readerChanged ||
+        updateChanged ||
+        logsChanged
     )
   }, [
     originalSettings,
@@ -159,6 +170,7 @@ export function SettingsView(): JSX.Element {
     startupPage,
     accentColor,
     isUsingSystemColor,
+    displayLanguage,
     downloadConfirmation,
     defaultQuality,
     maxConcurrentDownloads,
@@ -288,6 +300,13 @@ export function SettingsView(): JSX.Element {
             setLogRetentionDays(settings.logs.retentionInDays ?? 7)
           }
 
+          // Load language settings
+          if (settings.language?.displayLanguage) {
+            setDisplayLanguage(settings.language.displayLanguage)
+            // Apply the language immediately
+            await i18next.changeLanguage(settings.language.displayLanguage)
+          }
+
           // Load per-manga overrides from database
           const overridesResult = await globalThis.reader.getAllMangaOverrides()
           if (overridesResult.success && overridesResult.data) {
@@ -386,6 +405,11 @@ export function SettingsView(): JSX.Element {
   // Handle theme mode change
   const handleThemeModeChange = (mode: string): void => {
     setThemeMode(mode as 'system' | 'light' | 'dark')
+  }
+
+  // Handle display language change
+  const handleDisplayLanguageChange = (language: string): void => {
+    setDisplayLanguage(language as 'en-GB' | 'en-US' | 'vi-VN')
   }
 
   // Handle download confirmation change
@@ -610,6 +634,11 @@ Are you absolutely certain you want to proceed with this cache size?`,
         retentionInDays: logRetentionDays
       }
 
+      // Build language settings object
+      const languageSettings = {
+        displayLanguage: displayLanguage
+      }
+
       // Build complete settings object and save in one operation (single disk write)
       const completeSettings = {
         version: originalSettings.version,
@@ -617,13 +646,18 @@ Are you absolutely certain you want to proceed with this cache size?`,
         downloads: downloadsSettings,
         reader: readerSettings,
         update: updateSettings,
-        logs: logsSettings
+        logs: logsSettings,
+        search: originalSettings.search || {},
+        language: languageSettings
       }
 
       const saveResult = await globalThis.settings.saveAll(completeSettings)
       if (!saveResult.success) {
         throw new Error(saveResult.error?.message || 'Failed to save settings')
       }
+
+      // Apply language change immediately
+      await i18next.changeLanguage(displayLanguage)
 
       // Update original settings to current state (load fresh to get properly typed values)
       const freshSettings = await globalThis.settings.load()
@@ -655,6 +689,11 @@ Are you absolutely certain you want to proceed with this cache size?`,
       setAccentColor(systemAccentColor)
       setIsUsingSystemColor(true)
       applyAccentColor(systemAccentColor)
+    }
+
+    // Restore language settings
+    if (originalSettings.language?.displayLanguage) {
+      setDisplayLanguage(originalSettings.language.displayLanguage)
     }
 
     // Restore downloads settings
@@ -727,6 +766,8 @@ Are you absolutely certain you want to proceed with this cache size?`,
             onUseSystemColor={handleUseSystemColor}
             startupPage={startupPage}
             onStartupPageChange={setStartupPage}
+            displayLanguage={displayLanguage}
+            onDisplayLanguageChange={handleDisplayLanguageChange}
           />
         </TabPanel>
 
