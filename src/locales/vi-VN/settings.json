@@ -2,6 +2,7 @@
   "pageTitle": "Cài đặt",
   "unsavedChangesBanner": {
     "message": "Cẩn thận! Bạn đang có các thay đổi chưa được lưu",
+    "validationError": "Một số cài đặt không hợp lệ. Sửa lỗi trước khi lưu.",
     "saveButton": "Lưu thay đổi",
     "discardButton": "Bỏ qua"
   },
@@ -37,7 +38,8 @@
     "dateTimeSection": "Định dạng Ngày & Giờ",
     "dateTimeDescription": "DexReader sử dụng cài đặt định dạng ngày và giờ của hệ thống của bạn. Ngày được hiển thị trong danh sách chương, lịch sử đọc và log lỗi.",
     "configureDateButton": "Cấu hình định dạng ngày trong cài đặt hệ thống",
-    "configureDateHelper": "Thao tác này sẽ mở cài đặt khu vực của hệ điều hành, nơi bạn có thể tùy chỉnh định dạng ngày và giờ."
+    "configureDateHelper": "Thao tác này sẽ mở cài đặt khu vực của hệ điều hành, nơi bạn có thể tùy chỉnh định dạng ngày và giờ.",
+    "configureDateFallback": "Không thể mở cài đặt hệ thống tự động. Vui lòng mở cài đặt ngày/giờ của hệ thống thủ công:\n\nWindows: Settings → Time & Language → Region\nmacOS: System Preferences → Language & Region\nLinux: Kiểm tra cài đặt môi trường desktop của bạn"
   },
   "downloads": {
     "locationSection": "Vị trí Tải xuống",
@@ -160,7 +162,8 @@
       "cancelButton": "Hủy"
     },
     "deleteSuccess": "Đã xóa thành công {count} manga",
-    "deletedSpace": "Đã giải phóng {size} dung lượng ổ cứng!"
+    "deletedSpace": "Đã giải phóng {size} dung lượng ổ cứng!",
+    "deleteFailed": "Không thể xóa manga"
   },
   "cacheManagement": {
     "sectionTitle": "Quản lý bộ nhớ đệm",
@@ -189,12 +192,20 @@
     "clearAllCoversButton": "Xóa tất cả ảnh bìa",
     "clearCoversSuccess": "Đã xóa bộ nhớ đệm ảnh bìa",
     "clearedCovers": "Đã xóa {count} ảnh (giải phóng {size})",
-    "clearCoversFailed": "Không thể xóa bộ nhớ đệm ảnh bìa",
+    "loadingCacheData": "Đang tải dữ liệu bộ nhớ đệm...",
     "metadataCacheSection": "Bộ nhớ đệm thông tin Manga",
     "metadataCacheDescription": "Quản lý thông tin manga đã lưu trong bộ nhớ đệm để truy cập ngoại tuyến.",
+    "totalCached": "Tổng số đã lưu: {count} manga",
+    "inLibrary": "• Trong thư viện: {count} manga (được bảo vệ)",
+    "downloaded": "• Đã tải xuống: {count} manga (được bảo vệ)",
+    "browsingCache": "• Bộ nhớ đệm duyệt: {count} manga",
+    "autoManageNote": "DexReader tự động quản lý bộ nhớ đệm này bằng cách xóa manga không có trong thư viện và không được truy cập trong 90 ngày.",
+    "readyToClean": "Sẵn sàng dọn dẹp: {count} manga",
+    "cleanUpNowButton": "Dọn dẹp ngay",
     "cleanMetadataButton": "Dọn dẹp",
     "cleanMetadataSuccess": "Đã dọn dẹp bộ nhớ đệm thông tin",
     "cleanedMetadata": "Đã dọn dẹp {count} manga trong bộ nhớ đệm",
+    "clearAllCacheButton": "Xóa tất cả bộ nhớ đệm",
     "clearAllMetadataButton": "Xóa tất cả",
     "clearAllMetadataSuccess": "Đã xóa bộ nhớ đệm thông tin"
   },
@@ -211,11 +222,7 @@
     },
     "checkNowButton": "Kiểm tra cập nhật ngay",
     "checkingButton": "Đang kiểm tra...",
-    "currentVersion": "Phiên bản hiện tại: {version}",
-    "updateCheckFailed": {
-      "title": "Không thể kiểm tra cập nhật",
-      "message": "Không thể kiểm tra cập nhật. Thử lại sau nhé?"
-    }
+    "currentVersion": "Phiên bản hiện tại: {version}"
   },
   "logging": {
     "sectionTitle": "Ghi log",
@@ -233,11 +240,7 @@
     "deletedOldLogs": "Đã dọn dẹp log cũ hơn {days} ngày",
     "clearAllButton": "Xóa tất cả log",
     "clearAllSuccess": "Đã xóa tất cả log",
-    "clearedAllLogs": "Đã xóa tất cả log!",
-    "failedToOpen": {
-      "title": "Không thể mở thư mục log",
-      "message": "Không thể mở thư mục log. Vui lòng thử lại."
-    }
+    "clearedAllLogs": "Đã xóa tất cả log!"
   },
   "dangerZone": {
     "title": "Khu vực nguy hiểm",
@@ -271,9 +274,5 @@
         "cancelButton": "Hủy"
       }
     }
-  },
-  "toasts": {
-    "failedToResetOverride": "Không thể đặt lại ghi đè",
-    "failedToClearOverrides": "Không thể xóa các ghi đè"
   }
 }

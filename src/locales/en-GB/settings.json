@@ -2,6 +2,7 @@
   "pageTitle": "Settings",
   "unsavedChangesBanner": {
     "message": "Careful! You have unsaved changes",
+    "validationError": "Some settings are invalid. Fix validation errors before saving.",
     "saveButton": "Save Changes",
     "discardButton": "Discard"
   },
@@ -37,7 +38,8 @@
     "dateTimeSection": "Date & Time Format",
     "dateTimeDescription": "DexReader uses your system's date and time format settings. Dates are displayed in chapter lists, reading history, and error logs.",
     "configureDateButton": "Configure Date Format in System Settings",
-    "configureDateHelper": "This will open your operating system's regional settings where you can customise date and time formats."
+    "configureDateHelper": "This will open your operating system's regional settings where you can customise date and time formats.",
+    "configureDateFallback": "Unable to open system settings automatically. Please open your system date/time settings manually:\n\nWindows: Settings → Time & Language → Region\nmacOS: System Preferences → Language & Region\nLinux: Check your desktop environment settings"
   },
   "downloads": {
     "locationSection": "Downloads Location",
@@ -150,13 +152,10 @@
     "diskSpaceTitle": "Total Disk Space: {total} GB",
     "diskSpaceUsage": "Used: {used} GB • Free: {free} GB",
     "loadingStorage": "Loading storage data...",
-    "failedToLoad": "Failed to load storage data",
     "deleteSelectedButton": "Delete Selected ({count})",
     "deleteConfirm": {
       "title": "Delete {count} manga?",
-      "message": "You are about to permanently delete downloads for:\n\n{list}\n\nYou'll regain: {size} of disk space\n\nThis action cannot be undone.",
-      "deleteButton": "Delete",
-      "cancelButton": "Cancel"
+      "message": "You are about to permanently delete downloads for:\n\n{list}\n\nYou'll regain: {size} of disk space\n\nThis action cannot be undone."
     },
     "deleteSuccess": "Successfully deleted {count} manga",
     "deletedSpace": "Freed {size} of space!"
@@ -188,12 +187,20 @@
     "clearAllCoversButton": "Clear All Covers",
     "clearCoversSuccess": "Cover cache cleared",
     "clearedCovers": "Deleted {count} images (freed {size})",
-    "clearCoversFailed": "Failed to clear cover cache",
+    "loadingCacheData": "Loading cache data...",
     "metadataCacheSection": "Manga Metadata Cache",
     "metadataCacheDescription": "Manage cached manga information for offline access.",
+    "totalCached": "Total Cached: {count} manga",
+    "inLibrary": "• In Library: {count} manga (protected)",
+    "downloaded": "• Downloaded: {count} manga (protected)",
+    "browsingCache": "• Browsing Cache: {count} manga",
+    "autoManageNote": "DexReader automatically manages this cache by removing non-library manga that haven't been accessed in 90 days.",
+    "readyToClean": "Ready to clean: {count} manga",
+    "cleanUpNowButton": "Clean Up Now",
     "cleanMetadataButton": "Clean Up",
     "cleanMetadataSuccess": "Metadata cache cleaned",
     "cleanedMetadata": "Cleaned up {count} cached manga",
+    "clearAllCacheButton": "Clear All Cache",
     "clearAllMetadataButton": "Clear All",
     "clearAllMetadataSuccess": "Metadata cache cleared"
   },
@@ -210,11 +217,7 @@
     },
     "checkNowButton": "Check for Updates Now",
     "checkingButton": "Checking...",
-    "currentVersion": "Current version: {version}",
-    "updateCheckFailed": {
-      "title": "Update check failed",
-      "message": "Couldn't check for updates. Try again in a bit?"
-    }
+    "currentVersion": "Current version: {version}"
   },
   "logging": {
     "sectionTitle": "Logging",
@@ -232,11 +235,7 @@
     "deletedOldLogs": "Cleaned up logs older than {days} days",
     "clearAllButton": "Clear All Logs",
     "clearAllSuccess": "Logs cleared",
-    "clearedAllLogs": "All logs cleared!",
-    "failedToOpen": {
-      "title": "Failed to open logs folder",
-      "message": "Could not open the logs folder. Please try again."
-    }
+    "clearedAllLogs": "All logs cleared!"
   },
   "dangerZone": {
     "title": "Danger Zone",
@@ -270,9 +269,5 @@
         "cancelButton": "Cancel"
       }
     }
-  },
-  "toasts": {
-    "failedToResetOverride": "Failed to reset override",
-    "failedToClearOverrides": "Failed to clear overrides"
   }
 }
