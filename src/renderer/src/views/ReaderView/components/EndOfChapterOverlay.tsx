@@ -1,5 +1,6 @@
 import React from 'react'
 import { Button } from '@renderer/components/Button'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import type { ChapterEntity } from './ChapterListSidebar'
 
 /**
@@ -25,11 +26,17 @@ export function EndOfChapterOverlay({
   onNextChapter,
   onBackToDetail
 }: EndOfChapterOverlayProps): React.JSX.Element {
+  const { t } = useTranslation(['reader'])
+
   return (
     <div className="end-of-chapter-overlay flex justify-center items-end">
       <div className="end-of-chapter-overlay__content">
-        <h2 className="end-of-chapter-overlay__title">End of Chapter {chapterNumber}</h2>
-        <p className="end-of-chapter-overlay__subtitle">{chapterTitle}</p>
+        <h2 className="end-of-chapter-overlay__title">
+          {t('reader:endOfChapter.title', { number: chapterNumber })}
+        </h2>
+        <p className="end-of-chapter-overlay__subtitle">
+          {t('reader:endOfChapter.subtitle', { title: chapterTitle })}
+        </p>
 
         <div className="end-of-chapter-overlay__actions flex flex-col gap-3">
           {previousChapter && (
@@ -39,10 +46,12 @@ export function EndOfChapterOverlay({
               onClick={onPreviousChapter}
               className="flex flex-col items-center gap-1"
             >
-              <span>← Previous Chapter </span>
+              <span>{t('reader:endOfChapter.previousChapter')}</span>
               <span className="end-of-chapter-overlay__chapter-info">
-                Ch. {previousChapter.attributes.chapter}
-                {previousChapter.attributes.title && `: ${previousChapter.attributes.title}`}
+                {t('reader:endOfChapter.chapterInfo', {
+                  number: previousChapter.attributes.chapter,
+                  title: previousChapter.attributes.title || ''
+                })}
               </span>
             </Button>
           )}
@@ -54,19 +63,23 @@ export function EndOfChapterOverlay({
               onClick={onNextChapter}
               className="flex flex-col items-center gap-1"
             >
-              <span>Next Chapter → </span>
+              <span>{t('reader:endOfChapter.nextChapter')}</span>
               <span className="end-of-chapter-overlay__chapter-info">
-                Ch. {nextChapter.attributes.chapter}
-                {nextChapter.attributes.title && `: ${nextChapter.attributes.title}`}
+                {t('reader:endOfChapter.chapterInfo', {
+                  number: nextChapter.attributes.chapter,
+                  title: nextChapter.attributes.title || ''
+                })}
               </span>
             </Button>
           )}
 
           {!nextChapter && !previousChapter && (
-            <p className="end-of-chapter-overlay__no-chapters">No more chapters available</p>
+            <p className="end-of-chapter-overlay__no-chapters">
+              {t('reader:endOfChapter.noMoreChapters')}
+            </p>
           )}
           <Button variant="ghost" onClick={onBackToDetail} className="end-of-chapter-overlay__back">
-            Back to Manga Details
+            {t('reader:endOfChapter.backToDetail')}
           </Button>
         </div>
       </div>

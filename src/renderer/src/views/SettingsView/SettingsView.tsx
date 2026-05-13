@@ -5,6 +5,7 @@ import { Tabs, TabList, Tab, TabPanel } from '@renderer/components/Tabs'
 import { useToastStore, useAppStore } from '@renderer/stores'
 import { useNavigationBlocker } from '@renderer/hooks/useNavigationBlocker'
 import { useUnsavedChanges } from '@renderer/hooks/useUnsavedChanges'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import type { MangaReadingSettings, AppSettings } from '../../../../preload/index.d'
 import { AppearanceSettings } from './components/AppearanceSettings'
 import { ReaderSettingsSection } from './components/ReaderSettingsSection'
@@ -26,6 +27,9 @@ interface PerMangaOverride {
 }
 
 export function SettingsView(): JSX.Element {
+  // Translation
+  const { t } = useTranslation(['settings', 'common'])
+
   // Zustand stores
   const showToast = useToastStore((state) => state.show)
 
@@ -91,6 +95,11 @@ export function SettingsView(): JSX.Element {
     }
     loadSanityMax()
   }, [])
+
+  // Set document title
+  useEffect(() => {
+    document.title = `${t('settings:pageTitle')} - DexReader`
+  }, [t])
 
   // Block navigation when there are unsaved changes
   useNavigationBlocker(
@@ -695,15 +704,15 @@ Are you absolutely certain you want to proceed with this cache size?`,
       )}
 
       {/* Screen reader heading for page structure */}
-      <h1 className="sr-only">Settings</h1>
+      <h1 className="sr-only">{t('settings:pageTitle')}</h1>
 
       <Tabs value={activeTab} onChange={setActiveTab}>
         <TabList>
-          <Tab value="appearance">Appearance</Tab>
-          <Tab value="downloads">Downloads</Tab>
-          <Tab value="reader">Reader</Tab>
-          <Tab value="storage">Storage</Tab>
-          <Tab value="advanced">Advanced</Tab>
+          <Tab value="appearance">{t('settings:tabs.appearance')}</Tab>
+          <Tab value="downloads">{t('settings:tabs.downloads')}</Tab>
+          <Tab value="reader">{t('settings:tabs.reader')}</Tab>
+          <Tab value="storage">{t('settings:tabs.storage')}</Tab>
+          <Tab value="advanced">{t('settings:tabs.advanced')}</Tab>
         </TabList>
 
         {/* Appearance Settings */}
@@ -766,9 +775,11 @@ Are you absolutely certain you want to proceed with this cache size?`,
 
           {/* Cache Management Section */}
           <div className="settings-view__section-divider">
-            <h3 className="settings-view__section-heading">Cache Management</h3>
+            <h3 className="settings-view__section-heading">
+              {t('settings:cacheManagement.sectionTitle')}
+            </h3>
             <p className="settings-view__section-description">
-              Manage temporary data to balance performance and storage usage.
+              {t('settings:cacheManagement.sectionDescription')}
             </p>
 
             <CacheManagementSettings

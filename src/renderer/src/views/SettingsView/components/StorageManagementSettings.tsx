@@ -3,12 +3,14 @@ import { useState, useEffect } from 'react'
 import { StorageChart } from '@renderer/components/StorageChart'
 import { MangaStorageList } from '@renderer/components/MangaStorageList'
 import { Button } from '@renderer/components/Button'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import { useToastStore } from '@renderer/stores'
 import { formatBytes } from '@renderer/utils/formatBytes'
 import type { StorageData } from '../../../../../preload/index.d'
 import { rendererLog } from '@renderer/services/logging.service'
 
 export function StorageManagementSettings(): JSX.Element {
+  const { t } = useTranslation(['settings', 'common', 'errors'])
   const [storageData, setStorageData] = useState<StorageData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [selectedMangaIds, setSelectedMangaIds] = useState<Set<string>>(new Set())
@@ -28,15 +30,15 @@ export function StorageManagementSettings(): JSX.Element {
         } else {
           showToast({
             variant: 'error',
-            title: 'Failed to load storage data'
+            title: t('errors:storage.load_failed.title')
           })
         }
       } catch (error) {
         rendererLog.error('[StorageManagementSettings] Error loading storage data:', error)
         showToast({
           variant: 'error',
-          title: 'Failed to load storage data',
-          message: error instanceof Error ? error.message : 'Unknown error'
+          title: t('errors:storage.load_failed.title'),
+          message: error instanceof Error ? error.message : t('common:message.error.unknownError')
         })
       } finally {
         setIsLoading(false)
@@ -44,7 +46,7 @@ export function StorageManagementSettings(): JSX.Element {
     }
 
     loadStorageData()
-  }, [showToast])
+  }, [showToast, t])
 
   // Handle manga selection toggle
   const handleToggleSelect = (mangaId: string): void => {
@@ -81,13 +83,16 @@ export function StorageManagementSettings(): JSX.Element {
     const mangaList = selectedManga
       .map((m) => `• ${m.mangaTitle} (${formatBytes(m.totalStorageSize)})`)
       .join('\n')
-    const message = `You are about to permanently delete downloads for:\n\n${mangaList}\n\nYou'll regain: ${formatBytes(totalSize)} of disk space\n\nThis action cannot be undone.`
 
     const confirmed = await globalThis.api.showConfirmDialog(
-      `Delete ${selectedMangaIds.size} manga?`,
-      message,
-      'Delete',
-      'Cancel'
+      t('settings:storage.deleteConfirm.title', { count: selectedMangaIds.size }),
+      t('settings:storage.deleteConfirm.message', {
+        count: selectedMangaIds.size,
+        list: mangaList,
+        size: formatBytes(totalSize)
+      }),
+      t('common:button.delete'),
+      t('common:button.cancel')
     )
 
     if (confirmed.success && !confirmed.data) return
@@ -107,21 +112,21 @@ export function StorageManagementSettings(): JSX.Element {
         setSelectedMangaIds(new Set())
         showToast({
           variant: 'success',
-          title: `Successfully deleted ${selectedMangaIds.size} manga`,
-          message: `Freed ${formatBytes(totalSize)} of space!`
+          title: t('settings:storage.deleteSuccess', { count: selectedMangaIds.size }),
+          message: t('settings:storage.deletedSpace', { size: formatBytes(totalSize) })
         })
       } else {
         showToast({
           variant: 'error',
-          title: 'Failed to delete manga'
+          title: t('errors:storage.delete_failed.title')
         })
       }
     } catch (error) {
       rendererLog.error('[StorageManagementSettings] Error deleting manga:', error)
       showToast({
         variant: 'error',
-        title: 'Failed to delete manga',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        title: t('errors:storage.delete_failed.title'),
+        message: error instanceof Error ? error.message : t('common:message.error.unknownError')
       })
     } finally {
       setIsDeleting(false)
@@ -145,7 +150,7 @@ export function StorageManagementSettings(): JSX.Element {
   if (isLoading) {
     return (
       <div className="py-4 flex flex-col gap-5">
-        <div className="text-secondary">Loading storage data...</div>
+        <div className="text-secondary">{t('settings:storage.loadingStorage')}</div>
       </div>
     )
   }
@@ -153,7 +158,7 @@ export function StorageManagementSettings(): JSX.Element {
   if (!storageData) {
     return (
       <div className="py-4 flex flex-col gap-5">
-        <div className="text-secondary">Failed to load storage data</div>
+        <div className="text-secondary">{t('errors:storage.load_failed.title')}</div>
       </div>
     )
   }
@@ -163,11 +168,15 @@ export function StorageManagementSettings(): JSX.Element {
       {/* Disk Space Header */}
       <div>
         <h3 className="text-subtitle mb-2">
-          Total Disk Space: {(storageData.diskSpace.total / 1024 ** 3).toFixed(1)} GB
+          {t('settings:storage.diskSpaceTitle', {
+            total: (storageData.diskSpace.total / 1024 ** 3).toFixed(1)
+          })}
         </h3>
         <p className="text-secondary text-caption">
-          Used: {(storageData.diskSpace.used / 1024 ** 3).toFixed(1)} GB • Free:{' '}
-          {(storageData.diskSpace.free / 1024 ** 3).toFixed(1)} GB
+          {t('settings:storage.diskSpaceUsage', {
+            used: (storageData.diskSpace.used / 1024 ** 3).toFixed(1),
+            free: (storageData.diskSpace.free / 1024 ** 3).toFixed(1)
+          })}
         </p>
       </div>
 
@@ -196,7 +205,7 @@ export function StorageManagementSettings(): JSX.Element {
           disabled={selectedMangaIds.size === 0 || isDeleting}
           loading={isDeleting}
         >
-          Delete Selected ({selectedMangaIds.size})
+          {t('settings:storage.deleteSelectedButton', { count: selectedMangaIds.size })}
         </Button>
       </div>
     </div>

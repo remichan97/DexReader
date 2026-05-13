@@ -7,6 +7,7 @@ import { formatBytes } from '@renderer/utils/formatBytes'
 import type { MangaCacheStatsQuery } from '../../../../../preload/index.d'
 import './CacheManagementSettings.css'
 import { rendererLog } from '@renderer/services/logging.service'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 
 interface CacheManagementSettingsProps {
   readonly coverCacheLimit: number // in MB, 0 = unlimited
@@ -17,6 +18,7 @@ export function CacheManagementSettings({
   coverCacheLimit,
   onCoverCacheLimitChange
 }: CacheManagementSettingsProps): JSX.Element {
+  const { t } = useTranslation(['settings', 'dialogs', 'common', 'errors'])
   const [cacheStats, setCacheStats] = useState<MangaCacheStatsQuery | null>(null)
   const [coverCacheSize, setCoverCacheSize] = useState<number>(0)
   const [coverCacheCount, setCoverCacheCount] = useState<number>(0)
@@ -58,7 +60,7 @@ export function CacheManagementSettings({
         rendererLog.error('[CacheManagementSettings] Error loading cache data:', error)
         showToast({
           variant: 'error',
-          title: 'Failed to load cache data',
+          title: t('errors:cache.load_failed.title'),
           message: error instanceof Error ? error.message : 'Unknown error'
         })
       } finally {
@@ -79,10 +81,13 @@ export function CacheManagementSettings({
   // Handle clear all covers
   const handleClearCovers = async (): Promise<void> => {
     const confirmed = await globalThis.api.showConfirmDialog(
-      'Clear all cached covers?',
-      `This will delete ${coverCacheCount} cached images (${formatBytes(coverCacheSize)}).\n\nCover images will be re-downloaded as needed when browsing. This may temporarily slow down performance.`,
-      'Clear All',
-      'Cancel'
+      t('dialogs:confirmations.clearCoverCache.title'),
+      t('dialogs:confirmations.clearCoverCache.message', {
+        count: coverCacheCount,
+        size: formatBytes(coverCacheSize)
+      }),
+      t('common:button.delete'),
+      t('common:button.cancel')
     )
 
     if (!confirmed.success || !confirmed.data) return
@@ -103,20 +108,23 @@ export function CacheManagementSettings({
 
         showToast({
           variant: 'success',
-          title: 'Cover cache cleared',
-          message: `Deleted ${freedCount} images (freed ${formatBytes(freedSpace)})`
+          title: t('settings:cacheManagement.clearCoversSuccess'),
+          message: t('settings:cacheManagement.clearedCovers', {
+            count: freedCount,
+            size: formatBytes(freedSpace)
+          })
         })
       } else {
         showToast({
           variant: 'error',
-          title: 'Failed to clear cover cache'
+          title: t('errors:cache.clear_cover_failed.title')
         })
       }
     } catch (error) {
       rendererLog.error('[CacheManagementSettings] Error clearing cover cache:', error)
       showToast({
         variant: 'error',
-        title: 'Failed to clear cover cache',
+        title: t('errors:cache.clear_cover_failed.title'),
         message: error instanceof Error ? error.message : 'Unknown error'
       })
     } finally {
@@ -129,10 +137,10 @@ export function CacheManagementSettings({
     if (!cacheStats) return
 
     const confirmed = await globalThis.api.showConfirmDialog(
-      'Clean up metadata cache?',
-      `This will remove browsing cache older than 90 days.\n\nFavourited manga and manga with downloads will not be affected.\n\nEstimated to remove: ${cacheStats.oldCache} manga`,
-      'Clean Up',
-      'Cancel'
+      t('dialogs:confirmations.cleanMetadataCache.title'),
+      t('dialogs:confirmations.cleanMetadataCache.message', { count: cacheStats.oldCache }),
+      t('settings:cacheManagement.cleanMetadataButton'),
+      t('common:button.cancel')
     )
 
     if (!confirmed.success || !confirmed.data) return
@@ -151,20 +159,20 @@ export function CacheManagementSettings({
 
         showToast({
           variant: 'success',
-          title: 'Metadata cache cleaned',
-          message: `Cleaned up ${deletedCount} cached manga`
+          title: t('settings:cacheManagement.cleanMetadataSuccess'),
+          message: t('settings:cacheManagement.cleanedMetadata', { count: deletedCount })
         })
       } else {
         showToast({
           variant: 'error',
-          title: 'Failed to clean metadata cache'
+          title: t('errors:cache.clean_metadata_failed.title')
         })
       }
     } catch (error) {
       rendererLog.error('[CacheManagementSettings] Error cleaning metadata cache:', error)
       showToast({
         variant: 'error',
-        title: 'Failed to clean metadata cache',
+        title: t('errors:cache.clean_metadata_failed.title'),
         message: error instanceof Error ? error.message : 'Unknown error'
       })
     } finally {
@@ -177,10 +185,10 @@ export function CacheManagementSettings({
     if (!cacheStats) return
 
     const confirmed = await globalThis.api.showConfirmDialog(
-      'Clear all metadata cache?',
-      `This will remove ALL browsing cache (${cacheStats.browsingCache} manga).\n\nOnly favourited manga and manga with downloads will be kept.\n\nThis action cannot be undone.`,
-      'Clear All',
-      'Cancel'
+      t('dialogs:confirmations.clearAllMetadata.title'),
+      t('dialogs:confirmations.clearAllMetadata.message', { count: cacheStats.browsingCache }),
+      t('common:button.delete'),
+      t('common:button.cancel')
     )
 
     if (!confirmed.success || !confirmed.data) return
@@ -199,20 +207,20 @@ export function CacheManagementSettings({
 
         showToast({
           variant: 'success',
-          title: 'Metadata cache cleared',
-          message: `Cleaned up ${deletedCount} cached manga`
+          title: t('settings:cacheManagement.clearAllMetadataSuccess'),
+          message: t('settings:cacheManagement.cleanedMetadata', { count: deletedCount })
         })
       } else {
         showToast({
           variant: 'error',
-          title: 'Failed to clear metadata cache'
+          title: t('errors:cache.clear_metadata_failed.title')
         })
       }
     } catch (error) {
       rendererLog.error('[CacheManagementSettings] Error clearing metadata cache:', error)
       showToast({
         variant: 'error',
-        title: 'Failed to clear metadata cache',
+        title: t('errors:cache.clear_metadata_failed.title'),
         message: error instanceof Error ? error.message : 'Unknown error'
       })
     } finally {
@@ -222,19 +230,23 @@ export function CacheManagementSettings({
 
   // Cover cache limit options
   const coverLimitOptions: SelectOption[] = [
-    { value: '10', label: '10 MB' },
-    { value: '25', label: '25 MB' },
-    { value: '50', label: '50 MB' },
-    { value: '100', label: '100 MB' },
-    { value: '250', label: '250 MB' },
-    { value: '500', label: '500 MB' },
-    { value: '0', label: 'Unlimited' }
+    { value: '10', label: t('settings:cacheManagement.coverCacheLimitOptions.10') },
+    { value: '25', label: t('settings:cacheManagement.coverCacheLimitOptions.25') },
+    { value: '50', label: t('settings:cacheManagement.coverCacheLimitOptions.50') },
+    { value: '100', label: t('settings:cacheManagement.coverCacheLimitOptions.100') },
+    { value: '250', label: t('settings:cacheManagement.coverCacheLimitOptions.250') },
+    { value: '500', label: t('settings:cacheManagement.coverCacheLimitOptions.500') },
+    { value: '0', label: t('settings:cacheManagement.coverCacheLimitOptions.unlimited') }
   ]
 
   if (isLoading) {
     return (
       <div className="cache-settings__loading flex flex-col gap-5">
-        <div className="text-secondary">Loading cache data...</div>
+        <div className="text-secondary">
+          {t('settings:cacheManagement.loadingCacheData', {
+            defaultValue: 'Loading cache data...'
+          })}
+        </div>
       </div>
     )
   }
@@ -246,35 +258,43 @@ export function CacheManagementSettings({
     <div className="cache-settings__container flex flex-col gap-6">
       {/* Cover Image Cache Section */}
       <div>
-        <h4 className="cache-settings__heading">Cover Image Cache</h4>
+        <h4 className="cache-settings__heading">
+          {t('settings:cacheManagement.coverCacheSection')}
+        </h4>
         <p className="cache-settings__description">
-          Manage temporary cover image storage to improve browsing performance.
+          {t('settings:cacheManagement.coverCacheDescription')}
         </p>
 
         <Select
           value={String(coverCacheLimit)}
           onChange={handleCoverLimitChange}
           options={coverLimitOptions}
-          label="Cache Size Limit"
+          label={t('settings:cacheManagement.coverCacheLimitLabel')}
           helperText={
             coverCacheLimit === 0
-              ? 'Cache all covers without limits. Older covers are automatically removed when needed.'
-              : 'Older covers are automatically removed when the limit is reached.'
+              ? t('settings:cacheManagement.coverCacheLimitHelper.unlimited')
+              : t('settings:cacheManagement.coverCacheLimitHelper.limited')
           }
         />
 
         <div className="cache-settings__info-box">
           <div className="cache-settings__info-row">
-            <strong>Current Usage:</strong>{' '}
+            <strong>{t('settings:cacheManagement.currentUsage')}</strong>{' '}
             {coverCacheLimit === 0
-              ? `${formatBytes(coverCacheSize)} (Unlimited)`
-              : `${formatBytes(coverCacheSize)} / ${formatBytes(coverCacheLimit * 1024 * 1024)} (${coverUsagePercent}%)`}
+              ? t('settings:cacheManagement.usageUnlimited', { size: formatBytes(coverCacheSize) })
+              : t('settings:cacheManagement.usageLimited', {
+                  size: formatBytes(coverCacheSize),
+                  limit: formatBytes(coverCacheLimit * 1024 * 1024),
+                  percent: coverUsagePercent
+                })}
           </div>
           <div className="cache-settings__info-row">
-            <strong>Cached Covers:</strong> {coverCacheCount.toLocaleString()} images
+            {t('settings:cacheManagement.cachedCovers', { count: coverCacheCount })}
           </div>
           {coverCachePath && (
-            <div className="cache-settings__cache-path">Cache Location: {coverCachePath}</div>
+            <div className="cache-settings__cache-path">
+              {t('settings:cacheManagement.cacheLocation', { path: coverCachePath })}
+            </div>
           )}
         </div>
 
@@ -285,43 +305,62 @@ export function CacheManagementSettings({
             loading={isClearingCovers}
             disabled={coverCacheCount === 0}
           >
-            Clear All Covers
+            {t('settings:cacheManagement.clearAllCoversButton')}
           </Button>
         </div>
       </div>
 
       {/* Manga Metadata Cache Section */}
       <div className="cache-settings__divider">
-        <h4 className="cache-settings__heading">Manga Metadata Cache</h4>
+        <h4 className="cache-settings__heading">
+          {t('settings:cacheManagement.metadataCacheSection')}
+        </h4>
         <p className="cache-settings__description">
-          Manage cached manga information for offline access.
+          {t('settings:cacheManagement.metadataCacheDescription')}
         </p>
 
         {cacheStats && (
           <div className="cache-settings__stats-box">
             <div className="cache-settings__info-row">
-              <strong>Total Cached:</strong> {cacheStats.totalManga.toLocaleString()} manga
+              {t('settings:cacheManagement.totalCached', {
+                count: cacheStats.totalManga,
+                defaultValue: 'Total Cached: {{count}} manga'
+              })}
             </div>
             <div className="cache-settings__stats-breakdown">
               <div className="text-secondary cache-settings__info-row">
-                • In Library: {cacheStats.totalFavouriteManga.toLocaleString()} manga (protected)
+                {t('settings:cacheManagement.inLibrary', {
+                  count: cacheStats.totalFavouriteManga,
+                  defaultValue: '• In Library: {{count}} manga (protected)'
+                })}
               </div>
               <div className="text-secondary cache-settings__info-row">
-                • Downloaded: {cacheStats.downloadedManga.toLocaleString()} manga (protected)
+                {t('settings:cacheManagement.downloaded', {
+                  count: cacheStats.downloadedManga,
+                  defaultValue: '• Downloaded: {{count}} manga (protected)'
+                })}
               </div>
               <div className="text-secondary">
-                • Browsing Cache: {cacheStats.browsingCache.toLocaleString()} manga
+                {t('settings:cacheManagement.browsingCache', {
+                  count: cacheStats.browsingCache,
+                  defaultValue: '• Browsing Cache: {{count}} manga'
+                })}
               </div>
             </div>
 
             <div className="cache-settings__stats-note">
               <div className="cache-settings__note-text">
-                DexReader automatically manages this cache by removing non-library manga that
-                haven&rsquo;t been accessed in 90 days.
+                {t('settings:cacheManagement.autoManageNote', {
+                  defaultValue:
+                    "DexReader automatically manages this cache by removing non-library manga that haven't been accessed in 90 days."
+                })}
               </div>
               {cacheStats.oldCache > 0 && (
                 <div className="cache-settings__ready-to-clean">
-                  Ready to clean: {cacheStats.oldCache.toLocaleString()} manga
+                  {t('settings:cacheManagement.readyToClean', {
+                    count: cacheStats.oldCache,
+                    defaultValue: 'Ready to clean: {{count}} manga'
+                  })}
                 </div>
               )}
             </div>
@@ -335,7 +374,7 @@ export function CacheManagementSettings({
             loading={isCleaningMetadata}
             disabled={!cacheStats || cacheStats.oldCache === 0}
           >
-            Clean Up Now
+            {t('settings:cacheManagement.cleanUpNowButton', { defaultValue: 'Clean Up Now' })}
           </Button>
           <Button
             variant="danger"
@@ -343,7 +382,7 @@ export function CacheManagementSettings({
             loading={isClearingAllMetadata}
             disabled={!cacheStats || cacheStats.browsingCache === 0}
           >
-            Clear All Cache
+            {t('settings:cacheManagement.clearAllCacheButton', { defaultValue: 'Clear All Cache' })}
           </Button>
         </div>
       </div>

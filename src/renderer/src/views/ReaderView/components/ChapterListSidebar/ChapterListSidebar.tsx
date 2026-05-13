@@ -1,6 +1,7 @@
 import { type JSX } from 'react'
 import { Button } from '@renderer/components/Button'
 import { EmptyState } from '@renderer/components/EmptyState'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 
 /**
  * Chapter Entity type from MangaDex feed response
@@ -29,6 +30,8 @@ export function ChapterListSidebar({
   onClose,
   onChapterClick
 }: ChapterListSidebarProps): JSX.Element {
+  const { t } = useTranslation(['reader', 'common'])
+
   return (
     <>
       {/* Overlay */}
@@ -43,7 +46,7 @@ export function ChapterListSidebar({
           }}
           role="button"
           tabIndex={0}
-          aria-label="Close chapter list"
+          aria-label={t('reader:header.closeChapterList')}
         />
       )}
 
@@ -52,23 +55,26 @@ export function ChapterListSidebar({
         className={`chapter-list-sidebar flex flex-col ${isOpen ? 'chapter-list-sidebar--open' : ''}`}
       >
         <header className="chapter-list-sidebar__header flex items-center justify-between">
-          <h2>Chapters</h2>
+          <h2>{t('reader:header.chaptersButton')}</h2>
           <Button onClick={onClose} size="small">
-            Close
+            {t('common:button.close')}
           </Button>
         </header>
 
         <div className="chapter-list-sidebar__content">
           {chapters.length === 0 ? (
-            <EmptyState message="No chapters available" />
+            <EmptyState message={t('reader:chapterList.noChapters')} />
           ) : (
             <ul className="chapter-list-sidebar__list">
               {chapters.map((chapter) => {
                 const chapterNumber = chapter.attributes.chapter || 'N/A'
                 const chapterTitle = chapter.attributes.title
                 const ariaLabel = chapterTitle
-                  ? `Chapter ${chapterNumber}: ${chapterTitle}`
-                  : `Chapter ${chapterNumber}`
+                  ? t('reader:chapterList.chapterWithTitle', {
+                      number: chapterNumber,
+                      title: chapterTitle
+                    })
+                  : t('reader:chapterList.chapter', { number: chapterNumber })
 
                 return (
                   <li
@@ -89,14 +95,15 @@ export function ChapterListSidebar({
                     aria-current={chapter.id === currentChapterId ? 'true' : undefined}
                   >
                     <div className="chapter-list-sidebar__item-number">
-                      Ch. {chapterNumber}
-                      {chapter.attributes.volume && ` Vol. ${chapter.attributes.volume}`}
+                      {t('reader:chapterList.chapterShort')} {chapterNumber}
+                      {chapter.attributes.volume &&
+                        ` ${t('reader:chapterList.volumeShort')} ${chapter.attributes.volume}`}
                     </div>
                     {chapterTitle && (
                       <div className="chapter-list-sidebar__item-title">{chapterTitle}</div>
                     )}
                     <div className="chapter-list-sidebar__item-meta">
-                      {chapter.attributes.pages} pages
+                      {t('reader:chapterList.pages', { count: chapter.attributes.pages })}
                     </div>
                   </li>
                 )

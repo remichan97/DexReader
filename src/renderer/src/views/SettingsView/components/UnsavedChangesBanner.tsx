@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { useState } from 'react'
 import { Button } from '@renderer/components/Button'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import './UnsavedChangesBanner.css'
 
 interface UnsavedChangesBannerProps {
@@ -14,6 +15,7 @@ export function UnsavedChangesBanner({
   onReset,
   disabled = false
 }: UnsavedChangesBannerProps): JSX.Element {
+  const { t } = useTranslation(['settings', 'common'])
   const [isSaving, setIsSaving] = useState(false)
 
   const handleSave = async (): Promise<void> => {
@@ -30,8 +32,10 @@ export function UnsavedChangesBanner({
       <div className="unsaved-changes-banner__content">
         <span className="unsaved-changes-banner__text">
           {disabled
-            ? 'Some settings are invalid. Fix validation errors before saving.'
-            : 'Careful — you have unsaved changes!'}
+            ? t('settings:unsavedChangesBanner.validationError', {
+                defaultValue: 'Some settings are invalid. Fix validation errors before saving.'
+              })
+            : t('settings:unsavedChangesBanner.message')}
         </span>
         <div className="unsaved-changes-banner__actions">
           <Button
@@ -40,7 +44,7 @@ export function UnsavedChangesBanner({
             onClick={onReset}
             disabled={isSaving || disabled}
           >
-            Reset
+            {t('settings:unsavedChangesBanner.discardButton')}
           </Button>
           <Button
             variant="primary"
@@ -49,7 +53,7 @@ export function UnsavedChangesBanner({
             loading={isSaving}
             disabled={disabled}
           >
-            Save Changes
+            {t('settings:unsavedChangesBanner.saveButton')}
           </Button>
         </div>
       </div>

@@ -3,6 +3,7 @@ import { RadioGroup, Radio } from '@renderer/components/Radio'
 import { Input } from '@renderer/components/Input'
 import { InfoBar } from '@renderer/components/InfoBar'
 import { Button } from '@renderer/components/Button'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import './PerformanceSettingsSection.css'
 
 type CacheTier = 'low' | 'normal' | 'high' | 'custom'
@@ -20,6 +21,8 @@ export function PerformanceSettingsSection({
   onCacheTierChange,
   onCustomCacheSizeChange
 }: Readonly<PerformanceSettingsSectionProps>): React.JSX.Element {
+  const { t } = useTranslation(['settings', 'common'])
+
   // Load backend-calculated threshold and dynamic tier values
   const [recommendedMax, setRecommendedMax] = useState(500) // 10% of RAM (soft warning, uncapped)
   const [sanityMaxMB, setSanityMaxMB] = useState(1500) // 30% of RAM (hard ceiling)
@@ -75,34 +78,37 @@ export function PerformanceSettingsSection({
   let errorMessage: string | undefined
   if (showError) {
     if (customCacheSize < 10) {
-      errorMessage = 'Cache size must be at least 10 MB'
+      errorMessage = t('settings:performance.customCacheError.tooLow')
     } else {
-      errorMessage = `Cache size cannot exceed ${sanityMaxMB} MB (30% of system RAM)`
+      errorMessage = t('settings:performance.customCacheError.tooHigh', { max: sanityMaxMB })
     }
   }
 
   let helperMessage: string
   if (showLowWarning) {
-    helperMessage = `Low cache may cause frequent reloads. We recommend at least 30 MB`
+    helperMessage = t('settings:performance.customCacheWarning.low')
   } else if (showHighWarning) {
-    helperMessage = `This exceeds our recommendation of ${recommendedMax} MB (10% of system RAM). Higher values might slow things down.`
+    helperMessage = t('settings:performance.customCacheWarning.high', {
+      recommended: recommendedMax
+    })
   } else if (suppressWarnings) {
-    helperMessage = 'Warnings suppressed'
+    helperMessage = t('settings:performance.warningsSuppressed')
   } else {
-    helperMessage = `Enter cache size in MB (10 - ${sanityMaxMB})`
+    helperMessage = t('settings:performance.customCacheHelper', { max: sanityMaxMB })
   }
 
   return (
     <div className="reader-settings__container flex flex-col gap-5">
       <div>
-        <h4 className="reader-settings__heading">Performance</h4>
-        <p className="reader-settings__description">
-          Configure how much memory DexReader can use for caching manga chapters. Higher tiers load
-          more chapters in advance.
-        </p>
+        <h4 className="reader-settings__heading">{t('settings:performance.sectionTitle')}</h4>
+        <p className="reader-settings__description">{t('settings:performance.description')}</p>
 
         <InfoBar
-          text={`System RAM: ${systemRAM} GB | Recommended: ${recommendedMax} MB (10%) | Maximum: ${sanityMaxMB} MB (30%)`}
+          text={t('settings:performance.systemInfo', {
+            ram: systemRAM,
+            recommended: recommendedMax,
+            max: sanityMaxMB
+          })}
         />
 
         <div className="reader-settings__controls flex flex-col gap-4">
@@ -110,37 +116,60 @@ export function PerformanceSettingsSection({
             value={cacheTier}
             onChange={(value) => onCacheTierChange(value as CacheTier)}
             name="cache-tier"
-            label="Chapter Cache Size"
+            label={t('settings:performance.cacheTierLabel')}
           >
             <Radio
               value="low"
-              label={isLoading ? 'Low' : `Low (${lowTierMB} MB)`}
-              description="1-2 chapters cached | Best for low-end systems"
+              label={
+                isLoading
+                  ? t('settings:performance.cacheTierOptions.low.label', {
+                      defaultValue: 'Low',
+                      size: ''
+                    }).replace(/\s*\(\s*\)/, '')
+                  : t('settings:performance.cacheTierOptions.low.label', { size: lowTierMB })
+              }
+              description={t('settings:performance.cacheTierOptions.low.description')}
             />
             <Radio
               value="normal"
               label={
-                isLoading ? 'Normal (Recommended)' : `Normal (${normalTierMB} MB) - Recommended`
+                isLoading
+                  ? t('settings:performance.cacheTierOptions.normal.label', {
+                      defaultValue: 'Normal (Recommended)',
+                      size: ''
+                    }).replace(/\s*\(\s*\)\s*-/, ' -')
+                  : t('settings:performance.cacheTierOptions.normal.label', { size: normalTierMB })
               }
-              description="3-4 chapters cached | Balanced performance"
+              description={t('settings:performance.cacheTierOptions.normal.description')}
             />
             <Radio
               value="high"
-              label={isLoading ? 'High' : `High (${highTierMB} MB)`}
-              description="5-7 chapters cached | Smoother reading"
+              label={
+                isLoading
+                  ? t('settings:performance.cacheTierOptions.high.label', {
+                      defaultValue: 'High',
+                      size: ''
+                    }).replace(/\s*\(\s*\)/, '')
+                  : t('settings:performance.cacheTierOptions.high.label', { size: highTierMB })
+              }
+              description={t('settings:performance.cacheTierOptions.high.description')}
             />
-            <Radio value="custom" label="Custom" description="Advanced users only" />
+            <Radio
+              value="custom"
+              label={t('settings:performance.cacheTierOptions.custom.label')}
+              description={t('settings:performance.cacheTierOptions.custom.description')}
+            />
           </RadioGroup>
 
           {cacheTier === 'custom' && (
             <div className="reader-settings__custom-input">
               <label htmlFor="custom-cache-size" className="reader-settings__label">
-                Custom Cache Size (MB)
+                {t('settings:performance.customCacheLabel')}
               </label>
               <Input
                 id="custom-cache-size"
                 type="text"
-                placeholder="200"
+                placeholder={t('settings:performance.customCachePlaceholder')}
                 value={customCacheSize.toString()}
                 onChange={handleCustomCacheSizeChange}
                 disabled={isLoading}
@@ -151,7 +180,7 @@ export function PerformanceSettingsSection({
                 <div className="input-helper-with-action flex items-center justify-between gap-2">
                   <span className="input-helper flex-1">{helperMessage}</span>
                   <Button variant="ghost" size="small" onClick={handleResetWarnings}>
-                    Reset warnings
+                    {t('settings:performance.resetWarningsButton')}
                   </Button>
                 </div>
               )}

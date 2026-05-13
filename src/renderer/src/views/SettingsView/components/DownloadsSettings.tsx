@@ -4,6 +4,7 @@ import { Button } from '@renderer/components/Button'
 import { Input } from '@renderer/components/Input'
 import { Select, type SelectOption } from '@renderer/components/Select'
 import { RadioGroup, Radio } from '@renderer/components/Radio'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import './DownloadsSettings.css'
 
 interface DownloadsSettingsProps {
@@ -31,6 +32,8 @@ export function DownloadsSettings({
   onDefaultQualityChange,
   onMaxConcurrentDownloadsChange
 }: Readonly<DownloadsSettingsProps>): React.JSX.Element {
+  const { t } = useTranslation(['settings', 'common'])
+
   const concurrentDownloadsOptions: SelectOption[] = [
     { value: '1', label: '1 (Sequential)' },
     { value: '2', label: '2' },
@@ -115,13 +118,13 @@ export function DownloadsSettings({
         >
           <Radio
             value="data"
-            label="High Quality"
-            description="Full resolution images, best visual quality"
+            label={t('common:quality.highQuality')}
+            description={t('common:form.helperText.highQuality')}
           />
           <Radio
             value="data-saver"
-            label="Data Saver"
-            description="Compressed images, smaller file sizes"
+            label={t('common:quality.dataSaver')}
+            description={t('common:form.helperText.dataSaver')}
           />
         </RadioGroup>
       </div>
