@@ -160,6 +160,14 @@
     "diskSpaceTitle": "Total Disk Space: {{total}} GB",
     "diskSpaceUsage": "Used: {{used}} GB • Free: {{free}} GB",
     "loadingStorage": "Loading storage data...",
+    "mangaStorageHeader": "Manga Storage ({{size}})",
+    "emptyState": "No downloads found",
+    "sortOptions": {
+      "storageLargest": "Storage (Largest First)",
+      "storageSmallest": "Storage (Smallest First)",
+      "titleAZ": "Title (A-Z)",
+      "titleZA": "Title (Z-A)"
+    },
     "deleteSelectedButton": "Delete Selected ({{count}})",
     "deleteConfirm": {
       "title": "Delete {{count}} manga?",

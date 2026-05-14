@@ -3,6 +3,19 @@
   "searchPlaceholder": "Tìm kiếm tải xuống...",
   "filterByStatus": "Lọc theo trạng thái",
   "sortBy": "Sắp xếp theo",
+  "filterOptions": {
+    "allStatus": "Tất cả trạng thái",
+    "active": "Đang hoạt động",
+    "completed": "Hoàn thành",
+    "failed": "Thất bại"
+  },
+  "sortOptions": {
+    "recent": "Gần đây nhất",
+    "largestFirst": "Lớn nhất trước",
+    "smallestFirst": "Nhỏ nhất trước",
+    "az": "A-Z",
+    "za": "Z-A"
+  },
   "stats": {
     "active": "{{count}} Đang tải",
     "queued": "{{count}} Đang chờ",

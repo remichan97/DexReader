@@ -76,5 +76,61 @@
     "selectAPreset": "Select a preset",
     "setAsDefault": "Set as default",
     "previewCurrentFilters": "Preview: Current Filters"
+  },
+  "filter": {
+    "contentRating": "Content Rating",
+    "contentRatings": {
+      "safe": "Safe",
+      "suggestive": "Suggestive",
+      "erotica": "Erotica",
+      "pornographic": "Pornographic"
+    },
+    "status": "Status",
+    "statuses": {
+      "all": "All",
+      "ongoing": "Ongoing",
+      "completed": "Completed",
+      "hiatus": "Hiatus",
+      "cancelled": "Cancelled"
+    },
+    "demographic": "Demographic",
+    "demographics": {
+      "all": "All",
+      "shounen": "Shounen",
+      "shoujo": "Shoujo",
+      "seinen": "Seinen",
+      "josei": "Josei",
+      "none": "None"
+    },
+    "sortBy": "Sort By",
+    "sortOptions": {
+      "relevance": "Relevance",
+      "latestUpdate": "Latest Update",
+      "recentlyAdded": "Recently Added",
+      "mostFollows": "Most Follows",
+      "highestRated": "Highest Rated",
+      "title": "Title",
+      "year": "Year"
+    },
+    "order": "Order",
+    "orderOptions": {
+      "descending": "Descending",
+      "ascending": "Ascending"
+    },
+    "perPage": "Per Page",
+    "advancedFilters": "Advanced Filters (Tags & Languages)",
+    "hideAdvancedFilters": "Hide advanced filters",
+    "showAdvancedFilters": "Show advanced filters",
+    "includeTagsMode": "Include Tags Mode:",
+    "matchAllTags": "Match ALL tags (AND)",
+    "matchAnyTag": "Match ANY tag (OR)",
+    "languages": "Languages",
+    "tooltips": {
+      "reset": "Restore the filters to default",
+      "apply": "Apply the selected filters",
+      "savePreset": "Save the current filter settings as a preset",
+      "includeTag": "Include this tag",
+      "excludeTag": "Exclude this tag"
+    }
   }
 }

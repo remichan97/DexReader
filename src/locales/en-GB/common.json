@@ -35,6 +35,8 @@
     "saveCopy": "Save a Copy",
     "savePreset": "Save Preset",
     "saving": "Saving...",
+    "viewReleaseNotes": "View Release Notes",
+    "letsGo": "Let's Go!",
     "openInBrowser": "Open in Browser",
     "copyLink": "Copy Link"
   },
@@ -296,5 +298,48 @@
   },
   "statusBar": {
     "incognitoActive": "You've gone Incognito — Progress tracking is disabled"
+  },
+  "updateBanner": {
+    "welcome": "Welcome to DexReader v{{version}}!"
+  },
+  "updateNotification": {
+    "checking": {
+      "ariaLabel": "Checking for updates",
+      "message": "Checking for updates..."
+    },
+    "available": {
+      "title": "Update available",
+      "description": "Version {{version}} is ready to download",
+      "downloadButton": "Download",
+      "laterButton": "Maybe Later"
+    },
+    "downloading": {
+      "ariaLabel": "Downloading update",
+      "title": "Downloading update...",
+      "progressAriaLabel": "Download progress",
+      "progressDetails": "{{transferred}} / {{total}} ({{speed}})",
+      "hideButton": "Hide"
+    },
+    "downloaded": {
+      "title": "Update ready to install",
+      "description": "Version {{version}} has been downloaded",
+      "restartButton": "Restart Now",
+      "laterButton": "Maybe Later"
+    },
+    "notAvailable": {
+      "message": "You're up to date ({{version}})"
+    },
+    "error": {
+      "title": "Update failed",
+      "retryButton": "Retry",
+      "dismissAriaLabel": "Dismiss"
+    },
+    "units": {
+      "bytes": "B",
+      "kilobytes": "KB",
+      "megabytes": "MB",
+      "gigabytes": "GB",
+      "perSecond": "/s"
+    }
   }
 }

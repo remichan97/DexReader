@@ -76,5 +76,61 @@
     "selectAPreset": "Chọn một mẫu tìm kiếm",
     "setAsDefault": "Đặt làm mặc định",
     "previewCurrentFilters": "Xem trước: Bộ lọc hiện tại"
+  },
+  "filter": {
+    "contentRating": "Phân loại nội dung",
+    "contentRatings": {
+      "safe": "An toàn",
+      "suggestive": "Gợi cảm",
+      "erotica": "Khiêu dâm nhẹ",
+      "pornographic": "Khiêu dâm"
+    },
+    "status": "Trạng thái",
+    "statuses": {
+      "all": "Tất cả",
+      "ongoing": "Đang tiến hành",
+      "completed": "Hoàn thành",
+      "hiatus": "Tạm ngưng",
+      "cancelled": "Đã hủy"
+    },
+    "demographic": "Đối tượng",
+    "demographics": {
+      "all": "Tất cả",
+      "shounen": "Shounen",
+      "shoujo": "Shoujo",
+      "seinen": "Seinen",
+      "josei": "Josei",
+      "none": "Không có"
+    },
+    "sortBy": "Sắp xếp theo",
+    "sortOptions": {
+      "relevance": "Độ liên quan",
+      "latestUpdate": "Cập nhật mới nhất",
+      "recentlyAdded": "Mới thêm gần đây",
+      "mostFollows": "Nhiều người theo dõi nhất",
+      "highestRated": "Đánh giá cao nhất",
+      "title": "Tiêu đề",
+      "year": "Năm"
+    },
+    "order": "Thứ tự",
+    "orderOptions": {
+      "descending": "Giảm dần",
+      "ascending": "Tăng dần"
+    },
+    "perPage": "Số lượng mỗi trang",
+    "advancedFilters": "Bộ lọc nâng cao (Thẻ & Ngôn ngữ)",
+    "hideAdvancedFilters": "Ẩn bộ lọc nâng cao",
+    "showAdvancedFilters": "Hiển thị bộ lọc nâng cao",
+    "includeTagsMode": "Chế độ thẻ bao gồm:",
+    "matchAllTags": "Khớp TẤT CẢ thẻ (AND)",
+    "matchAnyTag": "Khớp BẤT KỲ thẻ nào (OR)",
+    "languages": "Ngôn ngữ",
+    "tooltips": {
+      "reset": "Khôi phục bộ lọc về mặc định",
+      "apply": "Áp dụng các bộ lọc đã chọn",
+      "savePreset": "Lưu cài đặt bộ lọc hiện tại thành mẫu tìm kiếm mới",
+      "includeTag": "Bao gồm thẻ này",
+      "excludeTag": "Loại trừ thẻ này"
+    }
   }
 }

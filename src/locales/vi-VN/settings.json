@@ -162,6 +162,14 @@
     "diskSpaceUsage": "Đã sử dụng: {{used}} GB • Còn trống: {{free}} GB",
     "loadingStorage": "Đang tải dữ liệu lưu trữ...",
     "failedToLoad": "Không thể tải dữ liệu lưu trữ",
+    "mangaStorageHeader": "Dung lượng Manga ({{size}})",
+    "emptyState": "Chưa có tải xuống nào",
+    "sortOptions": {
+      "storageLargest": "Dung lượng (Lớn nhất trước)",
+      "storageSmallest": "Dung lượng (Nhỏ nhất trước)",
+      "titleAZ": "Tiêu đề (A-Z)",
+      "titleZA": "Tiêu đề (Z-A)"
+    },
     "deleteSelectedButton": "Xóa đã chọn ({{count}})",
     "deleteConfirm": {
       "title": "Xóa {{count}} manga?",

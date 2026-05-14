@@ -3,6 +3,19 @@
   "searchPlaceholder": "Search downloads...",
   "filterByStatus": "Filter by status",
   "sortBy": "Sort by",
+  "filterOptions": {
+    "allStatus": "All Status",
+    "active": "Active",
+    "completed": "Completed",
+    "failed": "Failed"
+  },
+  "sortOptions": {
+    "recent": "Most Recent",
+    "largestFirst": "Largest First",
+    "smallestFirst": "Smallest First",
+    "az": "A-Z",
+    "za": "Z-A"
+  },
   "stats": {
     "active": "{{count}} Active",
     "queued": "{{count}} Queued",

@@ -35,6 +35,8 @@
     "saveCopy": "Lưu một Bản sao",
     "savePreset": "Lưu Mẫu tìm kiếm",
     "saving": "Đang lưu...",
+    "viewReleaseNotes": "Xem ghi chú phát hành",
+    "letsGo": "Tuyệt vời!",
     "openInBrowser": "Mở trong Trình duyệt",
     "copyLink": "Sao chép Liên kết"
   },
@@ -296,5 +298,48 @@
   },
   "statusBar": {
     "incognitoActive": "Bạn đã vào Chế độ Ẩn danh — Không ghi nhận tiến trình đọc"
+  },
+  "updateBanner": {
+    "welcome": "Chào mừng đến với DexReader v{{version}}!"
+  },
+  "updateNotification": {
+    "checking": {
+      "ariaLabel": "Đang kiểm tra cập nhật",
+      "message": "Đang kiểm tra cập nhật..."
+    },
+    "available": {
+      "title": "Có bản cập nhật mới",
+      "description": "Phiên bản {{version}} sẵn sàng để tải xuống",
+      "downloadButton": "Tải xuống",
+      "laterButton": "Không, để sau"
+    },
+    "downloading": {
+      "ariaLabel": "Đang tải cập nhật",
+      "title": "Đang tải cập nhật...",
+      "progressAriaLabel": "Tiến trình tải xuống",
+      "progressDetails": "{{transferred}} / {{total}} ({{speed}})",
+      "hideButton": "Ẩn"
+    },
+    "downloaded": {
+      "title": "Cập nhật sẵn sàng cài đặt",
+      "description": "Phiên bản {{version}} đã được tải xuống",
+      "restartButton": "Khởi động lại ngay",
+      "laterButton": "Không, để sau"
+    },
+    "notAvailable": {
+      "message": "Bạn đang sử dụng phiên bản mới nhất ({{version}})"
+    },
+    "error": {
+      "title": "Cập nhật thất bại",
+      "retryButton": "Thử lại",
+      "dismissAriaLabel": "Đóng"
+    },
+    "units": {
+      "bytes": "B",
+      "kilobytes": "KB",
+      "megabytes": "MB",
+      "gigabytes": "GB",
+      "perSecond": "/giây"
+    }
   }
 }
