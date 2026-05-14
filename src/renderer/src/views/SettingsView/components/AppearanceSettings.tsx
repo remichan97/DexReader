@@ -153,8 +153,7 @@ export function AppearanceSettings({
           {t('appearance.configureDateButton')}
         </Button>
         <p className="text-secondary appearance-settings__helper-text mt-2">
-          This will open your operating system&apos;s regional settings where you can customise date
-          and time formats.
+          {t('appearance.configureDateHelper')}
         </p>
       </div>
     </div>

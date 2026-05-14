@@ -61,7 +61,7 @@ export function CacheManagementSettings({
         showToast({
           variant: 'error',
           title: t('errors:cache.load_failed.title'),
-          message: error instanceof Error ? error.message : 'Unknown error'
+          message: error instanceof Error ? error.message : t('common:error.unknownError')
         })
       } finally {
         setIsLoading(false)
@@ -125,7 +125,7 @@ export function CacheManagementSettings({
       showToast({
         variant: 'error',
         title: t('errors:cache.clear_cover_failed.title'),
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : t('common:error.unknownError')
       })
     } finally {
       setIsClearingCovers(false)
@@ -173,7 +173,7 @@ export function CacheManagementSettings({
       showToast({
         variant: 'error',
         title: t('errors:cache.clean_metadata_failed.title'),
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : t('common:error.unknownError')
       })
     } finally {
       setIsCleaningMetadata(false)
@@ -221,7 +221,7 @@ export function CacheManagementSettings({
       showToast({
         variant: 'error',
         title: t('errors:cache.clear_metadata_failed.title'),
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : t('common:error.unknownError')
       })
     } finally {
       setIsClearingAllMetadata(false)

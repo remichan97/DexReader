@@ -59,34 +59,34 @@ export function ReaderSettingsSection({
   return (
     <div className="reader-settings__container flex flex-col gap-5">
       <div>
-        <h4 className="reader-settings__heading">Reader Display Settings</h4>
+        <h4 className="reader-settings__heading">{t('reader.displaySection')}</h4>
 
         {isLoading ? (
-          <p className="text-body text-secondary">Loading settings...</p>
+          <p className="text-body text-secondary">{t('reader.loadingSettings')}</p>
         ) : (
           <div className="reader-settings__controls flex flex-col gap-4">
             <Switch
               checked={forceDarkMode}
               onChange={onForceDarkModeChange}
-              label="Force dark mode in reader"
-              description="Always use dark background when reading, regardless of app theme"
+              label={t('reader.forceDarkMode.label')}
+              description={t('reader.forceDarkMode.description')}
             />
 
             <RadioGroup
               value={imageQuality}
               onChange={(value) => onImageQualityChange(value as 'data' | 'data-saver')}
               name="image-quality"
-              label="Image quality"
+              label={t('reader.imageQuality.label')}
             >
               <Radio
                 value="data"
                 label={t('common:quality.highQuality')}
-                description={t('common:form.helperText.highQuality')}
+                description={t('reader.imageQuality.highQuality.description')}
               />
               <Radio
                 value="data-saver"
                 label={t('common:quality.dataSaver')}
-                description={t('common:form.helperText.dataSaver')}
+                description={t('reader.imageQuality.dataSaver.description')}
               />
             </RadioGroup>
           </div>
@@ -94,36 +94,33 @@ export function ReaderSettingsSection({
       </div>
 
       <div className="reader-settings__divider">
-        <h4 className="reader-settings__heading">Global Reader Settings</h4>
-        <p className="reader-settings__description">
-          These settings apply to all manga by default. You can override them per-manga in the
-          reader.
-        </p>
+        <h4 className="reader-settings__heading">{t('reader.globalSettingsSection')}</h4>
+        <p className="reader-settings__description">{t('reader.globalSettingsDescription')}</p>
 
         {isLoading ? (
-          <p className="text-body text-secondary">Loading settings...</p>
+          <p className="text-body text-secondary">{t('reader.loadingSettings')}</p>
         ) : (
           <div className="reader-settings__controls flex flex-col gap-4">
             <Select
               value={globalReaderSettings.readingMode}
               onChange={onReadingModeChange}
               options={readingModeOptions}
-              label="Default reading mode"
-              helperText="How pages are displayed when reading manga"
+              label={t('reader.readingModeLabel')}
+              helperText={t('reader.readingModeHelper')}
             />
 
             {globalReaderSettings.readingMode === 'double' && (
               <div className="reader-settings__double-page-box flex flex-col gap-3">
-                <h5 className="reader-settings__subheading">Double Page Mode Options</h5>
+                <h5 className="reader-settings__subheading">{t('reader.doublePageOptions')}</h5>
                 <Switch
                   checked={globalReaderSettings.doublePageMode?.skipCoverPages ?? true}
                   onChange={(checked) => onDoublePageSettingChange('skipCoverPages', checked)}
-                  label="Skip cover pages (show first page alone)"
+                  label={t('reader.skipCoverPages')}
                 />
                 <Switch
                   checked={globalReaderSettings.doublePageMode?.readRightToLeft ?? true}
                   onChange={(checked) => onDoublePageSettingChange('readRightToLeft', checked)}
-                  label="Read right-to-left (manga style)"
+                  label={t('reader.readRightToLeft')}
                 />
               </div>
             )}
@@ -133,7 +130,7 @@ export function ReaderSettingsSection({
 
       <div className="reader-settings__divider">
         <div className="reader-settings__overrides-header flex justify-between items-center">
-          <h4 className="reader-settings__heading-no-margin">Per-Manga Overrides</h4>
+          <h4 className="reader-settings__heading-no-margin">{t('reader.overridesSection')}</h4>
           {perMangaOverrides.length > 0 && (
             <Button
               onClick={async () => {

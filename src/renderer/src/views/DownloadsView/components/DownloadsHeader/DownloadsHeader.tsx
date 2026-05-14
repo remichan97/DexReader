@@ -6,7 +6,6 @@ import { Select } from '@renderer/components/Select'
 import { FolderOpen20Regular } from '@fluentui/react-icons'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import type { FilterOption, SortOption } from '../../types'
-import { statusFilterOptions, sortOptions } from '../../types'
 
 interface DownloadsHeaderProps {
   // Search/Filter/Sort
@@ -47,6 +46,21 @@ export function DownloadsHeader({
   onRetryAllFailed
 }: Readonly<DownloadsHeaderProps>): JSX.Element {
   const { t } = useTranslation(['downloads', 'common'])
+
+  const statusFilterOptions = [
+    { value: 'all', label: t('downloads:filterOptions.allStatus') },
+    { value: 'active', label: t('downloads:filterOptions.active') },
+    { value: 'completed', label: t('downloads:filterOptions.completed') },
+    { value: 'failed', label: t('downloads:filterOptions.failed') }
+  ]
+
+  const sortOptions = [
+    { value: 'recent', label: t('downloads:sortOptions.recent') },
+    { value: 'largest', label: t('downloads:sortOptions.largestFirst') },
+    { value: 'smallest', label: t('downloads:sortOptions.smallestFirst') },
+    { value: 'az', label: t('downloads:sortOptions.az') },
+    { value: 'za', label: t('downloads:sortOptions.za') }
+  ]
 
   return (
     <>

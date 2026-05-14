@@ -8,6 +8,7 @@ import { OfflineStatusBar } from '../components/OfflineStatusBar'
 import { IncognitoStatusBar } from '../components/IncognitoStatusBar'
 import { KeyboardShortcutsDialog } from '../components/KeyboardShortcutsDialog'
 import { useAppStore } from '@renderer/stores'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import './AppShell.css'
 import { rendererLog } from '@renderer/services/logging.service'
 
@@ -30,6 +31,7 @@ export function AppShell({
   const setSystemTheme = useAppStore((state) => state.setSystemTheme)
   const setThemeMode = useAppStore((state) => state.setThemeMode)
   const location = useLocation()
+  const { t } = useTranslation(['browse', 'library', 'downloads', 'settings'])
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false)
 
   // Update document title based on current route (only for main views, not sub-views)
@@ -40,16 +42,16 @@ export function AppShell({
     }
 
     const viewTitles: Record<string, string> = {
-      '/': 'Browse',
-      '/browse': 'Browse',
-      '/library': 'Library',
-      '/downloads': 'Downloads',
-      '/settings': 'Settings'
+      '/': t('browse:pageTitle'),
+      '/browse': t('browse:pageTitle'),
+      '/library': t('library:pageTitle'),
+      '/downloads': t('downloads:pageTitle'),
+      '/settings': t('settings:pageTitle')
     }
 
     const viewTitle = viewTitles[location.pathname] || 'DexReader'
     document.title = `${viewTitle} - DexReader`
-  }, [location.pathname])
+  }, [location.pathname, t])
 
   // Load theme preference from settings on startup
   useEffect(() => {
