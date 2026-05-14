@@ -13,6 +13,7 @@
 import type { JSX } from 'react'
 import { Button } from '../Button'
 import { Sparkle24Regular } from '@fluentui/react-icons'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import './UpdateBanner.css'
 
 interface UpdateBannerProps {
@@ -26,20 +27,22 @@ export function UpdateBanner({
   onDismiss,
   onViewReleaseNotes
 }: UpdateBannerProps): JSX.Element {
+  const { t } = useTranslation('common')
+
   return (
     <div className="update-banner" role="alert" aria-live="polite">
       <div className="update-banner__content">
         <Sparkle24Regular className="update-banner__icon" aria-hidden="true" />
         <span className="update-banner__text">
-          <strong>Welcome to DexReader v{version}!</strong>
+          <strong>{t('updateBanner.welcome', { version })}</strong>
         </span>
       </div>
       <div className="update-banner__actions">
         <Button variant="primary" size="small" onClick={onViewReleaseNotes}>
-          View Release Notes
+          {t('button.viewReleaseNotes')}
         </Button>
         <Button variant="ghost" size="small" onClick={onDismiss}>
-          Let&apos;s Go!
+          {t('button.letsGo')}
         </Button>
       </div>
     </div>

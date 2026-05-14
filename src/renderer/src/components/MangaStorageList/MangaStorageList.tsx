@@ -2,6 +2,7 @@ import type { JSX } from 'react'
 import { Book20Regular } from '@fluentui/react-icons'
 import { Select, type SelectOption } from '@renderer/components/Select'
 import { Checkbox } from '@renderer/components/Checkbox'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import { formatBytes } from '@renderer/utils/formatBytes'
 import './MangaStorageList.css'
 
@@ -32,12 +33,14 @@ export function MangaStorageList({
   onToggleSelect,
   onSortChange
 }: Readonly<MangaStorageListProps>): JSX.Element {
+  const { t } = useTranslation('settings')
+
   // Sort options for dropdown
   const sortOptions: SelectOption[] = [
-    { value: 'storage-desc', label: 'Storage (Largest First)' },
-    { value: 'storage-asc', label: 'Storage (Smallest First)' },
-    { value: 'title-asc', label: 'Title (A-Z)' },
-    { value: 'title-desc', label: 'Title (Z-A)' }
+    { value: 'storage-desc', label: t('storage.sortOptions.storageLargest') },
+    { value: 'storage-asc', label: t('storage.sortOptions.storageSmallest') },
+    { value: 'title-asc', label: t('storage.sortOptions.titleAZ') },
+    { value: 'title-desc', label: t('storage.sortOptions.titleZA') }
   ]
 
   const currentSortValue = `${sortBy}-${sortDirection}`
@@ -53,7 +56,7 @@ export function MangaStorageList({
       {/* Semi-Header */}
       <div className="manga-storage-list__header flex justify-between items-center">
         <span className="manga-storage-list__header-title">
-          Manga Storage ({formatBytes(totalSize)})
+          {t('storage.mangaStorageHeader', { size: formatBytes(totalSize) })}
         </span>
         <div style={{ minWidth: '200px' }}>
           <Select value={currentSortValue} onChange={handleSortChange} options={sortOptions} />
@@ -64,7 +67,7 @@ export function MangaStorageList({
       <div>
         {items.length === 0 ? (
           // Empty State
-          <div className="p-10 text-center text-secondary">No downloads found</div>
+          <div className="p-10 text-center text-secondary">{t('storage.emptyState')}</div>
         ) : (
           // List Items
           items.map((item, index) => {
