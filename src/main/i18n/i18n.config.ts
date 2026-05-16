@@ -1,17 +1,31 @@
-import { is } from '@electron-toolkit/utils'
 import i18next from 'i18next'
-import I18NexFsBackend from 'i18next-fs-backend'
-import path from 'node:path'
+import enUS from '../../locales/en-US'
+import enGB from '../../locales/en-GB'
+import viVN from '../../locales/vi-VN'
 
-i18next.use(I18NexFsBackend).init({
-  backend: {
-    loadPath: is.dev
-      ? path.join(__dirname, '../../locales/{{lng}}/{{ns}}.json')
-      : path.join(process.resourcesPath, 'app.asar.unpacked/locales/{{lng}}/{{ns}}.json')
+i18next.init({
+  resources: {
+    'en-US': enUS,
+    'en-GB': enGB,
+    'vi-VN': viVN
   },
   lng: 'en-GB', // Default language, need to be loaded from Settings later
   fallbackLng: 'en-GB',
-  ns: ['common', 'menu', 'dialogs', 'errors', 'validation', 'settings'],
+  ns: [
+    'common',
+    'menu',
+    'dialogs',
+    'errors',
+    'validation',
+    'settings',
+    'shortcuts',
+    'browse',
+    'library',
+    'downloads',
+    'reader',
+    'history',
+    'mangaDetail'
+  ],
   defaultNS: 'menu'
 })
 

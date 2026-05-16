@@ -16,7 +16,7 @@ import { downloadQueueService } from './services/download-queue.service'
 import { diskCacheUtil } from './api/utils/disk-cache.util'
 import { appUpdateService } from './services/app-update.service'
 import { mainLog } from './services/logging/main-logging.service'
-import './i18n/i18n.config'
+import i18next from './i18n/i18n.config'
 
 const imageProxy = new ImageProxy()
 const localImageProxy = new LocalImageProxy()
@@ -43,6 +43,10 @@ async function initFileSystem(): Promise<void> {
   // Load App settings
   const settings = await loadSettings()
   mainLog.info('[Main] Settings loaded:', settings)
+
+  // Apply user language settings to i18next
+  mainLog.debug(`[Main] Setting display language to: ${settings.language.displayLanguage}`)
+  await i18next.changeLanguage(settings.language.displayLanguage)
 
   // Init Downloads path
   mainLog.debug('[Main] Initializing downloads path...')

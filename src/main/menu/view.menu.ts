@@ -1,32 +1,33 @@
 import { BrowserWindow, MenuItemConstructorOptions } from 'electron'
+import i18next from '../i18n/i18n.config'
 
 export function buildViewMenu(mainWindow: BrowserWindow): MenuItemConstructorOptions {
   return {
-    label: 'View',
+    label: i18next.t('menu:view.label'),
     submenu: [
       {
-        label: 'Browse Manga',
+        label: i18next.t('menu:view.browseManga'),
         accelerator: 'CmdOrCtrl+1',
         click: () => {
           mainWindow.webContents.send('navigate', '/browse')
         }
       },
       {
-        label: 'My Library',
+        label: i18next.t('menu:view.myLibrary'),
         accelerator: 'CmdOrCtrl+2',
         click: () => {
           mainWindow.webContents.send('navigate', '/library')
         }
       },
       {
-        label: 'Downloads',
+        label: i18next.t('menu:view.downloads'),
         accelerator: 'CmdOrCtrl+3',
         click: () => {
           mainWindow.webContents.send('navigate', '/downloads')
         }
       },
       {
-        label: 'Reading History',
+        label: i18next.t('menu:view.readingHistory'),
         accelerator: 'CmdOrCtrl+4',
         click: () => {
           mainWindow.webContents.send('navigate', '/history')
@@ -34,20 +35,20 @@ export function buildViewMenu(mainWindow: BrowserWindow): MenuItemConstructorOpt
       },
       { type: 'separator' },
       {
-        label: 'Toggle Fullscreen',
+        label: i18next.t('menu:view.toggleFullscreen'),
         accelerator: 'F11',
         role: 'togglefullscreen'
       },
       { type: 'separator' },
       {
-        label: 'Reload',
+        label: i18next.t('menu:view.reload'),
         accelerator: 'CmdOrCtrl+R',
         role: 'reload'
       },
       ...(process.env.NODE_ENV === 'development'
         ? [
             {
-              label: 'Toggle DevTools',
+              label: i18next.t('menu:view.toggleDevTools'),
               accelerator: 'F12',
               role: 'toggleDevTools' as const
             }
