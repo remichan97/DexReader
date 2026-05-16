@@ -541,6 +541,10 @@ export function SettingsView(): JSX.Element {
     if (!originalSettings) return
 
     try {
+      // Track if language changed for restart prompt
+      const languageChanged =
+        displayLanguage !== (originalSettings.language?.displayLanguage ?? 'en-GB')
+
       // Client-side validation: Custom cache range check
       if (chapterCacheTier === 'custom') {
         // Get sanity maximum (30% of RAM)
@@ -656,15 +660,35 @@ Are you absolutely certain you want to proceed with this cache size?`,
         throw new Error(saveResult.error?.message || 'Failed to save settings')
       }
 
-      // Apply language change immediately
-      await i18next.changeLanguage(displayLanguage)
-
       // Update original settings to current state (load fresh to get properly typed values)
       const freshSettings = await globalThis.settings.load()
       if (freshSettings.success && freshSettings.data) {
         setOriginalSettings(freshSettings.data)
       }
       setHasUnsavedChanges(false)
+
+      // If language changed, prompt for restart
+      if (languageChanged) {
+        // Get language display name for the dialog
+        const languageNames = {
+          'en-GB': 'English (UK)',
+          'en-US': 'English (US)',
+          'vi-VN': 'Tiếng Việt'
+        }
+        const languageName = languageNames[displayLanguage]
+
+        const result = await globalThis.api.showConfirmDialog(
+          t('dialogs:changeLanguage.title'),
+          t('dialogs:changeLanguage.message', { language: languageName }),
+          t('dialogs:changeLanguage.buttons.restart', { defaultValue: 'Yes, Restart Now' }),
+          t('dialogs:changeLanguage.buttons.later', { defaultValue: 'Maybe Later' })
+        )
+
+        // If user clicked "Restart Now" (button index 1)
+        if (result.success && result.data) {
+          await globalThis.settings.restart()
+        }
+      }
     } catch (error) {
       showToast({
         variant: 'error',

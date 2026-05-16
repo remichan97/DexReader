@@ -199,6 +199,23 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
   })
 
   /**
+   * Restart the application.
+   *
+   * Relaunches the app and exits the current instance. Used when settings
+   * changes require a restart to take full effect (e.g., language changes).
+   *
+   * @returns Promise<void>
+   *
+   * @example
+   * // Restart app after language change
+   * await window.app.restart()
+   */
+  wrapIpcHandler('app:restart', async () => {
+    app.relaunch()
+    app.exit(0)
+  })
+
+  /**
    * Open system date/time settings.
    *
    * Opens the operating system's region & language settings where users can change

@@ -15,6 +15,7 @@ import { ProgressRing } from './components/ProgressRing'
 import { UnsavedChangesProvider } from './contexts/UnsavedChangesProvider'
 import { useUnsavedChanges } from './hooks/useUnsavedChanges'
 import { rendererLog } from './services/logging.service'
+import i18next from './i18n/config'
 
 /**
  * Map startup page setting to route path
@@ -62,6 +63,24 @@ function AppContent(): React.JSX.Element {
       }
     }
     void loadStartupPreference()
+  }, [])
+
+  // Load display language preference from settings and apply it
+  useEffect(() => {
+    async function loadLanguagePreference(): Promise<void> {
+      try {
+        const settings = await globalThis.settings.load()
+        if (settings.success && settings.data.language?.displayLanguage) {
+          const userLanguage = settings.data.language.displayLanguage
+          await i18next.changeLanguage(userLanguage)
+          rendererLog.info(`[App] Display language set to: ${userLanguage}`)
+        }
+      } catch (error) {
+        rendererLog.error('[App] Failed to load display language setting:', error)
+        // Fall back to default (en-GB) already set in i18n config
+      }
+    }
+    void loadLanguagePreference()
   }, [])
 
   // Check for update completion flag on startup

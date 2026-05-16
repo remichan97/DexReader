@@ -1,5 +1,6 @@
 import { getMainWindow, setHasUnsavedChanges } from '../../window'
 import { wrapIpcHandler } from '../wrap-handler'
+import i18next from '../../i18n/i18n.config'
 
 export function registerAdditionalDialogHandlers(): void {
   /**
@@ -72,8 +73,8 @@ export function registerAdditionalDialogHandlers(): void {
       const result = await dialog.showMessageBox(mainWindow, {
         type: 'warning',
         buttons: [
-          (cancelLabel as string | undefined) || 'Cancel',
-          (confirmLabel as string | undefined) || 'OK'
+          (cancelLabel as string | undefined) || i18next.t('common:button.cancel'),
+          (confirmLabel as string | undefined) || i18next.t('common:button.ok')
         ],
         defaultId: 1,
         cancelId: 0,
