@@ -473,5 +473,13 @@
       "skipCoverPages": "Bỏ qua trang bìa",
       "readRightToLeft": "Đọc từ phải sang trái"
     }
+  },
+  "changeLanguage": {
+    "title": "Thay đổi ngôn ngữ hiển thị",
+    "message": "Tùy chọn ngôn ngữ của bạn đã được cập nhật thành {{language}}. Để có thể áp dụng đầy đủ thay đổi này trên toàn ứng dụng, DexReader cần được khởi động lại. Bạn có muốn khởi động lại DexReader ngay bây giờ không?",
+    "buttons": {
+      "restart": "Có, Khởi động lại ngay",
+      "later": "Không, để sau"
+    }
   }
 }

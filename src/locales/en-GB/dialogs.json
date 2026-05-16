@@ -460,5 +460,13 @@
       "skipCoverPages": "Skip cover pages",
       "readRightToLeft": "Read right-to-left"
     }
+  },
+  "changeLanguage": {
+    "title": "Display Language Change",
+    "message": "Your language preference has been updated to {{language}}. To fully apply the language change across the app, a restart is required. Would you like to restart DexReader now?",
+    "buttons": {
+      "restart": "Yes, Restart Now",
+      "later": "Maybe Later"
+    }
   }
 }
