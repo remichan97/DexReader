@@ -5,6 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [1.4.0] - 2026-05-17
+
+### Added
+
+- Add full internationalization (i18n) support with multiple language locales
+  - British English (en-GB) - default locale
+  - American English (en-US) - with localized spellings (color vs colour, organize vs organise, etc.)
+  - Vietnamese (vi-VN) - complete Vietnamese translation
+- Add display language selection in Settings → Appearance
+  - Real-time language switching without app restart for most UI elements
+  - Automatic app restart prompt when language change affects backend components
+  - Persistent language preference across sessions
+- Add comprehensive translation coverage across all application views
+  - Browse view with all search filters and controls
+  - Library view with collection management
+  - Downloads view with queue management
+  - Reader view with all reading controls and navigation
+  - Settings view with all configuration options
+  - Manga details view with metadata and chapter lists
+  - History view with reading history
+  - All dialogs and confirmation prompts
+  - Error messages and validation feedback
+  - Menu bar and context menus
+  - Loading states and status banners
+- Add i18n infrastructure for both main and renderer processes
+  - i18next integration with React (react-i18next)
+  - File system backend for locale file loading (i18next-fs-backend)
+  - Automatic locale file copying during build process
+  - Type-safe translation keys with TypeScript support
+- Add aria-label translations for improved accessibility across all locales
+- Add restart dialog component for language change notifications
+
+### Changed
+
+- Update all hard-coded UI text to use localized translation keys
+- Update dialog system to use Electron native dialogs instead of web alert API
+- Update Incognito Banner to use localized text instead of hard-coded strings
+- Update `protobufjs` dependency from 8.0.1 to 8.0.2 (security update)
+- Restructure settings to include new "Display Language" category
+
+### Fixed
+
+- Fix missing translation keys across all views (Browse, Library, Downloads, Reader, Settings, History, Manga Details)
+- Fix string template syntax issues in locale files
+- Fix duplicate translation entries in locale files
+- Fix build configuration to properly copy locale files to application bundle
+- Fix sidebar navigation labels to use translations
+- Fix status banners and filtering controls to use localized text
+- Fix backend default translation keys for native UI elements
+
+---
+
 ## [1.3.0] - 2026-05-09
 
 ### Added

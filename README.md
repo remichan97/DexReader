@@ -12,7 +12,8 @@ A modern, cross-platform manga reader for MangaDex built with Electron, React, a
 - 📚 **Library Management** - Organise your manga library with favourites, collections, and reading history. Advanced search syntax with 6 filter types (status, tag, author, artist, year, downloaded)
 - 📖 **Flexible Reader** - Multiple reading modes (single page, double page, vertical scroll) with zoom and pan controls
 - ⬇️ **Offline Reading** - Download chapters for offline access with parallel download support
-- 🎨 **Modern UI** - Clean, responsive interface following Windows 11 design principles (to our best abilities)
+- � **Multi-Language Support** - Full internationalization with British English, American English, and Vietnamese locales
+- �🎨 **Modern UI** - Clean, responsive interface following Windows 11 design principles (to our best abilities)
 - ⚡ **High Performance** - Optimized database queries, image caching, and React rendering for smooth experience
 
 ## Download
@@ -91,12 +92,13 @@ npm run build:linux
 
 ## Project Status
 
-**Current Version**: 1.3.0 (May 9, 2026) 🎉
+**Current Version**: 1.4.0 (May 17, 2026) 🌐
 
-DexReader v1.3.0 introduces search preset functionality:
+DexReader v1.4.0 introduces full internationalization support:
 
 - ✅ Complete MangaDex extensive manga library integration (browse, search, read)
-- ✅ **Search Presets** - Save and reuse search configurations with one click
+- ✅ **Multi-Language Support** - Three locales supported (British English, American English, Vietnamese)
+- ✅ Search presets - Save and reuse search configurations with one click
 - ✅ Offline reading with download management
 - ✅ Auto-update system with post-update "What's New" banner
 - ✅ Configurable startup page (Browse, Library, or Downloads)
