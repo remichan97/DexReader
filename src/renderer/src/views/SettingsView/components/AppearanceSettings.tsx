@@ -61,15 +61,20 @@ export function AppearanceSettings({
     const result = await globalThis.settings.openSystemDateSettings()
     if (!result.success || !result.data) {
       // Fallback message if platform not supported or failed
-      alert(
-        t('appearance.configureDateFallback', {
+      globalThis.api.showDialog({
+        message: t('appearance.configureDateFallback', {
           defaultValue:
             'Unable to open system settings automatically. Please open your system date/time settings manually:\n\n' +
             'Windows: Settings → Time & Language → Region\n' +
             'macOS: System Preferences → Language & Region\n' +
             'Linux: Check your desktop environment settings'
+        }),
+        type: 'error',
+        buttons: [t('common:button.ok')],
+        label: t('appearance.configureDateFallbackTitle', {
+          defaultValue: 'Unable to Open system settings'
         })
-      )
+      })
     }
   }
 
