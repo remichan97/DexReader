@@ -1,6 +1,7 @@
 import { useState, memo } from 'react'
 import { MangaStatus, BaseComponentProps } from '@renderer/types/components'
 import { getLanguageName } from '@renderer/constants/language-list.constant'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import './MangaCard.css'
 
 export interface MangaCardProps extends BaseComponentProps {
@@ -124,6 +125,7 @@ export const MangaCard = memo(function MangaCard({
   className = '',
   'aria-label': ariaLabel
 }: Readonly<MangaCardProps>): React.JSX.Element {
+  const { t } = useTranslation(['common'])
   const [imageError, setImageError] = useState(false)
   const [imageLoaded, setImageLoaded] = useState(false)
 
@@ -158,18 +160,19 @@ export const MangaCard = memo(function MangaCard({
   }
 
   const statusLabels: Record<MangaStatus, string> = {
-    ongoing: 'Ongoing',
-    completed: 'Completed',
-    hiatus: 'Hiatus',
-    cancelled: 'Cancelled'
+    ongoing: t('common:manga.status.ongoing'),
+    completed: t('common:manga.status.completed'),
+    hiatus: t('common:manga.status.hiatus'),
+    cancelled: t('common:manga.status.cancelled')
   }
 
   // Generate comprehensive aria-label
   const defaultAriaLabel = (): string => {
     let label = title
-    if (author) label += ` by ${author}`
+    if (author) label += ` ${t('common:manga.by')} ${author}`
     if (status) label += ` - ${statusLabels[status]}`
-    if (hasProgress) label += ` - ${chaptersRead} of ${totalChapters} chapters read`
+    if (hasProgress)
+      label += ` - ${t('common:manga.chaptersRead', { read: chaptersRead, total: totalChapters })}`
     return label
   }
 
@@ -205,12 +208,12 @@ export const MangaCard = memo(function MangaCard({
               <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
               <line x1="12" y1="22.08" x2="12" y2="12" />
             </svg>
-            <span>Cover unavailable</span>
+            <span>{t('common:manga.coverUnavailable')}</span>
           </div>
         ) : (
           <img
             src={coverUrl}
-            alt={`${title} cover`}
+            alt={t('common:manga.coverAlt', { title })}
             className="manga-card__cover"
             loading="lazy"
             onLoad={handleImageLoad}
@@ -240,7 +243,7 @@ export const MangaCard = memo(function MangaCard({
           <div
             className="manga-card__download-badge flex items-center justify-center"
             aria-hidden="true"
-            title="Downloaded (not in library)"
+            title={t('common:manga.downloadedNotInLibrary')}
           >
             <svg
               className="manga-card__download-badge-icon"
@@ -258,7 +261,7 @@ export const MangaCard = memo(function MangaCard({
           <div
             className="manga-card__download-overlay flex items-center justify-center"
             aria-hidden="true"
-            title="Available offline"
+            title={t('common:manga.availableOffline')}
           >
             <svg
               className="manga-card__download-overlay-icon"
@@ -277,7 +280,9 @@ export const MangaCard = memo(function MangaCard({
             <button
               className="manga-card__favorite-button flex items-center justify-center"
               onClick={handleFavouriteClick}
-              aria-label={isFavourite ? 'Unfavourite' : 'Add to favourites'}
+              aria-label={
+                isFavourite ? t('common:manga.unfavourite') : t('common:manga.addToFavourites')
+              }
               type="button"
             >
               <svg
@@ -304,7 +309,10 @@ export const MangaCard = memo(function MangaCard({
             className="manga-card__progress-bar"
             value={progressPercentage}
             max={100}
-            aria-label={`${chaptersRead} of ${totalChapters} chapters read`}
+            aria-label={t('common:manga.progressAriaLabel', {
+              read: chaptersRead,
+              total: totalChapters
+            })}
           />
         )}
       </div>
@@ -341,7 +349,7 @@ export const MangaCard = memo(function MangaCard({
 
         {hasProgress && (
           <p className="manga-card__progress-text">
-            {chaptersRead} / {totalChapters} chapters
+            {t('common:manga.chapters', { read: chaptersRead, total: totalChapters })}
           </p>
         )}
       </div>

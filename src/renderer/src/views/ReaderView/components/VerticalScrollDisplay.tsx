@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react'
 import { LoadingState } from '@renderer/components/LoadingState'
 import { Warning48Regular } from '@fluentui/react-icons'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import type { ImageUrlResponse } from '../../../../../preload/index.d'
 
 /**
@@ -24,6 +25,7 @@ export function VerticalScrollDisplay({
   onImageLoad,
   onImageError
 }: VerticalScrollDisplayProps): React.JSX.Element {
+  const { t } = useTranslation('reader')
   const containerRef = useRef<HTMLDivElement>(null)
   const pageRefsRef = useRef<Map<number, HTMLDivElement>>(new Map())
 
@@ -94,14 +96,14 @@ export function VerticalScrollDisplay({
               {hasError && !isLoading && (
                 <div className="vertical-scroll-page__error flex flex-col items-center justify-center gap-3">
                   <Warning48Regular />
-                  <p>Failed to load page {index + 1}</p>
+                  <p>{t('verticalScroll.error.failed', { page: index + 1 })}</p>
                 </div>
               )}
 
               {!hasError && (
                 <img
                   src={image.url}
-                  alt={`Page ${index + 1} of ${images.length}`}
+                  alt={t('verticalScroll.image.alt', { current: index + 1, total: images.length })}
                   className="vertical-scroll-container__image"
                   onLoad={() => onImageLoad(index)}
                   onError={() => onImageError(index)}

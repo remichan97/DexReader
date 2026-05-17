@@ -1,5 +1,6 @@
 import React, { type JSX } from 'react'
 import { ProgressRing } from '@renderer/components/ProgressRing'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 
 /**
  * Page Display Component
@@ -53,6 +54,8 @@ export function PageDisplay({
   onNavigateLeft,
   onNavigateRight
 }: PageDisplayProps): JSX.Element {
+  const { t } = useTranslation('reader')
+
   // Calculate image transform style
   const getCursor = (): string => {
     if (fitMode === 'custom' || zoomLevel > 1) {
@@ -75,17 +78,17 @@ export function PageDisplay({
     <div className="reader-page-container flex items-center justify-center">
       {isLoading && (
         <div className="reader-page-loading flex flex-col items-center justify-center">
-          <ProgressRing size="large" aria-label="Loading page" />
+          <ProgressRing size="large" aria-label={t('page.loading.ariaLabel')} />
           <p className="reader-page-loading__text">
-            Loading page {pageNumber + 1} of {totalPages}...
+            {t('page.loading.text', { current: pageNumber + 1, total: totalPages })}
           </p>
         </div>
       )}
 
       {hasError && !isLoading && (
         <div className="reader-page-error flex flex-col items-center justify-center">
-          <p>Failed to load page {pageNumber + 1}</p>
-          <p className="reader-page-error__hint">Try navigating to another page</p>
+          <p>{t('page.error.failed', { page: pageNumber + 1 })}</p>
+          <p className="reader-page-error__hint">{t('page.error.hint')}</p>
         </div>
       )}
 
@@ -102,7 +105,10 @@ export function PageDisplay({
           onWheel={onWheel}
           role="button"
           tabIndex={0}
-          aria-label={`Page ${pageNumber + 1} of ${totalPages}. Click or use keyboard to navigate.`}
+          aria-label={t('page.navigation.ariaLabel', {
+            current: pageNumber + 1,
+            total: totalPages
+          })}
           style={{ display: isLoading ? 'none' : 'flex' }}
         >
           {/* Navigation indicators - clickable even when zoomed */}
@@ -113,7 +119,7 @@ export function PageDisplay({
               e.stopPropagation()
               onNavigateLeft()
             }}
-            aria-label="Previous page"
+            aria-label={t('page.navigation.previous')}
           >
             <span>◀</span>
           </button>
@@ -124,14 +130,14 @@ export function PageDisplay({
               e.stopPropagation()
               onNavigateRight()
             }}
-            aria-label="Next page"
+            aria-label={t('page.navigation.next')}
           >
             <span>▶</span>
           </button>
 
           <img
             src={imageUrl}
-            alt={`Page ${pageNumber + 1} of ${totalPages}`}
+            alt={t('page.image.alt', { current: pageNumber + 1, total: totalPages })}
             className={`reader-page__image reader-page__image--fit-${fitMode === 'custom' ? 'height' : fitMode}`}
             style={imageStyle}
             onLoad={onImageLoad}
