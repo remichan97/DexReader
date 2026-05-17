@@ -159,7 +159,10 @@ export function registerAdditionalDialogHandlers(): void {
       const { dialog } = await import('electron')
       const result = await dialog.showMessageBox(mainWindow, {
         type: options.type || 'question',
-        buttons: options.buttons || ['OK', 'Cancel'],
+        buttons: options.buttons || [
+          i18next.t('common:button.ok'),
+          i18next.t('common:button.cancel')
+        ],
         defaultId: options.defaultId ?? 0,
         cancelId: options.cancelId ?? (options.buttons?.length ?? 1) - 1,
         message: options.message,
