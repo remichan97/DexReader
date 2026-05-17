@@ -67,6 +67,11 @@
       "resultsPerPage": "Kết quả mỗi trang: {{count}}"
     }
   },
+  "preset": {
+    "deleteTitle": "Xóa \"{{name}}\"?",
+    "deleteMessage": "Thao tác này không thể hoàn tác. Tìm kiếm hiện tại của bạn sẽ vẫn còn.",
+    "confirmDelete": "Có, Xóa"
+  },
   "downloadConfirmation": {
     "titles": {
       "single": "Tải chương?",
@@ -455,6 +460,9 @@
     },
     "buttons": {
       "cancel": "Hủy nhập"
+    },
+    "info": {
+      "description": "Đang nhập manga từ bản sao lưu Tachiyomi/Mihon của bạn. Quá trình này có thể mất vài phút tùy thuộc vào kích thước thư viện."
     }
   },
   "readerSettings": {

@@ -87,5 +87,52 @@
   "documentTitle": {
     "loading": "Đang tải... - DexReader",
     "reading": "{{manga}} - {{chapter}} - Trang {{current}}/{{total}} - DexReader"
+  },
+  "page": {
+    "loading": {
+      "ariaLabel": "Đang tải trang",
+      "text": "Đang tải trang {{current}} / {{total}}..."
+    },
+    "error": {
+      "failed": "Không thể tải trang {{page}}",
+      "hint": "Thử chuyển sang trang khác"
+    },
+    "navigation": {
+      "ariaLabel": "Trang {{current}} / {{total}}. Nhấp hoặc dùng phím để điều hướng.",
+      "previous": "Trang trước",
+      "next": "Trang tiếp"
+    },
+    "image": {
+      "alt": "Trang {{current}} / {{total}}"
+    }
+  },
+  "verticalScroll": {
+    "error": {
+      "failed": "Không thể tải trang {{page}}"
+    },
+    "image": {
+      "alt": "Trang {{current}} / {{total}}"
+    }
+  },
+  "doublePage": {
+    "loading": {
+      "ariaLabel": "Đang tải các trang",
+      "text": "Đang tải các trang..."
+    },
+    "error": {
+      "failed": "Không thể tải một hoặc nhiều trang",
+      "hint": "Thử chuyển sang trang khác"
+    },
+    "navigation": {
+      "previous": "Các trang trước",
+      "next": "Các trang tiếp"
+    },
+    "image": {
+      "alt": "Trang {{current}} / {{total}}"
+    }
+  },
+  "source": {
+    "streamingOnline": "Đang stream từ MangaDex",
+    "readingLocal": "Đọc từ bộ nhớ cục bộ"
   }
 }

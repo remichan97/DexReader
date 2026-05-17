@@ -85,5 +85,52 @@
   "documentTitle": {
     "loading": "Loading... - DexReader",
     "reading": "{{manga}} - {{chapter}} - Page {{current}}/{{total}} - DexReader"
+  },
+  "page": {
+    "loading": {
+      "ariaLabel": "Loading page",
+      "text": "Loading page {{current}} of {{total}}..."
+    },
+    "error": {
+      "failed": "Failed to load page {{page}}",
+      "hint": "Try navigating to another page"
+    },
+    "navigation": {
+      "ariaLabel": "Page {{current}} of {{total}}. Click or use keyboard to navigate.",
+      "previous": "Previous page",
+      "next": "Next page"
+    },
+    "image": {
+      "alt": "Page {{current}} of {{total}}"
+    }
+  },
+  "verticalScroll": {
+    "error": {
+      "failed": "Failed to load page {{page}}"
+    },
+    "image": {
+      "alt": "Page {{current}} of {{total}}"
+    }
+  },
+  "doublePage": {
+    "loading": {
+      "ariaLabel": "Loading pages",
+      "text": "Loading pages..."
+    },
+    "error": {
+      "failed": "Failed to load one or more pages",
+      "hint": "Try navigating to another page"
+    },
+    "navigation": {
+      "previous": "Previous pages",
+      "next": "Next pages"
+    },
+    "image": {
+      "alt": "Page {{current}} of {{total}}"
+    }
+  },
+  "source": {
+    "streamingOnline": "Streaming from MangaDex",
+    "readingLocal": "Reading from local storage"
   }
 }

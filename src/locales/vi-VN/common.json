@@ -294,7 +294,9 @@
     "filters": "Bộ lọc",
     "filtersActive": "{{count}} đang bật",
     "hidePassword": "Ẩn mật khẩu",
-    "showPassword": "Hiển mật khẩu"
+    "showPassword": "Hiển mật khẩu",
+    "nextPage": "Trang tiếp theo",
+    "previousPage": "Trang trước"
   },
   "statusBar": {
     "incognitoActive": "Bạn đã vào Chế độ Ẩn danh — Không ghi nhận tiến trình đọc"
@@ -341,5 +343,50 @@
       "gigabytes": "GB",
       "perSecond": "/giây"
     }
+  },
+  "error": {
+    "criticalTitle": "Rất tiếc, có lỗi xảy ra",
+    "componentTitle": "Không thể tải phần này",
+    "criticalMessage": "Rất tiếc! Đã xảy ra lỗi không mong muốn. Hãy thử tải lại nếu lỗi tiếp tục xảy ra.",
+    "componentMessage": "Phần này hiện không hoạt động. Hãy thử lại hoặc khám phá các phần khác.",
+    "technicalDetails": "Chi tiết kỹ thuật",
+    "tryAgain": "Thử lại",
+    "reloadApp": "Tải lại ứng dụng",
+    "fallbackMessage": "Đã xảy ra lỗi",
+    "recoveryTitle": "Không thành công",
+    "retrying": "Đang thử lại..."
+  },
+  "manga": {
+    "status": {
+      "ongoing": "Đang tiến hành",
+      "completed": "Hoàn thành",
+      "hiatus": "Tạm ngưng",
+      "cancelled": "Đã hủy"
+    },
+    "coverUnavailable": "Không có ảnh bìa",
+    "chapters": "{{read}} / {{total}} chương",
+    "by": "bởi",
+    "chaptersRead": "{{read}} trong {{total}} chương đã đọc",
+    "unfavourite": "Bỏ yêu thích",
+    "addToFavourites": "Thêm vào yêu thích",
+    "downloadedNotInLibrary": "Đã tải (không có trong thư viện)",
+    "availableOffline": "Có sẵn ngoại tuyến",
+    "coverAlt": "Ảnh bìa {{title}}",
+    "progressAriaLabel": "{{read}} trong {{total}} chương đã đọc"
+  },
+  "preset": {
+    "loading": "Đang tải các mẫu...",
+    "noPreset": "Không có mẫu",
+    "selectPlaceholder": "Chọn một mẫu",
+    "selectAriaLabel": "Chọn mẫu tìm kiếm",
+    "deleteAriaLabel": "Xóa mẫu",
+    "deleteTitle": "Xóa mẫu này"
+  },
+  "progress": {
+    "defaultLabel": "Tiến trình",
+    "loading": "Đang tải..."
+  },
+  "loading": {
+    "manga": "Đang tải manga..."
   }
 }

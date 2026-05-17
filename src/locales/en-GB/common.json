@@ -294,7 +294,9 @@
     "filters": "Filters",
     "filtersActive": "{{count}} active",
     "hidePassword": "Hide password",
-    "showPassword": "Show password"
+    "showPassword": "Show password",
+    "nextPage": "Next page",
+    "previousPage": "Previous page"
   },
   "statusBar": {
     "incognitoActive": "You've gone Incognito — Progress tracking is disabled"
@@ -341,5 +343,50 @@
       "gigabytes": "GB",
       "perSecond": "/s"
     }
+  },
+  "error": {
+    "criticalTitle": "Oops, something broke",
+    "componentTitle": "Can't load this right now",
+    "criticalMessage": "Oops! Something unexpected happened. Try reloading if this keeps happening.",
+    "componentMessage": "This part isn't working right now. Try again or explore other sections.",
+    "technicalDetails": "Technical details",
+    "tryAgain": "Try Again",
+    "reloadApp": "Reload App",
+    "fallbackMessage": "Something went wrong",
+    "recoveryTitle": "That didn't work",
+    "retrying": "Retrying..."
+  },
+  "manga": {
+    "status": {
+      "ongoing": "Ongoing",
+      "completed": "Completed",
+      "hiatus": "Hiatus",
+      "cancelled": "Cancelled"
+    },
+    "coverUnavailable": "Cover unavailable",
+    "chapters": "{{read}} / {{total}} chapters",
+    "by": "by",
+    "chaptersRead": "{{read}} of {{total}} chapters read",
+    "unfavourite": "Unfavourite",
+    "addToFavourites": "Add to favourites",
+    "downloadedNotInLibrary": "Downloaded (not in library)",
+    "availableOffline": "Available offline",
+    "coverAlt": "{{title}} cover",
+    "progressAriaLabel": "{{read}} of {{total}} chapters read"
+  },
+  "preset": {
+    "loading": "Loading presets...",
+    "noPreset": "No Preset",
+    "selectPlaceholder": "Select a preset",
+    "selectAriaLabel": "Select search preset",
+    "deleteAriaLabel": "Delete preset",
+    "deleteTitle": "Delete this preset"
+  },
+  "progress": {
+    "defaultLabel": "Progress",
+    "loading": "Loading..."
+  },
+  "loading": {
+    "manga": "Loading manga..."
   }
 }

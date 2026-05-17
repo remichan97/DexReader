@@ -67,6 +67,11 @@
       "resultsPerPage": "Results per page: {{count}}"
     }
   },
+  "preset": {
+    "deleteTitle": "Delete \"{{name}}\"?",
+    "deleteMessage": "This can't be undone. Your current search will remain active.",
+    "confirmDelete": "Yes, Delete"
+  },
   "downloadConfirmation": {
     "titles": {
       "single": "Download Chapter?",
@@ -442,6 +447,9 @@
     },
     "buttons": {
       "cancel": "Cancel Import"
+    },
+    "info": {
+      "description": "Importing manga from your Tachiyomi/Mihon backup. This may take a few moments depending on the size of your library."
     }
   },
   "readerSettings": {
