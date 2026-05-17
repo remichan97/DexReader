@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { useEffect, useCallback } from 'react'
 import { Select, type SelectOption } from '../Select'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import './ReadingModeSelector.css'
 
 export type ReadingMode = 'single' | 'double' | 'vertical'
@@ -16,6 +17,8 @@ export function ReadingModeSelector({
   onChange,
   disabled = false
 }: ReadingModeSelectorProps): JSX.Element {
+  const { t } = useTranslation(['common'])
+
   // Cycle through modes with M key
   const handleKeyPress = useCallback(
     (event: KeyboardEvent) => {
@@ -43,15 +46,15 @@ export function ReadingModeSelector({
   const options: SelectOption[] = [
     {
       value: 'single',
-      label: 'Single Page'
+      label: t('common:readingMode.singlePage')
     },
     {
       value: 'double',
-      label: 'Double Page'
+      label: t('common:readingMode.doublePage')
     },
     {
       value: 'vertical',
-      label: 'Vertical Scroll'
+      label: t('common:readingMode.verticalScroll')
     }
   ]
 
@@ -62,8 +65,8 @@ export function ReadingModeSelector({
         onChange={(newValue) => onChange(newValue as ReadingMode)}
         options={options}
         disabled={disabled}
-        label="Reading Mode"
-        helperText="Press M to cycle modes"
+        label={t('common:label.readingMode')}
+        helperText={t('common:form.helperText.pressMToCycle')}
       />
     </div>
   )

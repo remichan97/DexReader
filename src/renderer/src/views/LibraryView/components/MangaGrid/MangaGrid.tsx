@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { MangaCard } from '@renderer/components/MangaCard'
 import { ContextMenu } from '@renderer/components/ContextMenu'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 
 interface MangaGridProps {
   readonly items: Array<{
@@ -26,6 +27,8 @@ export function MangaGrid({
   onAddToCollection,
   onAddToLibrary
 }: MangaGridProps): JSX.Element {
+  const { t } = useTranslation(['common'])
+
   return (
     <div className="library__grid">
       {items.map((manga) => (
@@ -53,29 +56,29 @@ export function MangaGrid({
               ? [
                   // Favorited manga
                   {
-                    label: 'Go to Detail',
+                    label: t('common:action.goToDetail'),
                     onClick: () => onClick?.(manga.mangaId)
                   },
                   { type: 'separator' },
                   {
-                    label: 'Add to Collection...',
+                    label: t('common:action.addToCollection'),
                     onClick: () => onAddToCollection?.(manga.mangaId)
                   },
                   { type: 'separator' },
                   {
-                    label: 'Remove from Library',
+                    label: t('common:action.removeFromLibrary'),
                     onClick: () => onFavourite?.(manga.mangaId)
                   }
                 ]
               : [
                   // Non-favorited downloaded manga
                   {
-                    label: 'Go to Detail',
+                    label: t('common:action.goToDetail'),
                     onClick: () => onClick?.(manga.mangaId)
                   },
                   { type: 'separator' },
                   {
-                    label: 'Add to Library',
+                    label: t('common:action.addToLibrary'),
                     onClick: () => onAddToLibrary?.(manga.mangaId)
                   }
                 ]

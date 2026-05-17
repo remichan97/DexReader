@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { History24Regular, PlayCircle24Regular, Delete24Regular } from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import { getLanguageName } from '@renderer/constants/language-list.constant'
 
 // Type extracted from IPC response - includes metadata via JOINs
@@ -17,7 +18,10 @@ interface ReadingHistoryCardProps {
 /**
  * Format relative time from Unix timestamp
  */
-function getRelativeTime(timestamp: number): string {
+function getRelativeTime(
+  timestamp: number,
+  t: (key: string, options?: Record<string, unknown>) => string
+): string {
   const now = Date.now()
   const diff = now - timestamp * 1000 // Convert from Unix timestamp to ms
   const seconds = Math.floor(diff / 1000)
@@ -28,13 +32,16 @@ function getRelativeTime(timestamp: number): string {
   if (days > 7) {
     return new Date(timestamp * 1000).toLocaleDateString()
   } else if (days > 0) {
-    return `${days} day${days === 1 ? '' : 's'} ago`
+    const unit = days === 1 ? t('common:time.day') : `${t('common:time.day')}s`
+    return `${days} ${unit} ${t('common:time.ago')}`
   } else if (hours > 0) {
-    return `${hours} hour${hours === 1 ? '' : 's'} ago`
+    const unit = hours === 1 ? t('common:time.hour') : `${t('common:time.hour')}s`
+    return `${hours} ${unit} ${t('common:time.ago')}`
   } else if (minutes > 0) {
-    return `${minutes} minute${minutes === 1 ? '' : 's'} ago`
+    const unit = minutes === 1 ? t('common:time.minute') : `${t('common:time.minute')}s`
+    return `${minutes} ${unit} ${t('common:time.ago')}`
   } else {
-    return 'Just now'
+    return t('common:time.justNow', { defaultValue: 'Just now' })
   }
 }
 
@@ -58,6 +65,8 @@ export function ReadingHistoryCard({
   onContinueReading,
   onRemove
 }: ReadingHistoryCardProps): JSX.Element {
+  const { t } = useTranslation(['history', 'common'])
+
   return (
     <div className="reading-history-card flex items-center gap-3">
       {/* Cover Image */}
@@ -84,7 +93,8 @@ export function ReadingHistoryCard({
           )}
         </p>
         <p className="reading-history-card__meta">
-          Last read {getRelativeTime(progress.lastReadAt)}
+          {t('history:card.lastRead', { defaultValue: 'Last read' })}{' '}
+          {getRelativeTime(progress.lastReadAt, t)}
         </p>
       </div>
 
@@ -96,14 +106,14 @@ export function ReadingHistoryCard({
           onClick={onContinueReading}
           icon={<PlayCircle24Regular />}
         >
-          Continue
+          {t('common:button.continue')}
         </Button>
         <Button
           variant="ghost"
           size="small"
           onClick={onRemove}
           icon={<Delete24Regular />}
-          aria-label="Remove from history"
+          aria-label={t('history:card.removeAriaLabel', { defaultValue: 'Remove from history' })}
         >
           {''}
         </Button>

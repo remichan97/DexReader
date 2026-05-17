@@ -1,0 +1,136 @@
+{
+  "pageTitle": "Reader",
+  "header": {
+    "chaptersButton": "Chapters",
+    "settingsButton": "Settings",
+    "settingsLabel": "Reader settings (reading mode)",
+    "zoomLabel": "Zoom controls (Z to cycle fit modes)",
+    "zoomPercentage": "{{percent}}%",
+    "pageCounter": {
+      "single": "{{current}}/{{total}}",
+      "double": "Page {{left}}-{{right}}/{{total}}",
+      "doubleRtl": "Page {{right}}-{{left}}/{{total}}"
+    },
+    "incognitoBadge": "Incognito",
+    "incognitoTooltip": "Progress tracking is disabled. Go to Settings or File menu to enable.",
+    "closeChapterList": "Close chapter list",
+    "openChapterList": "Open chapter list"
+  },
+  "endOfChapter": {
+    "title": "End of Chapter {{number}}",
+    "subtitle": "{{title}}",
+    "previousChapter": "← Previous Chapter",
+    "nextChapter": "Next Chapter →",
+    "chapterInfo": "Ch. {{number}}: {{title}}",
+    "noMoreChapters": "No more chapters available",
+    "backToDetail": "Back to Manga Details"
+  },
+  "chapterList": {
+    "noChapters": "No chapters available",
+    "chapter": "Chapter {{number}}",
+    "chapterWithTitle": "Chapter {{number}}: {{title}}",
+    "chapterShort": "Ch.",
+    "volumeShort": "Vol.",
+    "pages": "{{count}} pages"
+  },
+  "loadingState": {
+    "message": "Loading chapter..."
+  },
+  "errorState": {
+    "offline": {
+      "message": "This chapter isn't downloaded"
+    },
+    "generic": {
+      "title": "Couldn't load this chapter",
+      "message": "We ran into a problem loading the pages for this chapter. This might be a temporary network hiccup, or the chapter data might not be available right now."
+    },
+    "goBackButton": "Go Back",
+    "goToLibraryButton": "Go to Library",
+    "showTechnicalDetails": "Show technical details"
+  },
+  "settings": {
+    "readingMode": "Reading Mode",
+    "doublePageOptions": "Double Page Mode Options",
+    "skipCoverPages": "Skip cover pages (show first page alone)",
+    "readRightToLeft": "Read right-to-left (manga style)"
+  },
+  "zoomControls": {
+    "sectionTitle": {
+      "fitMode": "Fit Mode",
+      "zoom": "Zoom"
+    },
+    "fitWidth": "Width",
+    "fitHeight": "Height",
+    "actualSize": "100%",
+    "zoomIn": "+",
+    "zoomOut": "-",
+    "reset": "Reset to Default",
+    "tooltips": {
+      "fitWidth": "Fit image to page width",
+      "fitHeight": "Fit image to page height",
+      "actualSize": "Show at 100% size (actual size)",
+      "zoomIn": "Zoom in (Ctrl + =)",
+      "zoomOut": "Zoom out (Ctrl + -)",
+      "reset": "Reset to default (fit to height)",
+      "currentZoom": "Current zoom level"
+    },
+    "ariaLabels": {
+      "fitWidth": "Fit to width",
+      "fitHeight": "Fit to height",
+      "actualSize": "Actual size",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out"
+    }
+  },
+  "documentTitle": {
+    "loading": "Loading... - DexReader",
+    "reading": "{{manga}} - {{chapter}} - Page {{current}}/{{total}} - DexReader"
+  },
+  "page": {
+    "loading": {
+      "ariaLabel": "Loading page",
+      "text": "Loading page {{current}} of {{total}}..."
+    },
+    "error": {
+      "failed": "Failed to load page {{page}}",
+      "hint": "Try navigating to another page"
+    },
+    "navigation": {
+      "ariaLabel": "Page {{current}} of {{total}}. Click or use keyboard to navigate.",
+      "previous": "Previous page",
+      "next": "Next page"
+    },
+    "image": {
+      "alt": "Page {{current}} of {{total}}"
+    }
+  },
+  "verticalScroll": {
+    "error": {
+      "failed": "Failed to load page {{page}}"
+    },
+    "image": {
+      "alt": "Page {{current}} of {{total}}"
+    }
+  },
+  "doublePage": {
+    "loading": {
+      "ariaLabel": "Loading pages",
+      "text": "Loading pages..."
+    },
+    "error": {
+      "failed": "Failed to load one or more pages",
+      "hint": "Try navigating to another page"
+    },
+    "navigation": {
+      "previous": "Previous pages",
+      "next": "Next pages"
+    },
+    "image": {
+      "alt": "Page {{current}} of {{total}}"
+    }
+  },
+  "source": {
+    "streamingOnline": "Streaming from MangaDex",
+    "readingLocal": "Reading from local storage"
+  }
+}

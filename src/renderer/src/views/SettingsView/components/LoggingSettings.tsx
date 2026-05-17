@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Radio, RadioGroup } from '@renderer/components/Radio'
 import { Button } from '@renderer/components/Button'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import { useToastStore } from '@renderer/stores'
 import { rendererLog } from '@renderer/services/logging.service'
 
@@ -13,6 +14,7 @@ export function LoggingSettings({
   retentionDays,
   onRetentionDaysChange
 }: LoggingSettingsProps): React.JSX.Element {
+  const { t } = useTranslation(['settings', 'common', 'errors', 'dialogs'])
   const showToast = useToastStore((state) => state.show)
   const [isDeletingOld, setIsDeletingOld] = useState(false)
   const [isClearing, setIsClearing] = useState(false)
@@ -32,8 +34,8 @@ export function LoggingSettings({
       rendererLog.error('[LoggingSettings] Failed to open logs folder:', error)
       showToast({
         variant: 'error',
-        title: 'Failed to open logs folder',
-        message: 'Could not open the logs folder. Please try again.',
+        title: t('errors:logs.open_failed.title'),
+        message: t('errors:logs.open_failed.message'),
         duration: 4000
       })
     } finally {
@@ -44,8 +46,8 @@ export function LoggingSettings({
   const handleDeleteOldLogs = async (): Promise<void> => {
     // Show confirmation dialog
     const confirmed = await globalThis.api.showConfirmDialog(
-      'Cleanup old logs?',
-      `This will permanently delete all log files older than ${retentionDays} days. This action cannot be undone.`
+      t('dialogs:confirmations.deleteOldLogs.title', { days: retentionDays }),
+      t('dialogs:confirmations.deleteOldLogs.message', { days: retentionDays })
     )
 
     if (!confirmed.success || !confirmed.data) {
@@ -58,16 +60,16 @@ export function LoggingSettings({
       rendererLog.info('[LoggingSettings] Old logs deleted successfully')
       showToast({
         variant: 'success',
-        title: 'Old logs deleted',
-        message: `Cleaned up logs older than ${retentionDays} days`,
+        title: t('settings:logging.deleteOldSuccess'),
+        message: t('settings:logging.deletedOldLogs', { days: retentionDays }),
         duration: 3000
       })
     } catch (error) {
       rendererLog.error('[LoggingSettings] Failed to delete old logs:', error)
       showToast({
         variant: 'error',
-        title: 'Failed to delete old logs',
-        message: 'Could not delete old log files. Please try again.',
+        title: t('errors:logs.delete_old_failed.title'),
+        message: t('errors:logs.delete_old_failed.message'),
         duration: 4000
       })
     } finally {
@@ -78,8 +80,8 @@ export function LoggingSettings({
   const handleClearLogs = async (): Promise<void> => {
     // Show confirmation dialog
     const confirmed = await globalThis.api.showConfirmDialog(
-      'Clear all logs?',
-      'This will permanently delete all log files. This action cannot be undone.'
+      t('dialogs:confirmations.clearAllLogs.title'),
+      t('dialogs:confirmations.clearAllLogs.message')
     )
 
     if (!confirmed.success || !confirmed.data) {
@@ -92,16 +94,16 @@ export function LoggingSettings({
       rendererLog.info('[LoggingSettings] All logs cleared successfully')
       showToast({
         variant: 'success',
-        title: 'Logs cleared',
-        message: 'All logs cleared!',
+        title: t('settings:logging.clearAllSuccess'),
+        message: t('settings:logging.clearedAllLogs'),
         duration: 3000
       })
     } catch (error) {
       rendererLog.error('[LoggingSettings] Failed to clear logs:', error)
       showToast({
         variant: 'error',
-        title: 'Failed to clear logs',
-        message: 'Could not delete log files. Please try again.',
+        title: t('errors:logs.clear_failed.title'),
+        message: t('errors:logs.clear_failed.message'),
         duration: 4000
       })
     } finally {
@@ -113,10 +115,9 @@ export function LoggingSettings({
     <div className="py-4 flex flex-col gap-5">
       {/* Logging Section */}
       <div className="settings-view__section">
-        <h2 className="settings-view__section-heading">Logging</h2>
+        <h2 className="settings-view__section-heading">{t('settings:logging.sectionTitle')}</h2>
         <p className="settings-view__section-description">
-          DexReader maintains log files to help diagnose issues and track application behaviour. You
-          can configure how long logs are retained and manage existing log files from this section.
+          {t('settings:logging.sectionDescription')}
         </p>
 
         <div className="flex flex-col gap-4">
@@ -127,12 +128,12 @@ export function LoggingSettings({
               value={retentionDays.toString()}
               onChange={handleRetentionChange}
               orientation="horizontal"
-              label="Log Retention Period"
+              label={t('settings:logging.retentionLabel')}
             >
-              <Radio value="3" label="3 days" />
-              <Radio value="7" label="7 days (default, Recommended)" />
-              <Radio value="14" label="14 days" />
-              <Radio value="30" label="30 days" />
+              <Radio value="3" label={t('settings:logging.retentionOptions.3')} />
+              <Radio value="7" label={t('settings:logging.retentionOptions.7')} />
+              <Radio value="14" label={t('settings:logging.retentionOptions.14')} />
+              <Radio value="30" label={t('settings:logging.retentionOptions.30')} />
             </RadioGroup>
           </div>
 
@@ -144,7 +145,7 @@ export function LoggingSettings({
               disabled={isOpeningFolder}
               loading={isOpeningFolder}
             >
-              Open Logs Folder
+              {t('settings:logging.openFolderButton')}
             </Button>
             <Button
               variant="secondary"
@@ -152,7 +153,7 @@ export function LoggingSettings({
               disabled={isDeletingOld}
               loading={isDeletingOld}
             >
-              Delete Old Logs
+              {t('settings:logging.deleteOldButton')}
             </Button>
             <Button
               variant="danger"
@@ -160,7 +161,7 @@ export function LoggingSettings({
               disabled={isClearing}
               loading={isClearing}
             >
-              Clear All Logs
+              {t('settings:logging.clearAllButton')}
             </Button>
           </div>
         </div>

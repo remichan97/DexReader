@@ -1,0 +1,34 @@
+{
+  "pageTitle": "Lịch sử đọc",
+  "searchPlaceholder": "Tìm kiếm trong lịch sử đọc của bạn...",
+  "stats": {
+    "mangaRead": "Manga đã đọc",
+    "chapters": "Chương",
+    "pages": "Trang",
+    "minutes": "Phút"
+  },
+  "emptyState": {
+    "title": "Chưa có lịch sử đọc",
+    "message": "Bắt đầu đọc manga để xem tiến trình của bạn ở đây.",
+    "action": "Khám phá Manga"
+  },
+  "searchEmpty": "Không tìm thấy kết quả cho \"{{query}}\"",
+  "loadingState": {
+    "message": "Đang tải lịch sử..."
+  },
+  "liveRegion": {
+    "loading": "Đang tải lịch sử đọc...",
+    "loaded": "{{count}} manga trong lịch sử"
+  },
+  "documentTitle": "Lịch sử đọc - DexReader",
+  "card": {
+    "lastRead": "Đọc lần cuối",
+    "removeAriaLabel": "Xóa khỏi lịch sử"
+  },
+  "toasts": {
+    "progressDeleted": {
+      "title": "Đã xóa tiến trình",
+      "message": "Đã xóa tiến trình đọc khỏi lịch sử."
+    }
+  }
+}

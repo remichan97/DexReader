@@ -1,0 +1,362 @@
+{
+  "network": {
+    "offline": {
+      "message": "Chế độ ngoại tuyến đang bật. Bạn chỉ có thể xem các nội dung đã tải xuống.",
+      "action": "Kết nối trực tuyến để khám phá và tải xuống thêm.",
+      "variants": {
+        "browse": "Khám phá và tìm kiếm yêu cầu kết nối internet. Nếu cần tìm các đầu truyện đã tải xuống, hãy vào Thư viện của bạn.",
+        "search": "Bạn đang ngoại tuyến. Tìm kiếm chỉ khả dụng khi kết nối internet."
+      }
+    },
+    "no_internet": {
+      "title": "Không có internet",
+      "message": "Không thể kết nối ngay bây giờ, nhưng bạn vẫn có thể đọc những gì đã tải xuống.",
+      "action": "Kiểm tra kết nối của bạn nếu bạn muốn khám phá trực tuyến."
+    },
+    "connection_issues": {
+      "title": "Sự cố kết nối",
+      "message": "Không thể kết nối internet ngay bây giờ.",
+      "action": "Kiểm tra kết nối của bạn và thử lại."
+    },
+    "connection_refused": {
+      "title": "Không thể kết nối",
+      "message": "Máy chủ từ chối kết nối.",
+      "action": "Dịch vụ có thể đang ngừng hoạt động. Thử lại sau."
+    },
+    "timeout": {
+      "title": "Quá thời gian",
+      "message": "Yêu cầu đã hết thời gian chờ.",
+      "action": "Thử lại, hoặc kiểm tra kết nối của bạn."
+    }
+  },
+  "file": {
+    "not_found": {
+      "title": "Không tìm thấy tệp",
+      "message": "Không thể tìm thấy tệp đó. Có thể nó đã bị di chuyển hoặc xóa?",
+      "action": "Kiểm tra lại vị trí và thử lại."
+    },
+    "access_denied": {
+      "title": "Không thể truy cập",
+      "message": "Không có quyền truy cập tệp hoặc thư mục này.",
+      "action": "Đảm bảo không có gì khác đang sử dụng nó và kiểm tra quyền truy cập."
+    },
+    "disk_full": {
+      "title": "Đang hết dung lượng",
+      "message": "Không đủ dung lượng trên ổ đĩa của bạn.",
+      "action": "Giải phóng một số dung lượng và thử lại."
+    },
+    "file_system_error": {
+      "title": "Sự cố hệ thống tệp",
+      "message": "Đã xảy ra sự cố khi truy cập tệp.",
+      "action": "Thử lại, hoặc khởi động lại nếu vấn đề tiếp tục xảy ra."
+    },
+    "is_directory": {
+      "title": "Đây là một thư mục",
+      "message": "Thao tác này yêu cầu một tệp, nhưng bạn đã chọn một thư mục.",
+      "action": "Chọn một tệp, không phải một thư mục."
+    },
+    "already_exists": {
+      "title": "Đã tồn tại",
+      "message": "Một tệp hoặc thư mục với tên đó đã tồn tại.",
+      "action": "Chọn một tên khác hoặc xóa tệp hiện có."
+    },
+    "too_many_files_open": {
+      "title": "Quá nhiều tệp đang mở",
+      "message": "Không thể mở thêm tệp ngay bây giờ.",
+      "action": "Đóng một số tệp hoặc khởi động lại ứng dụng."
+    }
+  },
+  "validation": {
+    "invalid_input": {
+      "title": "Thông tin không hợp lệ",
+      "message": "Thông tin bạn nhập không hợp lệ.",
+      "action": "Kiểm tra lại và thử lại."
+    },
+    "invalid_path": {
+      "title": "Đường dẫn không hợp lệ",
+      "message": "Đường dẫn bạn nhập không hợp lệ.",
+      "action": "Đảm bảo đường dẫn hợp lệ và thử lại."
+    }
+  },
+  "api": {
+    "rate_limit": {
+      "title": "Quá nhanh",
+      "message": "Bạn đã đạt đến giới hạn tốc độ.",
+      "action": "Chờ một chút và thử lại."
+    },
+    "not_found": {
+      "title": "Không tìm thấy",
+      "message": "Không thể tìm thấy những gì bạn đang tìm kiếm.",
+      "action": "Kiểm tra ID hoặc URL và thử lại."
+    },
+    "invalid_response": {
+      "title": "Dữ liệu không hợp lệ",
+      "message": "Nhận được dữ liệu không hợp lệ.",
+      "action": "Thử tải lại hoặc kiểm tra xem tệp có bị hỏng không."
+    }
+  },
+  "manga": {
+    "load_failed": {
+      "title": "Không thể tải manga này",
+      "message": "Đã xảy ra sự cố khi cố gắng lấy manga này. Nó có thể không khả dụng, đã bị xóa hoặc có thể có sự cố kết nối.",
+      "action": "Thử lại"
+    },
+    "not_found": {
+      "title": "Không tìm thấy manga",
+      "message": "Không thể tìm thấy manga này. Nó có thể đã bị xóa hoặc ID không chính xác.",
+      "action": "Quay lại và thử manga khác."
+    }
+  },
+  "chapter": {
+    "load_failed": {
+      "title": "Không thể tải chương này",
+      "message": "Đã xảy ra sự cố khi tải các trang cho chương này. Đây có thể là sự cố mạng tạm thời, hoặc dữ liệu chương có thể không khả dụng ngay bây giờ.",
+      "action": "Thử lại"
+    },
+    "not_available": {
+      "title": "Chương không khả dụng",
+      "message": "Chương này hiện không khả dụng.",
+      "action": "Thử lại sau hoặc kiểm tra cập nhật."
+    },
+    "corrupted": {
+      "title": "Dữ liệu chương bị hỏng",
+      "message": "Dữ liệu chương có vẻ bị hỏng hoặc không đầy đủ.",
+      "action": "Thử tải lại hoặc liên hệ hỗ trợ."
+    }
+  },
+  "download": {
+    "failed": {
+      "title": "Tải xuống thất bại",
+      "message": "Tải xuống thất bại sau nhiều lần thử",
+      "action": "Thử lại",
+      "badge": "Tải xuống thất bại. Nhấn để thử lại"
+    },
+    "permanent_failure": {
+      "title": "Tải xuống thất bại vĩnh viễn",
+      "message": "Tải xuống này đã thất bại vĩnh viễn sau nhiều lần thử.",
+      "action": "Kiểm tra kết nối của bạn và thử lại sau."
+    },
+    "database_error": {
+      "title": "Lỗi cơ sở dữ liệu",
+      "message": "Không thể lưu thông tin tải xuống vào cơ sở dữ liệu.",
+      "action": "Thử lại hoặc kiểm tra dung lượng lưu trữ."
+    },
+    "load_failed": {
+      "title": "Không thể tải danh sách tải xuống",
+      "message": "Không thể tải danh sách tải xuống của bạn.",
+      "action": "Thử làm mới hoặc khởi động lại ứng dụng."
+    },
+    "openFolderFailed": "Không thể mở thư mục tải xuống"
+  },
+  "library": {
+    "add_failed": {
+      "title": "Không thể thêm vào thư viện",
+      "message": "Không thể thêm manga này vào thư viện của bạn.",
+      "action": "Thử lại."
+    },
+    "update_failed": {
+      "title": "Không thể cập nhật thư viện",
+      "message": "Không thể cập nhật thư viện của bạn.",
+      "action": "Thử lại hoặc khởi động lại ứng dụng."
+    },
+    "load_failed": {
+      "title": "Không thể tải thư viện",
+      "message": "Không thể tải các mục trong thư viện của bạn.",
+      "action": "Thử làm mới hoặc khởi động lại ứng dụng."
+    },
+    "toggle_failed": {
+      "title": "Không thể thay đổi trạng thái yêu thích",
+      "message": "Không thể cập nhật trạng thái yêu thích.",
+      "action": "Thử lại."
+    },
+    "delete_downloads_failed": {
+      "title": "Không thể xóa tải xuống",
+      "message": "Không thể xóa các chương đã tải xuống.",
+      "action": "Thử lại hoặc kiểm tra quyền truy cập tệp."
+    },
+    "checkDownloadsFailed": {
+      "title": "Không thể kiểm tra tải xuống",
+      "message": "Vui lòng thử lại"
+    }
+  },
+  "collections": {
+    "load_failed": {
+      "title": "Không thể tải bộ sưu tập",
+      "message": "Không thể tải các bộ sưu tập của bạn.",
+      "action": "Thử làm mới hoặc khởi động lại ứng dụng."
+    },
+    "create_failed": {
+      "title": "Không thể tạo bộ sưu tập",
+      "message": "Không thể tạo bộ sưu tập mới.",
+      "action": "Thử lại."
+    },
+    "update_failed": {
+      "title": "Không thể cập nhật bộ sưu tập",
+      "message": "Không thể cập nhật bộ sưu tập.",
+      "action": "Thử lại."
+    },
+    "delete_failed": {
+      "title": "Không thể xóa bộ sưu tập",
+      "message": "Không thể xóa bộ sưu tập.",
+      "action": "Thử lại."
+    },
+    "add_manga_failed": {
+      "title": "Không thể thêm manga vào bộ sưu tập",
+      "message": "Không thể thêm manga này vào bộ sưu tập.",
+      "action": "Thử lại."
+    },
+    "remove_manga_failed": {
+      "title": "Không thể xóa manga khỏi bộ sưu tập",
+      "message": "Không thể xóa manga này khỏi bộ sưu tập.",
+      "action": "Thử lại."
+    }
+  },
+  "presets": {
+    "load_failed": {
+      "title": "Không thể tải các mẫu tìm kiếm của bạn",
+      "message": "Không thể tải các mẫu tìm kiếm của bạn.",
+      "action": "Thử làm mới."
+    },
+    "save_failed": {
+      "title": "Không thể lưu mẫu tìm kiếm",
+      "message": "Không thể lưu mẫu tìm kiếm.",
+      "action": "Thử lại."
+    },
+    "delete_failed": {
+      "title": "Không thể xóa mẫu tìm kiếm",
+      "message": "Không thể xóa mẫu tìm kiếm.",
+      "action": "Thử lại."
+    }
+  },
+  "progress": {
+    "save_failed": {
+      "title": "Không thể lưu tiến trình",
+      "message": "Không thể lưu tiến trình đọc của bạn.",
+      "action": "Thử lại hoặc khởi động lại ứng dụng."
+    },
+    "delete_failed": {
+      "title": "Không thể xóa tiến trình",
+      "message": "Không thể xóa tiến trình đọc của bạn.",
+      "action": "Thử lại."
+    }
+  },
+  "settings": {
+    "downloads_folder_change_failed": {
+      "title": "Không thể thay đổi thư mục tải xuống",
+      "message": "Không thể cập nhật vị trí thư mục tải xuống.",
+      "action": "Thử lại hoặc kiểm tra quyền truy cập."
+    },
+    "reset_override_failed": {
+      "title": "Không thể đặt lại cài đặt ghi đè",
+      "message": "Không thể đặt lại cài đặt ghi đè.",
+      "action": "Thử lại."
+    },
+    "clear_overrides_failed": {
+      "title": "Không thể xóa cài đặt ghi đè",
+      "message": "Không thể xóa tất cả cài đặt ghi đè.",
+      "action": "Thử lại."
+    },
+    "save_settings_failed": {
+      "title": "Không thể lưu cài đặt",
+      "message": "Không thể lưu cài đặt của bạn.",
+      "action": "Thử lại hoặc khởi động lại ứng dụng."
+    },
+    "check_updates_failed": {
+      "title": "Không thể kiểm tra cập nhật",
+      "message": "Không thể kiểm tra cập nhật. Thử lại sau?",
+      "action": "Thử lại sau."
+    }
+  },
+  "storage": {
+    "load_failed": {
+      "title": "Không thể tải thông tin lưu trữ",
+      "message": "Không thể tải thông tin lưu trữ.",
+      "action": "Thử làm mới."
+    },
+    "delete_manga_failed": {
+      "title": "Không thể xóa manga",
+      "message": "Không thể xóa dữ liệu manga.",
+      "action": "Thử lại hoặc kiểm tra quyền truy cập tệp."
+    }
+  },
+  "cache": {
+    "load_failed": {
+      "title": "Không thể tải dữ liệu cache",
+      "message": "Không thể tải thông tin cache.",
+      "action": "Thử làm mới."
+    },
+    "clear_cover_cache_failed": {
+      "title": "Không thể xóa cache bìa",
+      "message": "Không thể xóa cache hình ảnh bìa.",
+      "action": "Thử lại hoặc khởi động lại ứng dụng."
+    },
+    "clean_metadata_cache_failed": {
+      "title": "Không thể làm sạch cache metadata",
+      "message": "Không thể làm sạch metadata cũ từ cache.",
+      "action": "Thử lại."
+    },
+    "clear_metadata_cache_failed": {
+      "title": "Không thể xóa cache metadata",
+      "message": "Không thể xóa cache metadata.",
+      "action": "Thử lại hoặc khởi động lại ứng dụng."
+    }
+  },
+  "logging": {
+    "open_folder_failed": {
+      "title": "Không thể mở thư mục logs",
+      "message": "Không thể mở thư mục logs.",
+      "action": "Thử lại hoặc kiểm tra quyền truy cập tệp."
+    },
+    "delete_old_logs_failed": {
+      "title": "Không thể xóa logs cũ",
+      "message": "Không thể xóa các tệp log cũ.",
+      "action": "Thử lại hoặc kiểm tra quyền truy cập tệp."
+    },
+    "clear_logs_failed": {
+      "title": "Không thể xóa logs",
+      "message": "Không thể xóa các tệp log.",
+      "action": "Thử lại hoặc kiểm tra quyền truy cập tệp."
+    }
+  },
+  "ipc": {
+    "generic_error": {
+      "title": "Có lỗi xảy ra",
+      "message": "Không thể hoàn thành hành động này.",
+      "action": "Thử lại hoặc khởi động lại ứng dụng nếu vấn đề vẫn tiếp diễn."
+    },
+    "theme_error": {
+      "title": "Lỗi giao diện",
+      "message": "Không thể tải hoặc thay đổi giao diện.",
+      "action": "Thử chuyển giao diện khác hoặc khởi động lại ứng dụng."
+    }
+  },
+  "boundary": {
+    "component_error": {
+      "title": "Không thể tải phần này ngay bây giờ",
+      "message": "Phần này hiện không hoạt động. Thử lại hoặc khám phá các phần khác.",
+      "action": "Thử lại"
+    },
+    "page_error": {
+      "title": "Không thể tải trang này ngay bây giờ",
+      "message": "Trang này hiện không hoạt động. Thử lại hoặc khám phá các trang khác.",
+      "action": "Thử lại"
+    },
+    "app_error": {
+      "title": "Ối, có lỗi xảy ra",
+      "message": "Ối! Có điều gì đó không mong muốn đã xảy ra. Thử tải lại nếu vấn đề vẫn tiếp diễn.",
+      "actions": ["Thử lại", "Tải lại ứng dụng"]
+    }
+  },
+  "generic": {
+    "unknown": {
+      "title": "Lạ nhỉ",
+      "message": "Có điều gì đó không mong muốn đã xảy ra.",
+      "action": "Thử lại hoặc khởi động lại ứng dụng nếu vấn đề vẫn tiếp diễn."
+    },
+    "unexpected": {
+      "title": "Có lỗi xảy ra",
+      "message": "Có lỗi không mong muốn đã xảy ra.",
+      "action": "Thử lại hoặc khởi động lại ứng dụng nếu vấn đề vẫn tiếp diễn."
+    }
+  }
+}

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Modal } from '../Modal'
 import { Input } from '../Input'
 import { Button } from '../Button'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import './CreateCollectionDialog.css'
 
 export interface CreateCollectionDialogProps {
@@ -49,6 +50,7 @@ export function CreateCollectionDialog({
   open,
   onOpenChange
 }: Readonly<CreateCollectionDialogProps>): React.JSX.Element {
+  const { t } = useTranslation(['dialogs', 'common'])
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -56,7 +58,7 @@ export function CreateCollectionDialog({
 
   const handleSubmit = async (): Promise<void> => {
     if (!name.trim()) {
-      setError('Collection name is required')
+      setError(t('dialogs:createCollection.fields.name.error'))
       return
     }
 
@@ -71,7 +73,9 @@ export function CreateCollectionDialog({
       setError(null)
       onOpenChange(false)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create collection')
+      setError(
+        err instanceof Error ? err.message : t('dialogs:createCollection.errors.createFailed')
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -91,15 +95,15 @@ export function CreateCollectionDialog({
     <Modal
       open={open}
       onClose={handleClose}
-      title="Create Collection"
+      title={t('dialogs:createCollection.title')}
       size="small"
       footer={
         <>
           <Button variant="secondary" onClick={handleClose} disabled={isSubmitting}>
-            Cancel
+            {t('common:button.cancel')}
           </Button>
           <Button variant="primary" onClick={handleSubmit} disabled={isSubmitting || !name.trim()}>
-            {isSubmitting ? 'Creating...' : 'Create'}
+            {isSubmitting ? t('common:button.creating') : t('common:button.create')}
           </Button>
         </>
       }
@@ -107,19 +111,19 @@ export function CreateCollectionDialog({
       <div className="flex flex-col gap-4">
         {error && <div className="text-error text-sm">{error}</div>}
         <Input
-          label="Collection Name"
+          label={t('dialogs:createCollection.fields.name.label')}
           value={name}
           onChange={setName}
-          placeholder="e.g., Reading, Want to Read"
+          placeholder={t('common:form.placeholder.collectionName')}
           disabled={isSubmitting}
           autoFocus
           required
         />
         <Input
-          label="Description (Optional)"
+          label={t('dialogs:createCollection.fields.description.label')}
           value={description}
           onChange={setDescription}
-          placeholder="Add a description"
+          placeholder={t('common:form.placeholder.description')}
           disabled={isSubmitting}
         />
       </div>

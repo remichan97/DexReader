@@ -1,0 +1,15 @@
+{
+  "performance": {
+    "mustBeNumber": "Phải là một số",
+    "minimumCache": "Tối thiểu 10 MB (giá trị hiện tại {{size}} MB)",
+    "maximumCache": "Tối đa {{maxSize}} MB cho phép (30% của {{ramSize}} GB RAM). Giá trị hiện tại {{actualSize}} MB.",
+    "cacheTooSmall": "Kích thước cache phải ít nhất 10 MB",
+    "cacheTooLarge": "Kích thước cache không được vượt quá {{sanityMax}} MB (30% RAM hệ thống)",
+    "lowCacheWarning": "Cache thấp có thể gây tải lại thường xuyên. Chúng tôi khuyên dùng ít nhất 30 MB",
+    "highCacheWarning": "Điều này vượt quá khuyến nghị của chúng tôi là {{recommendedMax}} MB (10% RAM hệ thống). Giá trị cao hơn có thể làm chậm hệ thống."
+  },
+  "ui": {
+    "invalidSettings": "Một số cài đặt không hợp lệ. Vui lòng sửa các lỗi xác thực trước khi lưu.",
+    "characterCount": "{{count}}/50 ký tự"
+  }
+}

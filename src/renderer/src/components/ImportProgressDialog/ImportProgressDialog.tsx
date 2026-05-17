@@ -2,6 +2,7 @@ import { Modal } from '../Modal'
 import { ProgressRing } from '../ProgressRing'
 import { Button } from '../Button'
 import { Dismiss24Regular } from '@fluentui/react-icons'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import './ImportProgressDialog.css'
 
 export interface ImportProgressDialogProps {
@@ -59,6 +60,7 @@ export function ImportProgressDialog({
   onCancel,
   cancellable = true
 }: Readonly<ImportProgressDialogProps>): React.JSX.Element {
+  const { t } = useTranslation(['dialogs', 'common'])
   // Calculate progress percentage (0-100)
   const progress = total > 0 ? Math.round((current / total) * 100) : 0
   const isIndeterminate = total === 0 || current === 0
@@ -69,12 +71,12 @@ export function ImportProgressDialog({
       onClose={() => {
         /* Prevent closing during import */
       }}
-      title="Importing Your Library"
+      title={t('dialogs:importProgress.title')}
       footer={
         cancellable && onCancel ? (
           <div className="import-progress-dialog__footer flex justify-end">
             <Button variant="secondary" onClick={onCancel} icon={<Dismiss24Regular />}>
-              Cancel Import
+              {t('dialogs:importProgress.buttons.cancel')}
             </Button>
           </div>
         ) : null
@@ -89,15 +91,19 @@ export function ImportProgressDialog({
 
         <div className="import-progress-dialog__status flex flex-col items-center gap-2">
           {isIndeterminate ? (
-            <div className="import-progress-dialog__progress">Importing...</div>
+            <div className="import-progress-dialog__progress">
+              {t('dialogs:importProgress.progress.indeterminate')}
+            </div>
           ) : (
             <div className="import-progress-dialog__progress">
-              {current} of {total} items
+              {t('dialogs:importProgress.progress.current', { current, total })}
             </div>
           )}
 
           {currentTitle && (
-            <div className="import-progress-dialog__current-title">{currentTitle}</div>
+            <div className="import-progress-dialog__current-title">
+              {t('dialogs:importProgress.progress.currentTitle', { title: currentTitle })}
+            </div>
           )}
         </div>
 

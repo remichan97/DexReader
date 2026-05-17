@@ -1,13 +1,14 @@
 import { MenuItemConstructorOptions, shell, dialog, app, BrowserWindow } from 'electron'
 import path from 'node:path'
 import { mainLog } from '../services/logging/main-logging.service'
+import i18next from '../i18n/i18n.config'
 
 export function buildHelpMenu(mainWindow: BrowserWindow): MenuItemConstructorOptions {
   return {
-    label: 'Help',
+    label: i18next.t('menu:help.label'),
     submenu: [
       {
-        label: 'Documentation',
+        label: i18next.t('menu:help.documentation'),
         accelerator: 'F1',
         click: () => {
           shell
@@ -16,7 +17,7 @@ export function buildHelpMenu(mainWindow: BrowserWindow): MenuItemConstructorOpt
         }
       },
       {
-        label: 'Keyboard Shortcuts...',
+        label: i18next.t('menu:help.keyboardShortcuts'),
         accelerator: 'CmdOrCtrl+/',
         click: () => {
           mainWindow.webContents.send('show-shortcuts')
@@ -24,10 +25,10 @@ export function buildHelpMenu(mainWindow: BrowserWindow): MenuItemConstructorOpt
       },
       { type: 'separator' },
       {
-        label: 'Report an Issue',
+        label: i18next.t('menu:help.reportAnIssue'),
         submenu: [
           {
-            label: 'View Existing Issues...',
+            label: i18next.t('menu:help.viewExistingIssues'),
             click: () => {
               shell
                 .openExternal('https://github.com/remichan97/DexReader/issues')
@@ -35,7 +36,7 @@ export function buildHelpMenu(mainWindow: BrowserWindow): MenuItemConstructorOpt
             }
           },
           {
-            label: 'New Bug Report...',
+            label: i18next.t('menu:help.newBugReport'),
             click: () => {
               shell
                 .openExternal(
@@ -45,7 +46,7 @@ export function buildHelpMenu(mainWindow: BrowserWindow): MenuItemConstructorOpt
             }
           },
           {
-            label: 'Request a Feature...',
+            label: i18next.t('menu:help.requestAFeature'),
             click: () => {
               shell
                 .openExternal(
@@ -55,7 +56,7 @@ export function buildHelpMenu(mainWindow: BrowserWindow): MenuItemConstructorOpt
             }
           },
           {
-            label: 'Other Feedback...',
+            label: i18next.t('menu:help.otherFeedback'),
             click: () => {
               shell
                 .openExternal(
@@ -67,7 +68,7 @@ export function buildHelpMenu(mainWindow: BrowserWindow): MenuItemConstructorOpt
         ]
       },
       {
-        label: 'Open Logs Folder',
+        label: i18next.t('menu:help.openLogsFolder'),
         click: () => {
           const logPath = path.join(app.getPath('userData'), 'logs')
           shell
@@ -77,14 +78,14 @@ export function buildHelpMenu(mainWindow: BrowserWindow): MenuItemConstructorOpt
       },
       { type: 'separator' },
       {
-        label: 'About DexReader...',
+        label: i18next.t('menu:help.aboutDexReader'),
         click: () => {
           dialog.showMessageBox(mainWindow, {
             type: 'info',
-            title: 'About DexReader',
-            message: 'DexReader',
-            detail: `Version ${app.getVersion()}\n\nA desktop manga reader for MangaDex\n\nDeveloped by remichan97`,
-            buttons: ['OK'],
+            title: i18next.t('menu:help.dialogs.about.title'),
+            message: i18next.t('menu:help.dialogs.about.message'),
+            detail: i18next.t('menu:help.dialogs.about.detail', { version: app.getVersion() }),
+            buttons: [i18next.t('menu:help.dialogs.about.buttonOk')],
             noLink: true
           })
         }

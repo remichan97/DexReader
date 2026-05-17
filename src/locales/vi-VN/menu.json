@@ -1,0 +1,93 @@
+{
+  "file": {
+    "label": "Tệp",
+    "checkForUpdates": "Kiểm tra Cập nhật...",
+    "settings": "Cài đặt...",
+    "leaveIncognito": "Rời khỏi Chế độ Ẩn danh",
+    "goIncognito": "Vào Chế độ Ẩn danh",
+    "goOnline": "Kết nối lại",
+    "goOffline": "Ngắt kết nối",
+    "exit": "Thoát"
+  },
+  "view": {
+    "label": "Xem",
+    "browseManga": "Khám phá Manga",
+    "myLibrary": "Thư viện của tôi",
+    "downloads": "Tải xuống",
+    "readingHistory": "Lịch sử đọc",
+    "toggleFullscreen": "Chuyển sang Toàn màn hình",
+    "reload": "Tải lại",
+    "toggleDevTools": "Bật DevTools"
+  },
+  "library": {
+    "label": "Thư viện",
+    "addToFavourites": "Thêm vào Yêu thích",
+    "removeFromFavourites": "Xóa khỏi Yêu thích",
+    "createCollection": "Tạo Bộ sưu tập...",
+    "manageCollections": "Quản lý Bộ sưu tập...",
+    "downloadChapter": "Tải xuống Chương",
+    "downloadChapterWithTitle": "Tải xuống {{chapterTitle}}",
+    "downloadManga": "Tải xuống Manga",
+    "downloadMangaWithTitle": "Tải xuống '{{mangaTitle}}'",
+    "importLibrary": "Nhập Thư viện",
+    "fromDexReaderBackup": "Từ Sao lưu DexReader...",
+    "fromMihonTachiyomiBackup": "Từ Sao lưu Mihon/Tachiyomi...",
+    "exportLibrary": "Xuất Thư viện",
+    "toDexReaderBackup": "Sang Sao lưu DexReader...",
+    "toMihonTachiyomiFormat": "Sang Định dạng Mihon/Tachiyomi...",
+    "dialogs": {
+      "importLibrary": {
+        "title": "Nhập Thư viện",
+        "filterName": "Sao lưu DexReader"
+      },
+      "importMihonTachiyomi": {
+        "title": "Nhập Sao lưu Mihon/Tachiyomi",
+        "filterName": "Sao lưu Mihon/Tachiyomi"
+      },
+      "exportLibrary": {
+        "title": "Xuất Thư viện",
+        "defaultFilename": "dexreader-backup.dexreader"
+      },
+      "exportMihonTachiyomiWarning": {
+        "title": "Xuất sang Mihon/Tachiyomi",
+        "message": "Trước khi tiếp tục, thao tác này sẽ xuất thư viện manga của bạn bao gồm:",
+        "detail": "• Metadata và bìa manga\n• Bộ sưu tập (như danh mục)\n• Tiến trình và lịch sử đọc\n• Metadata chương\n\nLưu ý: Cài đặt ứng dụng (giao diện, tùy chọn) là riêng của DexReader và không thể xuất sang Tachiyomi/Mihon.",
+        "buttonCancel": "Hủy",
+        "buttonProceed": "Tiếp tục..."
+      },
+      "exportMihonTachiyomi": {
+        "title": "Xuất Thư viện sang Mihon/Tachiyomi",
+        "defaultFilenamePattern": "dexreader-backup-{{date}}.tachibk",
+        "filterName": "Sao lưu Mihon/Tachiyomi"
+      }
+    }
+  },
+  "tools": {
+    "label": "Công cụ",
+    "downloadChapter": "Tải xuống Chương",
+    "downloadManga": "Tải xuống Manga",
+    "manageStorage": "Quản lý Dung lượng...",
+    "clearCache": "Xóa Bộ nhớ đệm...",
+    "clearReadingHistory": "Xóa Lịch sử đọc..."
+  },
+  "help": {
+    "label": "Trợ giúp",
+    "documentation": "Hướng dẫn sử dụng",
+    "keyboardShortcuts": "Phím tắt...",
+    "reportAnIssue": "Báo cáo sự cố",
+    "viewExistingIssues": "Xem các sự cố hiện có...",
+    "newBugReport": "Báo cáo lỗi mới...",
+    "requestAFeature": "Yêu cầu tính năng...",
+    "otherFeedback": "Phản hồi khác...",
+    "openLogsFolder": "Mở Thư mục Logs",
+    "aboutDexReader": "Giới thiệu DexReader...",
+    "dialogs": {
+      "about": {
+        "title": "Giới thiệu DexReader",
+        "message": "DexReader",
+        "detail": "Phiên bản {{version}}\n\nTrình đọc manga trên máy tính cho MangaDex\n\nPhát triển bởi remichan97",
+        "buttonOk": "OK"
+      }
+    }
+  }
+}

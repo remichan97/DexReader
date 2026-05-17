@@ -10,6 +10,7 @@ import {
   Warning20Regular,
   SaveArrowRight20Regular
 } from '@fluentui/react-icons'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import './DexReaderExportDialog.css'
 
 interface DexReaderExportDialogProps {
@@ -35,6 +36,7 @@ export function DexReaderExportDialog({
   isExporting,
   error
 }: Readonly<DexReaderExportDialogProps>): JSX.Element | null {
+  const { t } = useTranslation(['dialogs', 'common'])
   const [includeCollections, setIncludeCollections] = useState(true)
   const [includeProgress, setIncludeProgress] = useState(true)
   const [includeReaderSettings, setIncludeReaderSettings] = useState(true)
@@ -65,33 +67,38 @@ export function DexReaderExportDialog({
   }
 
   return (
-    <Modal open={isOpen} onClose={handleCancel} title="Export DexReader Backup" size="medium">
+    <Modal
+      open={isOpen}
+      onClose={handleCancel}
+      title={t('dialogs:dexreaderExport.title')}
+      size="medium"
+    >
       <div className="dexreader-export-dialog flex flex-col gap-4">
         {savePath && (
           <div className="export-path-info flex items-center gap-3">
             <SaveArrowRight20Regular className="export-icon" />
             <div className="path-details flex flex-col gap-1">
-              <span className="path-label">Save to:</span>
+              <span className="path-label">{t('dialogs:dexreaderExport.pathInfo.label')}</span>
               <span className="path-name">{savePath}</span>
             </div>
           </div>
         )}
 
         <div className="export-info">
-          <p className="info-text">
-            Choose what to include in your backup file. Library manga metadata is always included.
-          </p>
+          <p className="info-text">{t('dialogs:dexreaderExport.description')}</p>
         </div>
 
         <div className="export-options flex flex-col gap-2">
           <div className="option-section">
             <div className="option-header flex items-center gap-2">
               <Library20Regular className="option-icon" />
-              <strong>Library</strong>
-              <span className="always-included">Always included</span>
+              <strong>{t('dialogs:dexreaderExport.options.library.title')}</strong>
+              <span className="always-included">
+                {t('dialogs:dexreaderExport.options.library.alwaysIncluded')}
+              </span>
             </div>
             <p className="option-description no-checkbox">
-              Manga metadata, cover URLs, chapters, tags, and authors
+              {t('dialogs:dexreaderExport.options.library.description')}
             </p>
           </div>
 
@@ -103,9 +110,11 @@ export function DexReaderExportDialog({
                 disabled={isExporting}
               />
               <Folder20Regular className="option-icon" />
-              <strong>Collections</strong>
+              <strong>{t('dialogs:dexreaderExport.options.collections.title')}</strong>
             </div>
-            <p className="option-description">Your custom collections and their organization</p>
+            <p className="option-description">
+              {t('dialogs:dexreaderExport.options.collections.description')}
+            </p>
           </div>
 
           <div className="option-section">
@@ -116,10 +125,10 @@ export function DexReaderExportDialog({
                 disabled={isExporting}
               />
               <BookOpen20Regular className="option-icon" />
-              <strong>Reading Progress</strong>
+              <strong>{t('dialogs:dexreaderExport.options.progress.title')}</strong>
             </div>
             <p className="option-description">
-              Chapter progress, reading history, and completion status
+              {t('dialogs:dexreaderExport.options.progress.description')}
             </p>
           </div>
 
@@ -131,18 +140,18 @@ export function DexReaderExportDialog({
                 disabled={isExporting}
               />
               <Settings20Regular className="option-icon" />
-              <strong>Reader Settings</strong>
+              <strong>{t('dialogs:dexreaderExport.options.readerSettings.title')}</strong>
             </div>
             <p className="option-description">
-              Per-manga reading mode preferences and reader configurations
+              {t('dialogs:dexreaderExport.options.readerSettings.description')}
             </p>
           </div>
         </div>
 
         <div className="export-note">
           <p className="note-text">
-            <strong>Note:</strong> App settings (theme, language, shortcuts) are stored separately.
-            Use <em>Settings → Advanced → Open Settings File</em> to back them up.
+            <strong>{t('dialogs:dexreaderExport.note.prefix')}</strong>{' '}
+            {t('dialogs:dexreaderExport.note.message')}
           </p>
         </div>
 
@@ -155,10 +164,12 @@ export function DexReaderExportDialog({
 
         <div className="dexreader-export-dialog__actions flex justify-end gap-2">
           <Button variant="secondary" onClick={handleCancel} disabled={isExporting}>
-            Cancel
+            {t('common:button.cancel')}
           </Button>
           <Button variant="primary" onClick={handleExport} disabled={isExporting}>
-            {isExporting ? 'Exporting...' : 'Export Backup'}
+            {isExporting
+              ? t('dialogs:dexreaderExport.buttons.exporting')
+              : t('dialogs:dexreaderExport.buttons.export')}
           </Button>
         </div>
       </div>

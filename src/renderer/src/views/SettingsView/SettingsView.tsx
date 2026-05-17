@@ -5,6 +5,8 @@ import { Tabs, TabList, Tab, TabPanel } from '@renderer/components/Tabs'
 import { useToastStore, useAppStore } from '@renderer/stores'
 import { useNavigationBlocker } from '@renderer/hooks/useNavigationBlocker'
 import { useUnsavedChanges } from '@renderer/hooks/useUnsavedChanges'
+import { useTranslation } from '@renderer/hooks/useTranslation'
+import i18next from '@renderer/i18n/config'
 import type { MangaReadingSettings, AppSettings } from '../../../../preload/index.d'
 import { AppearanceSettings } from './components/AppearanceSettings'
 import { ReaderSettingsSection } from './components/ReaderSettingsSection'
@@ -26,6 +28,9 @@ interface PerMangaOverride {
 }
 
 export function SettingsView(): JSX.Element {
+  // Translation
+  const { t } = useTranslation(['settings', 'common'])
+
   // Zustand stores
   const showToast = useToastStore((state) => state.show)
 
@@ -57,6 +62,7 @@ export function SettingsView(): JSX.Element {
   const [isUsingSystemColor, setIsUsingSystemColor] = useState<boolean>(true)
   const [systemAccentColor, setSystemAccentColor] = useState<string>('#0078d4')
   const [startupPage, setStartupPage] = useState<'library' | 'browse' | 'downloads'>('browse')
+  const [displayLanguage, setDisplayLanguage] = useState<'en-GB' | 'en-US' | 'vi-VN'>('en-GB')
 
   // Reader settings state
   const [globalReaderSettings, setGlobalReaderSettings] = useState<MangaReadingSettings>({
@@ -92,6 +98,11 @@ export function SettingsView(): JSX.Element {
     loadSanityMax()
   }, [])
 
+  // Set document title
+  useEffect(() => {
+    document.title = `${t('settings:pageTitle')} - DexReader`
+  }, [t])
+
   // Block navigation when there are unsaved changes
   useNavigationBlocker(
     hasUnsavedChanges,
@@ -114,6 +125,10 @@ export function SettingsView(): JSX.Element {
       (isUsingSystemColor
         ? originalSettings.appearance.accentColor !== undefined
         : originalSettings.appearance.accentColor !== accentColor)
+
+    // Compare language settings
+    const languageChanged =
+      displayLanguage !== (originalSettings.language?.displayLanguage ?? 'en-GB')
 
     // Compare downloads settings
     const downloadsChanged =
@@ -142,7 +157,12 @@ export function SettingsView(): JSX.Element {
     const logsChanged = logRetentionDays !== (originalSettings.logs?.retentionInDays ?? 7)
 
     setHasUnsavedChanges(
-      appearanceChanged || downloadsChanged || readerChanged || updateChanged || logsChanged
+      appearanceChanged ||
+        languageChanged ||
+        downloadsChanged ||
+        readerChanged ||
+        updateChanged ||
+        logsChanged
     )
   }, [
     originalSettings,
@@ -150,6 +170,7 @@ export function SettingsView(): JSX.Element {
     startupPage,
     accentColor,
     isUsingSystemColor,
+    displayLanguage,
     downloadConfirmation,
     defaultQuality,
     maxConcurrentDownloads,
@@ -279,6 +300,13 @@ export function SettingsView(): JSX.Element {
             setLogRetentionDays(settings.logs.retentionInDays ?? 7)
           }
 
+          // Load language settings
+          if (settings.language?.displayLanguage) {
+            setDisplayLanguage(settings.language.displayLanguage)
+            // Apply the language immediately
+            await i18next.changeLanguage(settings.language.displayLanguage)
+          }
+
           // Load per-manga overrides from database
           const overridesResult = await globalThis.reader.getAllMangaOverrides()
           if (overridesResult.success && overridesResult.data) {
@@ -377,6 +405,11 @@ export function SettingsView(): JSX.Element {
   // Handle theme mode change
   const handleThemeModeChange = (mode: string): void => {
     setThemeMode(mode as 'system' | 'light' | 'dark')
+  }
+
+  // Handle display language change
+  const handleDisplayLanguageChange = (language: string): void => {
+    setDisplayLanguage(language as 'en-GB' | 'en-US' | 'vi-VN')
   }
 
   // Handle download confirmation change
@@ -508,6 +541,10 @@ export function SettingsView(): JSX.Element {
     if (!originalSettings) return
 
     try {
+      // Track if language changed for restart prompt
+      const languageChanged =
+        displayLanguage !== (originalSettings.language?.displayLanguage ?? 'en-GB')
+
       // Client-side validation: Custom cache range check
       if (chapterCacheTier === 'custom') {
         // Get sanity maximum (30% of RAM)
@@ -601,6 +638,11 @@ Are you absolutely certain you want to proceed with this cache size?`,
         retentionInDays: logRetentionDays
       }
 
+      // Build language settings object
+      const languageSettings = {
+        displayLanguage: displayLanguage
+      }
+
       // Build complete settings object and save in one operation (single disk write)
       const completeSettings = {
         version: originalSettings.version,
@@ -608,7 +650,9 @@ Are you absolutely certain you want to proceed with this cache size?`,
         downloads: downloadsSettings,
         reader: readerSettings,
         update: updateSettings,
-        logs: logsSettings
+        logs: logsSettings,
+        search: originalSettings.search || {},
+        language: languageSettings
       }
 
       const saveResult = await globalThis.settings.saveAll(completeSettings)
@@ -622,6 +666,29 @@ Are you absolutely certain you want to proceed with this cache size?`,
         setOriginalSettings(freshSettings.data)
       }
       setHasUnsavedChanges(false)
+
+      // If language changed, prompt for restart
+      if (languageChanged) {
+        // Get language display name for the dialog
+        const languageNames = {
+          'en-GB': 'English (UK)',
+          'en-US': 'English (US)',
+          'vi-VN': 'Tiếng Việt'
+        }
+        const languageName = languageNames[displayLanguage]
+
+        const result = await globalThis.api.showConfirmDialog(
+          t('dialogs:changeLanguage.title'),
+          t('dialogs:changeLanguage.message', { language: languageName }),
+          t('dialogs:changeLanguage.buttons.restart', { defaultValue: 'Yes, Restart Now' }),
+          t('dialogs:changeLanguage.buttons.later', { defaultValue: 'Maybe Later' })
+        )
+
+        // If user clicked "Restart Now" (button index 1)
+        if (result.success && result.data) {
+          await globalThis.settings.restart()
+        }
+      }
     } catch (error) {
       showToast({
         variant: 'error',
@@ -646,6 +713,11 @@ Are you absolutely certain you want to proceed with this cache size?`,
       setAccentColor(systemAccentColor)
       setIsUsingSystemColor(true)
       applyAccentColor(systemAccentColor)
+    }
+
+    // Restore language settings
+    if (originalSettings.language?.displayLanguage) {
+      setDisplayLanguage(originalSettings.language.displayLanguage)
     }
 
     // Restore downloads settings
@@ -695,15 +767,15 @@ Are you absolutely certain you want to proceed with this cache size?`,
       )}
 
       {/* Screen reader heading for page structure */}
-      <h1 className="sr-only">Settings</h1>
+      <h1 className="sr-only">{t('settings:pageTitle')}</h1>
 
       <Tabs value={activeTab} onChange={setActiveTab}>
         <TabList>
-          <Tab value="appearance">Appearance</Tab>
-          <Tab value="downloads">Downloads</Tab>
-          <Tab value="reader">Reader</Tab>
-          <Tab value="storage">Storage</Tab>
-          <Tab value="advanced">Advanced</Tab>
+          <Tab value="appearance">{t('settings:tabs.appearance')}</Tab>
+          <Tab value="downloads">{t('settings:tabs.downloads')}</Tab>
+          <Tab value="reader">{t('settings:tabs.reader')}</Tab>
+          <Tab value="storage">{t('settings:tabs.storage')}</Tab>
+          <Tab value="advanced">{t('settings:tabs.advanced')}</Tab>
         </TabList>
 
         {/* Appearance Settings */}
@@ -718,6 +790,8 @@ Are you absolutely certain you want to proceed with this cache size?`,
             onUseSystemColor={handleUseSystemColor}
             startupPage={startupPage}
             onStartupPageChange={setStartupPage}
+            displayLanguage={displayLanguage}
+            onDisplayLanguageChange={handleDisplayLanguageChange}
           />
         </TabPanel>
 
@@ -766,9 +840,11 @@ Are you absolutely certain you want to proceed with this cache size?`,
 
           {/* Cache Management Section */}
           <div className="settings-view__section-divider">
-            <h3 className="settings-view__section-heading">Cache Management</h3>
+            <h3 className="settings-view__section-heading">
+              {t('settings:cacheManagement.sectionTitle')}
+            </h3>
             <p className="settings-view__section-description">
-              Manage temporary data to balance performance and storage usage.
+              {t('settings:cacheManagement.sectionDescription')}
             </p>
 
             <CacheManagementSettings

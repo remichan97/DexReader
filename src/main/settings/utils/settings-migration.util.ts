@@ -60,6 +60,10 @@ function mergeWithDefaults(userSettings: Partial<AppSettings>, defaults: AppSett
     search: {
       ...defaults.search,
       ...userSettings.search
+    },
+    language: {
+      ...defaults.language,
+      ...userSettings.language
     }
   }
 }

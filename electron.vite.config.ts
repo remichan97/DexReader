@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises'
-import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
+import { defineConfig } from 'electron-vite'
 import react from '@vitejs/plugin-react'
 import path from 'node:path'
 
@@ -11,10 +11,10 @@ export default defineConfig({
           // Exclude scripts directory from production build
           /^.*\/scripts\/.*/
         ]
-      }
+      },
+      externalizeDeps: true
     },
     plugins: [
-      externalizeDepsPlugin(),
       {
         name: 'copy-migrations',
         async writeBundle() {
@@ -61,11 +61,42 @@ export default defineConfig({
             }
           })
         }
+      },
+      {
+        name: 'copy-locales',
+        async writeBundle() {
+          const src = path.resolve(__dirname, 'src/locales')
+          const dest = path.resolve(__dirname, 'out/locales')
+
+          await fs.mkdir(dest, { recursive: true })
+
+          const files = await fs.readdir(src)
+          for (const file of files) {
+            const srcPath = path.join(src, file)
+            const destPath = path.join(dest, file)
+
+            if ((await fs.stat(srcPath)).isDirectory()) {
+              // Copy language directory, but only JSON files
+              await fs.mkdir(destPath, { recursive: true })
+              const langFiles = await fs.readdir(srcPath)
+              for (const langFile of langFiles) {
+                if (langFile.endsWith('.json')) {
+                  await fs.copyFile(path.join(srcPath, langFile), path.join(destPath, langFile))
+                }
+              }
+            } else if (file.endsWith('.json')) {
+              // Copy root-level JSON files (if any)
+              await fs.copyFile(srcPath, destPath)
+            }
+          }
+        }
       }
     ]
   },
   preload: {
-    plugins: [externalizeDepsPlugin()]
+    build: {
+      externalizeDeps: true
+    }
   },
   renderer: {
     resolve: {

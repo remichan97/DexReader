@@ -1,5 +1,6 @@
 import React from 'react'
 import { ProgressRing } from '@renderer/components/ProgressRing'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import type { ImageUrlResponse } from '../../../../../preload/index.d'
 
 /**
@@ -52,6 +53,8 @@ export function DoublePageDisplay({
   onNavigateLeft,
   onNavigateRight
 }: DoublePageDisplayProps): React.JSX.Element {
+  const { t } = useTranslation('reader')
+
   const getCursor = (): string => {
     if (fitMode === 'custom' || zoomLevel > 1) {
       return isDragging ? 'grabbing' : 'grab'
@@ -81,15 +84,15 @@ export function DoublePageDisplay({
     <div className="reader-page-container flex items-center justify-center">
       {isLoading && (
         <div className="reader-page-loading flex flex-col items-center justify-center">
-          <ProgressRing size="large" aria-label="Loading pages" />
-          <p className="reader-page-loading__text">Loading pages...</p>
+          <ProgressRing size="large" aria-label={t('doublePage.loading.ariaLabel')} />
+          <p className="reader-page-loading__text">{t('doublePage.loading.text')}</p>
         </div>
       )}
 
       {hasError && !isLoading && (
         <div className="reader-page-error flex flex-col items-center justify-center">
-          <p>Failed to load one or more pages</p>
-          <p className="reader-page-error__hint">Try navigating to another page</p>
+          <p>{t('doublePage.error.failed')}</p>
+          <p className="reader-page-error__hint">{t('doublePage.error.hint')}</p>
         </div>
       )}
 
@@ -108,7 +111,7 @@ export function DoublePageDisplay({
               e.stopPropagation()
               onNavigateLeft()
             }}
-            aria-label="Previous pages"
+            aria-label={t('doublePage.navigation.previous')}
           >
             <span>◀</span>
           </button>
@@ -119,7 +122,7 @@ export function DoublePageDisplay({
               e.stopPropagation()
               onNavigateRight()
             }}
-            aria-label="Next pages"
+            aria-label={t('doublePage.navigation.next')}
           >
             <span>▶</span>
           </button>
@@ -131,7 +134,7 @@ export function DoublePageDisplay({
             >
               <img
                 src={images[pageIndex].url}
-                alt={`Page ${pageIndex + 1} of ${images.length}`}
+                alt={t('doublePage.image.alt', { current: pageIndex + 1, total: images.length })}
                 className={`reader-page__image reader-page__image--fit-${fitMode === 'custom' ? 'height' : fitMode}`}
                 style={imageStyle}
                 onLoad={() => onImageLoad(pageIndex)}

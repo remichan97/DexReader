@@ -2,12 +2,14 @@ import type { JSX } from 'react'
 import { WifiOff24Regular, CloudOff24Regular } from '@fluentui/react-icons'
 import { useConnectivityStore } from '@renderer/stores/connectivityStore'
 import { Button } from '@renderer/components/Button'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import './OfflineStatusBar.css'
 
 export function OfflineStatusBar(): JSX.Element | null {
   const status = useConnectivityStore((state) => state.status)
   const setOnline = useConnectivityStore((state) => state.setOnline)
   const checkConnectivity = useConnectivityStore((state) => state.checkConnectivity)
+  const { t } = useTranslation('common')
 
   if (status === 'online') {
     return null // Don't show banner when online
@@ -32,11 +34,13 @@ export function OfflineStatusBar(): JSX.Element | null {
         <span className="offline-status-bar__text">
           {isUserInitiated ? (
             <>
-              <strong>You&apos;re offline</strong> — Only downloaded content is available
+              <strong>{t('message.info.youreOffline')}</strong> —{' '}
+              {t('message.info.onlyDownloadedContent')}
             </>
           ) : (
             <>
-              <strong>No internet</strong> — Downloaded content still works
+              <strong>{t('message.info.noInternet')}</strong> —{' '}
+              {t('message.info.downloadedContentAvailable')}
             </>
           )}
         </span>
@@ -45,11 +49,11 @@ export function OfflineStatusBar(): JSX.Element | null {
       <div className="offline-status-bar__actions">
         {isUserInitiated ? (
           <Button variant="ghost" size="small" onClick={setOnline}>
-            Go Online
+            {t('button.goOnline')}
           </Button>
         ) : (
           <Button variant="ghost" size="small" onClick={checkConnectivity}>
-            Retry
+            {t('button.retry')}
           </Button>
         )}
       </div>

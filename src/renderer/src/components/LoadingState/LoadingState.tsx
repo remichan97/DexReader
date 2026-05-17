@@ -1,4 +1,5 @@
 import { JSX } from 'react'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import { ProgressRing } from '../ProgressRing'
 import { SkeletonGrid } from '../Skeleton'
 import './LoadingState.css'
@@ -55,13 +56,15 @@ export function LoadingState({
   variant = 'spinner',
   skeletonCount = 12
 }: Readonly<LoadingStateProps>): JSX.Element {
+  const { t } = useTranslation()
+
   if (variant === 'skeleton') {
     return <SkeletonGrid count={skeletonCount} />
   }
 
   return (
     <div className="loading-state" role="status" aria-live="polite">
-      <ProgressRing size={size} aria-label={message || 'Loading'} />
+      <ProgressRing size={size} aria-label={message || t('state.loading')} />
       {message && <p className="loading-state__message">{message}</p>}
     </div>
   )

@@ -9,6 +9,7 @@ import {
   ChevronUp20Regular
 } from '@fluentui/react-icons'
 import { useState } from 'react'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import './ImportResultDialog.css'
 
 // ImportResult interface matches src/main/services/results/import.result.ts
@@ -65,6 +66,7 @@ export function ImportResultDialog({
   onClose,
   onViewLibrary
 }: Readonly<ImportResultDialogProps>): React.JSX.Element {
+  const { t } = useTranslation(['dialogs', 'common'])
   const [showErrors, setShowErrors] = useState(false)
 
   if (!result) {
@@ -78,16 +80,16 @@ export function ImportResultDialog({
   // Determine dialog status
   let status: 'success' | 'warning' | 'error' = 'success'
   let StatusIcon = CheckmarkCircle48Regular
-  let statusText = 'Import Successful'
+  let statusText = t('dialogs:importResult.titles.success')
 
   if (failedMangaCount > 0) {
     status = 'error'
     StatusIcon = ErrorCircle48Regular
-    statusText = 'Import Completed with Errors'
+    statusText = t('dialogs:importResult.titles.error')
   } else if (skippedMangaCount > 0) {
     status = 'warning'
     StatusIcon = Warning48Regular
-    statusText = 'Import Completed with Warnings'
+    statusText = t('dialogs:importResult.titles.warning')
   }
 
   return (
@@ -99,11 +101,11 @@ export function ImportResultDialog({
       footer={
         <>
           <Button variant="secondary" onClick={onClose} icon={<Dismiss24Regular />}>
-            Close
+            {t('common:button.close')}
           </Button>
           {onViewLibrary && importedMangaCount > 0 && (
             <Button variant="primary" onClick={onViewLibrary}>
-              Check Out Your Library
+              {t('common:button.viewLibrary')}
             </Button>
           )}
         </>
@@ -117,28 +119,32 @@ export function ImportResultDialog({
         <div className="import-result-dialog__stats flex gap-4 justify-center">
           <div className="import-result-dialog__stat import-result-dialog__stat--success flex flex-col items-center gap-1">
             <div className="import-result-dialog__stat-value">{importedMangaCount}</div>
-            <div className="import-result-dialog__stat-label">Imported</div>
+            <div className="import-result-dialog__stat-label">
+              {t('dialogs:importResult.stats.imported')}
+            </div>
           </div>
 
           <div className="import-result-dialog__stat import-result-dialog__stat--warning flex flex-col items-center gap-1">
             <div className="import-result-dialog__stat-value">{skippedMangaCount}</div>
-            <div className="import-result-dialog__stat-label">Skipped</div>
+            <div className="import-result-dialog__stat-label">
+              {t('dialogs:importResult.stats.skipped')}
+            </div>
           </div>
 
           <div className="import-result-dialog__stat import-result-dialog__stat--error flex flex-col items-center gap-1">
             <div className="import-result-dialog__stat-value">{failedMangaCount}</div>
-            <div className="import-result-dialog__stat-label">Failed</div>
+            <div className="import-result-dialog__stat-label">
+              {t('dialogs:importResult.stats.failed')}
+            </div>
           </div>
         </div>
 
         <div className="import-result-dialog__summary">
-          <p>
-            Successfully imported {importedMangaCount} out of {total} manga from your backup.
-          </p>
+          <p>{t('dialogs:importResult.summary.main', { count: importedMangaCount, total })}</p>
 
           {skippedMangaCount > 0 && (
             <p className="import-result-dialog__note">
-              {skippedMangaCount} manga were skipped (already in library or not from MangaDex).
+              {t('dialogs:importResult.summary.skipped', { count: skippedMangaCount })}
             </p>
           )}
         </div>
@@ -152,7 +158,7 @@ export function ImportResultDialog({
             >
               <span>
                 {showErrors ? <ChevronUp20Regular /> : <ChevronDown20Regular />}
-                View Error Details ({errors.length})
+                {t('dialogs:importResult.errors.toggle', { count: errors.length })}
               </span>
             </button>
 
@@ -164,7 +170,7 @@ export function ImportResultDialog({
                     className="import-result-dialog__error-item"
                   >
                     <div className="import-result-dialog__error-title">
-                      {error.title || 'Unknown Manga'}
+                      {error.title || t('dialogs:importResult.errors.unknownManga')}
                     </div>
                     <div className="import-result-dialog__error-message">{error.reason}</div>
                   </div>

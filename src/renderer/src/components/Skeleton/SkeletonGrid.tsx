@@ -1,3 +1,4 @@
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import './Skeleton.css'
 
 export interface SkeletonGridProps {
@@ -40,6 +41,7 @@ export function SkeletonGrid({
   gap = '16px',
   className = ''
 }: SkeletonGridProps): React.JSX.Element {
+  const { t } = useTranslation(['common'])
   const style: React.CSSProperties = {
     display: 'grid',
     gridTemplateColumns: `repeat(auto-fill, minmax(${minCardWidth}, 1fr))`,
@@ -57,7 +59,7 @@ export function SkeletonGrid({
           </div>
         </div>
       ))}
-      <span className="sr-only">Loading manga...</span>
+      <span className="sr-only">{t('common:loading.manga')}</span>
     </div>
   )
 }

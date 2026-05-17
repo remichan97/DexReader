@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import {
   Search24Regular,
   Search24Filled,
@@ -25,8 +26,8 @@ import './Sidebar.css'
 interface SidebarItem {
   /** Unique identifier for the sidebar item */
   id: string
-  /** Display label shown below the icon */
-  label: string
+  /** Translation key for the label */
+  labelKey: string
   /** Regular icon variant (outlined) for inactive state */
   icon: JSX.Element
   /** Filled icon variant (solid) for active state */
@@ -35,38 +36,38 @@ interface SidebarItem {
   route: string
 }
 
-const sidebarItems: SidebarItem[] = [
+const sidebarItemsConfig: SidebarItem[] = [
   {
     id: 'browse',
-    label: 'Browse',
+    labelKey: 'navigation.browse',
     icon: <Search24Regular />,
     iconFilled: <Search24Filled />,
     route: '/browse'
   },
   {
     id: 'library',
-    label: 'Library',
+    labelKey: 'navigation.library',
     icon: <Library24Regular />,
     iconFilled: <Library24Filled />,
     route: '/library'
   },
   {
     id: 'history',
-    label: 'History',
+    labelKey: 'navigation.history',
     icon: <History24Regular />,
     iconFilled: <History24Filled />,
     route: '/history'
   },
   {
     id: 'downloads',
-    label: 'Downloads',
+    labelKey: 'navigation.downloads',
     icon: <ArrowDownload24Regular />,
     iconFilled: <ArrowDownload24Filled />,
     route: '/downloads'
   },
   {
     id: 'settings',
-    label: 'Settings',
+    labelKey: 'navigation.settings',
     icon: <Settings24Regular />,
     iconFilled: <Settings24Filled />,
     route: '/settings'
@@ -97,6 +98,7 @@ const sidebarItems: SidebarItem[] = [
  * ```
  */
 export function Sidebar(): JSX.Element {
+  const { t } = useTranslation('common')
   const navigate = useNavigate()
   const location = useLocation()
   const sidebarRef = useRef<HTMLDivElement>(null)
@@ -117,7 +119,7 @@ export function Sidebar(): JSX.Element {
     const updateIndicator = (): void => {
       if (!sidebarRef.current) return
 
-      const activeIndex = sidebarItems.findIndex(
+      const activeIndex = sidebarItemsConfig.findIndex(
         (item) => location.pathname === item.route || location.pathname.startsWith(item.route + '/')
       )
 
@@ -147,9 +149,11 @@ export function Sidebar(): JSX.Element {
           opacity: indicatorStyle.opacity
         }}
       />
-      {sidebarItems.map((item) => {
+      {sidebarItemsConfig.map((item) => {
         const isActive =
           location.pathname === item.route || location.pathname.startsWith(item.route + '/')
+
+        const label = t(item.labelKey, { defaultValue: item.id })
 
         return (
           <div
@@ -161,12 +165,12 @@ export function Sidebar(): JSX.Element {
             role="button"
             tabIndex={0}
             aria-current={isActive ? 'page' : undefined}
-            aria-label={item.label}
+            aria-label={label}
           >
             <span className="sidebar__item-icon" aria-hidden="true">
               {isActive ? item.iconFilled : item.icon}
             </span>
-            <span className="sidebar__item-label">{item.label}</span>
+            <span className="sidebar__item-label">{label}</span>
           </div>
         )
       })}

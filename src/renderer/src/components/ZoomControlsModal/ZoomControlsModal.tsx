@@ -1,6 +1,7 @@
 import type { JSX, ReactElement } from 'react'
 import { Popover } from '@renderer/components/Popover'
 import { Button } from '@renderer/components/Button'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import './ZoomControlsModal.css'
 
 interface ZoomControlsModalProps {
@@ -32,13 +33,16 @@ export function ZoomControlsModal({
   onReset,
   children
 }: ZoomControlsModalProps): JSX.Element {
+  const { t } = useTranslation(['reader', 'common'])
   const zoomPercentage = Math.round(zoomLevel * 100)
 
   const popoverContent = (
     <div className="zoom-controls-modal__content flex flex-col gap-4 p-4">
       {/* Fit modes section */}
       <div>
-        <h5 className="zoom-controls-modal__section-title mb-2">Fit Mode</h5>
+        <h5 className="zoom-controls-modal__section-title mb-2">
+          {t('reader:zoomControls.sectionTitle.fitMode')}
+        </h5>
         <div className="flex gap-2">
           <Button
             variant={fitMode === 'width' ? 'primary' : 'ghost'}
@@ -47,11 +51,11 @@ export function ZoomControlsModal({
               onFitWidth()
               onClose()
             }}
-            aria-label="Fit to width"
-            title="Fit image to page width"
+            aria-label={t('reader:zoomControls.ariaLabels.fitWidth')}
+            title={t('reader:zoomControls.tooltips.fitWidth')}
             className="flex-1"
           >
-            Width
+            {t('reader:zoomControls.fitWidth')}
           </Button>
           <Button
             variant={fitMode === 'height' ? 'primary' : 'ghost'}
@@ -60,11 +64,11 @@ export function ZoomControlsModal({
               onFitHeight()
               onClose()
             }}
-            aria-label="Fit to height"
-            title="Fit image to page height"
+            aria-label={t('reader:zoomControls.ariaLabels.fitHeight')}
+            title={t('reader:zoomControls.tooltips.fitHeight')}
             className="flex-1"
           >
-            Height
+            {t('reader:zoomControls.fitHeight')}
           </Button>
           <Button
             variant={fitMode === 'actual' ? 'primary' : 'ghost'}
@@ -73,33 +77,35 @@ export function ZoomControlsModal({
               onActualSize()
               onClose()
             }}
-            aria-label="Actual size"
-            title="Show at 100% size (actual size)"
+            aria-label={t('reader:zoomControls.ariaLabels.actualSize')}
+            title={t('reader:zoomControls.tooltips.actualSize')}
             className="flex-1"
           >
-            100%
+            {t('reader:zoomControls.actualSize')}
           </Button>
         </div>
       </div>
 
       {/* Zoom controls section */}
       <div>
-        <h5 className="zoom-controls-modal__section-title mb-2">Zoom</h5>
+        <h5 className="zoom-controls-modal__section-title mb-2">
+          {t('reader:zoomControls.sectionTitle.zoom')}
+        </h5>
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="small"
             onClick={onZoomOut}
             disabled={zoomLevel <= 0.25}
-            aria-label="Zoom out"
-            title="Zoom out (Ctrl + -)"
+            aria-label={t('reader:zoomControls.ariaLabels.zoomOut')}
+            title={t('reader:zoomControls.tooltips.zoomOut')}
           >
             −
           </Button>
           <span
             className="flex-1 text-center"
             style={{ fontSize: '14px', fontWeight: 500, minWidth: '60px' }}
-            title="Current zoom level"
+            title={t('reader:zoomControls.tooltips.currentZoom')}
           >
             {zoomPercentage}%
           </span>
@@ -108,8 +114,8 @@ export function ZoomControlsModal({
             size="small"
             onClick={onZoomIn}
             disabled={zoomLevel >= 4}
-            aria-label="Zoom in"
-            title="Zoom in (Ctrl + =)"
+            aria-label={t('reader:zoomControls.ariaLabels.zoomIn')}
+            title={t('reader:zoomControls.tooltips.zoomIn')}
           >
             +
           </Button>
@@ -124,11 +130,11 @@ export function ZoomControlsModal({
           onReset()
           onClose()
         }}
-        aria-label="Reset zoom"
-        title="Reset to default (fit to height)"
+        aria-label={t('reader:zoomControls.ariaLabels.reset')}
+        title={t('reader:zoomControls.tooltips.reset')}
         style={{ width: '100%' }}
       >
-        Reset
+        {t('reader:zoomControls.reset')}
       </Button>
     </div>
   )

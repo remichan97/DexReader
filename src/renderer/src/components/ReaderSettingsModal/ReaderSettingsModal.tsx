@@ -2,6 +2,7 @@ import type { JSX, ReactElement } from 'react'
 import { Popover } from '@renderer/components/Popover'
 import { Select, type SelectOption } from '@renderer/components/Select'
 import type { MangaReadingSettings } from '../../../../preload/index.d'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import './ReaderSettingsModal.css'
 
 interface ReaderSettingsModalProps {
@@ -21,10 +22,11 @@ export function ReaderSettingsModal({
   onSettingsChange,
   children
 }: ReaderSettingsModalProps): JSX.Element {
+  const { t } = useTranslation(['dialogs', 'common'])
   const readingModeOptions: SelectOption[] = [
-    { value: 'single', label: 'Single Page' },
-    { value: 'double', label: 'Double Page' },
-    { value: 'vertical', label: 'Vertical Scroll' }
+    { value: 'single', label: t('dialogs:readerSettings.mode.options.single') },
+    { value: 'double', label: t('dialogs:readerSettings.mode.options.double') },
+    { value: 'vertical', label: t('dialogs:readerSettings.mode.options.vertical') }
   ]
 
   const handleReadingModeChange = (mode: string | string[]): void => {
@@ -69,13 +71,15 @@ export function ReaderSettingsModal({
             value={settings.readingMode}
             onChange={handleReadingModeChange}
             options={readingModeOptions}
-            label="Mode"
-            helperText="How pages are displayed"
+            label={t('dialogs:readerSettings.mode.label')}
+            helperText={t('dialogs:readerSettings.mode.helperText')}
           />
 
           {settings.readingMode === 'double' && (
             <div className="reader-settings-modal__double-page-options p-4 flex flex-col gap-3">
-              <h5 className="reader-settings-modal__options-title m-0">Double Page Options</h5>
+              <h5 className="reader-settings-modal__options-title m-0">
+                {t('dialogs:readerSettings.doublePageOptions.title')}
+              </h5>
               <label className="reader-settings-modal__checkbox-label flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -85,7 +89,7 @@ export function ReaderSettingsModal({
                     handleDoublePageSettingChange('skipCoverPages', e.target.checked)
                   }
                 />{' '}
-                Skip cover pages
+                {t('dialogs:readerSettings.doublePageOptions.skipCoverPages')}
               </label>
               <label className="reader-settings-modal__checkbox-label flex items-center gap-2">
                 <input
@@ -96,7 +100,7 @@ export function ReaderSettingsModal({
                     handleDoublePageSettingChange('readRightToLeft', e.target.checked)
                   }
                 />{' '}
-                Read right-to-left
+                {t('dialogs:readerSettings.doublePageOptions.readRightToLeft')}
               </label>
             </div>
           )}
@@ -105,7 +109,7 @@ export function ReaderSettingsModal({
 
       {/* Info Text */}
       <p className="reader-settings-modal__info m-0 text-secondary pt-3">
-        Saved for this manga only
+        {t('dialogs:readerSettings.savedForMangaOnly')}
       </p>
     </div>
   )

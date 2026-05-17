@@ -1,0 +1,392 @@
+{
+  "button": {
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "delete": "Xóa",
+    "close": "Đóng",
+    "confirm": "Xác nhận",
+    "ok": "OK",
+    "tryAgain": "Thử lại",
+    "apply": "Áp dụng",
+    "create": "Tạo",
+    "creating": "Đang tạo...",
+    "download": "Tải xuống",
+    "downloading": "Đang tải xuống...",
+    "import": "Nhập",
+    "importing": "Đang nhập...",
+    "export": "Xuất",
+    "exporting": "Đang xuất...",
+    "reset": "Đặt lại",
+    "retry": "Thử lại",
+    "retrying": "Đang thử lại...",
+    "updating": "Đang cập nhật...",
+    "back": "Quay lại",
+    "next": "Tiếp theo",
+    "previous": "Trước",
+    "finish": "Hoàn tất",
+    "continue": "Tiếp tục",
+    "dismiss": "Đóng",
+    "later": "Sau",
+    "install": "Cài đặt",
+    "restart": "Khởi động lại",
+    "checkOut": "Xem Thư viện của bạn",
+    "goOnline": "Kết nối lại",
+    "openSettings": "Mở Cài đặt",
+    "saveCopy": "Lưu một Bản sao",
+    "savePreset": "Lưu Mẫu tìm kiếm",
+    "saving": "Đang lưu...",
+    "viewReleaseNotes": "Xem ghi chú phát hành",
+    "letsGo": "Tuyệt vời!",
+    "openInBrowser": "Mở trong Trình duyệt",
+    "copyLink": "Sao chép Liên kết"
+  },
+  "action": {
+    "add": "Thêm",
+    "edit": "Chỉnh sửa",
+    "remove": "Xóa",
+    "search": "Tìm kiếm",
+    "filter": "Lọc",
+    "sort": "Sắp xếp",
+    "download": "Tải xuống",
+    "upload": "Tải lên",
+    "import": "Nhập",
+    "export": "Xuất",
+    "create": "Tạo",
+    "update": "Cập nhật",
+    "refresh": "Làm mới",
+    "clear": "Xóa",
+    "select": "Chọn",
+    "browse": "Khám phá",
+    "view": "Xem",
+    "open": "Mở",
+    "show": "Hiển thị",
+    "hide": "Ẩn",
+    "load": "Tải",
+    "goToDetail": "Xem chi tiết",
+    "addToCollection": "Thêm vào bộ sưu tập...",
+    "removeFromLibrary": "Xóa khỏi thư viện",
+    "addToLibrary": "Thêm vào thư viện",
+    "editCollection": "Sửa bộ sưu tập",
+    "deleteCollection": "Xóa bộ sưu tập"
+  },
+  "state": {
+    "loading": "Đang tải",
+    "loadingEllipsis": "Đang tải...",
+    "success": "Thành công",
+    "error": "Lỗi",
+    "empty": "Trống",
+    "pending": "Đang chờ",
+    "completed": "Hoàn tất",
+    "failed": "Thất bại",
+    "processing": "Đang xử lý",
+    "queued": "Đang xếp hàng",
+    "retrying": "Đang thử lại...",
+    "checking": "Đang kiểm tra",
+    "available": "Có sẵn",
+    "notAvailable": "Không có sẵn",
+    "downloaded": "Đã tải xuống",
+    "offline": "Ngoại tuyến",
+    "online": "Trực tuyến"
+  },
+  "label": {
+    "name": "Tên",
+    "title": "Tiêu đề",
+    "description": "Mô tả",
+    "author": "Tác giả",
+    "status": "Trạng thái",
+    "type": "Loại",
+    "tags": "Thẻ",
+    "language": "Ngôn ngữ",
+    "languages": "Ngôn ngữ",
+    "quality": "Chất lượng",
+    "file": "Tệp",
+    "path": "Đường dẫn",
+    "presetName": "Tên mẫu",
+    "collectionName": "Tên bộ sưu tập",
+    "readingMode": "Chế độ đọc",
+    "contentRating": "Đánh giá nội dung",
+    "sortBy": "Sắp xếp theo",
+    "order": "Thứ tự",
+    "perPage": "Mỗi trang",
+    "demographic": "Đối tượng",
+    "progress": "Tiến trình",
+    "resultsPerPage": "Kết quả mỗi trang",
+    "itemsSelected": "{{count}} mục đã chọn",
+    "technicalDetails": "chi tiết kỹ thuật",
+    "error": "Lỗi:",
+    "stackTrace": "Stack Trace:"
+  },
+  "navigation": {
+    "browse": "Khám phá",
+    "library": "Thư viện",
+    "downloads": "Tải xuống",
+    "settings": "Cài đặt",
+    "history": "Lịch sử",
+    "readingHistory": "Lịch sử đọc",
+    "home": "Trang chủ",
+    "reader": "Trình đọc",
+    "goToBrowse": "Đi đến Khám phá",
+    "goToLibrary": "Đi đến Thư viện"
+  },
+  "time": {
+    "today": "Hôm nay",
+    "yesterday": "Hôm qua",
+    "hour": "giờ",
+    "minute": "phút",
+    "second": "giây",
+    "day": "ngày",
+    "week": "tuần",
+    "month": "tháng",
+    "year": "năm",
+    "ago": "trước",
+    "justNow": "Vừa xong"
+  },
+  "form": {
+    "optional": "Tùy chọn",
+    "required": "Bắt buộc",
+    "descriptionOptional": "Mô tả (Tùy chọn)",
+    "placeholder": {
+      "search": "Tìm kiếm...",
+      "searchManga": "Tìm kiếm manga...",
+      "searchHistory": "Tìm kiếm lịch sử đọc của bạn...",
+      "collectionName": "ví dụ: Đang đọc, Muốn đọc",
+      "description": "Thêm mô tả",
+      "presetName": "ví dụ: Hành động đang diễn ra",
+      "selectPreset": "Chọn mẫu tìm kiếm",
+      "selectOption": "Chọn một tùy chọn"
+    },
+    "helperText": {
+      "characterCount": "ký tự",
+      "pressMToCycle": "Nhấn M để chuyển đổi chế độ",
+      "highQuality": "Chất lượng hình ảnh tốt nhất, kích thước tệp lớn hơn",
+      "dataSaver": "Hình ảnh nén, kích thước tệp nhỏ hơn"
+    }
+  },
+  "message": {
+    "success": {
+      "importSuccessful": "Nhập thành công",
+      "changesSaved": "Đã lưu thay đổi"
+    },
+    "warning": {
+      "importCompletedWithWarnings": "Nhập dữ liệu hoàn tất với cảnh báo"
+    },
+    "error": {
+      "somethingWentWrong": "Đã xảy ra sự cố",
+      "importCompletedWithErrors": "Nhập dữ liệu hoàn tất với lỗi",
+      "downloadFailed": "Tải xuống thất bại. Nhấn để thử lại",
+      "failedToLoad": "Không thể tải dữ liệu",
+      "couldntLoadChapter": "Không thể tải chương",
+      "networkError": "Đã xảy ra lỗi mạng",
+      "unexpectedError": "Đã xảy ra lỗi không mong muốn",
+      "unknownError": "Đã xảy ra lỗi không xác định",
+      "failedToCreateCollection": "Không thể tạo bộ sưu tập",
+      "oopsUnexpected": "Ôi! Đã xảy ra sự cố không mong muốn. Thử tải lại nếu điều này tiếp tục xảy ra."
+    },
+    "info": {
+      "youreOffline": "Bạn đang ngoại tuyến",
+      "noInternet": "Không có kết nối internet",
+      "youAreOffline": "Bạn đang ngoại tuyến. Vui lòng kết nối internet để tải xuống",
+      "downloadedContentAvailable": "Nội dung đã tải xuống vẫn hoạt động",
+      "onlyDownloadedContent": "Chỉ có nội dung đã tải xuống khả dụng",
+      "browseRequiresInternet": "Khám phá yêu cầu kết nối internet",
+      "filtersActive": "Bộ lọc đang hoạt động",
+      "scrollToFilters": "Cuộn đến Bộ lọc",
+      "noOptionsFound": "Không tìm thấy tùy chọn nào"
+    },
+    "confirmation": {
+      "downloadChapter": "Tải xuống Chương?",
+      "downloadMultipleChapters": "Tải xuống nhiều Chương?",
+      "deletePreset": "Xóa mẫu này",
+      "cantBeUndone": "Điều này không thể hoàn tác. Tìm kiếm hiện tại của bạn sẽ vẫn hoạt động."
+    }
+  },
+  "quality": {
+    "highQuality": "Chất lượng cao",
+    "dataSaver": "Tiết kiệm dữ liệu"
+  },
+  "sort": {
+    "relevance": "Liên quan",
+    "latestUpdate": "Cập nhật mới nhất",
+    "recentlyAdded": "Mới thêm",
+    "mostFollows": "Nhiều người theo dõi nhất",
+    "highestRated": "Đánh giá cao nhất",
+    "title": "Tiêu đề",
+    "year": "Năm",
+    "ascending": "Tăng dần",
+    "descending": "Giảm dần"
+  },
+  "status": {
+    "ongoing": "Đang tiến hành",
+    "completed": "Hoàn thành",
+    "hiatus": "Tạm ngưng",
+    "cancelled": "Đã hủy",
+    "all": "Tất cả"
+  },
+  "demographic": {
+    "shounen": "Shounen",
+    "shoujo": "Shoujo",
+    "seinen": "Seinen",
+    "josei": "Josei",
+    "none": "Không có",
+    "all": "Tất cả"
+  },
+  "contentRating": {
+    "safe": "An toàn",
+    "suggestive": "Gợi dục",
+    "erotica": "Erotica",
+    "pornographic": "Khiêu dâm"
+  },
+  "readingMode": {
+    "singlePage": "Từng trang",
+    "doublePage": "Hai trang",
+    "verticalScroll": "Cuộn dọc"
+  },
+  "badge": {
+    "downloadChapter": "Tải xuống chương",
+    "downloadQueued": "Đang xếp hàng tải xuống",
+    "chapterDownloaded": "Chương đã tải xuống",
+    "alwaysIncluded": "Luôn bao gồm"
+  },
+  "emptyState": {
+    "noFavourites": "Chưa có mục yêu thích nào!",
+    "noReadingHistory": "Chưa có lịch sử đọc nào",
+    "noResults": "Không tìm thấy kết quả cho tìm kiếm của bạn.",
+    "noResultsFound": "Không tìm thấy kết quả",
+    "noCollections": "Bạn chưa có bộ sưu tập nào. Tạo một bộ sưu tập để bắt đầu sắp xếp manga của bạn!",
+    "createFirstCollection": "Tạo bộ sưu tập đầu tiên của bạn",
+    "startReading": "Bắt đầu đọc manga để xem tiến trình của bạn ở đây.",
+    "browseManga": "Khám phá Manga"
+  },
+  "section": {
+    "library": "Thư viện",
+    "collections": "Bộ sưu tập",
+    "readingProgress": "Tiến trình đọc",
+    "readerSettings": "Cài đặt trình đọc",
+    "advancedFilters": "Bộ lọc nâng cao (Thẻ & Ngôn ngữ)",
+    "showAdvancedFilters": "Hiển thị bộ lọc nâng cao",
+    "hideAdvancedFilters": "Ẩn bộ lọc nâng cao",
+    "technicalDetails": "Chi tiết kỹ thuật",
+    "errorDetails": "Chi tiết lỗi",
+    "viewErrorDetails": "Xem chi tiết lỗi"
+  },
+  "general": {
+    "and": "VÀ",
+    "or": "HOẶC",
+    "of": "của",
+    "items": "mục",
+    "chapters": "chương",
+    "pages": "trang",
+    "manga": "manga",
+    "includedTags": "Thẻ bao gồm",
+    "excludedTags": "Thẻ loại trừ",
+    "matchAllTags": "Khớp TẤT CẢ các thẻ (VÀ)",
+    "matchAnyTag": "Khớp BẤT KỲ thẻ nào (HOẶC)",
+    "includeTagsMode": "Chế độ bao gồm thẻ:",
+    "version": "Phiên bản",
+    "unknown": "Không xác định",
+    "untitled": "Chưa đặt tiêu đề",
+    "notAvailable": "Không có sẵn"
+  },
+  "aria": {
+    "closeDialog": "Đóng hộp thoại",
+    "closeNotification": "Đóng thông báo",
+    "clearSearch": "Xóa tìm kiếm",
+    "filters": "Bộ lọc",
+    "filtersActive": "{{count}} đang bật",
+    "hidePassword": "Ẩn mật khẩu",
+    "showPassword": "Hiển mật khẩu",
+    "nextPage": "Trang tiếp theo",
+    "previousPage": "Trang trước"
+  },
+  "statusBar": {
+    "incognitoActive": "Bạn đã vào Chế độ Ẩn danh — Không ghi nhận tiến trình đọc"
+  },
+  "updateBanner": {
+    "welcome": "Chào mừng đến với DexReader v{{version}}!"
+  },
+  "updateNotification": {
+    "checking": {
+      "ariaLabel": "Đang kiểm tra cập nhật",
+      "message": "Đang kiểm tra cập nhật..."
+    },
+    "available": {
+      "title": "Có bản cập nhật mới",
+      "description": "Phiên bản {{version}} sẵn sàng để tải xuống",
+      "downloadButton": "Tải xuống",
+      "laterButton": "Không, để sau"
+    },
+    "downloading": {
+      "ariaLabel": "Đang tải cập nhật",
+      "title": "Đang tải cập nhật...",
+      "progressAriaLabel": "Tiến trình tải xuống",
+      "progressDetails": "{{transferred}} / {{total}} ({{speed}})",
+      "hideButton": "Ẩn"
+    },
+    "downloaded": {
+      "title": "Cập nhật sẵn sàng cài đặt",
+      "description": "Phiên bản {{version}} đã được tải xuống",
+      "restartButton": "Khởi động lại ngay",
+      "laterButton": "Không, để sau"
+    },
+    "notAvailable": {
+      "message": "Bạn đang sử dụng phiên bản mới nhất ({{version}})"
+    },
+    "error": {
+      "title": "Cập nhật thất bại",
+      "retryButton": "Thử lại",
+      "dismissAriaLabel": "Đóng"
+    },
+    "units": {
+      "bytes": "B",
+      "kilobytes": "KB",
+      "megabytes": "MB",
+      "gigabytes": "GB",
+      "perSecond": "/giây"
+    }
+  },
+  "error": {
+    "criticalTitle": "Rất tiếc, có lỗi xảy ra",
+    "componentTitle": "Không thể tải phần này",
+    "criticalMessage": "Rất tiếc! Đã xảy ra lỗi không mong muốn. Hãy thử tải lại nếu lỗi tiếp tục xảy ra.",
+    "componentMessage": "Phần này hiện không hoạt động. Hãy thử lại hoặc khám phá các phần khác.",
+    "technicalDetails": "Chi tiết kỹ thuật",
+    "tryAgain": "Thử lại",
+    "reloadApp": "Tải lại ứng dụng",
+    "fallbackMessage": "Đã xảy ra lỗi",
+    "recoveryTitle": "Không thành công",
+    "retrying": "Đang thử lại..."
+  },
+  "manga": {
+    "status": {
+      "ongoing": "Đang tiến hành",
+      "completed": "Hoàn thành",
+      "hiatus": "Tạm ngưng",
+      "cancelled": "Đã hủy"
+    },
+    "coverUnavailable": "Không có ảnh bìa",
+    "chapters": "{{read}} / {{total}} chương",
+    "by": "bởi",
+    "chaptersRead": "{{read}} trong {{total}} chương đã đọc",
+    "unfavourite": "Bỏ yêu thích",
+    "addToFavourites": "Thêm vào yêu thích",
+    "downloadedNotInLibrary": "Đã tải (không có trong thư viện)",
+    "availableOffline": "Có sẵn ngoại tuyến",
+    "coverAlt": "Ảnh bìa {{title}}",
+    "progressAriaLabel": "{{read}} trong {{total}} chương đã đọc"
+  },
+  "preset": {
+    "loading": "Đang tải các mẫu...",
+    "noPreset": "Không có mẫu",
+    "selectPlaceholder": "Chọn một mẫu",
+    "selectAriaLabel": "Chọn mẫu tìm kiếm",
+    "deleteAriaLabel": "Xóa mẫu",
+    "deleteTitle": "Xóa mẫu này"
+  },
+  "progress": {
+    "defaultLabel": "Tiến trình",
+    "loading": "Đang tải..."
+  },
+  "loading": {
+    "manga": "Đang tải manga..."
+  }
+}

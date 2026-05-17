@@ -5,7 +5,8 @@
     "src/renderer/src/**/*",
     "src/renderer/src/**/*.tsx",
     "src/preload/*.d.ts",
-    "src/preload/ipc.types.ts"
+    "src/preload/ipc.types.ts",
+    "src/locales/**/*"
   ],
   "compilerOptions": {
     "composite": true,

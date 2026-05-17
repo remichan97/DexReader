@@ -7,6 +7,7 @@ import { Skeleton } from '@renderer/components/Skeleton'
 import { InfoBar } from '@renderer/components/InfoBar'
 import { useProgressStore } from '@renderer/stores/progressStore'
 import { useConnectivityStore } from '@renderer/stores/connectivityStore'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import { getMangaTitle } from '@renderer/utils/mangaHelpers'
 import { cacheMangaMetadata } from '@renderer/utils/mangaCache'
 import MangaHeroSection from './components/MangaHeroSection'
@@ -56,6 +57,7 @@ export function MangaDetailView(): JSX.Element {
   const { mangaId } = useParams<{ mangaId: string }>()
   const navigate = useNavigate()
   const location = useLocation()
+  const { t } = useTranslation(['mangaDetail', 'common'])
 
   const [state, setState] = useState<MangaDetailViewState>({
     manga: null,
@@ -124,13 +126,17 @@ export function MangaDetailView(): JSX.Element {
   useEffect(() => {
     if (state.manga) {
       const mangaTitle = getMangaTitle(state.manga)
-      document.title = `${mangaTitle} - DexReader`
+      document.title = t('mangaDetail:documentTitle.detail', {
+        manga: mangaTitle,
+        defaultValue: `${mangaTitle} - DexReader`
+      })
     } else if (state.loading) {
-      document.title = 'Loading... - DexReader'
+      document.title = t('mangaDetail:documentTitle.loading')
     } else {
-      document.title = 'Manga Details - DexReader'
+      document.title =
+        t('mangaDetail:pageTitle', { defaultValue: 'Manga Details' }) + ' - DexReader'
     }
-  }, [state.manga, state.loading, mangaId]) // Include mangaId to force update on navigation
+  }, [state.manga, state.loading, mangaId, t]) // Include mangaId to force update on navigation
 
   // Handle scroll to show/hide sticky title
   useEffect(() => {
@@ -407,7 +413,7 @@ export function MangaDetailView(): JSX.Element {
       setState((prev) => ({
         ...prev,
         loading: false,
-        error: new Error("You're offline and this manga isn't cached. Go online to view it.")
+        error: new Error(t('mangaDetail:offlineError.message'))
       }))
     }
   }
@@ -422,9 +428,7 @@ export function MangaDetailView(): JSX.Element {
       setState((prev) => ({
         ...prev,
         chaptersLoading: false,
-        chaptersError: new Error(
-          "You're offline. Changing language or refreshing chapters requires an internet connection."
-        )
+        chaptersError: new Error(t('mangaDetail:chapterError.offlineMessage'))
       }))
       return
     }
@@ -498,7 +502,7 @@ export function MangaDetailView(): JSX.Element {
       <div className="manga-detail-view flex flex-col">
         <div className="manga-detail-view__back-button">
           <Button variant="ghost" onClick={handleBackClick} icon={<ArrowLeftRegular />}>
-            Back
+            {t('common:button.back')}
           </Button>
         </div>
         <div className="manga-detail-error flex flex-col items-center justify-center">
@@ -507,28 +511,30 @@ export function MangaDetailView(): JSX.Element {
               {isOfflineError ? <CloudOff48Regular /> : <Warning48Regular />}
             </div>
             <h3 className="error-recovery__title">
-              {isOfflineError ? "You're offline" : "Couldn't load this manga"}
+              {isOfflineError
+                ? t('common:message.info.youreOffline')
+                : t('mangaDetail:errorState.title')}
             </h3>
             <p className="error-recovery__message">
-              {isOfflineError
-                ? state.error.message
-                : 'Something went wrong while trying to fetch this manga. It might be unavailable, deleted, or there could be a connection issue.'}
+              {isOfflineError ? state.error.message : t('mangaDetail:errorState.message')}
             </p>
             <div className="error-recovery__actions flex gap-2">
               {isOfflineError ? (
                 <Button variant="primary" onClick={() => navigate('/library')}>
-                  Go to Library
+                  {t('mangaDetail:offlineError.action')}
                 </Button>
               ) : (
                 <>
                   <Button variant="primary" onClick={handleRetry}>
-                    Try Again
+                    {t('common:button.tryAgain')}
                   </Button>
                   <Button
                     variant="ghost"
                     onClick={() => setShowMainErrorDetails(!showMainErrorDetails)}
                   >
-                    {showMainErrorDetails ? 'Hide' : 'Show'} technical details
+                    {showMainErrorDetails
+                      ? t('mangaDetail:errorState.hideDetails')
+                      : t('mangaDetail:errorState.showDetails')}
                   </Button>
                 </>
               )}
@@ -536,11 +542,11 @@ export function MangaDetailView(): JSX.Element {
             {!isOfflineError && showMainErrorDetails && state.error && (
               <div className="error-recovery__technical-details">
                 <div>
-                  <strong>Error:</strong> {state.error.message}
+                  <strong>{t('common:label.error')}</strong> {state.error.message}
                 </div>
                 {state.error.stack && (
                   <div className="mt-2">
-                    <strong>Stack Trace:</strong>
+                    <strong>{t('common:label.stackTrace')}</strong>
                     <pre style={{ margin: '4px 0 0 0', fontSize: '11px', lineHeight: '1.4' }}>
                       {state.error.stack}
                     </pre>
@@ -560,14 +566,18 @@ export function MangaDetailView(): JSX.Element {
       <div className="manga-detail-view flex flex-col">
         <div className="manga-detail-view__back-button">
           <Button variant="ghost" onClick={handleBackClick} icon={<ArrowLeftRegular />}>
-            Back
+            {t('common:button.back')}
           </Button>
         </div>
         <div className="manga-detail-error flex flex-col items-center justify-center">
-          <h2>Manga Not Found</h2>
-          <p>This manga doesn&apos;t exist or has been removed.</p>
+          <h2>{t('mangaDetail:notFound.title', { defaultValue: 'Manga Not Found' })}</h2>
+          <p>
+            {t('mangaDetail:notFound.message', {
+              defaultValue: "This manga doesn't exist or has been removed."
+            })}
+          </p>
           <Button variant="accent" onClick={() => navigate('/browse')}>
-            Back to Browse
+            {t('mangaDetail:notFound.action', { defaultValue: 'Back to Browse' })}
           </Button>
         </div>
       </div>
@@ -579,10 +589,15 @@ export function MangaDetailView(): JSX.Element {
       {/* Back button with optional sticky title */}
       <div className="manga-detail-view__back-button flex items-center gap-3">
         <Button variant="ghost" onClick={handleBackClick} icon={<ArrowLeftRegular />}>
-          Back
+          {t('common:button.back')}
         </Button>
         {showStickyTitle && state.manga && (
-          <span className="manga-detail-view__sticky-title">{getMangaTitle(state.manga)}</span>
+          <span className="manga-detail-view__sticky-title">
+            {t('mangaDetail:stickyTitle', {
+              title: getMangaTitle(state.manga),
+              defaultValue: getMangaTitle(state.manga)
+            })}
+          </span>
         )}
       </div>
 
@@ -591,7 +606,13 @@ export function MangaDetailView(): JSX.Element {
         <InfoBar
           text={
             <>
-              <strong>Viewing cached data</strong> — Some features require an internet connection
+              <strong>
+                {t('mangaDetail:cachedDataBanner.title', { defaultValue: 'Viewing cached data' })}
+              </strong>{' '}
+              —{' '}
+              {t('mangaDetail:cachedDataBanner.message', {
+                defaultValue: 'Some features require an internet connection'
+              })}
             </>
           }
         />

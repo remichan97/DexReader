@@ -11,6 +11,7 @@ import { Select } from '@renderer/components/Select'
 import { Checkbox } from '@renderer/components/Checkbox'
 import { Button } from '@renderer/components/Button'
 import { PresetSelector } from '@renderer/components/PresetSelector'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import {
   ContentRating,
   PublicationStatus,
@@ -50,6 +51,7 @@ export function FilterPanel({
   onPresetSelect,
   onPresetDelete
 }: FilterPanelProps): JSX.Element {
+  const { t } = useTranslation('browse')
   const [isExpanded, setIsExpanded] = useState(false)
   const { presets } = useSearchPresetsStore()
   const tagGroups = getAllTagsGrouped()
@@ -116,7 +118,7 @@ export function FilterPanel({
         {/* Search Preset - Only show if presets exist */}
         {onPresetSelect && onPresetDelete && presets.length > 0 && (
           <div className="filter-panel__group flex flex-col gap-2">
-            <span className="filter-panel__label">Search Preset</span>
+            <span className="filter-panel__label">{t('preset.searchPreset')}</span>
             <PresetSelector
               currentPresetId={currentPresetId ?? null}
               onSelect={onPresetSelect}
@@ -127,98 +129,98 @@ export function FilterPanel({
 
         {/* Content Rating */}
         <div className="filter-panel__group flex flex-col gap-2">
-          <span className="filter-panel__label">Content Rating</span>
+          <span className="filter-panel__label">{t('filter.contentRating')}</span>
           <div className="filter-panel__checkboxes flex gap-4 flex-wrap items-center">
             <Checkbox
               checked={filters.contentRating.includes(ContentRating.Safe)}
               onChange={(checked) => handleContentRatingChange(ContentRating.Safe, checked)}
-              label="Safe"
+              label={t('filter.contentRatings.safe')}
             />
             <Checkbox
               checked={filters.contentRating.includes(ContentRating.Suggestive)}
               onChange={(checked) => handleContentRatingChange(ContentRating.Suggestive, checked)}
-              label="Suggestive"
+              label={t('filter.contentRatings.suggestive')}
             />
             <Checkbox
               checked={filters.contentRating.includes(ContentRating.Erotica)}
               onChange={(checked) => handleContentRatingChange(ContentRating.Erotica, checked)}
-              label="Erotica"
+              label={t('filter.contentRatings.erotica')}
             />
             <Checkbox
               checked={filters.contentRating.includes(ContentRating.Pornographic)}
               onChange={(checked) => handleContentRatingChange(ContentRating.Pornographic, checked)}
-              label="Pornographic"
+              label={t('filter.contentRatings.pornographic')}
             />
           </div>
         </div>
 
         {/* Status */}
         <div className="filter-panel__group flex flex-col gap-2">
-          <span className="filter-panel__label">Status</span>
+          <span className="filter-panel__label">{t('filter.status')}</span>
           <Select
             value={filters.publicationStatus[0] || 'all'}
             onChange={handleStatusChange}
             options={[
-              { value: 'all', label: 'All' },
-              { value: PublicationStatus.Ongoing, label: 'Ongoing' },
-              { value: PublicationStatus.Completed, label: 'Completed' },
-              { value: PublicationStatus.Hiatus, label: 'Hiatus' },
-              { value: PublicationStatus.Cancelled, label: 'Cancelled' }
+              { value: 'all', label: t('filter.statuses.all') },
+              { value: PublicationStatus.Ongoing, label: t('filter.statuses.ongoing') },
+              { value: PublicationStatus.Completed, label: t('filter.statuses.completed') },
+              { value: PublicationStatus.Hiatus, label: t('filter.statuses.hiatus') },
+              { value: PublicationStatus.Cancelled, label: t('filter.statuses.cancelled') }
             ]}
           />
         </div>
 
         {/* Demographic */}
         <div className="filter-panel__group flex flex-col gap-2">
-          <span className="filter-panel__label">Demographic</span>
+          <span className="filter-panel__label">{t('filter.demographic')}</span>
           <Select
             value={filters.publicationDemographic[0] || 'all'}
             onChange={handleDemographicChange}
             options={[
-              { value: 'all', label: 'All' },
-              { value: PublicationDemographic.Shounen, label: 'Shounen' },
-              { value: PublicationDemographic.Shoujo, label: 'Shoujo' },
-              { value: PublicationDemographic.Seinen, label: 'Seinen' },
-              { value: PublicationDemographic.Josei, label: 'Josei' },
-              { value: PublicationDemographic.None, label: 'None' }
+              { value: 'all', label: t('filter.demographics.all') },
+              { value: PublicationDemographic.Shounen, label: t('filter.demographics.shounen') },
+              { value: PublicationDemographic.Shoujo, label: t('filter.demographics.shoujo') },
+              { value: PublicationDemographic.Seinen, label: t('filter.demographics.seinen') },
+              { value: PublicationDemographic.Josei, label: t('filter.demographics.josei') },
+              { value: PublicationDemographic.None, label: t('filter.demographics.none') }
             ]}
           />
         </div>
 
         {/* Sort By */}
         <div className="filter-panel__group flex flex-col gap-2">
-          <span className="filter-panel__label">Sort By</span>
+          <span className="filter-panel__label">{t('filter.sortBy')}</span>
           <Select
             value={filters.sortBy}
             onChange={handleSortChange}
             options={[
-              { value: OrderOptions.Relevance, label: 'Relevance' },
-              { value: OrderOptions.UpdatedAt, label: 'Latest Update' },
-              { value: OrderOptions.CreatedAt, label: 'Recently Added' },
-              { value: OrderOptions.FollowedCount, label: 'Most Follows' },
-              { value: OrderOptions.Rating, label: 'Highest Rated' },
-              { value: OrderOptions.Title, label: 'Title' },
-              { value: OrderOptions.Year, label: 'Year' }
+              { value: OrderOptions.Relevance, label: t('filter.sortOptions.relevance') },
+              { value: OrderOptions.UpdatedAt, label: t('filter.sortOptions.latestUpdate') },
+              { value: OrderOptions.CreatedAt, label: t('filter.sortOptions.recentlyAdded') },
+              { value: OrderOptions.FollowedCount, label: t('filter.sortOptions.mostFollows') },
+              { value: OrderOptions.Rating, label: t('filter.sortOptions.highestRated') },
+              { value: OrderOptions.Title, label: t('filter.sortOptions.title') },
+              { value: OrderOptions.Year, label: t('filter.sortOptions.year') }
             ]}
           />
         </div>
 
         {/* Sort Direction */}
         <div className="filter-panel__group flex flex-col gap-2">
-          <span className="filter-panel__label">Order</span>
+          <span className="filter-panel__label">{t('filter.order')}</span>
           <Select
             value={filters.sortDirection}
             onChange={handleSortDirectionChange}
             options={[
-              { value: OrderDirection.Desc, label: 'Descending' },
-              { value: OrderDirection.Asc, label: 'Ascending' }
+              { value: OrderDirection.Desc, label: t('filter.orderOptions.descending') },
+              { value: OrderDirection.Asc, label: t('filter.orderOptions.ascending') }
             ]}
           />
         </div>
 
         {/* Results Per Page */}
         <div className="filter-panel__group flex flex-col gap-2">
-          <span className="filter-panel__label">Per Page</span>
+          <span className="filter-panel__label">{t('filter.perPage')}</span>
           <Select
             value={limit.toString()}
             onChange={(val) => onLimitChange(Number(Array.isArray(val) ? val[0] : val))}
@@ -251,17 +253,17 @@ export function FilterPanel({
               variant="secondary"
               size="small"
               onClick={onClear}
-              title="Restore the filters to default"
+              title={t('filter.tooltips.reset')}
             >
-              Reset
+              {t('clearFiltersButton')}
             </Button>
             <Button
               variant="primary"
               size="small"
               onClick={onApply}
-              title="Apply the selected filters"
+              title={t('filter.tooltips.apply')}
             >
-              Apply
+              {t('applyFiltersButton')}
             </Button>
           </div>
         )}
@@ -273,10 +275,12 @@ export function FilterPanel({
           className="filter-panel__toggle-btn flex items-center gap-2"
           onClick={() => setIsExpanded(!isExpanded)}
           type="button"
-          aria-label={isExpanded ? 'Hide advanced filters' : 'Show advanced filters'}
+          aria-label={
+            isExpanded ? t('filter.hideAdvancedFilters') : t('filter.showAdvancedFilters')
+          }
           aria-expanded={isExpanded}
         >
-          {isExpanded ? '▼' : '▶'} Advanced Filters (Tags & Languages)
+          {isExpanded ? '▼' : '▶'} {t('filter.advancedFilters')}
         </button>
       </div>
 
@@ -285,13 +289,13 @@ export function FilterPanel({
         <div className="filter-panel__advanced">
           {/* Tag Mode Selection */}
           <div className="filter-panel__tag-mode flex items-center gap-3">
-            <span className="filter-panel__label">Include Tags Mode:</span>
+            <span className="filter-panel__label">{t('filter.includeTagsMode')}</span>
             <Select
               value={filters.includedTagsMode}
               onChange={handleTagModeChange}
               options={[
-                { value: IncludedTagsMode.And, label: 'Match ALL tags (AND)' },
-                { value: IncludedTagsMode.Or, label: 'Match ANY tag (OR)' }
+                { value: IncludedTagsMode.And, label: t('filter.matchAllTags') },
+                { value: IncludedTagsMode.Or, label: t('filter.matchAnyTag') }
               ]}
             />
           </div>
@@ -322,8 +326,8 @@ export function FilterPanel({
                             }
                             handleTagInclude(tag.id, !isIncluded)
                           }}
-                          title="Include this tag"
-                          aria-label={`Include ${tag.name} tag`}
+                          title={t('filter.tooltips.includeTag')}
+                          aria-label={t('filter.tooltips.includeTag')}
                         >
                           +
                         </button>
@@ -337,8 +341,8 @@ export function FilterPanel({
                             }
                             handleTagExclude(tag.id, !isExcluded)
                           }}
-                          title="Exclude this tag"
-                          aria-label={`Exclude ${tag.name} tag`}
+                          title={t('filter.tooltips.excludeTag')}
+                          aria-label={t('filter.tooltips.excludeTag')}
                         >
                           −
                         </button>
@@ -352,7 +356,7 @@ export function FilterPanel({
 
           {/* Language Filter Section */}
           <div className="filter-panel__tag-group">
-            <h4 className="filter-panel__tag-group-title">Languages</h4>
+            <h4 className="filter-panel__tag-group-title">{t('filter.languages')}</h4>
             <div className="filter-panel__tag-list">
               {LanguageList.map((language) => {
                 const isSelected = filters.availableTranslatedLanguage.includes(language.code)
@@ -381,27 +385,27 @@ export function FilterPanel({
             variant="secondary"
             size="small"
             onClick={onClear}
-            title="Restore the filters to default"
+            title={t('filter.tooltips.reset')}
           >
-            Reset
+            {t('clearFiltersButton')}
           </Button>
           {onSavePreset && (
             <Button
               variant="secondary"
               size="small"
               onClick={onSavePreset}
-              title="Save the current filter settings as a preset"
+              title={t('filter.tooltips.savePreset')}
             >
-              Save Preset
+              {t('savePresetButton')}
             </Button>
           )}
           <Button
             variant="primary"
             size="small"
             onClick={onApply}
-            title="Apply the selected filters"
+            title={t('filter.tooltips.apply')}
           >
-            Apply Filters
+            {t('applyFiltersButton')}
           </Button>
         </div>
       )}

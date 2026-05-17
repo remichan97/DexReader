@@ -1,0 +1,15 @@
+{
+  "performance": {
+    "mustBeNumber": "Must be a number",
+    "minimumCache": "Minimum 10 MB required (got {{size}} MB)",
+    "maximumCache": "Maximum {{maxSize}} MB allowed (30% of {{ramSize}} GB RAM). Got {{actualSize}} MB.",
+    "cacheTooSmall": "Cache size must be at least 10 MB",
+    "cacheTooLarge": "Cache size cannot exceed {{sanityMax}} MB (30% of system RAM)",
+    "lowCacheWarning": "Low cache may cause frequent reloads. We recommend at least 30 MB",
+    "highCacheWarning": "This exceeds our recommendation of {{recommendedMax}} MB (10% of system RAM). Higher values might slow things down."
+  },
+  "ui": {
+    "invalidSettings": "Some settings are invalid. Fix validation errors before saving.",
+    "characterCount": "{{count}}/50 characters"
+  }
+}

@@ -4,6 +4,7 @@ import { Button } from '@renderer/components/Button'
 import { Input } from '@renderer/components/Input'
 import { Select, type SelectOption } from '@renderer/components/Select'
 import { RadioGroup, Radio } from '@renderer/components/Radio'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import './DownloadsSettings.css'
 
 interface DownloadsSettingsProps {
@@ -31,6 +32,8 @@ export function DownloadsSettings({
   onDefaultQualityChange,
   onMaxConcurrentDownloadsChange
 }: Readonly<DownloadsSettingsProps>): React.JSX.Element {
+  const { t } = useTranslation(['settings', 'common'])
+
   const concurrentDownloadsOptions: SelectOption[] = [
     { value: '1', label: '1 (Sequential)' },
     { value: '2', label: '2' },
@@ -42,14 +45,12 @@ export function DownloadsSettings({
   return (
     <div className="downloads-settings__container flex flex-col gap-5">
       <div>
-        <h4 className="downloads-settings__heading">Downloads Location</h4>
-        <p className="downloads-settings__description">
-          Where should we save your downloaded chapters?
-        </p>
+        <h4 className="downloads-settings__heading">{t('downloads.locationSection')}</h4>
+        <p className="downloads-settings__description">{t('downloads.locationDescription')}</p>
         <div className="downloads-settings__controls">
           <Input
             type="text"
-            value={isLoadingPath ? 'Loading...' : downloadsPath}
+            value={isLoadingPath ? t('common:state.loadingEllipsis') : downloadsPath}
             onChange={() => {}}
             readOnly
             className="downloads-settings__path-display"
@@ -60,21 +61,19 @@ export function DownloadsSettings({
             loading={isChangingPath}
             disabled={isLoadingPath}
           >
-            Browse...
+            {t('downloads.browseButton')}
           </Button>
         </div>
         <p className="downloads-settings__info-box flex items-center gap-1.5">
           <Lightbulb16Regular className="downloads-settings__info-icon" />
-          <span>Tip: Choose a location with plenty of free space for your manga collection.</span>
+          <span>{t('downloads.locationTip')}</span>
         </p>
       </div>
 
       {/* Download Confirmation Settings */}
       <div className="downloads-settings__divider">
-        <h4 className="downloads-settings__heading">Download Confirmation</h4>
-        <p className="downloads-settings__description">
-          When should we ask before downloading chapters?
-        </p>
+        <h4 className="downloads-settings__heading">{t('downloads.confirmationSection')}</h4>
+        <p className="downloads-settings__description">{t('downloads.confirmationDescription')}</p>
 
         <RadioGroup
           value={downloadConfirmation}
@@ -82,63 +81,65 @@ export function DownloadsSettings({
             onDownloadConfirmationChange(value as 'always' | 'batch-only' | 'never')
           }
           name="download-confirmation"
-          label="Confirmation behaviour"
+          label={t('downloads.confirmationLabel')}
         >
-          <Radio value="always" label="Always" description="Ask which quality before downloading" />
+          <Radio
+            value="always"
+            label={t('downloads.confirmationOptions.always.label')}
+            description={t('downloads.confirmationOptions.always.description')}
+          />
           <Radio
             value="batch-only"
-            label="Batch Only"
-            description="Only ask when downloading multiple chapters at once"
+            label={t('downloads.confirmationOptions.batchOnly.label')}
+            description={t('downloads.confirmationOptions.batchOnly.description')}
           />
           <Radio
             value="never"
-            label="Never"
-            description="Start downloads immediately without confirmation"
+            label={t('downloads.confirmationOptions.never.label')}
+            description={t('downloads.confirmationOptions.never.description')}
           />
         </RadioGroup>
       </div>
 
       {/* Download Quality Settings */}
       <div className="downloads-settings__divider">
-        <h4 className="downloads-settings__heading">Download Quality</h4>
+        <h4 className="downloads-settings__heading">{t('downloads.qualitySection')}</h4>
         <p className="downloads-settings__description">
           {downloadConfirmation === 'never'
-            ? 'Quality used for all downloads'
-            : 'Default quality selection'}
+            ? t('downloads.qualityDescription')
+            : t('downloads.qualityDescriptionWithConfirm')}
         </p>
 
         <RadioGroup
           value={defaultQuality}
           onChange={(value) => onDefaultQualityChange(value as 'data' | 'data-saver')}
           name="default-quality"
-          label="Default quality"
+          label={t('downloads.qualityLabel')}
         >
           <Radio
             value="data"
-            label="High Quality"
-            description="Full resolution images, best visual quality"
+            label={t('common:quality.highQuality')}
+            description={t('reader.imageQuality.highQuality.description')}
           />
           <Radio
             value="data-saver"
-            label="Data Saver"
-            description="Compressed images, smaller file sizes"
+            label={t('common:quality.dataSaver')}
+            description={t('reader.imageQuality.dataSaver.description')}
           />
         </RadioGroup>
       </div>
 
       {/* Concurrent Downloads Settings */}
       <div className="downloads-settings__divider">
-        <h4 className="downloads-settings__heading">Concurrent Downloads</h4>
-        <p className="downloads-settings__description">
-          How many chapters should download at the same time?
-        </p>
+        <h4 className="downloads-settings__heading">{t('downloads.concurrentSection')}</h4>
+        <p className="downloads-settings__description">{t('downloads.concurrentDescription')}</p>
 
         <Select
           value={String(maxConcurrentDownloads)}
           onChange={onMaxConcurrentDownloadsChange}
           options={concurrentDownloadsOptions}
-          label="Maximum concurrent downloads"
-          helperText="Higher values download faster but use more bandwidth and resources"
+          label={t('downloads.concurrentLabel')}
+          helperText={t('downloads.concurrentHelper')}
         />
       </div>
     </div>

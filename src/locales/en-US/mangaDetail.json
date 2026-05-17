@@ -1,0 +1,139 @@
+{
+  "pageTitle": "Manga Details",
+  "offlineError": {
+    "message": "You're offline and this manga isn't cached. Go online to view it.",
+    "action": "Go to Library"
+  },
+  "errorState": {
+    "title": "Couldn't load manga",
+    "message": "We ran into a problem loading this manga. This might be a connection issue or the service might be temporarily unavailable.",
+    "showDetails": "Show technical details",
+    "hideDetails": "Hide"
+  },
+  "cachedDataBanner": {
+    "title": "Viewing cached data",
+    "message": "You're viewing cached data. Go online to see the latest information."
+  },
+  "chapterError": {
+    "title": "Couldn't load chapters",
+    "message": "Failed to load chapters. You're offline or chapters aren't available.",
+    "offlineMessage": "You're offline. Changing language or refreshing chapters requires an internet connection.",
+    "noChaptersInLanguage": "No chapters available in {{language}} ({{code}})",
+    "viewOnMangaDex": "View on MangaDex"
+  },
+  "notFound": {
+    "title": "Manga Not Found",
+    "message": "This manga doesn't exist or has been removed.",
+    "action": "Back to Browse"
+  },
+  "documentTitle": {
+    "loading": "Loading... - DexReader",
+    "detail": "{{manga}} - DexReader"
+  },
+  "liveRegion": {
+    "loading": "Loading manga details...",
+    "loaded": "Loaded {{title}} by {{author}}"
+  },
+  "stickyTitle": "{title}",
+  "hero": {
+    "coverAlt": "{{title}} cover",
+    "filterByTag": "Filter by {{name}}",
+    "author": "Author:",
+    "artist": "Artist:",
+    "status": "Status:",
+    "demographic": "Demographic:",
+    "year": "Year:",
+    "rating": "Rating:",
+    "length": "Length:",
+    "volumeCount": "{{count}} volume{{s}}",
+    "chapterCount": "{{count}} chapter{{s}}",
+    "continue": "Continue",
+    "startReading": "Start Reading",
+    "inLibrary": "In Library",
+    "addedToLibrary": {
+      "title": "Added to Library!"
+    },
+    "failedToAdd": "Failed to add to library",
+    "manageDownloads": {
+      "title": "Manage Downloads",
+      "detail": "{{title}}\n\nThis manga has {{count}} downloaded chapter{{s}}.\n\nYou can add it to your library for tracking, or delete all downloaded chapters.",
+      "addToLibrary": "Add to Library",
+      "deleteAll": "Delete All Chapters"
+    },
+    "deleteDownloads": {
+      "title": "Delete all downloaded chapters?",
+      "detail": "This will permanently delete {{count}} chapter{{s}} from {{title}}.\n\nThis action cannot be undone.",
+      "failed": "Failed to delete downloads"
+    },
+    "downloadAll": {
+      "button": "Download All",
+      "tooltip": "Download all chapters",
+      "offlineTooltip": "You are offline. Please go online to download",
+      "noChapters": "No chapters available",
+      "partialFailure": "Partial Failure",
+      "couldntQueue": "Couldn't queue {{count}} chapter{{s}}"
+    }
+  },
+  "toasts": {
+    "downloadsDeleted": {
+      "title": "Downloads deleted",
+      "message": "Deleted {{count}} chapter{{s}}"
+    },
+    "downloadStarted": {
+      "title": "Download Started",
+      "message": "Added {{count}} chapter{{s}} to download queue!"
+    }
+  },
+  "section": {
+    "description": {
+      "title": "Description",
+      "noDescription": "No description available.",
+      "showMore": "Show more",
+      "showLess": "Show less"
+    },
+    "alternativeTitles": {
+      "title": "Alternative Titles",
+      "showLess": "Show Less",
+      "showMore": "Show {{count}} More"
+    }
+  },
+  "chapters": {
+    "title": "Chapters ({{count}})",
+    "downloadAll": "Download All",
+    "downloadAllTooltip": "Download all {{count}} chapters",
+    "downloadAllUnavailable": "Download all is not available",
+    "selectLanguage": "Select chapter language",
+    "sortChapters": "Sort chapters",
+    "sort": {
+      "oldestFirst": "Oldest First",
+      "newestFirst": "Newest First"
+    },
+    "item": {
+      "untitled": "Untitled",
+      "unknownGroup": "Unknown Group",
+      "readChapter": "Read Chapter {{number}}: {{title}}",
+      "chapterPrefix": "Ch.",
+      "pagePrefix": "p."
+    }
+  },
+  "externalLinks": {
+    "title": "External Links",
+    "viewOn": "View on {{service}}",
+    "services": {
+      "anilist": "AniList",
+      "animePlanet": "Anime-Planet",
+      "bookwalker": "BookWalker",
+      "mangaUpdates": "MangaUpdates",
+      "myAnimeList": "MyAnimeList",
+      "kitsu": "Kitsu",
+      "amazon": "Amazon",
+      "cdJapan": "CDJapan",
+      "ebookJapan": "eBookJapan",
+      "officialRaw": "Official Raw"
+    },
+    "dialog": {
+      "openService": "Open {{service}}?",
+      "detail": "You're about to open an external website in your default browser. Just so you know where you're headed:\n\n{{url}}"
+    }
+  }
+}

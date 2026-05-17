@@ -1,0 +1,136 @@
+{
+  "pageTitle": "Browse Manga",
+  "searchPlaceholder": "Search by title, author, or genre...",
+  "filterButton": "Filter",
+  "applyFiltersButton": "Apply Filters",
+  "clearFiltersButton": "Clear Filters",
+  "savePresetButton": "Save Preset",
+  "offlineState": {
+    "message": "Browse and search require an internet connection. Check out your Library to read downloaded manga.",
+    "action": "Go to Library"
+  },
+  "emptyState": {
+    "searching": "Searching for manga...",
+    "noResults": "No manga found",
+    "scrollForMore": "scroll for more"
+  },
+  "errorState": {
+    "title": "Couldn't load manga",
+    "message": "Something went wrong while searching. This might be a connection issue or the service might be temporarily unavailable.",
+    "showDetailsButton": "Show technical details",
+    "hideDetailsButton": "Hide"
+  },
+  "filterInfo": {
+    "activeFilters": "{{count}} filter{{s}} active",
+    "browsingAll": "Browsing all manga",
+    "scrollToFilters": "Scroll to Filters",
+    "resetToDefault": "Reset to Default"
+  },
+  "toasts": {
+    "addedToLibrary": "Added to Library!",
+    "presetLoaded": "Preset loaded",
+    "presetSaved": "Preset saved",
+    "presetDeleted": "Preset deleted",
+    "error": "Error",
+    "failedToUpdate": "Failed to update library",
+    "failedToSave": "Failed to save preset",
+    "failedToDelete": "Failed to delete preset"
+  },
+  "liveRegion": {
+    "searching": "Searching for manga...",
+    "found": "Found {{count}} manga",
+    "hasMore": ", scroll for more",
+    "noResults": "No manga found"
+  },
+  "import": {
+    "imported": "Imported",
+    "skipped": "Skipped",
+    "failed": "Failed",
+    "cancelImport": "Cancel Import",
+    "importBackup": "Import Backup",
+    "importBehaviour": "Import Behaviour:",
+    "importMessage": "Importing manga from your Tachiyomi/Mihon backup. This may take a few moments depending on the size of your library.",
+    "importInfo": "This backup will be merged with your existing library. The following data will be imported:",
+    "successMessage": "Successfully imported {{count}} out of {{total}} manga from your backup.",
+    "skippedMessage": "{{count}} manga were skipped (already in library or not from MangaDex)."
+  },
+  "export": {
+    "exportBackup": "Export Backup",
+    "saveTo": "Save to:",
+    "chooseWhatToInclude": "Choose what to include in your backup file. Library manga metadata is always included.",
+    "noteSettings": "Note: App settings (theme, language, shortcuts) are stored separately. Use Settings → Advanced → Open Settings File to back them up."
+  },
+  "download": {
+    "downloadChapter": "Download chapter",
+    "downloading": "Downloading...",
+    "downloadingPages": "Downloading... {{current}} of {{total}} pages",
+    "downloadQueued": "Download queued",
+    "chapterDownloaded": "Chapter downloaded",
+    "downloadFailed": "Download failed. Click to retry",
+    "downloadMessage": "You're about to download {{count}} chapters."
+  },
+  "preset": {
+    "searchPreset": "Search Preset",
+    "noPreset": "No Preset",
+    "loadingPresets": "Loading presets...",
+    "selectAPreset": "Select a preset",
+    "setAsDefault": "Set as default",
+    "previewCurrentFilters": "Preview: Current Filters"
+  },
+  "filter": {
+    "contentRating": "Content Rating",
+    "contentRatings": {
+      "safe": "Safe",
+      "suggestive": "Suggestive",
+      "erotica": "Erotica",
+      "pornographic": "Pornographic"
+    },
+    "status": "Status",
+    "statuses": {
+      "all": "All",
+      "ongoing": "Ongoing",
+      "completed": "Completed",
+      "hiatus": "Hiatus",
+      "cancelled": "Cancelled"
+    },
+    "demographic": "Demographic",
+    "demographics": {
+      "all": "All",
+      "shounen": "Shounen",
+      "shoujo": "Shoujo",
+      "seinen": "Seinen",
+      "josei": "Josei",
+      "none": "None"
+    },
+    "sortBy": "Sort By",
+    "sortOptions": {
+      "relevance": "Relevance",
+      "latestUpdate": "Latest Update",
+      "recentlyAdded": "Recently Added",
+      "mostFollows": "Most Follows",
+      "highestRated": "Highest Rated",
+      "title": "Title",
+      "year": "Year"
+    },
+    "order": "Order",
+    "orderOptions": {
+      "descending": "Descending",
+      "ascending": "Ascending"
+    },
+    "perPage": "Per Page",
+    "advancedFilters": "Advanced Filters (Tags & Languages)",
+    "hideAdvancedFilters": "Hide advanced filters",
+    "showAdvancedFilters": "Show advanced filters",
+    "includeTagsMode": "Include Tags Mode:",
+    "matchAllTags": "Match ALL tags (AND)",
+    "matchAnyTag": "Match ANY tag (OR)",
+    "languages": "Languages",
+    "tooltips": {
+      "reset": "Restore the filters to default",
+      "apply": "Apply the selected filters",
+      "savePreset": "Save the current filter settings as a preset",
+      "includeTag": "Include this tag",
+      "excludeTag": "Exclude this tag"
+    }
+  }
+}

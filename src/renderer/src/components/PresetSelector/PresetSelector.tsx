@@ -9,6 +9,7 @@ import type { JSX } from 'react'
 import { Delete24Regular } from '@fluentui/react-icons'
 import { Select, type SelectOption } from '@renderer/components/Select'
 import { useSearchPresetsStore } from '@renderer/stores'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import './PresetSelector.css'
 
 interface PresetSelectorProps {
@@ -22,13 +23,14 @@ export function PresetSelector({
   onSelect,
   onDelete
 }: PresetSelectorProps): JSX.Element {
+  const { t } = useTranslation(['common', 'dialogs'])
   const { presets, loading } = useSearchPresetsStore()
 
   // Build options for Select component
   const options: SelectOption[] = [
     {
       value: '',
-      label: loading ? 'Loading presets...' : 'No Preset'
+      label: loading ? t('common:preset.loading') : t('common:preset.noPreset')
     },
     ...presets.map((preset) => ({
       value: String(preset.id),
@@ -51,9 +53,9 @@ export function PresetSelector({
         value={currentPresetId ? String(currentPresetId) : ''}
         onChange={handleChange}
         options={options}
-        placeholder="Select a preset"
+        placeholder={t('common:preset.selectPlaceholder')}
         disabled={loading}
-        aria-label="Select search preset"
+        aria-label={t('common:preset.selectAriaLabel')}
       />
 
       {/* Delete button - shown when preset is selected */}
@@ -66,9 +68,9 @@ export function PresetSelector({
             if (preset) {
               // Confirm deletion
               const confirmed = await globalThis.api.showConfirmDialog(
-                `Delete "${preset.name}"?`,
-                "This can't be undone. Your current search will remain active.",
-                'Yes, Delete',
+                t('dialogs:preset.deleteTitle', { name: preset.name }),
+                t('dialogs:preset.deleteMessage'),
+                t('dialogs:preset.confirmDelete'),
                 'Cancel'
               )
               if (confirmed.success && confirmed.data) {
@@ -76,8 +78,8 @@ export function PresetSelector({
               }
             }
           }}
-          title="Delete this preset"
-          aria-label="Delete preset"
+          title={t('common:preset.deleteTitle')}
+          aria-label={t('common:preset.deleteAriaLabel')}
         >
           <Delete24Regular />
         </button>

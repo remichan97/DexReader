@@ -1,4 +1,5 @@
 import { ProgressVariant, ComponentSize, BaseComponentProps } from '@renderer/types/components'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import './ProgressBar.css'
 
 export interface ProgressBarProps extends BaseComponentProps {
@@ -80,6 +81,7 @@ export function ProgressBar({
   className = '',
   'aria-label': ariaLabel
 }: Readonly<ProgressBarProps>): React.JSX.Element {
+  const { t } = useTranslation(['common'])
   const isIndeterminate = value === undefined
   const clampedValue = isIndeterminate ? 0 : Math.min(100, Math.max(0, value))
 
@@ -134,11 +136,13 @@ export function ProgressBar({
       <div
         className={trackClassNames}
         role="progressbar"
-        aria-label={ariaLabel || 'Progress'}
+        aria-label={ariaLabel || t('common:progress.defaultLabel')}
         aria-valuenow={isIndeterminate ? undefined : clampedValue}
         aria-valuemin={0}
         aria-valuemax={100}
-        aria-valuetext={isIndeterminate ? 'Loading...' : displayLabel || `${clampedValue}%`}
+        aria-valuetext={
+          isIndeterminate ? t('common:progress.loading') : displayLabel || `${clampedValue}%`
+        }
       >
         <div
           className={fillClassNames}

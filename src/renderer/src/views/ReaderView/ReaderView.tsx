@@ -29,6 +29,7 @@ import { ReaderHeader } from './components/ReaderHeader'
 import { ChapterListSidebar, type ChapterEntity } from './components/ChapterListSidebar'
 import './ReaderView.css'
 import { rendererLog } from '@renderer/services/logging.service'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 
 /**
  * Reader state interface
@@ -47,6 +48,7 @@ interface ReaderState {
 }
 
 export function ReaderView(): JSX.Element {
+  const { t } = useTranslation(['reader', 'common'])
   const { mangaId, chapterId } = useParams<{ mangaId: string; chapterId: string }>()
   const location = useLocation()
   const navigate = useNavigate()
@@ -272,12 +274,16 @@ export function ReaderView(): JSX.Element {
   // Update document title with reading information
   useEffect(() => {
     if (!chapterData.loading && !chapterData.error && chapterData.totalPages > 0) {
-      const pageInfo = `Page ${state.currentPage + 1}/${chapterData.totalPages}`
-      document.title = `${chapterData.mangaTitle} - ${chapterData.chapterTitle} - ${pageInfo} - DexReader`
+      document.title = t('reader:documentTitle.reading', {
+        manga: chapterData.mangaTitle,
+        chapter: chapterData.chapterTitle,
+        current: state.currentPage + 1,
+        total: chapterData.totalPages
+      })
     } else if (chapterData.loading) {
-      document.title = 'Loading... - DexReader'
+      document.title = t('reader:documentTitle.loading')
     } else {
-      document.title = 'Reader - DexReader'
+      document.title = `${t('reader:pageTitle')} - DexReader`
     }
   }, [
     chapterData.mangaTitle,
@@ -285,7 +291,8 @@ export function ReaderView(): JSX.Element {
     state.currentPage,
     chapterData.totalPages,
     chapterData.loading,
-    chapterData.error
+    chapterData.error,
+    t
   ])
 
   // Page pair generation now handled by usePagePairs hook
@@ -359,7 +366,7 @@ export function ReaderView(): JSX.Element {
     <main className="reader-view flex flex-col" data-theme={readerTheme}>
       {chapterData.loading && (
         <div className="reader-view__loading flex flex-col items-center justify-center">
-          <LoadingState message="Loading chapter..." />
+          <LoadingState message={t('reader:loadingState.message')} />
         </div>
       )}
 
@@ -373,22 +380,22 @@ export function ReaderView(): JSX.Element {
             return isOfflineError ? (
               <ErrorState
                 variant="offline"
-                title="You're offline"
+                title={t('common:message.info.youreOffline')}
                 message={chapterData.error.message}
                 secondaryAction={{
-                  label: 'Go to Library',
+                  label: t('reader:errorState.goToLibraryButton'),
                   onClick: () => navigate('/library')
                 }}
               />
             ) : (
               <ErrorState
-                title="Couldn't load this chapter"
-                message="We ran into a problem loading the pages for this chapter. This might be a temporary network hiccup, or the chapter data might not be available right now."
+                title={t('reader:errorState.generic.title')}
+                message={t('reader:errorState.generic.message')}
                 error={chapterData.error}
                 onRetry={() => chapterId && chapterData.loadChapterImages(chapterId)}
                 retrying={chapterData.loading}
                 secondaryAction={{
-                  label: 'Go Back',
+                  label: t('reader:errorState.goBackButton'),
                   onClick: handleBackClick
                 }}
                 showTechnicalDetails={true}
@@ -433,10 +440,10 @@ export function ReaderView(): JSX.Element {
                   variant="ghost"
                   size="small"
                   icon={<Settings20Regular />}
-                  aria-label="Reader settings"
-                  title="Reader settings (reading mode)"
+                  aria-label={t('reader:header.settingsLabel')}
+                  title={t('reader:header.settingsLabel')}
                 >
-                  Settings
+                  {t('reader:header.settingsButton')}
                 </Button>
               </ReaderSettingsModal>
             }
@@ -457,10 +464,10 @@ export function ReaderView(): JSX.Element {
                 <Button
                   variant="ghost"
                   size="small"
-                  aria-label="Zoom controls"
-                  title="Zoom controls (Z to cycle fit modes)"
+                  aria-label={t('reader:header.zoomLabel')}
+                  title={t('reader:header.zoomLabel')}
                 >
-                  {Math.round(zoom.zoomLevel * 100)}%
+                  {t('reader:header.zoomPercentage', { percent: Math.round(zoom.zoomLevel * 100) })}
                 </Button>
               </ZoomControlsModal>
             }

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import { BaseComponentProps } from '@renderer/types/components'
 import { useDebounce } from '@renderer/hooks/useDebounce'
 import './SearchBar.css'
@@ -76,12 +77,13 @@ export function SearchBar({
   onChange,
   onFilterClick,
   filterCount = 0,
-  placeholder = 'Search...',
+  placeholder,
   debounceMs = 300,
   disabled = false,
   className = '',
   'aria-label': ariaLabel
 }: SearchBarProps): React.JSX.Element {
+  const { t } = useTranslation()
   const [internalValue, setInternalValue] = useState(value)
   const debouncedValue = useDebounce(internalValue, debounceMs)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -171,11 +173,11 @@ export function SearchBar({
           ref={inputRef}
           type="search"
           className="search-bar__input"
-          placeholder={placeholder}
+          placeholder={placeholder || t('form.placeholder.search')}
           value={internalValue}
           onChange={handleChange}
           disabled={disabled}
-          aria-label={ariaLabel || 'Search'}
+          aria-label={ariaLabel || t('action.search')}
           autoComplete="off"
         />
 
@@ -185,7 +187,7 @@ export function SearchBar({
             type="button"
             className="search-bar__clear flex items-center justify-center"
             onClick={handleClear}
-            aria-label="Clear search"
+            aria-label={t('aria.clearSearch')}
             tabIndex={-1}
           >
             <svg
@@ -211,7 +213,11 @@ export function SearchBar({
             className="search-bar__filter flex items-center justify-center"
             onClick={handleFilterClick}
             disabled={disabled}
-            aria-label={`Filters${filterCount > 0 ? ` (${filterCount} active)` : ''}`}
+            aria-label={
+              filterCount > 0
+                ? `${t('aria.filters')} (${t('aria.filtersActive', { count: filterCount })})`
+                : t('aria.filters')
+            }
           >
             <svg
               className="search-bar__filter-icon"

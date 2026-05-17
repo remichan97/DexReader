@@ -4,6 +4,7 @@ import { Button } from '@renderer/components/Button'
 import { Select, type SelectOption } from '@renderer/components/Select'
 import { RadioGroup, Radio } from '@renderer/components/Radio'
 import { Switch } from '@renderer/components/Switch'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import type { MangaReadingSettings } from '../../../../../preload/index.d'
 import './ReaderSettingsSection.css'
 
@@ -28,12 +29,6 @@ interface ReaderSettingsSectionProps {
   onClearAllOverrides: () => void
 }
 
-const readingModeOptions: SelectOption[] = [
-  { value: 'single', label: 'Single Page' },
-  { value: 'double', label: 'Double Page' },
-  { value: 'vertical', label: 'Vertical Scroll' }
-]
-
 export function ReaderSettingsSection({
   isLoading,
   forceDarkMode,
@@ -47,43 +42,51 @@ export function ReaderSettingsSection({
   onResetMangaOverride,
   onClearAllOverrides
 }: Readonly<ReaderSettingsSectionProps>): React.JSX.Element {
+  const { t } = useTranslation(['settings', 'common', 'dialogs'])
+
+  const readingModeOptions: SelectOption[] = [
+    { value: 'single', label: t('common:readingMode.singlePage') },
+    { value: 'double', label: t('common:readingMode.doublePage') },
+    { value: 'vertical', label: t('common:readingMode.verticalScroll') }
+  ]
+
   const getModeName = (mode: string): string => {
-    if (mode === 'single') return 'Single Page'
-    if (mode === 'double') return 'Double Page'
-    return 'Vertical Scroll'
+    if (mode === 'single') return t('common:readingMode.singlePage')
+    if (mode === 'double') return t('common:readingMode.doublePage')
+    return t('common:readingMode.verticalScroll')
   }
 
   return (
     <div className="reader-settings__container flex flex-col gap-5">
       <div>
-        <h4 className="reader-settings__heading">Reader Display Settings</h4>
+        <h4 className="reader-settings__heading">{t('reader.displaySection')}</h4>
 
         {isLoading ? (
-          <p className="text-body text-secondary">Loading settings...</p>
+          <p className="text-body text-secondary">{t('reader.loadingSettings')}</p>
         ) : (
           <div className="reader-settings__controls flex flex-col gap-4">
             <Switch
               checked={forceDarkMode}
               onChange={onForceDarkModeChange}
-              label="Force dark mode in reader"
-              description="Always use dark background when reading, regardless of app theme"
+              label={t('reader.forceDarkMode.label')}
+              description={t('reader.forceDarkMode.description')}
             />
 
             <RadioGroup
               value={imageQuality}
               onChange={(value) => onImageQualityChange(value as 'data' | 'data-saver')}
               name="image-quality"
-              label="Image quality"
+              label={t('reader.imageQuality.label')}
             >
               <Radio
                 value="data"
-                label="High Quality"
-                description="Full resolution images, uses more bandwidth"
+                label={t('common:quality.highQuality')}
+                description={t('reader.imageQuality.highQuality.description')}
               />
               <Radio
                 value="data-saver"
-                label="Data Saver"
-                description="Compressed images, reduces bandwidth usage"
+                label={t('common:quality.dataSaver')}
+                description={t('reader.imageQuality.dataSaver.description')}
               />
             </RadioGroup>
           </div>
@@ -91,36 +94,33 @@ export function ReaderSettingsSection({
       </div>
 
       <div className="reader-settings__divider">
-        <h4 className="reader-settings__heading">Global Reader Settings</h4>
-        <p className="reader-settings__description">
-          These settings apply to all manga by default. You can override them per-manga in the
-          reader.
-        </p>
+        <h4 className="reader-settings__heading">{t('reader.globalSettingsSection')}</h4>
+        <p className="reader-settings__description">{t('reader.globalSettingsDescription')}</p>
 
         {isLoading ? (
-          <p className="text-body text-secondary">Loading settings...</p>
+          <p className="text-body text-secondary">{t('reader.loadingSettings')}</p>
         ) : (
           <div className="reader-settings__controls flex flex-col gap-4">
             <Select
               value={globalReaderSettings.readingMode}
               onChange={onReadingModeChange}
               options={readingModeOptions}
-              label="Default reading mode"
-              helperText="How pages are displayed when reading manga"
+              label={t('reader.readingModeLabel')}
+              helperText={t('reader.readingModeHelper')}
             />
 
             {globalReaderSettings.readingMode === 'double' && (
               <div className="reader-settings__double-page-box flex flex-col gap-3">
-                <h5 className="reader-settings__subheading">Double Page Mode Options</h5>
+                <h5 className="reader-settings__subheading">{t('reader.doublePageOptions')}</h5>
                 <Switch
                   checked={globalReaderSettings.doublePageMode?.skipCoverPages ?? true}
                   onChange={(checked) => onDoublePageSettingChange('skipCoverPages', checked)}
-                  label="Skip cover pages (show first page alone)"
+                  label={t('reader.skipCoverPages')}
                 />
                 <Switch
                   checked={globalReaderSettings.doublePageMode?.readRightToLeft ?? true}
                   onChange={(checked) => onDoublePageSettingChange('readRightToLeft', checked)}
-                  label="Read right-to-left (manga style)"
+                  label={t('reader.readRightToLeft')}
                 />
               </div>
             )}
@@ -130,15 +130,17 @@ export function ReaderSettingsSection({
 
       <div className="reader-settings__divider">
         <div className="reader-settings__overrides-header flex justify-between items-center">
-          <h4 className="reader-settings__heading-no-margin">Per-Manga Overrides</h4>
+          <h4 className="reader-settings__heading-no-margin">{t('reader.overridesSection')}</h4>
           {perMangaOverrides.length > 0 && (
             <Button
               onClick={async () => {
                 const confirmed = await globalThis.api.showConfirmDialog(
-                  'Clear all custom reading settings?',
-                  `You have custom settings for ${perMangaOverrides.length} manga. They'll all be reset to your global defaults. You can't undo this!`,
-                  'Clear All',
-                  'Cancel'
+                  t('dialogs:confirmations.clearAllOverrides.title'),
+                  t('dialogs:confirmations.clearAllOverrides.message', {
+                    count: perMangaOverrides.length
+                  }),
+                  t('settings:reader.clearAllButton'),
+                  t('common:button.cancel')
                 )
                 if (confirmed.data) {
                   onClearAllOverrides()
@@ -146,22 +148,19 @@ export function ReaderSettingsSection({
               }}
               variant="danger"
             >
-              Clear All
+              {t('settings:reader.clearAllButton')}
             </Button>
           )}
         </div>
-        <p className="reader-settings__description">
-          Manga with custom reading mode settings. Reset them to use global defaults.
-        </p>
+        <p className="reader-settings__description">{t('settings:reader.overridesDescription')}</p>
 
-        {isLoading ? <p className="text-body text-secondary">Loading overrides...</p> : null}
+        {isLoading ? (
+          <p className="text-body text-secondary">{t('settings:reader.loadingOverrides')}</p>
+        ) : null}
 
         {!isLoading && perMangaOverrides.length === 0 ? (
           <div className="reader-settings__empty-state">
-            <p className="reader-settings__empty-text">
-              No custom settings yet. Change reading modes in the reader to create per-manga
-              overrides!
-            </p>
+            <p className="reader-settings__empty-text">{t('settings:reader.emptyOverrides')}</p>
           </div>
         ) : null}
 
@@ -182,13 +181,16 @@ export function ReaderSettingsSection({
                 <div className="reader-settings__override-info">
                   <div className="reader-settings__override-title">{override.mangaTitle}</div>
                   <div className="reader-settings__override-mode">
-                    Mode: {getModeName(override.settings.readingMode)}
+                    {t('settings:reader.overrideMode', {
+                      mode: getModeName(override.settings.readingMode)
+                    })}
                     {override.settings.readingMode === 'double' &&
                       override.settings.doublePageMode && (
                         <>
                           {' • '}
-                          {override.settings.doublePageMode.readRightToLeft ? 'RTL' : 'LTR'}
-                          {override.settings.doublePageMode.skipCoverPages && ' • Skip covers'}
+                          {t('settings:reader.overrideDetails', {
+                            rtl: override.settings.doublePageMode.readRightToLeft ? 'RTL' : 'LTR'
+                          })}
                         </>
                       )}
                   </div>
@@ -198,7 +200,7 @@ export function ReaderSettingsSection({
                   variant="secondary"
                   icon={<Delete24Regular />}
                 >
-                  Reset
+                  {t('settings:reader.resetButton')}
                 </Button>
               </div>
             ))}

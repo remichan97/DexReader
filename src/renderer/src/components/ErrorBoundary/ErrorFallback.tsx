@@ -1,4 +1,5 @@
 import { Button } from '@renderer/components/Button'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import './ErrorBoundary.css'
 
 interface ErrorFallbackProps {
@@ -12,6 +13,7 @@ export function DefaultErrorFallback({
   reset,
   level = 'page'
 }: ErrorFallbackProps): React.JSX.Element {
+  const { t } = useTranslation(['common'])
   const isCritical = level === 'app'
 
   return (
@@ -42,27 +44,25 @@ export function DefaultErrorFallback({
           </svg>
         </div>
         <h2 className="error-fallback__title">
-          {isCritical ? 'Oops, something broke' : "Can't load this right now"}
+          {isCritical ? t('common:error.criticalTitle') : t('common:error.componentTitle')}
         </h2>
         <p className="error-fallback__message">
-          {isCritical
-            ? 'Oops! Something unexpected happened. Try reloading if this keeps happening.'
-            : "This part isn't working right now. Try again or explore other sections."}
+          {isCritical ? t('common:error.criticalMessage') : t('common:error.componentMessage')}
         </p>
         <div className="error-fallback__details">
           <details>
-            <summary>Technical details</summary>
+            <summary>{t('common:error.technicalDetails')}</summary>
             <pre className="error-fallback__error-message">{error.message}</pre>
             {error.stack && <pre className="error-fallback__stack">{error.stack}</pre>}
           </details>
         </div>
         <div className="error-fallback__actions">
           <Button variant="primary" onClick={reset}>
-            Try Again
+            {t('common:error.tryAgain')}
           </Button>
           {isCritical && (
             <Button variant="secondary" onClick={() => globalThis.location.reload()}>
-              Reload App
+              {t('common:error.reloadApp')}
             </Button>
           )}
         </div>

@@ -1,16 +1,19 @@
 import { BrowserWindow, dialog, MenuItemConstructorOptions } from 'electron'
 import { MenuState } from './menu-state'
+import i18next from '../i18n/i18n.config'
 
 export function buildLibraryMenu(
   mainWindow: BrowserWindow,
   state: MenuState = {}
 ): MenuItemConstructorOptions {
   return {
-    label: 'Library',
+    label: i18next.t('menu:library.label'),
     submenu: [
       {
         id: 'add-to-favorites',
-        label: state.isFavorited ? 'Remove from Favourites' : 'Add to Favourites',
+        label: state.isFavorited
+          ? i18next.t('menu:library.removeFromFavourites')
+          : i18next.t('menu:library.addToFavourites'),
         accelerator: 'CmdOrCtrl+D',
         enabled: state.canAddToFavorites ?? false,
         click: () => {
@@ -18,14 +21,14 @@ export function buildLibraryMenu(
         }
       },
       {
-        label: 'Create Collection...',
+        label: i18next.t('menu:library.createCollection'),
         accelerator: 'CmdOrCtrl+Shift+N',
         click: () => {
           mainWindow.webContents.send('create-collection')
         }
       },
       {
-        label: 'Manage Collections...',
+        label: i18next.t('menu:library.manageCollections'),
         accelerator: 'CmdOrCtrl+Shift+C',
         click: () => {
           mainWindow.webContents.send('manage-collections')
@@ -34,7 +37,9 @@ export function buildLibraryMenu(
       { type: 'separator' },
       {
         id: 'download-chapter',
-        label: state.chapterTitle ? `Download ${state.chapterTitle}` : 'Download Chapter',
+        label: state.chapterTitle
+          ? i18next.t('menu:library.downloadChapterWithTitle', { chapterTitle: state.chapterTitle })
+          : i18next.t('menu:library.downloadChapter'),
         accelerator: 'CmdOrCtrl+Shift+D',
         enabled: state.canDownloadChapter ?? false,
         click: () => {
@@ -43,7 +48,9 @@ export function buildLibraryMenu(
       },
       {
         id: 'download-manga',
-        label: state.mangaTitle ? `Download '${state.mangaTitle}'` : 'Download Manga',
+        label: state.mangaTitle
+          ? i18next.t('menu:library.downloadMangaWithTitle', { mangaTitle: state.mangaTitle })
+          : i18next.t('menu:library.downloadManga'),
         accelerator: 'CmdOrCtrl+Alt+D',
         enabled: state.canDownloadManga ?? false,
         click: () => {
@@ -52,15 +59,20 @@ export function buildLibraryMenu(
       },
       { type: 'separator' },
       {
-        label: 'Import Library',
+        label: i18next.t('menu:library.importLibrary'),
         submenu: [
           {
-            label: 'From DexReader Backup...',
+            label: i18next.t('menu:library.fromDexReaderBackup'),
             click: () => {
               dialog
                 .showOpenDialog(mainWindow, {
-                  title: 'Import Library',
-                  filters: [{ name: 'DexReader Backup', extensions: ['dexreader'] }],
+                  title: i18next.t('menu:library.dialogs.importLibrary.title'),
+                  filters: [
+                    {
+                      name: i18next.t('menu:library.dialogs.importLibrary.filterName'),
+                      extensions: ['dexreader']
+                    }
+                  ],
                   properties: ['openFile']
                 })
                 .then((result) => {
@@ -71,13 +83,16 @@ export function buildLibraryMenu(
             }
           },
           {
-            label: 'From Mihon/Tachiyomi Backup...',
+            label: i18next.t('menu:library.fromMihonTachiyomiBackup'),
             click: () => {
               dialog
                 .showOpenDialog(mainWindow, {
-                  title: 'Import Mihon/Tachiyomi Backup',
+                  title: i18next.t('menu:library.dialogs.importMihonTachiyomi.title'),
                   filters: [
-                    { name: 'Mihon/Tachiyomi Backup', extensions: ['proto.gz', 'tachibk'] }
+                    {
+                      name: i18next.t('menu:library.dialogs.importMihonTachiyomi.filterName'),
+                      extensions: ['proto.gz', 'tachibk']
+                    }
                   ],
                   properties: ['openFile']
                 })
@@ -91,17 +106,22 @@ export function buildLibraryMenu(
         ]
       },
       {
-        label: 'Export Library',
+        label: i18next.t('menu:library.exportLibrary'),
         submenu: [
           {
-            label: 'To DexReader Backup...',
+            label: i18next.t('menu:library.toDexReaderBackup'),
             accelerator: 'CmdOrCtrl+Shift+E',
             click: () => {
               dialog
                 .showSaveDialog(mainWindow, {
-                  title: 'Export Library',
+                  title: i18next.t('menu:library.dialogs.exportLibrary.title'),
                   defaultPath: 'dexreader-backup.dexreader',
-                  filters: [{ name: 'DexReader Backup', extensions: ['dexreader'] }]
+                  filters: [
+                    {
+                      name: i18next.t('menu:library.dialogs.importLibrary.filterName'),
+                      extensions: ['dexreader']
+                    }
+                  ]
                 })
                 .then((result) => {
                   if (!result.canceled && result.filePath) {
@@ -111,23 +131,19 @@ export function buildLibraryMenu(
             }
           },
           {
-            label: 'To Mihon/Tachiyomi Format...',
+            label: i18next.t('menu:library.toMihonTachiyomiFormat'),
             click: () => {
               // Warn the user that we don't export some data for Mihon/Tachiyomi
               dialog
                 .showMessageBox(mainWindow, {
                   type: 'warning',
-                  title: 'Export to Mihon/Tachiyomi',
-                  message:
-                    'Before you proceed, this action will export your manga library including:',
-                  detail:
-                    '• Manga metadata and covers\n' +
-                    '• Collections (as categories)\n' +
-                    '• Reading progress and history\n' +
-                    '• Chapter metadata\n\n' +
-                    'Please note: App settings (themes, preferences) are DexReader-specific ' +
-                    'and cannot be exported to Tachiyomi/Mihon.',
-                  buttons: ['Cancel', 'Proceed...'],
+                  title: i18next.t('menu:library.dialogs.exportMihonTachiyomiWarning.title'),
+                  message: i18next.t('menu:library.dialogs.exportMihonTachiyomiWarning.message'),
+                  detail: i18next.t('menu:library.dialogs.exportMihonTachiyomiWarning.detail'),
+                  buttons: [
+                    i18next.t('menu:library.dialogs.exportMihonTachiyomiWarning.buttonCancel'),
+                    i18next.t('menu:library.dialogs.exportMihonTachiyomiWarning.buttonProceed')
+                  ],
                   defaultId: 1,
                   cancelId: 0,
                   noLink: true
@@ -139,9 +155,14 @@ export function buildLibraryMenu(
                   // Show save file dialog
                   return dialog
                     .showSaveDialog(mainWindow, {
-                      title: 'Export Library to Mihon/Tachiyomi',
+                      title: i18next.t('menu:library.dialogs.exportMihonTachiyomi.title'),
                       defaultPath: `dexreader-backup-${new Date().toISOString().split('T')[0]}.tachibk`,
-                      filters: [{ name: 'Mihon/Tachiyomi Backup', extensions: ['tachibk'] }]
+                      filters: [
+                        {
+                          name: i18next.t('menu:library.dialogs.exportMihonTachiyomi.filterName'),
+                          extensions: ['tachibk']
+                        }
+                      ]
                     })
                     .then((result) => {
                       if (!result.canceled && result.filePath) {

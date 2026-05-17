@@ -12,6 +12,7 @@ import { Button } from '@renderer/components/Button'
 import { DownloadConfirmationDialog } from '@renderer/components/DownloadConfirmationDialog'
 import { useLibraryStore, useToastStore } from '@renderer/stores'
 import { useConnectivityStore } from '@renderer/stores/connectivityStore'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import { handleUnfavourite } from '@renderer/utils/unfavouriteHandler'
 import {
   getCoverImageUrl,
@@ -47,6 +48,7 @@ export default function MangaHeroSection({
   progress
 }: MangaHeroSectionProps): JSX.Element {
   const navigate = useNavigate()
+  const { t } = useTranslation(['mangaDetail', 'common'])
   const { isFavourite, toggleFavourite, loadFavourites } = useLibraryStore()
   const showToast = useToastStore((state) => state.show)
   const isOnline = useConnectivityStore((state) => state.isOnline)
@@ -175,7 +177,7 @@ export default function MangaHeroSection({
         await toggleFavourite(manga.id)
 
         showToast({
-          title: 'Added to Library!',
+          title: t('mangaDetail:hero.addedToLibrary.title', { defaultValue: 'Added to Library!' }),
           message: getMangaTitle(manga),
           variant: 'info',
           duration: 3000
@@ -183,8 +185,8 @@ export default function MangaHeroSection({
       } catch (error) {
         rendererLog.error('[MangaHeroSection] Error adding to library:', error)
         showToast({
-          title: 'Error',
-          message: 'Failed to add to library',
+          title: t('common:state.error'),
+          message: t('mangaDetail:hero.failedToAdd', { defaultValue: 'Failed to add to library' }),
           variant: 'error',
           duration: 3000
         })
@@ -196,9 +198,20 @@ export default function MangaHeroSection({
     if (!downloadStats) return
 
     const result = await globalThis.api.showDialog({
-      message: 'Manage Downloads',
-      detail: `${getMangaTitle(manga)}\n\nThis manga has ${downloadStats.chapterCount} downloaded chapter${downloadStats.chapterCount > 1 ? 's' : ''}.\n\nYou can add it to your library for tracking, or delete all downloaded chapters.`,
-      buttons: ['Add to Library', 'Delete All Chapters', 'Cancel'],
+      message: t('mangaDetail:hero.manageDownloads.title', { defaultValue: 'Manage Downloads' }),
+      detail: t('mangaDetail:hero.manageDownloads.detail', {
+        title: getMangaTitle(manga),
+        count: downloadStats.chapterCount,
+        s: downloadStats.chapterCount > 1 ? 's' : '',
+        defaultValue: `${getMangaTitle(manga)}\n\nThis manga has ${downloadStats.chapterCount} downloaded chapter${downloadStats.chapterCount > 1 ? 's' : ''}.\n\nYou can add it to your library for tracking, or delete all downloaded chapters.`
+      }),
+      buttons: [
+        t('mangaDetail:hero.manageDownloads.addToLibrary', { defaultValue: 'Add to Library' }),
+        t('mangaDetail:hero.manageDownloads.deleteAll', {
+          defaultValue: 'Delete All Chapters'
+        }),
+        t('common:button.cancel')
+      ],
       type: 'info',
       defaultId: 2,
       cancelId: 2
@@ -210,7 +223,9 @@ export default function MangaHeroSection({
         try {
           await toggleFavourite(manga.id)
           showToast({
-            title: 'Added to Library!',
+            title: t('mangaDetail:hero.addedToLibrary.title', {
+              defaultValue: 'Added to Library!'
+            }),
             message: getMangaTitle(manga),
             variant: 'info',
             duration: 3000
@@ -219,8 +234,10 @@ export default function MangaHeroSection({
         } catch (error) {
           rendererLog.error('[MangaHeroSection] Error adding to library:', error)
           showToast({
-            title: 'Error',
-            message: 'Failed to add to library',
+            title: t('common:state.error'),
+            message: t('mangaDetail:hero.failedToAdd', {
+              defaultValue: 'Failed to add to library'
+            }),
             variant: 'error',
             duration: 3000
           })
@@ -229,10 +246,17 @@ export default function MangaHeroSection({
       case 1: {
         // Delete downloads - confirm first
         const confirmed = await globalThis.api.showConfirmDialog(
-          'Delete all downloaded chapters?',
-          `This will permanently delete ${downloadStats.chapterCount} chapter${downloadStats.chapterCount > 1 ? 's' : ''} from ${getMangaTitle(manga)}.\n\nThis action cannot be undone.`,
-          'Delete',
-          'Cancel'
+          t('mangaDetail:hero.deleteDownloads.title', {
+            defaultValue: 'Delete all downloaded chapters?'
+          }),
+          t('mangaDetail:hero.deleteDownloads.detail', {
+            count: downloadStats.chapterCount,
+            s: downloadStats.chapterCount > 1 ? 's' : '',
+            title: getMangaTitle(manga),
+            defaultValue: `This will permanently delete ${downloadStats.chapterCount} chapter${downloadStats.chapterCount > 1 ? 's' : ''} from ${getMangaTitle(manga)}.\n\nThis action cannot be undone.`
+          }),
+          t('common:button.delete'),
+          t('common:button.cancel')
         )
 
         if (!confirmed.success || !confirmed.data) {
@@ -243,16 +267,21 @@ export default function MangaHeroSection({
         const deleteResult = await globalThis.downloads.deleteManga(manga.id)
         if (deleteResult.success && deleteResult.data?.success) {
           showToast({
-            title: 'Downloads deleted',
-            message: `Deleted ${downloadStats.chapterCount} chapter${downloadStats.chapterCount > 1 ? 's' : ''}`,
+            title: t('mangaDetail:toasts.downloadsDeleted.title'),
+            message: t('mangaDetail:toasts.downloadsDeleted.message', {
+              count: downloadStats.chapterCount,
+              s: downloadStats.chapterCount > 1 ? 's' : ''
+            }),
             variant: 'success',
             duration: 3000
           })
           void loadDownloadStatsAfterAction()
         } else {
           showToast({
-            title: 'Failed to delete downloads',
-            message: deleteResult.error || 'Unknown error',
+            title: t('mangaDetail:hero.deleteDownloads.failed', {
+              defaultValue: 'Failed to delete downloads'
+            }),
+            message: deleteResult.error || t('common:message.error.unknownError'),
             variant: 'error',
             duration: 3000
           })
@@ -301,8 +330,11 @@ export default function MangaHeroSection({
 
     if (successCount > 0) {
       showToast({
-        title: 'Download Started',
-        message: `Added ${successCount} chapter${successCount === 1 ? '' : 's'} to download queue!`,
+        title: t('mangaDetail:toasts.downloadStarted.title'),
+        message: t('mangaDetail:toasts.downloadStarted.message', {
+          count: successCount,
+          s: successCount === 1 ? '' : 's'
+        }),
         variant: 'success',
         duration: 3000
       })
@@ -310,8 +342,14 @@ export default function MangaHeroSection({
 
     if (failCount > 0) {
       showToast({
-        title: 'Partial Failure',
-        message: `Couldn't queue ${failCount} chapter${failCount === 1 ? '' : 's'}`,
+        title: t('mangaDetail:hero.downloadAll.partialFailure', {
+          defaultValue: 'Partial Failure'
+        }),
+        message: t('mangaDetail:hero.downloadAll.couldntQueue', {
+          count: failCount,
+          s: failCount === 1 ? '' : 's',
+          defaultValue: `Couldn't queue ${failCount} chapter${failCount === 1 ? '' : 's'}`
+        }),
         variant: 'error',
         duration: 5000
       })
@@ -338,29 +376,42 @@ export default function MangaHeroSection({
 
   const getLibraryButtonLabel = (): string => {
     if (isFavourite(manga.id)) {
-      return 'In Library'
+      return t('mangaDetail:hero.inLibrary', { defaultValue: 'In Library' })
     }
     if (downloadStats && downloadStats.chapterCount > 0) {
-      return 'Manage Downloads'
+      return t('mangaDetail:hero.manageDownloads.title', { defaultValue: 'Manage Downloads' })
     }
-    return 'Add to Library'
+    return t('common:action.addToLibrary')
   }
 
   const getDownloadButtonTitle = (): string => {
     if (!isOnline) {
-      return 'You are offline. Please go online to download'
+      return t('mangaDetail:hero.downloadAll.offlineTooltip', {
+        defaultValue: 'You are offline. Please go online to download'
+      })
     }
     if (chapters.length === 0) {
-      return 'No chapters available'
+      return t('mangaDetail:hero.downloadAll.noChapters', {
+        defaultValue: 'No chapters available'
+      })
     }
-    return 'Download all chapters'
+    return t('mangaDetail:hero.downloadAll.tooltip', {
+      defaultValue: 'Download all chapters'
+    })
   }
 
   return (
     <div className="manga-detail-view__hero">
       {/* Cover Image */}
       <div className="manga-detail-view__cover">
-        <img src={coverUrl} alt={`${title} cover`} loading="eager" />
+        <img
+          src={coverUrl}
+          alt={t('mangaDetail:hero.coverAlt', {
+            title,
+            defaultValue: `${title} cover`
+          })}
+          loading="eager"
+        />
       </div>
 
       {/* Metadata */}
@@ -376,7 +427,10 @@ export default function MangaHeroSection({
                 variant="ghost"
                 className="tag tag--theme inline-flex"
                 onClick={() => handleTagClick(tag.id)}
-                aria-label={`Filter by ${tag.name}`}
+                aria-label={t('mangaDetail:hero.filterByTag', {
+                  name: tag.name,
+                  defaultValue: `Filter by ${tag.name}`
+                })}
               >
                 {tag.name}
               </Button>
@@ -386,33 +440,46 @@ export default function MangaHeroSection({
 
         <div className="manga-detail-view__metadata flex flex-col gap-2">
           <p className="manga-detail-view__author">
-            <strong>Author:</strong> {author}
+            <strong>{t('mangaDetail:hero.author', { defaultValue: 'Author:' })}</strong> {author}
           </p>
           <p className="manga-detail-view__artist">
-            <strong>Artist:</strong> {artist}
+            <strong>{t('mangaDetail:hero.artist', { defaultValue: 'Artist:' })}</strong> {artist}
           </p>
           <p className="manga-detail-view__status">
-            <strong>Status:</strong> <StatusBadge status={status} />
+            <strong>{t('mangaDetail:hero.status', { defaultValue: 'Status:' })}</strong>{' '}
+            <StatusBadge status={status} />
           </p>
           {demographic && (
             <p className="manga-detail-view__demographic">
-              <strong>Demographic:</strong> <DemographicBadge demographic={demographic} />
+              <strong>{t('mangaDetail:hero.demographic', { defaultValue: 'Demographic:' })}</strong>{' '}
+              <DemographicBadge demographic={demographic} />
             </p>
           )}
           {year && (
             <p className="manga-detail-view__year">
-              <strong>Year:</strong> {year}
+              <strong>{t('mangaDetail:hero.year', { defaultValue: 'Year:' })}</strong> {year}
             </p>
           )}
           <p className="manga-detail-view__rating">
-            <strong>Rating:</strong> {contentRating}
+            <strong>{t('mangaDetail:hero.rating', { defaultValue: 'Rating:' })}</strong>{' '}
+            {contentRating}
           </p>
           {(lastVolume || lastChapter) && (
             <p className="manga-detail-view__length">
-              <strong>Length:</strong>{' '}
-              {lastVolume && `${lastVolume} volume${lastVolume === '1' ? '' : 's'}`}
+              <strong>{t('mangaDetail:hero.length', { defaultValue: 'Length:' })}</strong>{' '}
+              {lastVolume &&
+                t('mangaDetail:hero.volumeCount', {
+                  count: lastVolume,
+                  s: lastVolume === '1' ? '' : 's',
+                  defaultValue: `${lastVolume} volume${lastVolume === '1' ? '' : 's'}`
+                })}
               {lastVolume && lastChapter && ' • '}
-              {lastChapter && `${lastChapter} chapter${lastChapter === '1' ? '' : 's'}`}
+              {lastChapter &&
+                t('mangaDetail:hero.chapterCount', {
+                  count: lastChapter,
+                  s: lastChapter === '1' ? '' : 's',
+                  defaultValue: `${lastChapter} chapter${lastChapter === '1' ? '' : 's'}`
+                })}
             </p>
           )}
         </div>
@@ -426,7 +493,7 @@ export default function MangaHeroSection({
               disabled={chapters.length === 0}
               icon={<PlayCircle24Regular />}
             >
-              Continue
+              {t('mangaDetail:hero.continue', { defaultValue: 'Continue' })}
             </Button>
           ) : (
             <Button
@@ -435,7 +502,7 @@ export default function MangaHeroSection({
               disabled={chapters.length === 0}
               icon={<BookOpenRegular />}
             >
-              Start Reading
+              {t('mangaDetail:hero.startReading', { defaultValue: 'Start Reading' })}
             </Button>
           )}
           <Button
@@ -452,7 +519,7 @@ export default function MangaHeroSection({
             title={getDownloadButtonTitle()}
             icon={<ArrowDownload24Regular />}
           >
-            Download All
+            {t('mangaDetail:hero.downloadAll.button', { defaultValue: 'Download All' })}
           </Button>
         </div>
       </div>

@@ -291,6 +291,7 @@ interface Settings {
   clearAllData: () => Promise<IpcResponse<boolean>>
   openSystemDateSettings: () => Promise<IpcResponse<boolean>>
   getMemoryTierInfo: () => Promise<IpcResponse<MemoryTierInfo>>
+  restart: () => Promise<IpcResponse<void>>
 }
 
 interface DexReader {

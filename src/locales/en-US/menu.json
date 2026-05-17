@@ -1,0 +1,93 @@
+{
+  "file": {
+    "label": "File",
+    "checkForUpdates": "Check for Updates...",
+    "settings": "Settings...",
+    "leaveIncognito": "Leave Incognito",
+    "goIncognito": "Go Incognito",
+    "goOnline": "Go Online",
+    "goOffline": "Go Offline",
+    "exit": "Exit"
+  },
+  "view": {
+    "label": "View",
+    "browseManga": "Browse Manga",
+    "myLibrary": "My Library",
+    "downloads": "Downloads",
+    "readingHistory": "Reading History",
+    "toggleFullscreen": "Toggle Fullscreen",
+    "reload": "Reload",
+    "toggleDevTools": "Toggle DevTools"
+  },
+  "library": {
+    "label": "Library",
+    "addToFavorites": "Add to Favorites",
+    "removeFromFavorites": "Remove from Favorites",
+    "createCollection": "Create Collection...",
+    "manageCollections": "Manage Collections...",
+    "downloadChapter": "Download Chapter",
+    "downloadChapterWithTitle": "Download {{chapterTitle}}",
+    "downloadManga": "Download Manga",
+    "downloadMangaWithTitle": "Download '{{mangaTitle}}'",
+    "importLibrary": "Import Library",
+    "fromDexReaderBackup": "From DexReader Backup...",
+    "fromMihonTachiyomiBackup": "From Mihon/Tachiyomi Backup...",
+    "exportLibrary": "Export Library",
+    "toDexReaderBackup": "To DexReader Backup...",
+    "toMihonTachiyomiFormat": "To Mihon/Tachiyomi Format...",
+    "dialogs": {
+      "importLibrary": {
+        "title": "Import Library",
+        "filterName": "DexReader Backup"
+      },
+      "importMihonTachiyomi": {
+        "title": "Import Mihon/Tachiyomi Backup",
+        "filterName": "Mihon/Tachiyomi Backup"
+      },
+      "exportLibrary": {
+        "title": "Export Library",
+        "defaultFilename": "dexreader-backup.dexreader"
+      },
+      "exportMihonTachiyomiWarning": {
+        "title": "Export to Mihon/Tachiyomi",
+        "message": "Before you proceed, this action will export your manga library including:",
+        "detail": "• Manga metadata and covers\n• Collections (as categories)\n• Reading progress and history\n• Chapter metadata\n\nPlease note: App settings (themes, preferences) are DexReader-specific and cannot be exported to Tachiyomi/Mihon.",
+        "buttonCancel": "Cancel",
+        "buttonProceed": "Proceed..."
+      },
+      "exportMihonTachiyomi": {
+        "title": "Export Library to Mihon/Tachiyomi",
+        "defaultFilenamePattern": "dexreader-backup-{{date}}.tachibk",
+        "filterName": "Mihon/Tachiyomi Backup"
+      }
+    }
+  },
+  "tools": {
+    "label": "Tools",
+    "downloadChapter": "Download Chapter",
+    "downloadManga": "Download Manga",
+    "manageStorage": "Manage Storage...",
+    "clearCache": "Clear Cache...",
+    "clearReadingHistory": "Clear Reading History..."
+  },
+  "help": {
+    "label": "Help",
+    "documentation": "Documentation",
+    "keyboardShortcuts": "Keyboard Shortcuts...",
+    "reportAnIssue": "Report an Issue",
+    "viewExistingIssues": "View Existing Issues...",
+    "newBugReport": "New Bug Report...",
+    "requestAFeature": "Request a Feature...",
+    "otherFeedback": "Other Feedback...",
+    "openLogsFolder": "Open Logs Folder",
+    "aboutDexReader": "About DexReader...",
+    "dialogs": {
+      "about": {
+        "title": "About DexReader",
+        "message": "DexReader",
+        "detail": "Version {{version}}\n\nA desktop manga reader for MangaDex\n\nDeveloped by remichan97",
+        "buttonOk": "OK"
+      }
+    }
+  }
+}

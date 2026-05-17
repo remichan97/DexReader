@@ -1,7 +1,7 @@
 # DexReader Active Context
 
-**Last Updated**: 9 May 2026
-**Version**: v1.3.0
+**Last Updated**: 17 May 2026
+**Version**: v1.4.0
 **Mode**: Post-Release Maintenance & Feature Development
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next. Keep all entries as short, concise as possible
@@ -10,19 +10,24 @@
 
 ## Current Status
 
-**v1.3.0 Released**: 9 May 2026 🎉
+**v1.4.0 Released**: 17 May 2026 🌐
 
 **Focus**: Post-release monitoring and next feature planning
 
-- Search preset functionality completed (save, load, delete, set as default)
-- Database schema and full CRUD operations implemented
-- UI components for preset management integrated into Browse view
-- Dependency updates applied (fast-uri, ip-address, drizzle-kit)
+- Full internationalization (i18n) support completed and released
+  - 3 locales supported: British English (en-GB), American English (en-US), Vietnamese (vi-VN)
+  - 40 locale files with 1,500+ translation keys
+  - Language selection in Settings → Appearance
+  - Automatic restart prompt for language changes
+- Complete translation coverage across all views and components
+- i18next + react-i18next infrastructure in place for future locale additions
 - Ready for user feedback and next development cycle
 
 **Plans:**
 
-- No active plans
+- Monitor user feedback on i18n implementation
+- Consider additional language support based on community requests
+- Plan next feature development cycle
 
 ---
 
@@ -49,32 +54,28 @@
 
 ## Recent Changes (Last 1-2 Weeks)
 
-### 9 May 2026 - v1.3.0 Release
+### 17 May 2026 - v1.4.0 Release
 
 - **Type**: Release
-- **Summary**: Search preset feature release enabling users to save, load, and reuse search configurations in Browse view with full database persistence.
+- **Summary**: Full internationalization support enabling multi-language UI across the entire application.
 - **Key Features**:
-  - Save search query + filters as named presets (up to 50 characters)
-  - Load presets from dropdown with integrated delete button
-  - Set default preset for automatic application on startup
-  - Complete CRUD operations with IPC handlers and database schema
-  - SavePresetDialog and PresetSelector UI components
-  - Improved Select/Option component styling with hover states
-  - Security updates: fast-uri 3.0.3 → 3.0.5
-- **Impact**: Enhanced user experience with reusable search configurations
+  - 3 locales: British English (en-GB), American English (en-US), Vietnamese (vi-VN)
+  - Display language selection in Settings → Appearance
+  - Automatic restart prompt when language changes affect backend
+  - Complete translation coverage across all views and components
+  - i18next infrastructure with file system backend
+  - Dependency update: protobufjs 8.0.1 → 8.0.2
+- **Impact**: Enhanced accessibility for non-English speakers and users preferring American English spellings
 - **Status**: ✅ Released
 
-### 6 May 2026 - v1.2.0 Release
-
-- **Type**: Release
-- **Summary**: Library enhancements release adding downloaded titles toggle, soft delete for chapters, improved search UI, and performance optimizations.
-- **Key Features**:
-  - Include Downloaded Titles toggle in Library view
-  - Soft delete for downloaded chapters with confirmation dialog
-  - Reorganized Library search header matching BrowseView pattern
-  - Download and favorite status badges on manga cards
-  - Settings performance improvement (5 writes → 1 write)
-  - Optimized database queries
+<!-- Template for future entries:
+### [Date] - [Title]
+- **Type**: Feature / Bugfix / Release / Refactor
+- **Summary**: Brief description
+- **Key Changes**: Bulleted list
+- **Impact**: User-facing impact or technical improvement
+- **Status**: In Progress / Testing / Complete / Released
+-->
 
 ---
 
@@ -85,7 +86,3 @@
 - **Architecture**: `docs/architecture/`
 - **Coding Standards**: `.github/memory-bank/system-pattern.md`
 - **Technology Stack**: `.github/memory-bank/tech-context.md`
-- **v1.0 Development History**: `.github/memory-bank/historical/`
-  - `archived-milestones.md` - All 29 milestones with architectural decisions
-  - `v1.0-release-snapshot.md` - Complete v1.0 release state capture
-  - `project-progress.md` - Development timeline

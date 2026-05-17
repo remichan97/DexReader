@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import { EmptyState } from '@renderer/components/EmptyState'
 import { LoadingState } from '@renderer/components/LoadingState'
 import { ErrorState } from '@renderer/components/ErrorState'
@@ -15,6 +16,7 @@ import './DownloadsView.css'
 
 export function DownloadsView(): JSX.Element {
   const navigate = useNavigate()
+  const { t } = useTranslation(['downloads', 'common'])
 
   // Search/Filter/Sort state (kept in parent for control)
   const [searchQuery, setSearchQuery] = useState('')
@@ -58,7 +60,7 @@ export function DownloadsView(): JSX.Element {
 
   // Render loading state
   if (loading) {
-    return <LoadingState message="Loading downloads..." />
+    return <LoadingState message={t('downloads:loadingState.message')} />
   }
 
   // Render error state
@@ -70,7 +72,7 @@ export function DownloadsView(): JSX.Element {
   return (
     <div className="downloads-view">
       {/* Screen reader heading for page structure */}
-      <h1 className="sr-only">Downloads</h1>
+      <h1 className="sr-only">{t('downloads:pageTitle')}</h1>
 
       <DownloadsHeader
         searchQuery={searchQuery}
@@ -91,10 +93,7 @@ export function DownloadsView(): JSX.Element {
 
       {/* Downloads List - Grouped by Manga */}
       {groupedDownloads.length === 0 ? (
-        <EmptyState
-          icon={<ArrowDownload24Regular />}
-          message="Nothing downloaded yet. Chapters you download will show up here!"
-        />
+        <EmptyState icon={<ArrowDownload24Regular />} message={t('downloads:emptyState.title')} />
       ) : (
         <div className="downloads-groups flex flex-col gap-4">
           {groupedDownloads.map((group) => (

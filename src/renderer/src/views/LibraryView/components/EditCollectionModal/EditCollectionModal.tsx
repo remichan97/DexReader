@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Modal } from '@renderer/components/Modal'
 import { Button } from '@renderer/components/Button'
 import { Input } from '@renderer/components/Input'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 
 interface EditCollectionModalProps {
   readonly collection: {
@@ -21,6 +22,7 @@ export function EditCollectionModal({
   onUpdate,
   onClose
 }: EditCollectionModalProps): JSX.Element | null {
+  const { t } = useTranslation(['common'])
   const [editName, setEditName] = useState(collection?.name || '')
   const [editDescription, setEditDescription] = useState(collection?.description || '')
 
@@ -47,38 +49,38 @@ export function EditCollectionModal({
     <Modal
       open={true}
       onClose={handleClose}
-      title="Edit Collection"
+      title={t('common:action.editCollection')}
       size="small"
       footer={
         <>
           <Button variant="secondary" onClick={handleClose} disabled={isSubmitting}>
-            Cancel
+            {t('common:button.cancel')}
           </Button>
           <Button
             variant="primary"
             onClick={handleUpdate}
             disabled={isSubmitting || !editName.trim()}
           >
-            {isSubmitting ? 'Updating...' : 'Update'}
+            {isSubmitting ? t('common:button.updating') : t('common:action.update')}
           </Button>
         </>
       }
     >
       <div className="flex flex-col gap-4">
         <Input
-          label="Collection Name"
+          label={t('common:label.collectionName')}
           value={editName}
           onChange={setEditName}
-          placeholder="e.g., Reading, Want to Read"
+          placeholder={t('common:form.placeholder.collectionName')}
           disabled={isSubmitting}
           autoFocus
           required
         />
         <Input
-          label="Description (Optional)"
+          label={t('common:form.descriptionOptional')}
           value={editDescription}
           onChange={setEditDescription}
-          placeholder="Add a description"
+          placeholder={t('common:form.placeholder.description')}
           disabled={isSubmitting}
         />
       </div>

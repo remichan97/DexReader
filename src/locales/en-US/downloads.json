@@ -1,0 +1,67 @@
+{
+  "pageTitle": "Downloads",
+  "searchPlaceholder": "Search downloads...",
+  "filterByStatus": "Filter by status",
+  "sortBy": "Sort by",
+  "filterOptions": {
+    "allStatus": "All Status",
+    "active": "Active",
+    "completed": "Completed",
+    "failed": "Failed"
+  },
+  "sortOptions": {
+    "recent": "Most Recent",
+    "largestFirst": "Largest First",
+    "smallestFirst": "Smallest First",
+    "az": "A-Z",
+    "za": "Z-A"
+  },
+  "stats": {
+    "active": "{{count}} Active",
+    "queued": "{{count}} Queued",
+    "completed": "{{count}} Completed",
+    "failed": "{{count}} Failed"
+  },
+  "actions": {
+    "openFolder": "Open Folder",
+    "hideCompleted": "Hide Completed",
+    "hideCompletedTooltip": "Hide completed downloads from view (files will be kept on disk)",
+    "cancelAllQueued": "Cancel All Queued",
+    "cancelAllQueuedTooltip": "Cancel all queued downloads",
+    "retryAllFailed": "Retry All Failed",
+    "retryAllFailedTooltip": "Retry all failed downloads",
+    "retryAllFailedDisabled": "Wait for current downloads to finish"
+  },
+  "emptyState": {
+    "title": "Nothing downloaded yet. Chapters you download will show up here!"
+  },
+  "downloadGroup": {
+    "chapterCount": "{{count}} chapter{{s}}",
+    "storageSize": "{{size}}",
+    "activeBadge": "{{count}} active",
+    "failedBadge": "{{count}} failed"
+  },
+  "loadingState": {
+    "message": "Loading downloads..."
+  },
+  "toasts": {
+    "cancelled": {
+      "title": "Canceled",
+      "message": "Download canceled"
+    },
+    "retrying": {
+      "title": "Retrying",
+      "message": "Download queued for retry"
+    },
+    "removed": {
+      "title": "Removed",
+      "message": "Failed download removed from view"
+    },
+    "deleted": {
+      "title": "Deleted",
+      "message": "Download and files permanently deleted"
+    },
+    "retryAllQueued": "Queued {{count}} failed download{{s}} for retry",
+    "cancelledAll": "Canceled {{count}} queued download{{s}}"
+  }
+}

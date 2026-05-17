@@ -6,6 +6,7 @@ import {
 } from '@renderer/components/StreamSourceIndicator'
 import { type ReadingMode } from '@renderer/components/ReadingModeSelector'
 import { ArrowLeftRegular, BookRegular, EyeOff20Regular } from '@fluentui/react-icons'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 
 /**
  * Reader Header Component Props
@@ -50,11 +51,13 @@ export function ReaderHeader({
   readRightToLeft,
   streamSource
 }: ReaderHeaderProps): JSX.Element {
+  const { t } = useTranslation(['reader', 'common'])
+
   return (
     <header className="reader-header flex items-center justify-between">
       <div className="reader-header__left flex items-center">
         <Button variant="ghost" onClick={onBackClick} icon={<ArrowLeftRegular />} size="medium">
-          Back
+          {t('common:button.back')}
         </Button>
       </div>
 
@@ -68,10 +71,10 @@ export function ReaderHeader({
         {isIncognito && (
           <div
             className="reader-header__incognito-badge flex items-center gap-1-5"
-            title="Progress tracking is disabled. Go to Settings or File menu to enable."
+            title={t('reader:header.incognitoTooltip')}
           >
             <EyeOff20Regular />
-            <span>Incognito</span>
+            <span>{t('reader:header.incognitoBadge')}</span>
           </div>
         )}
         {/* Reader settings popover */}
@@ -82,18 +85,33 @@ export function ReaderHeader({
         <div className="reader-header__page-counter flex items-center gap-1">
           {readingMode === 'double' && currentPagePair && currentPagePair.length === 2
             ? readRightToLeft
-              ? `Page ${currentPagePair[1] + 1}-${currentPagePair[0] + 1}/${totalPages}`
-              : `Page ${currentPagePair[0] + 1}-${currentPagePair[1] + 1}/${totalPages}`
-            : `${currentPage + 1}/${totalPages}`}
+              ? t('reader:header.pageCounter.doubleRtl', {
+                  right: currentPagePair[1] + 1,
+                  left: currentPagePair[0] + 1,
+                  total: totalPages
+                })
+              : t('reader:header.pageCounter.double', {
+                  left: currentPagePair[0] + 1,
+                  right: currentPagePair[1] + 1,
+                  total: totalPages
+                })
+            : t('reader:header.pageCounter.single', {
+                current: currentPage + 1,
+                total: totalPages
+              })}
         </div>
         <Button
           variant="ghost"
           onClick={onToggleChapterList}
           icon={<BookRegular />}
           size="medium"
-          aria-label={showChapterList ? 'Close chapter list' : 'Open chapter list'}
+          aria-label={
+            showChapterList
+              ? t('reader:header.closeChapterList')
+              : t('reader:header.openChapterList')
+          }
         >
-          Chapters
+          {t('reader:header.chaptersButton')}
         </Button>
       </div>
     </header>

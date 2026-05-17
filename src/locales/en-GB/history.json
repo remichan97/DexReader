@@ -1,0 +1,34 @@
+{
+  "pageTitle": "Reading History",
+  "searchPlaceholder": "Search your reading history...",
+  "stats": {
+    "mangaRead": "Manga Read",
+    "chapters": "Chapters",
+    "pages": "Pages",
+    "minutes": "Minutes"
+  },
+  "emptyState": {
+    "title": "No reading history yet",
+    "message": "Start reading manga to see your progress here.",
+    "action": "Browse Manga"
+  },
+  "searchEmpty": "No results found for \"{{query}}\"",
+  "loadingState": {
+    "message": "Loading history..."
+  },
+  "liveRegion": {
+    "loading": "Loading reading history...",
+    "loaded": "{{count}} manga in history"
+  },
+  "documentTitle": "Reading History - DexReader",
+  "card": {
+    "lastRead": "Last read",
+    "removeAriaLabel": "Remove from history"
+  },
+  "toasts": {
+    "progressDeleted": {
+      "title": "Progress deleted",
+      "message": "Reading progress removed from history."
+    }
+  }
+}

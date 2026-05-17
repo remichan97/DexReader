@@ -10,6 +10,7 @@ import {
   Warning20Regular
 } from '@fluentui/react-icons'
 import type { DexReaderImportResult } from '../../../../preload/index.d'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import './DexReaderImportDialog.css'
 
 interface DexReaderImportDialogProps {
@@ -25,6 +26,7 @@ export function DexReaderImportDialog({
   onClose,
   onImportComplete
 }: Readonly<DexReaderImportDialogProps>): JSX.Element | null {
+  const { t } = useTranslation(['dialogs', 'common'])
   const [isImporting, setIsImporting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -48,13 +50,17 @@ export function DexReaderImportDialog({
       const result = await globalThis.dexreader.importData(filePath)
 
       if (!result.success) {
-        throw new Error(result.error?.message || 'Import failed')
+        throw new Error(
+          result.error?.message ||
+            t('dialogs:dexreaderImport.errors.importFailed', { message: 'Unknown error' })
+        )
       }
 
       onImportComplete(result.data)
       onClose()
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred'
+      const errorMessage =
+        err instanceof Error ? err.message : t('dialogs:dexreaderImport.errors.unknownError')
       setError(errorMessage)
     } finally {
       setIsImporting(false)
@@ -68,54 +74,62 @@ export function DexReaderImportDialog({
   }
 
   return (
-    <Modal open={isOpen} onClose={handleCancel} title="Import DexReader Backup" size="medium">
+    <Modal
+      open={isOpen}
+      onClose={handleCancel}
+      title={t('dialogs:dexreaderImport.title')}
+      size="medium"
+    >
       <div className="dexreader-import-dialog flex flex-col gap-4">
         <div className="import-file-info flex items-center gap-3">
           <ArrowImport20Regular className="import-icon" />
           <div className="file-details flex flex-col gap-1">
-            <span className="file-label">File:</span>
+            <span className="file-label">{t('dialogs:dexreaderImport.fileInfo.label')}</span>
             <span className="file-name">{filePath}</span>
           </div>
         </div>
 
         <div className="import-info">
-          <p className="info-text">
-            This backup will be merged with your existing library. The following data will be
-            imported:
-          </p>
+          <p className="info-text">{t('dialogs:dexreaderImport.description')}</p>
         </div>
 
         <div className="import-sections flex flex-col gap-2">
           <div className="section-item flex items-start gap-3">
             <Library20Regular className="section-icon" />
             <div className="section-content">
-              <strong>Library</strong>
-              <p className="section-description">Manga metadata, chapters, and cover URLs</p>
+              <strong>{t('dialogs:dexreaderImport.sections.library.title')}</strong>
+              <p className="section-description">
+                {t('dialogs:dexreaderImport.sections.library.description')}
+              </p>
             </div>
           </div>
 
           <div className="section-item flex items-start gap-3">
             <Folder20Regular className="section-icon" />
             <div className="section-content">
-              <strong>Collections</strong>
-              <p className="section-description">Custom collections (duplicates will be merged)</p>
+              <strong>{t('dialogs:dexreaderImport.sections.collections.title')}</strong>
+              <p className="section-description">
+                {t('dialogs:dexreaderImport.sections.collections.description')}
+              </p>
             </div>
           </div>
 
           <div className="section-item flex items-start gap-3">
             <BookOpen20Regular className="section-icon" />
             <div className="section-content">
-              <strong>Reading Progress</strong>
-              <p className="section-description">Chapter progress and reading history</p>
+              <strong>{t('dialogs:dexreaderImport.sections.progress.title')}</strong>
+              <p className="section-description">
+                {t('dialogs:dexreaderImport.sections.progress.description')}
+              </p>
             </div>
           </div>
 
           <div className="section-item flex items-start gap-3">
             <Settings20Regular className="section-icon" />
             <div className="section-content">
-              <strong>Reader Settings</strong>
+              <strong>{t('dialogs:dexreaderImport.sections.readerSettings.title')}</strong>
               <p className="section-description">
-                Per-manga reading preferences (existing settings preserved)
+                {t('dialogs:dexreaderImport.sections.readerSettings.description')}
               </p>
             </div>
           </div>
@@ -124,12 +138,12 @@ export function DexReaderImportDialog({
         <div className="import-warning flex items-start gap-3">
           <Warning20Regular className="warning-icon" />
           <div className="warning-content">
-            <strong>Import Behaviour:</strong>
+            <strong>{t('dialogs:dexreaderImport.behaviour.title')}</strong>
             <ul>
-              <li>Existing manga will be updated with imported data</li>
-              <li>Collections with the same name will be merged</li>
-              <li>Your current reader settings take priority</li>
-              <li>No data will be deleted from your library</li>
+              <li>{t('dialogs:dexreaderImport.behaviour.points.existingUpdated')}</li>
+              <li>{t('dialogs:dexreaderImport.behaviour.points.collectionsMerged')}</li>
+              <li>{t('dialogs:dexreaderImport.behaviour.points.settingsPriority')}</li>
+              <li>{t('dialogs:dexreaderImport.behaviour.points.noDataDeleted')}</li>
             </ul>
           </div>
         </div>
@@ -143,10 +157,12 @@ export function DexReaderImportDialog({
 
         <div className="dexreader-import-dialog__actions flex gap-3 justify-end">
           <Button variant="secondary" onClick={handleCancel} disabled={isImporting}>
-            Cancel
+            {t('common:button.cancel')}
           </Button>
           <Button variant="primary" onClick={handleImport} disabled={isImporting}>
-            {isImporting ? 'Importing...' : 'Import Backup'}
+            {isImporting
+              ? t('dialogs:dexreaderImport.buttons.importing')
+              : t('dialogs:dexreaderImport.buttons.import')}
           </Button>
         </div>
       </div>

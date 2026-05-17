@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { History24Regular } from '@fluentui/react-icons'
 import { EmptyState } from '@renderer/components/EmptyState'
 import { LoadingState } from '@renderer/components/LoadingState'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import { useProgressStore } from '@renderer/stores/progressStore'
 import { ReadingHistoryCard } from './components/ReadingHistoryCard'
 import './HistoryView.css'
@@ -15,6 +16,7 @@ type MangaProgressMetadata = NonNullable<
 
 export function HistoryView(): JSX.Element {
   const navigate = useNavigate()
+  const { t } = useTranslation(['history', 'common'])
   const loadAllProgress = useProgressStore((state) => state.loadAllProgress)
   const loadStatistics = useProgressStore((state) => state.loadStatistics)
   const deleteProgress = useProgressStore((state) => state.deleteProgress)
@@ -33,8 +35,8 @@ export function HistoryView(): JSX.Element {
 
   // Set document title
   useEffect(() => {
-    document.title = 'Reading History - DexReader'
-  }, [])
+    document.title = t('history:documentTitle')
+  }, [t])
 
   // Convert progress metadata map to sorted array
   const allProgress = Array.from(progressMetadataMap.values()).sort(
@@ -67,26 +69,26 @@ export function HistoryView(): JSX.Element {
   return (
     <div className="history-view flex flex-col">
       {/* Screen reader heading for page structure */}
-      <h1 className="sr-only">Reading History</h1>
+      <h1 className="sr-only">{t('history:pageTitle')}</h1>
 
       {/* Statistics */}
       {statistics && (
         <div className="history-view__stats">
           <div className="stat-card flex flex-col items-center">
             <span className="stat-card__value">{statistics.totalMangaRead}</span>
-            <span className="stat-card__label">Manga Read</span>
+            <span className="stat-card__label">{t('history:stats.mangaRead')}</span>
           </div>
           <div className="stat-card flex flex-col items-center">
             <span className="stat-card__value">{statistics.totalChaptersRead}</span>
-            <span className="stat-card__label">Chapters</span>
+            <span className="stat-card__label">{t('history:stats.chapters')}</span>
           </div>
           <div className="stat-card flex flex-col items-center">
             <span className="stat-card__value">{statistics.totalPagesRead}</span>
-            <span className="stat-card__label">Pages</span>
+            <span className="stat-card__label">{t('history:stats.pages')}</span>
           </div>
           <div className="stat-card flex flex-col items-center">
             <span className="stat-card__value">{statistics.totalEstimatedMinutesRead}</span>
-            <span className="stat-card__label">Minutes</span>
+            <span className="stat-card__label">{t('history:stats.minutes')}</span>
           </div>
         </div>
       )}
@@ -95,7 +97,7 @@ export function HistoryView(): JSX.Element {
       <div className="history-view__search">
         <input
           type="search"
-          placeholder="Search your reading history..."
+          placeholder={t('history:searchPlaceholder')}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="history-view__search-input"
@@ -104,15 +106,15 @@ export function HistoryView(): JSX.Element {
 
       {/* History List */}
       <div className="history-view__content">
-        {loading && <LoadingState message="Loading history..." />}
+        {loading && <LoadingState message={t('history:loadingState.message')} />}
 
         {!loading && filteredProgress.length === 0 && !searchQuery && (
           <EmptyState
             icon={<History24Regular />}
-            title="No reading history yet"
-            message="Start reading manga to see your progress here."
+            title={t('history:emptyState.title')}
+            message={t('history:emptyState.message')}
             action={{
-              label: 'Browse Manga',
+              label: t('history:emptyState.action'),
               onClick: () => navigate('/browse'),
               variant: 'primary'
             }}
@@ -120,7 +122,7 @@ export function HistoryView(): JSX.Element {
         )}
 
         {!loading && filteredProgress.length === 0 && searchQuery && (
-          <EmptyState message={`No results found for "${searchQuery}"`} variant="search" />
+          <EmptyState message={t('history:searchEmpty', { query: searchQuery })} variant="search" />
         )}
 
         {!loading && filteredProgress.length > 0 && (

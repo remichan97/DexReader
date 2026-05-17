@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Switch } from '@renderer/components/Switch'
 import { Button } from '@renderer/components/Button'
 import { useToastStore } from '@renderer/stores'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 import { rendererLog } from '@renderer/services/logging.service'
 
 interface AdvancedSettingsProps {
@@ -17,6 +18,7 @@ export function AdvancedSettings({
   onAutoCheckChange,
   onAutoDownloadChange
 }: AdvancedSettingsProps): React.JSX.Element {
+  const { t } = useTranslation(['settings', 'errors'])
   const showToast = useToastStore((state) => state.show)
   const [appVersion, setAppVersion] = useState<string>('...')
   const [isCheckingForUpdates, setIsCheckingForUpdates] = useState(false)
@@ -44,8 +46,8 @@ export function AdvancedSettings({
       rendererLog.error('[AdvancedSettings] Update check failed:', error)
       showToast({
         variant: 'error',
-        title: 'Update check failed',
-        message: "Couldn't check for updates. Try again in a bit?",
+        title: t('errors:updates.check_failed.title'),
+        message: t('errors:updates.check_failed.message'),
         duration: 4000
       })
     } finally {
@@ -58,18 +60,16 @@ export function AdvancedSettings({
     <div className="py-4 flex flex-col gap-5">
       {/* Application Updates Section */}
       <div className="settings-view__section">
-        <h2 className="settings-view__section-heading">Application Updates</h2>
-        <p className="settings-view__section-description">
-          Configure how DexReader checks for and installs updates
-        </p>
+        <h2 className="settings-view__section-heading">{t('advanced.updatesSection')}</h2>
+        <p className="settings-view__section-description">{t('advanced.updatesDescription')}</p>
 
         <div className="flex flex-col gap-4">
           {/* Auto-check for updates */}
           <Switch
             checked={autoCheckForUpdates}
             onChange={onAutoCheckChange}
-            label="Automatically check for updates"
-            description="Check for new versions when the app starts"
+            label={t('advanced.autoCheck.label')}
+            description={t('advanced.autoCheck.description')}
           />
 
           {/* Auto-download updates */}
@@ -77,8 +77,8 @@ export function AdvancedSettings({
             checked={autoDownloadUpdates}
             onChange={onAutoDownloadChange}
             disabled={!autoCheckForUpdates}
-            label="Automatically download updates"
-            description="Download updates in the background. You choose when to install."
+            label={t('advanced.autoDownload.label')}
+            description={t('advanced.autoDownload.description')}
           />
 
           {/* Manual check button */}
@@ -89,9 +89,11 @@ export function AdvancedSettings({
               disabled={isCheckingForUpdates}
               loading={isCheckingForUpdates}
             >
-              Check for Updates Now
+              {t('advanced.checkNowButton')}
             </Button>
-            <span className="text-sm text-secondary">Current version: {appVersion}</span>
+            <span className="text-sm text-secondary">
+              {t('advanced.currentVersion', { version: appVersion })}
+            </span>
           </div>
         </div>
       </div>

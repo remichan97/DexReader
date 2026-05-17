@@ -23,6 +23,7 @@ asar: true
 asarUnpack:
   - resources/**
   - out/main/database/migrations/**
+  - out/locales/**
 compression: maximum
 win:
   executableName: dexreader
