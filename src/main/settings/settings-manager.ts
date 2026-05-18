@@ -51,6 +51,13 @@ export async function loadSettings(): Promise<AppSettings> {
 
     // Migrate settings if needed
     const migratedSettings = migrateSettings(settings, getDefaultSettings())
+    // Save the migrated settings back to disk if migration occurred (version was outdated)
+    if (migratedSettings.version !== settings.version) {
+      mainLog.info(
+        `[SettingsManager] Settings migrated from version ${settings.version} to ${migratedSettings.version}. Saving migrated settings.`
+      )
+      await saveSettings(migratedSettings)
+    }
     cachedSettingsObject = migratedSettings
     return migratedSettings
   } catch (error) {
@@ -200,7 +207,7 @@ export async function initializeDownloadsPath(): Promise<void> {
 
 export function getDefaultSettings(): AppSettings {
   return {
-    version: 1, // Increment this if you make breaking changes to the settings structure
+    version: 2, // Increment this if you make breaking changes to the settings structure
     downloads: {
       maxConcurrentDownloads: 3,
       shouldConfirmDownload: DownloadConfirmation.BatchDownload,
