@@ -8,7 +8,8 @@ import {
   isLogSettings
 } from '../validators/types.validator'
 
-export const CURRENT_SETTINGS_VERSION = 1
+// Each time we change the settings structure in a way that guarantees at least a merge with defaults, increment this version number. This is used to determine if a migration is needed, and to run the appropriate migration functions if there are breaking changes.
+export const CURRENT_SETTINGS_VERSION = 2
 
 // Define a type for migration function, which takes settings object, and migrate it to the next version. Use when there are breaking changes.
 type MigrationFunction = (settings: Partial<AppSettings>) => AppSettings

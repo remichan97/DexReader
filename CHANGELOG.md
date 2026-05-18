@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [1.4.1] - 2026-05-18
+
+### Fixed
+
+- Fix settings migration not triggering on v1.4.0 upgrade due to missing version bump
+- Fix missing settings key during app initialization for i18n preferences
+- Ensure migrated settings are properly persisted to settings file
+
+---
+
 ## [1.4.0] - 2026-05-17
 
 ### Added
