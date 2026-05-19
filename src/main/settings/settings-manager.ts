@@ -207,7 +207,7 @@ export async function initializeDownloadsPath(): Promise<void> {
 
 export function getDefaultSettings(): AppSettings {
   return {
-    version: 2, // Increment this if you make breaking changes to the settings structure
+    version: 3, // Increment this if you make breaking changes to the settings structure
     downloads: {
       maxConcurrentDownloads: 3,
       shouldConfirmDownload: DownloadConfirmation.BatchDownload,
@@ -237,7 +237,8 @@ export function getDefaultSettings(): AppSettings {
     },
     search: {},
     language: {
-      displayLanguage: DisplayLanguage.EnglishUK
+      displayLanguage: DisplayLanguage.EnglishUK,
+      syncContentLanguage: true
     }
   }
 }
