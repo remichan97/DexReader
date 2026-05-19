@@ -48,7 +48,14 @@
       "en-GB": "English (UK)",
       "en-US": "English (US)",
       "vi-VN": "Tiếng Việt (Vietnamese)"
-    }
+    },
+    "syncContentLanguage": "Đồng bộ ngôn ngữ nội dung với ngôn ngữ hiển thị",
+    "syncContentLanguageDescription": "Tự động hiển thị các chương manga bằng ngôn ngữ hiển thị của bạn nếu có",
+    "contentLanguages": "Ngôn ngữ nội dung ưu tiên",
+    "contentLanguagesDescription": "Chọn tối đa 5 ngôn ngữ theo thứ tự ưu tiên. Các chương sẽ được lọc dựa trên tùy chọn này.",
+    "contentLanguageFallbackInfo": "Nếu ngôn ngữ ưu tiên của bạn không khả dụng, các chương sẽ hiển thị bằng tiếng Anh, sau đó là bất kỳ ngôn ngữ nào có sẵn.",
+    "addLanguage": "Thêm ngôn ngữ",
+    "maxLanguagesReached": "Tối đa 5 ngôn ngữ được phép"
   },
   "downloads": {
     "locationSection": "Vị trí Tải xuống",

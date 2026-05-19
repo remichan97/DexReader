@@ -388,5 +388,16 @@
   },
   "loading": {
     "manga": "Loading manga..."
+  },
+  "priorityList": {
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "remove": "Remove",
+    "add": "Add item",
+    "empty": "No items selected",
+    "maxReached": "Maximum {{max}} items allowed",
+    "moveUpAriaLabel": "Move {{item}} up in priority",
+    "moveDownAriaLabel": "Move {{item}} down in priority",
+    "removeAriaLabel": "Remove {{item}} from list"
   }
 }

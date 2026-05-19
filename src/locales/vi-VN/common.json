@@ -388,5 +388,16 @@
   },
   "loading": {
     "manga": "Đang tải manga..."
+  },
+  "priorityList": {
+    "moveUp": "Di chuyển lên",
+    "moveDown": "Di chuyển xuống",
+    "remove": "Xóa",
+    "add": "Thêm mục",
+    "empty": "Không có mục nào được chọn",
+    "maxReached": "Tối đa {{max}} mục được phép",
+    "moveUpAriaLabel": "Di chuyển {{item}} lên trong thứ tự ưu tiên",
+    "moveDownAriaLabel": "Di chuyển {{item}} xuống trong thứ tự ưu tiên",
+    "removeAriaLabel": "Xóa {{item}} khỏi danh sách"
   }
 }
