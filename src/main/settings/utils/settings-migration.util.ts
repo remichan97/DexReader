@@ -1,15 +1,9 @@
 import { mainLog } from '../../services/logging/main-logging.service'
 import { AppSettings } from '../entities/app-settings.entity'
-import {
-  isDownloadsSettings,
-  isAppearanceSettings,
-  isReaderSettings,
-  isUpdateSettings,
-  isLogSettings
-} from '../validators/types.validator'
+import { validateSettings } from '../validators/types.validator'
 
 // Each time we change the settings structure in a way that guarantees at least a merge with defaults, increment this version number. This is used to determine if a migration is needed, and to run the appropriate migration functions if there are breaking changes.
-export const CURRENT_SETTINGS_VERSION = 2
+export const CURRENT_SETTINGS_VERSION = 3
 
 // Define a type for migration function, which takes settings object, and migrate it to the next version. Use when there are breaking changes.
 type MigrationFunction = (settings: Partial<AppSettings>) => AppSettings
@@ -80,13 +74,13 @@ export function migrateSettings(
     mainLog.info(
       `[SettingsMigration] User settings are already at the latest version (${CURRENT_SETTINGS_VERSION}). No migration needed.`
     )
-    if (!validateSettingsObject(userSettings as AppSettings)) {
+    if (!validateSettings(userSettings)) {
       mainLog.error(
         '[SettingsMigration] User settings object failed validation. This indicates a problem with the settings file. Reverting to defaults to avoid potential issues.'
       )
       return defaults
     }
-    return userSettings as AppSettings
+    return userSettings
   }
 
   // Does someone came from the future? Since we don't know what the future holds, and we really don't know if the future version is compatible with current one, we should just reset to defaults to avoid potential issues
@@ -129,7 +123,7 @@ export function migrateSettings(
   migrated.version = CURRENT_SETTINGS_VERSION
 
   // Final validation to make sure migrated settings are valid. This is a safeguard to prevent saving corrupted settings to disk, which can cause issues on next app startup. If the migrated settings are invalid, we should throw an error to prevent saving them.
-  if (!validateSettingsObject(migrated)) {
+  if (!validateSettings(migrated)) {
     mainLog.error(
       '[SettingsMigration] Final migrated settings object failed validation. This indicates a problem with the migration functions. Please check the migration functions for potential issues.'
     )
@@ -141,32 +135,4 @@ export function migrateSettings(
   )
 
   return migrated
-}
-
-export function validateSettingsObject(settings: AppSettings): boolean {
-  // Run through all validators to make sure settings object is valid. This is a safeguard to prevent saving corrupted settings to disk, which can cause issues on next app startup.
-  // If any of the validators fail, an error is thrown, which should be caught by the caller to prevent saving the invalid settings.
-  if (!isDownloadsSettings(settings.downloads)) {
-    mainLog.error('[SettingsMigration] Validation failed for downloads settings.')
-    return false
-  }
-  if (!isAppearanceSettings(settings.appearance)) {
-    mainLog.error('[SettingsMigration] Validation failed for appearance settings.')
-    return false
-  }
-  if (!isReaderSettings(settings.reader)) {
-    mainLog.error('[SettingsMigration] Validation failed for reader.global settings.')
-    return false
-  }
-  if (!isUpdateSettings(settings.update)) {
-    mainLog.error('[SettingsMigration] Validation failed for update settings.')
-    return false
-  }
-  if (!isLogSettings(settings.logs)) {
-    mainLog.error('[SettingsMigration] Validation failed for logs settings.')
-    return false
-  }
-
-  // If all validators passed, the settings object is valid
-  return true
 }
