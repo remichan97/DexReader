@@ -126,6 +126,45 @@ interface SearchState {
 const MAX_RESULTS_LIMIT = 10000
 const DEFAULT_LIMIT = 20
 
+/**
+ * Get search language filter based on content language settings
+ * Returns broader list for discovery (includes English as fallback)
+ */
+async function getSearchLanguageFilter(): Promise<string[]> {
+  try {
+    const settingsResponse = await globalThis.settings.load()
+    const languageSettings = settingsResponse.data?.language
+
+    if (!languageSettings) {
+      return ['en'] // Default fallback
+    }
+
+    let languages: string[] = []
+
+    if (languageSettings.syncContentLanguage) {
+      // Sync enabled: Use display language + English
+      const displayLang = languageSettings.displayLanguage || 'en-GB'
+      const contentLang = displayLang.split('-')[0] // en-GB -> 'en', vi-VN -> 'vi'
+
+      if (contentLang === 'en') {
+        languages = ['en']
+      } else {
+        // Non-English display language: include both + English for broader catalog
+        languages = [contentLang, 'en']
+      }
+    } else {
+      // Sync disabled: Use priority list + always include English
+      const priorities = languageSettings.contentLanguage || []
+      languages = [...priorities, ...(priorities.includes('en') ? [] : ['en'])]
+    }
+
+    return languages.length > 0 ? languages : ['en']
+  } catch (error) {
+    rendererLog.error('[SearchStore] Failed to load language settings:', error)
+    return ['en'] // Fallback to English on error
+  }
+}
+
 export const useSearchStore = create<SearchState>((set, get) => ({
   query: '',
   filters: DEFAULT_FILTERS,
@@ -181,12 +220,16 @@ export const useSearchStore = create<SearchState>((set, get) => ({
         results: []
       })
 
+      // Load language filter from settings
+      const languageFilter = await getSearchLanguageFilter()
+
       // Build search params - only include non-empty values
       const searchParams: Record<string, unknown> = {
         contentRating: state.filters.contentRating,
         includes: [MangaIncludes.CoverArt, MangaIncludes.Author, MangaIncludes.Artist],
         limit: state.limit,
-        offset: 0
+        offset: 0,
+        availableTranslatedLanguage: languageFilter // Use settings-based filter
       }
 
       // Only add title if there's an actual search query
@@ -208,9 +251,6 @@ export const useSearchStore = create<SearchState>((set, get) => ({
       if (state.filters.excludedTags.length > 0) {
         searchParams.excludedTags = state.filters.excludedTags
         searchParams.excludedTagsMode = state.filters.includedTagsMode
-      }
-      if (state.filters.availableTranslatedLanguage.length > 0) {
-        searchParams.availableTranslatedLanguage = state.filters.availableTranslatedLanguage
       }
 
       // Set order: use relevance only if there's a search query, otherwise use updatedAt
@@ -278,12 +318,16 @@ export const useSearchStore = create<SearchState>((set, get) => ({
     try {
       set({ loadingMore: true, error: null })
 
+      // Load language filter from settings
+      const languageFilter = await getSearchLanguageFilter()
+
       // Build search params - only include non-empty values (same as search())
       const searchParams: Record<string, unknown> = {
         contentRating: state.filters.contentRating,
         includes: [MangaIncludes.CoverArt, MangaIncludes.Author, MangaIncludes.Artist],
         limit: state.limit,
-        offset: nextOffset
+        offset: nextOffset,
+        availableTranslatedLanguage: languageFilter // Use settings-based filter
       }
 
       // Only add title if there's an actual search query
@@ -305,9 +349,6 @@ export const useSearchStore = create<SearchState>((set, get) => ({
       if (state.filters.excludedTags.length > 0) {
         searchParams.excludedTags = state.filters.excludedTags
         searchParams.excludedTagsMode = state.filters.includedTagsMode
-      }
-      if (state.filters.availableTranslatedLanguage.length > 0) {
-        searchParams.availableTranslatedLanguage = state.filters.availableTranslatedLanguage
       }
 
       // Set order: use relevance only if there's a search query, otherwise use updatedAt

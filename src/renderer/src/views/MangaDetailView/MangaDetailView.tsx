@@ -351,52 +351,16 @@ export function MangaDetailView(): JSX.Element {
           // Failed to cache - continue with API data
         }
 
-        // Get available languages
-        const availableLanguages =
-          (manga.attributes as { availableTranslatedLanguages?: string[] })
-            .availableTranslatedLanguages || []
-        const initialLanguage = availableLanguages.includes('en')
-          ? 'en'
-          : availableLanguages[0] || 'en'
-
         // Update state with live API data
         setState((prev) => ({
           ...prev,
           manga,
-          selectedLanguage: initialLanguage,
           loading: false,
-          usingCachedData: false,
-          chaptersLoading: true,
-          chaptersError: null
+          usingCachedData: false
         }))
 
-        // Fetch chapters
-        try {
-          const chaptersResponse = await globalThis.mangadex.getMangaFeed(id, {
-            limit: 100,
-            offset: 0,
-            translatedLanguage: [initialLanguage],
-            order: { chapter: 'asc' },
-            includes: ['scanlation_group']
-          })
-
-          if (chaptersResponse.success && chaptersResponse.data.result !== 'error') {
-            setState((prev) => ({
-              ...prev,
-              chapters: chaptersResponse.data.data,
-              chaptersLoading: false,
-              chaptersError: null
-            }))
-          }
-        } catch (chapterError) {
-          rendererLog.error('[MangaDetailView] Failed to load chapters:', chapterError)
-          setState((prev) => ({
-            ...prev,
-            chaptersLoading: false,
-            chaptersError:
-              chapterError instanceof Error ? chapterError : new Error(String(chapterError))
-          }))
-        }
+        // Fetch chapters using priority cascade
+        await loadChaptersWithPriority(id)
       } catch (apiError) {
         // Only show API error if we don't have database data
         if (!foundInDb) {
@@ -419,7 +383,113 @@ export function MangaDetailView(): JSX.Element {
   }
 
   /**
-   * Load chapters for a specific language
+   * Map display language (locale) to content language (ISO 639-1)
+   * en-GB / en-US → en
+   * vi-VN → vi
+   */
+  const mapDisplayToContentLanguage = (displayLang: string): string => {
+    // Extract base language code (before dash)
+    const baseCode = displayLang.split('-')[0]
+    return baseCode
+  }
+
+  /**
+   * Load chapters using priority cascade logic
+   * Tries each language in priority order until chapters are found
+   */
+  const loadChaptersWithPriority = async (id: string): Promise<void> => {
+    if (!isOnline) {
+      setState((prev) => ({
+        ...prev,
+        chaptersLoading: false,
+        chaptersError: new Error(t('mangaDetail:chapterError.offlineMessage'))
+      }))
+      return
+    }
+
+    setState((prev) => ({ ...prev, chaptersLoading: true, chaptersError: null }))
+
+    try {
+      // Load language settings
+      const settingsResponse = await globalThis.settings.load()
+      const languageSettings = settingsResponse.data?.language
+
+      // Determine priority list based on sync setting
+      let priorities: string[] = []
+
+      if (languageSettings?.syncContentLanguage) {
+        // Sync enabled: Use display language
+        const displayLang = languageSettings.displayLanguage || 'en-GB'
+        const contentLang = mapDisplayToContentLanguage(displayLang)
+        priorities = [contentLang]
+      } else {
+        // Sync disabled: Use manual priority list
+        priorities = languageSettings?.contentLanguage || []
+      }
+
+      // Build priority cascade: determined priorities → English (if not in list) → unfiltered
+      const prioritiesWithFallback = [...priorities, ...(priorities.includes('en') ? [] : ['en'])]
+
+      // Try each priority language sequentially
+      for (const lang of prioritiesWithFallback) {
+        const response = await globalThis.mangadex.getMangaFeed(id, {
+          limit: 100,
+          offset: 0,
+          translatedLanguage: [lang],
+          order: { chapter: state.chapterSort },
+          includes: ['scanlation_group']
+        })
+
+        if (response.success && response.data?.data.length > 0) {
+          // Found chapters in this language!
+          setState((prev) => ({
+            ...prev,
+            chapters: response.data.data,
+            selectedLanguage: lang,
+            chaptersLoading: false,
+            chaptersError: null,
+            usingCachedData: false
+          }))
+          return
+        }
+      }
+
+      // Last resort: Query without language filter
+      const unfilteredResponse = await globalThis.mangadex.getMangaFeed(id, {
+        limit: 100,
+        offset: 0,
+        order: { chapter: state.chapterSort },
+        includes: ['scanlation_group']
+        // No translatedLanguage filter
+      })
+
+      if (unfilteredResponse.success && unfilteredResponse.data?.data.length > 0) {
+        const firstChapterLang = unfilteredResponse.data.data[0].attributes.translatedLanguage
+        setState((prev) => ({
+          ...prev,
+          chapters: unfilteredResponse.data.data,
+          selectedLanguage: firstChapterLang,
+          chaptersLoading: false,
+          chaptersError: null,
+          usingCachedData: false
+        }))
+      } else {
+        // No chapters at all
+        throw new Error('No chapters available for this manga')
+      }
+    } catch (error) {
+      rendererLog.error('[MangaDetailView] Failed to load chapters:', error)
+      setState((prev) => ({
+        ...prev,
+        chapters: [],
+        chaptersLoading: false,
+        chaptersError: error instanceof Error ? error : new Error(String(error))
+      }))
+    }
+  }
+
+  /**
+   * Load chapters for a specific language (used for manual language override)
    */
   const loadChaptersForLanguage = async (language: string): Promise<void> => {
     if (!mangaId) return

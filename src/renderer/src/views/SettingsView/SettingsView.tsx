@@ -18,6 +18,7 @@ import { AdvancedSettings } from './components/AdvancedSettings'
 import { LoggingSettings } from './components/LoggingSettings'
 import { DangerZoneSettings } from '../../components/SettingsView/DangerZoneSettings'
 import { UnsavedChangesBanner } from './components/UnsavedChangesBanner'
+import { ContentLanguage } from '../../../../main/settings/enums/content-language.enum'
 import './SettingsView.css'
 
 interface PerMangaOverride {
@@ -63,6 +64,8 @@ export function SettingsView(): JSX.Element {
   const [systemAccentColor, setSystemAccentColor] = useState<string>('#0078d4')
   const [startupPage, setStartupPage] = useState<'library' | 'browse' | 'downloads'>('browse')
   const [displayLanguage, setDisplayLanguage] = useState<'en-GB' | 'en-US' | 'vi-VN'>('en-GB')
+  const [syncContentLanguage, setSyncContentLanguage] = useState<boolean>(true)
+  const [contentLanguages, setContentLanguages] = useState<string[]>(['en'])
 
   // Reader settings state
   const [globalReaderSettings, setGlobalReaderSettings] = useState<MangaReadingSettings>({
@@ -128,7 +131,10 @@ export function SettingsView(): JSX.Element {
 
     // Compare language settings
     const languageChanged =
-      displayLanguage !== (originalSettings.language?.displayLanguage ?? 'en-GB')
+      displayLanguage !== (originalSettings.language?.displayLanguage ?? 'en-GB') ||
+      syncContentLanguage !== (originalSettings.language?.syncContentLanguage ?? true) ||
+      JSON.stringify(contentLanguages) !==
+        JSON.stringify(originalSettings.language?.contentLanguage || ['en'])
 
     // Compare downloads settings
     const downloadsChanged =
@@ -171,6 +177,8 @@ export function SettingsView(): JSX.Element {
     accentColor,
     isUsingSystemColor,
     displayLanguage,
+    syncContentLanguage,
+    contentLanguages,
     downloadConfirmation,
     defaultQuality,
     maxConcurrentDownloads,
@@ -306,6 +314,12 @@ export function SettingsView(): JSX.Element {
             // Apply the language immediately
             await i18next.changeLanguage(settings.language.displayLanguage)
           }
+          if (settings.language?.syncContentLanguage !== undefined) {
+            setSyncContentLanguage(settings.language.syncContentLanguage)
+          }
+          if (settings.language?.contentLanguage) {
+            setContentLanguages(settings.language.contentLanguage)
+          }
 
           // Load per-manga overrides from database
           const overridesResult = await globalThis.reader.getAllMangaOverrides()
@@ -410,6 +424,16 @@ export function SettingsView(): JSX.Element {
   // Handle display language change
   const handleDisplayLanguageChange = (language: string): void => {
     setDisplayLanguage(language as 'en-GB' | 'en-US' | 'vi-VN')
+  }
+
+  // Handle sync content language change
+  const handleSyncContentLanguageChange = (checked: boolean): void => {
+    setSyncContentLanguage(checked)
+  }
+
+  // Handle content languages change
+  const handleContentLanguagesChange = (languages: string[]): void => {
+    setContentLanguages(languages)
   }
 
   // Handle download confirmation change
@@ -640,7 +664,11 @@ Are you absolutely certain you want to proceed with this cache size?`,
 
       // Build language settings object
       const languageSettings = {
-        displayLanguage: displayLanguage
+        displayLanguage: displayLanguage,
+        syncContentLanguage: syncContentLanguage,
+        ...(contentLanguages.length > 0 && {
+          contentLanguage: contentLanguages as ContentLanguage[]
+        })
       }
 
       // Build complete settings object and save in one operation (single disk write)
@@ -792,6 +820,10 @@ Are you absolutely certain you want to proceed with this cache size?`,
             onStartupPageChange={setStartupPage}
             displayLanguage={displayLanguage}
             onDisplayLanguageChange={handleDisplayLanguageChange}
+            syncContentLanguage={syncContentLanguage}
+            onSyncContentLanguageChange={handleSyncContentLanguageChange}
+            contentLanguages={contentLanguages}
+            onContentLanguagesChange={handleContentLanguagesChange}
           />
         </TabPanel>
 
