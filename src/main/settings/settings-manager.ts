@@ -28,6 +28,7 @@ class SettingsManager {
     this.initPromise = this.initialize()
   }
 
+  // TODO: Dynamic importing isn't my cup of tea, consider moving the whole project to transpile to ESM and using native imports for better readability and maintainability
   private async initialize(): Promise<void> {
     // Dynamic import for ES module (electron-store v11+)
     const Store = (await import('electron-store')).default
