@@ -38,7 +38,7 @@
   },
   "errorState": {
     "offline": {
-      "message": "Chương này chưa được tải xuống"
+      "message": "Chương này chưa được tải xuống. Bạn cần kết nối internet để đọc chương này."
     },
     "generic": {
       "title": "Không thể tải chương này",

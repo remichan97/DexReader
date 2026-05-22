@@ -381,7 +381,7 @@ export function ReaderView(): JSX.Element {
               <ErrorState
                 variant="offline"
                 title={t('common:message.info.youreOffline')}
-                message={chapterData.error.message}
+                message={t('reader:errorState.offline.message')}
                 secondaryAction={{
                   label: t('reader:errorState.goToLibraryButton'),
                   onClick: () => navigate('/library')

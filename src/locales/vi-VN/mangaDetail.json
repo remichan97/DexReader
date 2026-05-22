@@ -35,7 +35,7 @@
     "loading": "Đang tải chi tiết manga...",
     "loaded": "Đã tải {{title}} của {{author}}"
   },
-  "stickyTitle": "{title}",
+  "stickyTitle": "{{title}}",
   "hero": {
     "coverAlt": "Bìa {{title}}",
     "filterByTag": "Lọc theo {{name}}",

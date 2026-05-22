@@ -40,7 +40,7 @@ export function DownloadCard({
   onRemove,
   onNavigateToReader
 }: Readonly<DownloadCardProps>): JSX.Element {
-  const { t } = useTranslation(['common'])
+  const { t } = useTranslation(['common', 'downloads'])
 
   return (
     <div
@@ -62,13 +62,13 @@ export function DownloadCard({
         </div>
 
         <Badge variant={getBadgeVariant(download.status)} size="small">
-          {download.status}
+          {t(`downloads:status.${download.status}`)}
         </Badge>
       </div>
 
       {/* Progress bar */}
       {download.status === 'queued' && (
-        <div className="download-card__queued">Queued for download</div>
+        <div className="download-card__queued">{t('downloads:status.queuedMessage')}</div>
       )}
 
       {download.status === 'downloading' && (
@@ -81,7 +81,10 @@ export function DownloadCard({
           />
           <div className="download-card__progress-info flex justify-between items-center">
             <span>
-              Page {download.currentPage || 0} / {download.totalPages}
+              {t('downloads:status.progress', {
+                current: download.currentPage || 0,
+                total: download.totalPages
+              })}
             </span>
           </div>
         </div>
