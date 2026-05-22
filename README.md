@@ -12,8 +12,8 @@ A modern, cross-platform manga reader for MangaDex built with Electron, React, a
 - 📚 **Library Management** - Organise your manga library with favourites, collections, and reading history. Advanced search syntax with 6 filter types (status, tag, author, artist, year, downloaded)
 - 📖 **Flexible Reader** - Multiple reading modes (single page, double page, vertical scroll) with zoom and pan controls
 - ⬇️ **Offline Reading** - Download chapters for offline access with parallel download support
-- � **Multi-Language Support** - Full internationalization with British English, American English, and Vietnamese locales
-- �🎨 **Modern UI** - Clean, responsive interface following Windows 11 design principles (to our best abilities)
+- 🌐 **Multi-Language Support** - Full internationalization with British English, American English, and Vietnamese locales
+- 🎨 **Modern UI** - Clean, responsive interface following Windows 11 design principles (to our best abilities)
 - ⚡ **High Performance** - Optimized database queries, image caching, and React rendering for smooth experience
 
 ## Download
