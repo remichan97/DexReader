@@ -92,12 +92,14 @@ npm run build:linux
 
 ## Project Status
 
-**Current Version**: 1.4.0 (May 17, 2026) 🌐
+**Current Version**: 1.5.0 (May 22, 2026) 🌍
 
-DexReader v1.4.0 introduces full internationalization support:
+DexReader v1.5.0 adds Content Language Settings and improves configuration management:
 
 - ✅ Complete MangaDex extensive manga library integration (browse, search, read)
-- ✅ **Multi-Language Support** - Three locales supported (British English, American English, Vietnamese)
+- ✅ **Content Language Preferences** - Configure up to 3 priority languages for manga content filtering
+- ✅ **Multi-Language UI** - Three locales supported (British English, American English, Vietnamese)
+- ✅ **Enhanced Settings Management** - Migrated to electron-store for improved reliability
 - ✅ Search presets - Save and reuse search configurations with one click
 - ✅ Offline reading with download management
 - ✅ Auto-update system with post-update "What's New" banner
@@ -107,7 +109,7 @@ DexReader v1.4.0 introduces full internationalization support:
 - ✅ WCAG 2.1 AA accessibility compliance (100%)
 - ✅ Multi-platform support (Windows, macOS, Linux)
 
-This release enhances the browsing experience by allowing users to save their favorite search configurations as presets for quick access.
+This release enhances user control over content by allowing language preferences and improving the settings infrastructure for better reliability.
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed release notes and development history.
 

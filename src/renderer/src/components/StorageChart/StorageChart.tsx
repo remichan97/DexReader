@@ -31,7 +31,7 @@ export function StorageChart({
   return (
     <div className="storage-chart p-4">
       {/* Chart Header */}
-      <h3 className="storage-chart__title mb-3">{t('settings:chartTitle')}</h3>
+      <h3 className="storage-chart__title mb-3">{t('settings:storage.chartTitle')}</h3>
 
       {/* Top Bar: Disk-Level Context */}
       <div className="mb-2">
@@ -45,14 +45,14 @@ export function StorageChart({
                 backgroundColor: 'var(--accent-color)',
                 opacity: 0.9
               }}
-              title={t('settings:dexReaderTooltip', { size: formatBytes(dexReaderSize) })}
+              title={t('settings:storage.dexReaderTooltip', { size: formatBytes(dexReaderSize) })}
             >
               {shouldShowLabel(dexReaderPercent) && (
                 <span
                   className="storage-chart__label storage-chart__label--large"
                   style={{ color: 'white' }}
                 >
-                  {t('settings:dexReaderLabel', { size: formatBytes(dexReaderSize) })}
+                  {t('settings:storage.dexReaderLabel', { size: formatBytes(dexReaderSize) })}
                 </span>
               )}
             </div>
@@ -66,14 +66,14 @@ export function StorageChart({
                 width: `${otherAppsPercent}%`,
                 backgroundColor: 'color-mix(in srgb, var(--win-text-secondary) 15%, transparent)'
               }}
-              title={t('settings:otherTooltip', { size: formatBytes(otherAppsSize) })}
+              title={t('settings:storage.otherTooltip', { size: formatBytes(otherAppsSize) })}
             >
               {shouldShowLabel(otherAppsPercent) && (
                 <span
                   className="storage-chart__label storage-chart__label--large"
                   style={{ color: 'var(--win-text-primary)' }}
                 >
-                  {t('settings:otherLabel', { size: formatBytes(otherAppsSize) })}
+                  {t('settings:storage.otherLabel', { size: formatBytes(otherAppsSize) })}
                 </span>
               )}
             </div>
@@ -87,14 +87,14 @@ export function StorageChart({
                 width: `${freePercent}%`,
                 backgroundColor: 'color-mix(in srgb, var(--win-text-secondary) 8%, transparent)'
               }}
-              title={t('settings:freeTooltip', { size: formatBytes(diskSpace.free) })}
+              title={t('settings:storage.freeTooltip', { size: formatBytes(diskSpace.free) })}
             >
               {shouldShowLabel(freePercent) && (
                 <span
                   className="storage-chart__label storage-chart__label--large"
                   style={{ color: 'var(--win-text-secondary)' }}
                 >
-                  {t('settings:freeLabel', { size: formatBytes(diskSpace.free) })}
+                  {t('settings:storage.freeLabel', { size: formatBytes(diskSpace.free) })}
                 </span>
               )}
             </div>

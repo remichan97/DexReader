@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 18 May 2026
-**Version**: v1.4.1
-**Mode**: Post-Release Maintenance
+**Last Updated**: 22 May 2026
+**Version**: v1.5.0
+**Mode**: Release Preparation
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next. Keep all entries as short, concise as possible
 
@@ -10,21 +10,20 @@
 
 ## Current Status
 
-**v1.4.1 Released**: 18 May 2026 🐛
+**v1.5.0 Released**: 22 May 2026 🌍
 
-**Focus**: Post-release monitoring and next feature planning
+**Key Features in v1.5.0:**
 
-- Hotfix release addressing i18n initialization issues from v1.4.0
-  - Fixed settings migration not triggering on v1.4.0 upgrade
-  - Fixed missing settings key during app initialization for i18n
-  - Ensured migrated settings are properly persisted
-- Ready for user feedback and next development cycle
+- Content Language Settings - Configure up to 3 priority languages for manga content
+- Settings infrastructure migrated to electron-store for improved reliability
+- SettingsView reorganized with cleaner separation of concerns
+- Translation improvements (Vietnamese and general)
+- App lock feature deferred to future release
 
-**Plans:**
+**Next Steps:**
 
-- Monitor user feedback on v1.4.1 hotfix
-- Consider additional language support based on community requests
-- Plan next feature development cycle
+- Monitor release workflow for successful builds
+- Post-release: monitor user feedback and plan next cycle
 
 ---
 
@@ -51,6 +50,21 @@
 
 ## Recent Changes (Last 1-2 Weeks)
 
+### 22 May 2026 - v1.5.0 Release Preparation
+
+- **Type**: Release
+- **Summary**: Content Language Settings and enhanced settings management
+- **Key Features**:
+  - Content Language Settings with priority language selection (up to 3 languages)
+  - PriorityLanguages component for language management
+  - Settings infrastructure migrated from JSON to electron-store
+  - SettingsView reorganization for better UX
+  - Translation improvements across all locales
+  - Dependency update: protobufjs 8.0.2 → 8.2.0
+  - CI automation for release tagging
+- **Impact**: Users can now filter manga content by preferred languages, improved settings reliability
+- **Status**: 🔄 Ready for Release
+
 ### 18 May 2026 - v1.4.1 Hotfix Release
 
 - **Type**: Hotfix
@@ -60,20 +74,6 @@
   - Fixed missing settings key during app init for i18n preferences
   - Ensured migrated settings are properly written to settings file
 - **Impact**: Users upgrading from pre-v1.4.0 versions now properly migrate i18n settings
-- **Status**: ✅ Released
-
-### 17 May 2026 - v1.4.0 Release
-
-- **Type**: Release
-- **Summary**: Full internationalization support enabling multi-language UI across the entire application.
-- **Key Features**:
-  - 3 locales: British English (en-GB), American English (en-US), Vietnamese (vi-VN)
-  - Display language selection in Settings → Appearance
-  - Automatic restart prompt when language changes affect backend
-  - Complete translation coverage across all views and components
-  - i18next infrastructure with file system backend
-  - Dependency update: protobufjs 8.0.1 → 8.0.2
-- **Impact**: Enhanced accessibility for non-English speakers and users preferring American English spellings
 - **Status**: ✅ Released
 
 <!-- Template for future entries:

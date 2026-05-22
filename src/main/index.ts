@@ -5,7 +5,6 @@ import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { updateMenuState } from './menu/index'
 import { secureFs } from './filesystem/secure-fs'
 import { getAppDataPath, getDownloadsPath } from './filesystem/path-validator'
-import { initializeDownloadsPath, loadSettings } from './settings/settings-manager'
 import { ImageProxy } from './api/proxy/image.proxy'
 import { createWindow, getMainWindow } from './window'
 import { setupAppLifecycle } from './app-lifecycle'
@@ -17,6 +16,7 @@ import { diskCacheUtil } from './api/utils/disk-cache.util'
 import { appUpdateService } from './services/app-update.service'
 import { mainLog } from './services/logging/main-logging.service'
 import i18next from './i18n/i18n.config'
+import { settingsManager } from './settings/settings-manager'
 
 const imageProxy = new ImageProxy()
 const localImageProxy = new LocalImageProxy()
@@ -41,7 +41,7 @@ async function initFileSystem(): Promise<void> {
   await diskCacheUtil.initCachePath()
 
   // Load App settings
-  const settings = await loadSettings()
+  const settings = await settingsManager.load()
   mainLog.info('[Main] Settings loaded:', settings)
 
   // Apply user language settings to i18next
@@ -50,9 +50,9 @@ async function initFileSystem(): Promise<void> {
 
   // Init Downloads path
   mainLog.debug('[Main] Initializing downloads path...')
-  await initializeDownloadsPath().catch((error) =>
-    mainLog.error('[Main] Failed to initialize downloads path:', error)
-  )
+  settingsManager
+    .initializeDownloadsPath()
+    .catch((error) => mainLog.error('[Main] Failed to initialize downloads path:', error))
   const downloadsPath = getDownloadsPath()
   mainLog.info(`[Main] Downloads path: ${downloadsPath}`)
 

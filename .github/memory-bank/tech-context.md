@@ -1,7 +1,7 @@
 # DexReader Technical Context
 
-**Last Updated**: 21 April 2026
-**Project Version**: 1.0.0 (Release Baseline)
+**Last Updated**: 22 May 2026
+**Project Version**: 1.4.1 (1.5.0 in development)
 **Type**: Desktop Application (Electron)
 
 ---
@@ -387,6 +387,59 @@ export default defineConfig({
    - Prevents bundling of node_modules
    - Keeps native Node.js modules external
    - Reduces bundle size
+
+### Module Format
+
+**Current State** (v1.4.1 - v1.5.0): **CommonJS**
+
+- TypeScript configured with `"module": "esnext"` but electron-vite transpiles to CommonJS
+- Build output uses `require()` / `module.exports`
+- Source code uses ES imports (`import`/`export`) exclusively
+- 8 files use `__dirname` for path resolution
+
+**ES Modules Workaround** (v1.5.0): **Dynamic Import Pattern**
+
+Due to electron-store v11+ being ESM-only, SettingsManager uses dynamic imports:
+
+```typescript
+// Dynamic import in async initialize()
+const Store = (await import('electron-store')).default
+```
+
+**Known Limitation**: `better-sqlite3` v12.8.0 is CommonJS-only (no ESM exports)
+
+**Future Migration Plan** (Target: Electron 42 GA, ~Q3 2026):
+
+When Electron 42 stabilizes and better-sqlite3 adds native ESM support:
+
+1. Add `"type": "module"` to package.json
+2. Configure electron-vite output format to ES modules
+3. Replace 8 `__dirname` occurrences with `import.meta.url` pattern:
+
+   ```typescript
+   import { fileURLToPath } from 'node:url'
+   import { dirname } from 'node:path'
+   const __filename = fileURLToPath(import.meta.url)
+   const __dirname = dirname(__filename)
+   ```
+
+4. **Remove dynamic import workaround from SettingsManager** - restore natural static imports
+5. Test across all platforms
+
+**Estimated Effort**: 2-4 hours (codebase already 80% ESM-ready)
+
+**Codebase Readiness**: ✅ Source already uses ES imports, no `require()` statements
+
+**Affected Files**:
+
+- src/main/window.ts (2 `__dirname`)
+- src/main/database/migrations/migrations.ts (1)
+- src/main/services/dexreader/dexreader-import.service.ts (1)
+- src/main/services/dexreader/dexreader-export.service.ts (1)
+- src/main/services/mihon/mihon-export.service.ts (1)
+- src/main/services/mihon/mihon-backup.service.ts (1)
+- src/main/scripts/database-performance/shared/database-helpers.ts (1)
+- src/main/settings/settings-manager.ts (dynamic import workaround to be removed)
 
 ---
 

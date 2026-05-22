@@ -17,6 +17,9 @@ import { LogsSettings } from '../entities/logs-settings.entity'
 import { StartupPage } from '../enums/startup-page.enum'
 import { AppSettings } from '../entities/app-settings.entity'
 import { SearchSettings } from '../entities/search-settings.entity'
+import { DisplayLanguage } from '../enums/display-languages.enum'
+import { LanguageSettings } from '../entities/language-settings.entity'
+import { ContentLanguage } from '../enums/content-language.enum'
 
 export function validateSettings(newSettings: unknown): newSettings is AppSettings {
   if (typeof newSettings !== 'object' || newSettings === null) {
@@ -44,6 +47,10 @@ export function validateSettings(newSettings: unknown): newSettings is AppSettin
 
   if (!isLogSettings(settings.logs)) {
     throw new TypeError('Invalid log settings')
+  }
+
+  if (!isLanguageSettings(settings.language)) {
+    throw new TypeError('Invalid language settings')
   }
 
   return true
@@ -355,6 +362,39 @@ export function isSearchSettings(values: unknown): values is SearchSettings {
     typeof searchSettings.defaultPresetId !== 'number'
   ) {
     throw new TypeError('Refused to save search settings: defaultPresetId is not a number')
+  }
+
+  return true
+}
+
+export function isLanguageSettings(values: unknown): values is LanguageSettings {
+  if (typeof values !== 'object' || values === null) {
+    throw new TypeError('Refused to save language settings: not an object')
+  }
+
+  const languageSettings = values as LanguageSettings
+
+  if (!Object.values(DisplayLanguage).includes(languageSettings.displayLanguage)) {
+    throw new TypeError(
+      'Refused to save language settings: displayLanguage is not a valid DisplayLanguage value'
+    )
+  }
+
+  if (typeof languageSettings.syncContentLanguage !== 'boolean') {
+    throw new TypeError('Refused to save language settings: syncContentLanguage is not a boolean')
+  }
+
+  if (
+    languageSettings.contentLanguage !== undefined &&
+    (!Array.isArray(languageSettings.contentLanguage) ||
+      languageSettings.contentLanguage.length > 5 ||
+      !languageSettings.contentLanguage.every((lang) =>
+        Object.values(ContentLanguage).includes(lang)
+      ))
+  ) {
+    throw new TypeError(
+      'Refused to save language settings: contentLanguage must be an array of valid ContentLanguage values with at most 5 items if provided'
+    )
   }
 
   return true

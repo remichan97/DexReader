@@ -1,10 +1,10 @@
 import path from 'node:path'
 import { getCachedCoverPath } from '../../filesystem/path-validator'
 import { secureFs } from '../../filesystem/secure-fs'
-import { getSettingByPath } from '../../settings/settings-manager'
 import { mangaRepo } from '../../database/repositories/manga.repo'
 import { DiskCacheQuery } from '../../database/queries/storage/disk-cache.query'
 import { mainLog } from '../../services/logging/main-logging.service'
+import { settingsManager } from '../../settings/settings-manager'
 
 export class DiskCacheUtil {
   private readonly coverCachePath = getCachedCoverPath()
@@ -197,8 +197,8 @@ export class DiskCacheUtil {
   }
 
   private async getMaxCacheSize(): Promise<number> {
-    const cacheSize = (await getSettingByPath('downloads', 'maxDiskCacheSize')) as number
-    return cacheSize ?? 50 * 1024 * 1024 // Default to 50MB if not set, 0 means unlimited
+    const cacheLimit = (await settingsManager.getByPath('downloads', 'maxDiskCacheSize')) as number
+    return cacheLimit ?? 50 * 1024 * 1024 // Default to 50MB if not set, 0 means unlimited
   }
 
   private extractMangaIdFromCoverUrl(url: string): string | undefined {

@@ -1,6 +1,6 @@
 import { readerSettingsRepo } from '../../database/repositories/reader-settings.repo'
 import { MangaReadingSettings } from '../../settings/entities/reading-settings.entity'
-import { getMangaReaderSettings } from '../../settings/settings-manager'
+import { settingsManager } from '../../settings/settings-manager'
 import { isMangaOverrideSettings } from '../../settings/validators/types.validator'
 import { wrapIpcHandler } from '../wrap-handler'
 
@@ -25,7 +25,7 @@ export function registerReaderSettingsHandlers(): void {
    * const globalSettings = await window.api.getMangaReaderSettings('')
    */
   wrapIpcHandler('reader:get-manga-settings', async (_, mangaId: unknown) => {
-    return await getMangaReaderSettings(mangaId as string)
+    return settingsManager.getMangaReaderSettings(mangaId as string)
   })
 
   /**
@@ -50,7 +50,7 @@ export function registerReaderSettingsHandlers(): void {
   wrapIpcHandler(
     'reader:update-manga-settings',
     async (_, mangaId: unknown, newSettings: unknown) => {
-      const globalSettings = await getMangaReaderSettings('') // Get global settings
+      const globalSettings = settingsManager.getMangaReaderSettings('') // Get global settings
 
       // If new settings match global, reset the override for the manga instead
       if (newSettings && JSON.stringify(newSettings) === JSON.stringify(globalSettings)) {

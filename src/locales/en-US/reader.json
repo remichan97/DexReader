@@ -38,7 +38,7 @@
   },
   "errorState": {
     "offline": {
-      "message": "This chapter isn't downloaded"
+      "message": "This chapter isn't downloaded. You need to be online to read it."
     },
     "generic": {
       "title": "Couldn't load this chapter",

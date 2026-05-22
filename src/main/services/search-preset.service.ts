@@ -1,7 +1,7 @@
 import { CreateSearchPresetCommand } from '../database/commands/search-presets/create-search-preset.command'
 import { SearchPresetQuery } from '../database/queries/search-presets/search-preset.query'
 import { searchPresetsRepo } from '../database/repositories/search-presets.repo'
-import { getSettingByPath, updateSettings } from '../settings/settings-manager'
+import { settingsManager } from '../settings/settings-manager'
 import { mainLog } from './logging/main-logging.service'
 import { CreateSearchPresetOptions } from './options/create-search-preset.option'
 
@@ -37,7 +37,7 @@ class SearchPresetService {
           presetId: preset.id,
           presetName: preset.name
         })
-        await updateSettings('search', { defaultPresetId: preset.id })
+        settingsManager.update('search', { defaultPresetId: preset.id })
       }
 
       if (!preset) {
@@ -88,9 +88,10 @@ class SearchPresetService {
       }
 
       // Check Settings if the deleted preset was set as default, and if so, delete the default preset setting as well
-      const defaultSearchPresetId = getSettingByPath('search', 'defaultPresetId') as unknown as
-        | number
-        | undefined
+      const defaultSearchPresetId = settingsManager.getByPath(
+        'search',
+        'defaultPresetId'
+      ) as unknown as number | undefined
       if (defaultSearchPresetId === id) {
         mainLog.info(
           '[SearchPresetService] Deleted preset was set as default, clearing default preset setting',
@@ -98,7 +99,7 @@ class SearchPresetService {
             presetId: id
           }
         )
-        await updateSettings('search', { defaultPresetId: undefined })
+        settingsManager.update('search', { defaultPresetId: undefined })
       }
 
       return success

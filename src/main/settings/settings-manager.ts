@@ -1,17 +1,15 @@
 import os from 'node:os'
 import { ChapterCacheTier } from './enums/chapter-cache-tier.enum'
-import path from 'node:path'
 import {
-  getAppDataPath,
   getDownloadsPath,
   updateDownloadsPath,
   validateDirectoryPath
 } from '../filesystem/path-validator'
-import { secureFs } from '../filesystem/secure-fs'
 import { ImageQuality } from '../api/enums'
 import { AppTheme } from './enums/theme-mode.enum'
 import { ReadingMode } from './enums/reading-mode.enum'
 import { AppSettings } from './entities/app-settings.entity'
+import type Store from 'electron-store'
 import { MangaReadingSettings } from './entities/reading-settings.entity'
 import { readerSettingsRepo } from '../database/repositories/reader-settings.repo'
 import { DownloadConfirmation } from './enums/download-confirmation.enum'
@@ -19,243 +17,235 @@ import { MemoryTierInfo } from './response/memory-tier.response'
 import { memoryCacheUtil } from '../api/utils/memory-cache.util'
 import { mainLog } from '../services/logging/main-logging.service'
 import { StartupPage } from './enums/startup-page.enum'
-import { migrateSettings } from './utils/settings-migration.util'
+import { CURRENT_SETTINGS_VERSION, migrateSettings } from './utils/settings-migration.util'
 import { DisplayLanguage } from './enums/display-languages.enum'
 
-let cachedSettingsObject: AppSettings | undefined = undefined
+class SettingsManager {
+  private settingsStore!: Store<AppSettings>
+  private initPromise: Promise<void>
 
-// Lazy-initialized to avoid calling getAppDataPath() before Electron app is ready
-function settingsFilePath(): string {
-  return path.join(getAppDataPath(), 'settings.json')
-}
-
-export async function loadSettings(): Promise<AppSettings> {
-  // Return cached settings if available
-  if (cachedSettingsObject) {
-    return cachedSettingsObject
+  constructor() {
+    this.initPromise = this.initialize()
   }
 
-  try {
-    const settingsFile = settingsFilePath()
-    const exists = await secureFs.isExists(settingsFile)
+  // TODO: Dynamic importing isn't my cup of tea, consider moving the whole project to transpile to ESM and using native imports for better readability and maintainability
+  private async initialize(): Promise<void> {
+    // Dynamic import for ES module (electron-store v11+)
+    const Store = (await import('electron-store')).default
+    this.settingsStore = new Store<AppSettings>({
+      name: 'settings',
+      defaults: SettingsManager.getDefaultSettings(),
+      clearInvalidConfig: true
+    })
+  }
 
-    if (!exists) {
-      const defaults: AppSettings = getDefaultSettings()
-      await saveSettings(defaults)
-      cachedSettingsObject = defaults
-      return defaults
-    }
+  private async ensureInitialized(): Promise<void> {
+    await this.initPromise
+  }
 
-    const data = (await secureFs.readFile(settingsFile, 'utf-8')) as string
-    const settings = JSON.parse(data)
+  async load(): Promise<AppSettings> {
+    await this.ensureInitialized()
+    const settings = this.settingsStore.store
 
-    // Migrate settings if needed
-    const migratedSettings = migrateSettings(settings, getDefaultSettings())
-    // Save the migrated settings back to disk if migration occurred (version was outdated)
-    if (migratedSettings.version !== settings.version) {
+    if (settings.version !== CURRENT_SETTINGS_VERSION) {
+      const migrated = migrateSettings(settings, SettingsManager.getDefaultSettings())
       mainLog.info(
-        `[SettingsManager] Settings migrated from version ${settings.version} to ${migratedSettings.version}. Saving migrated settings.`
+        `[SettingsManager] Settings migrated from version ${settings.version} to ${migrated.version}. Saving migrated settings.`
       )
-      await saveSettings(migratedSettings)
+      this.settingsStore.store = migrated
+      return migrated
     }
-    cachedSettingsObject = migratedSettings
-    return migratedSettings
-  } catch (error) {
-    mainLog.error('[SettingsManager] Error loading settings:', error)
-    mainLog.warn('[SettingsManager] Reverting to default settings.')
-    cachedSettingsObject = getDefaultSettings()
-    await saveSettings(cachedSettingsObject)
-    return cachedSettingsObject
-  }
-}
 
-export async function saveSettings(settings: AppSettings): Promise<void> {
-  try {
-    const data = JSON.stringify(settings, null, 2)
-    const settingsFile = settingsFilePath()
-    await secureFs.writeFile(settingsFile, data, 'utf-8')
-    // Update cached settings after successful save to make sure cache is always in sync with disk
-    cachedSettingsObject = settings
+    return settings
+  }
+
+  async getByPath<K extends keyof AppSettings>(key: K, path?: string): Promise<unknown> {
+    await this.ensureInitialized()
+    const section = this.settingsStore.store[key]
+
+    if (!path) {
+      return section
+    }
+
+    const pathParts = path.split('.')
+    let current: unknown = section
+
+    for (const part of pathParts) {
+      if (current && typeof current === 'object' && part in current) {
+        current = current[part]
+      } else {
+        if (key === 'downloads' && path === 'downloadPath') {
+          return getDownloadsPath()
+        }
+        mainLog.warn(`[SettingsManager] Path '${path}' not found in section '${key}'`)
+        return undefined // No such settings, or path is invalid
+      }
+    }
+
+    return current
+  }
+
+  async update<T extends keyof AppSettings>(section: T, value: AppSettings[T]): Promise<void> {
+    await this.ensureInitialized()
+    mainLog.debug(`[SettingsManager] Updating setting '${section}'`)
+    const currentSettings = this.settingsStore.store
+    this.settingsStore.store = {
+      ...currentSettings,
+      [section]: value
+    }
+    mainLog.info(`[SettingsManager] Setting '${section}' updated successfully`)
+  }
+
+  async save(settings: AppSettings): Promise<void> {
+    await this.ensureInitialized()
+    this.settingsStore.store = settings
     mainLog.info('[SettingsManager] Settings saved successfully.')
-  } catch (error) {
-    mainLog.error('[SettingsManager] Error saving settings:', error)
-    throw error
-  }
-}
-
-export async function updateSettings<K extends keyof AppSettings>(
-  key: K,
-  value: AppSettings[K]
-): Promise<void> {
-  mainLog.debug(`[SettingsManager] Updating setting '${key}'`)
-  const settings = await loadSettings()
-  settings[key] = value
-  await saveSettings(settings)
-  mainLog.info(`[SettingsManager] Setting '${key}' updated successfully`)
-}
-
-/**
- * Get a nested setting value by path (e.g., 'downloads.downloadPath')
- * @param section - Top-level settings section ('downloads', 'appearance', 'reader')
- * @param path - Optional dot-notation path to nested property
- * @returns The value at the specified path, or the entire section if no path provided
- */
-export async function getSettingByPath<K extends keyof AppSettings>(
-  section: K,
-  settingsPath?: string
-): Promise<unknown> {
-  const settings = await loadSettings()
-  const settingsData: unknown = settings[section]
-
-  if (!settingsPath) {
-    return settingsData
   }
 
-  const keys = settingsPath.split('.')
-  let value: unknown = settingsData
-  for (const key of keys) {
-    value = (value as Record<string, unknown>)?.[key]
-    if (value === undefined) {
-      // Special case: downloadPath defaults to system downloads directory
-      if (section === 'downloads' && settingsPath === 'downloadPath') {
-        return getDownloadsPath()
+  async reset(): Promise<void> {
+    await this.ensureInitialized()
+    this.settingsStore.clear()
+    mainLog.info('[SettingsManager] Settings reset to defaults.')
+  }
+
+  async openSettingsFile(): Promise<void> {
+    await this.ensureInitialized()
+    return this.settingsStore.openInEditor()
+  }
+
+  async setDownloadsPath(newPath: string): Promise<void> {
+    await this.ensureInitialized()
+    mainLog.info(`[SettingsManager] Attempting to set downloads path: ${newPath}`)
+    // Sanitize the new path (remove control characters including null bytes)
+    // eslint-disable-next-line no-control-regex
+    const sanitizedPath = newPath.replaceAll(/[\u0000-\u001F\u007F]/g, '')
+
+    if (sanitizedPath !== newPath) {
+      mainLog.warn('[SettingsManager] Path was sanitized (removed control characters)')
+    }
+
+    // Prevent setting to system directories
+    if (this.isSystemDirectory(sanitizedPath)) {
+      mainLog.error(`[SettingsManager] Rejected system directory: ${sanitizedPath}`)
+      throw new Error('Setting downloads path to system directories is not allowed.')
+    }
+
+    // Validate that the path exists and is a directory
+    await validateDirectoryPath(sanitizedPath)
+    mainLog.info('[SettingsManager] Path validation successful')
+
+    // Update in-memory allowed paths
+    updateDownloadsPath(sanitizedPath)
+    // Save to settings
+    const currentSettings = this.settingsStore.store
+    this.settingsStore.store = {
+      ...currentSettings,
+      downloads: {
+        ...currentSettings.downloads,
+        downloadPath: sanitizedPath
       }
-      return undefined
+    }
+    mainLog.info(`[SettingsManager] Downloads path changed to: ${sanitizedPath}`)
+  }
+
+  async initializeDownloadsPath(): Promise<void> {
+    const settings = await this.load()
+
+    if (settings.downloads.downloadPath) {
+      try {
+        await validateDirectoryPath(settings.downloads.downloadPath)
+        updateDownloadsPath(settings.downloads.downloadPath)
+      } catch (error) {
+        mainLog.warn(`[SettingsManager] Failed to set saved downloads path: ${error}`)
+        mainLog.info(
+          `[SettingsManager] Using default downloads path at ${getDownloadsPath()} instead.`
+        )
+        // Reset to default in settings
+        await this.update('downloads', { ...settings.downloads, downloadPath: undefined })
+      }
     }
   }
 
-  return value
-}
+  async getMangaReaderSettings(mangaId: string): Promise<MangaReadingSettings> {
+    const override = readerSettingsRepo.getMangaOverride(mangaId)
 
-export function getSettingsFilePath(): string {
-  return settingsFilePath()
-}
+    if (override) {
+      return override
+    }
 
-// Set a new downloads path with validation
-export async function setDownloadsPath(newPath: string): Promise<void> {
-  mainLog.info(`[SettingsManager] Attempting to set downloads path: ${newPath}`)
-  // Sanitize the new path (remove control characters including null bytes)
-  // eslint-disable-next-line no-control-regex
-  const sanitizedPath = newPath.replaceAll(/[\u0000-\u001F\u007F]/g, '')
-
-  if (sanitizedPath !== newPath) {
-    mainLog.warn('[SettingsManager] Path was sanitized (removed control characters)')
+    await this.ensureInitialized()
+    const settings = this.settingsStore.store
+    return settings.reader.global
   }
 
-  // Prevent setting to system directories
-  if (isSystemDirectory(sanitizedPath)) {
-    mainLog.error(`[SettingsManager] Rejected system directory: ${sanitizedPath}`)
-    throw new Error('Setting downloads path to system directories is not allowed.')
-  }
+  getMemoryTierInfo(): MemoryTierInfo {
+    const memoryTier = memoryCacheUtil.getDynamicTiers()
+    const systemMemory = os.totalmem()
+    const systemRAM_GB = Number((systemMemory / 1024 ** 3).toFixed(1))
 
-  // Validate that the path exists and is a directory
-  await validateDirectoryPath(sanitizedPath)
-  mainLog.debug('[SettingsManager] Path validation successful')
-
-  // Load and update settings
-  const settings = await loadSettings()
-  // Update in-memory allowed paths
-  updateDownloadsPath(sanitizedPath)
-  // Save to settings
-  await updateSettings('downloads', { ...settings.downloads, downloadPath: sanitizedPath })
-  mainLog.info(`[SettingsManager] Downloads path changed to: ${sanitizedPath}`)
-}
-
-export async function getMangaReaderSettings(mangaId: string): Promise<MangaReadingSettings> {
-  const override = readerSettingsRepo.getMangaOverride(mangaId)
-
-  if (override) {
-    return override
-  }
-
-  const settings = await loadSettings()
-  return settings.reader.global
-}
-
-export async function getMemoryTierInfo(): Promise<MemoryTierInfo> {
-  const memoryTier = memoryCacheUtil.getDynamicTiers()
-  const systemMemory = os.totalmem()
-  const systemRAM_GB = Number((systemMemory / 1024 ** 3).toFixed(1))
-
-  return {
-    lowTierMB: Math.floor(memoryTier[ChapterCacheTier.Low] / (1024 * 1024)),
-    normalTierMB: Math.floor(memoryTier[ChapterCacheTier.Normal] / (1024 * 1024)),
-    highTierMB: Math.floor(memoryTier[ChapterCacheTier.High] / (1024 * 1024)),
-    recommendedMaxMB: Math.floor((systemMemory / (1024 * 1024)) * 0.1), // True 10% without cap
-    systemRAM_GB
-  }
-}
-
-// Initialize downloads path from settings on app startup
-export async function initializeDownloadsPath(): Promise<void> {
-  const settings = await loadSettings()
-
-  if (settings.downloads.downloadPath) {
-    try {
-      await validateDirectoryPath(settings.downloads.downloadPath)
-      updateDownloadsPath(settings.downloads.downloadPath)
-    } catch (error) {
-      mainLog.warn(`[SettingsManager] Failed to set saved downloads path: ${error}`)
-      mainLog.info(
-        `[SettingsManager] Using default downloads path at ${getDownloadsPath()} instead.`
-      )
-      // Reset to default in settings
-      await updateSettings('downloads', { ...settings.downloads, downloadPath: undefined })
+    return {
+      lowTierMB: Math.floor(memoryTier[ChapterCacheTier.Low] / (1024 * 1024)),
+      normalTierMB: Math.floor(memoryTier[ChapterCacheTier.Normal] / (1024 * 1024)),
+      highTierMB: Math.floor(memoryTier[ChapterCacheTier.High] / (1024 * 1024)),
+      recommendedMaxMB: Math.floor((systemMemory / (1024 * 1024)) * 0.1), // True 10% without cap
+      systemRAM_GB
     }
   }
-}
 
-export function getDefaultSettings(): AppSettings {
-  return {
-    version: 2, // Increment this if you make breaking changes to the settings structure
-    downloads: {
-      maxConcurrentDownloads: 3,
-      shouldConfirmDownload: DownloadConfirmation.BatchDownload,
-      defaultQuality: ImageQuality.High,
-      maxDiskCacheSize: 50 * 1024 * 1024 // 50 MB default cache size for covers
-    },
-    appearance: {
-      theme: AppTheme.System,
-      startupPage: StartupPage.Browse
-    },
-    reader: {
-      forceDarkMode: true,
-      quality: ImageQuality.High,
-      global: {
-        readingMode: ReadingMode.SinglePage
+  static getDefaultSettings(): AppSettings {
+    return {
+      version: CURRENT_SETTINGS_VERSION,
+      downloads: {
+        maxConcurrentDownloads: 3,
+        shouldConfirmDownload: DownloadConfirmation.BatchDownload,
+        defaultQuality: ImageQuality.High,
+        maxDiskCacheSize: 50 * 1024 * 1024 // 50 MB default cache size for covers
       },
-      performance: {
-        cacheTier: ChapterCacheTier.Normal
+      appearance: {
+        theme: AppTheme.System,
+        startupPage: StartupPage.Browse
+      },
+      reader: {
+        forceDarkMode: true,
+        quality: ImageQuality.High,
+        global: {
+          readingMode: ReadingMode.SinglePage
+        },
+        performance: {
+          cacheTier: ChapterCacheTier.Normal
+        }
+      },
+      update: {
+        autoCheck: true,
+        autoDownload: false
+      },
+      logs: {
+        retentionInDays: 7 // Default: 7 days (covers 99% of debugging scenarios)
+      },
+      search: {},
+      language: {
+        displayLanguage: DisplayLanguage.EnglishUK,
+        syncContentLanguage: true
       }
-    },
-    update: {
-      autoCheck: true,
-      autoDownload: false
-    },
-    logs: {
-      retentionInDays: 7 // Default: 7 days (covers 99% of debugging scenarios)
-    },
-    search: {},
-    language: {
-      displayLanguage: DisplayLanguage.EnglishUK
     }
   }
-}
 
-function isSystemDirectory(folderPath: string): boolean {
-  const systemDirs = [
-    String.raw`C:\Windows`,
-    String.raw`C:\Program Files`,
-    '/usr',
-    '/bin',
-    '/etc',
-    '/var',
-    '/root',
-    '/sys',
-    '/proc',
-    String.raw`/System`,
-    String.raw`/Library`
-  ]
+  private isSystemDirectory(folderPath: string): boolean {
+    const systemDirs = [
+      String.raw`C:\Windows`,
+      String.raw`C:\Program Files`,
+      '/usr',
+      '/bin',
+      '/etc',
+      '/var',
+      '/root',
+      '/sys',
+      '/proc',
+      String.raw`/System`,
+      String.raw`/Library`
+    ]
 
-  return systemDirs.some((dir) => folderPath.startsWith(dir))
+    return systemDirs.some((dir) => folderPath.startsWith(dir))
+  }
 }
+export const settingsManager = new SettingsManager()

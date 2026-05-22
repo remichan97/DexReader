@@ -41,6 +41,14 @@
     "activeBadge": "{{count}} đang hoạt động",
     "failedBadge": "{{count}} thất bại"
   },
+  "status": {
+    "queued": "Đang chờ",
+    "downloading": "Đang tải",
+    "completed": "Hoàn thành",
+    "failed": "Thất bại",
+    "queuedMessage": "Đã xếp hàng chờ tải xuống",
+    "progress": "Trang {{current}} / {{total}}"
+  },
   "loadingState": {
     "message": "Đang tải xuống..."
   },

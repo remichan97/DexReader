@@ -41,6 +41,14 @@
     "activeBadge": "{{count}} active",
     "failedBadge": "{{count}} failed"
   },
+  "status": {
+    "queued": "Queued",
+    "downloading": "Downloading",
+    "completed": "Completed",
+    "failed": "Failed",
+    "queuedMessage": "Queued for download",
+    "progress": "Page {{current}} / {{total}}"
+  },
   "loadingState": {
     "message": "Loading downloads..."
   },

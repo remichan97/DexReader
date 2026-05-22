@@ -1,19 +1,12 @@
 import { app, shell } from 'electron'
 import { is } from '@electron-toolkit/utils'
 import { AppSettings } from '../../settings/entities/app-settings.entity'
-import {
-  getDefaultSettings,
-  getSettingsFilePath,
-  getSettingByPath,
-  loadSettings,
-  saveSettings,
-  getMemoryTierInfo
-} from '../../settings/settings-manager'
 import { mainLog } from '../../services/logging/main-logging.service'
 import { validateSettings } from '../../settings/validators/types.validator'
 import { wrapIpcHandler } from '../wrap-handler'
 import { cleanupRepo } from '../../database/repositories/cleanup.repo'
 import type { ImageProxy } from '../../api/proxy/image.proxy'
+import { settingsManager } from '../../settings/settings-manager'
 
 export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
   const validSections: Set<keyof AppSettings> = new Set([
@@ -53,7 +46,7 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
    * console.log(settings.appearance.theme) // 'light' | 'dark' | 'system'
    */
   wrapIpcHandler('settings:load', async () => {
-    return await loadSettings()
+    return settingsManager.load()
   })
 
   /**
@@ -90,7 +83,7 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
       throw new Error('Path must be a string')
     }
 
-    return await getSettingByPath(section as keyof AppSettings, path)
+    return settingsManager.getByPath(section as keyof AppSettings, path)
   })
 
   /**
@@ -122,7 +115,7 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
       throw new Error('Invalid settings structure')
     }
 
-    await saveSettings(newSettings)
+    settingsManager.save(newSettings)
 
     // Update chapter cache size dynamically when reader settings change
     if (imageProxy) {
@@ -139,17 +132,14 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
    * Opens the settings file for manual editing. Useful for advanced users or
    * troubleshooting. Changes made externally require app restart to take effect.
    *
-   * @returns Promise<boolean> - Always returns true on success
+   * @returns Promise<void> - Resolves when file is opened (or fails to open)
    *
    * @example
    * // Open settings file from Help menu
    * await window.api.openSettingsFile()
    */
   wrapIpcHandler('settings:open-settings-file', async () => {
-    const settingsPath = getSettingsFilePath()
-
-    await shell.openPath(settingsPath)
-    return true
+    return await settingsManager.openSettingsFile()
   })
 
   /**
@@ -165,9 +155,7 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
    * await window.api.resetToDefaults()
    */
   wrapIpcHandler('settings:reset-to-defaults', async () => {
-    const defaultSettings = getDefaultSettings()
-
-    await saveSettings(defaultSettings)
+    settingsManager.reset()
     return true
   })
 
@@ -187,8 +175,7 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
   wrapIpcHandler('settings:clear-all', async () => {
     cleanupRepo.clearAllData()
 
-    const defaultSettings = getDefaultSettings()
-    await saveSettings(defaultSettings)
+    settingsManager.reset()
 
     // In dev mode, just exit. In production, relaunch the app
     if (!is.dev) {
@@ -267,6 +254,6 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
    * console.log(`Recommended cache: ${tierInfo.recommendedSize} MB`)
    */
   wrapIpcHandler('settings:get-memory-tier-info', async () => {
-    return await getMemoryTierInfo()
+    return settingsManager.getMemoryTierInfo()
   })
 }

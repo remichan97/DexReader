@@ -9,6 +9,7 @@ import { useTranslation } from '@renderer/hooks/useTranslation'
 import i18next from '@renderer/i18n/config'
 import type { MangaReadingSettings, AppSettings } from '../../../../preload/index.d'
 import { AppearanceSettings } from './components/AppearanceSettings'
+import { LanguageSettings } from './components/LanguageSettings'
 import { ReaderSettingsSection } from './components/ReaderSettingsSection'
 import { PerformanceSettingsSection } from './components/PerformanceSettingsSection'
 import { DownloadsSettings } from './components/DownloadsSettings'
@@ -18,6 +19,7 @@ import { AdvancedSettings } from './components/AdvancedSettings'
 import { LoggingSettings } from './components/LoggingSettings'
 import { DangerZoneSettings } from '../../components/SettingsView/DangerZoneSettings'
 import { UnsavedChangesBanner } from './components/UnsavedChangesBanner'
+import { ContentLanguage } from '../../../../main/settings/enums/content-language.enum'
 import './SettingsView.css'
 
 interface PerMangaOverride {
@@ -63,6 +65,8 @@ export function SettingsView(): JSX.Element {
   const [systemAccentColor, setSystemAccentColor] = useState<string>('#0078d4')
   const [startupPage, setStartupPage] = useState<'library' | 'browse' | 'downloads'>('browse')
   const [displayLanguage, setDisplayLanguage] = useState<'en-GB' | 'en-US' | 'vi-VN'>('en-GB')
+  const [syncContentLanguage, setSyncContentLanguage] = useState<boolean>(true)
+  const [contentLanguages, setContentLanguages] = useState<string[]>(['en'])
 
   // Reader settings state
   const [globalReaderSettings, setGlobalReaderSettings] = useState<MangaReadingSettings>({
@@ -128,7 +132,10 @@ export function SettingsView(): JSX.Element {
 
     // Compare language settings
     const languageChanged =
-      displayLanguage !== (originalSettings.language?.displayLanguage ?? 'en-GB')
+      displayLanguage !== (originalSettings.language?.displayLanguage ?? 'en-GB') ||
+      syncContentLanguage !== (originalSettings.language?.syncContentLanguage ?? true) ||
+      JSON.stringify(contentLanguages) !==
+        JSON.stringify(originalSettings.language?.contentLanguage || ['en'])
 
     // Compare downloads settings
     const downloadsChanged =
@@ -171,6 +178,8 @@ export function SettingsView(): JSX.Element {
     accentColor,
     isUsingSystemColor,
     displayLanguage,
+    syncContentLanguage,
+    contentLanguages,
     downloadConfirmation,
     defaultQuality,
     maxConcurrentDownloads,
@@ -192,7 +201,15 @@ export function SettingsView(): JSX.Element {
     const tabParam = searchParams.get('tab')
     if (
       tabParam &&
-      ['appearance', 'downloads', 'reader', 'storage', 'advanced'].includes(tabParam)
+      [
+        'appearance',
+        'language',
+        'reader',
+        'downloads',
+        'performance',
+        'storage',
+        'advanced'
+      ].includes(tabParam)
     ) {
       setActiveTab(tabParam)
     }
@@ -306,6 +323,12 @@ export function SettingsView(): JSX.Element {
             // Apply the language immediately
             await i18next.changeLanguage(settings.language.displayLanguage)
           }
+          if (settings.language?.syncContentLanguage !== undefined) {
+            setSyncContentLanguage(settings.language.syncContentLanguage)
+          }
+          if (settings.language?.contentLanguage) {
+            setContentLanguages(settings.language.contentLanguage)
+          }
 
           // Load per-manga overrides from database
           const overridesResult = await globalThis.reader.getAllMangaOverrides()
@@ -410,6 +433,16 @@ export function SettingsView(): JSX.Element {
   // Handle display language change
   const handleDisplayLanguageChange = (language: string): void => {
     setDisplayLanguage(language as 'en-GB' | 'en-US' | 'vi-VN')
+  }
+
+  // Handle sync content language change
+  const handleSyncContentLanguageChange = (checked: boolean): void => {
+    setSyncContentLanguage(checked)
+  }
+
+  // Handle content languages change
+  const handleContentLanguagesChange = (languages: string[]): void => {
+    setContentLanguages(languages)
   }
 
   // Handle download confirmation change
@@ -640,7 +673,11 @@ Are you absolutely certain you want to proceed with this cache size?`,
 
       // Build language settings object
       const languageSettings = {
-        displayLanguage: displayLanguage
+        displayLanguage: displayLanguage,
+        syncContentLanguage: syncContentLanguage,
+        ...(contentLanguages.length > 0 && {
+          contentLanguage: contentLanguages as ContentLanguage[]
+        })
       }
 
       // Build complete settings object and save in one operation (single disk write)
@@ -772,8 +809,12 @@ Are you absolutely certain you want to proceed with this cache size?`,
       <Tabs value={activeTab} onChange={setActiveTab}>
         <TabList>
           <Tab value="appearance">{t('settings:tabs.appearance')}</Tab>
-          <Tab value="downloads">{t('settings:tabs.downloads')}</Tab>
+          <Tab value="language">{t('settings:tabs.language', { defaultValue: 'Language' })}</Tab>
           <Tab value="reader">{t('settings:tabs.reader')}</Tab>
+          <Tab value="downloads">{t('settings:tabs.downloads')}</Tab>
+          <Tab value="performance">
+            {t('settings:tabs.performance', { defaultValue: 'Performance' })}
+          </Tab>
           <Tab value="storage">{t('settings:tabs.storage')}</Tab>
           <Tab value="advanced">{t('settings:tabs.advanced')}</Tab>
         </TabList>
@@ -790,8 +831,35 @@ Are you absolutely certain you want to proceed with this cache size?`,
             onUseSystemColor={handleUseSystemColor}
             startupPage={startupPage}
             onStartupPageChange={setStartupPage}
+          />
+        </TabPanel>
+
+        {/* Language Settings */}
+        <TabPanel value="language">
+          <LanguageSettings
             displayLanguage={displayLanguage}
             onDisplayLanguageChange={handleDisplayLanguageChange}
+            syncContentLanguage={syncContentLanguage}
+            onSyncContentLanguageChange={handleSyncContentLanguageChange}
+            contentLanguages={contentLanguages}
+            onContentLanguagesChange={handleContentLanguagesChange}
+          />
+        </TabPanel>
+
+        {/* Reader Settings */}
+        <TabPanel value="reader">
+          <ReaderSettingsSection
+            isLoading={isLoadingReaderSettings}
+            forceDarkMode={forceDarkMode}
+            onForceDarkModeChange={handleForceDarkModeChange}
+            imageQuality={imageQuality}
+            onImageQualityChange={handleImageQualityChange}
+            globalReaderSettings={globalReaderSettings}
+            onReadingModeChange={handleReadingModeChange}
+            onDoublePageSettingChange={handleDoublePageSettingChange}
+            perMangaOverrides={perMangaOverrides}
+            onResetMangaOverride={handleResetMangaOverride}
+            onClearAllOverrides={handleClearAllOverrides}
           />
         </TabPanel>
 
@@ -811,34 +879,14 @@ Are you absolutely certain you want to proceed with this cache size?`,
           />
         </TabPanel>
 
-        {/* Reader Settings */}
-        <TabPanel value="reader">
-          <ReaderSettingsSection
-            isLoading={isLoadingReaderSettings}
-            forceDarkMode={forceDarkMode}
-            onForceDarkModeChange={handleForceDarkModeChange}
-            imageQuality={imageQuality}
-            onImageQualityChange={handleImageQualityChange}
-            globalReaderSettings={globalReaderSettings}
-            onReadingModeChange={handleReadingModeChange}
-            onDoublePageSettingChange={handleDoublePageSettingChange}
-            perMangaOverrides={perMangaOverrides}
-            onResetMangaOverride={handleResetMangaOverride}
-            onClearAllOverrides={handleClearAllOverrides}
-          />
+        {/* Performance Settings */}
+        <TabPanel value="performance">
           <PerformanceSettingsSection
             cacheTier={chapterCacheTier}
             customCacheSize={customCacheSize}
             onCacheTierChange={setChapterCacheTier}
             onCustomCacheSizeChange={setCustomCacheSize}
           />
-        </TabPanel>
-
-        {/* Storage Management Settings */}
-        <TabPanel value="storage">
-          <StorageManagementSettings />
-
-          {/* Cache Management Section */}
           <div className="settings-view__section-divider">
             <h3 className="settings-view__section-heading">
               {t('settings:cacheManagement.sectionTitle')}
@@ -852,6 +900,11 @@ Are you absolutely certain you want to proceed with this cache size?`,
               onCoverCacheLimitChange={handleCoverCacheLimitChange}
             />
           </div>
+        </TabPanel>
+
+        {/* Storage Management Settings */}
+        <TabPanel value="storage">
+          <StorageManagementSettings />
         </TabPanel>
 
         {/* Advanced Settings */}

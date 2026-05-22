@@ -101,7 +101,7 @@
     },
     "deleteChapterDownload": {
       "title": "Xóa tải xuống",
-      "message": "Bạn sắp xóa \"{{title}}\", điều này sẽ xóa các tệp chương đã tải xuống.\nBạn cũng có thể chọn chỉ ẩn nó khỏi danh sách nếu bạn muốn giữ các tệp để đọc ngoại tuyến.\n\nBạn muốn làm gì tiếp theo?",
+      "message": "Bạn sắp xóa \"{{title}}\", thao tác này sẽ xóa các tệp chương đã tải xuống.\nBạn cũng có thể chọn chỉ ẩn nó khỏi danh sách nếu bạn muốn giữ các tệp để đọc ngoại tuyến.\n\nBạn muốn làm gì tiếp theo?",
 
       "finalConfirmation": {
         "title": "Bạn có chắc chắn không?",
@@ -114,7 +114,7 @@
     },
     "clearCoverCache": {
       "title": "Xóa tất cả bìa đã lưu trong bộ nhớ đệm?",
-      "message": "Điều này sẽ xóa {{count}} hình ảnh đã lưu trong cache ({{size}}).\n\nHình ảnh bìa sẽ được tải lại khi cần thiết trong quá trình sử dụng ứng dụng. Điều này có thể tạm thời làm chậm hiệu suất.",
+      "message": "Thao tác này sẽ xóa {{count}} hình ảnh đã lưu trong cache ({{size}}).\n\nHình ảnh bìa sẽ được tải lại khi cần thiết trong quá trình sử dụng ứng dụng. Việc này có thể tạm thời làm chậm hiệu suất ứng dụng.",
       "buttons": {
         "clear": "Xóa tất cả",
         "cancel": "Hủy"

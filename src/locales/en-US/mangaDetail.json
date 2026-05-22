@@ -34,7 +34,7 @@
     "loading": "Loading manga details...",
     "loaded": "Loaded {{title}} by {{author}}"
   },
-  "stickyTitle": "{title}",
+  "stickyTitle": "{{title}}",
   "hero": {
     "coverAlt": "{{title}} cover",
     "filterByTag": "Filter by {{name}}",
