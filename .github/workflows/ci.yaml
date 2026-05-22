@@ -60,15 +60,20 @@ jobs:
         id: compare_commit
         run: |
           COMMIT_MSG="${{ github.event.head_commit.message }}"
+          # Extract first line only (ignore co-author and other metadata)
+          FIRST_LINE=$(echo "$COMMIT_MSG" | head -n1)
+          # Strip PR number if present (GitHub adds this automatically)
+          COMMIT_CLEAN=$(echo "$FIRST_LINE" | sed 's/ (#[0-9]\+)$//')
           EXPECTED="chore: v$VERSION release"
 
-          if [[ "$COMMIT_MSG" == "$EXPECTED" ]]; then
+          if [[ "$COMMIT_CLEAN" == "$EXPECTED" ]]; then
             echo "✅ Commit message matches version: $EXPECTED"
             echo "CREATE_TAG=true" >> $GITHUB_ENV
           else
             echo "⚠️  Commit message mismatch:"
             echo "  Expected: $EXPECTED"
-            echo "  Got: $COMMIT_MSG"
+            echo "  Got (first line): $FIRST_LINE"
+            echo "  Cleaned: $COMMIT_CLEAN"
             echo "CREATE_TAG=false" >> $GITHUB_ENV
           fi
 
