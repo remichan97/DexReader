@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [1.5.0] - 2026-05-22
+
+### Added
+
+- Add Content Language Settings allowing users to configure preferred content languages
+  - Select up to 3 priority languages for manga content filtering
+  - Language preferences stored in application settings
+  - New PriorityLanguages component for managing language selection
+  - Integrated with MangaDex API for content language filtering
+- Add comprehensive Settings infrastructure migration to electron-store
+  - Migrated from JSON file-based storage to electron-store for better reliability
+  - Improved settings validation and type safety
+  - Automatic settings migration for existing users
+- Add CI automation for release tagging
+  - Automatically creates git tags when release PRs are merged
+
+### Changed
+
+- Reorganize SettingsView with cleaner separation of concerns
+  - Improved Settings UI layout and structure
+  - Better categorization of settings options
+- Update and improve translations across all locale files
+  - Enhanced Vietnamese translation coverage and quality
+  - Fixed translation inconsistencies
+- Update `protobufjs` dependency from 8.0.2 to 8.2.0
+
+### Fixed
+
+- Fix incorrect translation key usage on the StorageChart component
+
+### Removed
+
+- Remove app lock feature dependencies (deferred to future release)
+  - Feature temporarily removed from scope for this release
+  - Related dependencies cleaned up
+
+---
+
 ## [1.4.1] - 2026-05-18
 
 ### Fixed
