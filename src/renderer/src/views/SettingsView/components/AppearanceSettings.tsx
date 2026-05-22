@@ -2,10 +2,7 @@ import React from 'react'
 import { Button } from '@renderer/components/Button'
 import { Input } from '@renderer/components/Input'
 import { Select, type SelectOption } from '@renderer/components/Select'
-import { Switch } from '@renderer/components/Switch'
-import { PriorityList, type PriorityListItem } from '@renderer/components/PriorityList'
 import { useTranslation } from '@renderer/hooks/useTranslation'
-import { LanguageList } from '@renderer/constants/language-list.constant'
 import './AppearanceSettings.css'
 
 interface AppearanceSettingsProps {
@@ -18,12 +15,6 @@ interface AppearanceSettingsProps {
   readonly onUseSystemColor: () => void
   readonly startupPage: 'library' | 'browse' | 'downloads'
   readonly onStartupPageChange: (page: 'library' | 'browse' | 'downloads') => void
-  readonly displayLanguage: 'en-GB' | 'en-US' | 'vi-VN'
-  readonly onDisplayLanguageChange: (language: 'en-GB' | 'en-US' | 'vi-VN') => void
-  readonly syncContentLanguage: boolean
-  readonly onSyncContentLanguageChange: (checked: boolean) => void
-  readonly contentLanguages: string[]
-  readonly onContentLanguagesChange: (languages: string[]) => void
 }
 
 export function AppearanceSettings({
@@ -35,13 +26,7 @@ export function AppearanceSettings({
   systemAccentColor,
   onUseSystemColor,
   startupPage,
-  onStartupPageChange,
-  displayLanguage,
-  onDisplayLanguageChange,
-  syncContentLanguage,
-  onSyncContentLanguageChange,
-  contentLanguages,
-  onContentLanguagesChange
+  onStartupPageChange
 }: AppearanceSettingsProps): React.JSX.Element {
   const { t } = useTranslation('settings')
 
@@ -56,16 +41,7 @@ export function AppearanceSettings({
     { value: 'library', label: t('appearance.startupOptions.library') },
     { value: 'downloads', label: t('appearance.startupOptions.downloads') }
   ]
-  const languageOptions: SelectOption[] = [
-    { value: 'en-GB', label: t('appearance.languageOptions.en-GB') },
-    { value: 'en-US', label: t('appearance.languageOptions.en-US') },
-    { value: 'vi-VN', label: t('appearance.languageOptions.vi-VN') }
-  ]
-  // Convert LanguageList to PriorityListItem format
-  const contentLanguageOptions: PriorityListItem[] = LanguageList.map((lang) => ({
-    value: lang.code,
-    label: `${lang.flag} ${lang.name}`
-  }))
+
   const handleColorInputChange = (value: string | string[]): void => {
     const colorValue = typeof value === 'string' ? value : value[0]
     if (/^#[0-9A-Fa-f]{6}$/.test(colorValue)) {
@@ -118,45 +94,6 @@ export function AppearanceSettings({
           label={t('appearance.startupLabel')}
           helperText={t('appearance.startupHelper')}
         />
-      </div>
-
-      <div>
-        <h4 className="appearance-settings__section-title mb-3">
-          {t('appearance.languageSection')}
-        </h4>
-        <Select
-          value={displayLanguage}
-          onChange={(value) => onDisplayLanguageChange(value as typeof displayLanguage)}
-          options={languageOptions}
-          label={t('appearance.languageLabel')}
-          helperText={t('appearance.languageHelper')}
-        />
-
-        <div className="mt-4">
-          <Switch
-            checked={syncContentLanguage}
-            onChange={onSyncContentLanguageChange}
-            label={t('appearance.syncContentLanguage')}
-            description={t('appearance.syncContentLanguageDescription')}
-          />
-        </div>
-
-        {!syncContentLanguage && (
-          <div className="mt-4">
-            <PriorityList
-              items={contentLanguages}
-              availableItems={contentLanguageOptions}
-              onChange={onContentLanguagesChange}
-              maxItems={5}
-              label={t('appearance.contentLanguages')}
-              helperText={t('appearance.contentLanguagesDescription')}
-              addButtonLabel={t('appearance.addLanguage')}
-            />
-            <p className="text-secondary appearance-settings__helper-text mt-2">
-              {t('appearance.contentLanguageFallbackInfo')}
-            </p>
-          </div>
-        )}
       </div>
 
       <div>

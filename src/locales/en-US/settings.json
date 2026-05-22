@@ -8,8 +8,10 @@
   },
   "tabs": {
     "appearance": "Appearance",
-    "downloads": "Downloads",
+    "language": "Language",
     "reader": "Reader",
+    "downloads": "Downloads",
+    "performance": "Performance",
     "storage": "Storage",
     "advanced": "Advanced"
   },
@@ -56,6 +58,11 @@
     "contentLanguageFallbackInfo": "If your preferred language isn't available, chapters will fallback to English, then any available language.",
     "addLanguage": "Add language",
     "maxLanguagesReached": "Maximum 5 languages allowed"
+  },
+  "language": {
+    "displayLanguageDescription": "Choose the language for the application interface. Changing this will affect menus, buttons, and all UI text.",
+    "contentLanguageSection": "Content Language Preferences",
+    "contentLanguageDescription": "Control which languages of manga content you see when browsing and searching. This filters manga by their available translations."
   },
   "downloads": {
     "locationSection": "Downloads Location",

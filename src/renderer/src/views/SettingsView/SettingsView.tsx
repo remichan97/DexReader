@@ -9,6 +9,7 @@ import { useTranslation } from '@renderer/hooks/useTranslation'
 import i18next from '@renderer/i18n/config'
 import type { MangaReadingSettings, AppSettings } from '../../../../preload/index.d'
 import { AppearanceSettings } from './components/AppearanceSettings'
+import { LanguageSettings } from './components/LanguageSettings'
 import { ReaderSettingsSection } from './components/ReaderSettingsSection'
 import { PerformanceSettingsSection } from './components/PerformanceSettingsSection'
 import { DownloadsSettings } from './components/DownloadsSettings'
@@ -200,7 +201,15 @@ export function SettingsView(): JSX.Element {
     const tabParam = searchParams.get('tab')
     if (
       tabParam &&
-      ['appearance', 'downloads', 'reader', 'storage', 'advanced'].includes(tabParam)
+      [
+        'appearance',
+        'language',
+        'reader',
+        'downloads',
+        'performance',
+        'storage',
+        'advanced'
+      ].includes(tabParam)
     ) {
       setActiveTab(tabParam)
     }
@@ -800,8 +809,12 @@ Are you absolutely certain you want to proceed with this cache size?`,
       <Tabs value={activeTab} onChange={setActiveTab}>
         <TabList>
           <Tab value="appearance">{t('settings:tabs.appearance')}</Tab>
-          <Tab value="downloads">{t('settings:tabs.downloads')}</Tab>
+          <Tab value="language">{t('settings:tabs.language', { defaultValue: 'Language' })}</Tab>
           <Tab value="reader">{t('settings:tabs.reader')}</Tab>
+          <Tab value="downloads">{t('settings:tabs.downloads')}</Tab>
+          <Tab value="performance">
+            {t('settings:tabs.performance', { defaultValue: 'Performance' })}
+          </Tab>
           <Tab value="storage">{t('settings:tabs.storage')}</Tab>
           <Tab value="advanced">{t('settings:tabs.advanced')}</Tab>
         </TabList>
@@ -818,12 +831,35 @@ Are you absolutely certain you want to proceed with this cache size?`,
             onUseSystemColor={handleUseSystemColor}
             startupPage={startupPage}
             onStartupPageChange={setStartupPage}
+          />
+        </TabPanel>
+
+        {/* Language Settings */}
+        <TabPanel value="language">
+          <LanguageSettings
             displayLanguage={displayLanguage}
             onDisplayLanguageChange={handleDisplayLanguageChange}
             syncContentLanguage={syncContentLanguage}
             onSyncContentLanguageChange={handleSyncContentLanguageChange}
             contentLanguages={contentLanguages}
             onContentLanguagesChange={handleContentLanguagesChange}
+          />
+        </TabPanel>
+
+        {/* Reader Settings */}
+        <TabPanel value="reader">
+          <ReaderSettingsSection
+            isLoading={isLoadingReaderSettings}
+            forceDarkMode={forceDarkMode}
+            onForceDarkModeChange={handleForceDarkModeChange}
+            imageQuality={imageQuality}
+            onImageQualityChange={handleImageQualityChange}
+            globalReaderSettings={globalReaderSettings}
+            onReadingModeChange={handleReadingModeChange}
+            onDoublePageSettingChange={handleDoublePageSettingChange}
+            perMangaOverrides={perMangaOverrides}
+            onResetMangaOverride={handleResetMangaOverride}
+            onClearAllOverrides={handleClearAllOverrides}
           />
         </TabPanel>
 
@@ -843,34 +879,14 @@ Are you absolutely certain you want to proceed with this cache size?`,
           />
         </TabPanel>
 
-        {/* Reader Settings */}
-        <TabPanel value="reader">
-          <ReaderSettingsSection
-            isLoading={isLoadingReaderSettings}
-            forceDarkMode={forceDarkMode}
-            onForceDarkModeChange={handleForceDarkModeChange}
-            imageQuality={imageQuality}
-            onImageQualityChange={handleImageQualityChange}
-            globalReaderSettings={globalReaderSettings}
-            onReadingModeChange={handleReadingModeChange}
-            onDoublePageSettingChange={handleDoublePageSettingChange}
-            perMangaOverrides={perMangaOverrides}
-            onResetMangaOverride={handleResetMangaOverride}
-            onClearAllOverrides={handleClearAllOverrides}
-          />
+        {/* Performance Settings */}
+        <TabPanel value="performance">
           <PerformanceSettingsSection
             cacheTier={chapterCacheTier}
             customCacheSize={customCacheSize}
             onCacheTierChange={setChapterCacheTier}
             onCustomCacheSizeChange={setCustomCacheSize}
           />
-        </TabPanel>
-
-        {/* Storage Management Settings */}
-        <TabPanel value="storage">
-          <StorageManagementSettings />
-
-          {/* Cache Management Section */}
           <div className="settings-view__section-divider">
             <h3 className="settings-view__section-heading">
               {t('settings:cacheManagement.sectionTitle')}
@@ -884,6 +900,11 @@ Are you absolutely certain you want to proceed with this cache size?`,
               onCoverCacheLimitChange={handleCoverCacheLimitChange}
             />
           </div>
+        </TabPanel>
+
+        {/* Storage Management Settings */}
+        <TabPanel value="storage">
+          <StorageManagementSettings />
         </TabPanel>
 
         {/* Advanced Settings */}
