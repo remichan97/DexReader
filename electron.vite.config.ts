@@ -95,7 +95,14 @@ export default defineConfig({
   },
   preload: {
     build: {
-      externalizeDeps: true
+      // IMPORTANT: Must bundle dependencies for sandbox mode
+      // Sandboxed preload cannot access node_modules at runtime
+      externalizeDeps: false,
+      rollupOptions: {
+        output: {
+          format: 'cjs' // Preload must be CommonJS (Electron requirement)
+        }
+      }
     }
   },
   renderer: {
