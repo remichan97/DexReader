@@ -6,7 +6,6 @@ import { DownloadChapterOptions } from './options/download-chapter.option'
 import { DownloadChapterResult } from './results/dexreader/download-chapter.result'
 import { QueueState } from './types/downloads/queue-state.type'
 import { QueuedDownloads } from './types/downloads/queued-downloads.type'
-import { getSettingByPath } from '../settings/settings-manager'
 import {
   calculateAggregateStats,
   emitOverallProgressEvent,
@@ -22,6 +21,7 @@ import {
 import { DownloadErrorCategory } from './errors/enums/download-error.enum'
 import { ChapterDownloadQuery } from '../database/queries/chapter-downloads/chapter-downloads.query'
 import { mainLog } from './logging/main-logging.service'
+import { settingsManager } from '../settings/settings-manager'
 
 class DownloadQueueService {
   // Main states
@@ -482,8 +482,11 @@ class DownloadQueueService {
 
   // Always get fresh number of concurrent downloads from settings in case the user changes it while downloading
   private async getConcurrentDownloadsSize(): Promise<number> {
-    const maxConcurrent = await getSettingByPath('downloads', 'maxConcurrentDownloads')
-    return maxConcurrent as number
+    const maxConcurrent = (await settingsManager.getByPath(
+      'downloads',
+      'maxConcurrentDownloads'
+    )) as number
+    return maxConcurrent
   }
 
   // Used on app shutdown to commit any database updates that might not have been flushed

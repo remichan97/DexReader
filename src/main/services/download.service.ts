@@ -18,7 +18,6 @@ import { BrowserWindow } from 'electron'
 import { ChapterDownloadQuery } from '../database/queries/chapter-downloads/chapter-downloads.query'
 import { MangaStorageQuery } from '../database/queries/chapter-downloads/manga-storage.query'
 import { DiskSpaceData } from './data/disk-space.data'
-import { getSettingByPath } from '../settings/settings-manager'
 import { StorageData } from './data/storage.data'
 import { DeleteMangaResult } from './results/dexreader/delete-manga.result'
 import { DownloadStatResult } from './results/dexreader/download-stats.result'
@@ -27,6 +26,7 @@ import { DiskCacheQuery } from '../database/queries/storage/disk-cache.query'
 import { ImageUrlResponse } from '../api/responses/image-url.response'
 import { mainLog } from './logging/main-logging.service'
 import { DeleteChapterOptions } from './options/delete-chapter.option'
+import { settingsManager } from '../settings/settings-manager'
 
 interface ChapterImageCache {
   urls: ImageUrlResponse[]
@@ -372,7 +372,7 @@ class DownloadService {
   }
 
   private async getDiskSpaceInfo(): Promise<DiskSpaceData> {
-    const downloadsPath = (await getSettingByPath('downloads', 'downloadPath')) as string
+    const downloadsPath = (await settingsManager.getByPath('downloads', 'downloadPath')) as string
 
     const stats = await secureFs.statFs(downloadsPath)
 

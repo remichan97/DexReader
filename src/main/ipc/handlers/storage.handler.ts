@@ -1,6 +1,6 @@
 import { cleanupRepo } from '../../database/repositories/cleanup.repo'
 import { mangaRepo } from '../../database/repositories/manga.repo'
-import { loadSettings, saveSettings } from '../../settings/settings-manager'
+import { settingsManager } from '../../settings/settings-manager'
 import { isDownloadsSettings } from '../../settings/validators/types.validator'
 import { wrapIpcHandler } from '../wrap-handler'
 
@@ -100,13 +100,13 @@ export function registerStorageHandlers(): void {
     }
 
     // Use validated approach: load settings, update field, validate section, save
-    const settings = await loadSettings()
+    const settings = await settingsManager.load()
     settings.downloads.maxDiskCacheSize = byteLimit
 
     if (!isDownloadsSettings(settings.downloads)) {
       throw new Error('Invalid downloads settings after updating cache limit')
     }
 
-    await saveSettings(settings)
+    settingsManager.save(settings)
   })
 }

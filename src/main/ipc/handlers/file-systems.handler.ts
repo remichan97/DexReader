@@ -1,9 +1,9 @@
 import { BrowserWindow, dialog, shell } from 'electron'
 import { getAppDataPath, getDownloadsPath } from '../../filesystem/path-validator'
 import { secureFs } from '../../filesystem/secure-fs'
-import { setDownloadsPath } from '../../settings/settings-manager'
 import { validateEncoding, validatePath } from '../validators'
 import { wrapIpcHandler } from '../wrap-handler'
+import { settingsManager } from '../../settings/settings-manager'
 
 export function registerFileSystemHandlers(getWindow: () => BrowserWindow): void {
   /**
@@ -321,7 +321,7 @@ export function registerFileSystemHandlers(getWindow: () => BrowserWindow): void
     const selectedPath = result.filePaths[0]
 
     try {
-      await setDownloadsPath(selectedPath)
+      await settingsManager.setDownloadsPath(selectedPath)
       return { cancelled: false, filePath: selectedPath }
     } catch (error) {
       throw new Error(`Unable to set downloads folder: ${error}`)

@@ -2,7 +2,7 @@ import { mainLog } from '../../services/logging/main-logging.service'
 import { AppSettings } from '../entities/app-settings.entity'
 import { validateSettings } from '../validators/types.validator'
 
-// Each time we change the settings structure in a way that guarantees at least a merge with defaults, increment this version number. This is used to determine if a migration is needed, and to run the appropriate migration functions if there are breaking changes.
+// Each time we change the settings structure in a way that guarantees a full migration, increment this version number. This is used to determine if a migration is needed, and to apply the correct migration functions if there are breaking changes.
 export const CURRENT_SETTINGS_VERSION = 3
 
 // Define a type for migration function, which takes settings object, and migrate it to the next version. Use when there are breaking changes.
@@ -20,67 +20,21 @@ const breakingChangesMigrations: Record<number, MigrationFunction> = {
   // Empty for now - add breaking change migrations as needed
 }
 
-function mergeWithDefaults(userSettings: Partial<AppSettings>, defaults: AppSettings): AppSettings {
-  return {
-    version: CURRENT_SETTINGS_VERSION,
-    downloads: {
-      ...defaults.downloads,
-      ...userSettings.downloads
-    },
-    appearance: {
-      ...defaults.appearance,
-      ...userSettings.appearance
-    },
-    reader: {
-      ...defaults.reader,
-      ...userSettings.reader,
-      // Deep merge nested objects to preserve user's custom settings
-      global: {
-        ...defaults.reader.global,
-        ...userSettings.reader?.global
-      },
-      performance: {
-        ...defaults.reader.performance,
-        ...userSettings.reader?.performance
-      }
-    },
-    update: {
-      ...defaults.update,
-      ...userSettings.update
-    },
-    logs: {
-      ...defaults.logs,
-      ...userSettings.logs
-    },
-    search: {
-      ...defaults.search,
-      ...userSettings.search
-    },
-    language: {
-      ...defaults.language,
-      ...userSettings.language
-    }
-  }
-}
-
-export function migrateSettings(
-  userSettings: Partial<AppSettings>,
-  defaults: AppSettings
-): AppSettings {
-  const userVersion = userSettings.version || 0
+export function migrateSettings(settings: AppSettings, defaults: AppSettings): AppSettings {
+  const userVersion = settings.version || 0
 
   // Are we already at latest version, if so, verify object integrity and return as is (with correct typing)
   if (userVersion === CURRENT_SETTINGS_VERSION) {
     mainLog.info(
       `[SettingsMigration] User settings are already at the latest version (${CURRENT_SETTINGS_VERSION}). No migration needed.`
     )
-    if (!validateSettings(userSettings)) {
+    if (!validateSettings(settings)) {
       mainLog.error(
         '[SettingsMigration] User settings object failed validation. This indicates a problem with the settings file. Reverting to defaults to avoid potential issues.'
       )
       return defaults
     }
-    return userSettings
+    return settings
   }
 
   // Does someone came from the future? Since we don't know what the future holds, and we really don't know if the future version is compatible with current one, we should just reset to defaults to avoid potential issues
@@ -97,16 +51,13 @@ export function migrateSettings(
     `[SettingsMigration] Migrating settings from version ${userVersion} to ${CURRENT_SETTINGS_VERSION}`
   )
 
-  // First, attempts to auto-merge, which should cover most non-breaking changes (like added fields with defaults)
-  let migrated = mergeWithDefaults(userSettings, defaults)
-
   // If there are breaking changes that require a migration, we'll now run through each migration function sequentially until we reach the current version. This allows us to handle multiple sequential breaking changes gracefully.
   for (let version = userVersion + 1; version <= CURRENT_SETTINGS_VERSION; version++) {
     const migrationFunction = breakingChangesMigrations[version]
     if (migrationFunction) {
       mainLog.info(`[SettingsMigration] Applying migration for version ${version}`)
       try {
-        migrated = migrationFunction(migrated)
+        settings = migrationFunction(settings)
       } catch (error) {
         mainLog.error(
           `[SettingsMigration] Error applying migration for version ${version}: ${error}`
@@ -120,10 +71,10 @@ export function migrateSettings(
   }
 
   // Make sure we end up with the correct version number in the migrated settings, in case some migration functions forgot to update it
-  migrated.version = CURRENT_SETTINGS_VERSION
+  settings.version = CURRENT_SETTINGS_VERSION
 
   // Final validation to make sure migrated settings are valid. This is a safeguard to prevent saving corrupted settings to disk, which can cause issues on next app startup. If the migrated settings are invalid, we should throw an error to prevent saving them.
-  if (!validateSettings(migrated)) {
+  if (!validateSettings(settings)) {
     mainLog.error(
       '[SettingsMigration] Final migrated settings object failed validation. This indicates a problem with the migration functions. Please check the migration functions for potential issues.'
     )
@@ -131,8 +82,8 @@ export function migrateSettings(
   }
 
   mainLog.info(
-    `[SettingsMigration] Migration completed. Final settings version: ${migrated.version}`
+    `[SettingsMigration] Migration completed. Final settings version: ${settings.version}`
   )
 
-  return migrated
+  return settings
 }

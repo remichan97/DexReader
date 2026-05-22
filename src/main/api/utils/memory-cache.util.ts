@@ -1,6 +1,6 @@
 import { ChapterCacheTier } from '../../settings/enums/chapter-cache-tier.enum'
 import os from 'node:os'
-import { getSettingByPath } from '../../settings/settings-manager'
+import { settingsManager } from '../../settings/settings-manager'
 
 /**
  * Utility class for managing dynamic memory cache tiers
@@ -47,7 +47,7 @@ export class MemoryCacheUtil {
 
     if (tier === ChapterCacheTier.Custom) {
       // For custom tier, query the user-defined size from settings
-      const customSize = await getSettingByPath('reader', 'performance.customCacheSize')
+      const customSize = settingsManager.getByPath('reader', 'performance.customCacheSize')
       // customCacheSize is stored in bytes, return as-is
       return typeof customSize === 'number' ? customSize : 200 * 1024 * 1024 // Fallback to Normal (200MB)
     }
@@ -63,7 +63,7 @@ export class MemoryCacheUtil {
    * Get the current cache tier from settings
    */
   private async getCurrentCacheTier(): Promise<ChapterCacheTier> {
-    const tier = await getSettingByPath('reader', 'performance.cacheTier')
+    const tier = settingsManager.getByPath('reader', 'performance.cacheTier')
     return typeof tier === 'string' &&
       Object.values(ChapterCacheTier).includes(tier as ChapterCacheTier)
       ? (tier as ChapterCacheTier)

@@ -2,8 +2,8 @@ import { app } from 'electron'
 import path from 'node:path'
 import log from 'electron-log'
 import { is } from '@electron-toolkit/utils'
-import { getSettingByPath } from '../../settings/settings-manager'
 import { secureFs } from '../../filesystem/secure-fs'
+import { settingsManager } from '../../settings/settings-manager'
 
 class LoggingService {
   private readonly logFolder = path.join(app.getPath('userData'), 'logs')
@@ -63,7 +63,7 @@ class LoggingService {
     try {
       const files = await secureFs.readDir(this.logFolder)
       const now = Date.now()
-      const retentionDays = (await getSettingByPath('logs', 'retentionInDays')) as number
+      const retentionDays = (await settingsManager.getByPath('logs', 'retentionInDays')) as number
       const maxAge = retentionDays * 24 * 60 * 60 * 1000 // Convert days to milliseconds
 
       for (const file of files) {
