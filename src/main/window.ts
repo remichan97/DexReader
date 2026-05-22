@@ -25,7 +25,7 @@ export function createWindow(): void {
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false,
+      sandbox: true,
       contextIsolation: true,
       // Disable DevTools in production for security
       // Can still be opened programmatically if needed for debugging
