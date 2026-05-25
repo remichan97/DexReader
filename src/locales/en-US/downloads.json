@@ -69,6 +69,17 @@
       "title": "Deleted",
       "message": "Download and files permanently deleted"
     },
+    "error": {
+      "title": "Error",
+      "notFound": "Download not found",
+      "cancelFailed": "Failed to cancel download",
+      "retryFailed": "Failed to retry download",
+      "removeFailed": "Failed to remove download",
+      "hideFailed": "Failed to hide download",
+      "deleteFailed": "Failed to delete download",
+      "clearCompletedFailed": "Failed to hide completed downloads",
+      "openFolderFailed": "Failed to open downloads folder"
+    },
     "retryAllQueued": "Queued {{count}} failed download{{s}} for retry",
     "cancelledAll": "Canceled {{count}} queued download{{s}}"
   }

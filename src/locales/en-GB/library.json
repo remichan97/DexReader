@@ -38,15 +38,20 @@
     "addedToLibrary": "Added to Library",
     "addedSuccess": "Manga added to your collection",
     "error": "Error",
+    "checkDownloadsFailed": "Failed to check downloads",
     "mangaNotFound": "Manga not found",
     "failedToAdd": "Failed to add to library",
+    "failedToRemove": "Failed to remove from library",
     "removedFromLibrary": "Removed from library",
     "removedCompletely": "Removed completely",
+    "removedWithDetails": "{{title}} and {{count}} chapter{{plural}} deleted",
+    "couldNotRemove": "Could not complete removal. Please try again.",
     "partiallyRemoved": {
       "title": "Partially removed",
       "libraryOnly": "Removed from library, but failed to delete some downloads",
       "downloadsOnly": "Downloads deleted, but failed to remove from library"
-    }
+    },
+    "unexpectedError": "Unexpected error"
   },
   "collections": {
     "toasts": {

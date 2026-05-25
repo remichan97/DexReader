@@ -100,16 +100,41 @@
       "message": "Thao tác này sẽ xóa vĩnh viễn {{count}} chương từ {{title}}.\n\nThao tác này không thể hoàn tác."
     },
     "deleteChapterDownload": {
-      "title": "Xóa tải xuống",
-      "message": "Bạn sắp xóa \"{{title}}\", thao tác này sẽ xóa các tệp chương đã tải xuống.\nBạn cũng có thể chọn chỉ ẩn nó khỏi danh sách nếu bạn muốn giữ các tệp để đọc ngoại tuyến.\n\nBạn muốn làm gì tiếp theo?",
-
+      "title": "Xóa Tải Xuống",
+      "message": "Bạn sắp xóa \"{{title}}\", điều này sẽ xóa các tệp chương đã tải xuống.\nBạn cũng có thể chọn chỉ ẩn nó khỏi danh sách nếu bạn muốn giữ các tệp để đọc ngoại tuyến.\n\nBạn muốn tiếp tục như thế nào?",
+      "buttons": {
+        "cancel": "Hủy",
+        "hideFromView": "Ẩn Khỏi Danh Sách (Giữ Tệp Để Đọc Ngoại Tuyến)",
+        "deleteForever": "Xóa Vĩnh Viễn (Không Thể Hoàn Tác)"
+      },
       "finalConfirmation": {
-        "title": "Bạn có chắc chắn không?",
-        "message": "Đây sẽ là cơ hội cuối cùng để bạn có thể dừng thao tác này trước khi các tệp chương bị xóa vĩnh viễn. Việc xóa tệp không thể hoàn tác, nhưng bạn vẫn có thể tải lại chương này nếu thay đổi ý định.\n\nNhắc lại, bạn đang xóa chương: {{title}}",
+        "title": "Bạn có hoàn toàn chắc chắn không?",
+        "message": "Đây sẽ là cơ hội cuối cùng của bạn để quay lại trước khi các tệp chương bị xóa vĩnh viễn. Việc xóa tệp không thể hoàn tác, nhưng bạn luôn có thể tải lại chương nếu bạn thay đổi ý định.\n\nChỉ để nhắc nhở, bạn đang xóa chương: {{title}}",
+        "confirmButton": "Vâng, Xóa Vĩnh Viễn",
+        "cancelButton": "Thôi"
+      }
+    },
+    "removeFromLibrary": {
+      "withDownloads": {
+        "title": "Xóa khỏi thư viện?",
+        "message": "{{title}}\n\nManga này có {{count}} chương đã tải xuống ({{size}}).\n\nCác tải xuống sẽ vẫn có thể truy cập trong chế độ xem Tải xuống trừ khi bạn chọn xóa chúng.",
         "buttons": {
-          "delete": "Có, Xóa vĩnh viễn",
+          "keepDownloads": "Xóa khỏi thư viện (giữ lại tải xuống)",
+          "deleteEverything": "Xóa mọi thứ (cả dấu trang và tải xuống sẽ bị xóa)",
           "cancel": "Hủy"
         }
+      },
+      "noDownloads": {
+        "title": "Xóa khỏi thư viện?",
+        "message": "{{title}}\n\nBạn luôn có thể thêm lại sau.",
+        "confirmButton": "Xóa",
+        "cancelButton": "Hủy"
+      },
+      "finalConfirmation": {
+        "title": "Bạn có hoàn toàn chắc chắn không?",
+        "message": "Đây sẽ là cơ hội cuối cùng của bạn để quay lại trước khi các tệp chương bị xóa vĩnh viễn. Việc xóa tệp không thể hoàn tác, nhưng bạn luôn có thể tải lại manga nếu bạn thay đổi ý định.\n\nChỉ để nhắc nhở, bạn đang xóa tải xuống cho: {{title}}",
+        "confirmButton": "Vâng, Xóa Vĩnh Viễn",
+        "cancelButton": "Thôi"
       }
     },
     "clearCoverCache": {
