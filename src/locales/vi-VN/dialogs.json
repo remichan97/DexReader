@@ -109,9 +109,9 @@
       },
       "finalConfirmation": {
         "title": "Bạn có hoàn toàn chắc chắn không?",
-        "message": "Đây sẽ là cơ hội cuối cùng của bạn để quay lại trước khi các tệp chương bị xóa vĩnh viễn. Việc xóa tệp không thể hoàn tác, nhưng bạn luôn có thể tải lại chương nếu bạn thay đổi ý định.\n\nChỉ để nhắc nhở, bạn đang xóa chương: {{title}}",
-        "confirmButton": "Vâng, Xóa Vĩnh Viễn",
-        "cancelButton": "Thôi"
+        "message": "Đây sẽ là cơ hội cuối cùng của bạn để dừng thao tác này trước khi các tệp chương bị xóa vĩnh viễn. Việc xóa tệp không thể hoàn tác, nhưng bạn vẫn có thể tải lại chương nếu bạn thay đổi ý định.\n\nNhắc lại, bạn đang xóa chương: {{title}}",
+        "confirmButton": "Có, Xóa Vĩnh Viễn",
+        "cancelButton": "Không"
       }
     },
     "removeFromLibrary": {
@@ -132,9 +132,9 @@
       },
       "finalConfirmation": {
         "title": "Bạn có hoàn toàn chắc chắn không?",
-        "message": "Đây sẽ là cơ hội cuối cùng của bạn để quay lại trước khi các tệp chương bị xóa vĩnh viễn. Việc xóa tệp không thể hoàn tác, nhưng bạn luôn có thể tải lại manga nếu bạn thay đổi ý định.\n\nChỉ để nhắc nhở, bạn đang xóa tải xuống cho: {{title}}",
-        "confirmButton": "Vâng, Xóa Vĩnh Viễn",
-        "cancelButton": "Thôi"
+        "message": "Đây sẽ là cơ hội cuối cùng của bạn để dừng thao tác này trước khi các tệp chương bị xóa vĩnh viễn. Việc xóa tệp không thể hoàn tác, nhưng bạn vẫn có thể tải lại manga nếu bạn thay đổi ý định.\n\nNhắc lại, bạn đang xóa tải xuống cho: {{title}}",
+        "confirmButton": "Có, Xóa Vĩnh Viễn",
+        "cancelButton": "Không"
       }
     },
     "clearCoverCache": {
