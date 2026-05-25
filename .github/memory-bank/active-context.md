@@ -1,7 +1,7 @@
 # DexReader Active Context
 
 **Last Updated**: 25 May 2026
-**Version**: v1.6.0
+**Version**: v1.7.0
 **Mode**: Active Development
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next. Keep all entries as short, concise as possible
@@ -10,18 +10,18 @@
 
 ## Current Status
 
-**v1.6.0 Released**: 25 May 2026 ✅
+**v1.7.0 Released**: 25 May 2026 ✅
 
 **Monitoring Period**: Now through ~8 June 2026
 
-- Monitor for user-reported issues or bugs in sandboxing implementation
-- Watch for any regression in functionality
+- Monitor for any issues with ESM migration
+- Watch for compatibility issues with dependencies
 - Collect feedback on stability and performance
 
 **Next Planned Work:**
 
-- P2-T02: ESM Migration (v1.7.0) - Planned to start after monitoring period
 - Monitor for `drizzle-kit` updates to resolve transitive esbuild vulnerability
+- Plan next feature development cycle
 
 ---
 
@@ -48,41 +48,25 @@
 
 ## Recent Changes (Last 1-2 Weeks)
 
-### 25 May 2026 - CI Workflow Tag Creation Fix ✅
+### 25 May 2026 - v1.7.0 Release ✅
 
-- **Type**: Bugfix
-- **Summary**: Fixed GitHub Actions permission issue preventing tag creation
+- **Type**: Technical Enhancement
+- **Summary**: Migrated entire codebase to ECMAScript Modules (ESM)
 - **Key Changes**:
-  - Added `permissions: contents: write` to ci.yaml workflow
-  - Allows GitHub Actions bot to create and push release tags
-- **Impact**: Automated release tag creation now works correctly
-- **Status**: ✅ Fixed
-- **Error Resolved**: "remote: Permission to remichan97/DexReader.git denied to github-actions[bot]"
-
-### 25 May 2026 - v1.6.0 Release ✅
-
-- **Type**: Security Enhancement
-- **Summary**: Enabled Electron renderer sandboxing for improved security posture
-- **Key Changes**:
-  - Enabled sandbox mode in BrowserWindow webPreferences
-  - Fixed preload bundling: changed `externalizeDeps: false` in electron.vite.config
-  - Sandboxed preload now bundles dependencies (cannot access node_modules at runtime)
-  - Localized unsaved changes dialogs (window close & navigation blocking)
-  - Comprehensive testing: all features verified working
-- **Impact**: Improved security against malicious content, better Electron compliance
+  - Updated package.json to specify `"type": "module"` for native ESM support
+  - Refactored main process for full ESM compatibility
+  - Implemented CommonJS compatibility workaround for electron-updater
+  - Fixed IPC response handling in DownloadsView and dialog components
+  - Fixed filesystem deleteDir recursive flag handling
+  - Enhanced translation coverage for Downloads and favorite actions
+- **Impact**: Modernized codebase with better Node.js ecosystem alignment, improved module loading
 - **Status**: ✅ Released
-- **CHANGELOG**: All changes documented in CHANGELOG.md v1.6.0 section
+- **CHANGELOG**: All changes documented in CHANGELOG.md v1.7.0 section
 
-### 22 May 2026 - v1.5.0 Release
+### 25 May 2026 - Previous Releases Summary
 
-- **Type**: Release
-- **Summary**: Content Language Settings and enhanced settings management
-- **Key Features**:
-  - Content Language Settings with priority language selection (up to 3 languages)
-  - Settings infrastructure migrated from JSON to electron-store
-  - Translation improvements across all locales
-- **Impact**: Users can filter manga content by preferred languages
-- **Status**: ✅ Released
+- **v1.6.0**: Renderer sandboxing for enhanced security
+- **v1.5.0**: Content Language Settings with priority language selection
 
 <!-- Archived entries moved to historical/archived-milestones.md -->
 
