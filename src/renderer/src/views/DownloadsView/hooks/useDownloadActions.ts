@@ -1,6 +1,7 @@
 import { useToast } from '@renderer/components/Toast'
 import { rendererLog } from '@renderer/services/logging.service'
 import type { Download } from '@renderer/types/download.types'
+import i18next from 'i18next'
 
 export interface UseDownloadActionsParams {
   downloads: Download[]
@@ -30,16 +31,16 @@ export function useDownloadActions({
 
     if (response.success) {
       showToast({
-        title: 'Cancelled',
-        message: 'Download cancelled',
+        title: i18next.t('downloads:toasts.cancelled.title'),
+        message: i18next.t('downloads:toasts.cancelled.message'),
         variant: 'warning',
         duration: 2000
       })
       await onRefresh()
     } else {
       showToast({
-        title: 'Error',
-        message: response.error?.message || 'Failed to cancel download',
+        title: i18next.t('downloads:toasts.error.title'),
+        message: response.error?.message || i18next.t('downloads:toasts.error.cancelFailed'),
         variant: 'error',
         duration: 3000
       })
@@ -51,16 +52,16 @@ export function useDownloadActions({
 
     if (response.success) {
       showToast({
-        title: 'Retrying',
-        message: 'Download queued for retry',
+        title: i18next.t('downloads:toasts.retrying.title'),
+        message: i18next.t('downloads:toasts.retrying.message'),
         variant: 'info',
         duration: 2000
       })
       await onRefresh()
     } else {
       showToast({
-        title: 'Error',
-        message: response.error?.message || 'Failed to retry download',
+        title: i18next.t('downloads:toasts.error.title'),
+        message: response.error?.message || i18next.t('downloads:toasts.error.retryFailed'),
         variant: 'error',
         duration: 3000
       })
@@ -72,8 +73,8 @@ export function useDownloadActions({
 
     if (!download) {
       showToast({
-        title: 'Error',
-        message: 'Download not found',
+        title: i18next.t('downloads:toasts.error.title'),
+        message: i18next.t('downloads:toasts.error.notFound'),
         variant: 'error',
         duration: 3000
       })
@@ -88,16 +89,16 @@ export function useDownloadActions({
         const response = await globalThis.downloads.removeFromQueue(chapterId)
         if (response.success) {
           showToast({
-            title: 'Cancelled',
-            message: 'Download cancelled',
+            title: i18next.t('downloads:toasts.cancelled.title'),
+            message: i18next.t('downloads:toasts.cancelled.message'),
             variant: 'warning',
             duration: 2000
           })
           await onRefresh()
         } else {
           showToast({
-            title: 'Error',
-            message: response.error?.message || 'Failed to cancel download',
+            title: i18next.t('downloads:toasts.error.title'),
+            message: response.error?.message || i18next.t('downloads:toasts.error.cancelFailed'),
             variant: 'error',
             duration: 3000
           })
@@ -113,16 +114,16 @@ export function useDownloadActions({
         })
         if (response.success) {
           showToast({
-            title: 'Removed',
-            message: 'Failed download removed from view',
+            title: i18next.t('downloads:toasts.removed.title'),
+            message: i18next.t('downloads:toasts.removed.message'),
             variant: 'success',
             duration: 2000
           })
           await onRefresh()
         } else {
           showToast({
-            title: 'Error',
-            message: response.error?.message || 'Failed to remove download',
+            title: i18next.t('downloads:toasts.error.title'),
+            message: response.error?.message || i18next.t('downloads:toasts.error.removeFailed'),
             variant: 'error',
             duration: 3000
           })
@@ -136,18 +137,20 @@ export function useDownloadActions({
           download.chapterTitle || `Chapter ${download.chapterNumber || download.id}`
         const result = await globalThis.api.showDialog({
           type: 'warning',
-          message: 'Remove Download?',
-          detail: `You are about to remove "${chapterTitle}", which will delete downloaded chapter files.\nYou can also choose to just hide it from the list if you want to keep the files for offline reading.\n\nHow should we proceed?`,
+          message: i18next.t('dialogs:confirmations.deleteChapterDownload.title'),
+          detail: i18next.t('dialogs:confirmations.deleteChapterDownload.message', {
+            title: chapterTitle
+          }),
           buttons: [
-            'Cancel',
-            'Hide from View (Keep Files for Offline Reading)',
-            'Delete Forever (Cannot be Undone)'
+            i18next.t('dialogs:confirmations.deleteChapterDownload.buttons.cancel'),
+            i18next.t('dialogs:confirmations.deleteChapterDownload.buttons.hideFromView'),
+            i18next.t('dialogs:confirmations.deleteChapterDownload.buttons.deleteForever')
           ],
           defaultId: 0, // Cancel is default (safest)
           cancelId: 0
         })
 
-        if (result.response === 1) {
+        if (result.success && result.data.response === 1) {
           // Hide from view (soft delete)
           const response = await globalThis.downloads.deleteChapter({
             chapterId,
@@ -157,23 +160,26 @@ export function useDownloadActions({
             await onRefresh()
           } else {
             showToast({
-              title: 'Error',
-              message: response.error?.message || 'Failed to hide download',
+              title: i18next.t('downloads:toasts.error.title'),
+              message: response.error?.message || i18next.t('downloads:toasts.error.hideFailed'),
               variant: 'error',
               duration: 3000
             })
           }
-        } else if (result.response === 2) {
+        } else if (result.success && result.data.response === 2) {
           // User chose to permanently delete, give them a final chance to back out
-          const confirmation = await globalThis.api.showConfirmDialog(
-            'Are you absolutely certain?',
-            'This will be your last chance to back out before the chapter files are permanently deleted. File deletion cannot be undone, but you can always re-download the chapter if you change your mind.\n\nJust a reminder, you are deleting chapter: ' +
-              chapterTitle,
-            'Yes, Delete Permanently',
-            'Nevermind'
+          const confirmed = await globalThis.api.showConfirmDialog(
+            i18next.t('dialogs:confirmations.deleteChapterDownload.finalConfirmation.title'),
+            i18next.t('dialogs:confirmations.deleteChapterDownload.finalConfirmation.message', {
+              title: chapterTitle
+            }),
+            i18next.t(
+              'dialogs:confirmations.deleteChapterDownload.finalConfirmation.confirmButton'
+            ),
+            i18next.t('dialogs:confirmations.deleteChapterDownload.finalConfirmation.cancelButton')
           )
 
-          if (!confirmation.success || !confirmation.data) return
+          if (!confirmed.success || !confirmed.data) return
 
           // Delete permanently
           const response = await globalThis.downloads.deleteChapter({
@@ -182,16 +188,16 @@ export function useDownloadActions({
           })
           if (response.success) {
             showToast({
-              title: 'Deleted',
-              message: 'Download and files permanently deleted',
+              title: i18next.t('downloads:toasts.deleted.title'),
+              message: i18next.t('downloads:toasts.deleted.message'),
               variant: 'success',
               duration: 3000
             })
             await onRefresh()
           } else {
             showToast({
-              title: 'Error',
-              message: response.error?.message || 'Failed to delete download',
+              title: i18next.t('downloads:toasts.error.title'),
+              message: response.error?.message || i18next.t('downloads:toasts.error.deleteFailed'),
               variant: 'error',
               duration: 3000
             })
@@ -210,8 +216,9 @@ export function useDownloadActions({
       await onRefresh()
     } else {
       showToast({
-        title: 'Error',
-        message: response.error?.message || 'Failed to hide completed downloads',
+        title: i18next.t('downloads:toasts.error.title'),
+        message:
+          response.error?.message || i18next.t('downloads:toasts.error.clearCompletedFailed'),
         variant: 'error',
         duration: 3000
       })
@@ -230,8 +237,11 @@ export function useDownloadActions({
     const successCount = results.filter((r) => r.status === 'fulfilled').length
 
     showToast({
-      title: 'Retrying',
-      message: `Queued ${successCount} failed download${successCount === 1 ? '' : 's'} for retry`,
+      title: i18next.t('downloads:toasts.retrying.title'),
+      message: i18next.t('downloads:toasts.retryAllQueued', {
+        count: successCount,
+        s: successCount === 1 ? '' : 's'
+      }),
       variant: 'info',
       duration: 2000
     })
@@ -250,8 +260,11 @@ export function useDownloadActions({
       const cancelledCount = response.data
 
       showToast({
-        title: 'Cancelled',
-        message: `Cancelled ${cancelledCount} queued download${cancelledCount === 1 ? '' : 's'}`,
+        title: i18next.t('downloads:toasts.cancelled.title'),
+        message: i18next.t('downloads:toasts.cancelledAll', {
+          count: cancelledCount,
+          s: cancelledCount === 1 ? '' : 's'
+        }),
         variant: 'warning',
         duration: 2000
       })
@@ -259,8 +272,8 @@ export function useDownloadActions({
       await onRefresh()
     } else {
       showToast({
-        title: 'Error',
-        message: 'Failed to cancel queued downloads',
+        title: i18next.t('downloads:toasts.error.title'),
+        message: i18next.t('downloads:toasts.error.cancelFailed'),
         variant: 'error',
         duration: 3000
       })
@@ -272,16 +285,16 @@ export function useDownloadActions({
       const response = await globalThis.fileSystem.openDownloadsFolder()
       if (!response.success) {
         showToast({
-          title: 'Error',
-          message: 'Failed to open downloads folder',
+          title: i18next.t('downloads:toasts.error.title'),
+          message: i18next.t('downloads:toasts.error.openFolderFailed'),
           variant: 'error'
         })
       }
     } catch (error) {
       rendererLog.error('[useDownloadActions] Error opening downloads folder:', error)
       showToast({
-        title: 'Error',
-        message: 'Failed to open downloads folder',
+        title: i18next.t('downloads:toasts.error.title'),
+        message: i18next.t('downloads:toasts.error.openFolderFailed'),
         variant: 'error'
       })
     }

@@ -69,6 +69,17 @@
       "title": "Đã xóa vĩnh viễn",
       "message": "Tải xuống và tệp đã được xóa vĩnh viễn"
     },
+    "error": {
+      "title": "Lỗi",
+      "notFound": "Không tìm thấy tải xuống",
+      "cancelFailed": "Không thể hủy tải xuống",
+      "retryFailed": "Không thể thử lại tải xuống",
+      "removeFailed": "Không thể xóa tải xuống",
+      "hideFailed": "Không thể ẩn tải xuống",
+      "deleteFailed": "Không thể xóa tải xuống",
+      "clearCompletedFailed": "Không thể ẩn tải xuống đã hoàn thành",
+      "openFolderFailed": "Không thể mở thư mục tải xuống"
+    },
     "retryAllQueued": "Đã thêm {{count}} tải xuống thất bại vào hàng chờ để thử lại",
     "cancelledAll": "Đã hủy {{count}} tải xuống đang chờ"
   }

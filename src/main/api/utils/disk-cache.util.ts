@@ -103,7 +103,7 @@ export class DiskCacheUtil {
 
           // Delete directories recursively, files directly
           if (stats.isDirectory()) {
-            await secureFs.deleteDir(filePath, { recursive: true })
+            await secureFs.deleteDir(filePath)
           } else {
             await secureFs.deleteFile(filePath)
           }
@@ -197,7 +197,7 @@ export class DiskCacheUtil {
   }
 
   private async getMaxCacheSize(): Promise<number> {
-    const cacheLimit = (await settingsManager.getByPath('downloads', 'maxDiskCacheSize')) as number
+    const cacheLimit = settingsManager.getByPath('downloads', 'maxDiskCacheSize') as number
     return cacheLimit ?? 50 * 1024 * 1024 // Default to 50MB if not set, 0 means unlimited
   }
 

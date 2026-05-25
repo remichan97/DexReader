@@ -482,10 +482,7 @@ class DownloadQueueService {
 
   // Always get fresh number of concurrent downloads from settings in case the user changes it while downloading
   private async getConcurrentDownloadsSize(): Promise<number> {
-    const maxConcurrent = (await settingsManager.getByPath(
-      'downloads',
-      'maxConcurrentDownloads'
-    )) as number
+    const maxConcurrent = settingsManager.getByPath('downloads', 'maxConcurrentDownloads') as number
     return maxConcurrent
   }
 

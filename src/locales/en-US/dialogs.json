@@ -102,9 +102,39 @@
     "deleteChapterDownload": {
       "title": "Remove Download",
       "message": "You are about to remove \"{{title}}\", which will delete downloaded chapter files.\nYou can also choose to just hide it from the list if you want to keep the files for offline reading.\n\nHow should we proceed?",
+      "buttons": {
+        "cancel": "Cancel",
+        "hideFromView": "Hide from View (Keep Files for Offline Reading)",
+        "deleteForever": "Delete Forever (Cannot be Undone)"
+      },
       "finalConfirmation": {
         "title": "Are you absolutely certain?",
-        "message": "This will be your last chance to back out before the chapter files are permanently deleted. File deletion cannot be undone, but you can always re-download the chapter if you change your mind.\n\nJust a reminder, you are deleting chapter: {{title}}"
+        "message": "This will be your last chance to back out before the chapter files are permanently deleted. File deletion cannot be undone, but you can always re-download the chapter if you change your mind.\n\nJust a reminder, you are deleting chapter: {{title}}",
+        "confirmButton": "Yes, Delete Permanently",
+        "cancelButton": "Nevermind"
+      }
+    },
+    "removeFromLibrary": {
+      "withDownloads": {
+        "title": "Remove from library?",
+        "message": "{{title}}\n\nThis manga has {{count}} downloaded chapter{{plural}} ({{size}}).\n\nDownloads will still be accessible in the Downloads view unless you choose to delete them.",
+        "buttons": {
+          "keepDownloads": "Remove from library (keep downloads)",
+          "deleteEverything": "Remove everything (both bookmark and downloads will be removed)",
+          "cancel": "Cancel"
+        }
+      },
+      "noDownloads": {
+        "title": "Remove from library?",
+        "message": "{{title}}\n\nYou can always add it back later.",
+        "confirmButton": "Remove",
+        "cancelButton": "Cancel"
+      },
+      "finalConfirmation": {
+        "title": "Are you absolutely certain?",
+        "message": "This will be your last chance to back out before the chapter files are permanently deleted. File deletion cannot be undone, but you can always re-download the manga if you change your mind.\n\nJust a reminder, you are deleting downloads for: {{title}}",
+        "confirmButton": "Yes, Delete Permanently",
+        "cancelButton": "Nevermind"
       }
     },
     "clearCoverCache": {

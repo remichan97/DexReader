@@ -1,6 +1,7 @@
 import { useToastStore } from '@renderer/stores/toastStore'
 import { formatBytes } from './formatBytes'
 import { rendererLog } from '@renderer/services/logging.service'
+import i18next from 'i18next'
 
 export interface UnfavouriteOptions {
   mangaId: string
@@ -31,10 +32,10 @@ export async function handleUnfavourite(options: UnfavouriteOptions): Promise<vo
       // Error checking downloads - show error toast
       useToastStore.getState().show({
         variant: 'error',
-        title: 'Failed to check downloads',
-        message: 'Please try again'
+        title: i18next.t('library:toasts.error'),
+        message: i18next.t('library:toasts.checkDownloadsFailed')
       })
-      onError?.('Failed to check downloads')
+      onError?.(i18next.t('library:toasts.checkDownloadsFailed'))
       return
     }
 
@@ -45,12 +46,19 @@ export async function handleUnfavourite(options: UnfavouriteOptions): Promise<vo
     if (hasDownloads) {
       // Two-choice dialog - has downloads
       const result = await globalThis.api.showDialog({
-        message: 'Remove from library?',
-        detail: `${mangaTitle}\n\nThis manga has ${chapterCount} downloaded chapter${chapterCount > 1 ? 's' : ''} (${formatBytes(totalBytes)}).\n\nDownloads will still be accessible in the Downloads view unless you choose to delete them.`,
+        message: i18next.t('dialogs:confirmations.removeFromLibrary.withDownloads.title'),
+        detail: i18next.t('dialogs:confirmations.removeFromLibrary.withDownloads.message', {
+          title: mangaTitle,
+          count: chapterCount,
+          plural: chapterCount > 1 ? 's' : '',
+          size: formatBytes(totalBytes)
+        }),
         buttons: [
-          'Remove from library (keep downloads)',
-          'Remove everything (both bookmark and downloads will be removed)',
-          'Cancel'
+          i18next.t('dialogs:confirmations.removeFromLibrary.withDownloads.buttons.keepDownloads'),
+          i18next.t(
+            'dialogs:confirmations.removeFromLibrary.withDownloads.buttons.deleteEverything'
+          ),
+          i18next.t('dialogs:confirmations.removeFromLibrary.withDownloads.buttons.cancel')
         ],
         type: 'warning',
         defaultId: 2, // Cancel is safe default
@@ -62,10 +70,23 @@ export async function handleUnfavourite(options: UnfavouriteOptions): Promise<vo
           // Remove from library only (downloads remain accessible in Downloads view)
           await executeRemoveFromLibrary(mangaId, mangaTitle, onSuccess, onError)
           break
-        case 1:
+        case 1: {
           // Remove from library AND delete all downloads
-          await executeRemoveEverything(mangaId, mangaTitle, chapterCount, onSuccess, onError)
+          // Ask for final confirmation before deleting downloads since this cannot be undone
+          const confirmed = await globalThis.api.showConfirmDialog(
+            i18next.t('dialogs:confirmations.removeFromLibrary.finalConfirmation.title'),
+            i18next.t('dialogs:confirmations.removeFromLibrary.finalConfirmation.message', {
+              title: mangaTitle
+            }),
+            i18next.t('dialogs:confirmations.removeFromLibrary.finalConfirmation.confirmButton'),
+            i18next.t('dialogs:confirmations.removeFromLibrary.finalConfirmation.cancelButton')
+          )
+
+          if (confirmed.success && confirmed.data) {
+            await executeRemoveEverything(mangaId, mangaTitle, chapterCount, onSuccess, onError)
+          }
           break
+        }
         case 2:
           // User cancelled - do nothing
           break
@@ -73,10 +94,12 @@ export async function handleUnfavourite(options: UnfavouriteOptions): Promise<vo
     } else {
       // Simple confirmation - no downloads
       const confirmed = await globalThis.api.showConfirmDialog(
-        'Remove from library?',
-        `${mangaTitle}\n\nYou can always add it back later.`,
-        'Remove',
-        'Cancel'
+        i18next.t('dialogs:confirmations.removeFromLibrary.noDownloads.title'),
+        i18next.t('dialogs:confirmations.removeFromLibrary.noDownloads.message', {
+          title: mangaTitle
+        }),
+        i18next.t('dialogs:confirmations.removeFromLibrary.noDownloads.confirmButton'),
+        i18next.t('dialogs:confirmations.removeFromLibrary.noDownloads.cancelButton')
       )
 
       if (confirmed.success && confirmed.data) {
@@ -87,7 +110,7 @@ export async function handleUnfavourite(options: UnfavouriteOptions): Promise<vo
     rendererLog.error('[UnfavouriteHandler] Unfavourite error:', error)
     useToastStore.getState().show({
       variant: 'error',
-      title: 'Unexpected error',
+      title: i18next.t('library:toasts.unexpectedError'),
       message: error instanceof Error ? error.message : 'Unknown error'
     })
     onError?.(error instanceof Error ? error.message : 'Unknown error')
@@ -105,15 +128,15 @@ async function executeRemoveFromLibrary(
   if (result.success) {
     useToastStore.getState().show({
       variant: 'success',
-      title: 'Removed from library',
+      title: i18next.t('library:toasts.removedFromLibrary'),
       message: mangaTitle
     })
     onSuccess?.()
   } else {
     useToastStore.getState().show({
       variant: 'error',
-      title: 'Failed to remove from library',
-      message: result.error || 'Unknown error'
+      title: i18next.t('library:toasts.error'),
+      message: i18next.t('library:toasts.failedToRemove')
     })
     onError?.(result.error || 'Unknown error')
   }
@@ -138,29 +161,33 @@ async function executeRemoveEverything(
   if (librarySuccess && downloadsSuccess) {
     useToastStore.getState().show({
       variant: 'success',
-      title: 'Removed completely',
-      message: `${mangaTitle} and ${chapterCount} chapter${chapterCount > 1 ? 's' : ''} deleted`
+      title: i18next.t('library:toasts.removedCompletely'),
+      message: i18next.t('library:toasts.removedWithDetails', {
+        title: mangaTitle,
+        count: chapterCount,
+        plural: chapterCount > 1 ? 's' : ''
+      })
     })
     onSuccess?.()
   } else if (librarySuccess && !downloadsSuccess) {
     useToastStore.getState().show({
       variant: 'warning',
-      title: 'Partially removed',
-      message: 'Removed from library, but failed to delete some downloads'
+      title: i18next.t('library:toasts.partiallyRemoved.title'),
+      message: i18next.t('library:toasts.partiallyRemoved.libraryOnly')
     })
     onSuccess?.() // Still call success because library removal worked
   } else if (!librarySuccess && downloadsSuccess) {
     useToastStore.getState().show({
       variant: 'warning',
-      title: 'Partially removed',
-      message: 'Downloads deleted, but failed to remove from library'
+      title: i18next.t('library:toasts.partiallyRemoved.title'),
+      message: i18next.t('library:toasts.partiallyRemoved.downloadsOnly')
     })
     onSuccess?.() // Still call success because downloads removal worked
   } else {
     useToastStore.getState().show({
       variant: 'error',
-      title: 'Failed to remove',
-      message: 'Could not complete removal. Please try again.'
+      title: i18next.t('library:toasts.error'),
+      message: i18next.t('library:toasts.couldNotRemove')
     })
     onError?.('Both operations failed')
   }

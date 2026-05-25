@@ -1,6 +1,11 @@
-import path from 'node:path'
+import path, { dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import fs from 'node:fs/promises'
 import { ChapterWithMetadata } from '../../database/queries/manga/chapter-with-metadata.query'
+
+// ESM: Get __dirname equivalent
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 import { chapterRepo } from '../../database/repositories/chapter.repo'
 import { collectionRepo } from '../../database/repositories/collection.repo'
 import { progressRepo } from '../../database/repositories/manga-progress.repo'

@@ -100,7 +100,7 @@ export function registerStorageHandlers(): void {
     }
 
     // Use validated approach: load settings, update field, validate section, save
-    const settings = await settingsManager.load()
+    const settings = settingsManager.load()
     settings.downloads.maxDiskCacheSize = byteLimit
 
     if (!isDownloadsSettings(settings.downloads)) {

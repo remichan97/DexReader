@@ -92,11 +92,12 @@ npm run build:linux
 
 ## Project Status
 
-**Current Version**: 1.6.0 (May 25, 2026) 🔒
+**Current Version**: 1.7.0 (May 25, 2026) 🚀
 
-DexReader v1.6.0 brings enhanced security with Electron renderer sandboxing:
+DexReader v1.7.0 brings modernized codebase with ECMAScript Modules (ESM):
 
 - ✅ Complete MangaDex extensive manga library integration (browse, search, read)
+- ✅ **ESM Migration** - Modernized module system for better Node.js ecosystem alignment
 - ✅ **Renderer Sandboxing** - Enhanced security isolation for improved protection against malicious content
 - ✅ **Content Language Preferences** - Configure up to 3 priority languages for manga content filtering
 - ✅ **Multi-Language UI** - Three locales supported (British English, American English, Vietnamese)

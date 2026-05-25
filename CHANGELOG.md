@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [1.7.0] - 2026-05-25
+
+### Changed
+
+- Migrate project to ECMAScript Modules (ESM)
+  - Update package.json to specify `"type": "module"` for native ESM support
+  - Refactor main process for full ESM compatibility
+  - Modernize codebase with native ESM imports/exports throughout application
+  - Implement compatibility workaround for electron-updater CommonJS dependency
+  - Improved module loading and better alignment with Node.js ecosystem standards
+
+### Fixed
+
+- Fix IPC response handling issues in DownloadsView and dialog components
+- Fix filesystem deleteDir method not consistently applying recursive flag when removing directories
+- Fix missing translation keys for Downloads view and favorite/unfavorite actions
+- Fix Vietnamese locale translation coverage gaps
+
+---
+
 ## [1.6.0] - 2026-05-25
 
 ### Added

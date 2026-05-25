@@ -38,15 +38,20 @@
     "addedToLibrary": "Đã thêm vào Thư viện",
     "addedSuccess": "Manga đã được thêm vào bộ sưu tập của bạn",
     "error": "Lỗi",
+    "checkDownloadsFailed": "Không thể kiểm tra tải xuống",
     "mangaNotFound": "Không tìm thấy Manga",
     "failedToAdd": "Không thể thêm vào thư viện",
+    "failedToRemove": "Không thể xóa khỏi thư viện",
     "removedFromLibrary": "Đã xóa khỏi thư viện",
     "removedCompletely": "Đã xóa hoàn toàn",
+    "removedWithDetails": "{{title}} và {{count}} chương đã được xóa",
+    "couldNotRemove": "Không thể hoàn tất việc xóa. Vui lòng thử lại.",
     "partiallyRemoved": {
       "title": "Xóa một phần",
       "libraryOnly": "Đã xóa khỏi thư viện, nhưng không thể xóa một số tải xuống",
       "downloadsOnly": "Đã xóa tải xuống, nhưng không thể xóa khỏi thư viện"
-    }
+    },
+    "unexpectedError": "Lỗi không mong muốn"
   },
   "collections": {
     "toasts": {

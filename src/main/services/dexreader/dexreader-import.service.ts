@@ -1,6 +1,11 @@
 import { UpdateFirstReadCommand } from './../../database/commands/progress/update-firstread.command'
-import path from 'node:path'
+import path, { dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import fs from 'node:fs/promises'
+
+// ESM: Get __dirname equivalent
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 import { DexReaderImportResult } from '../results/dexreader/import.result'
 import Pako from 'pako'
 import protobuf from 'protobufjs'

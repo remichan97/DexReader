@@ -1,6 +1,7 @@
 import { is } from '@electron-toolkit/utils'
 import { app, BrowserWindow } from 'electron'
-import { autoUpdater } from 'electron-updater'
+import pkg from 'electron-updater'
+const { autoUpdater } = pkg
 import { mainLog } from './logging/main-logging.service'
 import { settingsManager } from '../settings/settings-manager'
 
@@ -38,7 +39,7 @@ class AppUpdateService {
     }
 
     if (!isManual) {
-      const isAutoUpdate = (await settingsManager.getByPath('update', 'autoCheck')) as boolean
+      const isAutoUpdate = settingsManager.getByPath('update', 'autoCheck') as boolean
 
       if (!isAutoUpdate) {
         mainLog.info('[AppUpdate] Auto-update is disabled. Skipping update check.')
@@ -120,7 +121,7 @@ class AppUpdateService {
   }
 
   private async shouldAutoDownload(): Promise<boolean> {
-    const autoDownload = (await settingsManager.getByPath('update', 'autoDownload')) as boolean
+    const autoDownload = settingsManager.getByPath('update', 'autoDownload') as boolean
     return autoDownload
   }
 

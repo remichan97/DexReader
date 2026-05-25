@@ -139,7 +139,7 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
    * await window.api.openSettingsFile()
    */
   wrapIpcHandler('settings:open-settings-file', async () => {
-    return await settingsManager.openSettingsFile()
+    return settingsManager.openSettingsFile()
   })
 
   /**

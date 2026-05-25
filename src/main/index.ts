@@ -41,7 +41,7 @@ async function initFileSystem(): Promise<void> {
   await diskCacheUtil.initCachePath()
 
   // Load App settings
-  const settings = await settingsManager.load()
+  const settings = settingsManager.load()
   mainLog.info('[Main] Settings loaded:', settings)
 
   // Apply user language settings to i18next

@@ -1,11 +1,12 @@
 {
   "name": "dexreader",
   "productName": "DexReader",
-  "version": "1.6.0",
-  "description": "An Electron application with React and TypeScript",
+  "version": "1.7.0",
+  "description": "A personal MangaDex client built with Electron and React.",
+  "type": "module",
   "main": "./out/main/index.js",
   "author": "remichan97",
-  "homepage": "https://electron-vite.org",
+  "homepage": "https://github.com/remichan97/dexreader",
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint --cache .",

@@ -1,11 +1,16 @@
 import { BrowserWindow, Menu, shell, ipcMain } from 'electron'
 import icon from '../../resources/icon.png?asset'
-import { join } from 'node:path'
+import { join, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { createMenu } from './menu/index'
 import { setupThemeDetection } from './theme'
 import { is } from '@electron-toolkit/utils'
 import { mainLog } from './services/logging/main-logging.service'
 import i18next from './i18n/i18n.config'
+
+// ESM: Get __dirname equivalent
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 let mainWindow: BrowserWindow | undefined = undefined
 let isQuitting = false
@@ -25,7 +30,7 @@ export function createWindow(): void {
     autoHideMenuBar: false,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
+      preload: join(__dirname, '../preload/index.cjs'),
       sandbox: true,
       contextIsolation: true,
       // Disable DevTools in production for security
