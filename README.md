@@ -92,11 +92,12 @@ npm run build:linux
 
 ## Project Status
 
-**Current Version**: 1.5.0 (May 22, 2026) 🌍
+**Current Version**: 1.6.0 (May 25, 2026) 🔒
 
-DexReader v1.5.0 adds Content Language Settings and improves configuration management:
+DexReader v1.6.0 brings enhanced security with Electron renderer sandboxing:
 
 - ✅ Complete MangaDex extensive manga library integration (browse, search, read)
+- ✅ **Renderer Sandboxing** - Enhanced security isolation for improved protection against malicious content
 - ✅ **Content Language Preferences** - Configure up to 3 priority languages for manga content filtering
 - ✅ **Multi-Language UI** - Three locales supported (British English, American English, Vietnamese)
 - ✅ **Enhanced Settings Management** - Migrated to electron-store for improved reliability
@@ -109,7 +110,7 @@ DexReader v1.5.0 adds Content Language Settings and improves configuration manag
 - ✅ WCAG 2.1 AA accessibility compliance (100%)
 - ✅ Multi-platform support (Windows, macOS, Linux)
 
-This release enhances user control over content by allowing language preferences and improving the settings infrastructure for better reliability.
+This release improves the application's security posture by enabling Electron's sandboxing feature, providing better isolation and compliance with modern security best practices.
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed release notes and development history.
 
