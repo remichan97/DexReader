@@ -1,6 +1,7 @@
 import { is } from '@electron-toolkit/utils'
 import { app, BrowserWindow } from 'electron'
-import { autoUpdater } from 'electron-updater'
+import pkg from 'electron-updater'
+const { autoUpdater } = pkg
 import { mainLog } from './logging/main-logging.service'
 import { settingsManager } from '../settings/settings-manager'
 
