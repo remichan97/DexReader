@@ -82,7 +82,7 @@ export async function handleUnfavourite(options: UnfavouriteOptions): Promise<vo
             i18next.t('dialogs:confirmations.removeFromLibrary.finalConfirmation.cancelButton')
           )
 
-          if (confirmed) {
+          if (confirmed.success && confirmed.data) {
             await executeRemoveEverything(mangaId, mangaTitle, chapterCount, onSuccess, onError)
           }
           break
@@ -102,7 +102,7 @@ export async function handleUnfavourite(options: UnfavouriteOptions): Promise<vo
         i18next.t('dialogs:confirmations.removeFromLibrary.noDownloads.cancelButton')
       )
 
-      if (confirmed) {
+      if (confirmed.success && confirmed.data) {
         await executeRemoveFromLibrary(mangaId, mangaTitle, onSuccess, onError)
       }
     }
