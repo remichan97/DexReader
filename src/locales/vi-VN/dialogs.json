@@ -149,7 +149,18 @@
       "message": "Bạn sắp mở một trang web bên ngoài trong trình duyệt mặc định của bạn. Đây là trang web bạn sắp truy cập:\n\n{{url}}"
     },
     "unsavedChanges": {
-      "message": "Bạn có các thay đổi chưa được lưu. Bạn có chắc chắn muốn rời đi không?"
+      "navigation": {
+        "title": "Bạn có các thay đổi chưa được lưu.",
+        "message": "Thay đổi của bạn sẽ bị mất.",
+        "confirmButton": "Vâng, rời đi",
+        "cancelButton": "Không"
+      },
+      "windowClose": {
+        "title": "Bạn có các thay đổi chưa được lưu.",
+        "message": "Bạn có muốn loại bỏ các thay đổi của mình không?",
+        "confirmButton": "Loại bỏ thay đổi",
+        "cancelButton": "Hủy"
+      }
     },
     "notFound": {
       "title": "Ôi! Lạc đường?",

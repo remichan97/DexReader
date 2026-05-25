@@ -136,7 +136,18 @@
       "message": "You're about to open an external website in your default browser. Just so you know where you're headed:\n\n{{url}}"
     },
     "unsavedChanges": {
-      "message": "You have unsaved changes. Are you sure you want to leave?"
+      "navigation": {
+        "title": "You have unsaved changes.",
+        "message": "Your changes will be lost.",
+        "confirmButton": "Yes, Leave",
+        "cancelButton": "No"
+      },
+      "windowClose": {
+        "title": "You have unsaved changes.",
+        "message": "Do you want to discard your changes?",
+        "confirmButton": "Discard Changes",
+        "cancelButton": "Cancel"
+      }
     },
     "notFound": {
       "title": "Oops! Lost your way?",

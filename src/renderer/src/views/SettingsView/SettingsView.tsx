@@ -107,11 +107,8 @@ export function SettingsView(): JSX.Element {
     document.title = `${t('settings:pageTitle')} - DexReader`
   }, [t])
 
-  // Block navigation when there are unsaved changes
-  useNavigationBlocker(
-    hasUnsavedChanges,
-    'You have unsaved changes. Are you sure you want to leave?'
-  )
+  // Block navigation when there are unsaved changes (uses translations automatically)
+  useNavigationBlocker(hasUnsavedChanges)
 
   // Sync local hasUnsavedChanges with global context for app-wide tracking
   useEffect(() => {
