@@ -8,9 +8,14 @@
 import Database from 'better-sqlite3'
 import { drizzle, BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
-import path from 'node:path'
+import path, { dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import fs from 'node:fs'
 import * as schema from '../../../database/schemas'
+
+// ESM: Get __dirname equivalent
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 export interface DatabaseTestOptions {
   dbPath?: string // Custom database path (defaults to dexreader-benchmark.db)

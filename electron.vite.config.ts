@@ -1,7 +1,12 @@
 import fs from 'node:fs/promises'
 import { defineConfig } from 'electron-vite'
 import react from '@vitejs/plugin-react'
-import path from 'node:path'
+import { dirname, join, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+// ESM: Get __dirname equivalent
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 export default defineConfig({
   main: {
@@ -9,8 +14,15 @@ export default defineConfig({
       rollupOptions: {
         external: [
           // Exclude scripts directory from production build
-          /^.*\/scripts\/.*/
-        ]
+          /^.*\/scripts\/.*/,
+          // CommonJS-only modules (must stay external in ESM)
+          'electron-updater',
+          'better-sqlite3'
+        ],
+        output: {
+          format: 'es', // ESM format to match project type
+          entryFileNames: '[name].js'
+        }
       },
       externalizeDeps: true
     },
@@ -19,8 +31,8 @@ export default defineConfig({
         name: 'copy-migrations',
         async writeBundle() {
           // Copy migrations folder to output directory
-          const src = path.resolve(__dirname, 'src/main/database/migrations')
-          const dest = path.resolve(__dirname, 'out/main/database/migrations')
+          const src = resolve(__dirname, 'src/main/database/migrations')
+          const dest = resolve(__dirname, 'out/main/database/migrations')
 
           // Create destination directory
           await fs.mkdir(dest, { recursive: true })
@@ -28,8 +40,8 @@ export default defineConfig({
           // Copy all files
           const files = await fs.readdir(src)
           files.forEach(async (file: string) => {
-            const srcPath = path.join(src, file)
-            const destPath = path.join(dest, file)
+            const srcPath = join(src, file)
+            const destPath = join(dest, file)
 
             if ((await fs.stat(srcPath)).isDirectory()) {
               // Copy directory recursively (for meta folder)
@@ -44,15 +56,15 @@ export default defineConfig({
       {
         name: 'copy-protobuf-schema',
         async writeBundle() {
-          const src = path.resolve(__dirname, 'src/main/services/protobuf/schemas')
-          const dest = path.resolve(__dirname, 'out/main/services/protobuf/schemas')
+          const src = resolve(__dirname, 'src/main/services/protobuf/schemas')
+          const dest = resolve(__dirname, 'out/main/services/protobuf/schemas')
 
           await fs.mkdir(dest, { recursive: true })
 
           const files = await fs.readdir(src, { recursive: true })
           files.forEach(async (file: string) => {
-            const srcPath = path.join(src, file)
-            const destPath = path.join(dest, file)
+            const srcPath = join(src, file)
+            const destPath = join(dest, file)
 
             if ((await fs.stat(srcPath)).isDirectory()) {
               fs.cp(srcPath, destPath, { recursive: true })
@@ -65,15 +77,15 @@ export default defineConfig({
       {
         name: 'copy-locales',
         async writeBundle() {
-          const src = path.resolve(__dirname, 'src/locales')
-          const dest = path.resolve(__dirname, 'out/locales')
+          const src = resolve(__dirname, 'src/locales')
+          const dest = resolve(__dirname, 'out/locales')
 
           await fs.mkdir(dest, { recursive: true })
 
           const files = await fs.readdir(src)
           for (const file of files) {
-            const srcPath = path.join(src, file)
-            const destPath = path.join(dest, file)
+            const srcPath = join(src, file)
+            const destPath = join(dest, file)
 
             if ((await fs.stat(srcPath)).isDirectory()) {
               // Copy language directory, but only JSON files
@@ -81,7 +93,7 @@ export default defineConfig({
               const langFiles = await fs.readdir(srcPath)
               for (const langFile of langFiles) {
                 if (langFile.endsWith('.json')) {
-                  await fs.copyFile(path.join(srcPath, langFile), path.join(destPath, langFile))
+                  await fs.copyFile(join(srcPath, langFile), join(destPath, langFile))
                 }
               }
             } else if (file.endsWith('.json')) {
@@ -100,7 +112,8 @@ export default defineConfig({
       externalizeDeps: false,
       rollupOptions: {
         output: {
-          format: 'cjs' // Preload must be CommonJS (Electron requirement)
+          format: 'cjs', // Preload MUST be CommonJS (Electron sandboxed limitation)
+          entryFileNames: '[name].cjs' // Output as .cjs to avoid ESM confusion
         }
       }
     }
@@ -108,7 +121,7 @@ export default defineConfig({
   renderer: {
     resolve: {
       alias: {
-        '@renderer': path.resolve('src/renderer/src')
+        '@renderer': resolve('src/renderer/src')
       }
     },
     build: {

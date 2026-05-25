@@ -9,7 +9,6 @@ import { ImageQuality } from '../api/enums'
 import { AppTheme } from './enums/theme-mode.enum'
 import { ReadingMode } from './enums/reading-mode.enum'
 import { AppSettings } from './entities/app-settings.entity'
-import type Store from 'electron-store'
 import { MangaReadingSettings } from './entities/reading-settings.entity'
 import { readerSettingsRepo } from '../database/repositories/reader-settings.repo'
 import { DownloadConfirmation } from './enums/download-confirmation.enum'
@@ -19,19 +18,16 @@ import { mainLog } from '../services/logging/main-logging.service'
 import { StartupPage } from './enums/startup-page.enum'
 import { CURRENT_SETTINGS_VERSION, migrateSettings } from './utils/settings-migration.util'
 import { DisplayLanguage } from './enums/display-languages.enum'
+import Store from 'electron-store'
 
 class SettingsManager {
   private settingsStore!: Store<AppSettings>
-  private initPromise: Promise<void>
 
   constructor() {
-    this.initPromise = this.initialize()
+    this.initialize()
   }
 
-  // TODO: Dynamic importing isn't my cup of tea, consider moving the whole project to transpile to ESM and using native imports for better readability and maintainability
-  private async initialize(): Promise<void> {
-    // Dynamic import for ES module (electron-store v11+)
-    const Store = (await import('electron-store')).default
+  private initialize(): void {
     this.settingsStore = new Store<AppSettings>({
       name: 'settings',
       defaults: SettingsManager.getDefaultSettings(),
@@ -39,12 +35,7 @@ class SettingsManager {
     })
   }
 
-  private async ensureInitialized(): Promise<void> {
-    await this.initPromise
-  }
-
-  async load(): Promise<AppSettings> {
-    await this.ensureInitialized()
+  load(): AppSettings {
     const settings = this.settingsStore.store
 
     if (settings.version !== CURRENT_SETTINGS_VERSION) {
@@ -59,8 +50,7 @@ class SettingsManager {
     return settings
   }
 
-  async getByPath<K extends keyof AppSettings>(key: K, path?: string): Promise<unknown> {
-    await this.ensureInitialized()
+  getByPath<K extends keyof AppSettings>(key: K, path?: string): unknown {
     const section = this.settingsStore.store[key]
 
     if (!path) {
@@ -85,8 +75,7 @@ class SettingsManager {
     return current
   }
 
-  async update<T extends keyof AppSettings>(section: T, value: AppSettings[T]): Promise<void> {
-    await this.ensureInitialized()
+  update<T extends keyof AppSettings>(section: T, value: AppSettings[T]): void {
     mainLog.debug(`[SettingsManager] Updating setting '${section}'`)
     const currentSettings = this.settingsStore.store
     this.settingsStore.store = {
@@ -96,25 +85,21 @@ class SettingsManager {
     mainLog.info(`[SettingsManager] Setting '${section}' updated successfully`)
   }
 
-  async save(settings: AppSettings): Promise<void> {
-    await this.ensureInitialized()
+  save(settings: AppSettings): void {
     this.settingsStore.store = settings
     mainLog.info('[SettingsManager] Settings saved successfully.')
   }
 
-  async reset(): Promise<void> {
-    await this.ensureInitialized()
+  reset(): void {
     this.settingsStore.clear()
     mainLog.info('[SettingsManager] Settings reset to defaults.')
   }
 
-  async openSettingsFile(): Promise<void> {
-    await this.ensureInitialized()
+  openSettingsFile(): Promise<void> {
     return this.settingsStore.openInEditor()
   }
 
   async setDownloadsPath(newPath: string): Promise<void> {
-    await this.ensureInitialized()
     mainLog.info(`[SettingsManager] Attempting to set downloads path: ${newPath}`)
     // Sanitize the new path (remove control characters including null bytes)
     // eslint-disable-next-line no-control-regex
@@ -149,7 +134,7 @@ class SettingsManager {
   }
 
   async initializeDownloadsPath(): Promise<void> {
-    const settings = await this.load()
+    const settings = this.load()
 
     if (settings.downloads.downloadPath) {
       try {
@@ -161,19 +146,17 @@ class SettingsManager {
           `[SettingsManager] Using default downloads path at ${getDownloadsPath()} instead.`
         )
         // Reset to default in settings
-        await this.update('downloads', { ...settings.downloads, downloadPath: undefined })
+        this.update('downloads', { ...settings.downloads, downloadPath: undefined })
       }
     }
   }
 
-  async getMangaReaderSettings(mangaId: string): Promise<MangaReadingSettings> {
+  getMangaReaderSettings(mangaId: string): MangaReadingSettings {
     const override = readerSettingsRepo.getMangaOverride(mangaId)
 
     if (override) {
       return override
     }
-
-    await this.ensureInitialized()
     const settings = this.settingsStore.store
     return settings.reader.global
   }

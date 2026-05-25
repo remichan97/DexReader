@@ -197,7 +197,7 @@ export class DiskCacheUtil {
   }
 
   private async getMaxCacheSize(): Promise<number> {
-    const cacheLimit = (await settingsManager.getByPath('downloads', 'maxDiskCacheSize')) as number
+    const cacheLimit = settingsManager.getByPath('downloads', 'maxDiskCacheSize') as number
     return cacheLimit ?? 50 * 1024 * 1024 // Default to 50MB if not set, 0 means unlimited
   }
 
