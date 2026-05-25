@@ -71,7 +71,7 @@ jobs:
 
       # Step 3: Checkout code with full history for commit validation
       - name: Checkout code with full history
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -107,7 +107,7 @@ jobs:
       )
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
@@ -132,7 +132,7 @@ jobs:
       )
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:

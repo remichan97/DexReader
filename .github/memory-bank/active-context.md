@@ -1,8 +1,8 @@
 # DexReader Active Context
 
-**Last Updated**: 22 May 2026
-**Version**: v1.5.0
-**Mode**: Release Preparation
+**Last Updated**: 25 May 2026
+**Version**: v1.6.0
+**Mode**: Active Development
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next. Keep all entries as short, concise as possible
 
@@ -10,20 +10,18 @@
 
 ## Current Status
 
-**v1.5.0 Released**: 22 May 2026 🌍
+**v1.6.0 Released**: 25 May 2026 ✅
 
-**Key Features in v1.5.0:**
+**Monitoring Period**: Now through ~8 June 2026
 
-- Content Language Settings - Configure up to 3 priority languages for manga content
-- Settings infrastructure migrated to electron-store for improved reliability
-- SettingsView reorganized with cleaner separation of concerns
-- Translation improvements (Vietnamese and general)
-- App lock feature deferred to future release
+- Monitor for user-reported issues or bugs in sandboxing implementation
+- Watch for any regression in functionality
+- Collect feedback on stability and performance
 
-**Next Steps:**
+**Next Planned Work:**
 
-- Monitor release workflow for successful builds
-- Post-release: monitor user feedback and plan next cycle
+- P2-T02: ESM Migration (v1.7.0) - Planned to start after monitoring period
+- Monitor for `drizzle-kit` updates to resolve transitive esbuild vulnerability
 
 ---
 
@@ -50,31 +48,32 @@
 
 ## Recent Changes (Last 1-2 Weeks)
 
-### 22 May 2026 - v1.5.0 Release Preparation
+### 25 May 2026 - v1.6.0 Release ✅
+
+- **Type**: Security Enhancement
+- **Summary**: Enabled Electron renderer sandboxing for improved security posture
+- **Key Changes**:
+  - Enabled sandbox mode in BrowserWindow webPreferences
+  - Fixed preload bundling: changed `externalizeDeps: false` in electron.vite.config
+  - Sandboxed preload now bundles dependencies (cannot access node_modules at runtime)
+  - Localized unsaved changes dialogs (window close & navigation blocking)
+  - Comprehensive testing: all features verified working
+- **Impact**: Improved security against malicious content, better Electron compliance
+- **Status**: ✅ Released
+- **CHANGELOG**: All changes documented in CHANGELOG.md v1.6.0 section
+
+### 22 May 2026 - v1.5.0 Release
 
 - **Type**: Release
 - **Summary**: Content Language Settings and enhanced settings management
 - **Key Features**:
   - Content Language Settings with priority language selection (up to 3 languages)
-  - PriorityLanguages component for language management
   - Settings infrastructure migrated from JSON to electron-store
-  - SettingsView reorganization for better UX
   - Translation improvements across all locales
-  - Dependency update: protobufjs 8.0.2 → 8.2.0
-  - CI automation for release tagging
-- **Impact**: Users can now filter manga content by preferred languages, improved settings reliability
-- **Status**: 🔄 Ready for Release
-
-### 18 May 2026 - v1.4.1 Hotfix Release
-
-- **Type**: Hotfix
-- **Summary**: Critical bug fixes for i18n initialization issues introduced in v1.4.0
-- **Key Changes**:
-  - Fixed settings version not being bumped in v1.4.0, preventing migrations
-  - Fixed missing settings key during app init for i18n preferences
-  - Ensured migrated settings are properly written to settings file
-- **Impact**: Users upgrading from pre-v1.4.0 versions now properly migrate i18n settings
+- **Impact**: Users can filter manga content by preferred languages
 - **Status**: ✅ Released
+
+<!-- Archived entries moved to historical/archived-milestones.md -->
 
 <!-- Template for future entries:
 ### [Date] - [Title]

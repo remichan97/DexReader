@@ -69,7 +69,7 @@ export function CacheManagementSettings({
     }
 
     loadCacheData()
-  }, [showToast])
+  }, [showToast, t])
 
   // Handle cover cache limit change (local only, no auto-apply)
   const handleCoverLimitChange = (value: string | string[]): void => {

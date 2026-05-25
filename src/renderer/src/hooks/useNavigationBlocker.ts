@@ -1,22 +1,26 @@
 import { useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 /**
  * Hook to block navigation when there are unsaved changes
  * DOES NOT block window close (handled separately via flush-pending-saves IPC)
  * @param shouldBlock - Whether navigation should be blocked
- * @param message - Confirmation message to show
+ * @param customMessage - Optional custom confirmation message
  */
-export function useNavigationBlocker(
-  shouldBlock: boolean,
-  message = 'You have unsaved changes.'
-): void {
+export function useNavigationBlocker(shouldBlock: boolean, customMessage?: string): void {
   const navigate = useNavigate()
   const location = useLocation()
+  const { t } = useTranslation('dialogs')
 
   // Intercept sidebar clicks and other navigation
   useEffect(() => {
     if (!shouldBlock) return
+
+    const message = customMessage || t('confirmations.unsavedChanges.navigation.title')
+    const detail = t('confirmations.unsavedChanges.navigation.message')
+    const confirmButton = t('confirmations.unsavedChanges.navigation.confirmButton')
+    const cancelButton = t('confirmations.unsavedChanges.navigation.cancelButton')
 
     let isNavigating = false
 
@@ -41,7 +45,7 @@ export function useNavigationBlocker(
 
             isNavigating = true
             globalThis.api
-              .showConfirmDialog(message, 'Your changes will be lost.', 'Yes, Leave', 'No')
+              .showConfirmDialog(message, detail, confirmButton, cancelButton)
               .then((confirmed) => {
                 if (confirmed.success && confirmed.result) {
                   navigate(targetPath)
@@ -63,5 +67,5 @@ export function useNavigationBlocker(
     return (): void => {
       document.removeEventListener('click', handleClick, true)
     }
-  }, [shouldBlock, message, navigate, location.pathname])
+  }, [shouldBlock, customMessage, navigate, location.pathname, t])
 }

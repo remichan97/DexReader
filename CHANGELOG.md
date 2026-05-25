@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [1.6.0] - 2026-05-25
+
+### Added
+
+- Add Electron renderer sandboxing for enhanced security
+  - Enabled sandbox mode in BrowserWindow webPreferences for improved protection against malicious content
+  - Configured preload script bundling to support sandboxed environment (dependencies now bundled instead of externalized)
+  - Sandboxed renderer provides better isolation and security compliance with Electron best practices
+  - Performance impact: negligible overhead with significantly improved security posture
+- Add localized unsaved changes dialogs for window close and navigation blocking
+  - Window close confirmation now respects user's display language preference
+  - Navigation blocking prompts use localized messages
+
+### Changed
+
+- Update preload build configuration to bundle dependencies for sandbox compatibility
+  - Changed `externalizeDeps` from `true` to `false` in electron.vite.config
+  - Sandboxed preload scripts cannot access node_modules at runtime, requiring bundled dependencies
+  - Preload output format set to CommonJS (cjs) as required by Electron
+- Update CI workflow to use newer checkout action version (resolves deprecation notice)
+- Improve translation coverage for Settings view and dialog components
+
+### Fixed
+
+- Fix missing `useEffect` dependency in CacheManagementSettings component
+- Fix incorrect tag creation workflow check in CI pipeline
+
+---
+
 ## [1.5.0] - 2026-05-22
 
 ### Added

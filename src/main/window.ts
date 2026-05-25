@@ -5,6 +5,7 @@ import { createMenu } from './menu/index'
 import { setupThemeDetection } from './theme'
 import { is } from '@electron-toolkit/utils'
 import { mainLog } from './services/logging/main-logging.service'
+import i18next from './i18n/i18n.config'
 
 let mainWindow: BrowserWindow | undefined = undefined
 let isQuitting = false
@@ -25,7 +26,7 @@ export function createWindow(): void {
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false,
+      sandbox: true,
       contextIsolation: true,
       // Disable DevTools in production for security
       // Can still be opened programmatically if needed for debugging
@@ -81,11 +82,14 @@ export function createWindow(): void {
         const { dialog } = await import('electron')
         const result = await dialog.showMessageBox(mainWindow, {
           type: 'warning',
-          buttons: ['Cancel', 'Discard Changes'],
+          buttons: [
+            i18next.t('dialogs:confirmations.unsavedChanges.windowClose.cancelButton'),
+            i18next.t('dialogs:confirmations.unsavedChanges.windowClose.confirmButton')
+          ],
           defaultId: 0,
           cancelId: 0,
-          message: 'You have unsaved changes.',
-          detail: 'Do you want to discard your changes?',
+          message: i18next.t('dialogs:confirmations.unsavedChanges.windowClose.title'),
+          detail: i18next.t('dialogs:confirmations.unsavedChanges.windowClose.message'),
           noLink: true
         })
 
