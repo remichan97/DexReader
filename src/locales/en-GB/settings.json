@@ -1,7 +1,7 @@
 {
   "pageTitle": "Settings",
   "unsavedChangesBanner": {
-    "message": "Careful! You have unsaved changes",
+    "message": "Don't forget to save your changes before you leave!",
     "validationError": "Some settings are invalid. Fix validation errors before saving.",
     "saveButton": "Save Changes",
     "discardButton": "Discard"

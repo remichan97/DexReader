@@ -137,16 +137,16 @@
     },
     "unsavedChanges": {
       "navigation": {
-        "title": "You have unsaved changes.",
+        "title": "You have unsaved changes. Do you want to leave without saving?",
         "message": "Your changes will be lost.",
         "confirmButton": "Yes, Leave",
         "cancelButton": "No"
       },
       "windowClose": {
-        "title": "You have unsaved changes.",
-        "message": "Do you want to discard your changes?",
-        "confirmButton": "Discard Changes",
-        "cancelButton": "Cancel"
+        "title": "You have unsaved changes. Do you want to exit DexReader without saving?",
+        "message": "Your changes will be lost.",
+        "confirmButton": "Yes, Discard Changes",
+        "cancelButton": "No"
       }
     },
     "notFound": {

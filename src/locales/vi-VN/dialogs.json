@@ -150,15 +150,15 @@
     },
     "unsavedChanges": {
       "navigation": {
-        "title": "Bạn có các thay đổi chưa được lưu.",
-        "message": "Thay đổi của bạn sẽ bị mất.",
-        "confirmButton": "Vâng, rời đi",
+        "title": "Bạn có các thiết lập chưa được lưu. Bạn có muốn rời đi mà không lưu các thay đổi không?",
+        "message": "Các thiết lập của bạn sẽ bị mất.",
+        "confirmButton": "Có, rời đi",
         "cancelButton": "Không"
       },
       "windowClose": {
-        "title": "Bạn có các thay đổi chưa được lưu.",
-        "message": "Bạn có muốn loại bỏ các thay đổi của mình không?",
-        "confirmButton": "Loại bỏ thay đổi",
+        "title": "Bạn có các thiết lập chưa được lưu. Bạn có muốn thoát DexReader mà không lưu các thay đổi không?",
+        "message": "Các thiết lập của bạn sẽ bị mất.",
+        "confirmButton": "Có, loại bỏ thay đổi",
         "cancelButton": "Hủy"
       }
     },

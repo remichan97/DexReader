@@ -1,7 +1,7 @@
 {
   "pageTitle": "Cài đặt",
   "unsavedChangesBanner": {
-    "message": "Cẩn thận! Bạn đang có các thay đổi chưa được lưu",
+    "message": "Đừng quên lưu các thay đổi của bạn trước khi rời đi!",
     "validationError": "Một số cài đặt không hợp lệ. Sửa lỗi trước khi lưu.",
     "saveButton": "Lưu thay đổi",
     "discardButton": "Bỏ qua"
