@@ -48,6 +48,17 @@
 
 ## Recent Changes (Last 1-2 Weeks)
 
+### 25 May 2026 - CI Workflow Tag Creation Fix ✅
+
+- **Type**: Bugfix
+- **Summary**: Fixed GitHub Actions permission issue preventing tag creation
+- **Key Changes**:
+  - Added `permissions: contents: write` to ci.yaml workflow
+  - Allows GitHub Actions bot to create and push release tags
+- **Impact**: Automated release tag creation now works correctly
+- **Status**: ✅ Fixed
+- **Error Resolved**: "remote: Permission to remichan97/DexReader.git denied to github-actions[bot]"
+
 ### 25 May 2026 - v1.6.0 Release ✅
 
 - **Type**: Security Enhancement

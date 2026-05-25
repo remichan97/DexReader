@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: write # Required for creating and pushing tags
+
 jobs:
   # Single job that runs all CI checks sequentially
   # More efficient than parallel jobs (1x checkout + 1x npm ci vs 3x each)
