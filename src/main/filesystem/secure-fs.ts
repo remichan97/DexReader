@@ -23,9 +23,9 @@ export const secureFs = {
     return fs.unlink(validPath)
   },
 
-  async deleteDir(dirPath: string, options?: { recursive?: boolean }): Promise<void> {
+  async deleteDir(dirPath: string): Promise<void> {
     const validPath = validatePath(dirPath)
-    return fs.rm(validPath, { recursive: options?.recursive ?? false, force: true })
+    return fs.rm(validPath, { recursive: true, force: true })
   },
 
   async isExists(path: string): Promise<boolean> {

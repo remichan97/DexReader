@@ -199,9 +199,9 @@ export function registerFileSystemHandlers(getWindow: () => BrowserWindow): void
    * // Delete directory and all contents
    * await window.api.deleteDir('C:\\...\\Downloads\\manga\\old-series', { recursive: true })
    */
-  wrapIpcHandler('fs:rm', async (_event, dirPath: unknown, options: unknown) => {
+  wrapIpcHandler('fs:rmdir', async (_event, dirPath: unknown) => {
     const validPath = validatePath(dirPath, 'dirPath')
-    await secureFs.deleteDir(validPath, options as { recursive?: boolean } | undefined)
+    await secureFs.deleteDir(validPath)
     return true
   })
 

@@ -103,7 +103,7 @@ export class DiskCacheUtil {
 
           // Delete directories recursively, files directly
           if (stats.isDirectory()) {
-            await secureFs.deleteDir(filePath, { recursive: true })
+            await secureFs.deleteDir(filePath)
           } else {
             await secureFs.deleteFile(filePath)
           }

@@ -221,7 +221,7 @@ class DownloadService {
     for (const download of downloadsToBeDeleted) {
       const fullPath = path.join(download.downloadsBasePath, download.filePath)
       try {
-        await secureFs.deleteDir(fullPath, { recursive: true })
+        await secureFs.deleteDir(fullPath)
         successfulDeletions.push({
           chapterId: download.chapterId,
           isDeletePermanent: true
@@ -372,7 +372,7 @@ class DownloadService {
   }
 
   private async getDiskSpaceInfo(): Promise<DiskSpaceData> {
-    const downloadsPath = settingsManager.getByPath('downloads', 'downloadPath') as string
+    const downloadsPath = (await settingsManager.getByPath('downloads', 'downloadPath')) as string
 
     const stats = await secureFs.statFs(downloadsPath)
 
