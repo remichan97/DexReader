@@ -3,17 +3,70 @@
 /* Main Container */
 
 .settings-view__container {
-  padding: var(--space-6);
-  max-width: min(1200px, 90%);
-  margin: 0 auto;
+  /* Remove padding - header needs full width */
   width: 100%;
 }
 
-/* Section Dividers */
+/* Settings Content Wrapper */
+
+.settings-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+/* Section Styles */
+
+.settings-section {
+  scroll-margin-top: 80px; /* Account for sticky header */
+  padding: var(--space-6) 0;
+  border-top: 1px solid var(--win-border-subtle);
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.settings-section:first-child {
+  border-top: none;
+  padding-top: var(--space-4);
+}
+
+/* Section Title */
+
+.settings-section__title {
+  font-size: var(--win-font-size-subtitle);
+  font-weight: var(--win-font-weight-semibold);
+  margin: 0 0 var(--space-5) 0;
+  line-height: 1.3;
+}
+
+/* Section Highlight Animation */
+
+.settings-section--highlighted {
+  animation: section-highlight 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes section-highlight {
+  0% {
+    background: transparent;
+    box-shadow: none;
+  }
+  15% {
+    background: var(--win-accent-subtle);
+    box-shadow: inset 0 0 0 2px var(--win-accent-default);
+  }
+  100% {
+    background: transparent;
+    box-shadow: inset 0 0 0 2px transparent;
+  }
+}
+
+/* Section Dividers (for subsections within a section) */
 
 .settings-view__section-divider {
   border-top: 1px solid var(--win-border-default);
   padding-top: var(--space-8);
+  margin-top: var(--space-6);
 }
 
 /* Section Headings */
@@ -30,4 +83,74 @@
   font-size: 13px;
   color: var(--win-text-secondary);
   margin-bottom: var(--space-5);
+}
+
+/* Screen Reader Only */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Reduced Motion Support */
+
+@media (prefers-reduced-motion: reduce) {
+  .settings-section {
+    transition: none;
+  }
+
+  .settings-section--highlighted {
+    animation: none;
+    background: var(--win-accent-subtle);
+  }
+
+  .setting-control--modified::after {
+    animation: none !important;
+  }
+}
+
+/* Modified Settings Indicator */
+
+.setting-control--modified {
+  position: relative;
+}
+
+.setting-control--modified::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  background: var(--win-accent-default);
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--win-background-layer-default);
+  animation: modified-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes modified-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+/* Modified indicator for inline controls (switches, radios) */
+.setting-control--modified.setting-control--inline::after {
+  top: 50%;
+  right: -16px;
+  transform: translateY(-50%);
+  margin-top: 0;
 }

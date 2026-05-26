@@ -13,13 +13,15 @@ interface PerformanceSettingsSectionProps {
   readonly customCacheSize: number
   readonly onCacheTierChange: (tier: CacheTier) => void
   readonly onCustomCacheSizeChange: (size: number) => void
+  readonly modifiedSettings: Set<string>
 }
 
 export function PerformanceSettingsSection({
   cacheTier,
   customCacheSize,
   onCacheTierChange,
-  onCustomCacheSizeChange
+  onCustomCacheSizeChange,
+  modifiedSettings
 }: Readonly<PerformanceSettingsSectionProps>): React.JSX.Element {
   const { t } = useTranslation(['settings', 'common'])
 
@@ -112,80 +114,90 @@ export function PerformanceSettingsSection({
         />
 
         <div className="reader-settings__controls flex flex-col gap-4">
-          <RadioGroup
-            value={cacheTier}
-            onChange={(value) => onCacheTierChange(value as CacheTier)}
-            name="cache-tier"
-            label={t('settings:performance.cacheTierLabel')}
+          <div
+            className={`${
+              modifiedSettings.has('chapterCacheTier') || modifiedSettings.has('customCacheSize')
+                ? 'setting-control--modified'
+                : ''
+            }`}
           >
-            <Radio
-              value="low"
-              label={
-                isLoading
-                  ? t('settings:performance.cacheTierOptions.low.label', {
-                      defaultValue: 'Low',
-                      size: ''
-                    }).replace(/\s*\(\s*\)/, '')
-                  : t('settings:performance.cacheTierOptions.low.label', { size: lowTierMB })
-              }
-              description={t('settings:performance.cacheTierOptions.low.description')}
-            />
-            <Radio
-              value="normal"
-              label={
-                isLoading
-                  ? t('settings:performance.cacheTierOptions.normal.label', {
-                      defaultValue: 'Normal (Recommended)',
-                      size: ''
-                    }).replace(/\s*\(\s*\)\s*-/, ' -')
-                  : t('settings:performance.cacheTierOptions.normal.label', { size: normalTierMB })
-              }
-              description={t('settings:performance.cacheTierOptions.normal.description')}
-            />
-            <Radio
-              value="high"
-              label={
-                isLoading
-                  ? t('settings:performance.cacheTierOptions.high.label', {
-                      defaultValue: 'High',
-                      size: ''
-                    }).replace(/\s*\(\s*\)/, '')
-                  : t('settings:performance.cacheTierOptions.high.label', { size: highTierMB })
-              }
-              description={t('settings:performance.cacheTierOptions.high.description')}
-            />
-            <Radio
-              value="custom"
-              label={t('settings:performance.cacheTierOptions.custom.label')}
-              description={t('settings:performance.cacheTierOptions.custom.description')}
-            />
-          </RadioGroup>
-
-          {cacheTier === 'custom' && (
-            <div className="reader-settings__custom-input">
-              <label htmlFor="custom-cache-size" className="reader-settings__label">
-                {t('settings:performance.customCacheLabel')}
-              </label>
-              <Input
-                id="custom-cache-size"
-                type="text"
-                placeholder={t('settings:performance.customCachePlaceholder')}
-                value={customCacheSize.toString()}
-                onChange={handleCustomCacheSizeChange}
-                disabled={isLoading}
-                error={errorMessage}
-                helperText={suppressWarnings ? undefined : helperMessage}
+            <RadioGroup
+              value={cacheTier}
+              onChange={(value) => onCacheTierChange(value as CacheTier)}
+              name="cache-tier"
+              label={t('settings:performance.cacheTierLabel')}
+            >
+              <Radio
+                value="low"
+                label={
+                  isLoading
+                    ? t('settings:performance.cacheTierOptions.low.label', {
+                        defaultValue: 'Low',
+                        size: ''
+                      }).replace(/\s*\(\s*\)/, '')
+                    : t('settings:performance.cacheTierOptions.low.label', { size: lowTierMB })
+                }
+                description={t('settings:performance.cacheTierOptions.low.description')}
               />
-              {suppressWarnings && (
-                <div className="input-helper-with-action flex items-center justify-between gap-2">
-                  <span className="input-helper flex-1">{helperMessage}</span>
-                  <Button variant="ghost" size="small" onClick={handleResetWarnings}>
-                    {t('settings:performance.resetWarningsButton')}
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
+              <Radio
+                value="normal"
+                label={
+                  isLoading
+                    ? t('settings:performance.cacheTierOptions.normal.label', {
+                        defaultValue: 'Normal (Recommended)',
+                        size: ''
+                      }).replace(/\s*\(\s*\)\s*-/, ' -')
+                    : t('settings:performance.cacheTierOptions.normal.label', {
+                        size: normalTierMB
+                      })
+                }
+                description={t('settings:performance.cacheTierOptions.normal.description')}
+              />
+              <Radio
+                value="high"
+                label={
+                  isLoading
+                    ? t('settings:performance.cacheTierOptions.high.label', {
+                        defaultValue: 'High',
+                        size: ''
+                      }).replace(/\s*\(\s*\)/, '')
+                    : t('settings:performance.cacheTierOptions.high.label', { size: highTierMB })
+                }
+                description={t('settings:performance.cacheTierOptions.high.description')}
+              />
+              <Radio
+                value="custom"
+                label={t('settings:performance.cacheTierOptions.custom.label')}
+                description={t('settings:performance.cacheTierOptions.custom.description')}
+              />
+            </RadioGroup>
+
+            {cacheTier === 'custom' && (
+              <div className="reader-settings__custom-input">
+                <label htmlFor="custom-cache-size" className="reader-settings__label">
+                  {t('settings:performance.customCacheLabel')}
+                </label>
+                <Input
+                  id="custom-cache-size"
+                  type="text"
+                  placeholder={t('settings:performance.customCachePlaceholder')}
+                  value={customCacheSize.toString()}
+                  onChange={handleCustomCacheSizeChange}
+                  disabled={isLoading}
+                  error={errorMessage}
+                  helperText={suppressWarnings ? undefined : helperMessage}
+                />
+                {suppressWarnings && (
+                  <div className="input-helper-with-action flex items-center justify-between gap-2">
+                    <span className="input-helper flex-1">{helperMessage}</span>
+                    <Button variant="ghost" size="small" onClick={handleResetWarnings}>
+                      {t('settings:performance.resetWarningsButton')}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

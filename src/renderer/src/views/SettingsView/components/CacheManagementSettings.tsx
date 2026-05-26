@@ -12,11 +12,13 @@ import { useTranslation } from '@renderer/hooks/useTranslation'
 interface CacheManagementSettingsProps {
   readonly coverCacheLimit: number // in MB, 0 = unlimited
   readonly onCoverCacheLimitChange: (limitMB: number) => void
+  readonly modifiedSettings: Set<string>
 }
 
 export function CacheManagementSettings({
   coverCacheLimit,
-  onCoverCacheLimitChange
+  onCoverCacheLimitChange,
+  modifiedSettings
 }: CacheManagementSettingsProps): JSX.Element {
   const { t } = useTranslation(['settings', 'dialogs', 'common', 'errors'])
   const [cacheStats, setCacheStats] = useState<MangaCacheStatsQuery | null>(null)
@@ -265,17 +267,23 @@ export function CacheManagementSettings({
           {t('settings:cacheManagement.coverCacheDescription')}
         </p>
 
-        <Select
-          value={String(coverCacheLimit)}
-          onChange={handleCoverLimitChange}
-          options={coverLimitOptions}
-          label={t('settings:cacheManagement.coverCacheLimitLabel')}
-          helperText={
-            coverCacheLimit === 0
-              ? t('settings:cacheManagement.coverCacheLimitHelper.unlimited')
-              : t('settings:cacheManagement.coverCacheLimitHelper.limited')
-          }
-        />
+        <div
+          className={`${
+            modifiedSettings.has('maxDiskCacheSize') ? 'setting-control--modified' : ''
+          }`}
+        >
+          <Select
+            value={String(coverCacheLimit)}
+            onChange={handleCoverLimitChange}
+            options={coverLimitOptions}
+            label={t('settings:cacheManagement.coverCacheLimitLabel')}
+            helperText={
+              coverCacheLimit === 0
+                ? t('settings:cacheManagement.coverCacheLimitHelper.unlimited')
+                : t('settings:cacheManagement.coverCacheLimitHelper.limited')
+            }
+          />
+        </div>
 
         <div className="cache-settings__info-box">
           <div className="cache-settings__info-row">

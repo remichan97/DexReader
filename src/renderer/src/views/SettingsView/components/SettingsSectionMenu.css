@@ -1,0 +1,162 @@
+/* Settings Section Menu Component Styles */
+
+.settings-section-menu {
+  position: relative;
+}
+
+/* Trigger Button */
+
+.settings-section-menu__trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--win-bg-subtle);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-sm);
+  font-family: var(--win-font-family);
+  font-size: var(--win-font-size-body);
+  font-weight: var(--win-font-weight-regular);
+  color: var(--win-text-primary);
+  cursor: pointer;
+  transition: var(--transition-all-fast);
+  min-width: 200px;
+}
+
+.settings-section-menu__trigger:hover {
+  background: var(--win-bg-hover);
+  border-color: var(--win-border-hover);
+}
+
+.settings-section-menu__trigger:active {
+  background: var(--win-bg-active);
+}
+
+.settings-section-menu__trigger:focus-visible {
+  outline: 2px solid var(--win-border-focus);
+  outline-offset: 2px;
+}
+
+/* Icon */
+
+.settings-section-menu__icon {
+  margin-left: auto;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--win-text-secondary);
+}
+
+.settings-section-menu__icon--open {
+  transform: rotate(180deg);
+}
+
+/* Dropdown Menu */
+
+.settings-section-menu__dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 220px;
+  background: var(--win-bg-flyout);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-flyout);
+  backdrop-filter: blur(30px);
+  z-index: 1000;
+  animation: dropdown-fade-in 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+@keyframes dropdown-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dropdown Header */
+
+.settings-section-menu__header {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--win-font-size-caption);
+  font-weight: var(--win-font-weight-semibold);
+  color: var(--win-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--win-border-subtle);
+}
+
+/* Menu Items */
+
+.settings-section-menu__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
+  border: none;
+  font-family: var(--win-font-family);
+  font-size: var(--win-font-size-body);
+  font-weight: var(--win-font-weight-regular);
+  color: var(--win-text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: var(--transition-all-fast);
+}
+
+.settings-section-menu__item:hover {
+  background: var(--win-bg-hover);
+}
+
+.settings-section-menu__item:active {
+  background: var(--win-bg-active);
+}
+
+.settings-section-menu__item--focused {
+  background: var(--win-bg-subtle);
+}
+
+.settings-section-menu__item--active {
+  color: var(--win-accent);
+  font-weight: var(--win-font-weight-semibold);
+}
+
+.settings-section-menu__item--active:hover {
+  background: var(--win-accent-subtle);
+}
+
+/* Current Section Indicator */
+
+.settings-section-menu__indicator {
+  font-size: 8px;
+  line-height: 1;
+  color: var(--win-accent);
+}
+
+/* Reduced Motion */
+
+@media (prefers-reduced-motion: reduce) {
+  .settings-section-menu__icon {
+    transition: none;
+  }
+
+  .settings-section-menu__dropdown {
+    animation: none;
+  }
+}
+
+/* High Contrast Mode */
+
+@media (prefers-contrast: high) {
+  .settings-section-menu__trigger {
+    border-width: 2px;
+  }
+
+  .settings-section-menu__dropdown {
+    border-width: 2px;
+  }
+}

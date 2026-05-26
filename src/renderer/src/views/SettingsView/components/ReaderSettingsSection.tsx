@@ -27,6 +27,7 @@ interface ReaderSettingsSectionProps {
   perMangaOverrides: PerMangaOverride[]
   onResetMangaOverride: (mangaId: string) => void
   onClearAllOverrides: () => void
+  modifiedSettings: Set<string>
 }
 
 export function ReaderSettingsSection({
@@ -40,7 +41,8 @@ export function ReaderSettingsSection({
   onDoublePageSettingChange,
   perMangaOverrides,
   onResetMangaOverride,
-  onClearAllOverrides
+  onClearAllOverrides,
+  modifiedSettings
 }: Readonly<ReaderSettingsSectionProps>): React.JSX.Element {
   const { t } = useTranslation(['settings', 'common', 'dialogs'])
 
@@ -65,30 +67,44 @@ export function ReaderSettingsSection({
           <p className="text-body text-secondary">{t('reader.loadingSettings')}</p>
         ) : (
           <div className="reader-settings__controls flex flex-col gap-4">
-            <Switch
-              checked={forceDarkMode}
-              onChange={onForceDarkModeChange}
-              label={t('reader.forceDarkMode.label')}
-              description={t('reader.forceDarkMode.description')}
-            />
-
-            <RadioGroup
-              value={imageQuality}
-              onChange={(value) => onImageQualityChange(value as 'data' | 'data-saver')}
-              name="image-quality"
-              label={t('reader.imageQuality.label')}
+            <div
+              className={`${
+                modifiedSettings.has('forceDarkMode')
+                  ? 'setting-control--modified setting-control--inline'
+                  : ''
+              }`}
             >
-              <Radio
-                value="data"
-                label={t('common:quality.highQuality')}
-                description={t('reader.imageQuality.highQuality.description')}
+              <Switch
+                checked={forceDarkMode}
+                onChange={onForceDarkModeChange}
+                label={t('reader.forceDarkMode.label')}
+                description={t('reader.forceDarkMode.description')}
               />
-              <Radio
-                value="data-saver"
-                label={t('common:quality.dataSaver')}
-                description={t('reader.imageQuality.dataSaver.description')}
-              />
-            </RadioGroup>
+            </div>
+
+            <div
+              className={`${
+                modifiedSettings.has('imageQuality') ? 'setting-control--modified' : ''
+              }`}
+            >
+              <RadioGroup
+                value={imageQuality}
+                onChange={(value) => onImageQualityChange(value as 'data' | 'data-saver')}
+                name="image-quality"
+                label={t('reader.imageQuality.label')}
+              >
+                <Radio
+                  value="data"
+                  label={t('common:quality.highQuality')}
+                  description={t('reader.imageQuality.highQuality.description')}
+                />
+                <Radio
+                  value="data-saver"
+                  label={t('common:quality.dataSaver')}
+                  description={t('reader.imageQuality.dataSaver.description')}
+                />
+              </RadioGroup>
+            </div>
           </div>
         )}
       </div>
@@ -100,7 +116,11 @@ export function ReaderSettingsSection({
         {isLoading ? (
           <p className="text-body text-secondary">{t('reader.loadingSettings')}</p>
         ) : (
-          <div className="reader-settings__controls flex flex-col gap-4">
+          <div
+            className={`reader-settings__controls flex flex-col gap-4 ${
+              modifiedSettings.has('globalReaderSettings') ? 'setting-control--modified' : ''
+            }`}
+          >
             <Select
               value={globalReaderSettings.readingMode}
               onChange={onReadingModeChange}

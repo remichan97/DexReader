@@ -8,11 +8,13 @@ import { rendererLog } from '@renderer/services/logging.service'
 interface LoggingSettingsProps {
   readonly retentionDays: number
   readonly onRetentionDaysChange: (days: number) => void
+  readonly modifiedSettings: Set<string>
 }
 
 export function LoggingSettings({
   retentionDays,
-  onRetentionDaysChange
+  onRetentionDaysChange,
+  modifiedSettings
 }: LoggingSettingsProps): React.JSX.Element {
   const { t } = useTranslation(['settings', 'common', 'errors', 'dialogs'])
   const showToast = useToastStore((state) => state.show)
@@ -122,7 +124,11 @@ export function LoggingSettings({
 
         <div className="flex flex-col gap-4">
           {/* Log Retention Period */}
-          <div className="flex flex-col gap-2">
+          <div
+            className={`flex flex-col gap-2 ${
+              modifiedSettings.has('logRetentionDays') ? 'setting-control--modified' : ''
+            }`}
+          >
             <RadioGroup
               name="log-retention"
               value={retentionDays.toString()}
