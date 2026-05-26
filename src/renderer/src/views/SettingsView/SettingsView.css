@@ -20,7 +20,7 @@
 .settings-section {
   scroll-margin-top: 80px; /* Account for sticky header */
   padding: var(--space-6) 0;
-  border-top: 1px solid var(--win-border-subtle);
+  border-top: 1px solid var(--win-border-default);
   transition:
     background 0.2s ease,
     box-shadow 0.2s ease;
@@ -131,8 +131,9 @@
   height: 8px;
   background: var(--win-accent-default);
   border-radius: 50%;
-  box-shadow: 0 0 0 2px var(--win-background-layer-default);
+  box-shadow: 0 0 0 2px var(--win-bg-card);
   animation: modified-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  z-index: 10;
 }
 
 @keyframes modified-pulse {

@@ -41,9 +41,6 @@ export function LanguageSettings({
   return (
     <div className="py-4 flex flex-col gap-5">
       <div>
-        <h4 className="appearance-settings__section-title mb-3">
-          {t('appearance.languageSection')}
-        </h4>
         <p className="text-secondary appearance-settings__description mb-3">
           {t('language.displayLanguageDescription', {
             defaultValue:

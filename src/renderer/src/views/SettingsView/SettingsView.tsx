@@ -1,5 +1,6 @@
 import type { JSX } from 'react'
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useToastStore, useAppStore } from '@renderer/stores'
 import { useNavigationBlocker } from '@renderer/hooks/useNavigationBlocker'
 import { useUnsavedChanges } from '@renderer/hooks/useUnsavedChanges'
@@ -45,6 +46,9 @@ export function SettingsView(): JSX.Element {
   // Translation
   const { t } = useTranslation(['settings', 'common'])
 
+  // Search params for section navigation
+  const [searchParams, setSearchParams] = useSearchParams()
+
   // Zustand stores
   const showToast = useToastStore((state) => state.show)
 
@@ -60,6 +64,7 @@ export function SettingsView(): JSX.Element {
 
   // Section navigation state
   const [highlightedSection, setHighlightedSection] = useState<string | null>(null)
+  const [isInitialMount, setIsInitialMount] = useState(true)
 
   // Track modified settings for visual indicators
   const [modifiedSettings, setModifiedSettings] = useState<Set<string>>(new Set())
@@ -216,36 +221,33 @@ export function SettingsView(): JSX.Element {
     logRetentionDays
   ])
 
-  // URL hash support for deep linking to sections
+  // Search params support for deep linking to sections
   useEffect(() => {
-    const hash = globalThis.location.hash.slice(1) // Remove '#'
-    if (hash && SECTION_IDS.includes(hash as (typeof SECTION_IDS)[number])) {
+    const section = searchParams.get('section')
+    if (section && SECTION_IDS.includes(section as (typeof SECTION_IDS)[number])) {
       // Delay to ensure DOM is ready
       setTimeout(() => {
-        handleSectionSelect(hash)
+        // Scroll to section without highlighting on initial mount
+        const element = document.getElementById(section)
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
       }, 100)
     }
+    // Mark as no longer initial mount after first render
+    setIsInitialMount(false)
   }, [])
 
-  // Update URL hash when current section changes (from scrolling)
+  // Update search params when current section changes (from scrolling)
   useEffect(() => {
-    if (currentSection) {
-      globalThis.history.replaceState(null, '', `/settings#${currentSection}`)
-    }
-  }, [currentSection])
-
-  // Listen for hash changes (browser back/forward)
-  useEffect(() => {
-    const handleHashChange = (): void => {
-      const hash = globalThis.location.hash.slice(1)
-      if (hash && SECTION_IDS.includes(hash as (typeof SECTION_IDS)[number])) {
-        handleSectionSelect(hash)
+    if (currentSection && !isInitialMount) {
+      const currentSection_param = searchParams.get('section')
+      // Only update if section param is different to avoid unnecessary history updates
+      if (currentSection_param !== currentSection) {
+        setSearchParams({ section: currentSection }, { replace: true })
       }
     }
-
-    globalThis.addEventListener('hashchange', handleHashChange)
-    return () => globalThis.removeEventListener('hashchange', handleHashChange)
-  }, [])
+  }, [currentSection, isInitialMount, searchParams, setSearchParams])
 
   // Load settings on mount
   useEffect(() => {
@@ -838,9 +840,57 @@ Are you absolutely certain you want to proceed with this cache size?`,
         setHighlightedSection(null)
       }, 1500)
 
-      // Update URL hash
-      globalThis.history.replaceState(null, '', `/settings#${sectionId}`)
+      // Update search params
+      setSearchParams({ section: sectionId }, { replace: true })
     }
+  }
+
+  // Helper function to get human-readable label for setting key
+  const getSettingLabel = (key: string): string => {
+    const labels: Record<string, string> = {
+      themeMode: t('settings:appearance.themeLabel', { defaultValue: 'Theme' }),
+      accentColor: t('settings:appearance.accentLabel', { defaultValue: 'Accent Colour' }),
+      startupPage: t('settings:appearance.startupPageLabel', { defaultValue: 'Startup Page' }),
+      displayLanguage: t('settings:appearance.languageLabel', { defaultValue: 'Display Language' }),
+      syncContentLanguage: t('settings:appearance.syncContentLanguage', {
+        defaultValue: 'Sync content language with display language'
+      }),
+      contentLanguages: t('settings:language.contentLanguageLabel', {
+        defaultValue: 'Content Languages'
+      }),
+      downloadConfirmation: t('settings:downloads.confirmationLabel', {
+        defaultValue: 'Download Confirmation'
+      }),
+      defaultQuality: t('settings:downloads.qualityLabel', { defaultValue: 'Default Quality' }),
+      maxConcurrentDownloads: t('settings:downloads.concurrentLabel', {
+        defaultValue: 'Concurrent Downloads'
+      }),
+      maxDiskCacheSize: t('settings:cacheManagement.coverCacheLimitLabel', {
+        defaultValue: 'Cover Cache Limit'
+      }),
+      downloadsPath: t('settings:downloads.locationLabel', { defaultValue: 'Download Location' }),
+      globalReaderSettings: t('settings:reader.settingsLabel', { defaultValue: 'Reader Settings' }),
+      forceDarkMode: t('settings:reader.forceDarkModeLabel', {
+        defaultValue: 'Force Dark Mode on Manga Pages'
+      }),
+      imageQuality: t('settings:reader.imageQualityLabel', { defaultValue: 'Image Quality' }),
+      chapterCacheTier: t('settings:performance.sectionTitle', {
+        defaultValue: 'Chapter Cache Size'
+      }),
+      customCacheSize: t('settings:performance.customCacheLabel', {
+        defaultValue: 'Custom Cache Size'
+      }),
+      autoCheckForUpdates: t('settings:advanced.autoCheckLabel', {
+        defaultValue: 'Automatically check for updates'
+      }),
+      autoDownloadUpdates: t('settings:advanced.autoDownloadLabel', {
+        defaultValue: 'Automatically download updates'
+      }),
+      logRetentionDays: t('settings:logging.retentionLabel', {
+        defaultValue: 'Log Retention Period'
+      })
+    }
+    return labels[key] || key
   }
 
   // Reset all settings to their saved values
@@ -909,6 +959,8 @@ Are you absolutely certain you want to proceed with this cache size?`,
           onSave={handleSaveSettings}
           onReset={handleResetSettings}
           disabled={isInvalidCustomCache}
+          modifiedSettings={modifiedSettings}
+          getSettingLabel={getSettingLabel}
         />
       )}
 

@@ -15,43 +15,46 @@ export function useScrollSpy(
   const [activeSection, setActiveSection] = useState<string>(sectionIds[0] || '')
 
   useEffect(() => {
-    const observers: IntersectionObserver[] = []
     const sectionsInView = new Set<string>()
 
     const observerOptions: IntersectionObserverInit = {
-      threshold: 0.5,
+      threshold: 0,
       rootMargin: '-100px 0px -50% 0px',
       ...options
     }
 
+    // Single observer for all sections
+    const observer = new IntersectionObserver((entries) => {
+      // Update the sectionsInView Set based on all entries
+      entries.forEach((entry) => {
+        const sectionId = entry.target.id
+        if (entry.isIntersecting) {
+          sectionsInView.add(sectionId)
+        } else {
+          sectionsInView.delete(sectionId)
+        }
+      })
+
+      // After processing all entries, update active section
+      if (sectionsInView.size > 0) {
+        // Find the first visible section in the original order
+        const firstVisible = sectionIds.find((id) => sectionsInView.has(id))
+        if (firstVisible) {
+          setActiveSection(firstVisible)
+        }
+      }
+    }, observerOptions)
+
+    // Observe all sections with the single observer
     sectionIds.forEach((sectionId) => {
       const element = document.getElementById(sectionId)
-      if (!element) return
-
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            sectionsInView.add(sectionId)
-          } else {
-            sectionsInView.delete(sectionId)
-          }
-
-          // Update active section to the first visible one in the list
-          if (sectionsInView.size > 0) {
-            const firstVisible = sectionIds.find((id) => sectionsInView.has(id))
-            if (firstVisible) {
-              setActiveSection(firstVisible)
-            }
-          }
-        })
-      }, observerOptions)
-
-      observer.observe(element)
-      observers.push(observer)
+      if (element) {
+        observer.observe(element)
+      }
     })
 
     return () => {
-      observers.forEach((observer) => observer.disconnect())
+      observer.disconnect()
     }
   }, [sectionIds, options])
 

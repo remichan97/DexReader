@@ -56,10 +56,10 @@
   top: calc(100% + 4px);
   left: 0;
   min-width: 220px;
-  background: var(--win-bg-flyout);
+  background: var(--win-bg-card);
   border: 1px solid var(--win-border-default);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-flyout);
+  box-shadow: var(--shadow-lg);
   backdrop-filter: blur(30px);
   z-index: 1000;
   animation: dropdown-fade-in 0.15s cubic-bezier(0.4, 0, 0.2, 1);
@@ -86,7 +86,7 @@
   color: var(--win-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 1px solid var(--win-border-subtle);
+  border-bottom: 1px solid var(--win-border-default);
 }
 
 /* Menu Items */

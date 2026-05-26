@@ -102,7 +102,6 @@ export function PerformanceSettingsSection({
   return (
     <div className="reader-settings__container flex flex-col gap-5">
       <div>
-        <h4 className="reader-settings__heading">{t('settings:performance.sectionTitle')}</h4>
         <p className="reader-settings__description">{t('settings:performance.description')}</p>
 
         <InfoBar
