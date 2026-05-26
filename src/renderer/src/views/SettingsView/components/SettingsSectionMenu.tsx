@@ -89,7 +89,9 @@ export function SettingsSectionMenu({
         aria-haspopup="menu"
         aria-label={t('settings:jumpTo', { defaultValue: 'Jump to section' })}
       >
-        <span>{currentSectionLabel || t('settings:jumpTo', { defaultValue: 'Jump to...' })}</span>
+        <span className={currentSectionLabel ? 'settings-section-menu__trigger-label--active' : ''}>
+          {currentSectionLabel || t('settings:jumpTo', { defaultValue: 'Jump to...' })}
+        </span>
         <ChevronDown16Regular
           className={`settings-section-menu__icon ${isOpen ? 'settings-section-menu__icon--open' : ''}`}
         />

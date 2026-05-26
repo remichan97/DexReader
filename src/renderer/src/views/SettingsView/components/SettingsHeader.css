@@ -18,6 +18,12 @@
   font-weight: var(--win-font-weight-semibold);
   margin: 0;
   line-height: 1.2;
+  flex-shrink: 0;
+}
+
+/* Section menu stretches to fill remaining header space */
+.settings-header .settings-section-menu {
+  flex: 1;
 }
 
 /* Screen reader only */

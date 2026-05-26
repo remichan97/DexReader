@@ -45,7 +45,7 @@
     "configureDateFallbackTitle": "Unable to Open system settings",
     "languageSection": "Language",
     "languageLabel": "Display language",
-    "languageHelper": "Choose the language for DexReader's interface",
+    "languageHelper": "Choose the language for DexReader's interface. Changing this will affect menus, buttons, and all UI text. A restart will be required to apply the new language.",
     "languageOptions": {
       "en-GB": "English (UK)",
       "en-US": "English (US)",
@@ -60,7 +60,7 @@
     "maxLanguagesReached": "Maximum 5 languages allowed"
   },
   "language": {
-    "displayLanguageDescription": "Choose the language for the application interface. Changing this will affect menus, buttons, and all UI text.",
+    "languageSectionDescription": "Configure DexReader display language, and content language preferences for filtering manga chapters.",
     "contentLanguageSection": "Content Language Preferences",
     "contentLanguageDescription": "Control which languages of manga content you see when browsing and searching. This filters manga by their available translations."
   },

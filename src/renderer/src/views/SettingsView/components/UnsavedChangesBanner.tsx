@@ -11,6 +11,8 @@ interface UnsavedChangesBannerProps {
   readonly disabled?: boolean
   readonly modifiedSettings: Set<string>
   readonly getSettingLabel: (key: string) => string
+  readonly getSettingSection: (key: string) => string
+  readonly onScrollToSection: (sectionId: string) => void
 }
 
 export function UnsavedChangesBanner({
@@ -18,7 +20,9 @@ export function UnsavedChangesBanner({
   onReset,
   disabled = false,
   modifiedSettings,
-  getSettingLabel
+  getSettingLabel,
+  getSettingSection,
+  onScrollToSection
 }: UnsavedChangesBannerProps): JSX.Element {
   const { t } = useTranslation(['settings', 'common'])
   const [isSaving, setIsSaving] = useState(false)
@@ -90,7 +94,15 @@ export function UnsavedChangesBanner({
           <ul className="unsaved-changes-banner__list">
             {modifiedList.map((key) => (
               <li key={key} className="unsaved-changes-banner__list-item">
-                {getSettingLabel(key)}
+                <button
+                  className="unsaved-changes-banner__list-btn"
+                  onClick={() => {
+                    onScrollToSection(getSettingSection(key))
+                    setIsExpanded(false)
+                  }}
+                >
+                  {getSettingLabel(key)}
+                </button>
               </li>
             ))}
           </ul>

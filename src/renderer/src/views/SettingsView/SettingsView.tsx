@@ -42,6 +42,29 @@ const SECTION_IDS = [
   'advanced'
 ] as const
 
+// Maps each modified-setting key to its section ID for scroll-to navigation
+const SETTING_TO_SECTION: Record<string, string> = {
+  themeMode: 'appearance',
+  accentColor: 'appearance',
+  startupPage: 'appearance',
+  displayLanguage: 'language',
+  syncContentLanguage: 'language',
+  contentLanguages: 'language',
+  globalReaderSettings: 'reader',
+  forceDarkMode: 'reader',
+  imageQuality: 'reader',
+  downloadConfirmation: 'downloads',
+  defaultQuality: 'downloads',
+  maxConcurrentDownloads: 'downloads',
+  downloadsPath: 'downloads',
+  chapterCacheTier: 'performance',
+  customCacheSize: 'performance',
+  maxDiskCacheSize: 'performance',
+  autoCheckForUpdates: 'advanced',
+  autoDownloadUpdates: 'advanced',
+  logRetentionDays: 'advanced'
+}
+
 export function SettingsView(): JSX.Element {
   // Translation
   const { t } = useTranslation(['settings', 'common'])
@@ -893,6 +916,8 @@ Are you absolutely certain you want to proceed with this cache size?`,
     return labels[key] || key
   }
 
+  const getSettingSection = (key: string): string => SETTING_TO_SECTION[key] ?? 'appearance'
+
   // Reset all settings to their saved values
   const handleResetSettings = (): void => {
     if (!originalSettings) return
@@ -961,6 +986,8 @@ Are you absolutely certain you want to proceed with this cache size?`,
           disabled={isInvalidCustomCache}
           modifiedSettings={modifiedSettings}
           getSettingLabel={getSettingLabel}
+          getSettingSection={getSettingSection}
+          onScrollToSection={handleSectionSelect}
         />
       )}
 

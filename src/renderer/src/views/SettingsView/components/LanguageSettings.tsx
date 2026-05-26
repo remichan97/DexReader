@@ -42,7 +42,7 @@ export function LanguageSettings({
     <div className="py-4 flex flex-col gap-5">
       <div>
         <p className="text-secondary appearance-settings__description mb-3">
-          {t('language.displayLanguageDescription', {
+          {t('language.languageSectionDescription', {
             defaultValue:
               'Choose the language for the application interface. Changing this will affect menus, buttons, and all UI text.'
           })}
