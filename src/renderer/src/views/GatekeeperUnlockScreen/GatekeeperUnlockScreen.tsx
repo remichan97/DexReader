@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent } from 'react'
-import { LockClosed24Regular, Eye24Regular, EyeOff24Regular } from '@fluentui/react-icons'
+import { LockClosed48Regular } from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
 import { Input } from '@renderer/components/Input'
 import { useTranslation } from '@renderer/hooks/useTranslation'
@@ -30,9 +30,11 @@ export function GatekeeperUnlockScreen({
 }: Readonly<GatekeeperUnlockScreenProps>): React.JSX.Element {
   const { t } = useTranslation(['gatekeeper', 'common'])
   const [passphrase, setPassphrase] = useState('')
-  const [showPassphrase, setShowPassphrase] = useState(false)
   const [error, setError] = useState('')
   const [isUnlocking, setIsUnlocking] = useState(false)
+  const [failedAttempts, setFailedAttempts] = useState(0)
+  const [nextAttemptTime, setNextAttemptTime] = useState<number | null>(null)
+  const [remainingDelay, setRemainingDelay] = useState(0)
 
   // Auto-focus input on mount
   useEffect(() => {
@@ -42,9 +44,47 @@ export function GatekeeperUnlockScreen({
     }
   }, [])
 
+  // Update window title when locked
+  useEffect(() => {
+    const originalTitle = document.title
+    document.title = t('gatekeeper:unlock.title', { defaultValue: 'DexReader is Locked' })
+    return () => {
+      document.title = originalTitle
+    }
+  }, [t])
+
+  // Countdown timer for delay
+  useEffect(() => {
+    if (nextAttemptTime === null) return
+
+    const interval = setInterval(() => {
+      const now = Date.now()
+      const remaining = Math.max(0, Math.ceil((nextAttemptTime - now) / 1000))
+      setRemainingDelay(remaining)
+
+      if (remaining === 0) {
+        setNextAttemptTime(null)
+        // Re-focus input after delay
+        setTimeout(() => {
+          const input = document.getElementById('gatekeeper-passphrase-input')
+          if (input) {
+            input.focus()
+          }
+        }, 100)
+      }
+    }, 100)
+
+    return () => clearInterval(interval)
+  }, [nextAttemptTime])
+
   const handleUnlock = async (): Promise<void> => {
     if (!passphrase.trim()) {
       setError(t('gatekeeper:unlock.errors.empty'))
+      return
+    }
+
+    // Check if still in delay period
+    if (nextAttemptTime !== null) {
       return
     }
 
@@ -65,21 +105,29 @@ export function GatekeeperUnlockScreen({
       if (result.data) {
         // Correct passphrase - unlock successful!
         rendererLog.info('[GatekeeperUnlock] Unlock successful')
+        setFailedAttempts(0)
+        setNextAttemptTime(null)
         onUnlock()
       } else {
-        // Incorrect passphrase
-        rendererLog.warn('[GatekeeperUnlock] Incorrect passphrase attempt')
-        setError(t('gatekeeper:unlock.errors.incorrect'))
+        // Incorrect passphrase - add delay
+        const newAttempts = failedAttempts + 1
+        setFailedAttempts(newAttempts)
+        rendererLog.warn(`[GatekeeperUnlock] Incorrect passphrase attempt #${newAttempts}`)
+
+        // Calculate delay: 2s, 4s, 8s, 16s, 30s (max)
+        const delaySeconds = Math.min(Math.pow(2, newAttempts), 30)
+        const attemptTime = Date.now() + delaySeconds * 1000
+        setNextAttemptTime(attemptTime)
+        setRemainingDelay(delaySeconds)
+
+        setError(
+          t('gatekeeper:unlock.errors.incorrectWithDelay', {
+            defaultValue: 'Incorrect passphrase. Wait {{seconds}} seconds before trying again.',
+            seconds: delaySeconds
+          })
+        )
         setPassphrase('')
         setIsUnlocking(false)
-
-        // Re-focus input after error
-        setTimeout(() => {
-          const input = document.getElementById('gatekeeper-passphrase-input')
-          if (input) {
-            input.focus()
-          }
-        }, 100)
       }
     } catch (err) {
       rendererLog.error('[GatekeeperUnlock] Unexpected error:', err)
@@ -90,9 +138,23 @@ export function GatekeeperUnlockScreen({
 
   const handleSubmit = (e: FormEvent): void => {
     e.preventDefault()
-    if (!isUnlocking && passphrase.trim()) {
+    if (!isUnlocking && passphrase.trim() && nextAttemptTime === null) {
       handleUnlock()
     }
+  }
+
+  // Compute button text
+  const getButtonText = (): string => {
+    if (isUnlocking) {
+      return t('gatekeeper:unlock.unlocking', { defaultValue: 'Unlocking...' })
+    }
+    if (nextAttemptTime !== null) {
+      return t('gatekeeper:unlock.waitButton', {
+        defaultValue: 'Wait {{seconds}}s...',
+        seconds: remainingDelay
+      })
+    }
+    return t('gatekeeper:unlock.button', { defaultValue: 'Unlock' })
   }
 
   const handleOpenRecoveryDocs = (): void => {
@@ -106,7 +168,7 @@ export function GatekeeperUnlockScreen({
     <div className="gatekeeper-unlock-screen">
       <div className="gatekeeper-unlock-container">
         <div className="gatekeeper-unlock-icon">
-          <LockClosed24Regular />
+          <LockClosed48Regular />
         </div>
 
         <h1 className="gatekeeper-unlock-title">
@@ -120,57 +182,43 @@ export function GatekeeperUnlockScreen({
         </p>
 
         <form onSubmit={handleSubmit} className="gatekeeper-unlock-form">
-          <div className="gatekeeper-unlock-input-group">
-            <Input
-              id="gatekeeper-passphrase-input"
-              type={showPassphrase ? 'text' : 'password'}
-              value={passphrase}
-              onChange={setPassphrase}
-              placeholder={t('gatekeeper:unlock.placeholder', { defaultValue: 'Passphrase' })}
-              disabled={isUnlocking}
-              error={error}
-              autoComplete="off"
-              className="gatekeeper-unlock-input"
-            />
-            <Button
-              variant="ghost"
-              onClick={() => setShowPassphrase(!showPassphrase)}
-              disabled={isUnlocking}
-              aria-label={
-                showPassphrase
-                  ? t('gatekeeper:unlock.hidePassphrase', { defaultValue: 'Hide passphrase' })
-                  : t('gatekeeper:unlock.showPassphrase', { defaultValue: 'Show passphrase' })
-              }
-              className="gatekeeper-unlock-toggle"
-            >
-              {showPassphrase ? <EyeOff24Regular /> : <Eye24Regular />}
-            </Button>
-          </div>
+          <Input
+            id="gatekeeper-passphrase-input"
+            type="password"
+            value={passphrase}
+            onChange={setPassphrase}
+            placeholder={t('gatekeeper:unlock.placeholder', { defaultValue: 'Passphrase' })}
+            disabled={isUnlocking || nextAttemptTime !== null}
+            error={remainingDelay > 0 ? `${error} (${remainingDelay}s)` : error}
+            autoComplete="off"
+            className="gatekeeper-unlock-input"
+          />
 
           <Button
             type="submit"
             variant="primary"
             onClick={handleUnlock}
-            disabled={!passphrase.trim() || isUnlocking}
+            disabled={!passphrase.trim() || isUnlocking || nextAttemptTime !== null}
             loading={isUnlocking}
             className="gatekeeper-unlock-button"
           >
-            {isUnlocking
-              ? t('gatekeeper:unlock.unlocking', { defaultValue: 'Unlocking...' })
-              : t('gatekeeper:unlock.button', { defaultValue: 'Unlock' })}
+            {getButtonText()}
           </Button>
         </form>
 
-        <p className="gatekeeper-unlock-help">
-          {t('gatekeeper:unlock.help.prefix', { defaultValue: 'Forgot your passphrase?' })}{' '}
-          <button
-            type="button"
-            className="gatekeeper-unlock-help-link"
-            onClick={handleOpenRecoveryDocs}
-          >
-            {t('gatekeeper:unlock.help.link', { defaultValue: 'See recovery steps' })}
-          </button>
-        </p>
+        {/* Only show recovery help after 3 failed attempts */}
+        {failedAttempts >= 3 && (
+          <p className="gatekeeper-unlock-help">
+            {t('gatekeeper:unlock.help.prefix', { defaultValue: 'Forgot your passphrase?' })}{' '}
+            <button
+              type="button"
+              className="gatekeeper-unlock-help-link"
+              onClick={handleOpenRecoveryDocs}
+            >
+              {t('gatekeeper:unlock.help.link', { defaultValue: 'See recovery steps' })}
+            </button>
+          </p>
+        )}
       </div>
     </div>
   )

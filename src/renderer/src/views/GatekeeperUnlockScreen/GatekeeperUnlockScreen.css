@@ -12,8 +12,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(12px);
+  background: var(--win-bg-default);
+  backdrop-filter: blur(8px);
   animation: gatekeeper-fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -26,9 +26,9 @@
   }
 }
 
-/* Dark theme - darker overlay */
+/* Dark theme uses default background */
 [data-theme='dark'] .gatekeeper-unlock-screen {
-  background: rgba(0, 0, 0, 0.7);
+  /* Uses var(--win-bg-default) from root */
 }
 
 /* Unlock Container (Card) */
@@ -67,7 +67,6 @@
   height: 64px;
   border-radius: var(--radius-full);
   background: var(--win-accent-default);
-  color: var(--win-text-on-accent);
 }
 
 .gatekeeper-unlock-icon svg {
@@ -100,26 +99,9 @@
   width: 100%;
 }
 
-/* Input Group (Input + Toggle Button) */
-.gatekeeper-unlock-input-group {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
+/* Input */
 .gatekeeper-unlock-input {
-  flex: 1;
-}
-
-.gatekeeper-unlock-toggle {
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100%;
 }
 
 /* Unlock Button */
@@ -127,13 +109,25 @@
   width: 100%;
 }
 
-/* Help Text */
+/* Help Text (appears after 3 failed attempts) */
 .gatekeeper-unlock-help {
   margin: var(--space-2) 0 0 0;
   font-size: var(--font-size-sm);
   color: var(--win-text-secondary);
   text-align: center;
   line-height: 1.5;
+  animation: gatekeeper-help-fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes gatekeeper-help-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .gatekeeper-unlock-help-link {

@@ -8,7 +8,7 @@ import { useAccentColor } from './hooks/useAccentColor'
 import { useIncognitoListener } from './hooks/useIncognitoListener'
 import { useConnectivityListener } from './hooks/useConnectivityListener'
 import { ToastContainer } from './components/Toast'
-import { useToastStore, useProgressStore, useLibraryStore } from './stores'
+import { useToastStore, useProgressStore, useLibraryStore, useAppStore } from './stores'
 import { useConnectivityStore } from './stores/connectivityStore'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { ProgressRing } from './components/ProgressRing'
@@ -44,10 +44,40 @@ function AppContent(): React.JSX.Element {
   const [startupRoute, setStartupRoute] = useState<string | null>(null)
   const [showUpdateBanner, setShowUpdateBanner] = useState(false)
   const [updateVersion, setUpdateVersion] = useState<string>('')
+  const setSystemTheme = useAppStore((state) => state.setSystemTheme)
+  const setThemeMode = useAppStore((state) => state.setThemeMode)
+  const theme = useAppStore((state) => state.theme)
 
   // Gatekeeper state
   const [isLocked, setIsLocked] = useState(false)
   const [isCheckingLock, setIsCheckingLock] = useState(true)
+
+  // Load theme preference FIRST (before anything else)
+  useEffect(() => {
+    async function loadThemeEarly(): Promise<void> {
+      try {
+        // Load theme from settings
+        const settingsResult = await globalThis.settings.load()
+        if (settingsResult.success && settingsResult.data?.appearance?.theme) {
+          setThemeMode(settingsResult.data.appearance.theme)
+        }
+
+        // Get system theme
+        const themeResult = await globalThis.api.getTheme()
+        if (themeResult.success && themeResult.data) {
+          setSystemTheme(themeResult.data as 'light' | 'dark')
+        }
+      } catch (error) {
+        rendererLog.error('[App] Failed to load theme early:', error)
+      }
+    }
+    void loadThemeEarly()
+  }, [setThemeMode, setSystemTheme])
+
+  // Apply theme to document
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+  }, [theme])
 
   // Check if Gatekeeper is enabled on mount
   useEffect(() => {

@@ -2,7 +2,6 @@ import { useState, FormEvent } from 'react'
 import { Modal } from '@renderer/components/Modal'
 import { Input } from '@renderer/components/Input'
 import { Button } from '@renderer/components/Button'
-import { Eye24Regular, EyeOff24Regular } from '@fluentui/react-icons'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import { useToastStore } from '@renderer/stores'
 import { rendererLog } from '@renderer/services/logging.service'
@@ -32,8 +31,6 @@ export function GatekeeperSetupModal({
 
   const [passphrase, setPassphrase] = useState('')
   const [confirmPassphrase, setConfirmPassphrase] = useState('')
-  const [showPassphrase, setShowPassphrase] = useState(false)
-  const [showConfirm, setShowConfirm] = useState(false)
   const [error, setError] = useState('')
   const [isCreating, setIsCreating] = useState(false)
 
@@ -41,8 +38,6 @@ export function GatekeeperSetupModal({
     if (isCreating) return
     setPassphrase('')
     setConfirmPassphrase('')
-    setShowPassphrase(false)
-    setShowConfirm(false)
     setError('')
     onClose()
   }
@@ -137,58 +132,34 @@ export function GatekeeperSetupModal({
         </p>
 
         {/* Passphrase Input */}
-        <div className="flex gap-2 items-start">
-          <Input
-            id="gatekeeper-setup-passphrase"
-            type={showPassphrase ? 'text' : 'password'}
-            label={t('gatekeeper:settings.setup.passphraseLabel', { defaultValue: 'Passphrase' })}
-            value={passphrase}
-            onChange={setPassphrase}
-            placeholder={t('gatekeeper:settings.setup.passphrasePlaceholder', {
-              defaultValue: 'Enter passphrase (4-128 characters)'
-            })}
-            disabled={isCreating}
-            autoComplete="off"
-            className="flex-1"
-          />
-          <Button
-            variant="ghost"
-            onClick={() => setShowPassphrase(!showPassphrase)}
-            disabled={isCreating}
-            aria-label={showPassphrase ? 'Hide passphrase' : 'Show passphrase'}
-            className="mt-[28px]"
-          >
-            {showPassphrase ? <EyeOff24Regular /> : <Eye24Regular />}
-          </Button>
-        </div>
+        <Input
+          id="gatekeeper-setup-passphrase"
+          type="password"
+          label={t('gatekeeper:settings.setup.passphraseLabel', { defaultValue: 'Passphrase' })}
+          value={passphrase}
+          onChange={setPassphrase}
+          placeholder={t('gatekeeper:settings.setup.passphrasePlaceholder', {
+            defaultValue: 'Enter passphrase (4-128 characters)'
+          })}
+          disabled={isCreating}
+          autoComplete="off"
+        />
 
         {/* Confirm Passphrase Input */}
-        <div className="flex gap-2 items-start">
-          <Input
-            id="gatekeeper-setup-confirm"
-            type={showConfirm ? 'text' : 'password'}
-            label={t('gatekeeper:settings.setup.confirmLabel', {
-              defaultValue: 'Confirm Passphrase'
-            })}
-            value={confirmPassphrase}
-            onChange={setConfirmPassphrase}
-            placeholder={t('gatekeeper:settings.setup.confirmPlaceholder', {
-              defaultValue: 'Re-enter passphrase'
-            })}
-            disabled={isCreating}
-            autoComplete="off"
-            className="flex-1"
-          />
-          <Button
-            variant="ghost"
-            onClick={() => setShowConfirm(!showConfirm)}
-            disabled={isCreating}
-            aria-label={showConfirm ? 'Hide confirm' : 'Show confirm'}
-            className="mt-[28px]"
-          >
-            {showConfirm ? <EyeOff24Regular /> : <Eye24Regular />}
-          </Button>
-        </div>
+        <Input
+          id="gatekeeper-setup-confirm"
+          type="password"
+          label={t('gatekeeper:settings.setup.confirmLabel', {
+            defaultValue: 'Confirm Passphrase'
+          })}
+          value={confirmPassphrase}
+          onChange={setConfirmPassphrase}
+          placeholder={t('gatekeeper:settings.setup.confirmPlaceholder', {
+            defaultValue: 'Re-enter passphrase'
+          })}
+          disabled={isCreating}
+          autoComplete="off"
+        />
 
         {/* Error Display */}
         {error && (

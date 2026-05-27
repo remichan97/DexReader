@@ -419,7 +419,7 @@ const gatekeeper = {
   enable: (passphrase: string) => ipcRenderer.invoke('gatekeeper:enable', passphrase),
   verify: (passphrase: string) => ipcRenderer.invoke('gatekeeper:verify', passphrase),
   disable: (passphrase: string) => ipcRenderer.invoke('gatekeeper:disable', passphrase),
-  updatePassphrase: (oldPassphrase: string, newPassphrase: string) =>
+  changePassphrase: (oldPassphrase: string, newPassphrase: string) =>
     ipcRenderer.invoke('gatekeeper:update', oldPassphrase, newPassphrase),
   reset: () => ipcRenderer.invoke('gatekeeper:reset')
 }

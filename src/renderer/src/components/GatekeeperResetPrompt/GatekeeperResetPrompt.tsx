@@ -2,7 +2,6 @@ import { useState, FormEvent } from 'react'
 import { Modal } from '@renderer/components/Modal'
 import { Input } from '@renderer/components/Input'
 import { Button } from '@renderer/components/Button'
-import { Eye24Regular, EyeOff24Regular } from '@fluentui/react-icons'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import { useToastStore } from '@renderer/stores'
 import { rendererLog } from '@renderer/services/logging.service'
@@ -30,14 +29,12 @@ export function GatekeeperResetPrompt({
   const showToast = useToastStore((state) => state.show)
 
   const [passphrase, setPassphrase] = useState('')
-  const [showPassphrase, setShowPassphrase] = useState(false)
   const [error, setError] = useState('')
   const [isResetting, setIsResetting] = useState(false)
 
   const handleClose = (): void => {
     if (isResetting) return
     setPassphrase('')
-    setShowPassphrase(false)
     setError('')
     onClose()
   }
@@ -133,30 +130,18 @@ export function GatekeeperResetPrompt({
         </div>
 
         {/* Passphrase Input */}
-        <div className="flex gap-2 items-start">
-          <Input
-            id="gatekeeper-reset-passphrase"
-            type={showPassphrase ? 'text' : 'password'}
-            label={t('gatekeeper:settings.reset.passphraseLabel', { defaultValue: 'Passphrase' })}
-            value={passphrase}
-            onChange={setPassphrase}
-            placeholder={t('gatekeeper:settings.reset.passphrasePlaceholder', {
-              defaultValue: 'Enter your passphrase'
-            })}
-            disabled={isResetting}
-            autoComplete="off"
-            className="flex-1"
-          />
-          <Button
-            variant="ghost"
-            onClick={() => setShowPassphrase(!showPassphrase)}
-            disabled={isResetting}
-            aria-label={showPassphrase ? 'Hide passphrase' : 'Show passphrase'}
-            className="mt-[28px]"
-          >
-            {showPassphrase ? <EyeOff24Regular /> : <Eye24Regular />}
-          </Button>
-        </div>
+        <Input
+          id="gatekeeper-reset-passphrase"
+          type="password"
+          label={t('gatekeeper:settings.reset.passphraseLabel', { defaultValue: 'Passphrase' })}
+          value={passphrase}
+          onChange={setPassphrase}
+          placeholder={t('gatekeeper:settings.reset.passphrasePlaceholder', {
+            defaultValue: 'Enter your passphrase'
+          })}
+          disabled={isResetting}
+          autoComplete="off"
+        />
 
         {/* Error Display */}
         {error && (

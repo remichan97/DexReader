@@ -2,7 +2,6 @@ import { useState, FormEvent } from 'react'
 import { Modal } from '@renderer/components/Modal'
 import { Input } from '@renderer/components/Input'
 import { Button } from '@renderer/components/Button'
-import { Eye24Regular, EyeOff24Regular } from '@fluentui/react-icons'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import { useToastStore } from '@renderer/stores'
 import { rendererLog } from '@renderer/services/logging.service'
@@ -33,9 +32,6 @@ export function GatekeeperChangeModal({
   const [currentPassphrase, setCurrentPassphrase] = useState('')
   const [newPassphrase, setNewPassphrase] = useState('')
   const [confirmPassphrase, setConfirmPassphrase] = useState('')
-  const [showCurrent, setShowCurrent] = useState(false)
-  const [showNew, setShowNew] = useState(false)
-  const [showConfirm, setShowConfirm] = useState(false)
   const [error, setError] = useState('')
   const [isChanging, setIsChanging] = useState(false)
 
@@ -44,9 +40,6 @@ export function GatekeeperChangeModal({
     setCurrentPassphrase('')
     setNewPassphrase('')
     setConfirmPassphrase('')
-    setShowCurrent(false)
-    setShowNew(false)
-    setShowConfirm(false)
     setError('')
     onClose()
   }
@@ -150,86 +143,50 @@ export function GatekeeperChangeModal({
         </p>
 
         {/* Current Passphrase */}
-        <div className="flex gap-2 items-start">
-          <Input
-            id="gatekeeper-change-current"
-            type={showCurrent ? 'text' : 'password'}
-            label={t('gatekeeper:settings.change.currentLabel', {
-              defaultValue: 'Current Passphrase'
-            })}
-            value={currentPassphrase}
-            onChange={setCurrentPassphrase}
-            placeholder={t('gatekeeper:settings.change.currentPlaceholder', {
-              defaultValue: 'Enter current passphrase'
-            })}
-            disabled={isChanging}
-            autoComplete="off"
-            className="flex-1"
-          />
-          <Button
-            variant="ghost"
-            onClick={() => setShowCurrent(!showCurrent)}
-            disabled={isChanging}
-            aria-label={showCurrent ? 'Hide current' : 'Show current'}
-            className="mt-[28px]"
-          >
-            {showCurrent ? <EyeOff24Regular /> : <Eye24Regular />}
-          </Button>
-        </div>
+        <Input
+          id="gatekeeper-change-current"
+          type="password"
+          label={t('gatekeeper:settings.change.currentLabel', {
+            defaultValue: 'Current Passphrase'
+          })}
+          value={currentPassphrase}
+          onChange={setCurrentPassphrase}
+          placeholder={t('gatekeeper:settings.change.currentPlaceholder', {
+            defaultValue: 'Enter current passphrase'
+          })}
+          disabled={isChanging}
+          autoComplete="off"
+        />
 
         {/* New Passphrase */}
-        <div className="flex gap-2 items-start">
-          <Input
-            id="gatekeeper-change-new"
-            type={showNew ? 'text' : 'password'}
-            label={t('gatekeeper:settings.change.newLabel', { defaultValue: 'New Passphrase' })}
-            value={newPassphrase}
-            onChange={setNewPassphrase}
-            placeholder={t('gatekeeper:settings.change.newPlaceholder', {
-              defaultValue: 'Enter new passphrase (4-128 characters)'
-            })}
-            disabled={isChanging}
-            autoComplete="off"
-            className="flex-1"
-          />
-          <Button
-            variant="ghost"
-            onClick={() => setShowNew(!showNew)}
-            disabled={isChanging}
-            aria-label={showNew ? 'Hide new' : 'Show new'}
-            className="mt-[28px]"
-          >
-            {showNew ? <EyeOff24Regular /> : <Eye24Regular />}
-          </Button>
-        </div>
+        <Input
+          id="gatekeeper-change-new"
+          type="password"
+          label={t('gatekeeper:settings.change.newLabel', { defaultValue: 'New Passphrase' })}
+          value={newPassphrase}
+          onChange={setNewPassphrase}
+          placeholder={t('gatekeeper:settings.change.newPlaceholder', {
+            defaultValue: 'Enter new passphrase (4-128 characters)'
+          })}
+          disabled={isChanging}
+          autoComplete="off"
+        />
 
         {/* Confirm New Passphrase */}
-        <div className="flex gap-2 items-start">
-          <Input
-            id="gatekeeper-change-confirm"
-            type={showConfirm ? 'text' : 'password'}
-            label={t('gatekeeper:settings.change.confirmLabel', {
-              defaultValue: 'Confirm New Passphrase'
-            })}
-            value={confirmPassphrase}
-            onChange={setConfirmPassphrase}
-            placeholder={t('gatekeeper:settings.change.confirmPlaceholder', {
-              defaultValue: 'Re-enter new passphrase'
-            })}
-            disabled={isChanging}
-            autoComplete="off"
-            className="flex-1"
-          />
-          <Button
-            variant="ghost"
-            onClick={() => setShowConfirm(!showConfirm)}
-            disabled={isChanging}
-            aria-label={showConfirm ? 'Hide confirm' : 'Show confirm'}
-            className="mt-[28px]"
-          >
-            {showConfirm ? <EyeOff24Regular /> : <Eye24Regular />}
-          </Button>
-        </div>
+        <Input
+          id="gatekeeper-change-confirm"
+          type="password"
+          label={t('gatekeeper:settings.change.confirmLabel', {
+            defaultValue: 'Confirm New Passphrase'
+          })}
+          value={confirmPassphrase}
+          onChange={setConfirmPassphrase}
+          placeholder={t('gatekeeper:settings.change.confirmPlaceholder', {
+            defaultValue: 'Re-enter new passphrase'
+          })}
+          disabled={isChanging}
+          autoComplete="off"
+        />
 
         {/* Error Display */}
         {error && (
