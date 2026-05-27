@@ -14,9 +14,13 @@ import { PerformanceSettingsSection } from './components/PerformanceSettingsSect
 import { DownloadsSettings } from './components/DownloadsSettings'
 import { StorageManagementSettings } from './components/StorageManagementSettings'
 import { CacheManagementSettings } from './components/CacheManagementSettings'
+import { SecuritySettings } from './components/SecuritySettings'
 import { AdvancedSettings } from './components/AdvancedSettings'
 import { LoggingSettings } from './components/LoggingSettings'
 import { DangerZoneSettings } from '../../components/SettingsView/DangerZoneSettings'
+import { GatekeeperSetupModal } from '@renderer/components/GatekeeperSetupModal'
+import { GatekeeperChangeModal } from '@renderer/components/GatekeeperChangeModal'
+import { GatekeeperResetPrompt } from '@renderer/components/GatekeeperResetPrompt'
 import { UnsavedChangesBanner } from './components/UnsavedChangesBanner'
 import { SettingsHeader } from './components/SettingsHeader'
 import type { SettingsSection } from './components/SettingsHeader'
@@ -39,6 +43,7 @@ const SECTION_IDS = [
   'downloads',
   'performance',
   'storage',
+  'security',
   'advanced'
 ] as const
 
@@ -91,6 +96,11 @@ export function SettingsView(): JSX.Element {
 
   // Track modified settings for visual indicators
   const [modifiedSettings, setModifiedSettings] = useState<Set<string>>(new Set())
+
+  // Gatekeeper modal states
+  const [isSetupModalOpen, setIsSetupModalOpen] = useState(false)
+  const [isChangeModalOpen, setIsChangeModalOpen] = useState(false)
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false)
 
   // Build settings sections array for navigation
   const settingsSections: SettingsSection[] = SECTION_IDS.map((id) => ({
@@ -642,6 +652,17 @@ export function SettingsView(): JSX.Element {
     markSettingModified('logRetentionDays')
   }
 
+  // Gatekeeper modal handlers
+  const handleGatekeeperSuccess = (): void => {
+    // Refresh the SecuritySettings component status
+    const refreshFn = (globalThis as Record<string, unknown>).__refreshGatekeeperStatus as
+      | (() => void)
+      | undefined
+    if (typeof refreshFn === 'function') {
+      refreshFn()
+    }
+  }
+
   // Reset individual manga override
   const handleResetMangaOverride = async (mangaId: string): Promise<void> => {
     try {
@@ -1124,6 +1145,21 @@ Are you absolutely certain you want to proceed with this cache size?`,
           <StorageManagementSettings />
         </section>
 
+        {/* Security Settings */}
+        <section
+          id="security"
+          className={`settings-section ${highlightedSection === 'security' ? 'settings-section--highlighted' : ''}`}
+        >
+          <h2 className="settings-section__title">
+            {t('settings:tabs.security', { defaultValue: 'Security' })}
+          </h2>
+          <SecuritySettings
+            onOpenSetupModal={() => setIsSetupModalOpen(true)}
+            onOpenChangeModal={() => setIsChangeModalOpen(true)}
+            onOpenResetModal={() => setIsResetModalOpen(true)}
+          />
+        </section>
+
         {/* Advanced Settings */}
         <section
           id="advanced"
@@ -1145,6 +1181,23 @@ Are you absolutely certain you want to proceed with this cache size?`,
           <DangerZoneSettings />
         </section>
       </div>
+
+      {/* Gatekeeper Modals */}
+      <GatekeeperSetupModal
+        open={isSetupModalOpen}
+        onClose={() => setIsSetupModalOpen(false)}
+        onSuccess={handleGatekeeperSuccess}
+      />
+      <GatekeeperChangeModal
+        open={isChangeModalOpen}
+        onClose={() => setIsChangeModalOpen(false)}
+        onSuccess={handleGatekeeperSuccess}
+      />
+      <GatekeeperResetPrompt
+        open={isResetModalOpen}
+        onClose={() => setIsResetModalOpen(false)}
+        onSuccess={handleGatekeeperSuccess}
+      />
     </div>
   )
 }

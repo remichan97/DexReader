@@ -1,0 +1,64 @@
+/**
+ * Security Settings Styles
+ * Following Windows 11 Fluent Design principles
+ */
+
+.security-settings__section-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--win-text-primary);
+}
+
+.security-settings__description {
+  font-size: var(--font-size-base);
+  color: var(--win-text-secondary);
+  line-height: 1.5;
+}
+
+.security-settings__control {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--win-bg-subtle);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-md);
+}
+
+.security-settings__status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.security-settings__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.security-settings__help {
+  margin-top: var(--space-4);
+  padding: var(--space-3);
+  background: var(--win-bg-subtle);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--win-accent-default);
+}
+
+.security-settings__help-text {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--win-text-secondary);
+  line-height: 1.6;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .security-settings__actions {
+    flex-direction: column;
+  }
+
+  .security-settings__actions button {
+    width: 100%;
+  }
+}

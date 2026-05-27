@@ -12,6 +12,7 @@ import { useToastStore, useProgressStore, useLibraryStore } from './stores'
 import { useConnectivityStore } from './stores/connectivityStore'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { ProgressRing } from './components/ProgressRing'
+import { GatekeeperUnlockScreen } from './views/GatekeeperUnlockScreen'
 import { UnsavedChangesProvider } from './contexts/UnsavedChangesProvider'
 import { useUnsavedChanges } from './hooks/useUnsavedChanges'
 import { rendererLog } from './services/logging.service'
@@ -43,6 +44,27 @@ function AppContent(): React.JSX.Element {
   const [startupRoute, setStartupRoute] = useState<string | null>(null)
   const [showUpdateBanner, setShowUpdateBanner] = useState(false)
   const [updateVersion, setUpdateVersion] = useState<string>('')
+
+  // Gatekeeper state
+  const [isLocked, setIsLocked] = useState(false)
+  const [isCheckingLock, setIsCheckingLock] = useState(true)
+
+  // Check if Gatekeeper is enabled on mount
+  useEffect(() => {
+    async function checkGatekeeper(): Promise<void> {
+      try {
+        const result = await globalThis.gatekeeper.isEnabled()
+        if (result.success && result.data) {
+          setIsLocked(true)
+        }
+      } catch (err) {
+        rendererLog.error('[App] Failed to check Gatekeeper status:', err)
+      } finally {
+        setIsCheckingLock(false)
+      }
+    }
+    void checkGatekeeper()
+  }, [])
 
   // Load startup page preference from settings
   useEffect(() => {
@@ -181,7 +203,8 @@ function AppContent(): React.JSX.Element {
     globalThis.electron?.ipcRenderer
       .invoke('set-has-unsaved-changes', hasUnsavedChanges)
       .catch(() => {
-        // Ignore errors
+        // Silently ignore errors
+        return undefined
       })
   }, [hasUnsavedChanges])
 
@@ -201,6 +224,20 @@ function AppContent(): React.JSX.Element {
       globalThis.electron?.ipcRenderer.removeListener('flush-pending-saves', handleFlushRequest)
     }
   }, [flushPendingSaves])
+
+  // Show Gatekeeper unlock screen if locked
+  if (isCheckingLock) {
+    // Show loading while checking Gatekeeper status
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <ProgressRing size="large" />
+      </div>
+    )
+  }
+
+  if (isLocked) {
+    return <GatekeeperUnlockScreen onUnlock={() => setIsLocked(false)} />
+  }
 
   // Show loading state while fetching startup preference
   if (!startupRoute) {
