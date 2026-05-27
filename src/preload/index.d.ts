@@ -156,6 +156,9 @@ interface API {
   // Menu state API
   updateMenuState: (state: MenuState) => void
 
+  // Shell API
+  openExternal: (url: string) => Promise<void>
+
   // Menu action handlers
   onCheckForUpdates: (callback: () => void) => () => void
   onAddToFavorites: (callback: () => void) => () => void

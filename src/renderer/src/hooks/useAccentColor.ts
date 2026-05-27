@@ -2,6 +2,22 @@ import { rendererLog } from '@renderer/services/logging.service'
 import { useEffect, useState } from 'react'
 
 /**
+ * Calculate relative luminance of a color (WCAG formula)
+ * Used to determine if text should be light or dark on the color
+ */
+function getRelativeLuminance(r: number, g: number, b: number): number {
+  const rsRGB = r / 255
+  const gsRGB = g / 255
+  const bsRGB = b / 255
+
+  const rLinear = rsRGB <= 0.03928 ? rsRGB / 12.92 : Math.pow((rsRGB + 0.055) / 1.055, 2.4)
+  const gLinear = gsRGB <= 0.03928 ? gsRGB / 12.92 : Math.pow((gsRGB + 0.055) / 1.055, 2.4)
+  const bLinear = bsRGB <= 0.03928 ? bsRGB / 12.92 : Math.pow((bsRGB + 0.055) / 1.055, 2.4)
+
+  return 0.2126 * rLinear + 0.7152 * gLinear + 0.0722 * bLinear
+}
+
+/**
  * Apply accent color to CSS variables
  */
 function applyAccentColor(color: string): void {
@@ -28,6 +44,12 @@ function applyAccentColor(color: string): void {
 
   root.style.setProperty('--win-accent-hover', hoverColor)
   root.style.setProperty('--win-accent-active', activeColor)
+
+  // Calculate appropriate text color based on accent color luminance
+  // For good contrast: use white text on dark backgrounds, black text on light backgrounds
+  const luminance = getRelativeLuminance(r, g, b)
+  const textOnAccent = luminance > 0.5 ? '#000000' : '#ffffff'
+  root.style.setProperty('--win-text-on-accent', textOnAccent)
 }
 
 /**

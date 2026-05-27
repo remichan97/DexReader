@@ -77,6 +77,9 @@ const api = {
     ipcRenderer.send('update-menu-state', state)
   },
 
+  // Shell API
+  openExternal: (url: string) => ipcRenderer.invoke('shell:open-external', url),
+
   // Menu action handlers
   onCheckForUpdates: (callback: () => void) => {
     ipcRenderer.on('check-for-updates', callback)

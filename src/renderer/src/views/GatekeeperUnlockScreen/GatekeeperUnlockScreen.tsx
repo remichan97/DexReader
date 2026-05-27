@@ -159,9 +159,7 @@ export function GatekeeperUnlockScreen({
 
   const handleOpenRecoveryDocs = (): void => {
     // Open recovery documentation in browser (will be added to wiki)
-    globalThis.electron.shell.openExternal(
-      'https://github.com/remichan97/dexreader/wiki/App-Lock#recovery'
-    )
+    globalThis.api.openExternal('https://github.com/remichan97/dexreader/wiki/App-Lock#recovery')
   }
 
   return (
