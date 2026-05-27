@@ -2,21 +2,31 @@ import type { JSX } from 'react'
 import { useState } from 'react'
 import { Button } from '@renderer/components/Button'
 import { useTranslation } from '@renderer/hooks/useTranslation'
+import { ChevronUp16Regular, ChevronDown16Regular } from '@fluentui/react-icons'
 import './UnsavedChangesBanner.css'
 
 interface UnsavedChangesBannerProps {
   readonly onSave: () => Promise<void>
   readonly onReset: () => void
   readonly disabled?: boolean
+  readonly modifiedSettings: Set<string>
+  readonly getSettingLabel: (key: string) => string
+  readonly getSettingSection: (key: string) => string
+  readonly onScrollToSection: (sectionId: string) => void
 }
 
 export function UnsavedChangesBanner({
   onSave,
   onReset,
-  disabled = false
+  disabled = false,
+  modifiedSettings,
+  getSettingLabel,
+  getSettingSection,
+  onScrollToSection
 }: UnsavedChangesBannerProps): JSX.Element {
   const { t } = useTranslation(['settings', 'common'])
   const [isSaving, setIsSaving] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false)
 
   const handleSave = async (): Promise<void> => {
     setIsSaving(true)
@@ -27,16 +37,38 @@ export function UnsavedChangesBanner({
     }
   }
 
+  const modifiedCount = modifiedSettings.size
+  const modifiedList = Array.from(modifiedSettings)
+
   return (
     <div className="unsaved-changes-banner">
       <div className="unsaved-changes-banner__content">
-        <span className="unsaved-changes-banner__text">
-          {disabled
-            ? t('settings:unsavedChangesBanner.validationError', {
-                defaultValue: 'Some settings are invalid. Fix validation errors before saving.'
-              })
-            : t('settings:unsavedChangesBanner.message')}
-        </span>
+        <div className="unsaved-changes-banner__info">
+          <span className="unsaved-changes-banner__text">
+            {disabled
+              ? t('settings:unsavedChangesBanner.validationError', {
+                  defaultValue: 'Some settings are invalid. Fix validation errors before saving.'
+                })
+              : t('settings:unsavedChangesBanner.message', {
+                  defaultValue: 'You have unsaved changes'
+                })}
+          </span>
+          {!disabled && modifiedCount > 0 && (
+            <button
+              className="unsaved-changes-banner__toggle"
+              onClick={() => setIsExpanded(!isExpanded)}
+              aria-label={isExpanded ? 'Hide modified settings' : 'Show modified settings'}
+            >
+              <span className="unsaved-changes-banner__count">
+                {t('settings:unsavedChangesBanner.modifiedCount', {
+                  count: modifiedCount,
+                  defaultValue: '{{count}} modified'
+                })}
+              </span>
+              {isExpanded ? <ChevronDown16Regular /> : <ChevronUp16Regular />}
+            </button>
+          )}
+        </div>
         <div className="unsaved-changes-banner__actions">
           <Button
             variant="secondary"
@@ -57,6 +89,25 @@ export function UnsavedChangesBanner({
           </Button>
         </div>
       </div>
+      {isExpanded && modifiedList.length > 0 && (
+        <div className="unsaved-changes-banner__details">
+          <ul className="unsaved-changes-banner__list">
+            {modifiedList.map((key) => (
+              <li key={key} className="unsaved-changes-banner__list-item">
+                <button
+                  className="unsaved-changes-banner__list-btn"
+                  onClick={() => {
+                    onScrollToSection(getSettingSection(key))
+                    setIsExpanded(false)
+                  }}
+                >
+                  {getSettingLabel(key)}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   )
 }

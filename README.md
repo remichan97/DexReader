@@ -12,6 +12,7 @@ A modern, cross-platform manga reader for MangaDex built with Electron, React, a
 - 📚 **Library Management** - Organise your manga library with favourites, collections, and reading history. Advanced search syntax with 6 filter types (status, tag, author, artist, year, downloaded)
 - 📖 **Flexible Reader** - Multiple reading modes (single page, double page, vertical scroll) with zoom and pan controls
 - ⬇️ **Offline Reading** - Download chapters for offline access with parallel download support
+- 🔒 **App Lock** - Protect your library with passphrase-based authentication for privacy and security
 - 🌐 **Multi-Language Support** - Full internationalization with British English, American English, and Vietnamese locales
 - 🎨 **Modern UI** - Clean, responsive interface following Windows 11 design principles (to our best abilities)
 - ⚡ **High Performance** - Optimized database queries, image caching, and React rendering for smooth experience
@@ -92,11 +93,13 @@ npm run build:linux
 
 ## Project Status
 
-**Current Version**: 1.7.0 (May 25, 2026) 🚀
+**Current Version**: 1.8.0 (May 27, 2026) 🚀
 
-DexReader v1.7.0 brings modernized codebase with ECMAScript Modules (ESM):
+DexReader v1.8.0 introduces App Lock for privacy protection and a revamped Settings interface:
 
 - ✅ Complete MangaDex extensive manga library integration (browse, search, read)
+- ✅ **App Lock (Gatekeeper)** - Passphrase-based authentication to protect access to your library and reading history
+- ✅ **Revamped Settings View** - Infinite scroll with quick jump navigation for improved usability
 - ✅ **ESM Migration** - Modernized module system for better Node.js ecosystem alignment
 - ✅ **Renderer Sandboxing** - Enhanced security isolation for improved protection against malicious content
 - ✅ **Content Language Preferences** - Configure up to 3 priority languages for manga content filtering
@@ -111,7 +114,7 @@ DexReader v1.7.0 brings modernized codebase with ECMAScript Modules (ESM):
 - ✅ WCAG 2.1 AA accessibility compliance (100%)
 - ✅ Multi-platform support (Windows, macOS, Linux)
 
-This release improves the application's security posture by enabling Electron's sandboxing feature, providing better isolation and compliance with modern security best practices.
+This release adds privacy features for shared computers and improves the Settings navigation experience.
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed release notes and development history.
 

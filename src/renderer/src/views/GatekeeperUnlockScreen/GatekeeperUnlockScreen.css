@@ -1,0 +1,186 @@
+/**
+ * Gatekeeper Unlock Screen Styles
+ * Fullscreen overlay that blocks app access until correct passphrase is entered
+ * Following Windows 11 Fluent Design principles
+ */
+
+/* Fullscreen Overlay */
+.gatekeeper-unlock-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 10000; /* Above everything else */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--win-bg-default);
+  backdrop-filter: blur(8px);
+  animation: gatekeeper-fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes gatekeeper-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Dark theme uses default background */
+[data-theme='dark'] .gatekeeper-unlock-screen {
+  /* Uses var(--win-bg-default) from root */
+}
+
+/* Unlock Container (Card) */
+.gatekeeper-unlock-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: 420px;
+  padding: var(--space-8);
+  background: var(--win-bg-card);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2xl);
+  animation: gatekeeper-scale-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes gatekeeper-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Lock Icon */
+.gatekeeper-unlock-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  background: var(--win-accent-default);
+}
+
+.gatekeeper-unlock-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+/* Title */
+.gatekeeper-unlock-title {
+  margin: 0;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--win-text-primary);
+  text-align: center;
+}
+
+/* Description */
+.gatekeeper-unlock-description {
+  margin: 0;
+  font-size: var(--font-size-base);
+  color: var(--win-text-secondary);
+  text-align: center;
+}
+
+/* Form */
+.gatekeeper-unlock-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+}
+
+/* Input */
+.gatekeeper-unlock-input {
+  width: 100%;
+}
+
+/* Unlock Button */
+.gatekeeper-unlock-button {
+  width: 100%;
+}
+
+/* Help Text (appears after 3 failed attempts) */
+.gatekeeper-unlock-help {
+  margin: var(--space-2) 0 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--win-text-secondary);
+  text-align: center;
+  line-height: 1.5;
+  animation: gatekeeper-help-fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes gatekeeper-help-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.gatekeeper-unlock-help-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+  font-family: inherit;
+  color: var(--win-accent-default);
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.gatekeeper-unlock-help-link:hover {
+  color: var(--win-accent-secondary);
+}
+
+.gatekeeper-unlock-help-link:focus-visible {
+  outline: 2px solid var(--win-accent-default);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .gatekeeper-unlock-container {
+    max-width: calc(100vw - var(--space-4) * 2);
+    padding: var(--space-6);
+  }
+
+  .gatekeeper-unlock-icon {
+    width: 56px;
+    height: 56px;
+  }
+
+  .gatekeeper-unlock-icon svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .gatekeeper-unlock-title {
+    font-size: var(--font-size-xl);
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .gatekeeper-unlock-container {
+    border: 2px solid var(--win-border-default);
+  }
+
+  .gatekeeper-unlock-icon {
+    border: 2px solid var(--win-text-on-accent);
+  }
+}

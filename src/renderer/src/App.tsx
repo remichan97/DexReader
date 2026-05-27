@@ -8,10 +8,11 @@ import { useAccentColor } from './hooks/useAccentColor'
 import { useIncognitoListener } from './hooks/useIncognitoListener'
 import { useConnectivityListener } from './hooks/useConnectivityListener'
 import { ToastContainer } from './components/Toast'
-import { useToastStore, useProgressStore, useLibraryStore } from './stores'
+import { useToastStore, useProgressStore, useLibraryStore, useAppStore } from './stores'
 import { useConnectivityStore } from './stores/connectivityStore'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { ProgressRing } from './components/ProgressRing'
+import { GatekeeperUnlockScreen } from './views/GatekeeperUnlockScreen'
 import { UnsavedChangesProvider } from './contexts/UnsavedChangesProvider'
 import { useUnsavedChanges } from './hooks/useUnsavedChanges'
 import { rendererLog } from './services/logging.service'
@@ -43,6 +44,57 @@ function AppContent(): React.JSX.Element {
   const [startupRoute, setStartupRoute] = useState<string | null>(null)
   const [showUpdateBanner, setShowUpdateBanner] = useState(false)
   const [updateVersion, setUpdateVersion] = useState<string>('')
+  const setSystemTheme = useAppStore((state) => state.setSystemTheme)
+  const setThemeMode = useAppStore((state) => state.setThemeMode)
+  const theme = useAppStore((state) => state.theme)
+
+  // Gatekeeper state
+  const [isLocked, setIsLocked] = useState(false)
+  const [isCheckingLock, setIsCheckingLock] = useState(true)
+
+  // Load theme preference FIRST (before anything else)
+  useEffect(() => {
+    async function loadThemeEarly(): Promise<void> {
+      try {
+        // Load theme from settings
+        const settingsResult = await globalThis.settings.load()
+        if (settingsResult.success && settingsResult.data?.appearance?.theme) {
+          setThemeMode(settingsResult.data.appearance.theme)
+        }
+
+        // Get system theme
+        const themeResult = await globalThis.api.getTheme()
+        if (themeResult.success && themeResult.data) {
+          setSystemTheme(themeResult.data as 'light' | 'dark')
+        }
+      } catch (error) {
+        rendererLog.error('[App] Failed to load theme early:', error)
+      }
+    }
+    void loadThemeEarly()
+  }, [setThemeMode, setSystemTheme])
+
+  // Apply theme to document
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+  }, [theme])
+
+  // Check if Gatekeeper is enabled on mount
+  useEffect(() => {
+    async function checkGatekeeper(): Promise<void> {
+      try {
+        const result = await globalThis.gatekeeper.isEnabled()
+        if (result.success && result.data) {
+          setIsLocked(true)
+        }
+      } catch (err) {
+        rendererLog.error('[App] Failed to check Gatekeeper status:', err)
+      } finally {
+        setIsCheckingLock(false)
+      }
+    }
+    void checkGatekeeper()
+  }, [])
 
   // Load startup page preference from settings
   useEffect(() => {
@@ -181,7 +233,8 @@ function AppContent(): React.JSX.Element {
     globalThis.electron?.ipcRenderer
       .invoke('set-has-unsaved-changes', hasUnsavedChanges)
       .catch(() => {
-        // Ignore errors
+        // Silently ignore errors
+        return undefined
       })
   }, [hasUnsavedChanges])
 
@@ -201,6 +254,20 @@ function AppContent(): React.JSX.Element {
       globalThis.electron?.ipcRenderer.removeListener('flush-pending-saves', handleFlushRequest)
     }
   }, [flushPendingSaves])
+
+  // Show Gatekeeper unlock screen if locked
+  if (isCheckingLock) {
+    // Show loading while checking Gatekeeper status
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <ProgressRing size="large" />
+      </div>
+    )
+  }
+
+  if (isLocked) {
+    return <GatekeeperUnlockScreen onUnlock={() => setIsLocked(false)} />
+  }
 
   // Show loading state while fetching startup preference
   if (!startupRoute) {

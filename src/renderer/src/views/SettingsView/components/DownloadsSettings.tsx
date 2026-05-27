@@ -18,6 +18,7 @@ interface DownloadsSettingsProps {
   onDownloadConfirmationChange: (confirmation: string) => void
   onDefaultQualityChange: (quality: string) => void
   onMaxConcurrentDownloadsChange: (count: string | string[]) => void
+  modifiedSettings: Set<string>
 }
 
 export function DownloadsSettings({
@@ -30,7 +31,8 @@ export function DownloadsSettings({
   onSelectDownloadsFolder,
   onDownloadConfirmationChange,
   onDefaultQualityChange,
-  onMaxConcurrentDownloadsChange
+  onMaxConcurrentDownloadsChange,
+  modifiedSettings
 }: Readonly<DownloadsSettingsProps>): React.JSX.Element {
   const { t } = useTranslation(['settings', 'common'])
 
@@ -47,7 +49,11 @@ export function DownloadsSettings({
       <div>
         <h4 className="downloads-settings__heading">{t('downloads.locationSection')}</h4>
         <p className="downloads-settings__description">{t('downloads.locationDescription')}</p>
-        <div className="downloads-settings__controls">
+        <div
+          className={`downloads-settings__controls ${
+            modifiedSettings.has('downloadsPath') ? 'setting-control--modified' : ''
+          }`}
+        >
           <Input
             type="text"
             value={isLoadingPath ? t('common:state.loadingEllipsis') : downloadsPath}
@@ -75,30 +81,36 @@ export function DownloadsSettings({
         <h4 className="downloads-settings__heading">{t('downloads.confirmationSection')}</h4>
         <p className="downloads-settings__description">{t('downloads.confirmationDescription')}</p>
 
-        <RadioGroup
-          value={downloadConfirmation}
-          onChange={(value) =>
-            onDownloadConfirmationChange(value as 'always' | 'batch-only' | 'never')
-          }
-          name="download-confirmation"
-          label={t('downloads.confirmationLabel')}
+        <div
+          className={`${
+            modifiedSettings.has('downloadConfirmation') ? 'setting-control--modified' : ''
+          }`}
         >
-          <Radio
-            value="always"
-            label={t('downloads.confirmationOptions.always.label')}
-            description={t('downloads.confirmationOptions.always.description')}
-          />
-          <Radio
-            value="batch-only"
-            label={t('downloads.confirmationOptions.batchOnly.label')}
-            description={t('downloads.confirmationOptions.batchOnly.description')}
-          />
-          <Radio
-            value="never"
-            label={t('downloads.confirmationOptions.never.label')}
-            description={t('downloads.confirmationOptions.never.description')}
-          />
-        </RadioGroup>
+          <RadioGroup
+            value={downloadConfirmation}
+            onChange={(value) =>
+              onDownloadConfirmationChange(value as 'always' | 'batch-only' | 'never')
+            }
+            name="download-confirmation"
+            label={t('downloads.confirmationLabel')}
+          >
+            <Radio
+              value="always"
+              label={t('downloads.confirmationOptions.always.label')}
+              description={t('downloads.confirmationOptions.always.description')}
+            />
+            <Radio
+              value="batch-only"
+              label={t('downloads.confirmationOptions.batchOnly.label')}
+              description={t('downloads.confirmationOptions.batchOnly.description')}
+            />
+            <Radio
+              value="never"
+              label={t('downloads.confirmationOptions.never.label')}
+              description={t('downloads.confirmationOptions.never.description')}
+            />
+          </RadioGroup>
+        </div>
       </div>
 
       {/* Download Quality Settings */}
@@ -110,23 +122,27 @@ export function DownloadsSettings({
             : t('downloads.qualityDescriptionWithConfirm')}
         </p>
 
-        <RadioGroup
-          value={defaultQuality}
-          onChange={(value) => onDefaultQualityChange(value as 'data' | 'data-saver')}
-          name="default-quality"
-          label={t('downloads.qualityLabel')}
+        <div
+          className={`${modifiedSettings.has('defaultQuality') ? 'setting-control--modified' : ''}`}
         >
-          <Radio
-            value="data"
-            label={t('common:quality.highQuality')}
-            description={t('reader.imageQuality.highQuality.description')}
-          />
-          <Radio
-            value="data-saver"
-            label={t('common:quality.dataSaver')}
-            description={t('reader.imageQuality.dataSaver.description')}
-          />
-        </RadioGroup>
+          <RadioGroup
+            value={defaultQuality}
+            onChange={(value) => onDefaultQualityChange(value as 'data' | 'data-saver')}
+            name="default-quality"
+            label={t('downloads.qualityLabel')}
+          >
+            <Radio
+              value="data"
+              label={t('common:quality.highQuality')}
+              description={t('reader.imageQuality.highQuality.description')}
+            />
+            <Radio
+              value="data-saver"
+              label={t('common:quality.dataSaver')}
+              description={t('reader.imageQuality.dataSaver.description')}
+            />
+          </RadioGroup>
+        </div>
       </div>
 
       {/* Concurrent Downloads Settings */}
@@ -134,13 +150,19 @@ export function DownloadsSettings({
         <h4 className="downloads-settings__heading">{t('downloads.concurrentSection')}</h4>
         <p className="downloads-settings__description">{t('downloads.concurrentDescription')}</p>
 
-        <Select
-          value={String(maxConcurrentDownloads)}
-          onChange={onMaxConcurrentDownloadsChange}
-          options={concurrentDownloadsOptions}
-          label={t('downloads.concurrentLabel')}
-          helperText={t('downloads.concurrentHelper')}
-        />
+        <div
+          className={`${
+            modifiedSettings.has('maxConcurrentDownloads') ? 'setting-control--modified' : ''
+          }`}
+        >
+          <Select
+            value={String(maxConcurrentDownloads)}
+            onChange={onMaxConcurrentDownloadsChange}
+            options={concurrentDownloadsOptions}
+            label={t('downloads.concurrentLabel')}
+            helperText={t('downloads.concurrentHelper')}
+          />
+        </div>
       </div>
     </div>
   )

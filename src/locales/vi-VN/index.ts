@@ -11,6 +11,7 @@ import reader from './reader.json' with { type: 'json' }
 import settings from './settings.json' with { type: 'json' }
 import history from './history.json' with { type: 'json' }
 import mangaDetail from './mangaDetail.json' with { type: 'json' }
+import gatekeeper from './gatekeeper.json' with { type: 'json' }
 
 export default {
   common,
@@ -25,5 +26,6 @@ export default {
   reader,
   settings,
   history,
-  mangaDetail
+  mangaDetail,
+  gatekeeper
 }

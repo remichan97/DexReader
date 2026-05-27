@@ -1,0 +1,40 @@
+/* Settings Header Component Styles */
+
+.settings-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--win-bg-default);
+  backdrop-filter: blur(30px);
+  border-bottom: 1px solid var(--win-border-default);
+  padding: var(--space-4) var(--space-6);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.settings-header__title {
+  font-size: var(--win-font-size-title);
+  font-weight: var(--win-font-weight-semibold);
+  margin: 0;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+
+/* Section menu stretches to fill remaining header space */
+.settings-header .settings-section-menu {
+  flex: 1;
+}
+
+/* Screen reader only */
+.settings-header .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

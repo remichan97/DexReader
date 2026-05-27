@@ -1,7 +1,7 @@
 # DexReader Active Context
 
-**Last Updated**: 25 May 2026
-**Version**: v1.7.0
+**Last Updated**: 27 May 2026
+**Version**: v1.8.0
 **Mode**: Active Development
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next. Keep all entries as short, concise as possible
@@ -10,18 +10,20 @@
 
 ## Current Status
 
-**v1.7.0 Released**: 25 May 2026 ✅
+**v1.8.0 Released**: 27 May 2026 ✅
 
-**Monitoring Period**: Now through ~8 June 2026
+**Monitoring Period**: Now through ~17 June 2026
 
-- Monitor for any issues with ESM migration
-- Watch for compatibility issues with dependencies
+- Monitor for any issues with App Lock/Gatekeeper functionality
+- Watch for user feedback on new Settings View navigation
 - Collect feedback on stability and performance
+- Monitor for any edge cases in passphrase handling
 
 **Next Planned Work:**
 
 - Monitor for `drizzle-kit` updates to resolve transitive esbuild vulnerability
 - Plan next feature development cycle
+- Consider additional security enhancements based on user feedback
 
 ---
 
@@ -48,27 +50,29 @@
 
 ## Recent Changes (Last 1-2 Weeks)
 
-### 25 May 2026 - v1.7.0 Release ✅
+### 27 May 2026 - v1.8.0 Release ✅
 
-- **Type**: Technical Enhancement
-- **Summary**: Migrated entire codebase to ECMAScript Modules (ESM)
+- **Type**: Feature Release
+- **Summary**: Introduced App Lock (Gatekeeper) functionality for privacy protection and revamped Settings View
 - **Key Changes**:
-  - Updated package.json to specify `"type": "module"` for native ESM support
-  - Refactored main process for full ESM compatibility
-  - Implemented CommonJS compatibility workaround for electron-updater
-  - Fixed IPC response handling in DownloadsView and dialog components
-  - Fixed filesystem deleteDir recursive flag handling
-  - Enhanced translation coverage for Downloads and favorite actions
-- **Impact**: Modernized codebase with better Node.js ecosystem alignment, improved module loading
+  - Added passphrase-based authentication with bcrypt for secure credential storage
+  - Implemented unlock screen interface with exponential delay for failed attempts
+  - Added comprehensive translation support for App Lock across all locales
+  - Revamped Settings View with infinite scroll and quick jump navigation
+  - Enhanced UnsavedChangesBanner to display specific settings changes
+  - Integration of App Lock reset with settings reset operations
+  - Fixed Settings quick jump dropdown width issue
+  - Fixed high memory warning translation function wiring
+  - CI workflow improvements for release automation
+- **Impact**: Privacy protection for shared computers, improved Settings navigation and usability
 - **Status**: ✅ Released
-- **CHANGELOG**: All changes documented in CHANGELOG.md v1.7.0 section
+- **CHANGELOG**: All changes documented in CHANGELOG.md v1.8.0 section
 
-### 25 May 2026 - Previous Releases Summary
+### 25 May 2026 - v1.7.0 Release Summary
 
-- **v1.6.0**: Renderer sandboxing for enhanced security
-- **v1.5.0**: Content Language Settings with priority language selection
-
-<!-- Archived entries moved to historical/archived-milestones.md -->
+- **Type**: Technical Enhancement - ESM Migration
+- **Summary**: Migrated entire codebase to ECMAScript Modules (ESM)
+- **Impact**: Modernized codebase with better Node.js ecosystem alignment
 
 <!-- Template for future entries:
 ### [Date] - [Title]
@@ -84,6 +88,7 @@
 ## Quick Reference
 
 - **Documentation**: `docs/` directory
+- **Wiki**: DexReader.wiki folder (user-facing documentation)
 - **API Reference**: `docs/api-reference.md`
 - **Architecture**: `docs/architecture/`
 - **Coding Standards**: `.github/memory-bank/system-pattern.md`

@@ -77,6 +77,9 @@ const api = {
     ipcRenderer.send('update-menu-state', state)
   },
 
+  // Shell API
+  openExternal: (url: string) => ipcRenderer.invoke('shell:open-external', url),
+
   // Menu action handlers
   onCheckForUpdates: (callback: () => void) => {
     ipcRenderer.on('check-for-updates', callback)
@@ -414,6 +417,16 @@ const searchPresets = {
   create: (command: CreateSearchPresetCommand) => ipcRenderer.invoke('search-presets:save', command)
 }
 
+const gatekeeper = {
+  isEnabled: () => ipcRenderer.invoke('gatekeeper:available'),
+  enable: (passphrase: string) => ipcRenderer.invoke('gatekeeper:enable', passphrase),
+  verify: (passphrase: string) => ipcRenderer.invoke('gatekeeper:verify', passphrase),
+  disable: (passphrase: string) => ipcRenderer.invoke('gatekeeper:disable', passphrase),
+  changePassphrase: (oldPassphrase: string, newPassphrase: string) =>
+    ipcRenderer.invoke('gatekeeper:update', oldPassphrase, newPassphrase),
+  reset: () => ipcRenderer.invoke('gatekeeper:reset')
+}
+
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
@@ -436,6 +449,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('appUpdate', appUpdate)
     contextBridge.exposeInMainWorld('logger', logger)
     contextBridge.exposeInMainWorld('searchPresets', searchPresets)
+    contextBridge.exposeInMainWorld('gatekeeper', gatekeeper)
   } catch (error) {
     console.error(error)
   }
@@ -474,4 +488,6 @@ if (process.contextIsolated) {
   globalThis.logger = logger
   // @ts-ignore (define in dts)
   globalThis.searchPresets = searchPresets
+  // @ts-ignore (define in dts)
+  globalThis.gatekeeper = gatekeeper
 }

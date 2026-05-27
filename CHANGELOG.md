@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [1.8.0] - 2026-05-27
+
+### Added
+
+- Add App Lock (Gatekeeper) functionality for application security
+  - Passphrase-based authentication to protect access to the application
+  - Secure password hashing using bcrypt for credential storage
+  - Unlock screen interface with passphrase verification
+  - Wrong passphrase feedback with localized error messages
+  - Integration with application settings reset and clear all data operations
+  - App Lock configuration automatically reset when clearing all data or resetting settings
+- Add comprehensive translation support for App Lock feature across all locales (en-GB, en-US, vi-VN)
+- Add revamped Settings View with infinite scroll and quick jump navigation
+  - Replace tab strip navigation with infinite scroll for better scalability
+  - Add dropdown quick jump menu for rapid navigation between settings sections
+  - Improved settings organization and layout
+- Add enhanced UnsavedChangesBanner that displays specific settings changes
+  - Shows detailed list of which settings have been modified
+  - Better user awareness of pending changes before navigation
+
+### Changed
+
+- Update Settings navigation from tab-based to infinite scroll with quick jump dropdown
+- Improve Settings UI layout and user experience
+
+### Fixed
+
+- Fix Settings quick jump dropdown width being too small for longer section names
+- Fix high memory warning not properly using translation function for localized messages
+- Fix incorrect method usage on UnlockScreen component
+- Fix various issues in GatekeeperUnlockScreen, modal dialogs, and preload type signatures
+- Refactor and clean up unused code in ResetPrompt and locale files
+
+---
+
 ## [1.7.0] - 2026-05-25
 
 ### Changed

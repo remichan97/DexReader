@@ -12,6 +12,7 @@ interface LanguageSettingsProps {
   readonly onSyncContentLanguageChange: (checked: boolean) => void
   readonly contentLanguages: string[]
   readonly onContentLanguagesChange: (languages: string[]) => void
+  readonly modifiedSettings: Set<string>
 }
 
 export function LanguageSettings({
@@ -20,7 +21,8 @@ export function LanguageSettings({
   syncContentLanguage,
   onSyncContentLanguageChange,
   contentLanguages,
-  onContentLanguagesChange
+  onContentLanguagesChange,
+  modifiedSettings
 }: LanguageSettingsProps): React.JSX.Element {
   const { t } = useTranslation('settings')
 
@@ -39,22 +41,21 @@ export function LanguageSettings({
   return (
     <div className="py-4 flex flex-col gap-5">
       <div>
-        <h4 className="appearance-settings__section-title mb-3">
-          {t('appearance.languageSection')}
-        </h4>
         <p className="text-secondary appearance-settings__description mb-3">
-          {t('language.displayLanguageDescription', {
+          {t('language.languageSectionDescription', {
             defaultValue:
               'Choose the language for the application interface. Changing this will affect menus, buttons, and all UI text.'
           })}
         </p>
-        <Select
-          value={displayLanguage}
-          onChange={(value) => onDisplayLanguageChange(value as typeof displayLanguage)}
-          options={languageOptions}
-          label={t('appearance.languageLabel')}
-          helperText={t('appearance.languageHelper')}
-        />
+        <div className={modifiedSettings.has('displayLanguage') ? 'setting-control--modified' : ''}>
+          <Select
+            value={displayLanguage}
+            onChange={(value) => onDisplayLanguageChange(value as typeof displayLanguage)}
+            options={languageOptions}
+            label={t('appearance.languageLabel')}
+            helperText={t('appearance.languageHelper')}
+          />
+        </div>
       </div>
 
       <div>
@@ -68,7 +69,13 @@ export function LanguageSettings({
           })}
         </p>
 
-        <div className="mt-4">
+        <div
+          className={`mt-4 ${
+            modifiedSettings.has('syncContentLanguage')
+              ? 'setting-control--modified setting-control--inline'
+              : ''
+          }`}
+        >
           <Switch
             checked={syncContentLanguage}
             onChange={onSyncContentLanguageChange}
@@ -78,7 +85,11 @@ export function LanguageSettings({
         </div>
 
         {!syncContentLanguage && (
-          <div className="mt-4">
+          <div
+            className={`mt-4 ${
+              modifiedSettings.has('contentLanguages') ? 'setting-control--modified' : ''
+            }`}
+          >
             <PriorityList
               items={contentLanguages}
               availableItems={contentLanguageOptions}

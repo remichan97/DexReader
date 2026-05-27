@@ -15,6 +15,7 @@ interface AppearanceSettingsProps {
   readonly onUseSystemColor: () => void
   readonly startupPage: 'library' | 'browse' | 'downloads'
   readonly onStartupPageChange: (page: 'library' | 'browse' | 'downloads') => void
+  readonly modifiedSettings: Set<string>
 }
 
 export function AppearanceSettings({
@@ -26,7 +27,8 @@ export function AppearanceSettings({
   systemAccentColor,
   onUseSystemColor,
   startupPage,
-  onStartupPageChange
+  onStartupPageChange,
+  modifiedSettings
 }: AppearanceSettingsProps): React.JSX.Element {
   const { t } = useTranslation('settings')
 
@@ -74,49 +76,55 @@ export function AppearanceSettings({
     <div className="py-4 flex flex-col gap-5">
       <div>
         <h4 className="appearance-settings__section-title mb-3">{t('appearance.sectionTitle')}</h4>
-        <Select
-          value={themeMode}
-          onChange={(value) => onThemeModeChange(value as typeof themeMode)}
-          options={themeModeOptions}
-          label={t('appearance.themeLabel')}
-          helperText={t('appearance.themeHelper')}
-        />
+        <div className={modifiedSettings.has('themeMode') ? 'setting-control--modified' : ''}>
+          <Select
+            value={themeMode}
+            onChange={(value) => onThemeModeChange(value as typeof themeMode)}
+            options={themeModeOptions}
+            label={t('appearance.themeLabel')}
+            helperText={t('appearance.themeHelper')}
+          />
+        </div>
       </div>
 
       <div>
         <h4 className="appearance-settings__section-title mb-3">
           {t('appearance.startupSection')}
         </h4>
-        <Select
-          value={startupPage}
-          onChange={(value) => onStartupPageChange(value as typeof startupPage)}
-          options={startupPageOptions}
-          label={t('appearance.startupLabel')}
-          helperText={t('appearance.startupHelper')}
-        />
+        <div className={modifiedSettings.has('startupPage') ? 'setting-control--modified' : ''}>
+          <Select
+            value={startupPage}
+            onChange={(value) => onStartupPageChange(value as typeof startupPage)}
+            options={startupPageOptions}
+            label={t('appearance.startupLabel')}
+            helperText={t('appearance.startupHelper')}
+          />
+        </div>
       </div>
 
       <div>
         <h4 className="appearance-settings__section-title mb-3">{t('appearance.accentSection')}</h4>
-        <div className="mb-3">
-          <div className="appearance-settings__label">{t('appearance.accentLabel')}</div>
-          <div className="flex gap-3 items-center">
-            <input
-              type="color"
-              value={accentColor}
-              onChange={(e) => onAccentColorChange(e.target.value)}
-              className="appearance-settings__color-picker"
-            />
-            <Input
-              type="text"
-              value={accentColor}
-              onChange={handleColorInputChange}
-              className="appearance-settings__hex-input"
-              placeholder="#0078d4"
-            />
-            <Button variant="secondary" onClick={onUseSystemColor}>
-              {t('appearance.useSystemButton')}
-            </Button>
+        <div className={modifiedSettings.has('accentColor') ? 'setting-control--modified' : ''}>
+          <div className="mb-3">
+            <div className="appearance-settings__label">{t('appearance.accentLabel')}</div>
+            <div className="flex gap-3 items-center">
+              <input
+                type="color"
+                value={accentColor}
+                onChange={(e) => onAccentColorChange(e.target.value)}
+                className="appearance-settings__color-picker"
+              />
+              <Input
+                type="text"
+                value={accentColor}
+                onChange={handleColorInputChange}
+                className="appearance-settings__hex-input"
+                placeholder="#0078d4"
+              />
+              <Button variant="secondary" onClick={onUseSystemColor}>
+                {t('appearance.useSystemButton')}
+              </Button>
+            </div>
           </div>
           <p className="text-secondary appearance-settings__helper-text mt-2">
             {isUsingSystemColor

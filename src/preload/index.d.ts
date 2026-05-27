@@ -156,6 +156,9 @@ interface API {
   // Menu state API
   updateMenuState: (state: MenuState) => void
 
+  // Shell API
+  openExternal: (url: string) => Promise<void>
+
   // Menu action handlers
   onCheckForUpdates: (callback: () => void) => () => void
   onAddToFavorites: (callback: () => void) => () => void
@@ -371,6 +374,15 @@ interface SearchPresets {
   updateLastUsedAt: (id: number) => Promise<IpcResponse<void>>
 }
 
+interface Gatekeeper {
+  isEnabled: () => Promise<IpcResponse<boolean>>
+  enable: (passphrase: string) => Promise<IpcResponse<boolean>>
+  verify: (passphrase: string) => Promise<IpcResponse<boolean>>
+  disable: (passphrase: string) => Promise<IpcResponse<boolean>>
+  changePassphrase: (oldPassphrase: string, newPassphrase: string) => Promise<IpcResponse<boolean>>
+  reset: () => Promise<IpcResponse<void>>
+}
+
 declare global {
   interface Window {
     electron: ElectronAPI
@@ -390,5 +402,6 @@ declare global {
     appUpdate: AppUpdate
     logger: Logger
     searchPresets: SearchPresets
+    gatekeeper: Gatekeeper
   }
 }

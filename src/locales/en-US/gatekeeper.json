@@ -1,0 +1,108 @@
+{
+  "unlock": {
+    "title": "Knock knock... Who's there?",
+    "description": "Enter your passphrase to continue",
+    "placeholder": "Passphrase",
+    "button": "Unlock",
+    "unlocking": "Unlocking...",
+    "waitButton": "Wait {{seconds}}s...",
+    "showPassphrase": "Show passphrase",
+    "hidePassphrase": "Hide passphrase",
+    "errors": {
+      "empty": "Please enter your passphrase",
+      "incorrect": "Nice try. Please try again.",
+      "incorrectWithDelay": "Nice try, but not quite. Wait {{seconds}} seconds before trying again.",
+      "system": "Failed to verify passphrase. Please try again.",
+      "unexpected": "Something went wrong. Please try again."
+    },
+    "help": {
+      "prefix": "Forgot your passphrase?",
+      "link": "See recovery steps"
+    }
+  },
+  "settings": {
+    "sectionTitle": "App Lock",
+    "description": "Require a passphrase when DexReader starts",
+    "status": {
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    },
+    "buttons": {
+      "enable": "Enable App Lock",
+      "disable": "Reset App Lock",
+      "change": "Change Passphrase"
+    },
+    "setup": {
+      "title": "Set Up App Lock",
+      "description": "Create a passphrase to lock DexReader on startup. Make sure to remember it—recovery requires manual file deletion.",
+      "passphraseLabel": "Passphrase",
+      "passphrasePlaceholder": "Enter passphrase (4-128 characters)",
+      "confirmLabel": "Confirm Passphrase",
+      "confirmPlaceholder": "Re-enter passphrase",
+      "createButton": "Enable App Lock",
+      "cancelButton": "Cancel",
+      "creating": "Enabling..."
+    },
+    "change": {
+      "title": "Change Passphrase",
+      "description": "Enter your current passphrase and create a new one",
+      "currentLabel": "Current Passphrase",
+      "currentPlaceholder": "Enter current passphrase",
+      "newLabel": "New Passphrase",
+      "newPlaceholder": "Enter new passphrase (4-128 characters)",
+      "confirmLabel": "Confirm New Passphrase",
+      "confirmPlaceholder": "Re-enter new passphrase",
+      "changeButton": "Change Passphrase",
+      "cancelButton": "Cancel",
+      "changing": "Changing..."
+    },
+    "reset": {
+      "title": "Reset App Lock?",
+      "description": "This will disable App Lock and delete your passphrase. You'll need to set up App Lock again if you want to use it. To proceed, enter your current passphrase below.",
+      "passphraseLabel": "Passphrase",
+      "passphrasePlaceholder": "Enter your passphrase",
+      "resetButton": "Reset App Lock",
+      "cancelButton": "Cancel",
+      "resetting": "Resetting..."
+    },
+    "errors": {
+      "enable": {
+        "title": "Failed to Enable App Lock",
+        "lengthInvalid": "Passphrase must be between 4 and 128 characters",
+        "mismatch": "Passphrases do not match",
+        "empty": "Please enter a passphrase",
+        "alreadyEnabled": "App Lock is already enabled",
+        "generic": "Failed to enable App Lock. Please try again."
+      },
+      "change": {
+        "title": "Failed to Change Passphrase",
+        "currentIncorrect": "Current passphrase is incorrect",
+        "lengthInvalid": "New passphrase must be between 4 and 128 characters",
+        "mismatch": "New passphrases do not match",
+        "sameAsOld": "New passphrase cannot be the same as the current one",
+        "empty": "Please enter all required fields",
+        "generic": "Failed to change passphrase. Please try again."
+      },
+      "reset": {
+        "title": "Failed to Reset App Lock",
+        "incorrect": "Incorrect passphrase",
+        "notEnabled": "App Lock is not enabled",
+        "generic": "Failed to reset App Lock. Please try again."
+      }
+    },
+    "success": {
+      "enabled": {
+        "title": "App Lock Enabled",
+        "message": "Your manga library is now protected with a passphrase"
+      },
+      "changed": {
+        "title": "Passphrase Changed",
+        "message": "Your passphrase has been updated successfully"
+      },
+      "reset": {
+        "title": "App Lock Reset",
+        "message": "App Lock has been disabled. Your manga library is no longer protected."
+      }
+    }
+  }
+}

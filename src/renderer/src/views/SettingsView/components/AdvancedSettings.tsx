@@ -10,13 +10,15 @@ interface AdvancedSettingsProps {
   readonly autoDownloadUpdates: boolean
   readonly onAutoCheckChange: (value: boolean) => void
   readonly onAutoDownloadChange: (value: boolean) => void
+  readonly modifiedSettings: Set<string>
 }
 
 export function AdvancedSettings({
   autoCheckForUpdates,
   autoDownloadUpdates,
   onAutoCheckChange,
-  onAutoDownloadChange
+  onAutoDownloadChange,
+  modifiedSettings
 }: AdvancedSettingsProps): React.JSX.Element {
   const { t } = useTranslation(['settings', 'errors'])
   const showToast = useToastStore((state) => state.show)
@@ -65,21 +67,37 @@ export function AdvancedSettings({
 
         <div className="flex flex-col gap-4">
           {/* Auto-check for updates */}
-          <Switch
-            checked={autoCheckForUpdates}
-            onChange={onAutoCheckChange}
-            label={t('advanced.autoCheck.label')}
-            description={t('advanced.autoCheck.description')}
-          />
+          <div
+            className={`${
+              modifiedSettings.has('autoCheckForUpdates')
+                ? 'setting-control--modified setting-control--inline'
+                : ''
+            }`}
+          >
+            <Switch
+              checked={autoCheckForUpdates}
+              onChange={onAutoCheckChange}
+              label={t('advanced.autoCheck.label')}
+              description={t('advanced.autoCheck.description')}
+            />
+          </div>
 
           {/* Auto-download updates */}
-          <Switch
-            checked={autoDownloadUpdates}
-            onChange={onAutoDownloadChange}
-            disabled={!autoCheckForUpdates}
-            label={t('advanced.autoDownload.label')}
-            description={t('advanced.autoDownload.description')}
-          />
+          <div
+            className={`${
+              modifiedSettings.has('autoDownloadUpdates')
+                ? 'setting-control--modified setting-control--inline'
+                : ''
+            }`}
+          >
+            <Switch
+              checked={autoDownloadUpdates}
+              onChange={onAutoDownloadChange}
+              disabled={!autoCheckForUpdates}
+              label={t('advanced.autoDownload.label')}
+              description={t('advanced.autoDownload.description')}
+            />
+          </div>
 
           {/* Manual check button */}
           <div className="flex items-center gap-3 mt-2">

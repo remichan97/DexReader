@@ -1,7 +1,6 @@
 import type { JSX } from 'react'
 import { useState, useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
-import { Tabs, TabList, Tab, TabPanel } from '@renderer/components/Tabs'
+import { useSearchParams } from 'react-router-dom'
 import { useToastStore, useAppStore } from '@renderer/stores'
 import { useNavigationBlocker } from '@renderer/hooks/useNavigationBlocker'
 import { useUnsavedChanges } from '@renderer/hooks/useUnsavedChanges'
@@ -15,10 +14,17 @@ import { PerformanceSettingsSection } from './components/PerformanceSettingsSect
 import { DownloadsSettings } from './components/DownloadsSettings'
 import { StorageManagementSettings } from './components/StorageManagementSettings'
 import { CacheManagementSettings } from './components/CacheManagementSettings'
+import { SecuritySettings } from './components/SecuritySettings'
 import { AdvancedSettings } from './components/AdvancedSettings'
 import { LoggingSettings } from './components/LoggingSettings'
 import { DangerZoneSettings } from '../../components/SettingsView/DangerZoneSettings'
+import { GatekeeperSetupModal } from '@renderer/components/GatekeeperSetupModal'
+import { GatekeeperChangeModal } from '@renderer/components/GatekeeperChangeModal'
+import { GatekeeperResetPrompt } from '@renderer/components/GatekeeperResetPrompt'
 import { UnsavedChangesBanner } from './components/UnsavedChangesBanner'
+import { SettingsHeader } from './components/SettingsHeader'
+import type { SettingsSection } from './components/SettingsHeader'
+import { useScrollSpy } from './hooks/useScrollSpy'
 import { ContentLanguage } from '../../../../main/settings/enums/content-language.enum'
 import './SettingsView.css'
 
@@ -29,9 +35,47 @@ interface PerMangaOverride {
   settings: MangaReadingSettings
 }
 
+// Section IDs for navigation and scroll spy
+const SECTION_IDS = [
+  'appearance',
+  'language',
+  'reader',
+  'downloads',
+  'performance',
+  'storage',
+  'security',
+  'advanced'
+] as const
+
+// Maps each modified-setting key to its section ID for scroll-to navigation
+const SETTING_TO_SECTION: Record<string, string> = {
+  themeMode: 'appearance',
+  accentColor: 'appearance',
+  startupPage: 'appearance',
+  displayLanguage: 'language',
+  syncContentLanguage: 'language',
+  contentLanguages: 'language',
+  globalReaderSettings: 'reader',
+  forceDarkMode: 'reader',
+  imageQuality: 'reader',
+  downloadConfirmation: 'downloads',
+  defaultQuality: 'downloads',
+  maxConcurrentDownloads: 'downloads',
+  downloadsPath: 'downloads',
+  chapterCacheTier: 'performance',
+  customCacheSize: 'performance',
+  maxDiskCacheSize: 'performance',
+  autoCheckForUpdates: 'advanced',
+  autoDownloadUpdates: 'advanced',
+  logRetentionDays: 'advanced'
+}
+
 export function SettingsView(): JSX.Element {
   // Translation
   const { t } = useTranslation(['settings', 'common'])
+
+  // Search params for section navigation
+  const [searchParams, setSearchParams] = useSearchParams()
 
   // Zustand stores
   const showToast = useToastStore((state) => state.show)
@@ -42,15 +86,33 @@ export function SettingsView(): JSX.Element {
   // App state (theme)
   const { themeMode, setThemeMode } = useAppStore()
 
-  // Router location for reading URL params
-  const location = useLocation()
-
   // Settings tracking for unsaved changes
   const [originalSettings, setOriginalSettings] = useState<AppSettings | null>(null)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
+  // Section navigation state
+  const [highlightedSection, setHighlightedSection] = useState<string | null>(null)
+  const [isInitialMount, setIsInitialMount] = useState(true)
+
+  // Track modified settings for visual indicators
+  const [modifiedSettings, setModifiedSettings] = useState<Set<string>>(new Set())
+
+  // Gatekeeper modal states
+  const [isSetupModalOpen, setIsSetupModalOpen] = useState(false)
+  const [isChangeModalOpen, setIsChangeModalOpen] = useState(false)
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false)
+
+  // Build settings sections array for navigation
+  const settingsSections: SettingsSection[] = SECTION_IDS.map((id) => ({
+    id,
+    label: t(`settings:tabs.${id}`, { defaultValue: id }),
+    translationKey: `settings:tabs.${id}`
+  }))
+
+  // Scroll spy to track current visible section
+  const currentSection = useScrollSpy(SECTION_IDS)
+
   // Local state for UI
-  const [activeTab, setActiveTab] = useState('appearance')
   const [downloadsPath, setDownloadsPath] = useState<string>('')
   const [isLoadingPath, setIsLoadingPath] = useState(true)
   const [isChangingPath, setIsChangingPath] = useState(false)
@@ -192,25 +254,36 @@ export function SettingsView(): JSX.Element {
     logRetentionDays
   ])
 
-  // Read tab from URL params on mount
+  // Search params support for deep linking to sections
+  // Note: Intentionally using empty dependency array - this should only run once on mount
+  // for deep linking. Adding searchParams creates a feedback loop with the scroll spy effect.
   useEffect(() => {
-    const searchParams = new URLSearchParams(location.search)
-    const tabParam = searchParams.get('tab')
-    if (
-      tabParam &&
-      [
-        'appearance',
-        'language',
-        'reader',
-        'downloads',
-        'performance',
-        'storage',
-        'advanced'
-      ].includes(tabParam)
-    ) {
-      setActiveTab(tabParam)
+    const section = searchParams.get('section')
+    if (section && SECTION_IDS.includes(section as (typeof SECTION_IDS)[number])) {
+      // Delay to ensure DOM is ready
+      setTimeout(() => {
+        // Scroll to section without highlighting on initial mount
+        const element = document.getElementById(section)
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }, 100)
     }
-  }, [location.search])
+    // Mark as no longer initial mount after first render
+    setIsInitialMount(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Update search params when current section changes (from scrolling)
+  useEffect(() => {
+    if (currentSection && !isInitialMount) {
+      const currentSection_param = searchParams.get('section')
+      // Only update if section param is different to avoid unnecessary history updates
+      if (currentSection_param !== currentSection) {
+        setSearchParams({ section: currentSection }, { replace: true })
+      }
+    }
+  }, [currentSection, isInitialMount, searchParams, setSearchParams])
 
   // Load settings on mount
   useEffect(() => {
@@ -408,11 +481,17 @@ export function SettingsView(): JSX.Element {
     root.style.setProperty('--win-accent-active', activeColor)
   }
 
+  // Helper to mark a setting as modified
+  const markSettingModified = (settingKey: string): void => {
+    setModifiedSettings((prev) => new Set(prev).add(settingKey))
+  }
+
   // Restore system accent color
   const handleUseSystemColor = (): void => {
     setAccentColor(systemAccentColor)
     setIsUsingSystemColor(true)
     applyAccentColor(systemAccentColor)
+    markSettingModified('accentColor')
   }
 
   // Handle accent color change
@@ -420,36 +499,43 @@ export function SettingsView(): JSX.Element {
     setAccentColor(color)
     setIsUsingSystemColor(false)
     applyAccentColor(color)
+    markSettingModified('accentColor')
   }
 
   // Handle theme mode change
   const handleThemeModeChange = (mode: string): void => {
     setThemeMode(mode as 'system' | 'light' | 'dark')
+    markSettingModified('themeMode')
   }
 
   // Handle display language change
   const handleDisplayLanguageChange = (language: string): void => {
     setDisplayLanguage(language as 'en-GB' | 'en-US' | 'vi-VN')
+    markSettingModified('displayLanguage')
   }
 
   // Handle sync content language change
   const handleSyncContentLanguageChange = (checked: boolean): void => {
     setSyncContentLanguage(checked)
+    markSettingModified('syncContentLanguage')
   }
 
   // Handle content languages change
   const handleContentLanguagesChange = (languages: string[]): void => {
     setContentLanguages(languages)
+    markSettingModified('contentLanguages')
   }
 
   // Handle download confirmation change
   const handleDownloadConfirmationChange = (confirmation: string): void => {
     setDownloadConfirmation(confirmation as 'always' | 'batch-only' | 'never')
+    markSettingModified('downloadConfirmation')
   }
 
   // Handle default quality change
   const handleDefaultQualityChange = (quality: string): void => {
     setDefaultQuality(quality as 'data' | 'data-saver')
+    markSettingModified('defaultQuality')
   }
 
   // Handle max concurrent downloads change
@@ -457,11 +543,13 @@ export function SettingsView(): JSX.Element {
     const selectedCount = Array.isArray(count) ? count[0] : count
     const numericCount = Number.parseInt(selectedCount, 10)
     setMaxConcurrentDownloads(numericCount)
+    markSettingModified('maxConcurrentDownloads')
   }
 
   // Handle cover cache limit change
   const handleCoverCacheLimitChange = (limitMB: number): void => {
     setMaxDiskCacheSize(limitMB === 0 ? 0 : limitMB * 1024 * 1024)
+    markSettingModified('maxDiskCacheSize')
   }
 
   // Handle downloads folder selection
@@ -476,6 +564,7 @@ export function SettingsView(): JSX.Element {
 
       if (!result.cancelled && result.filePath) {
         setDownloadsPath(result.filePath)
+        markSettingModified('downloadsPath')
       }
     } catch (error) {
       showToast({
@@ -498,6 +587,7 @@ export function SettingsView(): JSX.Element {
       readingMode: selectedMode as MangaReadingSettings['readingMode']
     }
     setGlobalReaderSettings(updatedSettings)
+    markSettingModified('globalReaderSettings')
   }
 
   // Handle double page mode checkbox changes
@@ -514,16 +604,66 @@ export function SettingsView(): JSX.Element {
       }
     }
     setGlobalReaderSettings(updatedSettings)
+    markSettingModified('globalReaderSettings')
   }
 
   // Handle force dark mode toggle
   const handleForceDarkModeChange = (enabled: boolean): void => {
     setForceDarkMode(enabled)
+    markSettingModified('forceDarkMode')
   }
 
   // Handle image quality change
   const handleImageQualityChange = (quality: string): void => {
     setImageQuality(quality as 'data' | 'data-saver')
+    markSettingModified('imageQuality')
+  }
+
+  // Handle startup page change (appearance section)
+  const handleStartupPageChange = (page: 'library' | 'browse' | 'downloads'): void => {
+    setStartupPage(page)
+    markSettingModified('startupPage')
+  }
+
+  // Handle cache tier change (performance section)
+  const handleCacheTierChange = (tier: 'low' | 'normal' | 'high' | 'custom'): void => {
+    setChapterCacheTier(tier)
+    markSettingModified('chapterCacheTier')
+  }
+
+  // Handle custom cache size change (performance section)
+  const handleCustomCacheSizeChange = (size: number): void => {
+    setCustomCacheSize(size)
+    markSettingModified('customCacheSize')
+  }
+
+  // Handle auto check for updates change (advanced section)
+  const handleAutoCheckChange = (enabled: boolean): void => {
+    setAutoCheckForUpdates(enabled)
+    markSettingModified('autoCheckForUpdates')
+  }
+
+  // Handle auto download updates change (advanced section)
+  const handleAutoDownloadChange = (enabled: boolean): void => {
+    setAutoDownloadUpdates(enabled)
+    markSettingModified('autoDownloadUpdates')
+  }
+
+  // Handle log retention days change (advanced section)
+  const handleLogRetentionDaysChange = (days: number): void => {
+    setLogRetentionDays(days)
+    markSettingModified('logRetentionDays')
+  }
+
+  // Gatekeeper modal handlers
+  const handleGatekeeperSuccess = (): void => {
+    // Refresh the SecuritySettings component status
+    const refreshFn = (globalThis as Record<string, unknown>).__refreshGatekeeperStatus as
+      | (() => void)
+      | undefined
+    if (typeof refreshFn === 'function') {
+      refreshFn()
+    }
   }
 
   // Reset individual manga override
@@ -595,27 +735,22 @@ export function SettingsView(): JSX.Element {
 
             // Show warning if exceeds recommendation but within sanity limit
             const result = await globalThis.api.showDialog({
-              message: 'High Memory Usage Warning',
-              detail: `The selected cache size (${customCacheSize} MB) exceeds the recommended maximum for your system.
-
-System Info:
-• Total RAM: ${systemRAM_GB} GB
-• Recommended maximum: ${recommendedMaxMB} MB (10% of system RAM)
-• Hard ceiling: ${sanityMaxMB} MB (30% of system RAM)
-• Your selection: ${customCacheSize} MB
-
-Using a cache larger than recommended may cause:
-• Slower application performance
-• System memory pressure warnings
-• Automatic cache eviction by the OS
-
-Are you absolutely certain you want to proceed with this cache size?`,
-              buttons: ['Proceed Anyway', 'Go Back'],
+              message: t('settings:performance.highMemoryWarning.title'),
+              detail: t('settings:performance.highMemoryWarning.message', {
+                size: customCacheSize,
+                ram: systemRAM_GB,
+                recommended: recommendedMaxMB,
+                max: sanityMaxMB
+              }),
+              buttons: [
+                t('settings:performance.highMemoryWarning.proceedButton'),
+                t('settings:performance.highMemoryWarning.cancelButton')
+              ],
               type: 'warning',
               defaultId: 1,
               cancelId: 1,
               noLink: true,
-              checkboxLabel: "Don't warn me again about cache sizes",
+              checkboxLabel: t('settings:performance.highMemoryWarning.suppressCheckbox'),
               checkboxChecked: false
             })
 
@@ -700,6 +835,7 @@ Are you absolutely certain you want to proceed with this cache size?`,
         setOriginalSettings(freshSettings.data)
       }
       setHasUnsavedChanges(false)
+      setModifiedSettings(new Set()) // Clear modified indicators
 
       // If language changed, prompt for restart
       if (languageChanged) {
@@ -731,6 +867,75 @@ Are you absolutely certain you want to proceed with this cache size?`,
       })
     }
   }
+
+  // Handle section navigation with smooth scroll
+  const handleSectionSelect = (sectionId: string): void => {
+    const element = document.getElementById(sectionId)
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+
+      // Trigger highlight animation
+      setHighlightedSection(sectionId)
+
+      // Remove highlight after animation completes
+      setTimeout(() => {
+        setHighlightedSection(null)
+      }, 1500)
+
+      // Update search params
+      setSearchParams({ section: sectionId }, { replace: true })
+    }
+  }
+
+  // Helper function to get human-readable label for setting key
+  const getSettingLabel = (key: string): string => {
+    const labels: Record<string, string> = {
+      themeMode: t('settings:appearance.themeLabel', { defaultValue: 'Theme' }),
+      accentColor: t('settings:appearance.accentLabel', { defaultValue: 'Accent Colour' }),
+      startupPage: t('settings:appearance.startupPageLabel', { defaultValue: 'Startup Page' }),
+      displayLanguage: t('settings:appearance.languageLabel', { defaultValue: 'Display Language' }),
+      syncContentLanguage: t('settings:appearance.syncContentLanguage', {
+        defaultValue: 'Sync content language with display language'
+      }),
+      contentLanguages: t('settings:language.contentLanguageLabel', {
+        defaultValue: 'Content Languages'
+      }),
+      downloadConfirmation: t('settings:downloads.confirmationLabel', {
+        defaultValue: 'Download Confirmation'
+      }),
+      defaultQuality: t('settings:downloads.qualityLabel', { defaultValue: 'Default Quality' }),
+      maxConcurrentDownloads: t('settings:downloads.concurrentLabel', {
+        defaultValue: 'Concurrent Downloads'
+      }),
+      maxDiskCacheSize: t('settings:cacheManagement.coverCacheLimitLabel', {
+        defaultValue: 'Cover Cache Limit'
+      }),
+      downloadsPath: t('settings:downloads.locationLabel', { defaultValue: 'Download Location' }),
+      globalReaderSettings: t('settings:reader.settingsLabel', { defaultValue: 'Reader Settings' }),
+      forceDarkMode: t('settings:reader.forceDarkModeLabel', {
+        defaultValue: 'Force Dark Mode on Manga Pages'
+      }),
+      imageQuality: t('settings:reader.imageQualityLabel', { defaultValue: 'Image Quality' }),
+      chapterCacheTier: t('settings:performance.sectionTitle', {
+        defaultValue: 'Chapter Cache Size'
+      }),
+      customCacheSize: t('settings:performance.customCacheLabel', {
+        defaultValue: 'Custom Cache Size'
+      }),
+      autoCheckForUpdates: t('settings:advanced.autoCheckLabel', {
+        defaultValue: 'Automatically check for updates'
+      }),
+      autoDownloadUpdates: t('settings:advanced.autoDownloadLabel', {
+        defaultValue: 'Automatically download updates'
+      }),
+      logRetentionDays: t('settings:logging.retentionLabel', {
+        defaultValue: 'Log Retention Period'
+      })
+    }
+    return labels[key] || key
+  }
+
+  const getSettingSection = (key: string): string => SETTING_TO_SECTION[key] ?? 'appearance'
 
   // Reset all settings to their saved values
   const handleResetSettings = (): void => {
@@ -782,6 +987,7 @@ Are you absolutely certain you want to proceed with this cache size?`,
     setLogRetentionDays(originalSettings.logs?.retentionInDays ?? 7)
 
     setHasUnsavedChanges(false)
+    setModifiedSettings(new Set()) // Clear modified indicators
   }
 
   // Check if custom cache size is invalid (only block if < 10 MB)
@@ -791,33 +997,36 @@ Are you absolutely certain you want to proceed with this cache size?`,
 
   return (
     <div className="settings-view__container">
-      {/* Unsaved changes banner */}
+      {/* Unsaved changes banner (fixed bottom) */}
       {hasUnsavedChanges && (
         <UnsavedChangesBanner
           onSave={handleSaveSettings}
           onReset={handleResetSettings}
           disabled={isInvalidCustomCache}
+          modifiedSettings={modifiedSettings}
+          getSettingLabel={getSettingLabel}
+          getSettingSection={getSettingSection}
+          onScrollToSection={handleSectionSelect}
         />
       )}
 
-      {/* Screen reader heading for page structure */}
+      {/* Sticky header with section navigation */}
+      <SettingsHeader
+        currentSection={currentSection}
+        sections={settingsSections}
+        onSectionSelect={handleSectionSelect}
+      />
+
+      {/* Screen reader heading */}
       <h1 className="sr-only">{t('settings:pageTitle')}</h1>
 
-      <Tabs value={activeTab} onChange={setActiveTab}>
-        <TabList>
-          <Tab value="appearance">{t('settings:tabs.appearance')}</Tab>
-          <Tab value="language">{t('settings:tabs.language', { defaultValue: 'Language' })}</Tab>
-          <Tab value="reader">{t('settings:tabs.reader')}</Tab>
-          <Tab value="downloads">{t('settings:tabs.downloads')}</Tab>
-          <Tab value="performance">
-            {t('settings:tabs.performance', { defaultValue: 'Performance' })}
-          </Tab>
-          <Tab value="storage">{t('settings:tabs.storage')}</Tab>
-          <Tab value="advanced">{t('settings:tabs.advanced')}</Tab>
-        </TabList>
-
+      <div className="settings-content">
         {/* Appearance Settings */}
-        <TabPanel value="appearance">
+        <section
+          id="appearance"
+          className={`settings-section ${highlightedSection === 'appearance' ? 'settings-section--highlighted' : ''}`}
+        >
+          <h2 className="settings-section__title">{t('settings:tabs.appearance')}</h2>
           <AppearanceSettings
             themeMode={themeMode}
             onThemeModeChange={handleThemeModeChange}
@@ -827,12 +1036,19 @@ Are you absolutely certain you want to proceed with this cache size?`,
             systemAccentColor={systemAccentColor}
             onUseSystemColor={handleUseSystemColor}
             startupPage={startupPage}
-            onStartupPageChange={setStartupPage}
+            onStartupPageChange={handleStartupPageChange}
+            modifiedSettings={modifiedSettings}
           />
-        </TabPanel>
+        </section>
 
         {/* Language Settings */}
-        <TabPanel value="language">
+        <section
+          id="language"
+          className={`settings-section ${highlightedSection === 'language' ? 'settings-section--highlighted' : ''}`}
+        >
+          <h2 className="settings-section__title">
+            {t('settings:tabs.language', { defaultValue: 'Language' })}
+          </h2>
           <LanguageSettings
             displayLanguage={displayLanguage}
             onDisplayLanguageChange={handleDisplayLanguageChange}
@@ -840,11 +1056,16 @@ Are you absolutely certain you want to proceed with this cache size?`,
             onSyncContentLanguageChange={handleSyncContentLanguageChange}
             contentLanguages={contentLanguages}
             onContentLanguagesChange={handleContentLanguagesChange}
+            modifiedSettings={modifiedSettings}
           />
-        </TabPanel>
+        </section>
 
         {/* Reader Settings */}
-        <TabPanel value="reader">
+        <section
+          id="reader"
+          className={`settings-section ${highlightedSection === 'reader' ? 'settings-section--highlighted' : ''}`}
+        >
+          <h2 className="settings-section__title">{t('settings:tabs.reader')}</h2>
           <ReaderSettingsSection
             isLoading={isLoadingReaderSettings}
             forceDarkMode={forceDarkMode}
@@ -857,11 +1078,16 @@ Are you absolutely certain you want to proceed with this cache size?`,
             perMangaOverrides={perMangaOverrides}
             onResetMangaOverride={handleResetMangaOverride}
             onClearAllOverrides={handleClearAllOverrides}
+            modifiedSettings={modifiedSettings}
           />
-        </TabPanel>
+        </section>
 
         {/* Downloads Settings */}
-        <TabPanel value="downloads">
+        <section
+          id="downloads"
+          className={`settings-section ${highlightedSection === 'downloads' ? 'settings-section--highlighted' : ''}`}
+        >
+          <h2 className="settings-section__title">{t('settings:tabs.downloads')}</h2>
           <DownloadsSettings
             downloadsPath={downloadsPath}
             isLoadingPath={isLoadingPath}
@@ -873,16 +1099,24 @@ Are you absolutely certain you want to proceed with this cache size?`,
             onDownloadConfirmationChange={handleDownloadConfirmationChange}
             onDefaultQualityChange={handleDefaultQualityChange}
             onMaxConcurrentDownloadsChange={handleMaxConcurrentDownloadsChange}
+            modifiedSettings={modifiedSettings}
           />
-        </TabPanel>
+        </section>
 
         {/* Performance Settings */}
-        <TabPanel value="performance">
+        <section
+          id="performance"
+          className={`settings-section ${highlightedSection === 'performance' ? 'settings-section--highlighted' : ''}`}
+        >
+          <h2 className="settings-section__title">
+            {t('settings:tabs.performance', { defaultValue: 'Performance' })}
+          </h2>
           <PerformanceSettingsSection
             cacheTier={chapterCacheTier}
             customCacheSize={customCacheSize}
-            onCacheTierChange={setChapterCacheTier}
-            onCustomCacheSizeChange={setCustomCacheSize}
+            onCacheTierChange={handleCacheTierChange}
+            onCustomCacheSizeChange={handleCustomCacheSizeChange}
+            modifiedSettings={modifiedSettings}
           />
           <div className="settings-view__section-divider">
             <h3 className="settings-view__section-heading">
@@ -895,30 +1129,73 @@ Are you absolutely certain you want to proceed with this cache size?`,
             <CacheManagementSettings
               coverCacheLimit={maxDiskCacheSize === 0 ? 0 : maxDiskCacheSize / (1024 * 1024)}
               onCoverCacheLimitChange={handleCoverCacheLimitChange}
+              modifiedSettings={modifiedSettings}
             />
           </div>
-        </TabPanel>
+        </section>
 
         {/* Storage Management Settings */}
-        <TabPanel value="storage">
+        <section
+          id="storage"
+          className={`settings-section ${highlightedSection === 'storage' ? 'settings-section--highlighted' : ''}`}
+        >
+          <h2 className="settings-section__title">{t('settings:tabs.storage')}</h2>
           <StorageManagementSettings />
-        </TabPanel>
+        </section>
+
+        {/* Security Settings */}
+        <section
+          id="security"
+          className={`settings-section ${highlightedSection === 'security' ? 'settings-section--highlighted' : ''}`}
+        >
+          <h2 className="settings-section__title">
+            {t('settings:tabs.security', { defaultValue: 'Security' })}
+          </h2>
+          <SecuritySettings
+            onOpenSetupModal={() => setIsSetupModalOpen(true)}
+            onOpenChangeModal={() => setIsChangeModalOpen(true)}
+            onOpenResetModal={() => setIsResetModalOpen(true)}
+          />
+        </section>
 
         {/* Advanced Settings */}
-        <TabPanel value="advanced">
+        <section
+          id="advanced"
+          className={`settings-section ${highlightedSection === 'advanced' ? 'settings-section--highlighted' : ''}`}
+        >
+          <h2 className="settings-section__title">{t('settings:tabs.advanced')}</h2>
           <AdvancedSettings
             autoCheckForUpdates={autoCheckForUpdates}
             autoDownloadUpdates={autoDownloadUpdates}
-            onAutoCheckChange={setAutoCheckForUpdates}
-            onAutoDownloadChange={setAutoDownloadUpdates}
+            onAutoCheckChange={handleAutoCheckChange}
+            onAutoDownloadChange={handleAutoDownloadChange}
+            modifiedSettings={modifiedSettings}
           />
           <LoggingSettings
             retentionDays={logRetentionDays}
-            onRetentionDaysChange={setLogRetentionDays}
+            onRetentionDaysChange={handleLogRetentionDaysChange}
+            modifiedSettings={modifiedSettings}
           />
           <DangerZoneSettings />
-        </TabPanel>
-      </Tabs>
+        </section>
+      </div>
+
+      {/* Gatekeeper Modals */}
+      <GatekeeperSetupModal
+        open={isSetupModalOpen}
+        onClose={() => setIsSetupModalOpen(false)}
+        onSuccess={handleGatekeeperSuccess}
+      />
+      <GatekeeperChangeModal
+        open={isChangeModalOpen}
+        onClose={() => setIsChangeModalOpen(false)}
+        onSuccess={handleGatekeeperSuccess}
+      />
+      <GatekeeperResetPrompt
+        open={isResetModalOpen}
+        onClose={() => setIsResetModalOpen(false)}
+        onSuccess={handleGatekeeperSuccess}
+      />
     </div>
   )
 }
