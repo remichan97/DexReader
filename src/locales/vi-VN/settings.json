@@ -1,10 +1,13 @@
 {
   "pageTitle": "Cài đặt",
+  "jumpToSection": "Chuyển đến phần",
+  "jumpTo": "Chuyển đến...",
   "unsavedChangesBanner": {
-    "message": "Đừng quên lưu các thay đổi của bạn trước khi rời đi!",
+    "message": "Đừng quên lưu các thiết lập của bạn trước khi rời đi!",
     "validationError": "Một số cài đặt không hợp lệ. Sửa lỗi trước khi lưu.",
     "saveButton": "Lưu thay đổi",
-    "discardButton": "Bỏ qua"
+    "discardButton": "Bỏ qua",
+    "modifiedCount": "{{count}} thay đổi"
   },
   "tabs": {
     "appearance": "Giao diện",
@@ -171,7 +174,14 @@
       "high": "Điều này vượt quá khuyến nghị của chúng tôi là {{recommended}} MB (10% RAM hệ thống). Giá trị cao hơn có thể làm chậm hệ thống."
     },
     "warningsSuppressed": "Cảnh báo đã bị tắt",
-    "resetWarningsButton": "Đặt lại cảnh báo"
+    "resetWarningsButton": "Đặt lại cảnh báo",
+    "highMemoryWarning": {
+      "title": "Cảnh báo Sử dụng Bộ nhớ Cao",
+      "message": "Kích thước cache đã chọn ({{size}} MB) vượt quá mức đề xuất tối đa cho hệ thống của bạn.\n\nThông tin Hệ thống:\n• Tổng RAM: {{ram}} GB\n• Đề xuất tối đa: {{recommended}} MB (10% RAM hệ thống)\n• Giới hạn cứng: {{max}} MB (30% RAM hệ thống)\n• Lựa chọn của bạn: {{size}} MB\n\nSử dụng cache lớn hơn mức đề xuất có thể gây ra:\n• Hiệu suất ứng dụng chậm hơn\n• Cảnh báo áp lực bộ nhớ hệ thống\n• Hệ điều hành tự động xóa cache\n\nBạn có chắc chắn muốn tiếp tục với kích thước cache này không?",
+      "proceedButton": "Vẫn Tiếp tục",
+      "cancelButton": "Quay lại",
+      "suppressCheckbox": "Không cảnh báo tôi nữa về kích thước cache"
+    }
   },
   "storage": {
     "chartTitle": "Phân tích dung lượng DexReader",

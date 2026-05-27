@@ -732,27 +732,22 @@ export function SettingsView(): JSX.Element {
 
             // Show warning if exceeds recommendation but within sanity limit
             const result = await globalThis.api.showDialog({
-              message: 'High Memory Usage Warning',
-              detail: `The selected cache size (${customCacheSize} MB) exceeds the recommended maximum for your system.
-
-System Info:
-• Total RAM: ${systemRAM_GB} GB
-• Recommended maximum: ${recommendedMaxMB} MB (10% of system RAM)
-• Hard ceiling: ${sanityMaxMB} MB (30% of system RAM)
-• Your selection: ${customCacheSize} MB
-
-Using a cache larger than recommended may cause:
-• Slower application performance
-• System memory pressure warnings
-• Automatic cache eviction by the OS
-
-Are you absolutely certain you want to proceed with this cache size?`,
-              buttons: ['Proceed Anyway', 'Go Back'],
+              message: t('settings:performance.highMemoryWarning.title'),
+              detail: t('settings:performance.highMemoryWarning.message', {
+                size: customCacheSize,
+                ram: systemRAM_GB,
+                recommended: recommendedMaxMB,
+                max: sanityMaxMB
+              }),
+              buttons: [
+                t('settings:performance.highMemoryWarning.proceedButton'),
+                t('settings:performance.highMemoryWarning.cancelButton')
+              ],
               type: 'warning',
               defaultId: 1,
               cancelId: 1,
               noLink: true,
-              checkboxLabel: "Don't warn me again about cache sizes",
+              checkboxLabel: t('settings:performance.highMemoryWarning.suppressCheckbox'),
               checkboxChecked: false
             })
 

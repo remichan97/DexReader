@@ -1,10 +1,13 @@
 {
   "pageTitle": "Settings",
+  "jumpToSection": "Jump to section",
+  "jumpTo": "Jump to...",
   "unsavedChangesBanner": {
     "message": "Don't forget to save your changes before you leave!",
     "validationError": "Some settings are invalid. Fix validation errors before saving.",
     "saveButton": "Save Changes",
-    "discardButton": "Discard"
+    "discardButton": "Discard",
+    "modifiedCount": "{{count}} modified"
   },
   "tabs": {
     "appearance": "Appearance",
@@ -170,7 +173,14 @@
       "high": "This exceeds our recommendation of {{recommended}} MB (10% of system RAM). Higher values might slow things down."
     },
     "warningsSuppressed": "Warnings suppressed",
-    "resetWarningsButton": "Reset warnings"
+    "resetWarningsButton": "Reset warnings",
+    "highMemoryWarning": {
+      "title": "High Memory Usage Warning",
+      "message": "The selected cache size ({{size}} MB) exceeds the recommended maximum for your system.\n\nSystem Info:\n• Total RAM: {{ram}} GB\n• Recommended maximum: {{recommended}} MB (10% of system RAM)\n• Hard ceiling: {{max}} MB (30% of system RAM)\n• Your selection: {{size}} MB\n\nUsing a cache larger than recommended may cause:\n• Slower application performance\n• System memory pressure warnings\n• Automatic cache eviction by the OS\n\nAre you absolutely certain you want to proceed with this cache size?",
+      "proceedButton": "Proceed Anyway",
+      "cancelButton": "Go Back",
+      "suppressCheckbox": "Don't warn me again about cache sizes"
+    }
   },
   "storage": {
     "chartTitle": "DexReader Storage Breakdown",

@@ -87,7 +87,7 @@ export function SettingsSectionMenu({
         onClick={() => onOpenChange(!isOpen)}
         aria-expanded={isOpen}
         aria-haspopup="menu"
-        aria-label={t('settings:jumpTo', { defaultValue: 'Jump to section' })}
+        aria-label={t('settings:jumpToSection', { defaultValue: 'Jump to section' })}
       >
         <span className={currentSectionLabel ? 'settings-section-menu__trigger-label--active' : ''}>
           {currentSectionLabel || t('settings:jumpTo', { defaultValue: 'Jump to...' })}
