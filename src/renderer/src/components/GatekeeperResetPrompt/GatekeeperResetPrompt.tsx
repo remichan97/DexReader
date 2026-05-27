@@ -120,20 +120,10 @@ export function GatekeeperResetPrompt({
           })}
         </p>
 
-        <div className="px-3 py-3 bg-warning-subtle border border-warning-default rounded-md mb-2">
-          <p className="text-sm text-warning-default m-0 font-medium">
-            {t('gatekeeper:settings.reset.confirm.message', {
-              defaultValue:
-                "This will disable App Lock and delete your passphrase. You'll need to set up App Lock again if you want to use it."
-            })}
-          </p>
-        </div>
-
         {/* Passphrase Input */}
         <Input
           id="gatekeeper-reset-passphrase"
           type="password"
-          label={t('gatekeeper:settings.reset.passphraseLabel', { defaultValue: 'Passphrase' })}
           value={passphrase}
           onChange={setPassphrase}
           placeholder={t('gatekeeper:settings.reset.passphrasePlaceholder', {

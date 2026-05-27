@@ -1,6 +1,6 @@
 {
   "unlock": {
-    "title": "DexReader is Locked",
+    "title": "Knock knock... Who's there?",
     "description": "Enter your passphrase to continue",
     "placeholder": "Passphrase",
     "button": "Unlock",
@@ -10,10 +10,10 @@
     "hidePassphrase": "Hide passphrase",
     "errors": {
       "empty": "Please enter your passphrase",
-      "incorrect": "Incorrect passphrase. Please try again.",
-      "incorrectWithDelay": "Incorrect passphrase. Wait {{seconds}} seconds before trying again.",
+      "incorrect": "Nice try. Please try again.",
+      "incorrectWithDelay": "Nice try, but not quite. Wait {{seconds}} seconds before trying again.",
       "system": "Failed to verify passphrase. Please try again.",
-      "unexpected": "An unexpected error occurred. Please try again."
+      "unexpected": "Something went wrong. Please try again."
     },
     "help": {
       "prefix": "Forgot your passphrase?",
@@ -57,8 +57,8 @@
       "changing": "Changing..."
     },
     "reset": {
-      "title": "Reset App Lock",
-      "description": "Enter your passphrase to disable App Lock",
+      "title": "Reset App Lock?",
+      "description": "This will disable App Lock and delete your passphrase. You'll need to set up App Lock again if you want to use it. To proceed, enter your current passphrase below.",
       "passphraseLabel": "Passphrase",
       "passphrasePlaceholder": "Enter your passphrase",
       "resetButton": "Reset App Lock",

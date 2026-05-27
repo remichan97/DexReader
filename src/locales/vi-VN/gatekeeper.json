@@ -1,6 +1,6 @@
 {
   "unlock": {
-    "title": "DexReader đã bị khóa",
+    "title": "Cốc cốc... Ai gọi đó?",
     "description": "Nhập mật khẩu của bạn để tiếp tục",
     "placeholder": "Mật khẩu",
     "button": "Mở khóa",
@@ -10,8 +10,8 @@
     "hidePassphrase": "Ẩn mật khẩu",
     "errors": {
       "empty": "Vui lòng nhập mật khẩu",
-      "incorrect": "Mật khẩu không đúng. Vui lòng thử lại.",
-      "incorrectWithDelay": "Mật khẩu không đúng. Đợi {{seconds}} giây trước khi thử lại.",
+      "incorrect": "Hay lắm, nhưng sai rồi",
+      "incorrectWithDelay": "Hay lắm, nhưng sai rồi. Đợi {{seconds}} giây trước khi thử lại.",
       "system": "Không thể xác minh mật khẩu. Vui lòng thử lại.",
       "unexpected": "Đã xảy ra lỗi không mong đợi. Vui lòng thử lại."
     },
@@ -57,19 +57,13 @@
       "changing": "Đang đổi..."
     },
     "reset": {
-      "title": "Đặt lại khóa ứng dụng",
-      "description": "Nhập mật khẩu để tắt khóa ứng dụng",
+      "title": "Đặt lại khóa ứng dụng?",
+      "description": "Điều này sẽ tắt khóa ứng dụng và xóa mật khẩu của bạn. Bạn sẽ cần thiết lập lại mật khẩu nếu muốn sử dụng lại chức năng này. Để tiếp tục, vui lòng nhập mật khẩu hiện tại của bạn vào ô bên dưới.",
       "passphraseLabel": "Mật khẩu",
       "passphrasePlaceholder": "Nhập mật khẩu của bạn",
       "resetButton": "Đặt lại khóa ứng dụng",
       "cancelButton": "Hủy",
-      "resetting": "Đang đặt lại...",
-      "confirm": {
-        "title": "Đặt lại khóa ứng dụng?",
-        "message": "Điều này sẽ tắt khóa ứng dụng và xóa mật khẩu của bạn. Bạn sẽ cần thiết lập lại nếu muốn sử dụng lại.",
-        "confirmButton": "Đặt lại",
-        "cancelButton": "Hủy"
-      }
+      "resetting": "Đang đặt lại..."
     },
     "errors": {
       "enable": {
