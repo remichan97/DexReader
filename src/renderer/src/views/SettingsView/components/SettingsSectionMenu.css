@@ -58,7 +58,8 @@
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
-  min-width: 220px;
+  right: 0;
+  width: 100%;
   background: var(--win-bg-card);
   border: 1px solid var(--win-border-default);
   border-radius: var(--radius-md);

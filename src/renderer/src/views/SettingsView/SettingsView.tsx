@@ -255,6 +255,8 @@ export function SettingsView(): JSX.Element {
   ])
 
   // Search params support for deep linking to sections
+  // Note: Intentionally using empty dependency array - this should only run once on mount
+  // for deep linking. Adding searchParams creates a feedback loop with the scroll spy effect.
   useEffect(() => {
     const section = searchParams.get('section')
     if (section && SECTION_IDS.includes(section as (typeof SECTION_IDS)[number])) {
@@ -269,6 +271,7 @@ export function SettingsView(): JSX.Element {
     }
     // Mark as no longer initial mount after first render
     setIsInitialMount(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Update search params when current section changes (from scrolling)
