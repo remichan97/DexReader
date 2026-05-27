@@ -304,7 +304,7 @@
       "buttonLoading": "Resetting...",
       "confirm": {
         "title": "Reset Settings to Default?",
-        "message": "This will restore all settings to their default values.\n\nYour library and reading progress will NOT be affected.",
+        "message": "This will restore all settings to their default values.\n\nYour library and reading progress will NOT be affected.\n\nIf you have App Lock enabled, your App Lock settings will also be reset.\n\nThis action cannot be undone.",
         "confirmButton": "Reset Settings",
         "cancelButton": "Cancel"
       }
@@ -316,7 +316,7 @@
       "buttonLoading": "Clearing...",
       "confirm": {
         "title": "Clear All Data?",
-        "message": "This action cannot be undone.\n\nAll of the following will be permanently deleted:\n• Library and collections\n• Reading progress and history\n• All settings and preferences\n\nThe app will restart after clearing data.",
+        "message": "This action cannot be undone.\n\nAll of the following will be permanently deleted:\n• Library and collections\n• Reading progress and history\n• All settings and preferences\n\nIf you have App Lock enabled, your App Lock settings will also be reset.\n\nThe app will restart after clearing data.",
         "confirmButton": "Clear All Data",
         "cancelButton": "Cancel"
       }

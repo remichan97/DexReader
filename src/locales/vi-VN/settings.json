@@ -309,7 +309,7 @@
       "buttonLoading": "Đang đặt lại...",
       "confirm": {
         "title": "Đặt lại cài đặt về mặc định?",
-        "message": "Điều này sẽ khôi phục tất cả cài đặt về giá trị mặc định.\n\nThư viện và tiến trình đọc của bạn sẽ KHÔNG bị ảnh hưởng.",
+        "message": "Điều này sẽ khôi phục tất cả cài đặt về giá trị mặc định.\n\nThư viện và tiến trình đọc của bạn sẽ KHÔNG bị ảnh hưởng.\n\nNếu bạn đã bật Khóa ứng dụng, cài đặt Khóa ứng dụng của bạn cũng sẽ bị đặt lại.\n\nThao tác này không thể hoàn tác.",
         "confirmButton": "Đặt lại cài đặt",
         "cancelButton": "Hủy"
       }
@@ -321,7 +321,7 @@
       "buttonLoading": "Đang xóa...",
       "confirm": {
         "title": "Xóa tất cả dữ liệu?",
-        "message": "Thao tác này không thể hoàn tác.\n\nTất cả các mục sau sẽ bị xóa vĩnh viễn:\n• Thư viện và bộ sưu tập\n• Tiến trình và lịch sử đọc\n• Tất cả cài đặt và tùy chọn\n\nỨng dụng sẽ khởi động lại sau khi xóa dữ liệu.",
+        "message": "Thao tác này không thể hoàn tác.\n\nTất cả các mục sau sẽ bị xóa vĩnh viễn:\n• Thư viện và bộ sưu tập\n• Tiến trình và lịch sử đọc\n• Tất cả cài đặt và tùy chọn\n\nNếu bạn đã bật Khóa ứng dụng, cài đặt Khóa ứng dụng của bạn cũng sẽ bị đặt lại.\n\nỨng dụng sẽ khởi động lại sau khi xóa dữ liệu.",
         "confirmButton": "Xóa tất cả dữ liệu",
         "cancelButton": "Hủy"
       }

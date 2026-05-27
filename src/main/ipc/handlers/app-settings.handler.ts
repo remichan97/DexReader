@@ -7,6 +7,7 @@ import { wrapIpcHandler } from '../wrap-handler'
 import { cleanupRepo } from '../../database/repositories/cleanup.repo'
 import type { ImageProxy } from '../../api/proxy/image.proxy'
 import { settingsManager } from '../../settings/settings-manager'
+import { gatekeeperService } from '../../services/gatekeeper.service'
 
 export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
   const validSections: Set<keyof AppSettings> = new Set([
@@ -156,6 +157,7 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
    */
   wrapIpcHandler('settings:reset-to-defaults', async () => {
     settingsManager.reset()
+    gatekeeperService.reset() // Also reset gatekeeper settings
     return true
   })
 
@@ -176,6 +178,7 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
     cleanupRepo.clearAllData()
 
     settingsManager.reset()
+    gatekeeperService.reset() // Also reset gatekeeper settings
 
     // In dev mode, just exit. In production, relaunch the app
     if (!is.dev) {
