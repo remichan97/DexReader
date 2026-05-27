@@ -418,7 +418,9 @@ const gatekeeper = {
   isEnabled: () => ipcRenderer.invoke('gatekeeper:available'),
   enable: (passphrase: string) => ipcRenderer.invoke('gatekeeper:enable', passphrase),
   verify: (passphrase: string) => ipcRenderer.invoke('gatekeeper:verify', passphrase),
-  updatePassphrase: (passphrase: string) => ipcRenderer.invoke('gatekeeper:update', passphrase),
+  disable: (passphrase: string) => ipcRenderer.invoke('gatekeeper:disable', passphrase),
+  updatePassphrase: (oldPassphrase: string, newPassphrase: string) =>
+    ipcRenderer.invoke('gatekeeper:update', oldPassphrase, newPassphrase),
   reset: () => ipcRenderer.invoke('gatekeeper:reset')
 }
 

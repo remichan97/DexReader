@@ -375,7 +375,8 @@ interface Gatekeeper {
   isEnabled: () => Promise<IpcResponse<boolean>>
   enable: (passphrase: string) => Promise<IpcResponse<boolean>>
   verify: (passphrase: string) => Promise<IpcResponse<boolean>>
-  updatePassphrase: (passphrase: string) => Promise<IpcResponse<boolean>>
+  disable: (passphrase: string) => Promise<IpcResponse<boolean>>
+  updatePassphrase: (oldPassphrase: string, newPassphrase: string) => Promise<IpcResponse<boolean>>
   reset: () => Promise<IpcResponse<void>>
 }
 

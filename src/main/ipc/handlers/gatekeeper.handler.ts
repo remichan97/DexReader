@@ -6,16 +6,25 @@ export function registerGatekeeperHandlers(): void {
     return gatekeeperService.isEnabled()
   })
 
-  wrapIpcHandler('gatekeeper:enable', async (_, passphrase: string) => {
-    return await gatekeeperService.enable(passphrase)
+  wrapIpcHandler('gatekeeper:enable', async (_, passphrase: unknown) => {
+    // At least trim the passphrase to prevent accidental leading/trailing spaces, but otherwise allow any characters
+    const trimmedPassphrase = (passphrase as string).trim()
+    return await gatekeeperService.enable(trimmedPassphrase)
   })
 
-  wrapIpcHandler('gatekeeper:verify', async (_, passphrase: string) => {
-    return await gatekeeperService.verify(passphrase)
+  wrapIpcHandler('gatekeeper:verify', async (_, passphrase: unknown) => {
+    return await gatekeeperService.verify((passphrase as string).trim())
   })
 
-  wrapIpcHandler('gatekeeper:update', async (_, passphrase: string) => {
-    return await gatekeeperService.update(passphrase)
+  wrapIpcHandler('gatekeeper:disable', async (_, passphrase: unknown) => {
+    return await gatekeeperService.disable((passphrase as string).trim())
+  })
+
+  wrapIpcHandler('gatekeeper:update', async (_, oldPassphrase: unknown, newPassphrase: unknown) => {
+    return await gatekeeperService.changePassphrase(
+      (oldPassphrase as string).trim(),
+      (newPassphrase as string).trim()
+    )
   })
 
   wrapIpcHandler('gatekeeper:reset', async () => {
