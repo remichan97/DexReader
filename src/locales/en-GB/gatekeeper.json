@@ -5,11 +5,13 @@
     "placeholder": "Passphrase",
     "button": "Unlock",
     "unlocking": "Unlocking...",
+    "waitButton": "Wait {{seconds}}s...",
     "showPassphrase": "Show passphrase",
     "hidePassphrase": "Hide passphrase",
     "errors": {
       "empty": "Please enter your passphrase",
       "incorrect": "Incorrect passphrase. Please try again.",
+      "incorrectWithDelay": "Incorrect passphrase. Wait {{seconds}} seconds before trying again.",
       "system": "Failed to verify passphrase. Please try again.",
       "unexpected": "An unexpected error occurred. Please try again."
     },

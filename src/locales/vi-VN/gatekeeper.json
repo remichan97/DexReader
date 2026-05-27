@@ -5,11 +5,13 @@
     "placeholder": "Mật khẩu",
     "button": "Mở khóa",
     "unlocking": "Đang mở khóa...",
+    "waitButton": "Đợi {{seconds}}s...",
     "showPassphrase": "Hiện mật khẩu",
     "hidePassphrase": "Ẩn mật khẩu",
     "errors": {
       "empty": "Vui lòng nhập mật khẩu",
       "incorrect": "Mật khẩu không đúng. Vui lòng thử lại.",
+      "incorrectWithDelay": "Mật khẩu không đúng. Đợi {{seconds}} giây trước khi thử lại.",
       "system": "Không thể xác minh mật khẩu. Vui lòng thử lại.",
       "unexpected": "Đã xảy ra lỗi không mong đợi. Vui lòng thử lại."
     },
