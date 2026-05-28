@@ -209,6 +209,9 @@ class SettingsManager {
       language: {
         displayLanguage: DisplayLanguage.EnglishUK,
         syncContentLanguage: true
+      },
+      system: {
+        useHardwareAcceleration: true
       }
     }
   }

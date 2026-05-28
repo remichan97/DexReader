@@ -52,6 +52,14 @@
   line-height: 1.6;
 }
 
+.security-settings__require-section {
+  margin-top: var(--space-5);
+  padding: var(--space-4);
+  background: var(--win-bg-subtle);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-md);
+}
+
 /* Responsive Design */
 @media (max-width: 640px) {
   .security-settings__actions {

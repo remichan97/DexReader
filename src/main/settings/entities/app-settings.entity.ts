@@ -5,6 +5,7 @@ import { UpdateSettings } from './update-settings.entity'
 import { LogsSettings } from './logs-settings.entity'
 import { SearchSettings } from './search-settings.entity'
 import { LanguageSettings } from './language-settings.entity'
+import { SystemSettings } from './system-settings.entity'
 
 export interface AppSettings {
   version: number
@@ -15,4 +16,5 @@ export interface AppSettings {
   logs: LogsSettings
   search: SearchSettings
   language: LanguageSettings
+  system: SystemSettings
 }

@@ -20,6 +20,10 @@ import { settingsManager } from './settings/settings-manager'
 
 const imageProxy = new ImageProxy()
 const localImageProxy = new LocalImageProxy()
+const isHardwareAccelerationEnabled = settingsManager.getByPath(
+  'system',
+  'hardwareAcceleration'
+) as boolean
 
 // Store menu state
 let menuState = {
@@ -57,6 +61,14 @@ async function initFileSystem(): Promise<void> {
   mainLog.info(`[Main] Downloads path: ${downloadsPath}`)
 
   mainLog.info('[Main] Finished initialising secure filesystem.')
+}
+
+// Check for Hardware Acceleration setting on startup and apply it
+if (!isHardwareAccelerationEnabled) {
+  mainLog.info(
+    '[Main] Hardware acceleration is disabled in settings, disabling it for this session'
+  )
+  app.disableHardwareAcceleration()
 }
 
 // This method will be called when Electron has finished

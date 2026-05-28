@@ -274,7 +274,13 @@
     },
     "checkNowButton": "Kiểm tra cập nhật ngay",
     "checkingButton": "Đang kiểm tra...",
-    "currentVersion": "Phiên bản hiện tại: {{version}}"
+    "currentVersion": "Phiên bản hiện tại: {{version}}",
+    "systemSection": "Hệ thống",
+    "systemDescription": "Cấu hình hành vi ứng dụng ở mức hệ thống",
+    "hardwareAcceleration": {
+      "label": "Sử dụng tăng tốc phần cứng",
+      "description": "Sử dụng GPU để cải thiện hiệu suất hiển thị khi khả dụng. Tắt nếu bạn gặp lỗi hiển thị. Yêu cầu khởi động lại."
+    }
   },
   "logging": {
     "sectionTitle": "Ghi log",

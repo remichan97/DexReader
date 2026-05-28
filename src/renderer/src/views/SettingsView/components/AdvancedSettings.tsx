@@ -8,16 +8,20 @@ import { rendererLog } from '@renderer/services/logging.service'
 interface AdvancedSettingsProps {
   readonly autoCheckForUpdates: boolean
   readonly autoDownloadUpdates: boolean
+  readonly useHardwareAcceleration: boolean
   readonly onAutoCheckChange: (value: boolean) => void
   readonly onAutoDownloadChange: (value: boolean) => void
+  readonly onHardwareAccelerationChange: (value: boolean) => void
   readonly modifiedSettings: Set<string>
 }
 
 export function AdvancedSettings({
   autoCheckForUpdates,
   autoDownloadUpdates,
+  useHardwareAcceleration,
   onAutoCheckChange,
   onAutoDownloadChange,
+  onHardwareAccelerationChange,
   modifiedSettings
 }: AdvancedSettingsProps): React.JSX.Element {
   const { t } = useTranslation(['settings', 'errors'])
@@ -112,6 +116,30 @@ export function AdvancedSettings({
             <span className="text-sm text-secondary">
               {t('advanced.currentVersion', { version: appVersion })}
             </span>
+          </div>
+        </div>
+      </div>
+
+      {/* System Section */}
+      <div className="settings-view__section">
+        <h2 className="settings-view__section-heading">{t('advanced.systemSection')}</h2>
+        <p className="settings-view__section-description">{t('advanced.systemDescription')}</p>
+
+        <div className="flex flex-col gap-4">
+          {/* Hardware Acceleration */}
+          <div
+            className={`${
+              modifiedSettings.has('useHardwareAcceleration')
+                ? 'setting-control--modified setting-control--inline'
+                : ''
+            }`}
+          >
+            <Switch
+              checked={useHardwareAcceleration}
+              onChange={onHardwareAccelerationChange}
+              label={t('advanced.hardwareAcceleration.label')}
+              description={t('advanced.hardwareAcceleration.description')}
+            />
           </div>
         </div>
       </div>

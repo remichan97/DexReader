@@ -67,6 +67,7 @@ const SETTING_TO_SECTION: Record<string, string> = {
   maxDiskCacheSize: 'performance',
   autoCheckForUpdates: 'advanced',
   autoDownloadUpdates: 'advanced',
+  useHardwareAcceleration: 'advanced',
   logRetentionDays: 'advanced'
 }
 
@@ -150,6 +151,9 @@ export function SettingsView(): JSX.Element {
   const [autoCheckForUpdates, setAutoCheckForUpdates] = useState<boolean>(true)
   const [autoDownloadUpdates, setAutoDownloadUpdates] = useState<boolean>(false)
 
+  // System settings state
+  const [useHardwareAcceleration, setUseHardwareAcceleration] = useState<boolean>(true)
+
   // Logging settings state
   const [logRetentionDays, setLogRetentionDays] = useState<number>(7)
 
@@ -222,13 +226,18 @@ export function SettingsView(): JSX.Element {
     // Compare logging settings
     const logsChanged = logRetentionDays !== (originalSettings.logs?.retentionInDays ?? 7)
 
+    // Compare system settings
+    const systemChanged =
+      useHardwareAcceleration !== (originalSettings.system?.useHardwareAcceleration ?? true)
+
     setHasUnsavedChanges(
       appearanceChanged ||
         languageChanged ||
         downloadsChanged ||
         readerChanged ||
         updateChanged ||
-        logsChanged
+        logsChanged ||
+        systemChanged
     )
   }, [
     originalSettings,
@@ -251,7 +260,8 @@ export function SettingsView(): JSX.Element {
     customCacheSize,
     autoCheckForUpdates,
     autoDownloadUpdates,
-    logRetentionDays
+    logRetentionDays,
+    useHardwareAcceleration
   ])
 
   // Search params support for deep linking to sections
@@ -385,6 +395,11 @@ export function SettingsView(): JSX.Element {
           // Load logging settings
           if (settings.logs) {
             setLogRetentionDays(settings.logs.retentionInDays ?? 7)
+          }
+
+          // Load system settings
+          if (settings.system) {
+            setUseHardwareAcceleration(settings.system.useHardwareAcceleration ?? true)
           }
 
           // Load language settings
@@ -655,6 +670,12 @@ export function SettingsView(): JSX.Element {
     markSettingModified('logRetentionDays')
   }
 
+  // Handle hardware acceleration change (advanced section)
+  const handleHardwareAccelerationChange = (enabled: boolean): void => {
+    setUseHardwareAcceleration(enabled)
+    markSettingModified('useHardwareAcceleration')
+  }
+
   // Gatekeeper modal handlers
   const handleGatekeeperSuccess = (): void => {
     // Refresh the SecuritySettings component status
@@ -803,6 +824,11 @@ export function SettingsView(): JSX.Element {
         retentionInDays: logRetentionDays
       }
 
+      // Build system settings object
+      const systemSettings = {
+        useHardwareAcceleration: useHardwareAcceleration
+      }
+
       // Build language settings object
       const languageSettings = {
         displayLanguage: displayLanguage,
@@ -820,6 +846,7 @@ export function SettingsView(): JSX.Element {
         reader: readerSettings,
         update: updateSettings,
         logs: logsSettings,
+        system: systemSettings,
         search: originalSettings.search || {},
         language: languageSettings
       }
@@ -1167,8 +1194,10 @@ export function SettingsView(): JSX.Element {
           <AdvancedSettings
             autoCheckForUpdates={autoCheckForUpdates}
             autoDownloadUpdates={autoDownloadUpdates}
+            useHardwareAcceleration={useHardwareAcceleration}
             onAutoCheckChange={handleAutoCheckChange}
             onAutoDownloadChange={handleAutoDownloadChange}
+            onHardwareAccelerationChange={handleHardwareAccelerationChange}
             modifiedSettings={modifiedSettings}
           />
           <LoggingSettings
