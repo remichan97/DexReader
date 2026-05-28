@@ -10,8 +10,7 @@
     "hidePassphrase": "Ẩn mật khẩu",
     "errors": {
       "empty": "Vui lòng nhập mật khẩu",
-      "incorrect": "Hay lắm, nhưng sai rồi",
-      "incorrectWithDelay": "Mật khẩu không đúng. Vui lòng đợi trước khi thử lại.",
+      "incorrect": "Hay đó, nhưng sai rồi. Vui lòng thử lại.",
       "system": "Không thể xác minh mật khẩu. Vui lòng thử lại.",
       "unexpected": "Đã xảy ra lỗi không mong đợi. Vui lòng thử lại."
     },

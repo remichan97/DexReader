@@ -125,7 +125,7 @@ export function GatekeeperUnlockScreen({
         setNextAttemptTime(attemptTime)
         // Store error message to show after delay (not immediately)
         setPendingError(
-          t('gatekeeper:unlock.errors.incorrectWithDelay', {
+          t('gatekeeper:unlock.errors.incorrect', {
             defaultValue: 'Incorrect passphrase. Please wait before trying again.'
           })
         )

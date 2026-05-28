@@ -274,7 +274,7 @@
     "systemDescription": "Configure system-level application behavior",
     "hardwareAcceleration": {
       "label": "Use hardware acceleration",
-      "description": "Uses your GPU to improve rendering performance when available. Disable if you experience visual glitches. Requires restart."
+      "description": "Uses your GPU to improve rendering performance when available. Disable if you experience visual glitches. Takes effect on next launch."
     }
   },
   "logging": {

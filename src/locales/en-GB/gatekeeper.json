@@ -10,8 +10,7 @@
     "hidePassphrase": "Hide passphrase",
     "errors": {
       "empty": "Please enter your passphrase",
-      "incorrect": "Nice try. Please try again.",
-      "incorrectWithDelay": "Incorrect passphrase. Please wait before trying again.",
+      "incorrect": "Nice try, but not quite. Please try again.",
       "system": "Failed to verify passphrase. Please try again.",
       "unexpected": "Something went wrong. Please try again."
     },
