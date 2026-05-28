@@ -1,5 +1,6 @@
 import type { JSX } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useSecureNavigation } from '@renderer/hooks/useSecureNavigation'
 import { Button } from '@renderer/components/Button'
 import { EmptyState } from '@renderer/components/EmptyState'
 import { Skeleton } from '@renderer/components/Skeleton'
@@ -60,6 +61,7 @@ export default function ChapterList({
   onToggleErrorDetails
 }: ChapterListProps): JSX.Element {
   const navigate = useNavigate()
+  const { secureNavigate } = useSecureNavigation()
   const { t } = useTranslation(['mangaDetail', 'common'])
 
   // Use custom hooks for filters and downloads
@@ -229,7 +231,7 @@ export default function ChapterList({
           defaultQuality={downloadSettings.defaultQuality}
           downloadsPath={downloadSettings.path}
           showBatchInfo={false}
-          onOpenSettings={() => navigate('/settings')}
+          onOpenSettings={() => void secureNavigate('/settings')}
         />
       )}
 
@@ -244,7 +246,7 @@ export default function ChapterList({
           defaultQuality={downloadSettings.defaultQuality}
           downloadsPath={downloadSettings.path}
           showBatchInfo={true}
-          onOpenSettings={() => navigate('/settings')}
+          onOpenSettings={() => void secureNavigate('/settings')}
         />
       )}
     </div>

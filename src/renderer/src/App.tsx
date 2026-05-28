@@ -2,8 +2,8 @@ import { HashRouter, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState, useCallback } from 'react'
 import { AppShell } from './layouts/AppShell'
 import { AppRoutes } from './router'
-import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useAccentColor } from './hooks/useAccentColor'
+import { KeyboardShortcutsHandler } from './components/KeyboardShortcutsHandler'
 import { useIncognitoListener } from './hooks/useIncognitoListener'
 import { useConnectivityListener } from './hooks/useConnectivityListener'
 import { ToastContainer } from './components/Toast'
@@ -14,6 +14,7 @@ import { ProgressRing } from './components/ProgressRing'
 import { GatekeeperUnlockScreen } from './views/GatekeeperUnlockScreen'
 import { GatekeeperReauthModal } from './components/GatekeeperReauthModal'
 import { UnsavedChangesProvider } from './contexts/UnsavedChangesProvider'
+import { SecureNavigationProvider } from './contexts/SecureNavigationContext'
 import { useUnsavedChanges } from './hooks/useUnsavedChanges'
 import { rendererLog } from './services/logging.service'
 import i18next from './i18n/config'
@@ -262,9 +263,6 @@ function AppContent(): React.JSX.Element {
   // Listen for connectivity toggle from menu
   useConnectivityListener()
 
-  // Handle keyboard shortcuts
-  useKeyboardShortcuts()
-
   // Load and apply accent color on app startup
   useAccentColor()
 
@@ -341,21 +339,29 @@ function AppContent(): React.JSX.Element {
   // Reader gets full screen without sidebar
   if (isReaderRoute) {
     return (
-      <>
+      <SecureNavigationProvider onNavigate={handleNavigate}>
+        <KeyboardShortcutsHandler />
         <AppRoutes startupRoute={startupRoute} />
         {isClosing && <ClosingOverlay />}
-      </>
+        <GatekeeperReauthModal
+          isOpen={showReauthModal}
+          onSuccess={handleReauthSuccess}
+          onCancel={handleReauthCancel}
+        />
+      </SecureNavigationProvider>
     )
   }
 
   // Other views get AppShell with sidebar
   return (
-    <>
+    <SecureNavigationProvider onNavigate={handleNavigate}>
+      <KeyboardShortcutsHandler />
       <AppShell
         showUpdateBanner={showUpdateBanner}
         updateVersion={updateVersion}
         onDismissBanner={handleDismissBanner}
         onViewReleaseNotes={handleViewReleaseNotes}
+        onNavigate={handleNavigate}
       >
         <AppRoutes startupRoute={startupRoute} />
       </AppShell>
@@ -365,7 +371,7 @@ function AppContent(): React.JSX.Element {
         onSuccess={handleReauthSuccess}
         onCancel={handleReauthCancel}
       />
-    </>
+    </SecureNavigationProvider>
   )
 }
 

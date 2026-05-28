@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useSecureNavigation } from '@renderer/hooks/useSecureNavigation'
 import {
   BookOpenRegular,
   PlayCircle24Regular,
@@ -48,6 +49,7 @@ export default function MangaHeroSection({
   progress
 }: MangaHeroSectionProps): JSX.Element {
   const navigate = useNavigate()
+  const { secureNavigate } = useSecureNavigation()
   const { t } = useTranslation(['mangaDetail', 'common'])
   const { isFavourite, toggleFavourite, loadFavourites } = useLibraryStore()
   const showToast = useToastStore((state) => state.show)
@@ -534,7 +536,7 @@ export default function MangaHeroSection({
           defaultQuality={downloadSettings.defaultQuality}
           downloadsPath={downloadSettings.path}
           showBatchInfo={downloadSettings.confirmation === 'batch-only'}
-          onOpenSettings={() => navigate('/settings')}
+          onOpenSettings={() => void secureNavigate('/settings')}
         />
       )}
     </div>

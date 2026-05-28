@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react'
+import { useState, useEffect, FormEvent } from 'react'
 import { Modal } from '@renderer/components/Modal'
 import { Button } from '@renderer/components/Button'
 import { Input } from '@renderer/components/Input'
@@ -40,6 +40,15 @@ export function GatekeeperReauthModal({
   const [error, setError] = useState('')
   const [isVerifying, setIsVerifying] = useState(false)
 
+  // Reset state when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setPassphrase('')
+      setError('')
+      setIsVerifying(false)
+    }
+  }, [isOpen])
+
   const handleVerify = async (): Promise<void> => {
     if (!passphrase.trim()) {
       setError(
@@ -71,6 +80,7 @@ export function GatekeeperReauthModal({
         rendererLog.info('[GatekeeperReauth] Re-authentication successful')
         setPassphrase('')
         setError('')
+        setIsVerifying(false) // Reset verifying state
         onSuccess()
       } else {
         // Incorrect passphrase - allow immediate retry (no cooldown)
@@ -105,6 +115,7 @@ export function GatekeeperReauthModal({
     // Reset state when cancelling
     setPassphrase('')
     setError('')
+    setIsVerifying(false)
     onCancel()
   }
 

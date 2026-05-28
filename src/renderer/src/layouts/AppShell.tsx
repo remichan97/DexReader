@@ -18,6 +18,7 @@ interface AppShellProps {
   readonly updateVersion?: string
   readonly onDismissBanner?: () => void
   readonly onViewReleaseNotes?: () => void
+  readonly onNavigate?: (route: string) => Promise<void>
 }
 
 export function AppShell({
@@ -25,7 +26,8 @@ export function AppShell({
   showUpdateBanner = false,
   updateVersion = '',
   onDismissBanner,
-  onViewReleaseNotes
+  onViewReleaseNotes,
+  onNavigate
 }: AppShellProps): JSX.Element {
   const theme = useAppStore((state) => state.theme)
   const setSystemTheme = useAppStore((state) => state.setSystemTheme)
@@ -118,7 +120,7 @@ export function AppShell({
       <OfflineStatusBar />
       <IncognitoStatusBar />
       <div className="app-shell__body flex flex-1">
-        <Sidebar />
+        <Sidebar onNavigate={onNavigate} />
         <main className="app-shell__content" id="main-content">
           {children}
         </main>

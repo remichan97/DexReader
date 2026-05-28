@@ -97,21 +97,34 @@ const sidebarItemsConfig: SidebarItem[] = [
  * <Sidebar />
  * ```
  */
-export function Sidebar(): JSX.Element {
+export interface SidebarProps {
+  /**
+   * Optional custom navigation handler for gatekeeper re-auth checks.
+   * If not provided, falls back to standard navigate().
+   */
+  readonly onNavigate?: (route: string) => Promise<void>
+}
+
+export function Sidebar({ onNavigate }: SidebarProps = {}): JSX.Element {
   const { t } = useTranslation('common')
   const navigate = useNavigate()
   const location = useLocation()
   const sidebarRef = useRef<HTMLDivElement>(null)
   const [indicatorStyle, setIndicatorStyle] = useState({ top: 0, height: 24, opacity: 0 })
 
-  const handleItemClick = (route: string): void => {
-    navigate(route)
+  const handleItemClick = async (route: string): Promise<void> => {
+    // Use custom navigation handler if provided (for gatekeeper re-auth checks)
+    if (onNavigate) {
+      await onNavigate(route)
+    } else {
+      navigate(route)
+    }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent, route: string): void => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
-      handleItemClick(route)
+      void handleItemClick(route)
     }
   }
 
