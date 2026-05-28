@@ -46,6 +46,16 @@
     "year": "Năm:",
     "rating": "Xếp hạng:",
     "length": "Độ dài:",
+    "tooltips": {
+      "author": "Tác giả",
+      "artist": "Họa sĩ",
+      "contentRating": "Xếp hạng nội dung",
+      "status": "Trạng thái xuất bản",
+      "year": "Năm xuất bản",
+      "demographic": "Đối tượng mục tiêu",
+      "originalLanguage": "Ngôn ngữ gốc",
+      "lastChapter": "Chương cuối"
+    },
     "volumeCount": "{{count}} tập",
     "chapterCount": "{{count}} chương",
     "continue": "Tiếp tục",

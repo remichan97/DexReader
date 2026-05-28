@@ -75,6 +75,9 @@
 .manga-detail-view__metadata {
   font-size: var(--win-font-size-body);
   color: var(--win-text-secondary);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-1) var(--space-3);
 }
 
 .manga-detail-view__metadata p {
@@ -84,6 +87,27 @@
 .manga-detail-view__metadata strong {
   color: var(--win-text-primary);
   margin-right: var(--space-1);
+}
+
+/* Detail item with icon layout */
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0; /* Allow text to shrink */
+}
+
+.detail-item svg {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: var(--win-text-tertiary);
+}
+
+.detail-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .manga-detail-view__actions {

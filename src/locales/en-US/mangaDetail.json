@@ -45,6 +45,16 @@
     "year": "Year:",
     "rating": "Rating:",
     "length": "Length:",
+    "tooltips": {
+      "author": "Author",
+      "artist": "Artist",
+      "contentRating": "Content Rating",
+      "status": "Publication Status",
+      "demographic": "Target Demographic",
+      "year": "Publication Year",
+      "originalLanguage": "Original Language",
+      "lastChapter": "Last Chapter"
+    },
     "volumeCount": "{{count}} volume{{s}}",
     "chapterCount": "{{count}} chapter{{s}}",
     "continue": "Continue",
