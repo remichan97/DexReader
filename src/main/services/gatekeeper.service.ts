@@ -25,6 +25,23 @@ class GatekeeperService {
     return this.store.get('enabled', false)
   }
 
+  getRequireForSettings(): boolean {
+    return this.store.get('requireForSettings', false)
+  }
+
+  toggleRequiredForSettings(required: boolean): void {
+    if (!this.isEnabled()) {
+      mainLog.warn(
+        '[Gatekeeper] Attempt to toggle requireForSettings when gatekeeper is not enabled'
+      )
+      throw new Error(
+        'Gatekeeper is not enabled, are you trying to toggle a setting for something that is not enabled?'
+      )
+    }
+    this.store.set('requireForSettings', required)
+    mainLog.info(`[Gatekeeper] Toggled requireForSettings to ${required}`)
+  }
+
   async enable(passphrase: string): Promise<boolean> {
     // If the phrase is empty, too little characters, or too many characters, reject it
     if (!passphrase || passphrase.length < 4 || passphrase.length > 128) {

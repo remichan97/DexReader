@@ -419,12 +419,15 @@ const searchPresets = {
 
 const gatekeeper = {
   isEnabled: () => ipcRenderer.invoke('gatekeeper:available'),
+  getRequireForSettings: () => ipcRenderer.invoke('gatekeeper:getRequireForSettings'),
   enable: (passphrase: string) => ipcRenderer.invoke('gatekeeper:enable', passphrase),
   verify: (passphrase: string) => ipcRenderer.invoke('gatekeeper:verify', passphrase),
   disable: (passphrase: string) => ipcRenderer.invoke('gatekeeper:disable', passphrase),
   changePassphrase: (oldPassphrase: string, newPassphrase: string) =>
     ipcRenderer.invoke('gatekeeper:update', oldPassphrase, newPassphrase),
-  reset: () => ipcRenderer.invoke('gatekeeper:reset')
+  reset: () => ipcRenderer.invoke('gatekeeper:reset'),
+  toggleRequireForSettings: (required: boolean) =>
+    ipcRenderer.invoke('gatekeeper:toggleRequireForSettings', required)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

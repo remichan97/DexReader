@@ -1,0 +1,28 @@
+.gatekeeper-reauth-modal {
+  max-width: 450px;
+}
+
+.gatekeeper-reauth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.gatekeeper-reauth-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.gatekeeper-reauth-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.gatekeeper-reauth-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}

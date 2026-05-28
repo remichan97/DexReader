@@ -6,6 +6,10 @@ export function registerGatekeeperHandlers(): void {
     return gatekeeperService.isEnabled()
   })
 
+  wrapIpcHandler('gatekeeper:getRequireForSettings', async () => {
+    return gatekeeperService.getRequireForSettings()
+  })
+
   wrapIpcHandler('gatekeeper:enable', async (_, passphrase: unknown) => {
     // At least trim the passphrase to prevent accidental leading/trailing spaces, but otherwise allow any characters
     const trimmedPassphrase = (passphrase as string).trim()
@@ -25,6 +29,10 @@ export function registerGatekeeperHandlers(): void {
       (oldPassphrase as string).trim(),
       (newPassphrase as string).trim()
     )
+  })
+
+  wrapIpcHandler('gatekeeper:toggleRequireForSettings', async (_, required: unknown) => {
+    return gatekeeperService.toggleRequiredForSettings(!!required)
   })
 
   wrapIpcHandler('gatekeeper:reset', async () => {

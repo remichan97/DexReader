@@ -11,7 +11,7 @@
     "errors": {
       "empty": "Please enter your passphrase",
       "incorrect": "Nice try. Please try again.",
-      "incorrectWithDelay": "Nice try, but not quite. Wait {{seconds}} seconds before trying again.",
+      "incorrectWithDelay": "Incorrect passphrase. Please wait before trying again.",
       "system": "Failed to verify passphrase. Please try again.",
       "unexpected": "Something went wrong. Please try again."
     },
@@ -20,9 +20,29 @@
       "link": "See recovery steps"
     }
   },
+  "reauth": {
+    "title": "Enter Passphrase",
+    "description": "Enter your passphrase to access Settings",
+    "passphraseLabel": "Passphrase",
+    "passphrasePlaceholder": "Enter your passphrase",
+    "verifyButton": "Verify",
+    "verifying": "Verifying...",
+    "errors": {
+      "empty": "Please enter your passphrase",
+      "incorrect": "Incorrect passphrase. Please try again.",
+      "system": "Failed to verify passphrase. Please try again.",
+      "unexpected": "Something went wrong. Please try again."
+    }
+  },
   "settings": {
     "sectionTitle": "App Lock",
     "description": "Require a passphrase when DexReader starts",
+    "requireSettings": {
+      "label": "Require passphrase to access Settings",
+      "description": "Ask for your passphrase whenever you open Settings, even after initial unlock",
+      "enabled": "Passphrase now required to access Settings",
+      "disabled": "Passphrase no longer required to access Settings"
+    },
     "status": {
       "enabled": "Enabled",
       "disabled": "Disabled"

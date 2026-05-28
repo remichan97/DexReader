@@ -376,11 +376,13 @@ interface SearchPresets {
 
 interface Gatekeeper {
   isEnabled: () => Promise<IpcResponse<boolean>>
+  getRequireForSettings: () => Promise<IpcResponse<boolean>>
   enable: (passphrase: string) => Promise<IpcResponse<boolean>>
   verify: (passphrase: string) => Promise<IpcResponse<boolean>>
   disable: (passphrase: string) => Promise<IpcResponse<boolean>>
   changePassphrase: (oldPassphrase: string, newPassphrase: string) => Promise<IpcResponse<boolean>>
   reset: () => Promise<IpcResponse<void>>
+  toggleRequiredForSettings: (required: boolean) => Promise<IpcResponse<void>>
 }
 
 declare global {
