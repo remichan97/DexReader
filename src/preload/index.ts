@@ -426,7 +426,7 @@ const gatekeeper = {
   changePassphrase: (oldPassphrase: string, newPassphrase: string) =>
     ipcRenderer.invoke('gatekeeper:update', oldPassphrase, newPassphrase),
   reset: () => ipcRenderer.invoke('gatekeeper:reset'),
-  toggleRequireForSettings: (required: boolean) =>
+  toggleRequiredForSettings: (required: boolean) =>
     ipcRenderer.invoke('gatekeeper:toggleRequireForSettings', required)
 }
 

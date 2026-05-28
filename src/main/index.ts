@@ -22,7 +22,7 @@ const imageProxy = new ImageProxy()
 const localImageProxy = new LocalImageProxy()
 const isHardwareAccelerationEnabled = settingsManager.getByPath(
   'system',
-  'hardwareAcceleration'
+  'useHardwareAcceleration'
 ) as boolean
 
 // Store menu state
