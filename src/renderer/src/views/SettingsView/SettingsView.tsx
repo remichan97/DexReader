@@ -939,10 +939,10 @@ export function SettingsView(): JSX.Element {
       }),
       downloadsPath: t('settings:downloads.locationLabel', { defaultValue: 'Download Location' }),
       globalReaderSettings: t('settings:reader.settingsLabel', { defaultValue: 'Reader Settings' }),
-      forceDarkMode: t('settings:reader.forceDarkModeLabel', {
+      forceDarkMode: t('settings:reader.forceDarkMode.label', {
         defaultValue: 'Force Dark Mode on Manga Pages'
       }),
-      imageQuality: t('settings:reader.imageQualityLabel', { defaultValue: 'Image Quality' }),
+      imageQuality: t('settings:reader.imageQuality.label', { defaultValue: 'Image Quality' }),
       chapterCacheTier: t('settings:performance.sectionTitle', {
         defaultValue: 'Chapter Cache Size'
       }),

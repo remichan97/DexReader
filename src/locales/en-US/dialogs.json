@@ -508,7 +508,8 @@
       "title": "Double Page Options",
       "skipCoverPages": "Skip cover pages",
       "readRightToLeft": "Read right-to-left"
-    }
+    },
+    "savedForMangaOnly": "Changes to reading mode here will only be applied to this manga"
   },
   "changeLanguage": {
     "title": "Display Language Change",
