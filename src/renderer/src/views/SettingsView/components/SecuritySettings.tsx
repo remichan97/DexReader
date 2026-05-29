@@ -190,16 +190,6 @@ export function SecuritySettings({
           </div>
         </div>
 
-        {/* Help Text */}
-        <div className="security-settings__help">
-          <p className="security-settings__help-text">
-            {t('gatekeeper:settings.help.recovery', {
-              defaultValue:
-                "If you forget your passphrase, you'll need to manually delete the gatekeeper.lock file from your AppData folder and restart the app."
-            })}
-          </p>
-        </div>
-
         {/* Require for Settings toggle - only show when App Lock is enabled */}
         {isEnabled && (
           <div className="security-settings__require-section">
@@ -217,6 +207,16 @@ export function SecuritySettings({
             />
           </div>
         )}
+
+        {/* Help Text */}
+        <div className="security-settings__help">
+          <p className="security-settings__help-text">
+            {t('gatekeeper:settings.help.recovery', {
+              defaultValue:
+                "If you forget your passphrase, you'll need to manually delete the gatekeeper.lock file from your AppData folder and restart the app."
+            })}
+          </p>
+        </div>
       </div>
     </div>
   )
