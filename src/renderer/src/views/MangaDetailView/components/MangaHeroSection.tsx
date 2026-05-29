@@ -223,7 +223,7 @@ export default function MangaHeroSection({
         t('mangaDetail:hero.manageDownloads.deleteAll', {
           defaultValue: 'Delete All Chapters'
         }),
-        t('common:button.cancel')
+        t('mangaDetail:hero.manageDownloads.cancel', { defaultValue: 'Nevermind' })
       ],
       type: 'info',
       defaultId: 2,

@@ -69,7 +69,8 @@
       "title": "Quản lý tải xuống",
       "detail": "{{title}}\n\nManga này có {{count}} chương đã tải.\n\nBạn có thể thêm vào thư viện để theo dõi, hoặc xóa tất cả các chương đã tải.",
       "addToLibrary": "Thêm vào thư viện",
-      "deleteAll": "Xóa tất cả chương"
+      "deleteAll": "Xóa tất cả chương",
+      "cancel": "Hủy"
     },
     "deleteDownloads": {
       "title": "Xóa tất cả chương đã tải?",
