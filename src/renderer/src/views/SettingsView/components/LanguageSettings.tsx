@@ -12,7 +12,6 @@ interface LanguageSettingsProps {
   readonly onSyncContentLanguageChange: (checked: boolean) => void
   readonly contentLanguages: string[]
   readonly onContentLanguagesChange: (languages: string[]) => void
-  readonly modifiedSettings: Set<string>
 }
 
 export function LanguageSettings({
@@ -21,8 +20,7 @@ export function LanguageSettings({
   syncContentLanguage,
   onSyncContentLanguageChange,
   contentLanguages,
-  onContentLanguagesChange,
-  modifiedSettings
+  onContentLanguagesChange
 }: LanguageSettingsProps): React.JSX.Element {
   const { t } = useTranslation('settings')
 
@@ -47,7 +45,7 @@ export function LanguageSettings({
               'Choose the language for the application interface. Changing this will affect menus, buttons, and all UI text.'
           })}
         </p>
-        <div className={modifiedSettings.has('displayLanguage') ? 'setting-control--modified' : ''}>
+        <div>
           <Select
             value={displayLanguage}
             onChange={(value) => onDisplayLanguageChange(value as typeof displayLanguage)}
@@ -69,13 +67,7 @@ export function LanguageSettings({
           })}
         </p>
 
-        <div
-          className={`mt-4 ${
-            modifiedSettings.has('syncContentLanguage')
-              ? 'setting-control--modified setting-control--inline'
-              : ''
-          }`}
-        >
+        <div>
           <Switch
             checked={syncContentLanguage}
             onChange={onSyncContentLanguageChange}
@@ -85,11 +77,7 @@ export function LanguageSettings({
         </div>
 
         {!syncContentLanguage && (
-          <div
-            className={`mt-4 ${
-              modifiedSettings.has('contentLanguages') ? 'setting-control--modified' : ''
-            }`}
-          >
+          <div>
             <PriorityList
               items={contentLanguages}
               availableItems={contentLanguageOptions}

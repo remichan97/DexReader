@@ -12,7 +12,6 @@ interface AdvancedSettingsProps {
   readonly onAutoCheckChange: (value: boolean) => void
   readonly onAutoDownloadChange: (value: boolean) => void
   readonly onHardwareAccelerationChange: (value: boolean) => void
-  readonly modifiedSettings: Set<string>
 }
 
 export function AdvancedSettings({
@@ -21,8 +20,7 @@ export function AdvancedSettings({
   useHardwareAcceleration,
   onAutoCheckChange,
   onAutoDownloadChange,
-  onHardwareAccelerationChange,
-  modifiedSettings
+  onHardwareAccelerationChange
 }: AdvancedSettingsProps): React.JSX.Element {
   const { t } = useTranslation(['settings', 'errors'])
   const showToast = useToastStore((state) => state.show)
@@ -71,13 +69,7 @@ export function AdvancedSettings({
 
         <div className="flex flex-col gap-4">
           {/* Auto-check for updates */}
-          <div
-            className={`${
-              modifiedSettings.has('autoCheckForUpdates')
-                ? 'setting-control--modified setting-control--inline'
-                : ''
-            }`}
-          >
+          <div>
             <Switch
               checked={autoCheckForUpdates}
               onChange={onAutoCheckChange}
@@ -87,13 +79,7 @@ export function AdvancedSettings({
           </div>
 
           {/* Auto-download updates */}
-          <div
-            className={`${
-              modifiedSettings.has('autoDownloadUpdates')
-                ? 'setting-control--modified setting-control--inline'
-                : ''
-            }`}
-          >
+          <div>
             <Switch
               checked={autoDownloadUpdates}
               onChange={onAutoDownloadChange}
@@ -127,13 +113,7 @@ export function AdvancedSettings({
 
         <div className="flex flex-col gap-4">
           {/* Hardware Acceleration */}
-          <div
-            className={`${
-              modifiedSettings.has('useHardwareAcceleration')
-                ? 'setting-control--modified setting-control--inline'
-                : ''
-            }`}
-          >
+          <div>
             <Switch
               checked={useHardwareAcceleration}
               onChange={onHardwareAccelerationChange}

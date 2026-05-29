@@ -95,7 +95,7 @@ export function SettingsView(): JSX.Element {
   const [highlightedSection, setHighlightedSection] = useState<string | null>(null)
   const [isInitialMount, setIsInitialMount] = useState(true)
 
-  // Track modified settings for visual indicators
+  // Track modified settings for UnsavedChangesBanner
   const [modifiedSettings, setModifiedSettings] = useState<Set<string>>(new Set())
 
   // Gatekeeper modal states
@@ -1064,7 +1064,6 @@ export function SettingsView(): JSX.Element {
             onUseSystemColor={handleUseSystemColor}
             startupPage={startupPage}
             onStartupPageChange={handleStartupPageChange}
-            modifiedSettings={modifiedSettings}
           />
         </section>
 
@@ -1083,7 +1082,6 @@ export function SettingsView(): JSX.Element {
             onSyncContentLanguageChange={handleSyncContentLanguageChange}
             contentLanguages={contentLanguages}
             onContentLanguagesChange={handleContentLanguagesChange}
-            modifiedSettings={modifiedSettings}
           />
         </section>
 
@@ -1105,7 +1103,6 @@ export function SettingsView(): JSX.Element {
             perMangaOverrides={perMangaOverrides}
             onResetMangaOverride={handleResetMangaOverride}
             onClearAllOverrides={handleClearAllOverrides}
-            modifiedSettings={modifiedSettings}
           />
         </section>
 
@@ -1126,7 +1123,6 @@ export function SettingsView(): JSX.Element {
             onDownloadConfirmationChange={handleDownloadConfirmationChange}
             onDefaultQualityChange={handleDefaultQualityChange}
             onMaxConcurrentDownloadsChange={handleMaxConcurrentDownloadsChange}
-            modifiedSettings={modifiedSettings}
           />
         </section>
 
@@ -1143,7 +1139,6 @@ export function SettingsView(): JSX.Element {
             customCacheSize={customCacheSize}
             onCacheTierChange={handleCacheTierChange}
             onCustomCacheSizeChange={handleCustomCacheSizeChange}
-            modifiedSettings={modifiedSettings}
           />
           <div className="settings-view__section-divider">
             <h3 className="settings-view__section-heading">
@@ -1156,7 +1151,6 @@ export function SettingsView(): JSX.Element {
             <CacheManagementSettings
               coverCacheLimit={maxDiskCacheSize === 0 ? 0 : maxDiskCacheSize / (1024 * 1024)}
               onCoverCacheLimitChange={handleCoverCacheLimitChange}
-              modifiedSettings={modifiedSettings}
             />
           </div>
         </section>
@@ -1198,12 +1192,10 @@ export function SettingsView(): JSX.Element {
             onAutoCheckChange={handleAutoCheckChange}
             onAutoDownloadChange={handleAutoDownloadChange}
             onHardwareAccelerationChange={handleHardwareAccelerationChange}
-            modifiedSettings={modifiedSettings}
           />
           <LoggingSettings
             retentionDays={logRetentionDays}
             onRetentionDaysChange={handleLogRetentionDaysChange}
-            modifiedSettings={modifiedSettings}
           />
           <DangerZoneSettings />
         </section>
