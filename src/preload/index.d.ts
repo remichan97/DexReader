@@ -293,6 +293,7 @@ interface Settings {
   resetToDefaults: () => Promise<IpcResponse<boolean>>
   clearAllData: () => Promise<IpcResponse<boolean>>
   openSystemDateSettings: () => Promise<IpcResponse<boolean>>
+  openSystemProxySettings: () => Promise<IpcResponse<boolean>>
   getMemoryTierInfo: () => Promise<IpcResponse<MemoryTierInfo>>
   restart: () => Promise<IpcResponse<void>>
 }

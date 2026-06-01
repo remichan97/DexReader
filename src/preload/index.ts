@@ -317,6 +317,7 @@ const settings = {
   resetToDefaults: () => ipcRenderer.invoke('settings:reset-to-defaults'),
   clearAllData: () => ipcRenderer.invoke('settings:clear-all'),
   openSystemDateSettings: () => ipcRenderer.invoke('settings:open-system-date-settings'),
+  openSystemProxySettings: () => ipcRenderer.invoke('settings:open-system-proxy-settings'),
   getMemoryTierInfo: () => ipcRenderer.invoke('settings:get-memory-tier-info'),
   restart: () => ipcRenderer.invoke('app:restart')
 }

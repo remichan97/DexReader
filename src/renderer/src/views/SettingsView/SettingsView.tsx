@@ -937,8 +937,10 @@ export function SettingsView(): JSX.Element {
       maxDiskCacheSize: t('settings:cacheManagement.coverCacheLimitLabel', {
         defaultValue: 'Cover Cache Limit'
       }),
-      downloadsPath: t('settings:downloads.locationLabel', { defaultValue: 'Download Location' }),
-      globalReaderSettings: t('settings:reader.settingsLabel', { defaultValue: 'Reader Settings' }),
+      downloadsPath: t('settings:downloads.locationSection', { defaultValue: 'Download Location' }),
+      globalReaderSettings: t('settings:reader.displaySection', {
+        defaultValue: 'Reader Settings'
+      }),
       forceDarkMode: t('settings:reader.forceDarkMode.label', {
         defaultValue: 'Force Dark Mode on Manga Pages'
       }),
