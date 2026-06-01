@@ -97,7 +97,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           # Create annotated tag
-          git tag -a "$TAG"
+          git tag "$TAG"
 
           # Push tag
           git push origin "$TAG"

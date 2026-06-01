@@ -1,7 +1,7 @@
 {
   "name": "dexreader",
   "productName": "DexReader",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "description": "A personal MangaDex client built with Electron and React.",
   "type": "module",
   "main": "./out/main/index.js",
