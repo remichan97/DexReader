@@ -118,6 +118,9 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
 
     settingsManager.save(newSettings)
 
+    // Update in-memory downloads path if it changed
+    await settingsManager.initializeDownloadsPath()
+
     // Update chapter cache size dynamically when reader settings change
     if (imageProxy) {
       await imageProxy.updateChapterCacheSize()

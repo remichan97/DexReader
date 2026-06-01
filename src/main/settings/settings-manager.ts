@@ -133,6 +133,36 @@ class SettingsManager {
     mainLog.info(`[SettingsManager] Downloads path changed to: ${sanitizedPath}`)
   }
 
+  /**
+   * Validate a downloads path without persisting to settings.
+   * Used for validating user-selected paths before they click Save.
+   *
+   * @param newPath - Path to validate
+   * @throws {Error} - If path is invalid, system directory, or not accessible
+   */
+  async validateDownloadsPath(newPath: string): Promise<string> {
+    mainLog.info(`[SettingsManager] Validating downloads path: ${newPath}`)
+    // Sanitize the new path (remove control characters including null bytes)
+    // eslint-disable-next-line no-control-regex
+    const sanitizedPath = newPath.replaceAll(/[\u0000-\u001F\u007F]/g, '')
+
+    if (sanitizedPath !== newPath) {
+      mainLog.warn('[SettingsManager] Path was sanitized (removed control characters)')
+    }
+
+    // Prevent setting to system directories
+    if (this.isSystemDirectory(sanitizedPath)) {
+      mainLog.error(`[SettingsManager] Rejected system directory: ${sanitizedPath}`)
+      throw new Error('Setting downloads path to system directories is not allowed.')
+    }
+
+    // Validate that the path exists and is a directory
+    await validateDirectoryPath(sanitizedPath)
+    mainLog.info('[SettingsManager] Path validation successful')
+
+    return sanitizedPath
+  }
+
   async initializeDownloadsPath(): Promise<void> {
     const settings = this.load()
 
