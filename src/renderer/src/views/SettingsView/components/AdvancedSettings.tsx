@@ -121,6 +121,20 @@ export function AdvancedSettings({
               description={t('advanced.hardwareAcceleration.description')}
             />
           </div>
+
+          {/* Network Proxy Settings */}
+          <div className="flex flex-col gap-2">
+            <h3 className="text-sm font-semibold text-primary">
+              {t('advanced.networkProxy.label')}
+            </h3>
+            <p className="text-sm text-secondary mb-2">{t('advanced.networkProxy.description')}</p>
+            <Button
+              variant="secondary"
+              onClick={() => globalThis.settings.openSystemProxySettings()}
+            >
+              {t('advanced.networkProxy.button')}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
