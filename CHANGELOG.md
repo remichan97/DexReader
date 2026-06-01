@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [1.9.1] - 2026-06-01
+
+### Fixed
+
+- Fix CI workflow tag creation command syntax error (missing space before `-a` switch)
+  - Corrected git tag command to properly create annotated tags in release workflow
+
+---
+
 ## [1.9.0] - 2026-06-01
 
 ### Added

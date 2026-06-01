@@ -1,7 +1,7 @@
 # DexReader Active Context
 
 **Last Updated**: 1 June 2026
-**Version**: v1.9.0
+**Version**: v1.9.1
 **Mode**: Active Development
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next. Keep all entries as short, concise as possible
@@ -10,7 +10,7 @@
 
 ## Current Status
 
-**v1.9.0 Released**: 1 June 2026 ✅
+**v1.9.1 Released**: 1 June 2026 ✅
 
 **Monitoring Period**: Now through ~21 June 2026
 
@@ -49,6 +49,15 @@
 ---
 
 ## Recent Changes (Last 1-2 Weeks)
+
+### 1 June 2026 - v1.9.1 Hotfix ✅
+
+- **Type**: Hotfix Release
+- **Summary**: Fixed CI workflow tag creation command syntax error
+- **Key Changes**: Corrected git tag command in release workflow (missing space before `-a` switch)
+- **Impact**: No app changes - CI infrastructure fix only
+- **Status**: ✅ Released
+- **CHANGELOG**: Documented in CHANGELOG.md v1.9.1 section
 
 ### 1 June 2026 - v1.9.0 Release ✅
 
