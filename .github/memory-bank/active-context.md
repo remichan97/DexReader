@@ -1,7 +1,7 @@
 # DexReader Active Context
 
-**Last Updated**: 27 May 2026
-**Version**: v1.8.0
+**Last Updated**: 1 June 2026
+**Version**: v1.9.0
 **Mode**: Active Development
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next. Keep all entries as short, concise as possible
@@ -10,20 +10,20 @@
 
 ## Current Status
 
-**v1.8.0 Released**: 27 May 2026 ✅
+**v1.9.0 Released**: 1 June 2026 ✅
 
-**Monitoring Period**: Now through ~17 June 2026
+**Monitoring Period**: Now through ~21 June 2026
 
-- Monitor for any issues with App Lock/Gatekeeper functionality
-- Watch for user feedback on new Settings View navigation
+- Monitor for any issues with Proxy Settings functionality
+- Watch for feedback on Hardware Acceleration control
 - Collect feedback on stability and performance
-- Monitor for any edge cases in passphrase handling
+- Monitor for any edge cases in proxy configuration
 
 **Next Planned Work:**
 
 - Monitor for `drizzle-kit` updates to resolve transitive esbuild vulnerability
 - Plan next feature development cycle
-- Consider additional security enhancements based on user feedback
+- Consider additional networking enhancements based on user feedback
 
 ---
 
@@ -50,29 +50,28 @@
 
 ## Recent Changes (Last 1-2 Weeks)
 
-### 27 May 2026 - v1.8.0 Release ✅
+### 1 June 2026 - v1.9.0 Release ✅
 
 - **Type**: Feature Release
-- **Summary**: Introduced App Lock (Gatekeeper) functionality for privacy protection and revamped Settings View
+- **Summary**: Added Proxy Settings for network configuration and Hardware Acceleration control
 - **Key Changes**:
-  - Added passphrase-based authentication with bcrypt for secure credential storage
-  - Implemented unlock screen interface with exponential delay for failed attempts
-  - Added comprehensive translation support for App Lock across all locales
-  - Revamped Settings View with infinite scroll and quick jump navigation
-  - Enhanced UnsavedChangesBanner to display specific settings changes
-  - Integration of App Lock reset with settings reset operations
-  - Fixed Settings quick jump dropdown width issue
-  - Fixed high memory warning translation function wiring
-  - CI workflow improvements for release automation
-- **Impact**: Privacy protection for shared computers, improved Settings navigation and usability
+  - Added HTTP/HTTPS proxy configuration with host and port settings
+  - Implemented Hardware Acceleration toggle in Settings → Appearance
+  - Condensed metadata layout for better space utilization
+  - Fixed Download Path selection bypassing dirty tracking
+  - Fixed Gatekeeper re-authentication issues during Settings navigation
+  - Fixed incorrect Settings keys and preload method signatures
+  - Improved command link dialogue consistency
+  - Updated CI to checkout action v6
+- **Impact**: Network proxy support for corporate environments, performance tuning via HW acceleration control
 - **Status**: ✅ Released
-- **CHANGELOG**: All changes documented in CHANGELOG.md v1.8.0 section
+- **CHANGELOG**: All changes documented in CHANGELOG.md v1.9.0 section
 
-### 25 May 2026 - v1.7.0 Release Summary
+### 27 May 2026 - v1.8.0 Release Summary
 
-- **Type**: Technical Enhancement - ESM Migration
-- **Summary**: Migrated entire codebase to ECMAScript Modules (ESM)
-- **Impact**: Modernized codebase with better Node.js ecosystem alignment
+- **Type**: Feature Release - App Lock & Settings Revamp
+- **Summary**: Introduced App Lock (Gatekeeper) functionality and revamped Settings View
+- **Impact**: Privacy protection for shared computers, improved Settings navigation
 
 <!-- Template for future entries:
 ### [Date] - [Title]
