@@ -45,6 +45,16 @@
     "year": "Year:",
     "rating": "Rating:",
     "length": "Length:",
+    "tooltips": {
+      "author": "Author",
+      "artist": "Artist",
+      "contentRating": "Content Rating",
+      "status": "Publication Status",
+      "demographic": "Target Demographic",
+      "year": "Publication Year",
+      "originalLanguage": "Original Language",
+      "lastChapter": "Last Chapter"
+    },
     "volumeCount": "{{count}} volume{{s}}",
     "chapterCount": "{{count}} chapter{{s}}",
     "continue": "Continue",
@@ -58,7 +68,8 @@
       "title": "Manage Downloads",
       "detail": "{{title}}\n\nThis manga has {{count}} downloaded chapter{{s}}.\n\nYou can add it to your library for tracking, or delete all downloaded chapters.",
       "addToLibrary": "Add to Library",
-      "deleteAll": "Delete All Chapters"
+      "deleteAll": "Delete All Chapters",
+      "cancel": "Nevermind"
     },
     "deleteDownloads": {
       "title": "Delete all downloaded chapters?",

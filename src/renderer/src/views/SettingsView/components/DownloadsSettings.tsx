@@ -18,7 +18,6 @@ interface DownloadsSettingsProps {
   onDownloadConfirmationChange: (confirmation: string) => void
   onDefaultQualityChange: (quality: string) => void
   onMaxConcurrentDownloadsChange: (count: string | string[]) => void
-  modifiedSettings: Set<string>
 }
 
 export function DownloadsSettings({
@@ -31,17 +30,16 @@ export function DownloadsSettings({
   onSelectDownloadsFolder,
   onDownloadConfirmationChange,
   onDefaultQualityChange,
-  onMaxConcurrentDownloadsChange,
-  modifiedSettings
+  onMaxConcurrentDownloadsChange
 }: Readonly<DownloadsSettingsProps>): React.JSX.Element {
   const { t } = useTranslation(['settings', 'common'])
 
   const concurrentDownloadsOptions: SelectOption[] = [
-    { value: '1', label: '1 (Sequential)' },
-    { value: '2', label: '2' },
-    { value: '3', label: '3' },
-    { value: '4', label: '4' },
-    { value: '5', label: '5' }
+    { value: '1', label: t('downloads.concurrentOptions.1') },
+    { value: '2', label: t('downloads.concurrentOptions.2') },
+    { value: '3', label: t('downloads.concurrentOptions.3') },
+    { value: '4', label: t('downloads.concurrentOptions.4') },
+    { value: '5', label: t('downloads.concurrentOptions.5') }
   ]
 
   return (
@@ -49,11 +47,7 @@ export function DownloadsSettings({
       <div>
         <h4 className="downloads-settings__heading">{t('downloads.locationSection')}</h4>
         <p className="downloads-settings__description">{t('downloads.locationDescription')}</p>
-        <div
-          className={`downloads-settings__controls ${
-            modifiedSettings.has('downloadsPath') ? 'setting-control--modified' : ''
-          }`}
-        >
+        <div className="downloads-settings__controls">
           <Input
             type="text"
             value={isLoadingPath ? t('common:state.loadingEllipsis') : downloadsPath}
@@ -81,11 +75,7 @@ export function DownloadsSettings({
         <h4 className="downloads-settings__heading">{t('downloads.confirmationSection')}</h4>
         <p className="downloads-settings__description">{t('downloads.confirmationDescription')}</p>
 
-        <div
-          className={`${
-            modifiedSettings.has('downloadConfirmation') ? 'setting-control--modified' : ''
-          }`}
-        >
+        <div>
           <RadioGroup
             value={downloadConfirmation}
             onChange={(value) =>
@@ -122,9 +112,7 @@ export function DownloadsSettings({
             : t('downloads.qualityDescriptionWithConfirm')}
         </p>
 
-        <div
-          className={`${modifiedSettings.has('defaultQuality') ? 'setting-control--modified' : ''}`}
-        >
+        <div>
           <RadioGroup
             value={defaultQuality}
             onChange={(value) => onDefaultQualityChange(value as 'data' | 'data-saver')}
@@ -150,11 +138,7 @@ export function DownloadsSettings({
         <h4 className="downloads-settings__heading">{t('downloads.concurrentSection')}</h4>
         <p className="downloads-settings__description">{t('downloads.concurrentDescription')}</p>
 
-        <div
-          className={`${
-            modifiedSettings.has('maxConcurrentDownloads') ? 'setting-control--modified' : ''
-          }`}
-        >
+        <div>
           <Select
             value={String(maxConcurrentDownloads)}
             onChange={onMaxConcurrentDownloadsChange}

@@ -321,7 +321,9 @@ export function registerFileSystemHandlers(getWindow: () => BrowserWindow): void
     const selectedPath = result.filePaths[0]
 
     try {
-      await settingsManager.setDownloadsPath(selectedPath)
+      // Validate the selected path without persisting to settings
+      // This allows SettingsView to track it as an unsaved change
+      await settingsManager.validateDownloadsPath(selectedPath)
       return { cancelled: false, filePath: selectedPath }
     } catch (error) {
       throw new Error(`Unable to set downloads folder: ${error}`)

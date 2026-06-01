@@ -103,7 +103,7 @@
       "title": "Remove Download",
       "message": "You are about to remove \"{{title}}\", which will delete downloaded chapter files.\nYou can also choose to just hide it from the list if you want to keep the files for offline reading.\n\nHow should we proceed?",
       "buttons": {
-        "cancel": "Cancel",
+        "cancel": "Nevermind",
         "hideFromView": "Hide from View (Keep Files for Offline Reading)",
         "deleteForever": "Delete Forever (Cannot be Undone)"
       },
@@ -121,7 +121,7 @@
         "buttons": {
           "keepDownloads": "Remove from library (keep downloads)",
           "deleteEverything": "Remove everything (both bookmark and downloads will be removed)",
-          "cancel": "Cancel"
+          "cancel": "Nevermind"
         }
       },
       "noDownloads": {
@@ -508,7 +508,8 @@
       "title": "Double Page Options",
       "skipCoverPages": "Skip cover pages",
       "readRightToLeft": "Read right-to-left"
-    }
+    },
+    "savedForMangaOnly": "Changes to reading mode here will only be applied to this manga"
   },
   "changeLanguage": {
     "title": "Display Language Change",

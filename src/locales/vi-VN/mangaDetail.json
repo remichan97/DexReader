@@ -46,6 +46,16 @@
     "year": "Năm:",
     "rating": "Xếp hạng:",
     "length": "Độ dài:",
+    "tooltips": {
+      "author": "Tác giả",
+      "artist": "Họa sĩ",
+      "contentRating": "Xếp hạng nội dung",
+      "status": "Trạng thái xuất bản",
+      "year": "Năm xuất bản",
+      "demographic": "Đối tượng mục tiêu",
+      "originalLanguage": "Ngôn ngữ gốc",
+      "lastChapter": "Chương cuối"
+    },
     "volumeCount": "{{count}} tập",
     "chapterCount": "{{count}} chương",
     "continue": "Tiếp tục",
@@ -59,7 +69,8 @@
       "title": "Quản lý tải xuống",
       "detail": "{{title}}\n\nManga này có {{count}} chương đã tải.\n\nBạn có thể thêm vào thư viện để theo dõi, hoặc xóa tất cả các chương đã tải.",
       "addToLibrary": "Thêm vào thư viện",
-      "deleteAll": "Xóa tất cả chương"
+      "deleteAll": "Xóa tất cả chương",
+      "cancel": "Hủy"
     },
     "deleteDownloads": {
       "title": "Xóa tất cả chương đã tải?",

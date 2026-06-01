@@ -10,8 +10,7 @@
     "hidePassphrase": "Ẩn mật khẩu",
     "errors": {
       "empty": "Vui lòng nhập mật khẩu",
-      "incorrect": "Hay lắm, nhưng sai rồi",
-      "incorrectWithDelay": "Hay lắm, nhưng sai rồi. Đợi {{seconds}} giây trước khi thử lại.",
+      "incorrect": "Hay đó, nhưng sai rồi. Vui lòng thử lại.",
       "system": "Không thể xác minh mật khẩu. Vui lòng thử lại.",
       "unexpected": "Đã xảy ra lỗi không mong đợi. Vui lòng thử lại."
     },
@@ -20,9 +19,29 @@
       "link": "Xem hướng dẫn khôi phục"
     }
   },
+  "reauth": {
+    "title": "Nhập mật khẩu",
+    "description": "Nhập mật khẩu của bạn để truy cập Cài đặt",
+    "passphraseLabel": "Mật khẩu",
+    "passphrasePlaceholder": "Nhập mật khẩu của bạn",
+    "verifyButton": "Xác minh",
+    "verifying": "Đang xác minh...",
+    "errors": {
+      "empty": "Vui lòng nhập mật khẩu",
+      "incorrect": "Mật khẩu không đúng. Vui lòng thử lại.",
+      "system": "Không thể xác minh mật khẩu. Vui lòng thử lại.",
+      "unexpected": "Đã xảy ra lỗi không mong đợi. Vui lòng thử lại."
+    }
+  },
   "settings": {
     "sectionTitle": "Khóa ứng dụng",
     "description": "Yêu cầu mật khẩu khi khởi động DexReader",
+    "requireSettings": {
+      "label": "Yêu cầu mật khẩu để truy cập Cài đặt",
+      "description": "Yêu cầu mật khẩu mỗi khi bạn mở Cài đặt, ngay cả sau khi đã mở khóa ban đầu",
+      "enabled": "Hiện yêu cầu mật khẩu để truy cập Cài đặt",
+      "disabled": "Không còn yêu cầu mật khẩu để truy cập Cài đặt"
+    },
     "status": {
       "enabled": "Đã bật",
       "disabled": "Đã tắt"

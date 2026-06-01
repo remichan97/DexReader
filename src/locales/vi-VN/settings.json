@@ -274,7 +274,18 @@
     },
     "checkNowButton": "Kiểm tra cập nhật ngay",
     "checkingButton": "Đang kiểm tra...",
-    "currentVersion": "Phiên bản hiện tại: {{version}}"
+    "currentVersion": "Phiên bản hiện tại: {{version}}",
+    "systemSection": "Hệ thống",
+    "systemDescription": "Cấu hình hành vi ứng dụng ở mức hệ thống",
+    "hardwareAcceleration": {
+      "label": "Sử dụng tăng tốc phần cứng",
+      "description": "Sử dụng GPU để cải thiện hiệu suất hiển thị khi khả dụng. Tắt nếu bạn gặp lỗi hiển thị. Có hiệu lực sau khi khởi động lại ứng dụng."
+    },
+    "networkProxy": {
+      "label": "Proxy Mạng",
+      "description": "Cấu hình cài đặt proxy hệ thống cho kết nối mạng. DexReader sử dụng cài đặt proxy của hệ thống để kết nối với MangaDex.",
+      "button": "Mở Cài Đặt Proxy"
+    }
   },
   "logging": {
     "sectionTitle": "Ghi log",

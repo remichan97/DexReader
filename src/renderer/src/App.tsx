@@ -1,10 +1,9 @@
-import { HashRouter, useLocation } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { HashRouter, useLocation, useNavigate } from 'react-router-dom'
+import { useEffect, useState, useCallback } from 'react'
 import { AppShell } from './layouts/AppShell'
 import { AppRoutes } from './router'
-import { useNavigationListener } from './hooks/useNavigationListener'
-import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useAccentColor } from './hooks/useAccentColor'
+import { KeyboardShortcutsHandler } from './components/KeyboardShortcutsHandler'
 import { useIncognitoListener } from './hooks/useIncognitoListener'
 import { useConnectivityListener } from './hooks/useConnectivityListener'
 import { ToastContainer } from './components/Toast'
@@ -13,7 +12,9 @@ import { useConnectivityStore } from './stores/connectivityStore'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { ProgressRing } from './components/ProgressRing'
 import { GatekeeperUnlockScreen } from './views/GatekeeperUnlockScreen'
+import { GatekeeperReauthModal } from './components/GatekeeperReauthModal'
 import { UnsavedChangesProvider } from './contexts/UnsavedChangesProvider'
+import { SecureNavigationProvider } from './contexts/SecureNavigationContext'
 import { useUnsavedChanges } from './hooks/useUnsavedChanges'
 import { rendererLog } from './services/logging.service'
 import i18next from './i18n/config'
@@ -35,6 +36,7 @@ function mapStartupPageToRoute(startupPage: string): string {
 
 function AppContent(): React.JSX.Element {
   const location = useLocation()
+  const navigate = useNavigate()
   const isReaderRoute = location.pathname.startsWith('/reader/')
   const flushPendingSaves = useProgressStore((state) => state.flushPendingSaves)
   const loadFavourites = useLibraryStore((state) => state.loadFavourites)
@@ -51,6 +53,10 @@ function AppContent(): React.JSX.Element {
   // Gatekeeper state
   const [isLocked, setIsLocked] = useState(false)
   const [isCheckingLock, setIsCheckingLock] = useState(true)
+
+  // Gatekeeper re-authentication state
+  const [showReauthModal, setShowReauthModal] = useState(false)
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null)
 
   // Load theme preference FIRST (before anything else)
   useEffect(() => {
@@ -78,6 +84,64 @@ function AppContent(): React.JSX.Element {
   useEffect(() => {
     document.documentElement.dataset.theme = theme
   }, [theme])
+
+  // Custom navigation handler that checks for gatekeeper re-auth
+  const handleNavigate = useCallback(
+    async (route: string): Promise<void> => {
+      // Check if navigating to Settings and re-auth is required
+      if (route === '/settings') {
+        try {
+          const [isEnabledResult, requireSettingsResult] = await Promise.all([
+            globalThis.gatekeeper.isEnabled(),
+            globalThis.gatekeeper.getRequireForSettings()
+          ])
+
+          if (
+            isEnabledResult.success &&
+            isEnabledResult.data &&
+            requireSettingsResult.success &&
+            requireSettingsResult.data
+          ) {
+            // Re-auth is required - show modal
+            setPendingNavigation(route)
+            setShowReauthModal(true)
+            return
+          }
+        } catch (err) {
+          rendererLog.error('[App] Failed to check gatekeeper re-auth requirements:', err)
+          // On error, allow navigation (fail-open for better UX)
+        }
+      }
+
+      // No re-auth needed, proceed with navigation
+      navigate(route)
+    },
+    [navigate]
+  )
+
+  // Override navigation listener with custom handler
+  useEffect(() => {
+    // Listen for navigation commands from menu
+    globalThis.api.onNavigate(handleNavigate)
+  }, [handleNavigate])
+
+  const handleReauthSuccess = (): void => {
+    // Re-authentication successful - proceed with pending navigation
+    if (pendingNavigation) {
+      rendererLog.info('[App] Re-authentication successful, navigating to Settings')
+      navigate(pendingNavigation)
+      setPendingNavigation(null)
+    }
+    setShowReauthModal(false)
+  }
+
+  const handleReauthCancel = (): void => {
+    // Re-authentication cancelled - return to previous screen
+    rendererLog.info('[App] Re-authentication cancelled, staying on current page')
+    setPendingNavigation(null)
+    setShowReauthModal(false)
+    // Navigation automatically stays on current page (no action needed)
+  }
 
   // Check if Gatekeeper is enabled on mount
   useEffect(() => {
@@ -193,17 +257,11 @@ function AppContent(): React.JSX.Element {
     }
   }
 
-  // Listen for navigation commands from menu
-  useNavigationListener()
-
   // Listen for incognito toggle from menu
   useIncognitoListener()
 
   // Listen for connectivity toggle from menu
   useConnectivityListener()
-
-  // Handle keyboard shortcuts
-  useKeyboardShortcuts()
 
   // Load and apply accent color on app startup
   useAccentColor()
@@ -281,26 +339,39 @@ function AppContent(): React.JSX.Element {
   // Reader gets full screen without sidebar
   if (isReaderRoute) {
     return (
-      <>
+      <SecureNavigationProvider onNavigate={handleNavigate}>
+        <KeyboardShortcutsHandler />
         <AppRoutes startupRoute={startupRoute} />
         {isClosing && <ClosingOverlay />}
-      </>
+        <GatekeeperReauthModal
+          isOpen={showReauthModal}
+          onSuccess={handleReauthSuccess}
+          onCancel={handleReauthCancel}
+        />
+      </SecureNavigationProvider>
     )
   }
 
   // Other views get AppShell with sidebar
   return (
-    <>
+    <SecureNavigationProvider onNavigate={handleNavigate}>
+      <KeyboardShortcutsHandler />
       <AppShell
         showUpdateBanner={showUpdateBanner}
         updateVersion={updateVersion}
         onDismissBanner={handleDismissBanner}
         onViewReleaseNotes={handleViewReleaseNotes}
+        onNavigate={handleNavigate}
       >
         <AppRoutes startupRoute={startupRoute} />
       </AppShell>
       {isClosing && <ClosingOverlay />}
-    </>
+      <GatekeeperReauthModal
+        isOpen={showReauthModal}
+        onSuccess={handleReauthSuccess}
+        onCancel={handleReauthCancel}
+      />
+    </SecureNavigationProvider>
   )
 }
 

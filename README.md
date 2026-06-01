@@ -93,28 +93,7 @@ npm run build:linux
 
 ## Project Status
 
-**Current Version**: 1.8.0 (May 27, 2026) 🚀
-
-DexReader v1.8.0 introduces App Lock for privacy protection and a revamped Settings interface:
-
-- ✅ Complete MangaDex extensive manga library integration (browse, search, read)
-- ✅ **App Lock (Gatekeeper)** - Passphrase-based authentication to protect access to your library and reading history
-- ✅ **Revamped Settings View** - Infinite scroll with quick jump navigation for improved usability
-- ✅ **ESM Migration** - Modernized module system for better Node.js ecosystem alignment
-- ✅ **Renderer Sandboxing** - Enhanced security isolation for improved protection against malicious content
-- ✅ **Content Language Preferences** - Configure up to 3 priority languages for manga content filtering
-- ✅ **Multi-Language UI** - Three locales supported (British English, American English, Vietnamese)
-- ✅ **Enhanced Settings Management** - Migrated to electron-store for improved reliability
-- ✅ Search presets - Save and reuse search configurations with one click
-- ✅ Offline reading with download management
-- ✅ Auto-update system with post-update "What's New" banner
-- ✅ Configurable startup page (Browse, Library, or Downloads)
-- ✅ Automatic settings migration system
-- ✅ Mihon/Tachiyomi backup compatibility
-- ✅ WCAG 2.1 AA accessibility compliance (100%)
-- ✅ Multi-platform support (Windows, macOS, Linux)
-
-This release adds privacy features for shared computers and improves the Settings navigation experience.
+**Current Version**: 1.9.0 (June 1, 2026) 🚀
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed release notes and development history.
 

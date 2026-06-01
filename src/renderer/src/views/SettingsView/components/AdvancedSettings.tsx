@@ -8,17 +8,19 @@ import { rendererLog } from '@renderer/services/logging.service'
 interface AdvancedSettingsProps {
   readonly autoCheckForUpdates: boolean
   readonly autoDownloadUpdates: boolean
+  readonly useHardwareAcceleration: boolean
   readonly onAutoCheckChange: (value: boolean) => void
   readonly onAutoDownloadChange: (value: boolean) => void
-  readonly modifiedSettings: Set<string>
+  readonly onHardwareAccelerationChange: (value: boolean) => void
 }
 
 export function AdvancedSettings({
   autoCheckForUpdates,
   autoDownloadUpdates,
+  useHardwareAcceleration,
   onAutoCheckChange,
   onAutoDownloadChange,
-  modifiedSettings
+  onHardwareAccelerationChange
 }: AdvancedSettingsProps): React.JSX.Element {
   const { t } = useTranslation(['settings', 'errors'])
   const showToast = useToastStore((state) => state.show)
@@ -67,13 +69,7 @@ export function AdvancedSettings({
 
         <div className="flex flex-col gap-4">
           {/* Auto-check for updates */}
-          <div
-            className={`${
-              modifiedSettings.has('autoCheckForUpdates')
-                ? 'setting-control--modified setting-control--inline'
-                : ''
-            }`}
-          >
+          <div>
             <Switch
               checked={autoCheckForUpdates}
               onChange={onAutoCheckChange}
@@ -83,13 +79,7 @@ export function AdvancedSettings({
           </div>
 
           {/* Auto-download updates */}
-          <div
-            className={`${
-              modifiedSettings.has('autoDownloadUpdates')
-                ? 'setting-control--modified setting-control--inline'
-                : ''
-            }`}
-          >
+          <div>
             <Switch
               checked={autoDownloadUpdates}
               onChange={onAutoDownloadChange}
@@ -112,6 +102,38 @@ export function AdvancedSettings({
             <span className="text-sm text-secondary">
               {t('advanced.currentVersion', { version: appVersion })}
             </span>
+          </div>
+        </div>
+      </div>
+
+      {/* System Section */}
+      <div className="settings-view__section">
+        <h2 className="settings-view__section-heading">{t('advanced.systemSection')}</h2>
+        <p className="settings-view__section-description">{t('advanced.systemDescription')}</p>
+
+        <div className="flex flex-col gap-4">
+          {/* Hardware Acceleration */}
+          <div>
+            <Switch
+              checked={useHardwareAcceleration}
+              onChange={onHardwareAccelerationChange}
+              label={t('advanced.hardwareAcceleration.label')}
+              description={t('advanced.hardwareAcceleration.description')}
+            />
+          </div>
+
+          {/* Network Proxy Settings */}
+          <div className="flex flex-col gap-2">
+            <h3 className="text-sm font-semibold text-primary">
+              {t('advanced.networkProxy.label')}
+            </h3>
+            <p className="text-sm text-secondary mb-2">{t('advanced.networkProxy.description')}</p>
+            <Button
+              variant="secondary"
+              onClick={() => globalThis.settings.openSystemProxySettings()}
+            >
+              {t('advanced.networkProxy.button')}
+            </Button>
           </div>
         </div>
       </div>

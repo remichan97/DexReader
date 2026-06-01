@@ -13,15 +13,13 @@ interface PerformanceSettingsSectionProps {
   readonly customCacheSize: number
   readonly onCacheTierChange: (tier: CacheTier) => void
   readonly onCustomCacheSizeChange: (size: number) => void
-  readonly modifiedSettings: Set<string>
 }
 
 export function PerformanceSettingsSection({
   cacheTier,
   customCacheSize,
   onCacheTierChange,
-  onCustomCacheSizeChange,
-  modifiedSettings
+  onCustomCacheSizeChange
 }: Readonly<PerformanceSettingsSectionProps>): React.JSX.Element {
   const { t } = useTranslation(['settings', 'common'])
 
@@ -113,13 +111,7 @@ export function PerformanceSettingsSection({
         />
 
         <div className="reader-settings__controls flex flex-col gap-4">
-          <div
-            className={`${
-              modifiedSettings.has('chapterCacheTier') || modifiedSettings.has('customCacheSize')
-                ? 'setting-control--modified'
-                : ''
-            }`}
-          >
+          <div>
             <RadioGroup
               value={cacheTier}
               onChange={(value) => onCacheTierChange(value as CacheTier)}

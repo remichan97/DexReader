@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Button } from '@renderer/components/Button'
 import { Badge } from '@renderer/components/Badge'
+import { Switch } from '@renderer/components/Switch'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import { useToastStore } from '@renderer/stores'
 import { rendererLog } from '@renderer/services/logging.service'
@@ -29,15 +30,20 @@ export function SecuritySettings({
   const showToast = useToastStore((state) => state.show)
   const [isEnabled, setIsEnabled] = useState(false)
   const [isChecking, setIsChecking] = useState(true)
+  const [requireForSettings, setRequireForSettings] = useState(false)
+  const [isTogglingRequireSettings, setIsTogglingRequireSettings] = useState(false)
 
   // Check if Gatekeeper is enabled on mount
   useEffect(() => {
     const checkStatus = async (): Promise<void> => {
       try {
-        const result = await globalThis.gatekeeper.isEnabled()
+        const [enabledResult, requireResult] = await Promise.all([
+          globalThis.gatekeeper.isEnabled(),
+          globalThis.gatekeeper.getRequireForSettings()
+        ])
 
-        if (!result.success) {
-          rendererLog.error('[SecuritySettings] Failed to check status:', result.error)
+        if (!enabledResult.success) {
+          rendererLog.error('[SecuritySettings] Failed to check status:', enabledResult.error)
           showToast({
             variant: 'error',
             title: t('common:errors.generic', { defaultValue: 'An unexpected error occurred' })
@@ -45,7 +51,11 @@ export function SecuritySettings({
           return
         }
 
-        setIsEnabled(result.data)
+        setIsEnabled(enabledResult.data)
+
+        if (requireResult.success) {
+          setRequireForSettings(requireResult.data)
+        }
       } catch (err) {
         rendererLog.error('[SecuritySettings] Unexpected error:', err)
       } finally {
@@ -59,9 +69,17 @@ export function SecuritySettings({
   // Refresh status (called from parent after modal actions)
   const refreshStatus = async (): Promise<void> => {
     try {
-      const result = await globalThis.gatekeeper.isEnabled()
-      if (result.success) {
-        setIsEnabled(result.data)
+      const [enabledResult, requireResult] = await Promise.all([
+        globalThis.gatekeeper.isEnabled(),
+        globalThis.gatekeeper.getRequireForSettings()
+      ])
+
+      if (enabledResult.success) {
+        setIsEnabled(enabledResult.data)
+      }
+
+      if (requireResult.success) {
+        setRequireForSettings(requireResult.data)
       }
     } catch (err) {
       rendererLog.error('[SecuritySettings] Failed to refresh status:', err)
@@ -69,6 +87,45 @@ export function SecuritySettings({
   }
 
   // Expose refresh method to parent
+  // Handler to toggle requireForSettings
+  const handleToggleRequireSettings = async (checked: boolean): Promise<void> => {
+    if (!isEnabled) return // Should not happen, but safety check
+
+    setIsTogglingRequireSettings(true)
+    try {
+      const result = await globalThis.gatekeeper.toggleRequiredForSettings(checked)
+
+      if (!result.success) {
+        rendererLog.error('[SecuritySettings] Failed to toggle requireForSettings:', result.error)
+        showToast({
+          variant: 'error',
+          title: t('common:errors.generic', { defaultValue: 'An unexpected error occurred' })
+        })
+        return
+      }
+
+      setRequireForSettings(checked)
+      showToast({
+        variant: 'success',
+        title: checked
+          ? t('gatekeeper:settings.requireSettings.enabled', {
+              defaultValue: 'Passphrase now required to access Settings'
+            })
+          : t('gatekeeper:settings.requireSettings.disabled', {
+              defaultValue: 'Passphrase no longer required to access Settings'
+            })
+      })
+    } catch (err) {
+      rendererLog.error('[SecuritySettings] Unexpected error toggling requireForSettings:', err)
+      showToast({
+        variant: 'error',
+        title: t('common:errors.generic', { defaultValue: 'An unexpected error occurred' })
+      })
+    } finally {
+      setIsTogglingRequireSettings(false)
+    }
+  }
+
   React.useEffect(() => {
     // Store refresh function in globalThis for parent to call
     ;(globalThis as Record<string, unknown>).__refreshGatekeeperStatus = refreshStatus
@@ -132,6 +189,24 @@ export function SecuritySettings({
             )}
           </div>
         </div>
+
+        {/* Require for Settings toggle - only show when App Lock is enabled */}
+        {isEnabled && (
+          <div className="security-settings__require-section">
+            <Switch
+              checked={requireForSettings}
+              onChange={handleToggleRequireSettings}
+              disabled={isTogglingRequireSettings}
+              label={t('gatekeeper:settings.requireSettings.label', {
+                defaultValue: 'Require passphrase to access Settings'
+              })}
+              description={t('gatekeeper:settings.requireSettings.description', {
+                defaultValue:
+                  'Ask for your passphrase whenever you open Settings, even after initial unlock'
+              })}
+            />
+          </div>
+        )}
 
         {/* Help Text */}
         <div className="security-settings__help">

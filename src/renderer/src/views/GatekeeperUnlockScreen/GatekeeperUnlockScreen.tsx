@@ -34,7 +34,7 @@ export function GatekeeperUnlockScreen({
   const [isUnlocking, setIsUnlocking] = useState(false)
   const [failedAttempts, setFailedAttempts] = useState(0)
   const [nextAttemptTime, setNextAttemptTime] = useState<number | null>(null)
-  const [remainingDelay, setRemainingDelay] = useState(0)
+  const [pendingError, setPendingError] = useState('') // Error to show after delay
 
   // Auto-focus input on mount
   useEffect(() => {
@@ -53,17 +53,22 @@ export function GatekeeperUnlockScreen({
     }
   }, [t])
 
-  // Countdown timer for delay
+  // Countdown timer for delay (internal tracking only, not shown to user)
   useEffect(() => {
     if (nextAttemptTime === null) return
 
     const interval = setInterval(() => {
       const now = Date.now()
       const remaining = Math.max(0, Math.ceil((nextAttemptTime - now) / 1000))
-      setRemainingDelay(remaining)
 
       if (remaining === 0) {
         setNextAttemptTime(null)
+        setIsUnlocking(false) // End unlocking state after delay expires
+        // Show pending error message now
+        if (pendingError) {
+          setError(pendingError)
+          setPendingError('')
+        }
         // Re-focus input after delay
         setTimeout(() => {
           const input = document.getElementById('gatekeeper-passphrase-input')
@@ -75,7 +80,7 @@ export function GatekeeperUnlockScreen({
     }, 100)
 
     return () => clearInterval(interval)
-  }, [nextAttemptTime])
+  }, [nextAttemptTime, pendingError])
 
   const handleUnlock = async (): Promise<void> => {
     if (!passphrase.trim()) {
@@ -118,16 +123,15 @@ export function GatekeeperUnlockScreen({
         const delaySeconds = Math.min(Math.pow(2, newAttempts), 30)
         const attemptTime = Date.now() + delaySeconds * 1000
         setNextAttemptTime(attemptTime)
-        setRemainingDelay(delaySeconds)
-
-        setError(
-          t('gatekeeper:unlock.errors.incorrectWithDelay', {
-            defaultValue: 'Incorrect passphrase. Wait {{seconds}} seconds before trying again.',
-            seconds: delaySeconds
+        // Store error message to show after delay (not immediately)
+        setPendingError(
+          t('gatekeeper:unlock.errors.incorrect', {
+            defaultValue: 'Incorrect passphrase. Please wait before trying again.'
           })
         )
+        setError('') // Clear any existing error immediately
         setPassphrase('')
-        setIsUnlocking(false)
+        // Keep isUnlocking true during cooldown - will be set to false by useEffect
       }
     } catch (err) {
       rendererLog.error('[GatekeeperUnlock] Unexpected error:', err)
@@ -145,14 +149,9 @@ export function GatekeeperUnlockScreen({
 
   // Compute button text
   const getButtonText = (): string => {
-    if (isUnlocking) {
+    if (isUnlocking || nextAttemptTime !== null) {
+      // Show "Unlocking..." for both verification and cooldown period
       return t('gatekeeper:unlock.unlocking', { defaultValue: 'Unlocking...' })
-    }
-    if (nextAttemptTime !== null) {
-      return t('gatekeeper:unlock.waitButton', {
-        defaultValue: 'Wait {{seconds}}s...',
-        seconds: remainingDelay
-      })
     }
     return t('gatekeeper:unlock.button', { defaultValue: 'Unlock' })
   }
@@ -187,7 +186,7 @@ export function GatekeeperUnlockScreen({
             onChange={setPassphrase}
             placeholder={t('gatekeeper:unlock.placeholder', { defaultValue: 'Passphrase' })}
             disabled={isUnlocking || nextAttemptTime !== null}
-            error={remainingDelay > 0 ? `${error} (${remainingDelay}s)` : error}
+            error={error}
             autoComplete="off"
             className="gatekeeper-unlock-input"
           />

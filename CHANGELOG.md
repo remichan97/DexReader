@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [1.9.0] - 2026-06-01
+
+### Added
+
+- Add Proxy Settings functionality for network configuration
+  - Configure HTTP/HTTPS proxy with custom host and port
+  - Enable/disable proxy support dynamically
+  - Integrated IPC bridge for secure proxy settings management
+  - Full translation support across all locales (en-GB, en-US, vi-VN)
+  - Settings quick jump shortcut for easy access
+- Add Hardware Acceleration control in Settings → Appearance
+  - Toggle hardware acceleration on/off for performance tuning
+  - Requires app restart to apply changes
+
+### Changed
+
+- Update metadata layout to better utilize available space
+  - Condensed design for improved information density
+  - Better visual hierarchy and readability
+- Refactor Settings component architecture
+  - Move Settings switch up a component level for better state management
+  - Improved styling and component organization
+  - Clean up unused CSS classes in SettingsView
+- Improve error message timing for authentication failures
+  - Display delay duration more user-friendly without explicit countdown
+- Update various translation keys for consistency and clarity
+- Update CI workflow to use checkout action v6
+
+### Fixed
+
+- Fix Download Path selection bypassing dirty tracking on Save
+  - Path changes now properly trigger unsaved changes detection
+- Fix Gatekeeper re-authentication not working when navigating back and forth to Settings page
+  - Authentication state properly maintained across navigation
+- Fix incorrect Settings key usage and preload method signatures
+  - Renderer now consumes correct data from main process
+- Fix inconsistency in command link dialogues styling and behavior
+
+---
+
 ## [1.8.0] - 2026-05-27
 
 ### Added

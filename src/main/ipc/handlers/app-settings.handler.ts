@@ -118,6 +118,9 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
 
     settingsManager.save(newSettings)
 
+    // Update in-memory downloads path if it changed
+    await settingsManager.initializeDownloadsPath()
+
     // Update chapter cache size dynamically when reader settings change
     if (imageProxy) {
       await imageProxy.updateChapterCacheSize()
@@ -238,6 +241,42 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
       return true
     } catch (error) {
       mainLog.error('[Settings] Failed to open system date settings:', error)
+      return false
+    }
+  })
+
+  /**
+   * Open system network proxy settings.
+   *
+   * Opens the system's network proxy configuration panel. Used to let users configure
+   * proxy settings for network connections to MangaDex.
+   *
+   * @returns Promise<boolean> - True if opened successfully, false if platform not supported
+   *
+   * @example
+   * // Open proxy settings from Advanced Settings
+   * const opened = await window.api.openSystemProxySettings()
+   * if (!opened) {
+   *   console.log('Platform not supported or failed to open')
+   * }
+   */
+  wrapIpcHandler('settings:open-system-proxy-settings', async () => {
+    const platform = process.platform
+
+    try {
+      if (platform === 'win32') {
+        // Windows: Open Network & Internet > Proxy settings
+        await shell.openExternal('ms-settings:network-proxy')
+      } else if (platform === 'darwin') {
+        // macOS: Open Network preferences
+        await shell.openExternal('x-apple.systempreferences:com.apple.preference.network')
+      } else {
+        // Linux: No universal way, return false to indicate unsupported
+        return false
+      }
+      return true
+    } catch (error) {
+      mainLog.error('[Settings] Failed to open system proxy settings:', error)
       return false
     }
   })

@@ -15,7 +15,6 @@ interface AppearanceSettingsProps {
   readonly onUseSystemColor: () => void
   readonly startupPage: 'library' | 'browse' | 'downloads'
   readonly onStartupPageChange: (page: 'library' | 'browse' | 'downloads') => void
-  readonly modifiedSettings: Set<string>
 }
 
 export function AppearanceSettings({
@@ -27,8 +26,7 @@ export function AppearanceSettings({
   systemAccentColor,
   onUseSystemColor,
   startupPage,
-  onStartupPageChange,
-  modifiedSettings
+  onStartupPageChange
 }: AppearanceSettingsProps): React.JSX.Element {
   const { t } = useTranslation('settings')
 
@@ -67,7 +65,8 @@ export function AppearanceSettings({
         buttons: [t('common:button.ok')],
         label: t('appearance.configureDateFallbackTitle', {
           defaultValue: 'Unable to Open system settings'
-        })
+        }),
+        noLink: true
       })
     }
   }
@@ -76,7 +75,7 @@ export function AppearanceSettings({
     <div className="py-4 flex flex-col gap-5">
       <div>
         <h4 className="appearance-settings__section-title mb-3">{t('appearance.sectionTitle')}</h4>
-        <div className={modifiedSettings.has('themeMode') ? 'setting-control--modified' : ''}>
+        <div>
           <Select
             value={themeMode}
             onChange={(value) => onThemeModeChange(value as typeof themeMode)}
@@ -91,7 +90,7 @@ export function AppearanceSettings({
         <h4 className="appearance-settings__section-title mb-3">
           {t('appearance.startupSection')}
         </h4>
-        <div className={modifiedSettings.has('startupPage') ? 'setting-control--modified' : ''}>
+        <div>
           <Select
             value={startupPage}
             onChange={(value) => onStartupPageChange(value as typeof startupPage)}
@@ -104,7 +103,7 @@ export function AppearanceSettings({
 
       <div>
         <h4 className="appearance-settings__section-title mb-3">{t('appearance.accentSection')}</h4>
-        <div className={modifiedSettings.has('accentColor') ? 'setting-control--modified' : ''}>
+        <div>
           <div className="mb-3">
             <div className="appearance-settings__label">{t('appearance.accentLabel')}</div>
             <div className="flex gap-3 items-center">

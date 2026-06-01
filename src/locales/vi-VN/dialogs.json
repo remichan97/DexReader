@@ -516,7 +516,8 @@
       "title": "Tùy chọn trang đôi",
       "skipCoverPages": "Bỏ qua trang bìa",
       "readRightToLeft": "Đọc từ phải sang trái"
-    }
+    },
+    "savedForMangaOnly": "Các thay đổi về chế độ đọc ở đây sẽ chỉ áp dụng cho manga này"
   },
   "changeLanguage": {
     "title": "Thay đổi ngôn ngữ hiển thị",

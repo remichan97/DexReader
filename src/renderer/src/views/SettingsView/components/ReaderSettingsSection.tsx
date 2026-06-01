@@ -27,7 +27,6 @@ interface ReaderSettingsSectionProps {
   perMangaOverrides: PerMangaOverride[]
   onResetMangaOverride: (mangaId: string) => void
   onClearAllOverrides: () => void
-  modifiedSettings: Set<string>
 }
 
 export function ReaderSettingsSection({
@@ -41,8 +40,7 @@ export function ReaderSettingsSection({
   onDoublePageSettingChange,
   perMangaOverrides,
   onResetMangaOverride,
-  onClearAllOverrides,
-  modifiedSettings
+  onClearAllOverrides
 }: Readonly<ReaderSettingsSectionProps>): React.JSX.Element {
   const { t } = useTranslation(['settings', 'common', 'dialogs'])
 
@@ -67,13 +65,7 @@ export function ReaderSettingsSection({
           <p className="text-body text-secondary">{t('reader.loadingSettings')}</p>
         ) : (
           <div className="reader-settings__controls flex flex-col gap-4">
-            <div
-              className={`${
-                modifiedSettings.has('forceDarkMode')
-                  ? 'setting-control--modified setting-control--inline'
-                  : ''
-              }`}
-            >
+            <div>
               <Switch
                 checked={forceDarkMode}
                 onChange={onForceDarkModeChange}
@@ -82,11 +74,7 @@ export function ReaderSettingsSection({
               />
             </div>
 
-            <div
-              className={`${
-                modifiedSettings.has('imageQuality') ? 'setting-control--modified' : ''
-              }`}
-            >
+            <div>
               <RadioGroup
                 value={imageQuality}
                 onChange={(value) => onImageQualityChange(value as 'data' | 'data-saver')}
@@ -116,11 +104,7 @@ export function ReaderSettingsSection({
         {isLoading ? (
           <p className="text-body text-secondary">{t('reader.loadingSettings')}</p>
         ) : (
-          <div
-            className={`reader-settings__controls flex flex-col gap-4 ${
-              modifiedSettings.has('globalReaderSettings') ? 'setting-control--modified' : ''
-            }`}
-          >
+          <div className="reader-settings__controls flex flex-col gap-4">
             <Select
               value={globalReaderSettings.readingMode}
               onChange={onReadingModeChange}

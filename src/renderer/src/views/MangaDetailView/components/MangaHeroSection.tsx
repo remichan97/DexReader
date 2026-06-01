@@ -1,14 +1,23 @@
 import type { JSX } from 'react'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useSecureNavigation } from '@renderer/hooks/useSecureNavigation'
 import {
   BookOpenRegular,
   PlayCircle24Regular,
   Heart24Regular,
   Heart24Filled,
-  ArrowDownload24Regular
+  ArrowDownload24Regular,
+  Person20Regular,
+  PaintBrush20Regular,
+  BookmarkMultiple20Regular,
+  People20Regular,
+  Calendar20Regular,
+  Star20Regular,
+  Book20Regular
 } from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
+import { Tooltip } from '@renderer/components/Tooltip'
 import { DownloadConfirmationDialog } from '@renderer/components/DownloadConfirmationDialog'
 import { useLibraryStore, useToastStore } from '@renderer/stores'
 import { useConnectivityStore } from '@renderer/stores/connectivityStore'
@@ -48,7 +57,8 @@ export default function MangaHeroSection({
   progress
 }: MangaHeroSectionProps): JSX.Element {
   const navigate = useNavigate()
-  const { t } = useTranslation(['mangaDetail', 'common'])
+  const { secureNavigate } = useSecureNavigation()
+  const { t } = useTranslation(['mangaDetail', 'common', 'browse'])
   const { isFavourite, toggleFavourite, loadFavourites } = useLibraryStore()
   const showToast = useToastStore((state) => state.show)
   const isOnline = useConnectivityStore((state) => state.isOnline)
@@ -58,7 +68,10 @@ export default function MangaHeroSection({
   const artist = getArtistName(manga)
   const status = mapPublicationStatus(manga.attributes.status)
   const year = getMangaYear(manga)
-  const contentRating = getContentRatingText(manga.attributes.contentRating)
+  const contentRatingRaw = manga.attributes.contentRating?.toLowerCase() || 'safe'
+  const contentRating = t(`browse:filter.contentRatings.${contentRatingRaw}`, {
+    defaultValue: getContentRatingText(manga.attributes.contentRating)
+  })
   const demographic = manga.attributes.publicationDemographic
   const lastVolume = manga.attributes.lastVolume
   const lastChapter = manga.attributes.lastChapter
@@ -210,7 +223,7 @@ export default function MangaHeroSection({
         t('mangaDetail:hero.manageDownloads.deleteAll', {
           defaultValue: 'Delete All Chapters'
         }),
-        t('common:button.cancel')
+        t('mangaDetail:hero.manageDownloads.cancel', { defaultValue: 'Nevermind' })
       ],
       type: 'info',
       defaultId: 2,
@@ -438,48 +451,81 @@ export default function MangaHeroSection({
           </div>
         )}
 
-        <div className="manga-detail-view__metadata flex flex-col gap-2">
-          <p className="manga-detail-view__author">
-            <strong>{t('mangaDetail:hero.author', { defaultValue: 'Author:' })}</strong> {author}
+        <div className="manga-detail-view__metadata">
+          <p className="manga-detail-view__author detail-item">
+            <Tooltip content={t('mangaDetail:hero.tooltips.author')} position="top">
+              <Person20Regular
+                aria-label={t('mangaDetail:hero.author', { defaultValue: 'Author' })}
+              />
+            </Tooltip>
+            <span>{author}</span>
           </p>
-          <p className="manga-detail-view__artist">
-            <strong>{t('mangaDetail:hero.artist', { defaultValue: 'Artist:' })}</strong> {artist}
+          <p className="manga-detail-view__artist detail-item">
+            <Tooltip content={t('mangaDetail:hero.tooltips.artist')} position="top">
+              <PaintBrush20Regular
+                aria-label={t('mangaDetail:hero.artist', { defaultValue: 'Artist' })}
+              />
+            </Tooltip>
+            <span>{artist}</span>
           </p>
-          <p className="manga-detail-view__status">
-            <strong>{t('mangaDetail:hero.status', { defaultValue: 'Status:' })}</strong>{' '}
-            <StatusBadge status={status} />
+          <p className="manga-detail-view__status detail-item">
+            <Tooltip content={t('mangaDetail:hero.tooltips.status')} position="top">
+              <BookmarkMultiple20Regular
+                aria-label={t('mangaDetail:hero.status', { defaultValue: 'Status' })}
+              />
+            </Tooltip>
+            <StatusBadge status={status} t={t} />
           </p>
           {demographic && (
-            <p className="manga-detail-view__demographic">
-              <strong>{t('mangaDetail:hero.demographic', { defaultValue: 'Demographic:' })}</strong>{' '}
-              <DemographicBadge demographic={demographic} />
+            <p className="manga-detail-view__demographic detail-item">
+              <Tooltip content={t('mangaDetail:hero.tooltips.demographic')} position="top">
+                <People20Regular
+                  aria-label={t('mangaDetail:hero.demographic', { defaultValue: 'Demographic' })}
+                />
+              </Tooltip>
+              <DemographicBadge demographic={demographic} t={t} />
             </p>
           )}
           {year && (
-            <p className="manga-detail-view__year">
-              <strong>{t('mangaDetail:hero.year', { defaultValue: 'Year:' })}</strong> {year}
+            <p className="manga-detail-view__year detail-item">
+              <Tooltip content={t('mangaDetail:hero.tooltips.year')} position="top">
+                <Calendar20Regular
+                  aria-label={t('mangaDetail:hero.year', { defaultValue: 'Year' })}
+                />
+              </Tooltip>
+              <span>{year}</span>
             </p>
           )}
-          <p className="manga-detail-view__rating">
-            <strong>{t('mangaDetail:hero.rating', { defaultValue: 'Rating:' })}</strong>{' '}
-            {contentRating}
+          <p className="manga-detail-view__rating detail-item">
+            <Tooltip content={t('mangaDetail:hero.tooltips.contentRating')} position="top">
+              <Star20Regular
+                aria-label={t('mangaDetail:hero.rating', { defaultValue: 'Rating' })}
+              />
+            </Tooltip>
+            <span>{contentRating}</span>
           </p>
           {(lastVolume || lastChapter) && (
-            <p className="manga-detail-view__length">
-              <strong>{t('mangaDetail:hero.length', { defaultValue: 'Length:' })}</strong>{' '}
-              {lastVolume &&
-                t('mangaDetail:hero.volumeCount', {
-                  count: lastVolume,
-                  s: lastVolume === '1' ? '' : 's',
-                  defaultValue: `${lastVolume} volume${lastVolume === '1' ? '' : 's'}`
-                })}
-              {lastVolume && lastChapter && ' • '}
-              {lastChapter &&
-                t('mangaDetail:hero.chapterCount', {
-                  count: lastChapter,
-                  s: lastChapter === '1' ? '' : 's',
-                  defaultValue: `${lastChapter} chapter${lastChapter === '1' ? '' : 's'}`
-                })}
+            <p className="manga-detail-view__length detail-item">
+              <Tooltip content={t('mangaDetail:hero.tooltips.lastChapter')} position="top">
+                <Book20Regular
+                  aria-label={t('mangaDetail:hero.length', { defaultValue: 'Length' })}
+                />
+              </Tooltip>
+              <span>
+                {lastVolume &&
+                  t('mangaDetail:hero.volumeCount', {
+                    count: lastVolume,
+                    s: lastVolume === '1' ? '' : 's',
+                    defaultValue: `${lastVolume} volume${lastVolume === '1' ? '' : 's'}`
+                  })}
+                {lastVolume && lastChapter && ' • '}
+                {lastChapter &&
+                  t('mangaDetail:hero.chapterCount', {
+                    count: lastChapter,
+                    s: lastChapter === '1' ? '' : 's',
+                    defaultValue: `${lastChapter} chapter${lastChapter === '1' ? '' : 's'}`
+                  })}
+              </span>
             </p>
           )}
         </div>
@@ -534,7 +580,7 @@ export default function MangaHeroSection({
           defaultQuality={downloadSettings.defaultQuality}
           downloadsPath={downloadSettings.path}
           showBatchInfo={downloadSettings.confirmation === 'batch-only'}
-          onOpenSettings={() => navigate('/settings')}
+          onOpenSettings={() => void secureNavigate('/settings')}
         />
       )}
     </div>
@@ -546,13 +592,15 @@ export default function MangaHeroSection({
  */
 interface StatusBadgeProps {
   readonly status: MangaStatus
+  readonly t: (key: string, options?: Record<string, unknown>) => string
 }
 
-function StatusBadge({ status }: StatusBadgeProps): JSX.Element {
+function StatusBadge({ status, t }: StatusBadgeProps): JSX.Element {
+  const translatedStatus = t(`browse:filter.statuses.${status}`, {
+    defaultValue: status.charAt(0).toUpperCase() + status.slice(1)
+  })
   return (
-    <span className={`status-badge status-badge--${status} inline-flex`}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
-    </span>
+    <span className={`status-badge status-badge--${status} inline-flex`}>{translatedStatus}</span>
   )
 }
 
@@ -561,13 +609,16 @@ function StatusBadge({ status }: StatusBadgeProps): JSX.Element {
  */
 interface DemographicBadgeProps {
   readonly demographic: string
+  readonly t: (key: string, options?: Record<string, unknown>) => string
 }
 
-function DemographicBadge({ demographic }: DemographicBadgeProps): JSX.Element {
-  const displayText = demographic.charAt(0).toUpperCase() + demographic.slice(1)
+function DemographicBadge({ demographic, t }: DemographicBadgeProps): JSX.Element {
+  const translatedDemographic = t(`browse:filter.demographics.${demographic}`, {
+    defaultValue: demographic.charAt(0).toUpperCase() + demographic.slice(1)
+  })
   return (
     <span className={`demographic-badge demographic-badge--${demographic} inline-flex`}>
-      {displayText}
+      {translatedDemographic}
     </span>
   )
 }

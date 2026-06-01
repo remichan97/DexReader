@@ -67,6 +67,7 @@ const SETTING_TO_SECTION: Record<string, string> = {
   maxDiskCacheSize: 'performance',
   autoCheckForUpdates: 'advanced',
   autoDownloadUpdates: 'advanced',
+  useHardwareAcceleration: 'advanced',
   logRetentionDays: 'advanced'
 }
 
@@ -94,7 +95,7 @@ export function SettingsView(): JSX.Element {
   const [highlightedSection, setHighlightedSection] = useState<string | null>(null)
   const [isInitialMount, setIsInitialMount] = useState(true)
 
-  // Track modified settings for visual indicators
+  // Track modified settings for UnsavedChangesBanner
   const [modifiedSettings, setModifiedSettings] = useState<Set<string>>(new Set())
 
   // Gatekeeper modal states
@@ -149,6 +150,9 @@ export function SettingsView(): JSX.Element {
   // Update settings state
   const [autoCheckForUpdates, setAutoCheckForUpdates] = useState<boolean>(true)
   const [autoDownloadUpdates, setAutoDownloadUpdates] = useState<boolean>(false)
+
+  // System settings state
+  const [useHardwareAcceleration, setUseHardwareAcceleration] = useState<boolean>(true)
 
   // Logging settings state
   const [logRetentionDays, setLogRetentionDays] = useState<number>(7)
@@ -222,13 +226,18 @@ export function SettingsView(): JSX.Element {
     // Compare logging settings
     const logsChanged = logRetentionDays !== (originalSettings.logs?.retentionInDays ?? 7)
 
+    // Compare system settings
+    const systemChanged =
+      useHardwareAcceleration !== (originalSettings.system?.useHardwareAcceleration ?? true)
+
     setHasUnsavedChanges(
       appearanceChanged ||
         languageChanged ||
         downloadsChanged ||
         readerChanged ||
         updateChanged ||
-        logsChanged
+        logsChanged ||
+        systemChanged
     )
   }, [
     originalSettings,
@@ -251,7 +260,8 @@ export function SettingsView(): JSX.Element {
     customCacheSize,
     autoCheckForUpdates,
     autoDownloadUpdates,
-    logRetentionDays
+    logRetentionDays,
+    useHardwareAcceleration
   ])
 
   // Search params support for deep linking to sections
@@ -385,6 +395,11 @@ export function SettingsView(): JSX.Element {
           // Load logging settings
           if (settings.logs) {
             setLogRetentionDays(settings.logs.retentionInDays ?? 7)
+          }
+
+          // Load system settings
+          if (settings.system) {
+            setUseHardwareAcceleration(settings.system.useHardwareAcceleration ?? true)
           }
 
           // Load language settings
@@ -655,6 +670,12 @@ export function SettingsView(): JSX.Element {
     markSettingModified('logRetentionDays')
   }
 
+  // Handle hardware acceleration change (advanced section)
+  const handleHardwareAccelerationChange = (enabled: boolean): void => {
+    setUseHardwareAcceleration(enabled)
+    markSettingModified('useHardwareAcceleration')
+  }
+
   // Gatekeeper modal handlers
   const handleGatekeeperSuccess = (): void => {
     // Refresh the SecuritySettings component status
@@ -803,6 +824,11 @@ export function SettingsView(): JSX.Element {
         retentionInDays: logRetentionDays
       }
 
+      // Build system settings object
+      const systemSettings = {
+        useHardwareAcceleration: useHardwareAcceleration
+      }
+
       // Build language settings object
       const languageSettings = {
         displayLanguage: displayLanguage,
@@ -820,6 +846,7 @@ export function SettingsView(): JSX.Element {
         reader: readerSettings,
         update: updateSettings,
         logs: logsSettings,
+        system: systemSettings,
         search: originalSettings.search || {},
         language: languageSettings
       }
@@ -910,12 +937,14 @@ export function SettingsView(): JSX.Element {
       maxDiskCacheSize: t('settings:cacheManagement.coverCacheLimitLabel', {
         defaultValue: 'Cover Cache Limit'
       }),
-      downloadsPath: t('settings:downloads.locationLabel', { defaultValue: 'Download Location' }),
-      globalReaderSettings: t('settings:reader.settingsLabel', { defaultValue: 'Reader Settings' }),
-      forceDarkMode: t('settings:reader.forceDarkModeLabel', {
+      downloadsPath: t('settings:downloads.locationSection', { defaultValue: 'Download Location' }),
+      globalReaderSettings: t('settings:reader.displaySection', {
+        defaultValue: 'Reader Settings'
+      }),
+      forceDarkMode: t('settings:reader.forceDarkMode.label', {
         defaultValue: 'Force Dark Mode on Manga Pages'
       }),
-      imageQuality: t('settings:reader.imageQualityLabel', { defaultValue: 'Image Quality' }),
+      imageQuality: t('settings:reader.imageQuality.label', { defaultValue: 'Image Quality' }),
       chapterCacheTier: t('settings:performance.sectionTitle', {
         defaultValue: 'Chapter Cache Size'
       }),
@@ -1037,7 +1066,6 @@ export function SettingsView(): JSX.Element {
             onUseSystemColor={handleUseSystemColor}
             startupPage={startupPage}
             onStartupPageChange={handleStartupPageChange}
-            modifiedSettings={modifiedSettings}
           />
         </section>
 
@@ -1056,7 +1084,6 @@ export function SettingsView(): JSX.Element {
             onSyncContentLanguageChange={handleSyncContentLanguageChange}
             contentLanguages={contentLanguages}
             onContentLanguagesChange={handleContentLanguagesChange}
-            modifiedSettings={modifiedSettings}
           />
         </section>
 
@@ -1078,7 +1105,6 @@ export function SettingsView(): JSX.Element {
             perMangaOverrides={perMangaOverrides}
             onResetMangaOverride={handleResetMangaOverride}
             onClearAllOverrides={handleClearAllOverrides}
-            modifiedSettings={modifiedSettings}
           />
         </section>
 
@@ -1099,7 +1125,6 @@ export function SettingsView(): JSX.Element {
             onDownloadConfirmationChange={handleDownloadConfirmationChange}
             onDefaultQualityChange={handleDefaultQualityChange}
             onMaxConcurrentDownloadsChange={handleMaxConcurrentDownloadsChange}
-            modifiedSettings={modifiedSettings}
           />
         </section>
 
@@ -1116,7 +1141,6 @@ export function SettingsView(): JSX.Element {
             customCacheSize={customCacheSize}
             onCacheTierChange={handleCacheTierChange}
             onCustomCacheSizeChange={handleCustomCacheSizeChange}
-            modifiedSettings={modifiedSettings}
           />
           <div className="settings-view__section-divider">
             <h3 className="settings-view__section-heading">
@@ -1129,7 +1153,6 @@ export function SettingsView(): JSX.Element {
             <CacheManagementSettings
               coverCacheLimit={maxDiskCacheSize === 0 ? 0 : maxDiskCacheSize / (1024 * 1024)}
               onCoverCacheLimitChange={handleCoverCacheLimitChange}
-              modifiedSettings={modifiedSettings}
             />
           </div>
         </section>
@@ -1167,14 +1190,14 @@ export function SettingsView(): JSX.Element {
           <AdvancedSettings
             autoCheckForUpdates={autoCheckForUpdates}
             autoDownloadUpdates={autoDownloadUpdates}
+            useHardwareAcceleration={useHardwareAcceleration}
             onAutoCheckChange={handleAutoCheckChange}
             onAutoDownloadChange={handleAutoDownloadChange}
-            modifiedSettings={modifiedSettings}
+            onHardwareAccelerationChange={handleHardwareAccelerationChange}
           />
           <LoggingSettings
             retentionDays={logRetentionDays}
             onRetentionDaysChange={handleLogRetentionDaysChange}
-            modifiedSettings={modifiedSettings}
           />
           <DangerZoneSettings />
         </section>

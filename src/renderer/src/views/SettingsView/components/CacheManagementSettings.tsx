@@ -12,13 +12,11 @@ import { useTranslation } from '@renderer/hooks/useTranslation'
 interface CacheManagementSettingsProps {
   readonly coverCacheLimit: number // in MB, 0 = unlimited
   readonly onCoverCacheLimitChange: (limitMB: number) => void
-  readonly modifiedSettings: Set<string>
 }
 
 export function CacheManagementSettings({
   coverCacheLimit,
-  onCoverCacheLimitChange,
-  modifiedSettings
+  onCoverCacheLimitChange
 }: CacheManagementSettingsProps): JSX.Element {
   const { t } = useTranslation(['settings', 'dialogs', 'common', 'errors'])
   const [cacheStats, setCacheStats] = useState<MangaCacheStatsQuery | null>(null)
@@ -267,11 +265,7 @@ export function CacheManagementSettings({
           {t('settings:cacheManagement.coverCacheDescription')}
         </p>
 
-        <div
-          className={`${
-            modifiedSettings.has('maxDiskCacheSize') ? 'setting-control--modified' : ''
-          }`}
-        >
+        <div>
           <Select
             value={String(coverCacheLimit)}
             onChange={handleCoverLimitChange}

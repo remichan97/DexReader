@@ -1,11 +1,13 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useSecureNavigation } from '@renderer/hooks/useSecureNavigation'
 
 /**
  * Hook to handle global keyboard shortcuts
  */
 export function useKeyboardShortcuts(): void {
   const navigate = useNavigate()
+  const { secureNavigate } = useSecureNavigation()
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent): void => {
@@ -33,10 +35,10 @@ export function useKeyboardShortcuts(): void {
         return
       }
 
-      // Ctrl+,: Navigate to Settings
+      // Ctrl+,: Navigate to Settings (with gatekeeper check)
       if (isCtrl && event.key === ',') {
         event.preventDefault()
-        navigate('/settings')
+        void secureNavigate('/settings')
         return
       }
 
@@ -52,5 +54,5 @@ export function useKeyboardShortcuts(): void {
     return () => {
       globalThis.window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [navigate])
+  }, [navigate, secureNavigate])
 }

@@ -279,7 +279,18 @@
     },
     "checkNowButton": "Check for Updates Now",
     "checkingButton": "Checking...",
-    "currentVersion": "Current version: {{version}}"
+    "currentVersion": "Current version: {{version}}",
+    "systemSection": "System",
+    "systemDescription": "Configure system-level application behaviour",
+    "hardwareAcceleration": {
+      "label": "Use hardware acceleration",
+      "description": "Uses your GPU to improve rendering performance when available. Disable if you experience visual glitches. Takes effect on next launch."
+    },
+    "networkProxy": {
+      "label": "Network Proxy",
+      "description": "Configure system proxy settings for network connections. DexReader uses your system's proxy settings to connect to MangaDex.",
+      "button": "Open Proxy Settings"
+    }
   },
   "logging": {
     "sectionTitle": "Logging",
