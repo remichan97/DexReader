@@ -1,7 +1,7 @@
 ---
 name: TypeScript Standards
-description: General TypeScripts Standards
-applyTo: '**/*.ts', '**/*.tsx'
+description: General TypeScript Standards
+applyTo: src/**/*.ts, src/**/*.tsx
 ---
 
 # General TypeScript Standards

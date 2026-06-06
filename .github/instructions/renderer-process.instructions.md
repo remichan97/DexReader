@@ -1,7 +1,7 @@
 ---
 name: Renderer Process Instructions
 description: Instruction for Renderer process implementation
-applyTo: src/renderer/**/*.ts
+applyTo: src/renderer/**/*.tsx
 ---
 
 # Renderer Process Instructions
