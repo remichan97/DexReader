@@ -36,6 +36,23 @@
       "library": "Thư viện",
       "downloads": "Tải xuống"
     },
+    "canvasModeSection": "Canvas Chi tiết Manga",
+    "canvasModeLabel": "Nền phần hero",
+    "canvasModeHelper": "Hiển thị bìa manga làm nền trong phần hero của trang chi tiết",
+    "canvasModeOptions": {
+      "none": "Không có (Màu đặc)",
+      "blurred": "Làm mờ với Lớp phủ",
+      "gradient": "Mờ dần",
+      "accent": "Tông màu chủ đạo"
+    },
+    "sidebarSizeSection": "Hiển thị Thanh bên",
+    "sidebarSizeLabel": "Chế độ hiển thị thanh bên",
+    "sidebarSizeHelper": "Chọn cách hiển thị thanh điều hướng bên",
+    "sidebarSizeOptions": {
+      "full": "Đầy đủ (Biểu tượng với Nhãn)",
+      "compact": "Gọn (Chỉ biểu tượng)",
+      "autoHide": "Tự động ẩn (Mở rộng khi di chuột)"
+    },
     "accentSection": "Màu chủ đạo",
     "accentLabel": "Màu chủ đạo",
     "useSystemButton": "Sử dụng hệ thống",

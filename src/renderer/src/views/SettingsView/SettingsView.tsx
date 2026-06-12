@@ -52,6 +52,8 @@ const SETTING_TO_SECTION: Record<string, string> = {
   themeMode: 'appearance',
   accentColor: 'appearance',
   startupPage: 'appearance',
+  canvasMode: 'appearance',
+  sidebarSize: 'appearance',
   displayLanguage: 'language',
   syncContentLanguage: 'language',
   contentLanguages: 'language',
@@ -127,6 +129,8 @@ export function SettingsView(): JSX.Element {
   const [isUsingSystemColor, setIsUsingSystemColor] = useState<boolean>(true)
   const [systemAccentColor, setSystemAccentColor] = useState<string>('#0078d4')
   const [startupPage, setStartupPage] = useState<'library' | 'browse' | 'downloads'>('browse')
+  const [canvasMode, setCanvasMode] = useState<'none' | 'blurred' | 'gradient' | 'accent'>('none')
+  const [sidebarSize, setSidebarSize] = useState<'full' | 'compact' | 'auto-hide'>('full')
   const [displayLanguage, setDisplayLanguage] = useState<'en-GB' | 'en-US' | 'vi-VN'>('en-GB')
   const [syncContentLanguage, setSyncContentLanguage] = useState<boolean>(true)
   const [contentLanguages, setContentLanguages] = useState<string[]>(['en'])
@@ -189,6 +193,8 @@ export function SettingsView(): JSX.Element {
     const appearanceChanged =
       themeMode !== originalSettings.appearance.theme ||
       startupPage !== originalSettings.appearance.startupPage ||
+      canvasMode !== originalSettings.appearance.canvasMode ||
+      sidebarSize !== originalSettings.appearance.sidebarSize ||
       (isUsingSystemColor
         ? originalSettings.appearance.accentColor !== undefined
         : originalSettings.appearance.accentColor !== accentColor)
@@ -243,6 +249,8 @@ export function SettingsView(): JSX.Element {
     originalSettings,
     themeMode,
     startupPage,
+    canvasMode,
+    sidebarSize,
     accentColor,
     isUsingSystemColor,
     displayLanguage,
@@ -330,6 +338,16 @@ export function SettingsView(): JSX.Element {
           // Load startup page from settings
           if (settings.appearance.startupPage) {
             setStartupPage(settings.appearance.startupPage)
+          }
+
+          // Load canvas mode from settings
+          if (settings.appearance.canvasMode) {
+            setCanvasMode(settings.appearance.canvasMode)
+          }
+
+          // Load sidebar size from settings
+          if (settings.appearance.sidebarSize) {
+            setSidebarSize(settings.appearance.sidebarSize)
           }
 
           if (settings.appearance.accentColor) {
@@ -640,6 +658,18 @@ export function SettingsView(): JSX.Element {
     markSettingModified('startupPage')
   }
 
+  // Handle canvas mode change (appearance section)
+  const handleCanvasModeChange = (mode: 'none' | 'blurred' | 'gradient' | 'accent'): void => {
+    setCanvasMode(mode)
+    markSettingModified('canvasMode')
+  }
+
+  // Handle sidebar size change (appearance section)
+  const handleSidebarSizeChange = (size: 'full' | 'compact' | 'auto-hide'): void => {
+    setSidebarSize(size)
+    markSettingModified('sidebarSize')
+  }
+
   // Handle cache tier change (performance section)
   const handleCacheTierChange = (tier: 'low' | 'normal' | 'high' | 'custom'): void => {
     setChapterCacheTier(tier)
@@ -790,7 +820,9 @@ export function SettingsView(): JSX.Element {
       const appearanceSettings = {
         theme: themeMode,
         accentColor: isUsingSystemColor ? undefined : accentColor,
-        startupPage: startupPage
+        startupPage: startupPage,
+        canvasMode: canvasMode,
+        sidebarSize: sidebarSize
       }
 
       // Build downloads settings object
@@ -1066,6 +1098,10 @@ export function SettingsView(): JSX.Element {
             onUseSystemColor={handleUseSystemColor}
             startupPage={startupPage}
             onStartupPageChange={handleStartupPageChange}
+            canvasMode={canvasMode}
+            onCanvasModeChange={handleCanvasModeChange}
+            sidebarSize={sidebarSize}
+            onSidebarSizeChange={handleSidebarSizeChange}
           />
         </section>
 

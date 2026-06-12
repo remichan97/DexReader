@@ -15,6 +15,10 @@ interface AppearanceSettingsProps {
   readonly onUseSystemColor: () => void
   readonly startupPage: 'library' | 'browse' | 'downloads'
   readonly onStartupPageChange: (page: 'library' | 'browse' | 'downloads') => void
+  readonly canvasMode: 'none' | 'blurred' | 'gradient' | 'accent'
+  readonly onCanvasModeChange: (mode: 'none' | 'blurred' | 'gradient' | 'accent') => void
+  readonly sidebarSize: 'full' | 'compact' | 'auto-hide'
+  readonly onSidebarSizeChange: (size: 'full' | 'compact' | 'auto-hide') => void
 }
 
 export function AppearanceSettings({
@@ -26,7 +30,11 @@ export function AppearanceSettings({
   systemAccentColor,
   onUseSystemColor,
   startupPage,
-  onStartupPageChange
+  onStartupPageChange,
+  canvasMode,
+  onCanvasModeChange,
+  sidebarSize,
+  onSidebarSizeChange
 }: AppearanceSettingsProps): React.JSX.Element {
   const { t } = useTranslation('settings')
 
@@ -40,6 +48,19 @@ export function AppearanceSettings({
     { value: 'browse', label: t('appearance.startupOptions.browse') },
     { value: 'library', label: t('appearance.startupOptions.library') },
     { value: 'downloads', label: t('appearance.startupOptions.downloads') }
+  ]
+
+  const canvasModeOptions: SelectOption[] = [
+    { value: 'none', label: t('appearance.canvasModeOptions.none') },
+    { value: 'blurred', label: t('appearance.canvasModeOptions.blurred') },
+    { value: 'gradient', label: t('appearance.canvasModeOptions.gradient') },
+    { value: 'accent', label: t('appearance.canvasModeOptions.accent') }
+  ]
+
+  const sidebarSizeOptions: SelectOption[] = [
+    { value: 'full', label: t('appearance.sidebarSizeOptions.full') },
+    { value: 'compact', label: t('appearance.sidebarSizeOptions.compact') },
+    { value: 'auto-hide', label: t('appearance.sidebarSizeOptions.autoHide') }
   ]
 
   const handleColorInputChange = (value: string | string[]): void => {
@@ -97,6 +118,36 @@ export function AppearanceSettings({
             options={startupPageOptions}
             label={t('appearance.startupLabel')}
             helperText={t('appearance.startupHelper')}
+          />
+        </div>
+      </div>
+
+      <div>
+        <h4 className="appearance-settings__section-title mb-3">
+          {t('appearance.canvasModeSection')}
+        </h4>
+        <div>
+          <Select
+            value={canvasMode}
+            onChange={(value) => onCanvasModeChange(value as typeof canvasMode)}
+            options={canvasModeOptions}
+            label={t('appearance.canvasModeLabel')}
+            helperText={t('appearance.canvasModeHelper')}
+          />
+        </div>
+      </div>
+
+      <div>
+        <h4 className="appearance-settings__section-title mb-3">
+          {t('appearance.sidebarSizeSection')}
+        </h4>
+        <div>
+          <Select
+            value={sidebarSize}
+            onChange={(value) => onSidebarSizeChange(value as typeof sidebarSize)}
+            options={sidebarSizeOptions}
+            label={t('appearance.sidebarSizeLabel')}
+            helperText={t('appearance.sidebarSizeHelper')}
           />
         </div>
       </div>
