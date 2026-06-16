@@ -14,8 +14,9 @@ These files are essential for me to understand the project. If any of these file
 
 - `active-context.md`: This file contains the **current context** of our collaboration, including recent tasks (last 2-3 weeks), immediate goals, any blockers, known issues and next steps. **This is my session dashboard** - it should be kept concise (150-300 lines) and focused on **actionable, recent information only**. This is my primary source of truth for current project state.
 - `project-brief.md`: This file provides a high-level overview of the project, including its purpose, target audience, and key features.
-- `system-pattern.md`: This file outlines the architectural patterns, coding standards, and best practices that should be followed in the project.
-- `tech-context.md`: This file details the technologies, frameworks, and libraries used in the project, along with their versions and configurations.
+- `system-pattern.md`: This file outlines the architectural patterns, design principles, as well as key technical decisions that have been made for the project. It will act as a reference for understanding the overall structure and design of the system. Do not include implementation details, but rather focus on the high-level patterns and principles that guide the development of the project.
+- `tech-context.md`: This file details the technologies, frameworks, and libraries used in the project, along with their versions and configurations. Any technical constraints will also be documented here.
+- `architecture-overview.md`: This file, act as a complimentary to `system-pattern.md`, provides a top-down view of the application. Think of it as the project map, that shows where things are, how they are connected, and how data flows through the system.
 
 ## Supplementary Files (Optional)
 

@@ -1,7 +1,7 @@
 # DexReader Technical Context
 
-**Last Updated**: 22 May 2026
-**Project Version**: 1.4.1 (1.5.0 in development)
+**Last Updated**: 12 June 2026
+**Project Version**: 1.9.1
 **Type**: Desktop Application (Electron)
 
 ---
@@ -10,14 +10,11 @@
 
 ### Core Runtime
 
-| Technology   | Version    | Purpose                         |
-| ------------ | ---------- | ------------------------------- |
-| **Electron** | 41.0.2     | Desktop application framework   |
-| **Node.js**  | v22.21.1\* | Development environment         |
-| **Chromium** | ~134.x     | Embedded browser (via Electron) |
-| **V8**       | Latest     | JavaScript engine               |
-
-_\*Note: Electron bundles its own Node.js runtime (~v22.x). Development uses system Node v22.21.1_
+| Technology   | Version | Purpose                         |
+| ------------ | ------- | ------------------------------- |
+| **Electron** | 41.1.1  | Desktop application framework   |
+| **Node.js**  | v22.x   | Runtime (bundled with Electron) |
+| **Chromium** | ~134.x  | Embedded browser (via Electron) |
 
 ### Frontend Framework
 
@@ -31,7 +28,7 @@ _\*Note: Electron bundles its own Node.js runtime (~v22.x). Development uses sys
 
 | Technology           | Version | Purpose                              |
 | -------------------- | ------- | ------------------------------------ |
-| **Vite**             | 7.1.6   | Frontend build tool & dev server     |
+| **Vite**             | 7.3.2   | Frontend build tool & dev server     |
 | **electron-vite**    | 5.0.0   | Electron-specific Vite wrapper       |
 | **electron-builder** | 26.8.1  | Application packaging & distribution |
 | **npm**              | 11.3.0  | Package manager                      |
@@ -46,151 +43,53 @@ _\*Note: Electron bundles its own Node.js runtime (~v22.x). Development uses sys
 
 ---
 
+## Key Dependencies
+
+### Production Dependencies
+
+**State Management**:
+
+- `zustand@5.0.9` - Lightweight state management (~1.4kb)
+
+**Database**:
+
+- `better-sqlite3@12.8.0` - Native SQLite3 bindings
+- `drizzle-orm@0.45.2` - Type-safe ORM for SQLite
+- `drizzle-kit@0.31.10` - Database migrations toolkit (dev dependency)
+
+**UI Components**:
+
+- `@fluentui/react-icons@2.0.315` - Microsoft Fluent UI icon library
+- `react-router-dom@6.30.4` - Client-side routing
+
+**Internationalisation**:
+
+- `i18next@26.0.10` - i18n framework
+- `react-i18next@17.0.7` - React bindings for i18next
+- `i18next-fs-backend@2.6.5` - Filesystem backend for translations
+
+**Binary Serialization**:
+
+- `protobufjs@8.2.0` - Protocol Buffers for backup functionality
+- `pako@2.1.0` - gzip compression for backups
+
+**Security & Logging**:
+
+- `bcrypt@6.0.0` - Password hashing for app lock
+- `electron-log@5.4.3` - Application logging
+
+**Electron Utilities**:
+
+- `@electron-toolkit/preload@3.0.2` - Preload script helpers
+- `@electron-toolkit/utils@4.0.0` - Common Electron utilities
+- `electron-updater@6.3.9` - Auto-update functionality
+- `electron-store@11.0.2` - Settings persistence with encryption support
+
+---
+
 ## MangaDex API Integration
 
-### API Client Architecture
-
-**Location**: `src/main/api/`
-
-| File                     | Purpose                           | Key Exports                                                               |
-| ------------------------ | --------------------------------- | ------------------------------------------------------------------------- |
-| **constants/api-config** | API URLs, rate limits, config     | `ApiConfig` (BASE_API_URL, timeouts, rate limits)                         |
-| **entities/**            | Data models (4 files)             | `Manga`, `Chapter`, `Relationship`, `Tag`                                 |
-| **enums/**               | TypeScript enums (16 files)       | `ContentRating`, `Demographic`, `PublicationStatus`, `ImageQuality`, etc. |
-| **responses/**           | API response wrappers             | `CollectionResponse<T>`, `ApiResponse<T>`, `ImageUrlResponse`, etc.       |
-| **searchparams/**        | Search & filter params            | `MangaSearchParams`, `FeedParams`                                         |
-| **rateLimiter.ts**       | Token bucket with endpoint limits | `RateLimiter` class (103 lines)                                           |
-| **imageProxy.ts**        | Protocol handler + true LRU cache | `ImageProxy` class (140 lines)                                            |
-| **mangadexClient.ts**    | Main API client with 6 endpoints  | `MangaDexClient` class (170 lines)                                        |
-| **shared/error.shared**  | Custom error classes              | `MangaDexApiError`, `MangaDexNetworkError`                                |
-| **shared/common-types**  | Shared interfaces                 | `LocalizedString`, `EndpointLimit`                                        |
-
-### Image Proxy System
-
-**Critical Architecture Decision**: Custom protocol handler for image proxying
-
-**Why**: MangaDex blocks direct hotlinking - images must be fetched through main process
-
-**Protocol**: `mangadex://`
-
-- Registered via `protocol.handle('mangadex', ...)` in main process
-- Replaces `https://` in all image URLs
-- Transparent to renderer - works like regular image URLs
-- **Implementation**: `src/main/api/imageProxy.ts` (140 lines)
-
-**Cache Implementation** (Phase 2 - Ephemeral):
-
-```typescript
-// True LRU cache with lastAccessed tracking
-interface CacheEntry {
-  buffer: Buffer
-  timestamp: number
-  size: number
-  lastAccessed: number // Updated on every access
-}
-
-class ImageProxy {
-  private chapterCache: Map<string, CacheEntry> = new Map() // 30MB
-  private coverCache: Map<string, CacheEntry> = new Map() // 20MB
-
-  // LRU eviction: Finds entry with oldest lastAccessed, removes it
-  // Chapter images: 15-minute expiry
-  // Cover images: No expiry (only size-based eviction)
-}
-```
-
-**Memory Limits**:
-
-- Chapter images: 30MB (true LRU eviction, 15-min TTL)
-- Cover images: 20MB (true LRU eviction, no expiry)
-- Per-image max: 5MB (larger images not cached)
-- Total: ~50MB for streaming mode
-
-**Key Features**:
-
-- True LRU eviction (tracks `lastAccessed`)
-- Covers never expire (only chapters expire)
-- Proper size tracking and eviction
-
-**Caching by Phase**:
-
-- **Phase 2**: Ephemeral memory cache (in-memory Maps)
-- **Phase 3**: Persistent covers for bookmarks (AppData/metadata/)
-- **Phase 4**: Full offline downloads (user downloads directory)
-
-### API Client Methods
-
-**Endpoints Exposed to Renderer** (via `window.mangadex`):
-
-```typescript
-window.mangadex.searchManga(params: MangaSearchParams): Promise<CollectionResponse<Manga>>
-window.mangadex.getManga(id: string, includes?: string[]): Promise<ApiResponse<Manga>>
-window.mangadex.getMangaFeed(id: string, params: FeedParams): Promise<CollectionResponse<Chapter>>
-window.mangadex.getChapter(id: string, includes?: string[]): Promise<ApiResponse<Chapter>>
-window.mangadex.getChapterImages(id: string, quality: ImageQuality): Promise<ImageUrlResponse[]>
-window.mangadex.getCoverUrl(id: string, fileName: string, size?: CoverSize): string
-```
-
-**IPC Channels** (6 handlers, all wrapped with `wrapIpcHandler`):
-
-- `mangadex:search-manga` → `searchManga()`
-- `mangadex:get-manga` → `getManga()`
-- `mangadex:get-manga-feed` → `getMangaFeed()`
-- `mangadex:get-chapter` → `getChapter()`
-- `mangadex:get-chapter-images` → `getChapterImages()`
-- `mangadex:get-cover-url` → `getCoverImageUrl()`
-
-### Rate Limiting
-
-**Algorithm**: Token bucket with endpoint-specific configuration
-
-- **Global**: 5 requests/second capacity, refills at 5/sec
-- **At-home endpoint**: 40 tokens capacity, refills at 0.67/sec (40 requests/minute)
-- **Other endpoints**: Use global limit (5 req/s)
-- Automatic throttling via `await rateLimiter.waitForToken(endpoint)`
-- Automatic retry on HTTP 429 with `Retry-After` header support
-
-**Implementation**: `src/main/api/rateLimiter.ts` (103 lines)
-
-**Integration**: Every API request calls `await rateLimiter.waitForToken(endpoint)` before fetch
-
-### Error Handling
-
-**Custom Error Types**:
-
-```typescript
-class MangaDexApiError extends Error {
-  message: string
-  error?: ErrorResponse
-  requestId?: string // From X-Request-ID header
-}
-
-class MangaDexNetworkError extends Error {
-  message: string
-  url: string
-}
-```
-
-**Retry Logic**:
-
-- HTTP 429: Automatic retry after delay (respects `Retry-After` header)
-- Other HTTP errors (4xx, 5xx): Throws `MangaDexApiError` with details
-- Network/timeout: Throws `MangaDexNetworkError`
-
-**IPC Integration**: All handlers wrapped with `wrapIpcHandler()` for automatic error serialization
-
-### Dependencies
-
-**External**: NONE (uses native APIs)
-
-- Native `fetch()` for HTTP requests
-- `AbortSignal.timeout()` for request timeouts
-- Electron `protocol` and `net` modules for image proxy
-
-**Internal Dependencies**:
-
-- Error handling system: `wrapHandler`, `getUserFriendlyError`
-- IPC architecture: contextBridge patterns
+This application integrate with MangaDex API to provide content to the user. Detailed pattern can be found in `system-pattern.md`
 
 ---
 
@@ -198,351 +97,73 @@ class MangaDexNetworkError extends Error {
 
 ### Required Software
 
-- **Node.js**: v22.21.1 (or compatible)
+- **Node.js**: v22.21.1 (or compatible with v22.x)
 - **npm**: v11.3.0 (or compatible)
 - **Git**: For version control
-- **VS Code**: Recommended IDE
+- **VS Code**: Recommended IDE with ESLint and Prettier extensions
 
-### VS Code Configuration
+### Essential Commands
 
-**Recommended Extensions**:
+```bash
+# Development
+npm run dev                    # Start dev server with HMR
+npm run start                  # Preview production build
 
-- `dbaeumer.vscode-eslint` - ESLint integration
-- `esbenp.prettier-vscode` - Prettier integration (default formatter)
+# Quality Checks
+npm run typecheck              # Type validation (node + web)
+npm run lint                   # Run ESLint
+npm run format                 # Format with Prettier
 
-**Workspace Settings** (`.vscode/settings.json`):
-
-```json
-{
-  "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-  "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-  "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" }
-}
-```
-
-### Package Mirror Configuration
-
-**`.npmrc`** - Configuration removed to use official sources:
-
-The project previously used `npmmirror.com` mirrors for faster downloads in certain regions. These have been removed because:
-
-- Not required for builds to work
-- Can cause failures when mirror is inaccessible
-- Official sources (GitHub, npm) are more reliable and widely accessible
-
-Users in regions with slow access to GitHub can optionally configure local mirrors by creating a `.npmrc` file (gitignored):
-
-```properties
-electron_mirror=https://npmmirror.com/mirrors/electron/
-electron_builder_binaries_mirror=https://npmmirror.com/mirrors/electron-builder-binaries/
-```
-
-**`electron-builder.yml`** - Uses default download behavior (official GitHub releases)
-
----
-
-## Dependency Management
-
-### Production Dependencies (9)
-
-```json
-{
-  "@electron-toolkit/preload": "^3.0.2",
-  "@electron-toolkit/utils": "^4.0.0",
-  "@fluentui/react-icons": "^2.0.315",
-  "better-sqlite3": "^12.5.0",
-  "drizzle-orm": "^0.45.1",
-  "electron-updater": "^6.3.9",
-  "pako": "^2.1.0",
-  "protobufjs": "^8.0.0",
-  "react-router-dom": "^6.30.3",
-  "zustand": "^5.0.9"
-}
-```
-
-**Purpose**:
-
-- **@electron-toolkit/preload**: Helper utilities for secure preload scripts
-- **@electron-toolkit/utils**: Common Electron utilities (is.dev, optimizer, etc.)
-- **@fluentui/react-icons**: Microsoft Fluent UI icon library (2000+ icons, Regular/Filled variants)
-- **better-sqlite3**: Native SQLite3 bindings for database operations
-- **drizzle-orm**: Type-safe ORM for SQLite database queries
-- **electron-updater**: Auto-update functionality for deployed applications
-- **pako**: DEFLATE compression/decompression for backup files (gzip)
-- **protobufjs**: Protocol Buffers serialization for backup/import functionality
-- **react-router-dom**: Client-side routing for multi-view navigation
-- **zustand**: Lightweight state management library (~1.4kb)
-
-### Development Dependencies (21)
-
-**Electron & Build Tools**:
-
-```json
-{
-  "electron": "^38.1.2",
-  "electron-builder": "^26.6.0",
-  "electron-vite": "^4.0.1",
-  "vite": "^7.1.6"
-}
-```
-
-**React Ecosystem**:
-
-```json
-{
-  "react": "^19.1.1",
-  "react-dom": "^19.1.1",
-  "@vitejs/plugin-react": "^5.0.3"
-}
-```
-
-**TypeScript & Types**:
-
-```json
-{
-  "typescript": "^5.9.2",
-  "@types/better-sqlite3": "^7.6.13",
-  "@types/node": "^22.18.6",
-  "@types/pako": "^2.0.4",
-  "@types/react": "^19.1.13",
-  "@types/react-dom": "^19.1.9",
-  "@types/react-router-dom": "^5.3.3"
-}
-```
-
-**Linting & Formatting**:
-
-```json
-{
-  "eslint": "^9.36.0",
-  "eslint-plugin-react": "^7.37.5",
-  "eslint-plugin-react-hooks": "^5.2.0",
-  "eslint-plugin-react-refresh": "^0.4.20",
-  "prettier": "^3.6.2"
-}
-```
-
-**Database Tools**:
-
-```json
-{
-  "drizzle-kit": "^0.31.8"
-}
-```
-
-**Electron Toolkit Configuration**:
-
-```json
-{
-  "@electron-toolkit/eslint-config-prettier": "^3.0.0",
-  "@electron-toolkit/eslint-config-ts": "^3.1.0",
-  "@electron-toolkit/tsconfig": "^2.0.0"
-}
+# Building
+npm run build                  # Build for production
+npm run build:win              # Windows installer (NSIS)
+npm run build:mac              # macOS DMG
+npm run build:linux            # Linux packages (AppImage, deb)
 ```
 
 ---
 
-## Build System Architecture
+## Build System
 
 ### electron-vite Configuration
 
 **Three-Process Build Pipeline**:
 
-```typescript
-// electron.vite.config.ts
-import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
-import react from '@vitejs/plugin-react'
+- **Main Process**: Node.js environment, dependencies externalized
+- **Preload Scripts**: Bridge between main and renderer, dependencies externalized
+- **Renderer Process**: Browser environment, React with Fast Refresh, path aliases (`@renderer/*`)
 
-export default defineConfig({
-  main: {
-    plugins: [externalizeDepsPlugin()]
-  },
-  preload: {
-    plugins: [externalizeDepsPlugin()]
-  },
-  renderer: {
-    resolve: {
-      alias: { '@renderer': resolve('src/renderer/src') }
-    },
-    plugins: [react()]
-  }
-})
-```
+**Current Module Format**: ES Modules (ESM)
 
-**Key Features**:
-
-- **Separate Build Contexts**: Each Electron process has isolated build configuration
-- **Dependency Externalization**: Node.js modules excluded from main/preload bundles
-- **React Fast Refresh**: HMR for instant UI updates
-- **Path Aliases**: `@renderer/*` for cleaner imports
-
-### Vite Plugins
-
-1. **@vitejs/plugin-react** (Renderer)
-   - Transforms JSX/TSX
-   - Enables React Fast Refresh
-   - Optimizes React production builds
-
-2. **externalizeDepsPlugin** (Main & Preload)
-   - Prevents bundling of node_modules
-   - Keeps native Node.js modules external
-   - Reduces bundle size
-
-### Module Format
-
-**Current State** (v1.4.1 - v1.5.0): **CommonJS**
-
-- TypeScript configured with `"module": "esnext"` but electron-vite transpiles to CommonJS
-- Build output uses `require()` / `module.exports`
-- Source code uses ES imports (`import`/`export`) exclusively
-- 8 files use `__dirname` for path resolution
-
-**ES Modules Workaround** (v1.5.0): **Dynamic Import Pattern**
-
-Due to electron-store v11+ being ESM-only, SettingsManager uses dynamic imports:
-
-```typescript
-// Dynamic import in async initialize()
-const Store = (await import('electron-store')).default
-```
-
-**Known Limitation**: `better-sqlite3` v12.8.0 is CommonJS-only (no ESM exports)
-
-**Future Migration Plan** (Target: Electron 42 GA, ~Q3 2026):
-
-When Electron 42 stabilizes and better-sqlite3 adds native ESM support:
-
-1. Add `"type": "module"` to package.json
-2. Configure electron-vite output format to ES modules
-3. Replace 8 `__dirname` occurrences with `import.meta.url` pattern:
-
-   ```typescript
-   import { fileURLToPath } from 'node:url'
-   import { dirname } from 'node:path'
-   const __filename = fileURLToPath(import.meta.url)
-   const __dirname = dirname(__filename)
-   ```
-
-4. **Remove dynamic import workaround from SettingsManager** - restore natural static imports
-5. Test across all platforms
-
-**Estimated Effort**: 2-4 hours (codebase already 80% ESM-ready)
-
-**Codebase Readiness**: ✅ Source already uses ES imports, no `require()` statements
-
-**Affected Files**:
-
-- src/main/window.ts (2 `__dirname`)
-- src/main/database/migrations/migrations.ts (1)
-- src/main/services/dexreader/dexreader-import.service.ts (1)
-- src/main/services/dexreader/dexreader-export.service.ts (1)
-- src/main/services/mihon/mihon-export.service.ts (1)
-- src/main/services/mihon/mihon-backup.service.ts (1)
-- src/main/scripts/database-performance/shared/database-helpers.ts (1)
-- src/main/settings/settings-manager.ts (dynamic import workaround to be removed)
+- `package.json` includes `"type": "module"`
+- Source code uses ES imports exclusively
+- Uses `import.meta.url` pattern for path resolution (no `__dirname`)
+- electron-vite configured for ESM output
 
 ---
 
 ## TypeScript Configuration
 
-### Multi-Config Strategy
+**Multi-Config Strategy**: Three separate TypeScript configurations
 
-**Three TypeScript Configurations**:
+1. `tsconfig.json` - Root coordinator (project references)
+2. `tsconfig.node.json` - Main & Preload (Node.js environment)
+3. `tsconfig.web.json` - Renderer (browser environment, JSX support, path aliases)
 
-1. **`tsconfig.json`** (Root Coordinator)
-
-   ```jsonc
-   {
-     "files": [],
-     "references": [{ "path": "./tsconfig.node.json" }, { "path": "./tsconfig.web.json" }]
-   }
-   ```
-
-2. **`tsconfig.node.json`** (Main & Preload)
-
-   ```jsonc
-   {
-     "extends": "@electron-toolkit/tsconfig/tsconfig.node.json",
-     "include": ["electron.vite.config.*", "src/main/**/*", "src/preload/**/*"],
-     "compilerOptions": {
-       "composite": true,
-       "types": ["electron-vite/node"]
-     }
-   }
-   ```
-
-3. **`tsconfig.web.json`** (Renderer)
-
-   ```jsonc
-   {
-     "extends": "@electron-toolkit/tsconfig/tsconfig.web.json",
-     "include": [
-       "src/renderer/src/env.d.ts",
-       "src/renderer/src/**/*",
-       "src/renderer/src/**/*.tsx",
-       "src/preload/*.d.ts"
-     ],
-     "compilerOptions": {
-       "composite": true,
-       "jsx": "react-jsx",
-       "baseUrl": ".",
-       "paths": {
-         "@renderer/*": ["src/renderer/src/*"]
-       }
-     }
-   }
-   ```
-
-**Benefits**:
-
-- Separate type checking for Node.js vs browser environments
-- Project references for incremental compilation
-- Type-safe path aliases
+**Benefits**: Separate type checking for Node.js vs browser environments, incremental compilation, type-safe path aliases.
 
 ---
 
-## ESLint Configuration
+## ESLint & Prettier
 
-### Flat Config Structure (ESLint 9+)
+**ESLint 9+ Flat Config** with:
 
-```javascript
-// eslint.config.mjs
-export default defineConfig(
-  { ignores: ['**/node_modules', '**/dist', '**/out'] },
-  tseslint.configs.recommended, // TypeScript rules
-  eslintPluginReact.configs.flat.recommended, // React rules
-  eslintPluginReact.configs.flat['jsx-runtime'], // New JSX transform
-  {
-    settings: { react: { version: 'detect' } }
-  },
-  {
-    files: ['**/*.{ts,tsx}'],
-    plugins: {
-      'react-hooks': eslintPluginReactHooks, // Hooks rules
-      'react-refresh': eslintPluginReactRefresh // Fast Refresh validation
-    },
-    rules: {
-      ...eslintPluginReactHooks.configs.recommended.rules,
-      ...eslintPluginReactRefresh.configs.vite.rules
-    }
-  },
-  eslintConfigPrettier // Disable conflicting rules
-)
-```
+- TypeScript recommended rules
+- React best practices (including hooks validation)
+- React Refresh compatibility (HMR)
+- Prettier integration (no conflicting rules)
 
-**Rule Sets Applied**:
-
-- `@electron-toolkit/eslint-config-ts` (TypeScript base)
-- `eslint-plugin-react` (React best practices)
-- `eslint-plugin-react-hooks` (Hooks validation)
-- `eslint-plugin-react-refresh` (HMR compatibility)
-- `@electron-toolkit/eslint-config-prettier` (Prettier integration)
-
----
-
-## Prettier Configuration
-
-**`.prettierrc.yaml`**:
+**Prettier Configuration** (.prettierrc.yaml):
 
 ```yaml
 singleQuote: true # 'string' not "string"
@@ -551,987 +172,200 @@ printWidth: 100 # Max line length
 trailingComma: none # No trailing commas
 ```
 
-**Philosophy**: Minimal configuration, relying on Prettier defaults with slight customizations for consistency.
-
----
-
-## Package Scripts
-
-### Development Workflow
-
-```json
-{
-  "dev": "electron-vite dev", // Start dev server with HMR
-  "start": "electron-vite preview", // Preview production build
-  "build": "npm run typecheck && electron-vite build"
-}
-```
-
-### Quality Assurance
-
-```json
-{
-  "typecheck": "npm run typecheck:node && npm run typecheck:web",
-  "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
-  "typecheck:web": "tsc --noEmit -p tsconfig.web.json --composite false",
-  "lint": "eslint --cache .",
-  "format": "prettier --write ."
-}
-```
-
-### Distribution
-
-```json
-{
-  "postinstall": "electron-builder install-app-deps",
-  "build:unpack": "npm run build && electron-builder --dir",
-  "build:win": "npm run build && electron-builder --win",
-  "build:mac": "electron-vite build && electron-builder --mac",
-  "build:linux": "electron-vite build && electron-builder --linux"
-}
-```
-
----
-
-## Electron Builder Configuration
-
-### Platform-Specific Packaging
-
-**Windows (NSIS Installer)**:
-
-```yaml
-win:
-  executableName: dexreader
-nsis:
-  artifactName: ${name}-${version}-setup.${ext}
-  shortcutName: ${productName}
-  createDesktopShortcut: always
-```
-
-**macOS (DMG)**:
-
-```yaml
-mac:
-  entitlementsInherit: build/entitlements.mac.plist
-  notarize: false
-dmg:
-  artifactName: ${name}-${version}.${ext}
-```
-
-**Linux (Multiple Formats)**:
-
-```yaml
-linux:
-  target: [AppImage, snap, deb]
-  maintainer: electronjs.org
-  category: Utility
-appImage:
-  artifactName: ${name}-${version}.${ext}
-```
-
-### Build Optimization
-
-```yaml
-files:
-  - '!**/.vscode/*'
-  - '!src/*'
-  - '!electron.vite.config.{js,ts,mjs,cjs}'
-  - '!{.eslintcache,eslint.config.mjs,.prettierignore,.prettierrc.yaml}'
-  - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
-
-asarUnpack:
-  - resources/**
-
-npmRebuild: false
-```
-
----
-
-## Filesystem Architecture
-
-**Documentation**: [filesystem-security.md](../../docs/architecture/filesystem-security.md)
-
-### Core Modules
-
-**Path Validator** (`src/main/filesystem/pathValidator.ts`):
-
-- Path normalization and canonical resolution
-- Validates against 2 allowed directories: AppData + Downloads
-- Prevents path traversal and symlink exploits
-- In-memory allowed paths cache
-
-**Secure Filesystem** (`src/main/filesystem/secureFs.ts`):
-
-- Wraps Node.js `fs/promises` with automatic path validation
-- 12 operations: `readFile`, `writeFile`, `appendFile`, `copyFile`, `rename`, `mkdir`, `ensureDir`, `deleteFile`, `deleteDir`, `isExists`, `stat`, `readDir`
-- Parent directories automatically created on write operations
-
-**Settings Manager** (`src/main/filesystem/settingsManager.ts`):
-
-- Persists settings to `AppData/settings.json`
-- Schema: `downloadsPath` (string | null), `theme` ('light' | 'dark' | 'system'), `accentColor` (string | undefined)
-- Loads on app startup, validates downloads path
-- Graceful fallback to defaults if corrupted
-
-### IPC Communication Architecture
-
-**Documentation**: [ipc-messaging.md](../../docs/architecture/ipc-messaging.md)
-**Implementation**: 37 IPC channels across 6 categories
-
-#### Architecture Components
-
-**Error Handling System** (`src/main/ipc/`):
-
-- `error.ts` - Base `IpcError` class with code/details
-- `fileSystemError.ts` - Filesystem-specific errors
-- `validationError.ts` - Parameter validation errors
-- `themeError.ts` - Theme operation errors
-- `errorSerialiser.ts` - Error serialisation for IPC transport (dev/prod modes)
-- `wrapHandler.ts` - `wrapIpcHandler` utility for automatic error catching
-
-**Validation Layer** (`src/main/ipc/validators.ts`):
-
-- `validateString()` - Type checking for string parameters
-- `validatePath()` - Non-empty path validation
-- `validateEncoding()` - BufferEncoding enum validation (9 valid values)
-
-**Channel Registry** (`src/main/ipc/registry.ts`):
-
-- Complete registry of all 37 IPC channels
-- Queryable by category or channel name
-- Includes: description, request/response types, error types, examples
-- Categories: Filesystem (16), Theme (4), Menu (14), Dialogue (2), Navigation (1)
-
-**Type Safety** (`src/preload/ipc.types.ts`):
-
-- `IpcResponse<T>` - Generic wrapper for all IPC responses
-- `ISerialiseError` - Error interface shared across processes
-- `FileStats`, `AllowedPaths`, `FolderSelectResult` - Domain types
-- Type guards in `src/renderer/src/utils/ipcTypeGuards.ts`
-
-#### Channel Categories
-
-| Category       | Channels | Implementation      | Description                                     |
-| -------------- | -------- | ------------------- | ----------------------------------------------- |
-| **Filesystem** | 16       | `src/main/index.ts` | File/directory operations with path validation  |
-| **Theme**      | 4        | `src/main/index.ts` | System theme and accent colour detection        |
-| **Menu**       | 14       | `src/main/menu.ts`  | Application menu actions and state updates      |
-| **Dialogue**   | 2        | `src/main/index.ts` | Native confirmations and multi-choice dialogues |
-| **Navigation** | 1        | `src/main/menu.ts`  | Route navigation events from menu               |
-| **Window**     | 0        | (reserved)          | Future window management operations             |
-
-#### Handler Pattern
-
-All IPC handlers use `wrapIpcHandler` for consistent error handling:
-
-```typescript
-import { wrapIpcHandler } from './ipc/wrapHandler'
-import { validatePath, validateEncoding } from './ipc/validators'
-
-wrapIpcHandler('fs:read-file', async (_event, filePath: unknown, encoding: unknown) => {
-  const validPath = validatePath(filePath, 'filePath')
-  const validEncoding = validateEncoding(encoding, 'encoding')
-  return await secureFs.readFile(validPath, validEncoding)
-})
-```
-
-#### Type-Safe Usage in Renderer
-
-```typescript
-import { isIpcSuccess, isIpcError } from '@renderer/utils/ipcTypeGuards'
-
-const response = await window.fileSystem.readFile(path, 'utf-8')
-
-if (isIpcSuccess(response)) {
-  // TypeScript knows response.data is string | Buffer
-  setContent(response.data)
-} else {
-  // TypeScript knows response.error is ISerialiseError
-  console.error(response.error.message)
-  if (response.error.code === 'FS_ERROR') {
-    toast.error("Couldn't read the file")
-  }
-}
-```
-
-#### Performance Characteristics
-
-- Simple operations (exists, stat): <5ms
-- Small file reads (<1KB): <10ms
-- Medium file reads (1-10KB): <50ms
-- Large file operations (>10KB): <200ms
-- Dialogue operations: <100ms
-- Theme operations: <10ms
-
-#### Security Features
-
-- Context isolation enabled (renderer cannot access Node.js)
-- All filesystem paths validated against allowed directories
-- Runtime validation for all IPC arguments
-- Error sanitisation (no sensitive info in production)
-- Type safety prevents injection attacks
-- Custom error classes for clear error identification
-
----
-
-## React 19 Features in Use
-
-### Modern Patterns
-
-**New JSX Transform**:
-
-```tsx
-// No need to import React in components
-function Component(): React.JSX.Element {
-  return <div>Content</div>
-}
-```
-
-**Concurrent Features** (Enabled by default in React 19):
-
-- Automatic batching
-- Transitions
-- Suspense for data fetching (ready when needed)
-
-**StrictMode**:
-
-```tsx
-// main.tsx
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>
-)
-```
-
----
-
-## Import Patterns
-
-### Main Process
-
-```typescript
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
-import { join } from 'path'
-import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import icon from '../../resources/icon.png?asset' // Vite asset import
-```
-
-### Preload Script
-
-```typescript
-import { contextBridge } from 'electron'
-import { electronAPI } from '@electron-toolkit/preload'
-```
-
-### Renderer Process
-
-```typescript
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { useState } from 'react'
-
-import './assets/main.css' // CSS imports
-import electronLogo from './assets/electron.svg' // Vite handles SVG
-import Component from '@renderer/components/Component' // Path alias
-```
-
----
-
-## Asset Management
-
-### Static Assets
-
-**Location**: `src/renderer/src/assets/`
-
-**Current Assets**:
-
-- `base.css` - Design tokens, resets, typography
-- `main.css` - Component styles, layout
-- `electron.svg` - Application logo
-- `wavy-lines.svg` - Background pattern
-
-**Vite Asset Handling**:
-
-```typescript
-import logo from './assets/logo.svg' // Returns URL string
-import icon from '../../resources/icon.png?asset' // Electron asset
-```
-
-### Resource Files
-
-**Location**: `resources/`
-
-**Purpose**: Files that need to be unpacked from ASAR archive (icons, native modules, etc.)
-
----
-
-## Type Definitions
-
-### Renderer Process Globals
-
-**`src/preload/index.d.ts`**:
-
-```typescript
-import { ElectronAPI } from '@electron-toolkit/preload'
-
-declare global {
-  interface Window {
-    electron: ElectronAPI // Electron APIs
-    api: unknown // Custom APIs (to be defined)
-  }
-}
-```
-
-### Vite Environment
-
-**`src/renderer/src/env.d.ts`**:
-
-```typescript
-/// <reference types="vite/client" />
-```
-
-Enables:
-
-- Import of CSS, images, and other assets
-- Vite-specific type definitions
-- Asset module declarations
-
 ---
 
 ## Security Configuration
 
 ### Content Security Policy
 
-**`src/renderer/index.html`**:
-
-```html
-<meta
-  http-equiv="Content-Security-Policy"
-  content="default-src 'self';
-               script-src 'self';
-               style-src 'self' 'unsafe-inline';
-               img-src 'self' data: https:;"
-/>
-```
-
-**Policy Breakdown**:
+**Policy** (src/renderer/index.html):
 
 - `default-src 'self'` - Only load resources from same origin
 - `script-src 'self'` - No inline scripts, only bundled code
-- `style-src 'self' 'unsafe-inline'` - Allow inline styles (React components)
-- `img-src 'self' data: https:` - Allow local images, data URIs, and HTTPS images (for manga covers)
-
-**Implementation Notes**:
-
-- HTTPS images required for external manga cover art from MangaDex CDN
-- Data URIs support base64-encoded images
-- No inline scripts for XSS protection
-- `'unsafe-inline'` for styles is required for React CSS-in-JS patterns
+- `style-src 'self' 'unsafe-inline'` - Allow inline styles (React CSS-in-JS)
+- `img-src 'self' data: https:` - Local images, data URIs, and HTTPS images (MangaDex CDN)
 
 ### Context Isolation
 
-**Enabled by Default** in Electron 38:
+**Enabled by default** (Electron 41):
 
-```typescript
-webPreferences: {
-  preload: join(__dirname, '../preload/index.js'),
-  sandbox: false,          // Allows Node.js in preload
-  contextIsolation: true   // Renderer cannot access Node.js
-}
-```
+- Sandbox disabled to allow Node.js in preload scripts
+- Context isolation prevents renderer from accessing Node.js directly
+- All APIs exposed via `contextBridge` in preload scripts
 
 ---
 
-## Version Control
+## IPC Communication Architecture
 
-### Git Configuration
+**Documentation**: `docs/architecture/ipc-messaging.md`
+**Implementation**: 37 IPC channels across 6 categories
 
-**`.gitignore`**:
+### Channel Categories
 
-```ignore
-node_modules           # Dependencies
-dist                   # Distribution builds
-out                    # Development builds
-.DS_Store              # macOS metadata
-.eslintcache           # ESLint cache
-*.log*                 # Log files
-```
+| Category       | Channels | Description                                 |
+| -------------- | -------- | ------------------------------------------- |
+| **Filesystem** | 16       | File/directory operations with validation   |
+| **Theme**      | 4        | System theme and accent colour detection    |
+| **Menu**       | 14       | Application menu actions and state updates  |
+| **Dialogue**   | 2        | Native confirmations and multi-choice       |
+| **Navigation** | 1        | Route navigation events from menu           |
+| **MangaDex**   | 6        | API calls (search, manga, chapters, images) |
+| **Database**   | ~30      | Library, downloads, progress, statistics    |
+| **Settings**   | ~8       | App settings persistence                    |
 
----
+### Error Handling Pattern
 
-## Auto-Update Infrastructure
+All IPC handlers use `wrapIpcHandler` for consistent error handling:
 
-### Configuration
-
-**`dev-app-update.yml`**:
-
-```yaml
-provider: generic
-url: https://example.com/auto-updates
-updaterCacheDirName: dexreader-updater
-```
-
-**`electron-builder.yml`**:
-
-```yaml
-publish:
-  provider: generic
-  url: https://example.com/auto-updates
-```
-
-**Implementation Requirements**:
-
-- Update server setup
-- UI implementation in renderer
-- Event handlers in main process
-
-### electron-updater Integration
-
-**Package**: `electron-updater@6.3.9`
-
-**Usage Pattern**:
-
-```typescript
-// In main process
-import { autoUpdater } from 'electron-updater'
-
-autoUpdater.checkForUpdatesAndNotify()
-```
+- Automatic error serialization for IPC transport
+- Custom error classes: `IpcError`, `FileSystemError`, `ValidationError`, `ThemeError`
+- Runtime validation for all IPC arguments
+- Type-safe responses via `IpcResponse<T>` wrapper
 
 ---
 
-## Browser Compatibility
+## Filesystem Architecture
 
-### Target Environment
+**Documentation**: `docs/architecture/filesystem-security.md`
 
-**Chromium Version**: ~128.x (bundled with Electron 38)
+### Core Security
 
-**JavaScript Features**:
+**Path Validator** (`src/main/filesystem/pathValidator.ts`):
 
-- ES2023 syntax fully supported
-- All modern Web APIs available
-- Private class fields, top-level await, etc.
+- Validates all filesystem paths against 2 allowed directories: AppData + Downloads
+- Prevents path traversal and symlink exploits
+- Canonical path resolution for security
 
-**CSS Features**:
+**Secure Filesystem** (`src/main/filesystem/secureFs.ts`):
 
-- CSS Grid, Flexbox
-- CSS Custom Properties (variables)
-- Modern selectors (`:has()`, `:is()`, etc.)
-- Container queries
+- Wraps Node.js `fs/promises` with automatic path validation
+- 12 operations: read, write, append, copy, rename, mkdir, delete, stat, readDir, etc.
+- Parent directories automatically created on write operations
 
-**No Transpilation Needed**: Since Chromium is controlled, can use latest web platform features without polyfills.
+**Settings Manager** (`src/main/settings/settings-manager.ts`):
 
----
-
-## Performance Characteristics
-
-### Build Performance
-
-**Development**:
-
-- **Cold start**: ~3-5 seconds
-- **HMR**: <100ms for most changes
-- **Type checking**: Runs in parallel via tsconfig project references
-
-**Production**:
-
-- **Full build**: ~10-20 seconds
-- **Installer creation**: ~30-60 seconds (platform-dependent)
-
-### Runtime Performance
-
-**Electron 38 Improvements**:
-
-- Latest V8 engine optimizations
-- Improved memory management
-- Better rendering performance
-
-**Current Bundle Sizes** (estimated):
-
-- Main process: ~1-2 MB (with dependencies)
-- Preload: ~50-100 KB
-- Renderer: ~500KB-1MB (React + app code)
+- Persists app-wide settings to `AppData/settings.json` (electron-store v11)
+- Schema includes: theme, accent colour, downloads path, proxy settings, hardware acceleration, etc.
+- Loads on app startup with graceful fallback to defaults if corrupted
 
 ---
 
-## Known Limitations & Considerations
+## State Management
+
+**Library**: Zustand 5.0.9 (~1.4kb, minimal boilerplate, TypeScript-first)
+
+**Current Stores** (`src/renderer/src/stores/`):
+
+1. **appStore.ts** - Theme, UI state, fullscreen
+2. **toastStore.ts** - Global notifications (ephemeral)
+3. **userPreferencesStore.ts** - Reader preferences, download settings, UI preferences
+4. **libraryStore.ts** - Bookmarks and collections
+
+**Persistence Strategy**:
+
+- App-wide settings: Persisted via Settings Manager (main process) to `AppData/settings.json`
+- Renderer stores: Ephemeral, rehydrated from main process on load
+- Library data: SQLite database via IPC
+
+---
+
+## Error Handling System
+
+**Documentation**: `docs/architecture/error-handling.md`
+
+### Components
+
+**Error Boundaries** (`src/renderer/src/components/ErrorBoundary/`):
+
+- React class component for catching component errors
+- Fallback UI with 3 levels: app/page/component
+
+**Error Recovery** (`src/renderer/src/components/ErrorRecovery/`):
+
+- Inline error UI with retry button
+- Casual, user-friendly error display
+
+**Global Error Handler** (`src/renderer/src/utils/errorHandler.ts`):
+
+- Catches `window.onerror` and `window.onunhandledrejection`
+- Automatic toast notifications and error logging
+- Initialized in `main.tsx` on app startup
+
+**Error Message Catalog** (`src/renderer/src/utils/errorMessages.ts`):
+
+- ~20 error patterns with user-friendly messages
+- Converts technical errors to conversational language
+
+**Connectivity Store** (`src/renderer/src/stores/connectivityStore.ts`):
+
+- States: `online | offline-user | offline-no-internet`
+- Automatic connectivity monitoring
+- Drives `<OfflineStatusBar />` component
+
+---
+
+## Protobuf & Backup System
+
+**Purpose**: Binary serialization for library backups with compression
+
+### Schemas
+
+1. **DexReader Native** (`dexreader.proto`, Proto3)
+   - File extension: `.dexreader`
+   - Includes: library data, collections, progress, reader settings
+   - Excludes: reading statistics (recalculated on import), app settings (separate backup)
+   - Encoding: Protobuf (binary) + gzip compression
+
+2. **Mihon/Tachiyomi Compatibility** (`mihon.proto`, Proto2)
+   - File extensions: `.tachibk`, `.proto.gz`
+   - Import: Decode Mihon backups, filter MangaDex manga, import to library
+   - Export: Export library to Mihon format with tag conversion
+   - MangaDex source ID: `'2499283573021220255'`
+
+---
+
+## Known Limitations
 
 ### Platform Differences
 
 **Windows**:
 
-- NSIS installer requires elevation
 - Native menus work differently
 
 **macOS**:
 
 - App signing and notarization required for distribution
 - macOS-specific entitlements needed for certain permissions
-- App stays active when all windows close
+- App stays active when all windows close (macOS convention)
 
 **Linux**:
 
-- Multiple package formats (AppImage, snap, deb)
+- Multiple package formats (AppImage, deb)
 - Icon handling varies by desktop environment
 
-### Electron Version
+### Dependencies
 
-**Electron 38** includes:
-
-- Node.js ~20.x (not v22.x from development environment)
-- Chromium ~134.x
-- Security features enabled by default
-
-**Note**: Development uses Node v22.21.1, matching Electron's bundled Node ~22.x
+**esbuild Vulnerability**: Low-severity transitive dependency via `drizzle-kit` → `esbuild`. Development-time only, not blocking releases. Monitoring for `drizzle-kit` update.
 
 ---
 
-## State Management
+## Documentation
 
-### Zustand Implementation
+**Primary Sources**:
 
-**Version**: 5.0.3
+- **API Reference**: `docs/api-reference.md` - Complete IPC channel listing
+- **Architecture**: `docs/architecture/` - System design documents
+- **Component Library**: `docs/components/` - UI component guides
+- **Design System**: `docs/design/` - Visual design principles and wireframes
+- **Instructions**: `.github/instructions/` - Coding standards by file pattern
 
-**Architecture**:
+**Memory Bank**: `.github/memory-bank/`
 
-```typescript
-// Store creation (simple, no persist middleware)
-import { create } from 'zustand'
-
-const useStore = create((set, get) => ({
-  // State and actions
-}))
-```
-
-**Persistence Strategy**: App-wide settings (theme, accent color, downloads path, reader preferences) are persisted via **Settings Manager** to `AppData/settings.json` (managed by main process). State stores in renderer are ephemeral and rehydrated from main process on load.
-
-**Current Stores**:
-
-1. **App State Store** (`appStore.ts`)
-   - Theme management (light/dark/system)
-   - UI state (fullscreen)
-   - System theme synchronization
-   - Persists: via Settings Manager IPC to settings.json
-
-2. **Toast Store** (`toastStore.ts`)
-   - Global notification system
-   - Auto-dismiss with timers
-   - Toast variants: info, success, warning, error, loading
-   - No persistence (ephemeral notifications)
-
-3. **User Preferences Store** (`userPreferencesStore.ts`)
-   - Reading preferences (page preload, zoom, reader mode)
-   - Download preferences (simultaneous downloads, location, quality)
-   - UI preferences (animations, sidebar state, theme, compact mode)
-   - Notification preferences (download complete, chapter updates, errors)
-   - Persists: critical preferences via Settings Manager IPC
-
-4. **Library Store** (`libraryStore.ts`)
-   - Bookmark management
-   - Collection management
-   - Persists: SQLite database via IPC
-
-**Store Location**: `src/renderer/src/stores/`
-
-**Import Pattern**:
-
-```typescript
-import {
-  useAppStore,
-  useToastStore,
-  useUserPreferencesStore,
-  useLibraryStore
-} from '@renderer/stores'
-```
-
-**Usage Pattern**:
-
-```typescript
-// Selector pattern for performance
-const theme = useAppStore((state) => state.theme)
-const setTheme = useAppStore((state) => state.setTheme)
-
-// Actions
-const show = useToastStore((state) => state.show)
-show({ variant: 'success', title: 'Done!', message: 'Task completed' })
-```
-
-**Persistence Strategy**:
-
-- **localStorage** for browser-based state
-- Keys: `dexreader-app`, `dexreader-preferences`, `dexreader-library`
-- Selective persistence via `partialize` function
-- Automatic hydration on app start
-
-**Benefits**:
-
-- Minimal bundle size (~1.4kb)
-- No boilerplate (no actions/reducers)
-- Built-in persistence middleware
-- TypeScript-first design
-- DevTools support
-- Automatic selector optimization
-
-### Future Considerations
-
-**State Management Alternatives**: Redux Toolkit (complex state), Jotai (atomic updates)
-**Testing Tools**: Vitest (unit), React Testing Library (component), Playwright (E2E)
-**Additional Libraries**: TailwindCSS (CSS), Radix UI (headless components), React Router (routing)
+- `active-context.md` - Current project state (last 2-3 weeks)
+- `project-brief.md` - High-level overview and goals
+- `system-pattern.md` - Architectural patterns and conventions
+- `tech-context.md` (this file) - Technology stack overview
 
 ---
 
-## Development Workflow Commands
-
-### Quick Reference
-
-```bash
-# Setup
-npm install                    # Install dependencies
-
-# Development
-npm run dev                    # Start dev server with HMR
-npm run start                  # Preview production build
-
-# Quality checks
-npm run typecheck              # Type validation
-npm run lint                   # Run ESLint
-npm run format                 # Format with Prettier
-
-# Building
-npm run build                  # Build for production
-npm run build:unpack           # Build without packaging
-npm run build:win              # Windows installer
-npm run build:mac              # macOS DMG
-npm run build:linux            # Linux packages
-```
-
----
-
-## Debugging Configuration
-
-### VS Code Launch Config
-
-**Recommended Configuration**:
-
-```json
-{
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Electron: Main",
-      "type": "node",
-      "request": "launch",
-      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron-vite",
-      "runtimeArgs": ["--sourcemap"]
-    }
-  ]
-}
-```
-
----
-
-## Environment Variables
-
-### Electron-Vite
-
-**Development**:
-
-- `ELECTRON_RENDERER_URL` - Vite dev server URL (auto-set)
-- `NODE_ENV=development` - Development mode
-
-**Production**:
-
-- `NODE_ENV=production` - Production optimizations
-
-### Custom Variables (Future)
-
-To add environment variables:
-
-1. Create `.env` file (gitignored)
-2. Access via `import.meta.env.VITE_*` in renderer
-3. Access via `process.env.*` in main/preload
-
----
-
-## Critical Dependencies Explained
-
-### @electron-toolkit Packages
-
-**Purpose**: Official helper utilities from Electron Vite team
-
-- **@electron-toolkit/preload**:
-  - `electronAPI` object with common Electron APIs
-  - Type-safe preload helpers
-
-- **@electron-toolkit/utils**:
-  - `is.dev` - Detect development mode
-  - `optimizer` - Window shortcut management
-  - `electronApp` - App utilities
-
-- **@electron-toolkit/tsconfig**:
-  - Optimized TypeScript configs for Electron
-  - Separate Node.js and web configurations
-
-- **@electron-toolkit/eslint-config-\***:
-  - Pre-configured ESLint rules
-  - Prettier integration
-
-### Why electron-vite?
-
-**Advantages over plain Vite**:
-
-- Handles three separate build processes automatically
-- Optimized for Electron's multi-process architecture
-- Built-in HMR for main process (experimental)
-- Simpler configuration than custom Vite setup
-
----
-
-## Technology Decision Rationale
-
-### Why React 19?
-
-- Latest stable version with concurrent features
-- Improved performance out of the box
-- Better TypeScript support
-- Future-proof for new features (Server Components, etc.)
-
-### Why TypeScript?
-
-- Type safety across all processes
-- Better IDE support and autocomplete
-- Catch errors at compile time
-- Self-documenting code
-
-### Why Vite over Webpack?
-
-- Significantly faster development builds
-- Native ES modules support
-- Better developer experience
-- Smaller configuration surface
-
-### Why electron-vite over Electron Forge?
-
-- More modern build tooling (Vite)
-- Better performance in development
-- Simpler configuration for Vite users
-- Growing ecosystem
-
----
-
-## Error Handling System
-
-### Components
-
-**Error Boundaries** (`src/renderer/src/components/ErrorBoundary/`):
-
-- `ErrorBoundary.tsx` - React class component for catching component errors
-- `ErrorFallback.tsx` - Default fallback UI with 3 levels (app/page/component)
-- `ErrorBoundary.css` - Styling for all error boundary levels
-
-**Error Recovery** (`src/renderer/src/components/ErrorRecovery/`):
-
-- `ErrorRecovery.tsx` - Inline error UI with retry button
-- `ErrorRecovery.css` - Casual, user-friendly error display
-
-**Error Logging** (`src/renderer/src/components/ErrorLogViewer/`):
-
-- `ErrorLogViewer.tsx` - Dev/debug tool for viewing error history
-- `ErrorLogViewer.css` - Settings → Advanced → Error Log
-- In-memory circular buffer (max 50 entries)
-- Copy to clipboard functionality
-
-**Offline Status** (`src/renderer/src/components/OfflineStatusBar/`):
-
-- `OfflineStatusBar.tsx` - Persistent banner for offline states
-- `OfflineStatusBar.css` - Conditional styling (blue vs yellow)
-- Three states: online, offline-user, offline-no-internet
-
-### Utilities
-
-**Global Error Handler** (`src/renderer/src/utils/errorHandler.ts`):
-
-- `GlobalErrorHandler` class with initialization
-- Catches `window.onerror` and `window.onunhandledrejection`
-- Automatic toast notifications
-- Error log management
-- Initialized in `main.tsx` on app startup
-
-**Error Message Catalog** (`src/renderer/src/utils/errorMessages.ts`):
-
-- `ERROR_CATALOG` - ~20 error patterns with user-friendly messages
-- `getUserFriendlyError()` - Convert technical errors to casual language
-- Covers: filesystem, network, validation, IPC, parsing errors
-- All messages use conversational tone
-
-**Retry Utility** (`src/renderer/src/utils/retry.ts`):
-
-- `retry<T>()` - Promise-based retry with exponential backoff
-- Configurable: maxAttempts, delay, backoff strategy
-- Returns typed result or throws after all attempts
-
-### Hooks
-
-**useRetry** (`src/renderer/src/hooks/useRetry.ts`):
-
-- React hook for retry operations
-- Returns: `{ execute, isLoading, error, attemptCount, retry }`
-- Used with `<ErrorRecovery>` component
-
-### State Management
-
-**Connectivity Store** (`src/renderer/src/stores/connectivityStore.ts`):
-
-- Zustand store for connectivity state
-- States: `online | offline-user | offline-no-internet`
-- Actions: `setOnline()`, `setOfflineMode()`, `setNoInternet()`, `checkConnectivity()`
-- Automatic connectivity monitoring
-
-### Integration Points
-
-**App.tsx**:
-
-- App-level error boundary wraps entire application
-- Last resort catch-all for uncovered errors
-
-**router.tsx**:
-
-- Page-level error boundaries on all routes
-- Keeps sidebar functional when page crashes
-
-**AppShell.tsx**:
-
-- `<OfflineStatusBar />` at top of app layout
-- Shows/hides based on connectivity state
-
-**main.tsx**:
-
-- `globalErrorHandler.initialize()` - Global handlers
-- Catches uncaught exceptions and promise rejections
-
-**SettingsView.tsx**:
-
-- Advanced tab includes `<ErrorLogViewer />`
-- View/copy/clear error logs
-
-### Error Handling Patterns
-
-**IPC Call Pattern**:
-
-```typescript
-import { isIpcSuccess } from '@renderer/utils/ipcTypeGuards'
-import { getUserFriendlyError } from '@renderer/utils/errorMessages'
-
-const response = await window.fileSystem.readFile(path, 'utf-8')
-if (isIpcSuccess(response)) {
-  // Use response.data
-} else {
-  const friendly = getUserFriendlyError(response.error.message)
-  showToast({ variant: 'error', message: friendly.message })
-}
-```
-
-**Retry Pattern**:
-
-```typescript
-import { useRetry } from '@renderer/hooks/useRetry'
-
-const { execute, error, retry, isLoading } = useRetry(
-  async () => await downloadChapter(id),
-  { maxAttempts: 3 }
-)
-
-if (error) return <ErrorRecovery error={error} onRetry={retry} isRetrying={isLoading} />
-```
-
-**Component Error Boundary**:
-
-```tsx
-<ErrorBoundary level="page">
-  <MyComponent />
-</ErrorBoundary>
-```
-
-### Documentation
-
-- **Comprehensive Guide**: `docs/architecture/error-handling.md` (900+ lines)
-  - Architecture overview
-  - Usage patterns
-  - Best practices
-  - Testing strategies
-  - Troubleshooting
-
----
-
-## Protobuf Schema & Backup System
-
-### Protocol Buffers
-
-**Version**: protobuf.js 7.4.0
-**Purpose**: Binary serialization for library backups (native and Mihon/Tachiyomi compatibility)
-**Compression**: gzip via pako 2.1.0
-
-### Schemas
-
-| Schema File         | Purpose                         | Format |
-| ------------------- | ------------------------------- | ------ |
-| **mihon.proto**     | Mihon/Tachiyomi import/export   | Proto2 |
-| **dexreader.proto** | Native DexReader backup/restore | Proto3 |
-
-### DexReader Native Backup Schema (Proto3)
-
-**Location**: `src/main/services/protobuf/schemas/dexreader.proto`
-**File Extension**: `.dexreader`
-**Encoding**: Protobuf (binary) + gzip compression
-**Schema Version**: 1
-
-**Top-Level Structure**:
-
-```protobuf
-message DexReaderBackup {
-  int32 schema_version = 1;           // Version 1
-  int64 exported_at = 2;              // Unix timestamp (ms)
-  string app_version = 3;             // DexReader version
-  LibraryData library = 4;            // Required
-  CollectionsData collections = 5;     // Optional
-  ProgressData progress = 6;           // Optional
-  ReaderSettingsData reader_settings = 7; // Optional
-}
-```
-
-**Data Sections**:
-
-- **LibraryData**: Manga metadata (title, description, status, tags, authors, etc.) + cached chapters
-- **CollectionsData**: Collections + collection items (many-to-many relationships)
-- **ProgressData**: Manga progress + chapter progress (per-chapter tracking with completion flags)
-- **ReaderSettingsData**: Per-manga reader overrides (reading mode, double-page settings)
-
-**Key Features**:
-
-- Proto3 `optional` keyword for presence detection (15 fields)
-- All timestamps as int64 (Unix milliseconds)
-- Maps for key-value data (external_links, alternative_titles)
-- Nested messages (DoublePageMode within MangaReaderOverride)
-
-**What's NOT Included**:
-
-- Reading Statistics (recalculated on import from chapter_progress)
-- App Settings (backed up separately via settings.json)
-
-### Mihon/Tachiyomi Compatibility
-
-**Location**: `src/main/services/protobuf/schemas/mihon.proto`
-**File Extensions**: `.tachibk`, `.proto.gz`
-**Format**: Proto2 (required/optional keywords)
-
-**Services**:
-
-- **Import**: `MihonBackupService` - Decode Mihon backups, filter MangaDex manga, import to library
-- **Export**: `MihonExportService` - Export library to Mihon format with tag ID→name conversion
-
-**Source ID**: MangaDex source = `'2499283573021220255'` (string, not BigInt - protobuf.js limitation)
-
----
-
-_This technical context provides a comprehensive view of all technologies, configurations, and patterns used in DexReader. Refer to this document when making technology choices or troubleshooting build issues._
+_This document provides a high-level overview of DexReader's technology stack, critical architecture decisions, and essential configuration information. For detailed implementation patterns and coding standards, see `system-pattern.md`. For in-depth documentation, refer to the `docs/` directory._
