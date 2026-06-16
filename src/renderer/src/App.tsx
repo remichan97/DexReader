@@ -7,7 +7,13 @@ import { KeyboardShortcutsHandler } from './components/KeyboardShortcutsHandler'
 import { useIncognitoListener } from './hooks/useIncognitoListener'
 import { useConnectivityListener } from './hooks/useConnectivityListener'
 import { ToastContainer } from './components/Toast'
-import { useToastStore, useProgressStore, useLibraryStore, useAppStore } from './stores'
+import {
+  useToastStore,
+  useProgressStore,
+  useLibraryStore,
+  useAppStore,
+  useSidebarStore
+} from './stores'
 import { useConnectivityStore } from './stores/connectivityStore'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { ProgressRing } from './components/ProgressRing'
@@ -49,6 +55,7 @@ function AppContent(): React.JSX.Element {
   const setSystemTheme = useAppStore((state) => state.setSystemTheme)
   const setThemeMode = useAppStore((state) => state.setThemeMode)
   const theme = useAppStore((state) => state.theme)
+  const { setDisplayMode: setSidebarDisplayMode } = useSidebarStore()
 
   // Gatekeeper state
   const [isLocked, setIsLocked] = useState(false)
@@ -68,6 +75,11 @@ function AppContent(): React.JSX.Element {
           setThemeMode(settingsResult.data.appearance.theme)
         }
 
+        // Load sidebar display mode from settings
+        if (settingsResult.success && settingsResult.data?.appearance?.sidebarSize) {
+          setSidebarDisplayMode(settingsResult.data.appearance.sidebarSize)
+        }
+
         // Get system theme
         const themeResult = await globalThis.api.getTheme()
         if (themeResult.success && themeResult.data) {
@@ -78,7 +90,7 @@ function AppContent(): React.JSX.Element {
       }
     }
     void loadThemeEarly()
-  }, [setThemeMode, setSystemTheme])
+  }, [setThemeMode, setSystemTheme, setSidebarDisplayMode])
 
   // Apply theme to document
   useEffect(() => {

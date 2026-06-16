@@ -1,7 +1,7 @@
 import type { JSX } from 'react'
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { useToastStore, useAppStore } from '@renderer/stores'
+import { useToastStore, useAppStore, useSidebarStore } from '@renderer/stores'
 import { useNavigationBlocker } from '@renderer/hooks/useNavigationBlocker'
 import { useUnsavedChanges } from '@renderer/hooks/useUnsavedChanges'
 import { useTranslation } from '@renderer/hooks/useTranslation'
@@ -82,6 +82,7 @@ export function SettingsView(): JSX.Element {
 
   // Zustand stores
   const showToast = useToastStore((state) => state.show)
+  const { setDisplayMode: setSidebarDisplayMode } = useSidebarStore()
 
   // Unsaved changes context for app-wide tracking
   const { setHasUnsavedChanges: setGlobalUnsavedChanges } = useUnsavedChanges()
@@ -348,6 +349,8 @@ export function SettingsView(): JSX.Element {
           // Load sidebar size from settings
           if (settings.appearance.sidebarSize) {
             setSidebarSize(settings.appearance.sidebarSize)
+            // Sync with sidebar store
+            setSidebarDisplayMode(settings.appearance.sidebarSize)
           }
 
           if (settings.appearance.accentColor) {
@@ -471,7 +474,7 @@ export function SettingsView(): JSX.Element {
       }
     }
     loadSettings()
-  }, [showToast, setThemeMode])
+  }, [showToast, setThemeMode, setSidebarDisplayMode])
 
   // Listen for system accent color changes
   useEffect(() => {
@@ -667,6 +670,8 @@ export function SettingsView(): JSX.Element {
   // Handle sidebar size change (appearance section)
   const handleSidebarSizeChange = (size: 'full' | 'compact' | 'auto-hide'): void => {
     setSidebarSize(size)
+    // Update sidebar store immediately for live preview
+    setSidebarDisplayMode(size)
     markSettingModified('sidebarSize')
   }
 

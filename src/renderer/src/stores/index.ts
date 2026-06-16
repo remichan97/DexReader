@@ -14,6 +14,7 @@ export { useLibraryStore } from './libraryStore'
 export { useCollectionsStore } from './collectionsStore'
 export { useConnectivityStore } from './connectivityStore'
 export { useSearchPresetsStore } from './searchPresetsStore'
+export { useSidebarStore } from './sidebarStore'
 export {
   useSearchStore,
   DEFAULT_FILTERS,
@@ -43,3 +44,4 @@ export type {
   Collection
 } from './types'
 export type { SearchFilters } from './searchStore'
+export type { SidebarDisplayMode } from './sidebarStore'
