@@ -12,7 +12,8 @@ import {
   useProgressStore,
   useLibraryStore,
   useAppStore,
-  useSidebarStore
+  useSidebarStore,
+  useCanvasStore
 } from './stores'
 import { useConnectivityStore } from './stores/connectivityStore'
 import { ErrorBoundary } from './components/ErrorBoundary'
@@ -56,6 +57,7 @@ function AppContent(): React.JSX.Element {
   const setThemeMode = useAppStore((state) => state.setThemeMode)
   const theme = useAppStore((state) => state.theme)
   const { setDisplayMode: setSidebarDisplayMode } = useSidebarStore()
+  const { setCanvasMode } = useCanvasStore()
 
   // Gatekeeper state
   const [isLocked, setIsLocked] = useState(false)
@@ -80,6 +82,11 @@ function AppContent(): React.JSX.Element {
           setSidebarDisplayMode(settingsResult.data.appearance.sidebarSize)
         }
 
+        // Load canvas mode from settings
+        if (settingsResult.success && settingsResult.data?.appearance?.canvasMode) {
+          setCanvasMode(settingsResult.data.appearance.canvasMode)
+        }
+
         // Get system theme
         const themeResult = await globalThis.api.getTheme()
         if (themeResult.success && themeResult.data) {
@@ -90,7 +97,7 @@ function AppContent(): React.JSX.Element {
       }
     }
     void loadThemeEarly()
-  }, [setThemeMode, setSystemTheme, setSidebarDisplayMode])
+  }, [setThemeMode, setSystemTheme, setSidebarDisplayMode, setCanvasMode])
 
   // Apply theme to document
   useEffect(() => {

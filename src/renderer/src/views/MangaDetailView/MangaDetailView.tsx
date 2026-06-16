@@ -7,14 +7,16 @@ import { Skeleton } from '@renderer/components/Skeleton'
 import { InfoBar } from '@renderer/components/InfoBar'
 import { useProgressStore } from '@renderer/stores/progressStore'
 import { useConnectivityStore } from '@renderer/stores/connectivityStore'
+import { useCanvasStore } from '@renderer/stores'
 import { useTranslation } from '@renderer/hooks/useTranslation'
-import { getMangaTitle } from '@renderer/utils/mangaHelpers'
+import { getMangaTitle, getCoverImageUrl, CoverSize } from '@renderer/utils/mangaHelpers'
 import { cacheMangaMetadata } from '@renderer/utils/mangaCache'
 import MangaHeroSection from './components/MangaHeroSection'
 import DescriptionSection from './components/DescriptionSection'
 import ExternalLinksSection from './components/ExternalLinksSection'
 import AlternativeTitlesSection from './components/AlternativeTitlesSection'
 import ChapterList from './components/ChapterList'
+import { HeroBackdrop } from './components/HeroBackdrop'
 import './MangaDetailView.css'
 import type {
   ChapterProgress,
@@ -81,6 +83,7 @@ export function MangaDetailView(): JSX.Element {
   const loadProgress = useProgressStore((state) => state.loadProgress)
   const progressMap = useProgressStore((state) => state.progressMap)
   const isOnline = useConnectivityStore((state) => state.isOnline)
+  const canvasMode = useCanvasStore((state) => state.canvasMode)
 
   // Load manga details and chapters on mount
   useEffect(() => {
@@ -655,7 +658,14 @@ export function MangaDetailView(): JSX.Element {
   }
 
   return (
-    <div className="manga-detail-view flex flex-col" ref={scrollContainerRef}>
+    <div
+      className="manga-detail-view flex flex-col"
+      ref={scrollContainerRef}
+      data-has-backdrop={canvasMode === 'none' ? 'false' : 'true'}
+    >
+      {/* Hero backdrop */}
+      <HeroBackdrop coverUrl={getCoverImageUrl(state.manga, CoverSize.Large)} />
+
       {/* Back button with optional sticky title */}
       <div className="manga-detail-view__back-button flex items-center gap-3">
         <Button variant="ghost" onClick={handleBackClick} icon={<ArrowLeftRegular />}>
