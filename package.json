@@ -39,7 +39,7 @@
     "i18next": "^26.0.10",
     "i18next-fs-backend": "^2.6.5",
     "pako": "^2.1.0",
-    "protobufjs": "^8.2.0",
+    "protobufjs": "^8.6.0",
     "react-i18next": "^17.0.7",
     "react-router-dom": "^6.30.4",
     "zustand": "^5.0.9"
