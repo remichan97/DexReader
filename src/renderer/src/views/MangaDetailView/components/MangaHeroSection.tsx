@@ -28,6 +28,8 @@ import {
   getMangaTitle,
   getAuthorName,
   getArtistName,
+  getAuthorId,
+  getArtistId,
   getMangaYear,
   getContentRatingText,
   mapPublicationStatus,
@@ -66,6 +68,8 @@ export default function MangaHeroSection({
   const title = getMangaTitle(manga)
   const author = getAuthorName(manga)
   const artist = getArtistName(manga)
+  const authorId = getAuthorId(manga)
+  const artistId = getArtistId(manga)
   const status = mapPublicationStatus(manga.attributes.status)
   const year = getMangaYear(manga)
   const contentRatingRaw = manga.attributes.contentRating?.toLowerCase() || 'safe'
@@ -320,6 +324,12 @@ export default function MangaHeroSection({
     navigate(`/browse?tag=${tagId}`)
   }
 
+  const handleCreatorClick = (creatorId: string | null, creatorType: 'author' | 'artist'): void => {
+    if (creatorId) {
+      navigate(`/creator/${creatorType}/${creatorId}`)
+    }
+  }
+
   const handleDownloadAll = async (quality?: 'data' | 'data-saver'): Promise<void> => {
     if (!downloadSettings || chapters.length === 0) return
 
@@ -458,7 +468,20 @@ export default function MangaHeroSection({
                 aria-label={t('mangaDetail:hero.author', { defaultValue: 'Author' })}
               />
             </Tooltip>
-            <span>{author}</span>
+            {authorId ? (
+              <button
+                className="creator-link"
+                onClick={() => handleCreatorClick(authorId, 'author')}
+                title={t('mangaDetail:hero.viewAllByAuthor', {
+                  name: author,
+                  defaultValue: `View all works by ${author}`
+                })}
+              >
+                {author}
+              </button>
+            ) : (
+              <span>{author}</span>
+            )}
           </p>
           <p className="manga-detail-view__artist detail-item">
             <Tooltip content={t('mangaDetail:hero.tooltips.artist')} position="top">
@@ -466,7 +489,20 @@ export default function MangaHeroSection({
                 aria-label={t('mangaDetail:hero.artist', { defaultValue: 'Artist' })}
               />
             </Tooltip>
-            <span>{artist}</span>
+            {artistId ? (
+              <button
+                className="creator-link"
+                onClick={() => handleCreatorClick(artistId, 'artist')}
+                title={t('mangaDetail:hero.viewAllByArtist', {
+                  name: artist,
+                  defaultValue: `View all works by ${artist}`
+                })}
+              >
+                {artist}
+              </button>
+            ) : (
+              <span>{artist}</span>
+            )}
           </p>
           <p className="manga-detail-view__status detail-item">
             <Tooltip content={t('mangaDetail:hero.tooltips.status')} position="top">

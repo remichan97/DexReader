@@ -58,6 +58,8 @@
     },
     "volumeCount": "{{count}} tập",
     "chapterCount": "{{count}} chương",
+    "viewAllByAuthor": "Xem tất cả tác phẩm của {{name}}",
+    "viewAllByArtist": "Xem tất cả tác phẩm của {{name}}",
     "continue": "Tiếp tục",
     "startReading": "Bắt đầu đọc",
     "inLibrary": "Trong thư viện",

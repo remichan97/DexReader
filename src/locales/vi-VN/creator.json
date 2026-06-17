@@ -1,0 +1,8 @@
+{
+  "author": "Tác giả",
+  "artist": "Họa sĩ",
+  "unknownCreator": "Người sáng tạo không xác định",
+  "windowTitle": "Tác phẩm của {{name}} - {{type}}",
+  "noWorks": "Không tìm thấy tác phẩm",
+  "noWorksMessage": "Người sáng tạo này chưa có manga nào trên MangaDex."
+}

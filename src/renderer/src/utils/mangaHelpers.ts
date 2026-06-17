@@ -94,6 +94,30 @@ export function getArtistName(manga: MangaEntity): string {
 }
 
 /**
+ * Extract author ID from manga entity
+ */
+export function getAuthorId(manga: MangaEntity): string | null {
+  try {
+    const author = manga.relationships?.find((r) => r.type === 'author')
+    return author?.id || null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Extract artist ID from manga entity
+ */
+export function getArtistId(manga: MangaEntity): string | null {
+  try {
+    const artist = manga.relationships?.find((r) => r.type === 'artist')
+    return artist?.id || null
+  } catch {
+    return null
+  }
+}
+
+/**
  * Get manga title in preferred language
  * Falls back to English, then any available language
  */
