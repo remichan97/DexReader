@@ -1,7 +1,7 @@
 # DexReader Active Context
 
 **Last Updated**: 24 June 2026
-**Version**: v1.10.0
+**Version**: v1.11.0
 **Mode**: Active Development
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next. Keep all entries as short, concise as possible
@@ -10,14 +10,14 @@
 
 ## Current Status
 
-**v1.10.0 Released**: 24 June 2026 ✅
+**v1.11.0 Released**: 24 June 2026 ✅
 
 **Monitoring Period**: Now through ~14 July 2026
 
-- Monitor for any issues with Drizzle ORM RC 1.0 upgrade
-- Watch for potential database migration issues
-- Collect feedback on stability and performance
-- Monitor dependency updates for security patches
+- Monitor for any issues with native dependency elimination (node:sqlite, bcrypt-ts)
+- Watch for potential database performance impacts with node:sqlite
+- Collect feedback on build times and installation experience
+- Monitor for any platform-specific issues with new dependencies
 
 **Next Planned Work:**
 
@@ -44,34 +44,35 @@ _No known critical issues at this time._
 
 ## Recent Changes (Last 1-2 Weeks)
 
+### 24 June 2026 - v1.11.0 Release ✅
+
+- **Type**: Feature Release - Native Dependency Elimination
+- **Summary**: Removed all native dependencies to eliminate build-time compilation requirements
+- **Key Changes**:
+  - Replaced `better-sqlite3` with Node.js built-in `node:sqlite` module
+  - Replaced `bcrypt` with `bcrypt-ts` (pure TypeScript implementation)
+  - Disabled native module rebuilding in electron-builder configuration (`npmRebuild: false`)
+  - Significantly reduced build complexity and time
+  - Eliminated requirement for native compilation toolchains
+- **Impact**: Faster builds, simpler deployment, no C++ compiler required for development or packaging
+- **Status**: ✅ Released
+- **CHANGELOG**: All changes documented in CHANGELOG.md v1.11.0 section
+
 ### 24 June 2026 - v1.10.0 Release ✅
 
 - **Type**: Feature Release - Drizzle ORM Upgrade
 - **Summary**: Upgraded Drizzle ORM to Release Candidate 1.0 and updated multiple dependencies
 - **Key Changes**:
   - Upgraded Drizzle ORM from v0.45.2 to v1.0.0-beta.22 (RC 1.0)
-  - Upgraded drizzle-kit from v0.31.10 to v1.0.0-beta.22
-  - Restructured database migrations for RC 1.0 compatibility
-  - Updated relationships schema definitions
-  - Updated 7 dependencies including protobufjs, react-router-dom, js-yaml, vite, tar, form-data, tmp
+  - Updated 7 dependencies including protobufjs, react-router-dom, js-yaml
   - Revamped project memory bank system
-  - Added explicit instruction files for code standards
-- **Impact**: Enhanced ORM capabilities with RC 1.0 features, improved security with dependency updates
-- **Status**: ✅ Released
-- **CHANGELOG**: All changes documented in CHANGELOG.md v1.10.0 section
-
-### 1 June 2026 - v1.9.1 Hotfix ✅
-
-- **Type**: Hotfix Release
-- **Summary**: Fixed CI workflow tag creation command syntax error
-- **Impact**: No app changes - CI infrastructure fix only
+- **Impact**: Enhanced ORM capabilities, improved security with dependency updates
 - **Status**: ✅ Released
 
-### 1 June 2026 - v1.9.0 Release Summary
+### 1 June 2026 - v1.9.0 & v1.9.1 Summary
 
-- **Type**: Feature Release
-- **Summary**: Added Proxy Settings for network configuration and Hardware Acceleration control
-- **Impact**: Network proxy support for corporate environments, performance tuning via HW acceleration control
+- **v1.9.1**: Hotfix for CI workflow tag creation
+- **v1.9.0**: Added Proxy Settings and Hardware Acceleration control
 
 <!-- Template for future entries:
 ### [Date] - [Title]
