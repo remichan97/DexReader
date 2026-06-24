@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [1.11.0] - 2026-06-24
+
+### Changed
+
+- **Major**: Eliminate native dependency builds for faster and more reliable installation
+  - Replace `better-sqlite3` with Node.js built-in `node:sqlite` module
+  - Replace `bcrypt` with `bcrypt-ts` (pure TypeScript implementation)
+  - Disable native module rebuilding in electron-builder configuration
+  - Significantly reduce build time and complexity
+  - Remove requirement for native compilation toolchains
+
+### Removed
+
+- Remove `better-sqlite3` native dependency
+- Remove `bcrypt` native dependency
+
+---
+
 ## [1.10.0] - 2026-06-24
 
 ### Changed
