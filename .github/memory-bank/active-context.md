@@ -1,7 +1,7 @@
 # DexReader Active Context
 
 **Last Updated**: 24 June 2026
-**Version**: v1.11.0
+**Version**: v1.11.1
 **Mode**: Active Development
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next. Keep all entries as short, concise as possible
@@ -10,7 +10,7 @@
 
 ## Current Status
 
-**v1.11.0 Released**: 24 June 2026 ✅
+**v1.11.1 Released**: 24 June 2026 ✅
 
 **Monitoring Period**: Now through ~14 July 2026
 
@@ -18,6 +18,7 @@
 - Watch for potential database performance impacts with node:sqlite
 - Collect feedback on build times and installation experience
 - Monitor for any platform-specific issues with new dependencies
+- Verify electron-builder configuration is properly recognized after build fix
 
 **Next Planned Work:**
 
@@ -44,6 +45,17 @@ _No known critical issues at this time._
 
 ## Recent Changes (Last 1-2 Weeks)
 
+### 24 June 2026 - v1.11.1 Release ✅
+
+- **Type**: Patch Release - Build Fixes
+- **Summary**: Fixed electron-builder configuration issue and updated Electron
+- **Key Changes**:
+  - Fixed incorrect placement of `npmRebuild` configuration in electron-builder.yml
+  - Updated Electron from 41.1.1 to 41.9.0
+- **Impact**: Resolved build configuration issue that could cause build failures
+- **Status**: ✅ Released
+- **CHANGELOG**: All changes documented in CHANGELOG.md v1.11.1 section
+
 ### 24 June 2026 - v1.11.0 Release ✅
 
 - **Type**: Feature Release - Native Dependency Elimination
@@ -51,12 +63,10 @@ _No known critical issues at this time._
 - **Key Changes**:
   - Replaced `better-sqlite3` with Node.js built-in `node:sqlite` module
   - Replaced `bcrypt` with `bcrypt-ts` (pure TypeScript implementation)
-  - Disabled native module rebuilding in electron-builder configuration (`npmRebuild: false`)
   - Significantly reduced build complexity and time
   - Eliminated requirement for native compilation toolchains
 - **Impact**: Faster builds, simpler deployment, no C++ compiler required for development or packaging
 - **Status**: ✅ Released
-- **CHANGELOG**: All changes documented in CHANGELOG.md v1.11.0 section
 
 ### 24 June 2026 - v1.10.0 Release ✅
 
@@ -65,14 +75,8 @@ _No known critical issues at this time._
 - **Key Changes**:
   - Upgraded Drizzle ORM from v0.45.2 to v1.0.0-beta.22 (RC 1.0)
   - Updated 7 dependencies including protobufjs, react-router-dom, js-yaml
-  - Revamped project memory bank system
 - **Impact**: Enhanced ORM capabilities, improved security with dependency updates
 - **Status**: ✅ Released
-
-### 1 June 2026 - v1.9.0 & v1.9.1 Summary
-
-- **v1.9.1**: Hotfix for CI workflow tag creation
-- **v1.9.0**: Added Proxy Settings and Hardware Acceleration control
 
 <!-- Template for future entries:
 ### [Date] - [Title]
