@@ -25,6 +25,8 @@ asarUnpack:
   - out/main/database/migrations/**
   - out/locales/**
 compression: maximum
+build:
+  npmRebuild: false
 win:
   executableName: dexreader
   target:
