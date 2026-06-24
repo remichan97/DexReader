@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [1.11.1] - 2026-06-24
+
+### Fixed
+
+- **Build**: Fix incorrect placement of `npmRebuild` configuration in electron-builder.yml
+  - Remove incorrectly nested `build.npmRebuild: false` directive
+  - This configuration should be set at the root level, not under a `build` section
+
+### Dependencies
+
+- Update Electron from 41.1.1 to 41.9.0
+
+---
+
 ## [1.11.0] - 2026-06-24
 
 ### Changed
