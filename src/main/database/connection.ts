@@ -1,12 +1,12 @@
-import Database from 'better-sqlite3'
-import { drizzle } from 'drizzle-orm/better-sqlite3'
+import { drizzle } from 'drizzle-orm/node-sqlite'
 import { getAppDataPath } from '../filesystem/path-validator'
 import path from 'node:path'
 import { relations } from '../database/schemas/relationships.schema'
 import { mainLog } from '../services/logging/main-logging.service'
+import { DatabaseSync } from 'node:sqlite'
 
 class DatabaseConnection {
-  private db: Database.Database | undefined = undefined
+  private db: DatabaseSync | undefined = undefined
   private drizzle: ReturnType<typeof drizzle> | undefined = undefined
   private dbPath: string | undefined = undefined
 
@@ -27,14 +27,14 @@ class DatabaseConnection {
     const dbPath = this.getDbPath()
     mainLog.info(`[Database] Initializing database at: ${dbPath}`)
 
-    this.db = new Database(dbPath)
-
-    this.db.pragma('journal_mode = WAL')
-    this.db.pragma('synchronous = NORMAL')
-    this.db.pragma('foreign_keys = ON')
-    this.db.pragma('cache_size = -64000') // 64MB cache
-    this.db.pragma('temp_store = MEMORY')
-    this.db.pragma('mmap_size = 268435456') // 256MB mmap
+    this.db = new DatabaseSync(dbPath)
+    this.db.exec('PRAGMA journal_mode = WAL') // Enable Write-Ahead Logging for better concurrency
+    this.db.exec('PRAGMA cache_size = -65536') // Set cache size to 64MB (negative value means KB)
+    this.db.exec('PRAGMA mmap_size = 268435456') // Set memory-mapped I/O size to 256MB
+    this.db.exec('PRAGMA foreign_keys = ON') // Enable foreign key constraints
+    this.db.exec('PRAGMA synchronous = NORMAL') // Set synchronous mode to NORMAL for better performance
+    this.db.exec('PRAGMA temp_store = MEMORY') // Store temporary tables in memory for faster access
+    this.db.exec('PRAGMA mmap_size = 268435456') // Set memory-mapped I/O size to 256MB
 
     mainLog.debug('[Database] SQLite pragmas configured (WAL, 64MB cache, 256MB mmap)')
     this.drizzle = drizzle({ client: this.db, relations })
@@ -53,7 +53,7 @@ class DatabaseConnection {
       mainLog.info('[Database] Closing database connection...')
       try {
         // Ensure WAL checkpoint completes before closing
-        this.db.pragma('wal_checkpoint(TRUNCATE)')
+        this.db.exec('PRAGMA wal_checkpoint = TRUNCATE')
         mainLog.debug('[Database] WAL checkpoint completed')
       } catch (error) {
         mainLog.error('[Database] Error during WAL checkpoint:', error)

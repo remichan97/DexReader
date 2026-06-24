@@ -371,7 +371,7 @@ class MangaRepository {
 
     const result = deleteQuery.run()
 
-    return result.changes || 0
+    return Number(result.changes) || 0
   }
 
   // For native export functionality, return raw data from the manga table
