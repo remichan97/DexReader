@@ -2,7 +2,7 @@ import Database from 'better-sqlite3'
 import { drizzle } from 'drizzle-orm/better-sqlite3'
 import { getAppDataPath } from '../filesystem/path-validator'
 import path from 'node:path'
-import * as schema from './schemas'
+import { relations } from '../database/schemas/relationships.schema'
 import { mainLog } from '../services/logging/main-logging.service'
 
 class DatabaseConnection {
@@ -37,7 +37,7 @@ class DatabaseConnection {
     this.db.pragma('mmap_size = 268435456') // 256MB mmap
 
     mainLog.debug('[Database] SQLite pragmas configured (WAL, 64MB cache, 256MB mmap)')
-    this.drizzle = drizzle(this.db, { schema: schema })
+    this.drizzle = drizzle({ client: this.db, relations })
     mainLog.info('[Database] Drizzle ORM initialized')
   }
 
