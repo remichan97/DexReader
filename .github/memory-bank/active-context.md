@@ -1,7 +1,7 @@
 # DexReader Active Context
 
-**Last Updated**: 1 June 2026
-**Version**: v1.9.1
+**Last Updated**: 24 June 2026
+**Version**: v1.10.0
 **Mode**: Active Development
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next. Keep all entries as short, concise as possible
@@ -10,32 +10,26 @@
 
 ## Current Status
 
-**v1.9.1 Released**: 1 June 2026 ✅
+**v1.10.0 Released**: 24 June 2026 ✅
 
-**Monitoring Period**: Now through ~21 June 2026
+**Monitoring Period**: Now through ~14 July 2026
 
-- Monitor for any issues with Proxy Settings functionality
-- Watch for feedback on Hardware Acceleration control
+- Monitor for any issues with Drizzle ORM RC 1.0 upgrade
+- Watch for potential database migration issues
 - Collect feedback on stability and performance
-- Monitor for any edge cases in proxy configuration
+- Monitor dependency updates for security patches
 
 **Next Planned Work:**
 
-- Monitor for `drizzle-kit` updates to resolve transitive esbuild vulnerability
 - Plan next feature development cycle
-- Consider additional networking enhancements based on user feedback
+- Consider additional enhancements based on user feedback
+- Continue monitoring for dependency updates
 
 ---
 
 ## Known Issues
 
-### esbuild Vulnerability (Transitive Dependency)
-
-- **Severity**: Low
-- **Source**: `drizzle-kit` → `esbuild` transitive dependency
-- **Status**: GitHub Dependabot alert active, not yet resolved
-- **Impact**: Development-time only (not runtime), not blocking releases
-- **Action**: Monitor for `drizzle-kit` update that addresses this
+_No known critical issues at this time._
 
 <!-- Template for future issues:
 ### [Issue Title]
@@ -50,37 +44,34 @@
 
 ## Recent Changes (Last 1-2 Weeks)
 
+### 24 June 2026 - v1.10.0 Release ✅
+
+- **Type**: Feature Release - Drizzle ORM Upgrade
+- **Summary**: Upgraded Drizzle ORM to Release Candidate 1.0 and updated multiple dependencies
+- **Key Changes**:
+  - Upgraded Drizzle ORM from v0.45.2 to v1.0.0-beta.22 (RC 1.0)
+  - Upgraded drizzle-kit from v0.31.10 to v1.0.0-beta.22
+  - Restructured database migrations for RC 1.0 compatibility
+  - Updated relationships schema definitions
+  - Updated 7 dependencies including protobufjs, react-router-dom, js-yaml, vite, tar, form-data, tmp
+  - Revamped project memory bank system
+  - Added explicit instruction files for code standards
+- **Impact**: Enhanced ORM capabilities with RC 1.0 features, improved security with dependency updates
+- **Status**: ✅ Released
+- **CHANGELOG**: All changes documented in CHANGELOG.md v1.10.0 section
+
 ### 1 June 2026 - v1.9.1 Hotfix ✅
 
 - **Type**: Hotfix Release
 - **Summary**: Fixed CI workflow tag creation command syntax error
-- **Key Changes**: Corrected git tag command in release workflow (missing space before `-a` switch)
 - **Impact**: No app changes - CI infrastructure fix only
 - **Status**: ✅ Released
-- **CHANGELOG**: Documented in CHANGELOG.md v1.9.1 section
 
-### 1 June 2026 - v1.9.0 Release ✅
+### 1 June 2026 - v1.9.0 Release Summary
 
 - **Type**: Feature Release
 - **Summary**: Added Proxy Settings for network configuration and Hardware Acceleration control
-- **Key Changes**:
-  - Added HTTP/HTTPS proxy configuration with host and port settings
-  - Implemented Hardware Acceleration toggle in Settings → Appearance
-  - Condensed metadata layout for better space utilization
-  - Fixed Download Path selection bypassing dirty tracking
-  - Fixed Gatekeeper re-authentication issues during Settings navigation
-  - Fixed incorrect Settings keys and preload method signatures
-  - Improved command link dialogue consistency
-  - Updated CI to checkout action v6
 - **Impact**: Network proxy support for corporate environments, performance tuning via HW acceleration control
-- **Status**: ✅ Released
-- **CHANGELOG**: All changes documented in CHANGELOG.md v1.9.0 section
-
-### 27 May 2026 - v1.8.0 Release Summary
-
-- **Type**: Feature Release - App Lock & Settings Revamp
-- **Summary**: Introduced App Lock (Gatekeeper) functionality and revamped Settings View
-- **Impact**: Privacy protection for shared computers, improved Settings navigation
 
 <!-- Template for future entries:
 ### [Date] - [Title]
