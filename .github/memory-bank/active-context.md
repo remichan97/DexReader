@@ -1,7 +1,7 @@
 # DexReader Active Context
 
-**Last Updated**: 1 June 2026
-**Version**: v1.9.1
+**Last Updated**: 24 June 2026
+**Version**: v1.11.1
 **Mode**: Active Development
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next. Keep all entries as short, concise as possible
@@ -10,32 +10,27 @@
 
 ## Current Status
 
-**v1.9.1 Released**: 1 June 2026 ✅
+**v1.11.1 Released**: 24 June 2026 ✅
 
-**Monitoring Period**: Now through ~21 June 2026
+**Monitoring Period**: Now through ~14 July 2026
 
-- Monitor for any issues with Proxy Settings functionality
-- Watch for feedback on Hardware Acceleration control
-- Collect feedback on stability and performance
-- Monitor for any edge cases in proxy configuration
+- Monitor for any issues with native dependency elimination (node:sqlite, bcrypt-ts)
+- Watch for potential database performance impacts with node:sqlite
+- Collect feedback on build times and installation experience
+- Monitor for any platform-specific issues with new dependencies
+- Verify electron-builder configuration is properly recognized after build fix
 
 **Next Planned Work:**
 
-- Monitor for `drizzle-kit` updates to resolve transitive esbuild vulnerability
 - Plan next feature development cycle
-- Consider additional networking enhancements based on user feedback
+- Consider additional enhancements based on user feedback
+- Continue monitoring for dependency updates
 
 ---
 
 ## Known Issues
 
-### esbuild Vulnerability (Transitive Dependency)
-
-- **Severity**: Low
-- **Source**: `drizzle-kit` → `esbuild` transitive dependency
-- **Status**: GitHub Dependabot alert active, not yet resolved
-- **Impact**: Development-time only (not runtime), not blocking releases
-- **Action**: Monitor for `drizzle-kit` update that addresses this
+_No known critical issues at this time._
 
 <!-- Template for future issues:
 ### [Issue Title]
@@ -50,37 +45,38 @@
 
 ## Recent Changes (Last 1-2 Weeks)
 
-### 1 June 2026 - v1.9.1 Hotfix ✅
+### 24 June 2026 - v1.11.1 Release ✅
 
-- **Type**: Hotfix Release
-- **Summary**: Fixed CI workflow tag creation command syntax error
-- **Key Changes**: Corrected git tag command in release workflow (missing space before `-a` switch)
-- **Impact**: No app changes - CI infrastructure fix only
-- **Status**: ✅ Released
-- **CHANGELOG**: Documented in CHANGELOG.md v1.9.1 section
-
-### 1 June 2026 - v1.9.0 Release ✅
-
-- **Type**: Feature Release
-- **Summary**: Added Proxy Settings for network configuration and Hardware Acceleration control
+- **Type**: Patch Release - Build Fixes
+- **Summary**: Fixed electron-builder configuration issue and updated Electron
 - **Key Changes**:
-  - Added HTTP/HTTPS proxy configuration with host and port settings
-  - Implemented Hardware Acceleration toggle in Settings → Appearance
-  - Condensed metadata layout for better space utilization
-  - Fixed Download Path selection bypassing dirty tracking
-  - Fixed Gatekeeper re-authentication issues during Settings navigation
-  - Fixed incorrect Settings keys and preload method signatures
-  - Improved command link dialogue consistency
-  - Updated CI to checkout action v6
-- **Impact**: Network proxy support for corporate environments, performance tuning via HW acceleration control
+  - Fixed incorrect placement of `npmRebuild` configuration in electron-builder.yml
+  - Updated Electron from 41.1.1 to 41.9.0
+- **Impact**: Resolved build configuration issue that could cause build failures
 - **Status**: ✅ Released
-- **CHANGELOG**: All changes documented in CHANGELOG.md v1.9.0 section
+- **CHANGELOG**: All changes documented in CHANGELOG.md v1.11.1 section
 
-### 27 May 2026 - v1.8.0 Release Summary
+### 24 June 2026 - v1.11.0 Release ✅
 
-- **Type**: Feature Release - App Lock & Settings Revamp
-- **Summary**: Introduced App Lock (Gatekeeper) functionality and revamped Settings View
-- **Impact**: Privacy protection for shared computers, improved Settings navigation
+- **Type**: Feature Release - Native Dependency Elimination
+- **Summary**: Removed all native dependencies to eliminate build-time compilation requirements
+- **Key Changes**:
+  - Replaced `better-sqlite3` with Node.js built-in `node:sqlite` module
+  - Replaced `bcrypt` with `bcrypt-ts` (pure TypeScript implementation)
+  - Significantly reduced build complexity and time
+  - Eliminated requirement for native compilation toolchains
+- **Impact**: Faster builds, simpler deployment, no C++ compiler required for development or packaging
+- **Status**: ✅ Released
+
+### 24 June 2026 - v1.10.0 Release ✅
+
+- **Type**: Feature Release - Drizzle ORM Upgrade
+- **Summary**: Upgraded Drizzle ORM to Release Candidate 1.0 and updated multiple dependencies
+- **Key Changes**:
+  - Upgraded Drizzle ORM from v0.45.2 to v1.0.0-beta.22 (RC 1.0)
+  - Updated 7 dependencies including protobufjs, react-router-dom, js-yaml
+- **Impact**: Enhanced ORM capabilities, improved security with dependency updates
+- **Status**: ✅ Released
 
 <!-- Template for future entries:
 ### [Date] - [Title]

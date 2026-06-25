@@ -75,7 +75,7 @@ class ReadHistoryRepository {
   clearAllHistory(): number {
     const deleteResult = this.db.delete(readHistory).run()
 
-    return deleteResult.changes
+    return Number(deleteResult.changes) || 0
   }
 }
 export const readHistoryRepo = new ReadHistoryRepository()

@@ -1,9 +1,9 @@
 import { GatekeeperOptions } from './options/gatekeeper.option'
 import Store from 'electron-store'
-import bcrypt from 'bcrypt'
 import { mainLog } from './logging/main-logging.service'
 import { app } from 'electron'
 import crypto from 'node:crypto'
+import { compare, genSalt, hash } from 'bcrypt-ts'
 
 class GatekeeperService {
   private readonly store: Store<GatekeeperOptions>
@@ -80,7 +80,7 @@ class GatekeeperService {
       )
       return false
     }
-    const isValid = await bcrypt.compare(passphrase, hash)
+    const isValid = await compare(passphrase, hash)
     if (isValid) {
       mainLog.info('[Gatekeeper] Passphrase verification attempt completed with a success')
     } else {
@@ -163,7 +163,8 @@ class GatekeeperService {
 
   private async hashPassphrase(passphrase: string): Promise<string> {
     // Bcrypt the phrases, with a salt rounds of 10, and return the hash
-    return await bcrypt.hash(passphrase, this.SALT_ROUNDS)
+    const salt = await genSalt(this.SALT_ROUNDS)
+    return await hash(passphrase, salt)
   }
 
   private generateRandomKey(): string {

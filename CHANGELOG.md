@@ -5,6 +5,61 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [1.11.1] - 2026-06-24
+
+### Fixed
+
+- **Build**: Fix incorrect placement of `npmRebuild` configuration in electron-builder.yml
+  - Remove incorrectly nested `build.npmRebuild: false` directive
+  - This configuration should be set at the root level, not under a `build` section
+
+### Dependencies
+
+- Update Electron from 41.1.1 to 41.9.0
+
+---
+
+## [1.11.0] - 2026-06-24
+
+### Changed
+
+- **Major**: Eliminate native dependency builds for faster and more reliable installation
+  - Replace `better-sqlite3` with Node.js built-in `node:sqlite` module
+  - Replace `bcrypt` with `bcrypt-ts` (pure TypeScript implementation)
+  - Disable native module rebuilding in electron-builder configuration
+  - Significantly reduce build time and complexity
+  - Remove requirement for native compilation toolchains
+
+### Removed
+
+- Remove `better-sqlite3` native dependency
+- Remove `bcrypt` native dependency
+
+---
+
+## [1.10.0] - 2026-06-24
+
+### Changed
+
+- **Major**: Upgrade Drizzle ORM from v0.45.2 to v1.0.0-beta.22 (Release Candidate 1.0)
+  - Upgrade drizzle-kit from v0.31.10 to v1.0.0-beta.22 for tooling compatibility
+  - Restructure database migrations for RC 1.0 compatibility
+  - Update relationships schema definitions to match new API
+- Update project memory bank system for improved documentation structure
+- Add explicit instruction files for code standards, main process, and renderer process
+
+### Dependencies
+
+- Update protobufjs from 8.2.0 to 8.6.0
+- Update react-router-dom from 6.30.3 to 6.30.4
+- Update js-yaml from 4.1.1 to 4.2.0
+- Update vite from 7.3.2 to 7.3.5 (dev dependency)
+- Update tar from 7.5.11 to 7.5.16 (dev dependency)
+- Update form-data from 4.0.5 to 4.0.6 (dev dependency)
+- Update tmp from 0.2.6 to 0.2.7 (dev dependency)
+
+---
+
 ## [1.9.1] - 2026-06-01
 
 ### Fixed
