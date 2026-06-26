@@ -343,10 +343,6 @@ All IPC handlers use `wrapIpcHandler` for consistent error handling:
 - Multiple package formats (AppImage, deb)
 - Icon handling varies by desktop environment
 
-### Dependencies
-
-**esbuild Vulnerability**: Low-severity transitive dependency via `drizzle-kit` → `esbuild`. Development-time only, not blocking releases. Monitoring for `drizzle-kit` update.
-
 ---
 
 ## Documentation
