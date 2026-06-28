@@ -96,6 +96,7 @@ Zustand 5 stores in `src/renderer/src/stores/`. Stores are ephemeral (rehydrated
 - `interface` for object shapes, `type` for aliases/unions/intersections
 - `const` enums where runtime values are not needed
 - Prefer `undefined` over `null`
+- Prefer `globalThis` over `window`
 - `async/await` over raw Promises
 - Constants: `UPPER_SNAKE_CASE`; variables/functions: `camelCase`
 - Avoid `!` non-null assertions and `as` casts unless unavoidable
