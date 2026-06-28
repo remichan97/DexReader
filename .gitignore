@@ -4,9 +4,11 @@ out
 .DS_Store
 .eslintcache
 *.log*
+# AI planning files
 copilot-plans/
-*.db
+claude-plans/
 # SQLite database files (WAL and SHM)
+*.db
 *.db-wal
 *.db-shm
 # Benchmark results (local reference only)

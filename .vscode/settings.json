@@ -9,5 +9,30 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "github.copilot.chat.codeGeneration.useInstructionFiles": true,
-  "js/ts.tsdk.path": "node_modules\\typescript\\lib"
+  "js/ts.tsdk.path": "node_modules\\typescript\\lib",
+  "conventionalCommits.scopes": [
+    "api",
+    "db",
+    "ipc",
+    "preload",
+    "filesystem",
+    "proxy",
+    "settings",
+    "downloads",
+    "backup",
+    "logging",
+    "menu",
+    "reader",
+    "browse",
+    "library",
+    "detail",
+    "history",
+    "collections",
+    "store",
+    "ui",
+    "router",
+    "i18n",
+    "build",
+    "ci"
+  ]
 }
