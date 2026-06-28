@@ -21,7 +21,7 @@
 
 /* Make back button slightly transparent when backdrop is active */
 .manga-detail-view[data-has-backdrop='true'] .manga-detail-view__back-button {
-  background: rgba(var(--win-bg-card-rgb), 0.95);
+  background: color-mix(in srgb, var(--win-bg-card) 95%, transparent);
 }
 
 .manga-detail-view__sticky-title {
@@ -59,7 +59,7 @@
 
 /* Make hero section slightly transparent when backdrop is active */
 .manga-detail-view[data-has-backdrop='true'] .manga-detail-view__hero {
-  background: rgba(var(--win-bg-card-rgb), 0.85);
+  background: color-mix(in srgb, var(--win-bg-card) 85%, transparent);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }

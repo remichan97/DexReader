@@ -63,22 +63,14 @@ export function CreatorView(): JSX.Element {
           setLoadingMore(true)
         }
 
-        const params =
-          creatorType === 'author'
-            ? {
-                authors: [creatorId],
-                limit,
-                offset: currentOffset,
-                includes: ['cover_art', 'author', 'artist']
-              }
-            : {
-                artists: [creatorId],
-                limit,
-                offset: currentOffset,
-                includes: ['cover_art', 'author', 'artist']
-              }
+        const params = {
+          authorOrArtist: creatorId,
+          limit,
+          offset: currentOffset,
+          includes: ['cover_art', 'author', 'artist']
+        }
 
-        const response = await window.mangadex.searchManga(params)
+        const response = await globalThis.mangadex.searchManga(params)
 
         if (response.result === 'ok' && response.data) {
           const newResults = resetOffset ? response.data : [...results, ...response.data]
