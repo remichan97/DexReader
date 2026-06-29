@@ -112,6 +112,7 @@ export type { DownloadStatResult } from '../main/services/results/dexreader/down
 export type { MangaCacheStatsQuery } from '../main/database/queries/manga/manga-cache-stats.query'
 export type { SearchPresetQuery } from '../main/database/queries/search-presets/search-preset.query'
 export type { MemoryTierInfo } from '../main/settings/response/memory-tier.response'
+export type { Manga } from '../main/api/entities/manga.entity'
 
 interface MenuState {
   canAddToFavorites?: boolean
@@ -199,7 +200,7 @@ interface FileSystem {
 }
 
 interface MangaDexApi {
-  searchManga: (params: MangaSearchParams) => Promise<CollectionResponse<Manga>>
+  searchManga: (params: MangaSearchParams) => Promise<IpcResponse<CollectionResponse<Manga>>>
   getManga: (id: string, includes?: string[]) => Promise<ApiResponse<Manga>>
   getMangaFeed: (id: string, query: FeedParams) => Promise<CollectionResponse<Chapter>>
   getChapter: (id: string, includes?: string[]) => Promise<ApiResponse<Chapter>>

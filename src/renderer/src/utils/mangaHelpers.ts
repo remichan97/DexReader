@@ -6,15 +6,9 @@
  */
 
 import { PublicationStatus } from '@renderer/stores/searchStore'
+import type { Manga } from '../../../preload/index.d'
 
-// Type extracted from global Window interface
-type MangaEntity = Window['mangadex'] extends {
-  searchManga: (...args: unknown[]) => Promise<infer R>
-}
-  ? R extends { data: (infer T)[] }
-    ? T
-    : never
-  : never
+type MangaEntity = Manga
 
 /**
  * Cover image sizes available from MangaDex
@@ -90,6 +84,65 @@ export function getArtistName(manga: MangaEntity): string {
     return (artist.attributes as { name?: string }).name || 'Unknown'
   } catch {
     return 'Unknown'
+  }
+}
+
+/**
+ * Extract author ID from manga entity
+ */
+export function getAuthorId(manga: MangaEntity): string | null {
+  try {
+    const author = manga.relationships?.find((r) => r.type === 'author')
+    return author?.id || null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Extract artist ID from manga entity
+ */
+export function getArtistId(manga: MangaEntity): string | null {
+  try {
+    const artist = manga.relationships?.find((r) => r.type === 'artist')
+    return artist?.id || null
+  } catch {
+    return null
+  }
+}
+
+interface Creator {
+  id: string | null
+  name: string
+}
+
+/**
+ * Extract all authors from manga entity
+ */
+export function getAuthors(manga: MangaEntity): Creator[] {
+  try {
+    const authors = manga.relationships?.filter((r) => r.type === 'author') ?? []
+    return authors.map((r) => ({
+      id: r.id ?? null,
+      name: (r.attributes as { name?: string } | undefined)?.name ?? 'Unknown'
+    }))
+  } catch {
+    return []
+  }
+}
+
+/**
+ * Extract all artists from manga entity
+ */
+export function getArtists(manga: MangaEntity): Creator[] {
+  try {
+    const artists = manga.relationships?.filter((r) => r.type === 'artist') ?? []
+    return artists.map((r) => ({
+      id: r.id ?? null,
+      name: (r.attributes as { name?: string } | undefined)?.name ?? 'Unknown'
+    }))
+  } catch {
+    return []
   }
 }
 

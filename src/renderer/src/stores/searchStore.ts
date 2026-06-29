@@ -16,6 +16,7 @@
 import { create } from 'zustand'
 import { useConnectivityStore } from './connectivityStore'
 import { rendererLog } from '@renderer/services/logging.service'
+import type { Manga } from '../../../preload/index.d'
 
 // Re-export enum values for convenience
 export enum ContentRating {
@@ -69,14 +70,7 @@ export enum MangaIncludes {
   Tag = 'tag'
 }
 
-// Type extracted from global Window interface
-type MangaEntity = Window['mangadex'] extends {
-  searchManga: (...args: unknown[]) => Promise<infer R>
-}
-  ? R extends { data: (infer T)[] }
-    ? T
-    : never
-  : never
+type MangaEntity = Manga
 
 export interface SearchFilters {
   contentRating: ContentRating[]

@@ -8,8 +8,9 @@ import { MangaIncludes } from '../enums/manga-includes.enum'
 
 export interface MangaSearchParams {
   title?: string
-  authors?: string[]
-  artists?: string[]
+  authors?: string[] // Search for work matches by someone who is credited as an author.
+  artists?: string[] // Search for work matches by someone who is credited as an artist.
+  authorOrArtist?: string // Search for work matches by someone who is credited as either an author or artist.
   years?: number
   includedTags?: string[]
   excludedTags?: string[]

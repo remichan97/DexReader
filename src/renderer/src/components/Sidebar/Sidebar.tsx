@@ -2,6 +2,8 @@ import type { JSX } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from '@renderer/hooks/useTranslation'
+import { useSidebarStore } from '@renderer/stores'
+import { Tooltip } from '@renderer/components/Tooltip'
 import {
   Search24Regular,
   Search24Filled,
@@ -112,6 +114,9 @@ export function Sidebar({ onNavigate }: SidebarProps = {}): JSX.Element {
   const sidebarRef = useRef<HTMLDivElement>(null)
   const [indicatorStyle, setIndicatorStyle] = useState({ top: 0, height: 24, opacity: 0 })
 
+  // Get display mode from sidebar store
+  const { displayMode } = useSidebarStore()
+
   const handleItemClick = async (route: string): Promise<void> => {
     // Use custom navigation handler if provided (for gatekeeper re-auth checks)
     if (onNavigate) {
@@ -153,7 +158,12 @@ export function Sidebar({ onNavigate }: SidebarProps = {}): JSX.Element {
   }, [location.pathname])
 
   return (
-    <nav className="sidebar flex flex-col" ref={sidebarRef} aria-label="Main navigation">
+    <nav
+      className={`sidebar flex flex-col ${displayMode === 'compact' ? 'sidebar--compact' : ''} ${displayMode === 'auto-hide' ? 'sidebar--auto-hide' : ''}`}
+      ref={sidebarRef}
+      aria-label="Main navigation"
+      data-display-mode={displayMode}
+    >
       <div
         className="sidebar__indicator"
         style={{
@@ -168,7 +178,7 @@ export function Sidebar({ onNavigate }: SidebarProps = {}): JSX.Element {
 
         const label = t(item.labelKey, { defaultValue: item.id })
 
-        return (
+        const itemContent = (
           <div
             key={item.id}
             className={`sidebar__item flex flex-col items-center justify-center gap-1 ${isActive ? 'sidebar__item--active' : ''}`}
@@ -186,6 +196,17 @@ export function Sidebar({ onNavigate }: SidebarProps = {}): JSX.Element {
             <span className="sidebar__item-label">{label}</span>
           </div>
         )
+
+        // Wrap in Tooltip for compact mode (labels hidden, shown on hover)
+        if (displayMode === 'compact') {
+          return (
+            <Tooltip key={item.id} content={label} position="right" delay={300}>
+              {itemContent}
+            </Tooltip>
+          )
+        }
+
+        return itemContent
       })}
     </nav>
   )

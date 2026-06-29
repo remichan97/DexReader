@@ -1,0 +1,8 @@
+{
+  "author": "Author",
+  "artist": "Artist",
+  "unknownCreator": "Unknown Creator",
+  "windowTitle": "Works by {{name}} - {{type}}",
+  "noWorks": "No Works Found",
+  "noWorksMessage": "This creator doesn't have any manga available on MangaDex yet."
+}

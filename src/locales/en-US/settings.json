@@ -36,6 +36,14 @@
       "library": "Library",
       "downloads": "Downloads"
     },
+    "sidebarSizeSection": "Sidebar Display",
+    "sidebarSizeLabel": "Sidebar display mode",
+    "sidebarSizeHelper": "Choose how the navigation sidebar is displayed",
+    "sidebarSizeOptions": {
+      "full": "Full (Icons with Labels)",
+      "compact": "Compact (Icons Only)",
+      "autoHide": "Auto-Hide (Expands on Hover)"
+    },
     "accentSection": "Accent Color",
     "accentLabel": "Primary accent color",
     "useSystemButton": "Use System",

@@ -19,6 +19,7 @@ import { StartupPage } from './enums/startup-page.enum'
 import { CURRENT_SETTINGS_VERSION, migrateSettings } from './utils/settings-migration.util'
 import { DisplayLanguage } from './enums/display-languages.enum'
 import Store from 'electron-store'
+import { SidebarSize } from './enums/sidebar-size.enum'
 
 class SettingsManager {
   private settingsStore!: Store<AppSettings>
@@ -216,7 +217,8 @@ class SettingsManager {
       },
       appearance: {
         theme: AppTheme.System,
-        startupPage: StartupPage.Browse
+        startupPage: StartupPage.Browse,
+        sidebarSize: SidebarSize.Full
       },
       reader: {
         forceDarkMode: true,

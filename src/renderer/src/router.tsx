@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { ViewTransition } from './components/ViewTransition'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { BrowseView } from './views/BrowseView'
+import { CreatorView } from './views/CreatorView'
 import { LibraryView } from './views/LibraryView'
 import { HistoryView } from './views/HistoryView'
 import { ReaderView } from './views/ReaderView'
@@ -36,6 +37,14 @@ export function AppRoutes({ startupRoute }: AppRoutesProps): JSX.Element {
           element={
             <ErrorBoundary level="page">
               <MangaDetailView />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/creator/:creatorType/:creatorId"
+          element={
+            <ErrorBoundary level="page">
+              <CreatorView />
             </ErrorBoundary>
           }
         />

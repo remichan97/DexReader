@@ -25,6 +25,16 @@ There are no unit tests. Quality gates are `npm run typecheck` and `npm run lint
 
 **Prettier config** (`.prettierrc.yaml`): single quotes, no semicolons, 100-char line width, no trailing commas.
 
+## Commit Convention
+
+All commits must follow [Conventional Commits](https://www.conventionalcommits.org/): `<type>(<optional scope>): <description>`.
+
+Common types: `feat`, `fix`, `chore`, `refactor`, `docs`, `style`, `build`, `ci`, `perf`.
+
+Defined scopes: `api`, `db`, `ipc`, `preload`, `filesystem`, `proxy`, `settings`, `downloads`, `backup`, `logging`, `menu`, `reader`, `browse`, `library`, `detail`, `history`, `collections`, `store`, `ui`, `router`, `i18n`, `build`, `ci`.
+
+Pre-commit hooks enforce the commit message format, run `typecheck`, and run `lint`. Never skip hooks with `--no-verify`.
+
 ## Architecture
 
 Three-process Electron model. All cross-process communication goes through a single security bridge:
@@ -86,6 +96,7 @@ Zustand 5 stores in `src/renderer/src/stores/`. Stores are ephemeral (rehydrated
 - `interface` for object shapes, `type` for aliases/unions/intersections
 - `const` enums where runtime values are not needed
 - Prefer `undefined` over `null`
+- Prefer `globalThis` over `window`
 - `async/await` over raw Promises
 - Constants: `UPPER_SNAKE_CASE`; variables/functions: `camelCase`
 - Avoid `!` non-null assertions and `as` casts unless unavoidable
@@ -123,7 +134,7 @@ Zustand 5 stores in `src/renderer/src/stores/`. Stores are ephemeral (rehydrated
 | Zustand stores        | `src/renderer/src/stores/`                        |
 | Routing               | `src/renderer/src/router.tsx`                     |
 | CSS design tokens     | `src/renderer/src/assets/base.css`                |
-| Translations (en-GB)  | `src/locales/`                                    |
+| Translations          | `src/locales/`                                    |
 | IPC types (preload)   | `src/preload/ipc.types.ts`                        |
 
 ## Memory Bank

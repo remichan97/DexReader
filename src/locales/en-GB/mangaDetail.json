@@ -57,6 +57,8 @@
     },
     "volumeCount": "{{count}} volume{{s}}",
     "chapterCount": "{{count}} chapter{{s}}",
+    "viewAllByAuthor": "View all works by {{name}}",
+    "viewAllByArtist": "View all works by {{name}}",
     "continue": "Continue",
     "startReading": "Start Reading",
     "inLibrary": "In Library",
