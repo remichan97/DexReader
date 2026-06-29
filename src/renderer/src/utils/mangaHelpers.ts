@@ -6,15 +6,9 @@
  */
 
 import { PublicationStatus } from '@renderer/stores/searchStore'
+import type { Manga } from '../../../preload/index.d'
 
-// Type extracted from global Window interface
-type MangaEntity = Window['mangadex'] extends {
-  searchManga: (...args: unknown[]) => Promise<infer R>
-}
-  ? R extends { data: (infer T)[] }
-    ? T
-    : never
-  : never
+type MangaEntity = Manga
 
 /**
  * Cover image sizes available from MangaDex

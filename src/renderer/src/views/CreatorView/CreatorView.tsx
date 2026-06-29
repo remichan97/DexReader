@@ -20,8 +20,9 @@ import { handleUnfavourite } from '@renderer/utils/unfavouriteHandler'
 import './CreatorView.css'
 import { rendererLog } from '@renderer/services/logging.service'
 import { useTranslation } from '@renderer/hooks/useTranslation'
+import type { Manga } from '../../../../main/api/entities/manga.entity'
 
-type MangaEntity = Awaited<ReturnType<Window['mangadex']['searchManga']>>['data'][number]
+type MangaEntity = Manga
 
 export function CreatorView(): JSX.Element {
   const { t } = useTranslation(['creator', 'common', 'browse'])
@@ -72,14 +73,14 @@ export function CreatorView(): JSX.Element {
 
         const response = await globalThis.mangadex.searchManga(params)
 
-        if (response.result === 'ok' && response.data) {
-          const newResults = resetOffset ? response.data : [...results, ...response.data]
+        if (response.success === true && response.data?.data) {
+          const newResults = resetOffset ? response.data.data : [...results, ...response.data.data]
           setResults(newResults)
-          setHasMore(response.total ? newResults.length < response.total : false)
+          setHasMore(response.data.total ? newResults.length < response.data.total : false)
 
           // Extract creator name from first result
-          if (response.data.length > 0 && !creatorName) {
-            const firstManga = response.data[0]
+          if (response.data.data.length > 0 && !creatorName) {
+            const firstManga = response.data.data[0]
             const name =
               creatorType === 'author'
                 ? getAuthorName(firstManga)
@@ -94,7 +95,7 @@ export function CreatorView(): JSX.Element {
           }
 
           // Cache manga metadata
-          await Promise.all(response.data.map((manga) => cacheMangaMetadata(manga)))
+          await Promise.all(response.data.data.map((manga) => cacheMangaMetadata(manga)))
 
           if (!resetOffset) {
             setOffset(currentOffset + limit)
