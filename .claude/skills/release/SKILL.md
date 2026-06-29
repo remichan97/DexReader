@@ -3,10 +3,6 @@ name: release
 description: Prepare the current branch for the next release
 ---
 
-## Compare current branch against the last release
-
-!`git log <last_release_tag>..HEAD --oneline`
-
 ## Instructions
 
 Prepare the current branch for the next release, following the latest Keep a Changelog guidelines, you are to assume the following:
