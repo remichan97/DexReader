@@ -83,7 +83,7 @@ npm run build:linux
 
 ## Tech Stack
 
-- **Framework**: [Electron](https://www.electronjs.org/) 41.0.2
+- **Framework**: [Electron](https://www.electronjs.org/) 41.9.0
 - **Frontend**: [React](https://react.dev/) 19 + TypeScript 5.9.2
 - **Build Tool**: [electron-vite](https://electron-vite.org/)
 - **Database**: [Drizzle ORM](https://orm.drizzle.team/) + SQLite
@@ -93,7 +93,7 @@ npm run build:linux
 
 ## Project Status
 
-**Current Version**: 1.11.0 (June 24, 2026) 🚀
+**Current Version**: 1.12.0 (June 29, 2026) 🚀
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed release notes and development history.
 

@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [1.12.0] - 2026-06-29
+
+### Added
+
+- **Detail View**: Clickable author and artist names — click any name to search MangaDex for all works by that person
+- **Detail View**: Display all authors and artists for a manga (was previously limited to a single entry per role)
+- **Detail View**: New Sidebar display mode for the manga detail view
+- **Settings**: Canvas and Sidebar sizing settings for manga detail view customisation
+
+### Removed
+
+- **Detail View**: Hero Backdrop feature dropped from manga detail view (will be revisited in a future release)
+
+### Fixed
+
+- Fix broken typing import on IPC bridge
+- Fix broken typing in detail view after manga shape changes
+- Fix `authorOrArtist` API parameter spelling to match MangaDex API contracts
+
+### Build
+
+- Remove temporary esbuild version override workaround and fix audited NPM dependency versioning
+- Update GitHub Actions release workflow to use pinned Node.js version
+
+---
+
 ## [1.11.1] - 2026-06-24
 
 ### Fixed
