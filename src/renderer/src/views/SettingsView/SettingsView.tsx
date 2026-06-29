@@ -52,7 +52,6 @@ const SETTING_TO_SECTION: Record<string, string> = {
   themeMode: 'appearance',
   accentColor: 'appearance',
   startupPage: 'appearance',
-  canvasMode: 'appearance',
   sidebarSize: 'appearance',
   displayLanguage: 'language',
   syncContentLanguage: 'language',
@@ -130,7 +129,6 @@ export function SettingsView(): JSX.Element {
   const [isUsingSystemColor, setIsUsingSystemColor] = useState<boolean>(true)
   const [systemAccentColor, setSystemAccentColor] = useState<string>('#0078d4')
   const [startupPage, setStartupPage] = useState<'library' | 'browse' | 'downloads'>('browse')
-  const [canvasMode, setCanvasMode] = useState<'none' | 'blurred' | 'gradient' | 'accent'>('none')
   const [sidebarSize, setSidebarSize] = useState<'full' | 'compact' | 'auto-hide'>('full')
   const [displayLanguage, setDisplayLanguage] = useState<'en-GB' | 'en-US' | 'vi-VN'>('en-GB')
   const [syncContentLanguage, setSyncContentLanguage] = useState<boolean>(true)
@@ -194,7 +192,6 @@ export function SettingsView(): JSX.Element {
     const appearanceChanged =
       themeMode !== originalSettings.appearance.theme ||
       startupPage !== originalSettings.appearance.startupPage ||
-      canvasMode !== originalSettings.appearance.canvasMode ||
       sidebarSize !== originalSettings.appearance.sidebarSize ||
       (isUsingSystemColor
         ? originalSettings.appearance.accentColor !== undefined
@@ -250,7 +247,6 @@ export function SettingsView(): JSX.Element {
     originalSettings,
     themeMode,
     startupPage,
-    canvasMode,
     sidebarSize,
     accentColor,
     isUsingSystemColor,
@@ -339,11 +335,6 @@ export function SettingsView(): JSX.Element {
           // Load startup page from settings
           if (settings.appearance.startupPage) {
             setStartupPage(settings.appearance.startupPage)
-          }
-
-          // Load canvas mode from settings
-          if (settings.appearance.canvasMode) {
-            setCanvasMode(settings.appearance.canvasMode)
           }
 
           // Load sidebar size from settings
@@ -661,12 +652,6 @@ export function SettingsView(): JSX.Element {
     markSettingModified('startupPage')
   }
 
-  // Handle canvas mode change (appearance section)
-  const handleCanvasModeChange = (mode: 'none' | 'blurred' | 'gradient' | 'accent'): void => {
-    setCanvasMode(mode)
-    markSettingModified('canvasMode')
-  }
-
   // Handle sidebar size change (appearance section)
   const handleSidebarSizeChange = (size: 'full' | 'compact' | 'auto-hide'): void => {
     setSidebarSize(size)
@@ -826,7 +811,6 @@ export function SettingsView(): JSX.Element {
         theme: themeMode,
         accentColor: isUsingSystemColor ? undefined : accentColor,
         startupPage: startupPage,
-        canvasMode: canvasMode,
         sidebarSize: sidebarSize
       }
 
@@ -1103,8 +1087,6 @@ export function SettingsView(): JSX.Element {
             onUseSystemColor={handleUseSystemColor}
             startupPage={startupPage}
             onStartupPageChange={handleStartupPageChange}
-            canvasMode={canvasMode}
-            onCanvasModeChange={handleCanvasModeChange}
             sidebarSize={sidebarSize}
             onSidebarSizeChange={handleSidebarSizeChange}
           />

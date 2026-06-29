@@ -36,15 +36,6 @@
       "library": "Library",
       "downloads": "Downloads"
     },
-    "canvasModeSection": "Manga Detail Canvas",
-    "canvasModeLabel": "Hero section backdrop",
-    "canvasModeHelper": "Display manga cover as background in the detail view hero section",
-    "canvasModeOptions": {
-      "none": "None (Solid Color)",
-      "blurred": "Blurred with Overlay",
-      "gradient": "Gradient Fade",
-      "accent": "Dominant Color Tint"
-    },
     "sidebarSizeSection": "Sidebar Display",
     "sidebarSizeLabel": "Sidebar display mode",
     "sidebarSizeHelper": "Choose how the navigation sidebar is displayed",

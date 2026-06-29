@@ -20,7 +20,6 @@ import { CURRENT_SETTINGS_VERSION, migrateSettings } from './utils/settings-migr
 import { DisplayLanguage } from './enums/display-languages.enum'
 import Store from 'electron-store'
 import { SidebarSize } from './enums/sidebar-size.enum'
-import { CanvasMode } from './enums/canvas-mode.enum'
 
 class SettingsManager {
   private settingsStore!: Store<AppSettings>
@@ -219,8 +218,7 @@ class SettingsManager {
       appearance: {
         theme: AppTheme.System,
         startupPage: StartupPage.Browse,
-        sidebarSize: SidebarSize.Full,
-        canvasMode: CanvasMode.None
+        sidebarSize: SidebarSize.Full
       },
       reader: {
         forceDarkMode: true,
