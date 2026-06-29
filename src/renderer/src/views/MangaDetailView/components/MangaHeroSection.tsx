@@ -26,10 +26,8 @@ import { handleUnfavourite } from '@renderer/utils/unfavouriteHandler'
 import {
   getCoverImageUrl,
   getMangaTitle,
-  getAuthorName,
-  getArtistName,
-  getAuthorId,
-  getArtistId,
+  getAuthors,
+  getArtists,
   getMangaYear,
   getContentRatingText,
   mapPublicationStatus,
@@ -66,10 +64,8 @@ export default function MangaHeroSection({
   const isOnline = useConnectivityStore((state) => state.isOnline)
   const coverUrl = getCoverImageUrl(manga, CoverSize.Large)
   const title = getMangaTitle(manga)
-  const author = getAuthorName(manga)
-  const artist = getArtistName(manga)
-  const authorId = getAuthorId(manga)
-  const artistId = getArtistId(manga)
+  const authors = getAuthors(manga)
+  const artists = getArtists(manga)
   const status = mapPublicationStatus(manga.attributes.status)
   const year = getMangaYear(manga)
   const contentRatingRaw = manga.attributes.contentRating?.toLowerCase() || 'safe'
@@ -468,20 +464,29 @@ export default function MangaHeroSection({
                 aria-label={t('mangaDetail:hero.author', { defaultValue: 'Author' })}
               />
             </Tooltip>
-            {authorId ? (
-              <button
-                className="creator-link"
-                onClick={() => handleCreatorClick(authorId, 'author')}
-                title={t('mangaDetail:hero.viewAllByAuthor', {
-                  name: author,
-                  defaultValue: `View all works by ${author}`
-                })}
-              >
-                {author}
-              </button>
-            ) : (
-              <span>{author}</span>
-            )}
+            <span className="creator-list">
+              {authors.length > 0
+                ? authors.map((creator, index) => (
+                    <span key={creator.id ?? creator.name}>
+                      {creator.id ? (
+                        <button
+                          className="creator-link"
+                          onClick={() => handleCreatorClick(creator.id!, 'author')}
+                          title={t('mangaDetail:hero.viewAllByAuthor', {
+                            name: creator.name,
+                            defaultValue: `View all works by ${creator.name}`
+                          })}
+                        >
+                          {creator.name}
+                        </button>
+                      ) : (
+                        <span>{creator.name}</span>
+                      )}
+                      {index < authors.length - 1 && ', '}
+                    </span>
+                  ))
+                : 'Unknown'}
+            </span>
           </p>
           <p className="manga-detail-view__artist detail-item">
             <Tooltip content={t('mangaDetail:hero.tooltips.artist')} position="top">
@@ -489,20 +494,29 @@ export default function MangaHeroSection({
                 aria-label={t('mangaDetail:hero.artist', { defaultValue: 'Artist' })}
               />
             </Tooltip>
-            {artistId ? (
-              <button
-                className="creator-link"
-                onClick={() => handleCreatorClick(artistId, 'artist')}
-                title={t('mangaDetail:hero.viewAllByArtist', {
-                  name: artist,
-                  defaultValue: `View all works by ${artist}`
-                })}
-              >
-                {artist}
-              </button>
-            ) : (
-              <span>{artist}</span>
-            )}
+            <span className="creator-list">
+              {artists.length > 0
+                ? artists.map((creator, index) => (
+                    <span key={creator.id ?? creator.name}>
+                      {creator.id ? (
+                        <button
+                          className="creator-link"
+                          onClick={() => handleCreatorClick(creator.id!, 'artist')}
+                          title={t('mangaDetail:hero.viewAllByArtist', {
+                            name: creator.name,
+                            defaultValue: `View all works by ${creator.name}`
+                          })}
+                        >
+                          {creator.name}
+                        </button>
+                      ) : (
+                        <span>{creator.name}</span>
+                      )}
+                      {index < artists.length - 1 && ', '}
+                    </span>
+                  ))
+                : 'Unknown'}
+            </span>
           </p>
           <p className="manga-detail-view__status detail-item">
             <Tooltip content={t('mangaDetail:hero.tooltips.status')} position="top">

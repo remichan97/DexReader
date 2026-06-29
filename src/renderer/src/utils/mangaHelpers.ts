@@ -111,6 +111,41 @@ export function getArtistId(manga: MangaEntity): string | null {
   }
 }
 
+interface Creator {
+  id: string | null
+  name: string
+}
+
+/**
+ * Extract all authors from manga entity
+ */
+export function getAuthors(manga: MangaEntity): Creator[] {
+  try {
+    const authors = manga.relationships?.filter((r) => r.type === 'author') ?? []
+    return authors.map((r) => ({
+      id: r.id ?? null,
+      name: (r.attributes as { name?: string } | undefined)?.name ?? 'Unknown'
+    }))
+  } catch {
+    return []
+  }
+}
+
+/**
+ * Extract all artists from manga entity
+ */
+export function getArtists(manga: MangaEntity): Creator[] {
+  try {
+    const artists = manga.relationships?.filter((r) => r.type === 'artist') ?? []
+    return artists.map((r) => ({
+      id: r.id ?? null,
+      name: (r.attributes as { name?: string } | undefined)?.name ?? 'Unknown'
+    }))
+  } catch {
+    return []
+  }
+}
+
 /**
  * Get manga title in preferred language
  * Falls back to English, then any available language

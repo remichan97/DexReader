@@ -474,8 +474,14 @@ export function MangaDetailView(): JSX.Element {
           usingCachedData: false
         }))
       } else {
-        // No chapters at all
-        throw new Error('No chapters available for this manga')
+        // No chapters at all — treat as empty, not an error
+        setState((prev) => ({
+          ...prev,
+          chapters: [],
+          chaptersLoading: false,
+          chaptersError: null,
+          usingCachedData: false
+        }))
       }
     } catch (error) {
       rendererLog.error('[MangaDetailView] Failed to load chapters:', error)
