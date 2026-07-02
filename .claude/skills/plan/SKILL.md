@@ -19,4 +19,4 @@ When creating the plan, consider the following guidelines:
 
 On each step, avoid making assumptions on behalf of the user. If there is any ambiguity or if you need more information about the task, feature, or bug fix, ask for clarification before proceeding with the planning.
 
-Once the plan is completed, save the plan to a folder named `claude-plans` at the root of the repository as a markdown file with a descriptive name (feature-name-plan.md) and present the plan to the user for review.
+Once the plan is completed, save the plan to a folder named `claude-plans` at the root of the repository (create the folder if it doesn't exist, as the folder will be git ignored) as a markdown file with a descriptive name (feature-name-plan.md) and present the plan to the user for review.
