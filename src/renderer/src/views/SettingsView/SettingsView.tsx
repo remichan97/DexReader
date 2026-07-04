@@ -994,6 +994,8 @@ export function SettingsView(): JSX.Element {
     // Restore appearance settings
     setThemeMode(originalSettings.appearance.theme)
     setStartupPage(originalSettings.appearance.startupPage)
+    setSidebarSize(originalSettings.appearance.sidebarSize)
+    setSidebarDisplayMode(originalSettings.appearance.sidebarSize)
     if (originalSettings.appearance.accentColor) {
       setAccentColor(originalSettings.appearance.accentColor)
       setIsUsingSystemColor(false)
@@ -1008,12 +1010,15 @@ export function SettingsView(): JSX.Element {
     if (originalSettings.language?.displayLanguage) {
       setDisplayLanguage(originalSettings.language.displayLanguage)
     }
+    setSyncContentLanguage(originalSettings.language?.syncContentLanguage ?? true)
+    setContentLanguages(originalSettings.language?.contentLanguage || ['en'])
 
     // Restore downloads settings
     setDownloadConfirmation(originalSettings.downloads.shouldConfirmDownload)
     setDefaultQuality(originalSettings.downloads.defaultQuality)
     setMaxConcurrentDownloads(originalSettings.downloads.maxConcurrentDownloads)
     setMaxDiskCacheSize(originalSettings.downloads.maxDiskCacheSize)
+    setDownloadsPath(originalSettings.downloads.downloadPath || '')
 
     // Restore reader settings
     setGlobalReaderSettings(originalSettings.reader.global)
@@ -1035,6 +1040,9 @@ export function SettingsView(): JSX.Element {
 
     // Restore logging settings
     setLogRetentionDays(originalSettings.logs?.retentionInDays ?? 7)
+
+    // Restore system settings
+    setUseHardwareAcceleration(originalSettings.system?.useHardwareAcceleration ?? true)
 
     setHasUnsavedChanges(false)
     setModifiedSettings(new Set()) // Clear modified indicators
