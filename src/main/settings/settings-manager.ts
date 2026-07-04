@@ -37,15 +37,14 @@ class SettingsManager {
   }
 
   load(): AppSettings {
-    const settings = this.settingsStore.store
+    const stored = this.settingsStore.store
+    // migrateSettings also backfills any fields missing from the persisted file (see
+    // deepMergeDefaults), so it runs unconditionally rather than only on a version mismatch.
+    const settings = migrateSettings(stored, SettingsManager.getDefaultSettings())
 
-    if (settings.version !== CURRENT_SETTINGS_VERSION) {
-      const migrated = migrateSettings(settings, SettingsManager.getDefaultSettings())
-      mainLog.info(
-        `[SettingsManager] Settings migrated from version ${settings.version} to ${migrated.version}. Saving migrated settings.`
-      )
-      this.settingsStore.store = migrated
-      return migrated
+    if (JSON.stringify(settings) !== JSON.stringify(stored)) {
+      mainLog.info('[SettingsManager] Settings were migrated or backfilled. Saving changes.')
+      this.settingsStore.store = settings
     }
 
     return settings
