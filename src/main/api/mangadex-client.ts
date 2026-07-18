@@ -12,6 +12,7 @@ import { mainLog } from '../services/logging/main-logging.service'
 import { ImageQuality } from './enums'
 import { ImageUrlResponse } from './responses/image-url.response'
 import { ChapterImagesResponse } from './responses/chapter-image.response'
+import { atHomeGuardsUtil } from './utils/at-home-guards.utl'
 
 export class MangaDexClient {
   baseUrl: string
@@ -108,6 +109,9 @@ export class MangaDexClient {
     const baseUrl = response.baseUrl
     const chapterData = response.chapter[quality]
     const hash = response.chapter.hash
+
+    // Record the allowed domain for this chapter ID for future proxy validation
+    atHomeGuardsUtil.recordAtHomeRequest(hash, baseUrl)
 
     return chapterData.map((filename) => ({
       url: `${baseUrl}/data/${hash}/${filename}`,

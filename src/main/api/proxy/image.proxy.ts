@@ -4,6 +4,7 @@ import { diskCacheUtil } from '../utils/disk-cache.util'
 import { LRUMemoryCache } from '../utils/lru-memory-cache.util'
 import { memoryCacheUtil } from '../utils/memory-cache.util'
 import { mainLog } from '../../services/logging/main-logging.service'
+import { atHomeGuardsUtil } from '../utils/at-home-guards.utl'
 
 interface CacheEntry {
   buffer: Buffer
@@ -111,6 +112,15 @@ export class ImageProxy {
             headers: { 'Content-Type': this.getContentType(url), 'Cache-Control': 'no-store' }
           })
         }
+      }
+
+      // Validate the URL against allowed domains for at-home proxying
+      const hashMatch = new RegExp(/\/data\/([^/]+)\//).exec(url)
+      const hash = hashMatch ? hashMatch[1] : undefined
+
+      if (!atHomeGuardsUtil.isUrlAllowed(url, hash)) {
+        mainLog.warn('[ImageProxy] Refused to proxy for URL:', url)
+        return new Response('Access denied', { status: 403 })
       }
 
       // Fetch from network
