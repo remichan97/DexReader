@@ -4,15 +4,6 @@ vi.mock('../../services/logging/main-logging.service', () => ({
   mainLog: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() }
 }))
 
-// AtHomeGuardsUtil's TTL bookkeeping is private with no public accessor by design -
-// this narrow whitebox view exists only so the cleanup-sweep test can assert on
-// internal state without adding a test-only getter to the production class.
-type WhiteboxAtHomeGuardsUtil = { allowedDomains: Record<string, unknown> }
-
-function recordedHashCount(guard: AtHomeGuardsUtil): number {
-  return Object.keys((guard as unknown as WhiteboxAtHomeGuardsUtil).allowedDomains).length
-}
-
 describe('AtHomeGuardsUtil', () => {
   const hash = 'abc123hash'
   const baseUrl = 'https://example-node.mangadex.network'
@@ -100,7 +91,7 @@ describe('AtHomeGuardsUtil', () => {
 
     it('evicts expired entries via the periodic cleanup sweep, without any lookup ever occurring', () => {
       guard.recordAtHomeRequest(hash, baseUrl)
-      expect(recordedHashCount(guard)).toBe(1)
+      expect(guard.getRecordedHashCount()).toBe(1)
 
       // Past the TTL and past the next 60s sweep tick - never call isUrlAllowed,
       // so only the interval sweep (not the lazy check) can be responsible for eviction.
@@ -108,7 +99,7 @@ describe('AtHomeGuardsUtil', () => {
       // not sit in the map forever just because nobody ever looks them up again.
       vi.advanceTimersByTime(16 * 60 * 1000)
 
-      expect(recordedHashCount(guard)).toBe(0)
+      expect(guard.getRecordedHashCount()).toBe(0)
     })
   })
 
@@ -120,7 +111,7 @@ describe('AtHomeGuardsUtil', () => {
       guard.destroy()
 
       expect(guard.isUrlAllowed(chapterUrl, hash)).toBe(false)
-      expect(recordedHashCount(guard)).toBe(0)
+      expect(guard.getRecordedHashCount()).toBe(0)
     })
 
     it('does not throw when called on an instance with no recorded hashes', () => {

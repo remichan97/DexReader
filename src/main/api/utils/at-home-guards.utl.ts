@@ -72,6 +72,14 @@ export class AtHomeGuardsUtil {
     }
   }
 
+  /**
+   * Number of hashes currently recorded as allowed (expired or not).
+   * Exposed for observability/testing rather than security checks.
+   */
+  public getRecordedHashCount(): number {
+    return Object.keys(this.allowedDomains).length
+  }
+
   public recordAtHomeRequest(hash: string, baseUrl: string): void {
     this.allowedDomains[hash] = {
       url: baseUrl,
