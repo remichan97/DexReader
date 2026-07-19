@@ -122,6 +122,48 @@ export class MangaDexClient {
 
   //#endregion
 
+  // #region Manga@Home network report endpoint
+
+  async reportAtHomeNetworkStatus(
+    url: string,
+    isSuccess: boolean,
+    isCached: boolean,
+    durationMs: number,
+    bytes: number
+  ): Promise<void> {
+    await this.rateLimiter.waitForToken('network/report')
+
+    const reportData = {
+      url,
+      success: isSuccess,
+      cached: isCached,
+      duration: durationMs,
+      bytes
+    }
+
+    // This hits api.mangadex.network, a different host than this.baseUrl (api.mangadex.org),
+    // and doesn't return a JSON body - so it can't go through the private fetch() helper.
+    // Reporting is best-effort telemetry for a fetch that already completed - a failure here
+    // must never propagate to the caller.
+    try {
+      const response = await fetch(ApiConfig.NETWORK_REPORT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reportData)
+      })
+
+      if (!response.ok) {
+        mainLog.warn(
+          `[MangaDex] Network report rejected: HTTP ${response.status} ${response.statusText}`
+        )
+      }
+    } catch (error) {
+      mainLog.error('[MangaDex] Failed to send network report:', error)
+    }
+  }
+
+  // #endregion
+
   //#region Private helper methods
   /**
    * Internal fetch with automatic retry for rate limit errors (429)
