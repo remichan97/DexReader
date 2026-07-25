@@ -4,6 +4,8 @@ import { diskCacheUtil } from '../utils/disk-cache.util'
 import { LRUMemoryCache } from '../utils/lru-memory-cache.util'
 import { memoryCacheUtil } from '../utils/memory-cache.util'
 import { mainLog } from '../../services/logging/main-logging.service'
+import { atHomeGuardsUtil } from '../utils/at-home-guards.utl'
+import { MangaDexClient } from '../mangadex-client'
 
 interface CacheEntry {
   buffer: Buffer
@@ -22,6 +24,12 @@ export class ImageProxy {
 
   private cleanupTimer?: NodeJS.Timeout
   private isInitialized = false
+
+  private readonly mangaDexClient: MangaDexClient
+
+  constructor(mangaDexClient: MangaDexClient = new MangaDexClient()) {
+    this.mangaDexClient = mangaDexClient
+  }
 
   /**
    * Initialize cache with dynamic sizes from settings
@@ -71,94 +79,152 @@ export class ImageProxy {
     protocol.handle('mangadex', async (request) => {
       const url = request.url.replace('mangadex://', 'https://')
       const isCover = url.includes('/covers/')
-
-      const cache = isCover ? this.coverCache : this.chapterCache
-      const cached = cache.get(url)
-
-      if (cached) {
-        // Check expiry only for chapter images, covers never expire
-        const isExpired = !isCover && this.isExpired(cached)
-        if (isExpired) {
-          // Expired entry - this is NOT a hit, will fetch from network
-          if (isCover) {
-            this.coverCache.delete(url)
-          } else {
-            this.chapterCache.delete(url)
-          }
-          // Don't return here, fall through to network fetch
-        } else {
-          // Valid cache hit - LRU update is handled automatically by the cache
-          const cachedBuffer = Buffer.from(cached.buffer)
-          return new Response(cachedBuffer.buffer, {
-            headers: { 'Content-Type': this.getContentType(url), 'Cache-Control': 'no-store' }
-          })
-        }
-      }
-
-      // If this is a cover image, check disk cache before network
-      if (isCover) {
-        const diskCachedBuffer = await diskCacheUtil.loadCoverFromDisk(url)
-        if (diskCachedBuffer) {
-          // Disk cache hit - add to in-memory cache for faster subsequent access
-          const now = Date.now()
-          this.coverCache.set(url, {
-            buffer: diskCachedBuffer,
-            timestamp: now,
-            size: diskCachedBuffer.length,
-            lastAccessed: now
-          })
-          return new Response(diskCachedBuffer.buffer as ArrayBuffer, {
-            headers: { 'Content-Type': this.getContentType(url), 'Cache-Control': 'no-store' }
-          })
-        }
-      }
-
-      // Fetch from network
-      try {
-        const response = await net.fetch(url, {
-          headers: { 'User-Agent': ApiConfig.REQUEST_USER_AGENT }
-        })
-
-        if (!response.ok) {
-          throw new Error(`Unable to fetch image: ${response.status}, ${response.statusText}`)
-        }
-
-        const buffer = Buffer.from(await response.arrayBuffer())
-
-        // Cache the image
-        const now = Date.now()
-        if (isCover) {
-          this.coverCache.set(url, {
-            buffer,
-            timestamp: now,
-            size: buffer.length,
-            lastAccessed: now
-          })
-          await diskCacheUtil.saveCoverToDisk(url, buffer) // Save cover to disk cache as well
-        } else if (buffer.length < 5 * 1024 * 1024) {
-          // Only cache chapter images < 5MB
-          this.chapterCache.set(url, {
-            buffer,
-            timestamp: now,
-            size: buffer.length,
-            lastAccessed: now
-          })
-        }
-
-        return new Response(buffer.buffer, {
-          headers: {
-            'Content-Type': response.headers.get('Content-Type') || 'image/jpeg',
-            'Cache-Control': 'no-store'
-          }
-        })
-      } catch (error) {
-        mainLog.error('[ImageProxy] Failed to fetch image:', url, error)
-        return new Response('Failed to fetch image', { status: 502 })
-      }
+      return this.handleImageRequest(url, isCover)
     })
 
     // Start background cleanup timer
     this.startCleanupTimer()
+  }
+
+  /**
+   * Resolve a single mangadex:// request: serve from memory/disk cache if possible,
+   * otherwise fall through to the network. Extracted from registerProtocol so it can be
+   * exercised directly in tests without a live Electron protocol/request object.
+   */
+  async handleImageRequest(url: string, isCover: boolean): Promise<Response> {
+    const cache = isCover ? this.coverCache : this.chapterCache
+    const cached = cache.get(url)
+
+    if (cached) {
+      // Check expiry only for chapter images, covers never expire
+      const isExpired = !isCover && this.isExpired(cached)
+      if (isExpired) {
+        // Expired entry - this is NOT a hit, will fetch from network
+        if (isCover) {
+          this.coverCache.delete(url)
+        } else {
+          this.chapterCache.delete(url)
+        }
+        // Don't return here, fall through to network fetch
+      } else {
+        // Valid cache hit - LRU update is handled automatically by the cache
+        const cachedBuffer = Buffer.from(cached.buffer)
+        return new Response(cachedBuffer.buffer, {
+          headers: { 'Content-Type': this.getContentType(url), 'Cache-Control': 'no-store' }
+        })
+      }
+    }
+
+    // If this is a cover image, check disk cache before network
+    if (isCover) {
+      const diskCachedBuffer = await diskCacheUtil.loadCoverFromDisk(url)
+      if (diskCachedBuffer) {
+        // Disk cache hit - add to in-memory cache for faster subsequent access
+        const now = Date.now()
+        this.coverCache.set(url, {
+          buffer: diskCachedBuffer,
+          timestamp: now,
+          size: diskCachedBuffer.length,
+          lastAccessed: now
+        })
+        return new Response(diskCachedBuffer.buffer as ArrayBuffer, {
+          headers: { 'Content-Type': this.getContentType(url), 'Cache-Control': 'no-store' }
+        })
+      }
+    }
+
+    // Validate the URL against allowed domains for at-home proxying
+    const hashMatch = new RegExp(/\/data\/([^/]+)\//).exec(url)
+    const hash = hashMatch ? hashMatch[1] : undefined
+
+    if (!atHomeGuardsUtil.isUrlAllowed(url, hash)) {
+      mainLog.warn('[ImageProxy] Refused to proxy for URL:', url)
+      return new Response('Access denied', { status: 403 })
+    }
+
+    return this.fetchAndCacheImage(url, isCover)
+  }
+
+  /**
+   * Fetch an image from the network, cache it on success, and report the outcome to
+   * MangaDex@Home. Reporting is always attempted exactly once per call, with a real
+   * measured duration in every branch, and never affects the Response returned here.
+   */
+  private async fetchAndCacheImage(url: string, isCover: boolean): Promise<Response> {
+    const startTime = Date.now()
+
+    let response: Response
+    try {
+      response = await net.fetch(url, {
+        headers: { 'User-Agent': ApiConfig.REQUEST_USER_AGENT }
+      })
+    } catch (error) {
+      mainLog.error('[ImageProxy] Failed to reach network for image:', url, error)
+      await this.reportNetworkStatus(url, false, false, Date.now() - startTime, 0)
+      return new Response('Failed to fetch image', { status: 502 })
+    }
+
+    const body = await response.arrayBuffer().catch(() => undefined)
+    const durationMs = Date.now() - startTime
+    const bytes = body ? body.byteLength : 0
+    const isCached = response.headers.get('X-Cache')?.startsWith('HIT') ?? false
+    const success = response.ok && body !== undefined
+
+    await this.reportNetworkStatus(url, success, isCached, durationMs, bytes)
+
+    if (!success || body === undefined) {
+      mainLog.error(
+        `[ImageProxy] Failed to fetch image from network: ${url}, status: ${response.status}`
+      )
+      return new Response('Failed to fetch image', { status: 502 })
+    }
+
+    const buffer = Buffer.from(body)
+
+    // Cache the image
+    const now = Date.now()
+    if (isCover) {
+      this.coverCache.set(url, {
+        buffer,
+        timestamp: now,
+        size: buffer.length,
+        lastAccessed: now
+      })
+      await diskCacheUtil.saveCoverToDisk(url, buffer) // Save cover to disk cache as well
+    } else if (buffer.length < 5 * 1024 * 1024) {
+      // Only cache chapter images < 5MB
+      this.chapterCache.set(url, {
+        buffer,
+        timestamp: now,
+        size: buffer.length,
+        lastAccessed: now
+      })
+    }
+
+    return new Response(buffer.buffer, {
+      headers: {
+        'Content-Type': response.headers.get('Content-Type') || 'image/jpeg',
+        'Cache-Control': 'no-store'
+      }
+    })
+  }
+
+  /**
+   * Report a network outcome to MangaDex@Home. Telemetry must never fail the image
+   * response it's describing, so a reporting failure is logged and swallowed here too.
+   */
+  private async reportNetworkStatus(
+    url: string,
+    success: boolean,
+    isCached: boolean,
+    durationMs: number,
+    bytes: number
+  ): Promise<void> {
+    try {
+      await this.mangaDexClient.reportAtHomeNetworkStatus(url, success, isCached, durationMs, bytes)
+    } catch (error) {
+      mainLog.error('[ImageProxy] Failed to report network status:', url, error)
+    }
   }
 
   /**

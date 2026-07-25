@@ -12,6 +12,7 @@ import { mainLog } from '../services/logging/main-logging.service'
 import { ImageQuality } from './enums'
 import { ImageUrlResponse } from './responses/image-url.response'
 import { ChapterImagesResponse } from './responses/chapter-image.response'
+import { atHomeGuardsUtil } from './utils/at-home-guards.utl'
 
 export class MangaDexClient {
   baseUrl: string
@@ -109,6 +110,9 @@ export class MangaDexClient {
     const chapterData = response.chapter[quality]
     const hash = response.chapter.hash
 
+    // Record the allowed domain for this chapter ID for future proxy validation
+    atHomeGuardsUtil.recordAtHomeRequest(hash, baseUrl)
+
     return chapterData.map((filename) => ({
       url: `${baseUrl}/data/${hash}/${filename}`,
       filename,
@@ -117,6 +121,48 @@ export class MangaDexClient {
   }
 
   //#endregion
+
+  // #region Manga@Home network report endpoint
+
+  async reportAtHomeNetworkStatus(
+    url: string,
+    isSuccess: boolean,
+    isCached: boolean,
+    durationMs: number,
+    bytes: number
+  ): Promise<void> {
+    await this.rateLimiter.waitForToken('network/report')
+
+    const reportData = {
+      url,
+      success: isSuccess,
+      cached: isCached,
+      duration: durationMs,
+      bytes
+    }
+
+    // This hits api.mangadex.network, a different host than this.baseUrl (api.mangadex.org),
+    // and doesn't return a JSON body - so it can't go through the private fetch() helper.
+    // Reporting is best-effort telemetry for a fetch that already completed - a failure here
+    // must never propagate to the caller.
+    try {
+      const response = await fetch(ApiConfig.NETWORK_REPORT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reportData)
+      })
+
+      if (!response.ok) {
+        mainLog.warn(
+          `[MangaDex] Network report rejected: HTTP ${response.status} ${response.statusText}`
+        )
+      }
+    } catch (error) {
+      mainLog.error('[MangaDex] Failed to send network report:', error)
+    }
+  }
+
+  // #endregion
 
   //#region Private helper methods
   /**

@@ -11,6 +11,10 @@ export class RateLimiter {
     'at-home/server': {
       capacity: 40,
       refillRatePerSecond: 40 / 60 // 40 requests per minute = 0.67 per second
+    },
+    'network/report': {
+      capacity: 20,
+      refillRatePerSecond: 20 / 60 // 20 requests per minute = 0.33 per second
     }
   }
 

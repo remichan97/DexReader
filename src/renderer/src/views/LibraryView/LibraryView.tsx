@@ -166,9 +166,14 @@ export function LibraryView(): JSX.Element {
     await handleUnfavourite({
       mangaId: id,
       mangaTitle: manga.title,
-      onSuccess: () => {
-        // Refresh library to update UI
+      onSuccess: async () => {
+        // Refresh library store to update UI
         loadFavourites()
+        // Reload manga list to reflect the change
+        const response = await globalThis.library.getLibraryManga({ includeDownloaded })
+        if (response.success && response.data) {
+          setMangaList(response.data)
+        }
       },
       onError: (error) => {
         rendererLog.error('[LibraryView] Unfavourite error:', error)

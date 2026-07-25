@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [1.12.1] - 2026-07-25
+
+### Security
+
+- **Filesystem**: Fixed a sandbox boundary check that could treat a similarly-named sibling directory as inside an allowed root, and added symlink resolution so a symlink cannot redirect file operations outside the sandbox
+- **Settings**: Downloads path changes are now validated against the system-directory blocklist before being saved, closing a path where an invalid path could be persisted without being checked
+- **Image Proxy**: Added a domain allowlist so the image proxy will only fetch from MangaDex-owned hosts (cover uploads and at-home CDN nodes returned for the current chapter)
+- **API Compliance**: The app now reports fetch outcomes back to the MangaDex@Home network for every chapter image proxied through an at-home node, as required by MangaDex's API terms
+
+### Fixed
+
+- **Library**: Fixed an inverted confirm-dialog check that could allow a collection to be deleted even when the user declined the prompt or the dialog itself failed
+- **Detail View**: Fixed a similar confirm-dialog guard in the delete-downloads flow that could proceed without real confirmation if the dialog IPC call failed
+- **Settings**: Fixed nested settings fields (including a custom downloads path) being silently reset to their default on every app restart
+- **Settings**: Restore all tracked fields, including downloads path, sidebar size, content language sync, and hardware acceleration, when discarding changes
+- **Library**: Refresh the library grid immediately after removing a manga, instead of only on next remount
+
+---
+
 ## [1.12.0] - 2026-06-29
 
 ### Added

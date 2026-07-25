@@ -5,12 +5,12 @@ import path from 'node:path'
 
 export const secureFs = {
   async readFile(filePath: string, encoding?: BufferEncoding): Promise<string | Buffer> {
-    const validPath = validatePath(filePath)
+    const validPath = await validatePath(filePath)
     return encoding ? fs.readFile(validPath, { encoding }) : fs.readFile(validPath)
   },
 
   async mkdir(dirPath: string): Promise<string | undefined> {
-    const validPath = validatePath(dirPath)
+    const validPath = await validatePath(dirPath)
     return fs.mkdir(validPath, { recursive: true })
   },
 
@@ -19,17 +19,17 @@ export const secureFs = {
   },
 
   async deleteFile(filePath: string): Promise<void> {
-    const validPath = validatePath(filePath)
+    const validPath = await validatePath(filePath)
     return fs.unlink(validPath)
   },
 
   async deleteDir(dirPath: string): Promise<void> {
-    const validPath = validatePath(dirPath)
+    const validPath = await validatePath(dirPath)
     return fs.rm(validPath, { recursive: true, force: true })
   },
 
   async isExists(path: string): Promise<boolean> {
-    const validPath = validatePath(path)
+    const validPath = await validatePath(path)
     try {
       await fs.access(validPath)
       return true
@@ -39,23 +39,23 @@ export const secureFs = {
   },
 
   async stat(path: string): Promise<Stats> {
-    const validPath = validatePath(path)
+    const validPath = await validatePath(path)
     return fs.stat(validPath)
   },
 
   async readDir(dirPath: string): Promise<string[]> {
-    const validPath = validatePath(dirPath)
+    const validPath = await validatePath(dirPath)
     return fs.readdir(validPath)
   },
 
   async statFs(path: string): Promise<StatsFs> {
-    const validPath = validatePath(path)
+    const validPath = await validatePath(path)
     return fs.statfs(validPath)
   },
 
   async copyFile(srcPath: string, destPath: string): Promise<void> {
-    const validSrcPath = validatePath(srcPath)
-    const validDestPath = validatePath(destPath)
+    const validSrcPath = await validatePath(srcPath)
+    const validDestPath = await validatePath(destPath)
 
     await this.ensureDir(path.dirname(validDestPath))
 
@@ -63,8 +63,8 @@ export const secureFs = {
   },
 
   async rename(oldPath: string, newPath: string): Promise<void> {
-    const validOldPath = validatePath(oldPath)
-    const validNewPath = validatePath(newPath)
+    const validOldPath = await validatePath(oldPath)
+    const validNewPath = await validatePath(newPath)
 
     await this.ensureDir(path.dirname(validNewPath))
 
@@ -76,7 +76,7 @@ export const secureFs = {
     data: string | Buffer,
     encoding: BufferEncoding = 'utf-8'
   ): Promise<void> {
-    const validPath = validatePath(filePath)
+    const validPath = await validatePath(filePath)
     await this.ensureDir(path.dirname(validPath))
     // Only apply encoding for strings; write Buffers directly to preserve binary data
     if (Buffer.isBuffer(data)) {
@@ -86,7 +86,7 @@ export const secureFs = {
   },
 
   async appendFile(filePath: string, data: string | Buffer): Promise<void> {
-    const validPath = validatePath(filePath)
+    const validPath = await validatePath(filePath)
     await this.ensureDir(path.dirname(validPath))
     return fs.appendFile(validPath, data)
   }

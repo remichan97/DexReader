@@ -37,15 +37,14 @@ class SettingsManager {
   }
 
   load(): AppSettings {
-    const settings = this.settingsStore.store
+    const stored = this.settingsStore.store
+    // migrateSettings also backfills any fields missing from the persisted file (see
+    // deepMergeDefaults), so it runs unconditionally rather than only on a version mismatch.
+    const settings = migrateSettings(stored, SettingsManager.getDefaultSettings())
 
-    if (settings.version !== CURRENT_SETTINGS_VERSION) {
-      const migrated = migrateSettings(settings, SettingsManager.getDefaultSettings())
-      mainLog.info(
-        `[SettingsManager] Settings migrated from version ${settings.version} to ${migrated.version}. Saving migrated settings.`
-      )
-      this.settingsStore.store = migrated
-      return migrated
+    if (JSON.stringify(settings) !== JSON.stringify(stored)) {
+      mainLog.info('[SettingsManager] Settings were migrated or backfilled. Saving changes.')
+      this.settingsStore.store = settings
     }
 
     return settings
@@ -91,6 +90,28 @@ class SettingsManager {
     mainLog.info('[SettingsManager] Settings saved successfully.')
   }
 
+  /**
+   * Validate, sanitize, and persist a complete settings object from an untrusted
+   * source (the settings:save-all IPC channel). Unlike save(), this re-validates
+   * the downloads path - including the system-directory blocklist - before anything
+   * is written, so a rejected path fails the whole call instead of being persisted
+   * as-is and only patched over afterwards.
+   *
+   * @param newSettings - Complete settings object to validate and persist
+   * @throws {Error} - If the downloads path is a system directory or not accessible
+   */
+  async saveAll(newSettings: AppSettings): Promise<void> {
+    const settings = { ...newSettings }
+
+    if (settings.downloads.downloadPath) {
+      const sanitizedPath = await this.validateDownloadsPath(settings.downloads.downloadPath)
+      settings.downloads = { ...settings.downloads, downloadPath: sanitizedPath }
+      updateDownloadsPath(sanitizedPath)
+    }
+
+    this.save(settings)
+  }
+
   reset(): void {
     this.settingsStore.clear()
     mainLog.info('[SettingsManager] Settings reset to defaults.')
@@ -100,43 +121,11 @@ class SettingsManager {
     return this.settingsStore.openInEditor()
   }
 
-  async setDownloadsPath(newPath: string): Promise<void> {
-    mainLog.info(`[SettingsManager] Attempting to set downloads path: ${newPath}`)
-    // Sanitize the new path (remove control characters including null bytes)
-    // eslint-disable-next-line no-control-regex
-    const sanitizedPath = newPath.replaceAll(/[\u0000-\u001F\u007F]/g, '')
-
-    if (sanitizedPath !== newPath) {
-      mainLog.warn('[SettingsManager] Path was sanitized (removed control characters)')
-    }
-
-    // Prevent setting to system directories
-    if (this.isSystemDirectory(sanitizedPath)) {
-      mainLog.error(`[SettingsManager] Rejected system directory: ${sanitizedPath}`)
-      throw new Error('Setting downloads path to system directories is not allowed.')
-    }
-
-    // Validate that the path exists and is a directory
-    await validateDirectoryPath(sanitizedPath)
-    mainLog.info('[SettingsManager] Path validation successful')
-
-    // Update in-memory allowed paths
-    updateDownloadsPath(sanitizedPath)
-    // Save to settings
-    const currentSettings = this.settingsStore.store
-    this.settingsStore.store = {
-      ...currentSettings,
-      downloads: {
-        ...currentSettings.downloads,
-        downloadPath: sanitizedPath
-      }
-    }
-    mainLog.info(`[SettingsManager] Downloads path changed to: ${sanitizedPath}`)
-  }
-
   /**
    * Validate a downloads path without persisting to settings.
-   * Used for validating user-selected paths before they click Save.
+   * Used for validating user-selected paths before they click Save, and reused by
+   * saveAll() and initializeDownloadsPath() as the single source of truth for
+   * downloads-path validation (sanitization, system-directory blocklist, existence).
    *
    * @param newPath - Path to validate
    * @throws {Error} - If path is invalid, system directory, or not accessible
@@ -169,8 +158,8 @@ class SettingsManager {
 
     if (settings.downloads.downloadPath) {
       try {
-        await validateDirectoryPath(settings.downloads.downloadPath)
-        updateDownloadsPath(settings.downloads.downloadPath)
+        const sanitizedPath = await this.validateDownloadsPath(settings.downloads.downloadPath)
+        updateDownloadsPath(sanitizedPath)
       } catch (error) {
         mainLog.warn(`[SettingsManager] Failed to set saved downloads path: ${error}`)
         mainLog.info(
@@ -210,6 +199,7 @@ class SettingsManager {
     return {
       version: CURRENT_SETTINGS_VERSION,
       downloads: {
+        downloadPath: undefined,
         maxConcurrentDownloads: 3,
         shouldConfirmDownload: DownloadConfirmation.BatchDownload,
         defaultQuality: ImageQuality.High,
@@ -259,8 +249,8 @@ class SettingsManager {
       '/root',
       '/sys',
       '/proc',
-      String.raw`/System`,
-      String.raw`/Library`
+      `/System`,
+      `/Library`
     ]
 
     return systemDirs.some((dir) => folderPath.startsWith(dir))

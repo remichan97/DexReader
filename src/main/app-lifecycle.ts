@@ -5,6 +5,7 @@ import { downloadQueueService } from './services/download-queue.service'
 import type { ImageProxy } from './api/proxy/image.proxy'
 
 import { mainLog } from './services/logging/main-logging.service'
+import { atHomeGuardsUtil } from './api/utils/at-home-guards.utl'
 
 export function setupAppLifecycle(imageProxy?: ImageProxy): void {
   app.on('activate', function () {
@@ -37,6 +38,8 @@ export function setupAppLifecycle(imageProxy?: ImageProxy): void {
     downloadQueueService.cleanup()
     mainLog.debug('[AppLifecycle] Image proxy cleanup initiated')
     imageProxy?.destroy() // Clean up image cache timers
+    mainLog.debug('[AppLifecycle] AtHomeGuardsUtil cleanup initiated')
+    atHomeGuardsUtil?.destroy() // Clean up allowed domains
     mainLog.info('[AppLifecycle] Cleanup complete, app will quit')
   })
 }

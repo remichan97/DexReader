@@ -157,8 +157,9 @@ DexReader implements a restricted filesystem access model that limits all file o
 │    (src/main/filesystem/pathValidator.ts)           │
 │                                                     │
 │  1. Normalize path (resolve, canonicalize)         │
-│  2. Check if path starts with AppData or Downloads │
-│  3. Throw error if not allowed                     │
+│  2. Resolve symlinks (deepest existing ancestor)   │
+│  3. Check if path is AppData/Downloads or a child  │
+│  4. Throw error if not allowed                     │
 └──────────────────┬──────────────────────────────────┘
                    │
                    │ If valid
@@ -181,11 +182,11 @@ DexReader implements a restricted filesystem access model that limits all file o
 // Normalize path to absolute canonical form
 function normalizePath(inputPath: string): string
 
-// Check if path is within allowed directories
-function isPathAllowed(inputPath: string): boolean
+// Check if path is within allowed directories (async: resolves symlinks first)
+async function isPathAllowed(inputPath: string): Promise<boolean>
 
 // Validate and throw if path is not allowed
-function validatePath(inputPath: string): string
+async function validatePath(inputPath: string): Promise<string>
 
 // Get allowed paths
 function getAppDataPath(): string
@@ -201,8 +202,8 @@ async function validateDirectoryPath(dirPath: string): Promise<void>
 **Security Features**:
 
 - ✅ Path normalization prevents traversal attacks
-- ✅ Canonical path resolution prevents symlink exploits
-- ✅ Prefix matching ensures only allowed directories are accessed
+- ✅ Canonical path resolution (`fs.realpath` on the deepest existing ancestor) prevents symlink exploits, including for not-yet-created paths
+- ✅ Exact-match-or-child-boundary check (not raw prefix matching) so a sibling directory that merely shares a name prefix with an allowed root is rejected
 - ✅ Throws descriptive errors for unauthorized access attempts
 
 #### 2. Secure Filesystem (`src/main/filesystem/secureFs.ts`)

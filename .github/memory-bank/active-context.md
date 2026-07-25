@@ -1,7 +1,7 @@
 # DexReader Active Context
 
-**Last Updated**: 29 June 2026
-**Version**: v1.12.0
+**Last Updated**: 25 July 2026
+**Version**: v1.12.1
 **Mode**: Active Development
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next. Keep all entries as short, concise as possible
@@ -10,19 +10,19 @@
 
 ## Current Status
 
-**v1.12.0 Released**: 29 June 2026 ✅
+**v1.12.1 Released**: 25 July 2026 ✅
 
-**Monitoring Period**: Now through ~13 July 2026
+**Monitoring Period**: Now through ~8 August 2026
 
-- Monitor for issues with clickable author/artist search integration
-- Watch for any regressions in manga detail view with multiple authors/artists display
-- Verify Sidebar display mode renders correctly across all supported platforms
-- Confirm Canvas/Sidebar sizing settings persist correctly across sessions
+- Monitor for any filesystem-operation regressions from the path-validator symlink/boundary fix (sandbox denies should only ever affect genuinely out-of-bounds or symlinked paths)
+- Confirm the MangaDex@Home report POST is firing reliably for real chapter-image fetches (compliance requirement, not just a functional one)
+- Watch for reports of the downloads path resetting unexpectedly (should be fixed by the nested-settings-backfill fix, but was silent before)
+- Verify collection delete and downloads-delete confirm dialogs behave correctly across platforms
 
 **Next Planned Work:**
 
+- Continue the full-codebase refactor plan (`claude-plans/full-codebase-refactor-plan.md`) — Phase 1 (critical security fixes) is complete as of this release; Phase 2 (`src/shared` package scaffold) is next
 - Plan next feature development cycle
-- Consider additional enhancements based on user feedback
 - Continue monitoring for dependency updates
 
 ---
@@ -43,6 +43,21 @@ _No known critical issues at this time._
 ---
 
 ## Recent Changes (Last 1-2 Weeks)
+
+### 25 July 2026 - v1.12.1 Release ✅
+
+- **Type**: Patch Release - Critical Security Fixes (Phase 1 of the full-codebase refactor plan)
+- **Summary**: Closed the filesystem sandbox boundary/symlink bypass, the settings save-all system-directory blocklist bypass, added an image proxy domain allowlist, and implemented the required MangaDex@Home report-back. Also picked up a few pre-existing fixes already on the branch (nested-settings backfill, discard-changes field restoration, library list refresh).
+- **Key Changes**:
+  - `path-validator.ts`: exact-match-or-child-boundary check instead of raw `startsWith`; symlinks resolved via `fs.realpath` on the deepest existing ancestor (works even for not-yet-created paths)
+  - `settings-manager.ts`/`app-settings.handler.ts`: `settings:save-all` now validates `downloadPath` (blocklist + sanitize + existence) before persisting, not after
+  - `image.proxy.ts`: domain allowlist (`AtHomeGuardsUtil`) gates every fetch; MangaDex@Home report POST fires for every chapter-image fetch attempt, success or failure
+  - `useCollectionManager.ts` / `MangaHeroSection.tsx`: confirm-dialog guards fixed so a declined or failed dialog can never proceed with delete
+  - Fixed nested settings fields (e.g. custom downloads path) being silently dropped on load due to `deepMergeDefaults` only walking keys present in the static defaults object
+  - Vitest tooling stood up for both `main` and `renderer` projects; all 6 fixes above ship with regression tests (44 tests total across 7 files)
+- **Impact**: Closes 4 of the 7 critical issues from the 2026-07-04 security audit. No user-facing behavior change for the legitimate path (valid downloads paths, allowlisted image hosts, confirmed deletes all continue to work as before).
+- **Status**: ✅ Released
+- **CHANGELOG**: All changes documented in CHANGELOG.md v1.12.1 section
 
 ### 29 June 2026 - v1.12.0 Release ✅
 
