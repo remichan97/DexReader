@@ -230,6 +230,8 @@ export default function MangaHeroSection({
       cancelId: 2
     })
 
+    if (!result.success || !result.data) return
+
     switch (result.data.response) {
       case 0:
         // Add to library

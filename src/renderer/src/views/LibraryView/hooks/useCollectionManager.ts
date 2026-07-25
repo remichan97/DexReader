@@ -166,7 +166,7 @@ export function useCollectionManager(): UseCollectionManagerReturn {
     )
 
     // Check if user confirmed (result should be wrapped in IpcResponse)
-    if (result.success && !result.data) return
+    if (!result.success || !result.data) return
 
     try {
       await deleteCollection(collectionId)
