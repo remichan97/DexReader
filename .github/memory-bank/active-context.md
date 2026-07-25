@@ -22,6 +22,7 @@
 **Next Planned Work:**
 
 - Continue the full-codebase refactor plan (`claude-plans/full-codebase-refactor-plan.md`) — Phase 1 (critical security fixes) is complete as of this release; Phase 2 (`src/shared` package scaffold) is next
+- Once the refactor/cleanup effort finishes: plan and execute the react-router v6 → v7 migration (see Known Issues — CVE-2026-53669, no 6.x fix exists)
 - Plan next feature development cycle
 - Continue monitoring for dependency updates
 
@@ -29,7 +30,13 @@
 
 ## Known Issues
 
-_No known critical issues at this time._
+### react-router 6.x has no patch for CVE-2026-53669 (GHSA-wrjc-x8rr-h8h6)
+
+- **Severity**: Medium (backslash-based open redirect via `useNavigate`/`<Link>`, e.g. `\\evil.com` misread as cross-origin by the browser)
+- **Affects**: All platforms, in principle — but every `navigate()` call site in this codebase (18 call sites across 8 files, audited 2026-07-25) interpolates a MangaDex-API-sourced UUID (`manga.id`, `chapter.id`, `tagId`, `creatorId`), never raw user-typed text, so real exploitability today is low. Fix requires the app to pass an attacker-controlled string into a nav API, which would need a compromised/MITM'd MangaDex API response or a new injection point.
+- **Status**: Deferred — no 6.x backport exists (Dependabot range `>=6.4.0, <7.18.0`, fixed only in 7.18.0). Not urgent enough to interrupt the current refactor/cleanup effort, but the only real fix is the react-router v7 major upgrade (`react-router-dom` folds into `react-router`; import/config changes throughout `App.tsx`/`router.tsx` and anywhere else importing `react-router-dom`).
+- **Workaround**: None available short of the major upgrade; current low exploitability accepted as interim risk.
+- **Tracked**: Plan the v7 migration as its own deliberate piece of work once the current refactor/cleanup effort (`claude-plans/full-codebase-refactor-plan.md`) finishes — use the Vitest renderer harness for regression coverage across all routes when it happens.
 
 <!-- Template for future issues:
 ### [Issue Title]
