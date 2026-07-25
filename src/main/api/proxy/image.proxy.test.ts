@@ -1,6 +1,7 @@
 import { net } from 'electron'
 import { ImageProxy } from './image.proxy'
 import { MangaDexClient } from '../mangadex-client'
+import { atHomeGuardsUtil } from '../utils/at-home-guards.utl'
 
 vi.mock('electron', () => ({
   net: { fetch: vi.fn() },
@@ -131,6 +132,32 @@ describe('ImageProxy', () => {
       expect(cached).toBe(false)
       expect(bytes).toBe(0)
       expect(duration).toBeGreaterThanOrEqual(0)
+    })
+  })
+
+  describe('domain allowlist', () => {
+    it('fetches when the URL passes the allowlist check', async () => {
+      const body = new Uint8Array([1, 2, 3]).buffer
+      vi.mocked(net.fetch).mockResolvedValue(fakeNetworkResponse({ ok: true, body }))
+
+      const response = await imageProxy.handleImageRequest(CHAPTER_URL, false)
+
+      expect(net.fetch).toHaveBeenCalledTimes(1)
+      expect(response.status).toBe(200)
+    })
+
+    it('returns 403 and never calls net.fetch when the URL fails the allowlist check', async () => {
+      // mockReturnValueOnce so the other tests' factory-level mockReturnValue(true)
+      // (never reset by clearAllMocks) is restored for the very next call.
+      vi.mocked(atHomeGuardsUtil.isUrlAllowed).mockReturnValueOnce(false)
+
+      const response = await imageProxy.handleImageRequest(CHAPTER_URL, false)
+
+      expect(response.status).toBe(403)
+      expect(net.fetch).not.toHaveBeenCalled()
+      // Nothing was ever attempted against an at-home baseUrl, so there's nothing to
+      // report - a locally-refused URL must not generate a spurious @Home report.
+      expect(reportAtHomeNetworkStatus).not.toHaveBeenCalled()
     })
   })
 
