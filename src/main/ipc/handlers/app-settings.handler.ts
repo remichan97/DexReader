@@ -116,10 +116,10 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
       throw new Error('Invalid settings structure')
     }
 
-    settingsManager.save(newSettings)
-
-    // Update in-memory downloads path if it changed
-    await settingsManager.initializeDownloadsPath()
+    // Validates the downloads path (including the system-directory blocklist) before
+    // persisting anything, so a rejected path fails the whole call instead of being
+    // written to settings.json and only patched over afterwards.
+    await settingsManager.saveAll(newSettings)
 
     // Update chapter cache size dynamically when reader settings change
     if (imageProxy) {
