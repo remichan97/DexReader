@@ -77,10 +77,10 @@ export async function validateDirectoryPath(dirPath: string): Promise<void> {
   }
 }
 
-export function validatePath(inputPath: string): string {
+export async function validatePath(inputPath: string): Promise<string> {
   const normalizedPath = normalizePath(inputPath)
 
-  if (!isPathAllowed(normalizedPath)) {
+  if (!(await isPathAllowed(normalizedPath))) {
     mainLog.warn(`[PathValidator] Access denied to path: ${inputPath}`)
     throw new Error(`Access to the path "${inputPath}" is not allowed.`)
   }
@@ -92,30 +92,60 @@ function normalizePath(inputPath: string): string {
   return path.normalize(path.resolve(inputPath))
 }
 
-function isPathAllowed(inputPath: string): boolean {
+// A path is only "within" an allowed root if it equals that root or is a proper
+// child of it (separator-bounded) - plain startsWith() also matches sibling
+// directories that merely share a prefix, e.g. ".dexreader-evil" vs ".dexreader".
+function isWithinAllowedRoot(candidatePath: string, allowedRoot: string): boolean {
+  return candidatePath === allowedRoot || candidatePath.startsWith(allowedRoot + path.sep)
+}
+
+// Resolves symlinks along a path that may not exist yet: walks up to the deepest
+// existing ancestor, realpath()s that ancestor, then re-appends the not-yet-created
+// remainder. fs.realpath() itself throws on a non-existent path, which would
+// otherwise break every write/mkdir of a new file or directory in the sandbox.
+async function resolveRealPath(normalizedInputPath: string): Promise<string> {
+  let existingPath = normalizedInputPath
+  const remainder: string[] = []
+
+  while (true) {
+    try {
+      await fs.access(existingPath)
+      break
+    } catch {
+      const parent = path.dirname(existingPath)
+      if (parent === existingPath) {
+        // Reached filesystem root without finding an existing ancestor
+        break
+      }
+      remainder.unshift(path.basename(existingPath))
+      existingPath = parent
+    }
+  }
+
+  const realExistingPath = await fs.realpath(existingPath)
+  return remainder.length > 0 ? path.join(realExistingPath, ...remainder) : realExistingPath
+}
+
+async function isPathAllowed(inputPath: string): Promise<boolean> {
   initializePaths()
   const normalizedInputPath = normalizePath(inputPath)
 
-  // Always allow paths within appData
-  if (normalizedInputPath.startsWith(allowedPaths!.appData)) {
-    return true
+  const realResolvedPath = await resolveRealPath(normalizedInputPath)
+
+  // If resolving symlinks changes the path, either the target itself or one of its
+  // existing ancestors is a symlink that could redirect outside the sandbox roots.
+  if (realResolvedPath !== normalizedInputPath) {
+    mainLog.warn(`[PathValidator] Possible symlink detected: ${inputPath} -> ${realResolvedPath}`)
+    return false
   }
 
-  // If downloads path is outside appData (custom location), check it separately
-  // Note: This ensures we only allow the exact downloads directory tree, not parent directories
-  if (normalizedInputPath.startsWith(allowedPaths!.downloads)) {
-    return true
+  const isAllowed = Object.values(allowedPaths!).some((allowedRoot) =>
+    isWithinAllowedRoot(normalizedInputPath, allowedRoot)
+  )
+
+  if (!isAllowed) {
+    mainLog.warn(`[PathValidator] Path not allowed: ${inputPath}`)
   }
 
-  // Cover caching folder, this isn't changed, and won't be changed by users, but we want to ensure it's always allowed
-  if (normalizedInputPath.startsWith(allowedPaths!.cachedCover)) {
-    return true
-  }
-
-  // Logs folder should also be allowed, even if it's unchangeable, but we want to ensure it's always allowed
-  if (normalizedInputPath.startsWith(allowedPaths!.logs)) {
-    return true
-  }
-
-  return false
+  return isAllowed
 }
