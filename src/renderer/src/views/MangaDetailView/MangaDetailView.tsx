@@ -17,10 +17,10 @@ import AlternativeTitlesSection from './components/AlternativeTitlesSection'
 import ChapterList from './components/ChapterList'
 import './MangaDetailView.css'
 import type {
-  ChapterProgress,
+  ChapterProgressQuery,
   MangaWithMetadata,
   ChapterWithMetadata
-} from '../../../../preload/index.d'
+} from '../../../../preload/window.types'
 import { rendererLog } from '@renderer/services/logging.service'
 
 // Extract types from global window interface
@@ -173,7 +173,7 @@ export function MangaDetailView(): JSX.Element {
       const response = await globalThis.progress.getAllChapterProgress(id)
       if (response.success && response.data) {
         // Convert array to map for easy lookup
-        const progressMap = new Map<string, ChapterProgress>(
+        const progressMap = new Map<string, ChapterProgressQuery>(
           response.data.map((p) => [p.chapterId, p])
         )
         setState((prev) => ({ ...prev, chapterProgress: progressMap }))

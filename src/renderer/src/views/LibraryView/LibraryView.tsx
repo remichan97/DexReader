@@ -1,7 +1,7 @@
 import type { JSX } from 'react'
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { MangaWithMetadata } from '../../../../preload/index.d'
+import type { MangaWithMetadata } from '../../../../preload/window.types'
 import { Tabs, TabList, Tab, TabPanel } from '@renderer/components/Tabs'
 import { SearchBar } from '@renderer/components/SearchBar'
 import { Badge } from '@renderer/components/Badge'

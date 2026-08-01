@@ -9,7 +9,7 @@ import {
   Settings20Regular,
   Warning20Regular
 } from '@fluentui/react-icons'
-import type { DexReaderImportResult } from '../../../../preload/index.d'
+import type { DexReaderImportResult } from '../../../../preload/window.types'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import './DexReaderImportDialog.css'
 

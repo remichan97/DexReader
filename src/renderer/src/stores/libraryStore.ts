@@ -6,7 +6,7 @@
  */
 
 import { create } from 'zustand'
-import type { MangaWithMetadata } from '../../../preload/index.d'
+import type { MangaWithMetadata } from '../../../preload/window.types'
 import { rendererLog } from '@renderer/services/logging.service'
 
 export interface LibraryManga {

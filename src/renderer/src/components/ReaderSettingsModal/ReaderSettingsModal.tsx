@@ -1,7 +1,7 @@
 import type { JSX, ReactElement } from 'react'
 import { Popover } from '@renderer/components/Popover'
 import { Select, type SelectOption } from '@renderer/components/Select'
-import type { MangaReadingSettings } from '../../../../preload/index.d'
+import type { MangaReadingSettings } from '../../../../preload/window.types'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import './ReaderSettingsModal.css'
 

@@ -6,7 +6,7 @@
  */
 
 import { PublicationStatus } from '@renderer/stores/searchStore'
-import type { Manga } from '../../../preload/index.d'
+import type { Manga } from '../../../preload/window.types'
 
 type MangaEntity = Manga
 

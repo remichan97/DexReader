@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { ReadingMode } from '@renderer/components/ReadingModeSelector'
-import type { MangaReadingSettings } from '../../../../../preload/index.d'
+import type { MangaReadingSettings } from '../../../../../preload/window.types'
 import { rendererLog } from '@renderer/services/logging.service'
 
 interface DoublePageSettings {

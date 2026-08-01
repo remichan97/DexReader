@@ -21,7 +21,7 @@ import { create } from 'zustand'
 import { useToastStore } from './toastStore'
 import { rendererLog } from '@renderer/services/logging.service'
 
-// Types are available globally through Window interface (see preload/index.d.ts)
+// Types are available globally through Window interface (see preload/window.types.ts)
 type MangaProgress = NonNullable<Awaited<ReturnType<Window['progress']['getProgress']>>['data']>
 type MangaProgressMetadata = NonNullable<
   Awaited<ReturnType<Window['progress']['getAllProgress']>>['data']

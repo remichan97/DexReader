@@ -6,7 +6,7 @@ import { Button } from '@renderer/components/Button'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import { useToastStore } from '@renderer/stores'
 import { formatBytes } from '@renderer/utils/formatBytes'
-import type { StorageData } from '../../../../../preload/index.d'
+import type { StorageData } from '../../../../../preload/window.types'
 import { rendererLog } from '@renderer/services/logging.service'
 
 export function StorageManagementSettings(): JSX.Element {

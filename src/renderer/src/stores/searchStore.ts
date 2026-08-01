@@ -16,7 +16,7 @@
 import { create } from 'zustand'
 import { useConnectivityStore } from './connectivityStore'
 import { rendererLog } from '@renderer/services/logging.service'
-import type { Manga } from '../../../preload/index.d'
+import type { Manga } from '../../../preload/window.types'
 
 // Re-export enum values for convenience
 export enum ContentRating {

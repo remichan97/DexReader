@@ -1,7 +1,8 @@
 import React, { type JSX, useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useLocation, useNavigate } from 'react-router-dom'
+// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
 import { ImageQuality } from '../../../../main/api/enums/image-quality.enum'
-import type { MangaReadingSettings } from '../../../../preload/index.d'
+import type { MangaReadingSettings } from '../../../../preload/window.types'
 import { Button } from '@renderer/components/Button'
 import { LoadingState } from '@renderer/components/LoadingState'
 import { ErrorState } from '@renderer/components/ErrorState'

@@ -6,7 +6,7 @@ import {
   type ParsedLibraryQuery,
   type ActiveFilter
 } from '@renderer/utils/librarySearchParser'
-import type { MangaWithMetadata } from '../../../../../preload/index.d'
+import type { MangaWithMetadata } from '../../../../../preload/window.types'
 import { rendererLog } from '@renderer/services/logging.service'
 
 interface UseLibraryFiltersReturn {

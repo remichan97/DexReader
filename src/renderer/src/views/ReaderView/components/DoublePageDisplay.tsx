@@ -1,7 +1,7 @@
 import React from 'react'
 import { ProgressRing } from '@renderer/components/ProgressRing'
 import { useTranslation } from '@renderer/hooks/useTranslation'
-import type { ImageUrlResponse } from '../../../../../preload/index.d'
+import type { ImageUrlResponse } from '../../../../../preload/window.types'
 
 /**
  * Double Page Display Component

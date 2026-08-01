@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useToastStore } from '@renderer/stores'
 import type { ExportOptions } from '@renderer/components/DexReaderExportDialog'
-import type { DexReaderImportResult } from '../../../../../preload/index.d'
+import type { DexReaderImportResult } from '../../../../../preload/window.types'
 import { rendererLog } from '@renderer/services/logging.service'
 
 interface UseDexReaderImportExportReturn {
