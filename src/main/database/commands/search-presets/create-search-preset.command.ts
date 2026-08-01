@@ -1,4 +1,4 @@
-import { SearchFiltersData } from '../../types/search-preset.type'
+import { SearchFiltersData } from '@shared/contracts/settings/search-filters.contract'
 
 export interface CreateSearchPresetCommand {
   name: string

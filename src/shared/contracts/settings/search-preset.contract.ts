@@ -1,4 +1,4 @@
-import { SearchFiltersData } from '../../types/search-preset.type'
+import { SearchFiltersData } from './search-filters.contract'
 
 export interface SearchPresetQuery {
   id: number

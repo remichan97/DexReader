@@ -5,7 +5,7 @@ import {
   OrderOptions,
   PublicationDemographic,
   PublicationStatus
-} from '../../api/enums'
+} from '../../enums/mangadex'
 
 export interface SearchFiltersData {
   contentRating: ContentRating[]

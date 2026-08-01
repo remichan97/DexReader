@@ -1,4 +1,4 @@
-import { SearchPresetQuery } from './../queries/search-presets/search-preset.query'
+import { SearchPresetQuery } from '@shared/contracts/settings/search-preset.contract'
 import { databaseConnection } from '../connection'
 import { searchPresets } from '../schemas'
 import { SearchPresetsMapper } from '../mappers/search-presets.mapper'

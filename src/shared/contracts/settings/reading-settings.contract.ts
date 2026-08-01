@@ -1,4 +1,4 @@
-import { ReadingMode } from '../enums/reading-mode.enum'
+import { ReadingMode } from '../../enums/settings/reading-mode.enum'
 
 export interface MangaReadingSettings {
   readingMode: ReadingMode

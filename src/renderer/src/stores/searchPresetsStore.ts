@@ -6,8 +6,8 @@
  */
 
 import { create } from 'zustand'
-import type { SearchFiltersData } from '../../../main/database/types/search-preset.type'
-import type { SearchPresetQuery } from '../../../main/database/queries/search-presets/search-preset.query'
+import type { SearchFiltersData } from '@shared/contracts/settings/search-filters.contract'
+import type { SearchPresetQuery } from '@shared/contracts/settings/search-preset.contract'
 import { rendererLog } from '../services/logging.service'
 
 interface SearchPresetsState {

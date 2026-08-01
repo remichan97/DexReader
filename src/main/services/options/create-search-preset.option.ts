@@ -1,4 +1,4 @@
-import { SearchFiltersData } from '../../database/types/search-preset.type'
+import { SearchFiltersData } from '@shared/contracts/settings/search-filters.contract'
 
 export interface CreateSearchPresetOptions {
   name: string

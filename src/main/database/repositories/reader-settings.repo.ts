@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { databaseConnection } from '../connection'
 import { manga, mangaReaderOverrides } from '../schemas'
-import { MangaReadingSettings } from '../../settings/entities/reading-settings.entity'
+import { MangaReadingSettings } from '@shared/contracts/settings/reading-settings.contract'
 import { UpdateMangaOverrideCommand } from '../commands/manga/update-manga-override.command'
 import { MangaOverride } from '../queries/manga/manga-override.query'
 import { MangaMapper } from '../mappers/manga.mapper'

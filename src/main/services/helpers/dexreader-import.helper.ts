@@ -6,7 +6,7 @@ import { UpsertMangaCommand } from '../../database/commands/manga/upsert-manga.c
 import { SaveChapterCommand } from '../../database/commands/progress/save-chapter.command'
 import { SaveProgressCommand } from '../../database/commands/progress/save-progress.command'
 import { UpdateFirstReadCommand } from '../../database/commands/progress/update-firstread.command'
-import { ReadingMode } from '../../settings/enums/reading-mode.enum'
+import { ReadingMode } from '@shared/enums/settings/reading-mode.enum'
 import { DexReaderChapterProgress } from '../types/dexreader/chapter-progress.type'
 import { DexReaderChapter } from '../types/dexreader/chapter.type'
 import { DexReaderCollectionItem } from '../types/dexreader/collection-item.type'

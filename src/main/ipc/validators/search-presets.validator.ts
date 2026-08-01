@@ -6,7 +6,7 @@ import {
   PublicationDemographic,
   PublicationStatus
 } from '../../api/enums'
-import { SearchFiltersData } from '../../database/types/search-preset.type'
+import { SearchFiltersData } from '@shared/contracts/settings/search-filters.contract'
 import { CreateSearchPresetOptions } from '../../services/options/create-search-preset.option'
 
 export function isValidCreateSearchPresetOptions(

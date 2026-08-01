@@ -1,4 +1,4 @@
-import { MangaReadingSettings } from './reading-settings.entity'
+import { MangaReadingSettings } from '@shared/contracts/settings/reading-settings.contract'
 
 export interface MangaOverrideSettings {
   title: string

@@ -1,5 +1,5 @@
 import { check, index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
-import { SearchFiltersData } from '../types/search-preset.type'
+import { SearchFiltersData } from '@shared/contracts/settings/search-filters.contract'
 import { sql } from 'drizzle-orm'
 
 export const searchPresets = sqliteTable(

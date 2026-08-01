@@ -10,6 +10,11 @@ const __dirname = dirname(__filename)
 
 export default defineConfig({
   main: {
+    resolve: {
+      alias: {
+        '@shared': resolve('src/shared')
+      }
+    },
     build: {
       rollupOptions: {
         external: [
@@ -106,6 +111,11 @@ export default defineConfig({
     ]
   },
   preload: {
+    resolve: {
+      alias: {
+        '@shared': resolve('src/shared')
+      }
+    },
     build: {
       // IMPORTANT: Must bundle dependencies for sandbox mode
       // Sandboxed preload cannot access node_modules at runtime
@@ -121,7 +131,8 @@ export default defineConfig({
   renderer: {
     resolve: {
       alias: {
-        '@renderer': resolve('src/renderer/src')
+        '@renderer': resolve('src/renderer/src'),
+        '@shared': resolve('src/shared')
       }
     },
     build: {

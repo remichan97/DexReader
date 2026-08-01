@@ -1,5 +1,5 @@
 import { CreateSearchPresetCommand } from '../database/commands/search-presets/create-search-preset.command'
-import { SearchPresetQuery } from '../database/queries/search-presets/search-preset.query'
+import { SearchPresetQuery } from '@shared/contracts/settings/search-preset.contract'
 import { searchPresetsRepo } from '../database/repositories/search-presets.repo'
 import { settingsManager } from '../settings/settings-manager'
 import { mainLog } from './logging/main-logging.service'

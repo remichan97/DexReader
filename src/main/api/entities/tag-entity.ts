@@ -1,4 +1,4 @@
-import { LocalizedString } from '../shared/common-types.shared'
+import { LocalizedString } from '@shared/contracts/mangadex/common.contracts'
 import { TagGroup } from '../enums/tag-group.enum'
 import { MangaEntityType } from '../enums/manga-entity-type.enum'
 

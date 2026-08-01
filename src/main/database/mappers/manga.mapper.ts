@@ -3,7 +3,7 @@ import { MangaWithMetadata } from '../queries/manga/manga-with-metadata.query'
 import { manga } from '../schemas'
 import { dateToUnixTimestamp } from '../../utils/timestamps.util'
 import { PublicationStatus } from '../../api/enums'
-import { MangaReadingSettings } from '../../settings/entities/reading-settings.entity'
+import { MangaReadingSettings } from '@shared/contracts/settings/reading-settings.contract'
 import { MangaOverride } from '../queries/manga/manga-override.query'
 
 type MangaRow = typeof manga.$inferSelect
