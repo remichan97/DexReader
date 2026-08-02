@@ -1,7 +1,7 @@
 import type { JSX } from 'react'
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { MangaWithMetadata } from '../../../../preload/window.types'
+import type { MangaWithMetadataContract } from '../../../../preload/window.types'
 import { Tabs, TabList, Tab, TabPanel } from '@renderer/components/Tabs'
 import { SearchBar } from '@renderer/components/SearchBar'
 import { Badge } from '@renderer/components/Badge'
@@ -51,7 +51,7 @@ export function LibraryView(): JSX.Element {
   })
 
   // Local manga list (loaded with includeDownloaded flag)
-  const [mangaList, setMangaList] = useState<MangaWithMetadata[]>([])
+  const [mangaList, setMangaList] = useState<MangaWithMetadataContract[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 

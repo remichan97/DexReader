@@ -1,24 +1,32 @@
+// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
 import { DownloadChapterOptions } from './../main/services/options/download-chapter.option'
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { IpcResponse, FileStats, AllowedPaths, FolderSelectResult } from './ipc.types'
+// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
 import { MangaSearchParams } from '../main/api/search-params/manga.searchparam'
+// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
 import { FeedParams } from '../main/api/search-params/feed.searchparam'
+// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
 import { ImageQuality } from '../main/api/enums'
-import { GetLibraryMangaCommand } from '../main/database/commands/manga/get-library-manga.command'
-import { UpsertMangaCommand } from '../main/database/commands/manga/upsert-manga.command'
-import { CreateCollectionCommand } from '../main/database/commands/collections/create-collection.command'
-import { UpdateCollectionCommand } from '../main/database/commands/collections/update-collection.command'
-import { AddToCollectionCommand } from '../main/database/commands/collections/add-to-collection.command'
-import { RemoveFromCollectionCommand } from '../main/database/commands/collections/remove-from-collection.command'
-import { ReorderMangaInCollectionCommand } from '../main/database/commands/collections/reorder-manga-collection.command'
-import { RecordReadCommand } from '../main/database/commands/history/record-read.command'
+import { GetLibraryMangaCommand } from '@shared/commands/repositories/manga/get-library-manga.command'
+import { UpsertMangaCommand } from '@shared/commands/repositories/manga/upsert-manga.command'
+import { CreateCollectionCommand } from '@shared/commands/repositories/collections/create-collection.command'
+import { UpdateCollectionCommand } from '@shared/commands/repositories/collections/update-collection.command'
+import { AddToCollectionCommand } from '@shared/commands/repositories/collections/add-to-collection.command'
+import { RemoveFromCollectionCommand } from '@shared/commands/repositories/collections/remove-from-collection.command'
+import { ReorderMangaInCollectionCommand } from '@shared/commands/repositories/collections/reorder-manga-collection.command'
+import { RecordReadCommand } from '@shared/commands/repositories/history/record-read.command'
+// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
 import { DexreaderExportOption } from '../main/services/options/dexreader-export.option'
+// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
 import { QueuedDownloads } from '../main/services/types/downloads/queued-downloads.type'
+// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
 import { DeleteChapterOptions } from '../main/services/options/delete-chapter.option'
-import { CreateSearchPresetCommand } from '../main/database/commands/search-presets/create-search-preset.command'
+import { CreateSearchPresetCommand } from '@shared/commands/repositories/search-presets/create-search-preset.command'
 
 // Export enums for renderer
+// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
 export { DownloadConfirmation } from '../main/settings/enums/download-confirmation.enum'
 
 // Custom APIs for renderer

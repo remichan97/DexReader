@@ -6,7 +6,7 @@
  */
 
 import { create } from 'zustand'
-import type { MangaWithMetadata } from '../../../preload/window.types'
+import type { MangaWithMetadataContract } from '../../../preload/window.types'
 import { rendererLog } from '@renderer/services/logging.service'
 
 export interface LibraryManga {
@@ -21,7 +21,7 @@ export interface LibraryManga {
 
 interface LibraryState {
   // Data
-  favourites: MangaWithMetadata[]
+  favourites: MangaWithMetadataContract[]
   loading: boolean
   error: string | null
 

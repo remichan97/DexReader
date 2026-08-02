@@ -27,53 +27,33 @@ import { MangaSearchParams } from '../main/api/search-params/manga.searchparam'
 import { FeedParams } from '../main/api/search-params/feed.searchparam'
 
 // Database queries
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import type { MangaProgressQuery } from '../main/database/queries/progress/manga-progress.query'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import type { MangaProgressMetadata } from '../main/database/queries/progress/manga-progress-metadata.query'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import type { ChapterProgressQuery } from '../main/database/queries/progress/chapter-progress.query'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import type { ProgressDatabase } from '../main/database/queries/progress/progress-database.query'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import type { ReadingStats } from '../main/database/queries/reading-stats/reading-stats.query'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { MangaOverride } from '../main/database/queries/manga/manga-override.query'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { MangaWithMetadata } from '../main/database/queries/manga/manga-with-metadata.query'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import type { ChapterWithMetadata } from '../main/database/queries/manga/chapter-with-metadata.query'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import type { ChapterDownloadQuery } from '../main/database/queries/chapter-downloads/chapter-downloads.query'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { ReadHistoryQuery } from '../main/database/queries/history/reading-history.query'
+import type { MangaProgressContract } from '@shared/contracts/database/progress/manga-progress.contract'
+import type { MangaProgressMetadataContract } from '@shared/contracts/database/progress/manga-progress-metadata.contract'
+import type { ChapterProgressContract } from '@shared/contracts/database/progress/chapter-progress.contract'
+import type { ProgressDatabaseContract } from '@shared/contracts/database/progress/progress-database.contract'
+import type { ReadingStatsContract } from '@shared/contracts/database/reading-stats/reading-stats.contract'
+import { MangaOverrideContract } from '@shared/contracts/database/manga/manga-override.contract'
+import { MangaWithMetadataContract } from '@shared/contracts/database/manga/manga-with-metadata.contract'
+import type { ChapterWithMetadataContract } from '@shared/contracts/database/manga/chapter-with-metadata.contract'
+import type { ChapterDownloadContract } from '@shared/contracts/database/chapter-downloads/chapter-downloads.contract'
+import { ReadHistoryContract } from '@shared/contracts/database/history/reading-history.query'
 // eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
 import type { ChapterDownloadsEvent } from '../main/services/events/chapter-downloads.event'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import type { MangaCacheStatsQuery } from '../main/database/queries/manga/manga-cache-stats.query'
+import type { MangaCacheStatsContract } from '@shared/contracts/database/manga/manga-cache-stats.contract'
 import { SearchPresetQuery } from '@shared/contracts/settings/search-preset.contract'
 
 // Database commands
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { CreateCollectionCommand } from '../main/database/commands/collections/create-collection.command'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { UpdateCollectionCommand } from '../main/database/commands/collections/update-collection.command'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { AddToCollectionCommand } from '../main/database/commands/collections/add-to-collection.command'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { RemoveFromCollectionCommand } from '../main/database/commands/collections/remove-from-collection.command'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { ReorderMangaInCollectionCommand } from '../main/database/commands/collections/reorder-manga-collection.command'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { RecordReadCommand } from '../main/database/commands/history/record-read.command'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { GetLibraryMangaCommand } from '../main/database/commands/manga/get-library-manga.command'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { UpsertMangaCommand } from '../main/database/commands/manga/upsert-manga.command'
+import { CreateCollectionCommand } from '@shared/commands/repositories/collections/create-collection.command'
+import { UpdateCollectionCommand } from '@shared/commands/repositories/collections/update-collection.command'
+import { AddToCollectionCommand } from '@shared/commands/repositories/collections/add-to-collection.command'
+import { RemoveFromCollectionCommand } from '@shared/commands/repositories/collections/remove-from-collection.command'
+import { ReorderMangaInCollectionCommand } from '@shared/commands/repositories/collections/reorder-manga-collection.command'
+import { RecordReadCommand } from '@shared/commands/repositories/history/record-read.command'
+import { GetLibraryMangaCommand } from '@shared/commands/repositories/manga/get-library-manga.command'
+import { UpsertMangaCommand } from '@shared/commands/repositories/manga/upsert-manga.command'
 
 // Database entities
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { CollectionQuery } from '../main/database/queries/collections/collection.query'
+import { CollectionContract } from '@shared/contracts/database/collections/collection.contract'
 
 // Settings
 import type { MangaReadingSettings } from '@shared/contracts/settings/reading-settings.contract'
@@ -122,37 +102,22 @@ import { StorageData } from '../main/services/data/storage.data'
 export type { IpcResponse } from './ipc.types'
 // eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
 export type { ImageUrlResponse } from '../main/api/responses/image-url.response'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { MangaProgressQuery } from '../main/database/queries/progress/manga-progress.query'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { MangaProgressMetadata } from '../main/database/queries/progress/manga-progress-metadata.query'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { ChapterProgressQuery } from '../main/database/queries/progress/chapter-progress.query'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { ProgressDatabase } from '../main/database/queries/progress/progress-database.query'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { ReadingStats } from '../main/database/queries/reading-stats/reading-stats.query'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { MangaOverride } from '../main/database/queries/manga/manga-override.query'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { MangaWithMetadata } from '../main/database/queries/manga/manga-with-metadata.query'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { ChapterWithMetadata } from '../main/database/queries/manga/chapter-with-metadata.query'
+export type { MangaProgressContract } from '@shared/contracts/database/progress/manga-progress.contract'
+export type { MangaProgressMetadataContract } from '@shared/contracts/database/progress/manga-progress-metadata.contract'
+export type { ChapterProgressContract } from '@shared/contracts/database/progress/chapter-progress.contract'
+export type { ProgressDatabaseContract } from '@shared/contracts/database/progress/progress-database.contract'
+export type { ReadingStatsContract } from '@shared/contracts/database/reading-stats/reading-stats.contract'
+export type { MangaOverrideContract } from '@shared/contracts/database/manga/manga-override.contract'
+export type { MangaWithMetadataContract } from '@shared/contracts/database/manga/manga-with-metadata.contract'
+export type { ChapterWithMetadataContract } from '@shared/contracts/database/manga/chapter-with-metadata.contract'
 export type { MangaReadingSettings } from '@shared/contracts/settings/reading-settings.contract'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { CreateCollectionCommand } from '../main/database/commands/collections/create-collection.command'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { UpdateCollectionCommand } from '../main/database/commands/collections/update-collection.command'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { AddToCollectionCommand } from '../main/database/commands/collections/add-to-collection.command'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { RemoveFromCollectionCommand } from '../main/database/commands/collections/remove-from-collection.command'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { ReorderMangaInCollectionCommand } from '../main/database/commands/collections/reorder-manga-collection.command'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { RecordReadCommand } from '../main/database/commands/history/record-read.command'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { ReadHistoryQuery } from '../main/database/queries/history/reading-history.query'
+export type { CreateCollectionCommand } from '@shared/commands/repositories/collections/create-collection.command'
+export type { UpdateCollectionCommand } from '@shared/commands/repositories/collections/update-collection.command'
+export type { AddToCollectionCommand } from '@shared/commands/repositories/collections/add-to-collection.command'
+export type { RemoveFromCollectionCommand } from '@shared/commands/repositories/collections/remove-from-collection.command'
+export type { ReorderMangaInCollectionCommand } from '@shared/commands/repositories/collections/reorder-manga-collection.command'
+export type { RecordReadCommand } from '@shared/commands/repositories/history/record-read.command'
+export type { ReadHistoryContract } from '@shared/contracts/database/history/reading-history.query'
 // eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
 export type { ImportResult } from '../main/services/results/mihon/import.result'
 // eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
@@ -181,14 +146,12 @@ export type { ChapterDownloadsEvent } from '../main/services/events/chapter-down
 export type { StorageData } from '../main/services/data/storage.data'
 // eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
 export type { DeleteMangaResult } from '../main/services/results/dexreader/delete-manga.result'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { CollectionQuery } from '../main/database/queries/collections/collection.query'
+export type { CollectionContract } from '@shared/contracts/database/collections/collection.contract'
 // eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
 export type { AppSettings } from '../main/settings/entities/app-settings.entity'
 // eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
 export type { DownloadStatResult } from '../main/services/results/dexreader/download-stats.result'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { MangaCacheStatsQuery } from '../main/database/queries/manga/manga-cache-stats.query'
+export type { MangaCacheStatsContract } from '@shared/contracts/database/manga/manga-cache-stats.contract'
 export type { SearchPresetQuery } from '@shared/contracts/settings/search-preset.contract'
 // eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
 export type { MemoryTierInfo } from '../main/settings/response/memory-tier.response'
@@ -291,18 +254,18 @@ interface MangaDexApi {
 }
 
 interface Progress {
-  getProgress: (mangaId: string) => Promise<IpcResponse<MangaProgressQuery | undefined>>
+  getProgress: (mangaId: string) => Promise<IpcResponse<MangaProgressContract | undefined>>
   saveProgress: (progressData: unknown) => Promise<IpcResponse<void>>
-  getAllProgress: () => Promise<IpcResponse<MangaProgressMetadata[]>>
+  getAllProgress: () => Promise<IpcResponse<MangaProgressMetadataContract[]>>
   deleteProgress: (mangaId: string) => Promise<IpcResponse<void>>
-  getStatistics: () => Promise<IpcResponse<ReadingStats>>
-  loadProgress: () => Promise<IpcResponse<ProgressDatabase>>
+  getStatistics: () => Promise<IpcResponse<ReadingStatsContract>>
+  loadProgress: () => Promise<IpcResponse<ProgressDatabaseContract>>
   onIncognitoToggle: (callback: () => void) => () => void // Returns cleanup function
   getChapterProgress: (
     mangaId: string,
     chapterId: string
-  ) => Promise<IpcResponse<ChapterProgressQuery | undefined>>
-  getAllChapterProgress: (mangaId: string) => Promise<IpcResponse<ChapterProgressQuery[]>>
+  ) => Promise<IpcResponse<ChapterProgressContract | undefined>>
+  getAllChapterProgress: (mangaId: string) => Promise<IpcResponse<ChapterProgressContract[]>>
   saveChapters: (
     chapters: Array<{
       chapterId: string
@@ -323,22 +286,24 @@ interface Reader {
   updateMangaReaderSettings: (mangaId: string, settings: MangaReadingSettings) => Promise<void>
   resetMangaReaderSettings: (mangaId: string) => Promise<void>
   clearAllMangaReaderOverrides: () => Promise<void>
-  getAllReaderOverrides: () => Promise<IpcResponse<MangaOverride[]>>
+  getAllReaderOverrides: () => Promise<IpcResponse<MangaOverrideContract[]>>
 }
 
 interface Library {
-  getLibraryManga: (command: GetLibraryMangaCommand) => Promise<IpcResponse<MangaWithMetadata[]>>
-  getMangaById: (mangaId: string) => Promise<IpcResponse<MangaWithMetadata | undefined>>
-  getCachedChapters: (mangaId: string) => Promise<IpcResponse<ChapterWithMetadata[]>>
+  getLibraryManga: (
+    command: GetLibraryMangaCommand
+  ) => Promise<IpcResponse<MangaWithMetadataContract[]>>
+  getMangaById: (mangaId: string) => Promise<IpcResponse<MangaWithMetadataContract | undefined>>
+  getCachedChapters: (mangaId: string) => Promise<IpcResponse<ChapterWithMetadataContract[]>>
   toggleFavourite: (mangaId: string) => Promise<IpcResponse<void>>
   upsertManga: (command: UpsertMangaCommand) => Promise<IpcResponse<void>>
-  getDownloadedManga: () => Promise<IpcResponse<MangaWithMetadata[]>>
+  getDownloadedManga: () => Promise<IpcResponse<MangaWithMetadataContract[]>>
 }
 
 interface Collections {
-  getAllCollections: () => Promise<IpcResponse<CollectionQuery[]>>
+  getAllCollections: () => Promise<IpcResponse<CollectionContract[]>>
   getMangaInCollection: (collectionId: number) => Promise<IpcResponse<string[]>>
-  getCollectionsByManga: (mangaId: string) => Promise<IpcResponse<CollectionQuery[]>>
+  getCollectionsByManga: (mangaId: string) => Promise<IpcResponse<CollectionContract[]>>
   createCollection: (command: CreateCollectionCommand) => Promise<IpcResponse<number>>
   updateCollection: (command: UpdateCollectionCommand) => Promise<IpcResponse<void>>
   deleteCollection: (collectionId: number) => Promise<IpcResponse<void>>
@@ -348,8 +313,8 @@ interface Collections {
 }
 
 interface ReadHistory {
-  getHistory: () => Promise<IpcResponse<ReadHistoryQuery[]>>
-  getRecentlyRead: (limit: number) => Promise<IpcResponse<ReadHistoryQuery[]>>
+  getHistory: () => Promise<IpcResponse<ReadHistoryContract[]>>
+  getRecentlyRead: (limit: number) => Promise<IpcResponse<ReadHistoryContract[]>>
   recordRead: (command: RecordReadCommand) => Promise<IpcResponse<void>>
   clearAllHistory: () => Promise<IpcResponse<void>>
 }
@@ -361,7 +326,7 @@ interface Mihon {
 }
 
 interface Storage {
-  statsMangaTable: () => Promise<IpcResponse<MangaCacheStatsQuery>>
+  statsMangaTable: () => Promise<IpcResponse<MangaCacheStatsContract>>
   clearMangaCache: (immediate: boolean) => Promise<IpcResponse<number>>
   optimiseMangaCache: () => Promise<IpcResponse<number>>
   setCoverCacheLimit: (limitInMB: number) => Promise<IpcResponse<void>>
@@ -393,11 +358,11 @@ interface DexReader {
 interface Downloads {
   downloadChapter: (options: DownloadChapterOptions) => Promise<IpcResponse<DownloadChapterResult>>
   deleteChapter: (options: DeleteChapterOptions) => Promise<IpcResponse<void>>
-  getAllDownloads: () => Promise<IpcResponse<ChapterDownloadQuery[]>>
+  getAllDownloads: () => Promise<IpcResponse<ChapterDownloadContract[]>>
   clearCompleted: () => Promise<IpcResponse<number>>
-  getDownload: (chapterId: string) => Promise<IpcResponse<ChapterDownloadQuery | undefined>>
+  getDownload: (chapterId: string) => Promise<IpcResponse<ChapterDownloadContract | undefined>>
   getStorageInfo: () => Promise<IpcResponse<StorageData>>
-  isDownloaded: (chapterId: string) => Promise<IpcResponse<ChapterDownloadQuery | undefined>>
+  isDownloaded: (chapterId: string) => Promise<IpcResponse<ChapterDownloadContract | undefined>>
   addToQueue: (options: QueuedDownloads) => Promise<IpcResponse<void>>
   addBatchToQueue: (options: QueuedDownloads[]) => Promise<IpcResponse<void>>
   removeFromQueue: (chapterId: string) => Promise<IpcResponse<void>>

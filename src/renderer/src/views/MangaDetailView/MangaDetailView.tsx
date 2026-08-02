@@ -17,9 +17,9 @@ import AlternativeTitlesSection from './components/AlternativeTitlesSection'
 import ChapterList from './components/ChapterList'
 import './MangaDetailView.css'
 import type {
-  ChapterProgressQuery,
-  MangaWithMetadata,
-  ChapterWithMetadata
+  ChapterProgressContract,
+  MangaWithMetadataContract,
+  ChapterWithMetadataContract
 } from '../../../../preload/window.types'
 import { rendererLog } from '@renderer/services/logging.service'
 
@@ -173,7 +173,7 @@ export function MangaDetailView(): JSX.Element {
       const response = await globalThis.progress.getAllChapterProgress(id)
       if (response.success && response.data) {
         // Convert array to map for easy lookup
-        const progressMap = new Map<string, ChapterProgressQuery>(
+        const progressMap = new Map<string, ChapterProgressContract>(
           response.data.map((p) => [p.chapterId, p])
         )
         setState((prev) => ({ ...prev, chapterProgress: progressMap }))
@@ -184,10 +184,10 @@ export function MangaDetailView(): JSX.Element {
   }
 
   /**
-   * Convert database MangaWithMetadata to API MangaEntity format for display
+   * Convert database MangaWithMetadataContract to API MangaEntity format for display
    * This creates a minimal manga entity that can be displayed in degraded mode
    */
-  const convertDbToMangaEntity = (dbManga: MangaWithMetadata): MangaEntity => {
+  const convertDbToMangaEntity = (dbManga: MangaWithMetadataContract): MangaEntity => {
     // Create a minimal manga entity structure
     return {
       id: dbManga.mangaId,
@@ -239,9 +239,11 @@ export function MangaDetailView(): JSX.Element {
   }
 
   /**
-   * Convert database ChapterWithMetadata[] to API ChapterEntity[] format
+   * Convert database ChapterWithMetadataContract[] to API ChapterEntity[] format
    */
-  const convertDbToChapterEntities = (dbChapters: ChapterWithMetadata[]): ChapterEntity[] => {
+  const convertDbToChapterEntities = (
+    dbChapters: ChapterWithMetadataContract[]
+  ): ChapterEntity[] => {
     return dbChapters.map(
       (ch) =>
         ({
