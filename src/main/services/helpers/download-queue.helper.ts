@@ -1,6 +1,6 @@
 import { BrowserWindow } from 'electron'
-import { DownloadStatus } from '../../database/enums/download-status.enum'
-import { ChapterDownloadQuery } from '../../database/queries/chapter-downloads/chapter-downloads.query'
+import { DownloadStatus } from '@shared/enums/repositories/download-status.enum'
+import { ChapterDownloadContract } from '@shared/contracts/database/chapter-downloads/chapter-downloads.contract'
 import { OverallProgress } from '../types/downloads/overall-progress.type'
 import { QueuedDownloads } from '../types/downloads/queued-downloads.type'
 
@@ -14,7 +14,7 @@ import { QueuedDownloads } from '../types/downloads/queued-downloads.type'
 export function calculateAggregateStats(
   queue: QueuedDownloads[],
   activeDownloadsSize: number,
-  allDownloads: ChapterDownloadQuery[]
+  allDownloads: ChapterDownloadContract[]
 ): OverallProgress {
   const completed = allDownloads.filter((d) => d.status === DownloadStatus.Completed)
   const failed = allDownloads.filter((d) => d.status === DownloadStatus.Failed)

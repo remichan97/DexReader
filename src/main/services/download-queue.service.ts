@@ -1,5 +1,5 @@
 import { BrowserWindow } from 'electron'
-import { DownloadStatus } from '../database/enums/download-status.enum'
+import { DownloadStatus } from '@shared/enums/repositories/download-status.enum'
 import { chapterDownloadsRepo } from '../database/repositories/chapter-downloads.repo'
 import { downloadService } from './download.service'
 import { DownloadChapterOptions } from './options/download-chapter.option'
@@ -12,14 +12,14 @@ import {
   emitPermanentFailureNotification,
   getRetryDelay
 } from './helpers/download-queue.helper'
-import { MarkDownloadStateCommand } from '../database/commands/chapter-downloads/mark-state.command'
+import { MarkDownloadStateCommand } from '@shared/commands/repositories/chapter-downloads/mark-state.command'
 import {
   classifyDownloadError,
   ErrorClassification,
   getErrorSummary
 } from './errors/download-error-classifier'
 import { DownloadErrorCategory } from './errors/enums/download-error.enum'
-import { ChapterDownloadQuery } from '../database/queries/chapter-downloads/chapter-downloads.query'
+import { ChapterDownloadContract } from '@shared/contracts/database/chapter-downloads/chapter-downloads.contract'
 import { mainLog } from './logging/main-logging.service'
 import { settingsManager } from '../settings/settings-manager'
 
@@ -36,7 +36,7 @@ class DownloadQueueService {
   private readonly emitInterval = 100 // At most 10 updates per second
 
   // Progress caching - cache getAllDownloads() results for 1 second to reduce DB load
-  private cachedDownloadStats: ChapterDownloadQuery[] | null = null
+  private cachedDownloadStats: ChapterDownloadContract[] | null = null
   private lastCacheUpdate = 0
   private readonly cacheValidityMs = 1000 // 1 second cache
 

@@ -1,4 +1,4 @@
-import { ReadHistoryQuery } from '../queries/history/reading-history.query'
+import { ReadHistoryContract } from '@shared/contracts/database/history/reading-history.query'
 import { readHistory } from '../schemas/read-history.schema'
 import { manga } from '../schemas/manga.schema'
 import { chapter } from '../schemas/chapter.schema'
@@ -15,9 +15,9 @@ type ReadHistoryJoinResult = {
 
 export class ReadHistoryMapper {
   /**
-   * Maps a joined query result (read_history + manga + chapter) to ReadHistoryQuery
+   * Maps a joined query result (read_history + manga + chapter) to ReadHistoryContract
    */
-  static toReadHistoryQuery(row: ReadHistoryJoinResult): ReadHistoryQuery {
+  static toReadHistoryQuery(row: ReadHistoryJoinResult): ReadHistoryContract {
     return {
       mangaId: row.read_history.mangaId,
       chapterId: row.read_history.chapterId,

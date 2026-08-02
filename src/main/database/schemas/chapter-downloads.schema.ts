@@ -1,7 +1,7 @@
 import { index, integer, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { chapter } from './chapter.schema'
 import { manga } from './manga.schema'
-import { DownloadStatus } from '../enums/download-status.enum'
+import { DownloadStatus } from '@shared/enums/repositories/download-status.enum'
 import { ImageQuality } from '../../api/enums'
 import { sql } from 'drizzle-orm/sql'
 

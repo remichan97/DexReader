@@ -1,6 +1,6 @@
-import { CollectionItemQuery } from '../queries/collections/collection-item.query'
-import { CollectionMetadataQuery } from '../queries/collections/collection-metadata.query'
-import { CollectionQuery } from '../queries/collections/collection.query'
+import { CollectionItemContract } from '@shared/contracts/database/collections/collection-item.contract'
+import { CollectionMetadataContract } from '@shared/contracts/database/collections/collection-metadata.contract'
+import { CollectionContract } from '@shared/contracts/database/collections/collection.contract'
 import { collectionItems, collections } from '../schemas'
 
 type CollectionMetadataRow = {
@@ -34,7 +34,7 @@ type CollectionRow = typeof collections.$inferSelect
 type CollectionItemsRow = typeof collectionItems.$inferSelect
 
 export class CollectionMapper {
-  static toCollectionWithMetadata(row: CollectionMetadataRow): CollectionMetadataQuery {
+  static toCollectionWithMetadata(row: CollectionMetadataRow): CollectionMetadataContract {
     return {
       id: row.id,
       name: row.name,
@@ -46,9 +46,9 @@ export class CollectionMapper {
     }
   }
 
-  static toCollectionQuery(row: CollectionJoinRow): CollectionQuery
-  static toCollectionQuery(row: CollectionRow): CollectionQuery
-  static toCollectionQuery(row: CollectionJoinRow | CollectionRow): CollectionQuery {
+  static toCollectionQuery(row: CollectionJoinRow): CollectionContract
+  static toCollectionQuery(row: CollectionRow): CollectionContract
+  static toCollectionQuery(row: CollectionJoinRow | CollectionRow): CollectionContract {
     // Type guard: Check if it's a JOIN result
     if ('collections' in row) {
       return {
@@ -70,7 +70,7 @@ export class CollectionMapper {
     }
   }
 
-  static toCollectionItemQuery(row: CollectionItemsRow): CollectionItemQuery {
+  static toCollectionItemQuery(row: CollectionItemsRow): CollectionItemContract {
     return {
       id: row.id,
       collectionId: row.collectionId,

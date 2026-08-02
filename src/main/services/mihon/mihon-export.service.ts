@@ -1,7 +1,7 @@
 import path, { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import fs from 'node:fs/promises'
-import { ChapterWithMetadata } from '../../database/queries/manga/chapter-with-metadata.query'
+import { ChapterWithMetadataContract } from '@shared/contracts/database/manga/chapter-with-metadata.contract'
 
 // ESM: Get __dirname equivalent
 const __filename = fileURLToPath(import.meta.url)
@@ -29,7 +29,7 @@ class MihonExportService {
 
   async exportMihonData(savePath: string): Promise<ExportResult> {
     const categoryMap = new Map<string, number[]>()
-    const chapterMetadataMap = new Map<string, ChapterWithMetadata>()
+    const chapterMetadataMap = new Map<string, ChapterWithMetadataContract>()
     const backupMangaList: BackupManga[] = []
     let backupCategories: BackupCategory[] = []
 

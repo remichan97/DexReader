@@ -1,7 +1,7 @@
-import { CollectionItemQuery } from '../../database/queries/collections/collection-item.query'
-import { CollectionQuery } from '../../database/queries/collections/collection.query'
-import { ChapterProgressQuery } from '../../database/queries/progress/chapter-progress.query'
-import { MangaProgressQuery } from '../../database/queries/progress/manga-progress.query'
+import { CollectionItemContract } from '@shared/contracts/database/collections/collection-item.contract'
+import { CollectionContract } from '@shared/contracts/database/collections/collection.contract'
+import { ChapterProgressContract } from '@shared/contracts/database/progress/chapter-progress.contract'
+import { MangaProgressContract } from '@shared/contracts/database/progress/manga-progress.contract'
 import { chapter, manga } from '../../database/schemas'
 import { dateToUnixTimestamp } from '../../utils/timestamps.util'
 import { DexReaderChapterProgress } from '../types/dexreader/chapter-progress.type'
@@ -53,7 +53,7 @@ class DexReaderExportHelper {
     }
   }
 
-  buildCollectionData(data: CollectionQuery): DexReaderCollection {
+  buildCollectionData(data: CollectionContract): DexReaderCollection {
     return {
       id: data.id,
       name: data.name,
@@ -63,7 +63,7 @@ class DexReaderExportHelper {
     }
   }
 
-  buildCollectionItemData(data: CollectionItemQuery): DexReaderCollectionItem {
+  buildCollectionItemData(data: CollectionItemContract): DexReaderCollectionItem {
     return {
       collectionId: data.collectionId,
       mangaId: data.mangaId,
@@ -72,7 +72,7 @@ class DexReaderExportHelper {
     }
   }
 
-  buildMangaProgressData(data: MangaProgressQuery): DexReaderMangaProgress {
+  buildMangaProgressData(data: MangaProgressContract): DexReaderMangaProgress {
     return {
       mangaId: data.mangaId,
       lastChapterId: data.lastChapterId,
@@ -81,7 +81,7 @@ class DexReaderExportHelper {
     }
   }
 
-  buildChapterProgressData(data: ChapterProgressQuery): DexReaderChapterProgress {
+  buildChapterProgressData(data: ChapterProgressContract): DexReaderChapterProgress {
     return {
       mangaId: data.mangaId,
       chapterId: data.chapterId,

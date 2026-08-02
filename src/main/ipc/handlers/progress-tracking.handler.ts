@@ -1,4 +1,4 @@
-import { SaveProgressCommand } from '../../database/commands/progress/save-progress.command'
+import { SaveProgressCommand } from '@shared/commands/repositories/progress/save-progress.command'
 import { chapterRepo } from '../../database/repositories/chapter.repo'
 import { progressRepo } from '../../database/repositories/manga-progress.repo'
 import { readingRepo } from '../../database/repositories/reading-stats.repo'

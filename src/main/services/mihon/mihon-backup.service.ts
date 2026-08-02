@@ -1,4 +1,4 @@
-import { SaveChapterCommand } from '../../database/commands/progress/save-chapter.command'
+import { SaveChapterCommand } from '@shared/commands/repositories/progress/save-chapter.command'
 import { mihonBackup } from '../helpers/mihon-backup.helper'
 import fs from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
@@ -7,7 +7,7 @@ import path, { dirname } from 'node:path'
 // ESM: Get __dirname equivalent
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
-import { UpsertMangaCommand } from '../../database/commands/manga/upsert-manga.command'
+import { UpsertMangaCommand } from '@shared/commands/repositories/manga/upsert-manga.command'
 import Pako from 'pako'
 import { ImportResult } from '../results/mihon/import.result'
 import { BackupCategory } from '../types/mihon/backup-category.type'
@@ -16,8 +16,8 @@ import protobuf from 'protobufjs'
 import { Backup } from '../types/mihon/backup.type'
 import { collectionRepo } from '../../database/repositories/collection.repo'
 import { mangaRepo } from '../../database/repositories/manga.repo'
-import { AddToCollectionCommand } from '../../database/commands/collections/add-to-collection.command'
-import { SaveProgressCommand } from '../../database/commands/progress/save-progress.command'
+import { AddToCollectionCommand } from '@shared/commands/repositories/collections/add-to-collection.command'
+import { SaveProgressCommand } from '@shared/commands/repositories/progress/save-progress.command'
 import { progressRepo } from '../../database/repositories/manga-progress.repo'
 import { chapterRepo } from '../../database/repositories/chapter.repo'
 

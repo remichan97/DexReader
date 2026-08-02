@@ -1,9 +1,9 @@
 import { TagList } from '../../api/constants/tag-list.constant'
 import { PublicationStatus } from '../../api/enums'
-import { CollectionQuery } from '../../database/queries/collections/collection.query'
-import { ChapterWithMetadata } from '../../database/queries/manga/chapter-with-metadata.query'
-import { MangaWithMetadata } from '../../database/queries/manga/manga-with-metadata.query'
-import { ChapterProgressQuery } from '../../database/queries/progress/chapter-progress.query'
+import { CollectionContract } from '@shared/contracts/database/collections/collection.contract'
+import { ChapterWithMetadataContract } from '@shared/contracts/database/manga/chapter-with-metadata.contract'
+import { MangaWithMetadataContract } from '@shared/contracts/database/manga/manga-with-metadata.contract'
+import { ChapterProgressContract } from '@shared/contracts/database/progress/chapter-progress.contract'
 import { dateToUnixTimestamp } from '../../utils/timestamps.util'
 import { BackupCategory } from '../types/mihon/backup-category.type'
 import { BackupChapter } from '../types/mihon/backup-chapter.type'
@@ -52,8 +52,8 @@ class MihonExportHelper {
   }
 
   buildBackupChapter(
-    chapterProgress: ChapterProgressQuery,
-    metadata: ChapterWithMetadata | undefined
+    chapterProgress: ChapterProgressContract,
+    metadata: ChapterWithMetadataContract | undefined
   ): BackupChapter {
     return {
       url: this.buildChapterUrl(chapterProgress.chapterId),
@@ -67,14 +67,14 @@ class MihonExportHelper {
     }
   }
 
-  buildBackupHistory(chapterProgress: ChapterProgressQuery): BackupHistory {
+  buildBackupHistory(chapterProgress: ChapterProgressContract): BackupHistory {
     return {
       url: this.buildChapterUrl(chapterProgress.chapterId),
       lastRead: chapterProgress.lastReadAt
     }
   }
 
-  buildBackupCategory(collection: CollectionQuery, index: number): BackupCategory {
+  buildBackupCategory(collection: CollectionContract, index: number): BackupCategory {
     return {
       name: collection.name,
       order: index,
@@ -83,7 +83,7 @@ class MihonExportHelper {
   }
 
   buildBackupManga(
-    manga: MangaWithMetadata,
+    manga: MangaWithMetadataContract,
     categories: number[] | undefined,
     backupChapters: BackupChapter[],
     backupHistory: BackupHistory[]

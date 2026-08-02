@@ -1,4 +1,4 @@
-import { CreateSearchPresetCommand } from '../database/commands/search-presets/create-search-preset.command'
+import { CreateSearchPresetCommand } from '@shared/commands/repositories/search-presets/create-search-preset.command'
 import { SearchPresetQuery } from '@shared/contracts/settings/search-preset.contract'
 import { searchPresetsRepo } from '../database/repositories/search-presets.repo'
 import { settingsManager } from '../settings/settings-manager'

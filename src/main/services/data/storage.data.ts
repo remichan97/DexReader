@@ -1,9 +1,9 @@
-import { MangaStorageQuery } from '../../database/queries/chapter-downloads/manga-storage.query'
-import { DiskCacheQuery } from '../../database/queries/storage/disk-cache.query'
+import { MangaStorageContract } from '@shared/contracts/database/chapter-downloads/manga-storage.contract'
+import { DiskCacheContract } from '@shared/contracts/database/storage/disk-cache.contract'
 import { DiskSpaceData } from './disk-space.data'
 
 export interface StorageData {
-  mangaStorage: MangaStorageQuery
+  mangaStorage: MangaStorageContract
   diskSpace: DiskSpaceData
-  cacheSize: DiskCacheQuery
+  cacheSize: DiskCacheContract
 }

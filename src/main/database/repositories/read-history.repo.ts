@@ -1,10 +1,10 @@
 import { eq, desc, max } from 'drizzle-orm'
-import { GetReadHistoryCommand } from '../commands/history/get-history-options.command'
-import { RecordReadCommand } from '../commands/history/record-read.command'
 import { databaseConnection } from '../connection'
-import { ReadHistoryQuery } from '../queries/history/reading-history.query'
 import { chapter, manga, readHistory } from '../schemas'
 import { ReadHistoryMapper } from '../mappers/history.mapper'
+import { RecordReadCommand } from 'src/preload/window.types'
+import { GetReadHistoryCommand } from '@shared/commands/repositories/history/get-history-options.command'
+import { ReadHistoryContract } from '@shared/contracts/database/history/reading-history.query'
 
 class ReadHistoryRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
@@ -25,7 +25,7 @@ class ReadHistoryRepository {
   }
 
   // For History View: Return every read history entry, ordered by most recent
-  getHistory(command?: GetReadHistoryCommand): ReadHistoryQuery[] {
+  getHistory(command?: GetReadHistoryCommand): ReadHistoryContract[] {
     const query = this.db
       .select()
       .from(readHistory)
@@ -45,7 +45,7 @@ class ReadHistoryRepository {
   }
 
   //For Library View: Return unique/grouped read history by mangaId, ordered by most recent
-  getRecentlyRead(limit?: number): ReadHistoryQuery[] {
+  getRecentlyRead(limit?: number): ReadHistoryContract[] {
     const subquery = this.db
       .select({
         mangaId: readHistory.mangaId,

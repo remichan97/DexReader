@@ -1,14 +1,14 @@
 import { and, eq, inArray, like, lt, SQL, sql, notExists, or, isNotNull } from 'drizzle-orm'
-import { UpsertMangaCommand } from '../commands/manga/upsert-manga.command'
 import { databaseConnection } from '../connection'
 import { chapterDownloads, collectionItems, manga } from '../schemas'
-import { GetLibraryMangaCommand } from '../commands/manga/get-library-manga.command'
-import { MangaWithMetadata } from '../queries/manga/manga-with-metadata.query'
 import { MangaMapper } from '../mappers/manga.mapper'
-import { SearchMangaCommand } from '../commands/manga/search-manga.command'
-import { DownloadStatus } from '../enums/download-status.enum'
-import { MangaCacheStatsQuery } from '../queries/manga/manga-cache-stats.query'
 import { executeBatchOperations } from '../utils/batch-operations.util'
+import { UpsertMangaCommand } from '@shared/commands/repositories/manga/upsert-manga.command'
+import { GetLibraryMangaCommand } from '@shared/commands/repositories/manga/get-library-manga.command'
+import { SearchMangaCommand } from '@shared/commands/repositories/manga/search-manga.command'
+import { MangaWithMetadataContract } from '@shared/contracts/database/manga/manga-with-metadata.contract'
+import { MangaCacheStatsContract } from '@shared/contracts/database/manga/manga-cache-stats.contract'
+import { DownloadStatus } from '@shared/enums/repositories/download-status.enum'
 
 type MangaRow = typeof manga.$inferSelect
 
@@ -133,7 +133,7 @@ class MangaRepository {
     return newStatus
   }
 
-  getLibraryManga(options?: GetLibraryMangaCommand): MangaWithMetadata[] {
+  getLibraryManga(options?: GetLibraryMangaCommand): MangaWithMetadataContract[] {
     // If no option is provided, return all favourited manga with their download status - this is the default library view without filters
     if (!options) {
       const result = this.db
@@ -213,7 +213,7 @@ class MangaRepository {
     }))
   }
 
-  getDownloadedManga(): MangaWithMetadata[] {
+  getDownloadedManga(): MangaWithMetadataContract[] {
     const results = this.db
       .select({
         manga: manga,
@@ -235,7 +235,7 @@ class MangaRepository {
     }))
   }
 
-  getLibraryMangaByCustomCondition(command: SearchMangaCommand): MangaWithMetadata[] {
+  getLibraryMangaByCustomCondition(command: SearchMangaCommand): MangaWithMetadataContract[] {
     const condition: (SQL | undefined)[] = []
     // Only return explicitly favourited manga (library = curated bookmarks)
     condition.push(eq(manga.isFavourite, true))
@@ -281,7 +281,7 @@ class MangaRepository {
     }))
   }
 
-  getMangaById(mangaId: string): MangaWithMetadata | undefined {
+  getMangaById(mangaId: string): MangaWithMetadataContract | undefined {
     const result = this.db
       .select({
         manga: manga,
@@ -304,7 +304,7 @@ class MangaRepository {
     }
   }
 
-  statsMangaTable(): MangaCacheStatsQuery {
+  statsMangaTable(): MangaCacheStatsContract {
     const thresholdDate = new Date()
     thresholdDate.setDate(thresholdDate.getDate() - 90)
 

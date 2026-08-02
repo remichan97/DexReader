@@ -1,8 +1,8 @@
 import { ImageQuality } from '../../api/enums'
 import { dateToUnixTimestamp } from '../../utils/timestamps.util'
-import { DownloadStatus } from '../enums/download-status.enum'
-import { ChapterDownloadQuery } from '../queries/chapter-downloads/chapter-downloads.query'
-import { MangaStorageQuery } from '../queries/chapter-downloads/manga-storage.query'
+import { DownloadStatus } from '@shared/enums/repositories/download-status.enum'
+import { ChapterDownloadContract } from '@shared/contracts/database/chapter-downloads/chapter-downloads.contract'
+import { MangaStorageContract } from '@shared/contracts/database/chapter-downloads/manga-storage.contract'
 
 type ChapterDownloadRow = {
   chapterId: string
@@ -33,7 +33,7 @@ type MangaStorageByTitleRow = {
 }
 
 export class ChapterDownloadMapper {
-  static toChapterDownloadQuery(row: ChapterDownloadRow): ChapterDownloadQuery {
+  static toChapterDownloadQuery(row: ChapterDownloadRow): ChapterDownloadContract {
     return {
       chapterId: row.chapterId,
       mangaId: row.mangaId,
@@ -60,7 +60,7 @@ export class ChapterDownloadMapper {
   static toMangaStorageQuery(
     totalAppStorage: number,
     mangaStorageByTitle: MangaStorageByTitleRow[]
-  ): MangaStorageQuery {
+  ): MangaStorageContract {
     return {
       totalAppStorage,
       mangaStorageByTitle: mangaStorageByTitle.map((row) => ({

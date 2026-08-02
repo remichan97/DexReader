@@ -1,14 +1,14 @@
 import { PublicationStatus } from '../../api/enums'
-import { AddToCollectionCommand } from '../../database/commands/collections/add-to-collection.command'
-import { UpsertMangaCommand } from '../../database/commands/manga/upsert-manga.command'
+import { AddToCollectionCommand } from '@shared/commands/repositories/collections/add-to-collection.command'
+import { UpsertMangaCommand } from '@shared/commands/repositories/manga/upsert-manga.command'
 import { collectionRepo } from '../../database/repositories/collection.repo'
 import { TagList } from '../../api/constants/tag-list.constant'
 import { BackupCategory } from '../types/mihon/backup-category.type'
 import { BackupManga } from '../types/mihon/backup-manga.type'
 import { BackupChapter } from '../types/mihon/backup-chapter.type'
-import { SaveProgressCommand } from '../../database/commands/progress/save-progress.command'
+import { SaveProgressCommand } from '@shared/commands/repositories/progress/save-progress.command'
 import { BackupHistory } from '../types/mihon/backup-history.type'
-import { SaveChapterCommand } from '../../database/commands/progress/save-chapter.command'
+import { SaveChapterCommand } from '@shared/commands/repositories/progress/save-chapter.command'
 import { unixTimestampToDate } from '../../utils/timestamps.util'
 
 const MANGADEX_URL_PATTERN = /\/(?:manga|title)\/([a-f0-9-]{36})(?:\/|$)/i

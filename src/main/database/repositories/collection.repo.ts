@@ -1,35 +1,35 @@
 import { and, eq, sql } from 'drizzle-orm'
 import { databaseConnection } from '../connection'
-import { CollectionQuery } from '../queries/collections/collection.query'
 
-import { CreateCollectionCommand } from '../commands/collections/create-collection.command'
 import { collectionItems, collections, manga } from '../schemas'
-import { AddToCollectionCommand } from '../commands/collections/add-to-collection.command'
-import { RemoveFromCollectionCommand } from '../commands/collections/remove-from-collection.command'
-import { UpdateCollectionCommand } from '../commands/collections/update-collection.command'
-import { CollectionMetadataQuery } from '../queries/collections/collection-metadata.query'
 import { CollectionMapper } from '../mappers/collection.mapper'
-import { ReorderMangaInCollectionCommand } from '../commands/collections/reorder-manga-collection.command'
-import { CollectionItemQuery } from '../queries/collections/collection-item.query'
 import { executeBatchOperations } from '../utils/batch-operations.util'
+import { CreateCollectionCommand } from '@shared/commands/repositories/collections/create-collection.command'
+import { UpdateCollectionCommand } from '@shared/commands/repositories/collections/update-collection.command'
+import { AddToCollectionCommand } from '@shared/commands/repositories/collections/add-to-collection.command'
+import { RemoveFromCollectionCommand } from '@shared/commands/repositories/collections/remove-from-collection.command'
+import { ReorderMangaInCollectionCommand } from '@shared/commands/repositories/collections/reorder-manga-collection.command'
+import { CollectionContract } from '@shared/contracts/database/collections/collection.contract'
+import { CollectionMetadataContract } from '@shared/contracts/database/collections/collection-metadata.contract'
+import { CollectionItemContract } from '@shared/contracts/database/collections/collection-item.contract'
 
 class CollectionRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
     return databaseConnection.getDb()
   }
 
-  getAllCollections(): CollectionQuery[] {
+  getAllCollections(): CollectionContract[] {
     const query = this.db.select().from(collections).all()
     return query.map(CollectionMapper.toCollectionQuery)
   }
 
-  getCollectionById(collectionId: number): CollectionQuery | undefined {
+  getCollectionById(collectionId: number): CollectionContract | undefined {
     const result = this.db.select().from(collections).where(eq(collections.id, collectionId)).get()
     return result ? CollectionMapper.toCollectionQuery(result) : undefined
   }
 
   // Rich query with metadata (manga counts, cover urls)
-  getAllCollectionsWithMetadata(): CollectionMetadataQuery[] {
+  getAllCollectionsWithMetadata(): CollectionMetadataContract[] {
     // JOINS with collection_items and manga for counts and cover
     const result = this.db
       .select({
@@ -59,7 +59,7 @@ class CollectionRepository {
     return results.map((result) => result.mangaId)
   }
 
-  getAllCollectionItems(): CollectionItemQuery[] {
+  getAllCollectionItems(): CollectionItemContract[] {
     const results = this.db.select().from(collectionItems).all()
     return results.map(CollectionMapper.toCollectionItemQuery)
   }
@@ -176,7 +176,7 @@ class CollectionRepository {
     })
   }
 
-  getCollectionByManga(mangaId: string): CollectionQuery[] {
+  getCollectionByManga(mangaId: string): CollectionContract[] {
     const results = this.db
       .select()
       .from(collectionItems)

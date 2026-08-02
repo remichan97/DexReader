@@ -1,9 +1,9 @@
 import { eq, inArray } from 'drizzle-orm'
-import { SaveChapterCommand } from '../commands/progress/save-chapter.command'
 import { databaseConnection } from '../connection'
-import { ChapterWithMetadata } from '../queries/manga/chapter-with-metadata.query'
 import { chapter } from '../schemas/chapter.schema'
 import { ChapterMapper } from '../mappers/chapter.mapper'
+import { SaveChapterCommand } from '@shared/commands/repositories/progress/save-chapter.command'
+import { ChapterWithMetadataContract } from '@shared/contracts/database/manga/chapter-with-metadata.contract'
 
 type ChapterRow = typeof chapter.$inferSelect
 
@@ -45,13 +45,13 @@ class ChapterRepository {
     })
   }
 
-  getChaptersByMangaId(mangaId: string): ChapterWithMetadata[] {
+  getChaptersByMangaId(mangaId: string): ChapterWithMetadataContract[] {
     const results = this.db.select().from(chapter).where(eq(chapter.mangaId, mangaId)).all()
 
     return results.map(ChapterMapper.toChapterMetadata)
   }
 
-  getChapterById(chapterId: string): ChapterWithMetadata | undefined {
+  getChapterById(chapterId: string): ChapterWithMetadataContract | undefined {
     const result = this.db
       .select()
       .from(chapter)

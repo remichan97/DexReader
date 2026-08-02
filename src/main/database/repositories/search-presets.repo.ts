@@ -3,7 +3,7 @@ import { databaseConnection } from '../connection'
 import { searchPresets } from '../schemas'
 import { SearchPresetsMapper } from '../mappers/search-presets.mapper'
 import { eq } from 'drizzle-orm'
-import { CreateSearchPresetCommand } from '../commands/search-presets/create-search-preset.command'
+import { CreateSearchPresetCommand } from '@shared/commands/services/create-search-preset.command'
 
 class SearchPresetsRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
