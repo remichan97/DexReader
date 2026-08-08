@@ -1,5 +1,4 @@
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { DownloadChapterOptions } from './../main/services/options/download-chapter.option'
+import { DownloadChapterCommand } from '@shared/commands/services/download-chapter.command'
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { IpcResponse, FileStats, AllowedPaths, FolderSelectResult } from './ipc.types'
@@ -17,17 +16,13 @@ import { AddToCollectionCommand } from '@shared/commands/repositories/collection
 import { RemoveFromCollectionCommand } from '@shared/commands/repositories/collections/remove-from-collection.command'
 import { ReorderMangaInCollectionCommand } from '@shared/commands/repositories/collections/reorder-manga-collection.command'
 import { RecordReadCommand } from '@shared/commands/repositories/history/record-read.command'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { DexreaderExportOption } from '../main/services/options/dexreader-export.option'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { QueuedDownloads } from '../main/services/types/downloads/queued-downloads.type'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { DeleteChapterOptions } from '../main/services/options/delete-chapter.option'
-import { CreateSearchPresetCommand } from '@shared/commands/repositories/search-presets/create-search-preset.command'
+import { DexreaderExportCommand } from '@shared/commands/services/dexreader-export.command'
+import { QueuedDownloads } from '@shared/types/downloads/queued-downloads.type'
+import { DeleteChapterCommand } from '@shared/commands/services/delete-chapter.command'
+import { CreateSearchPresetCommand } from '@shared/commands/services/create-search-preset.command'
 
 // Export enums for renderer
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export { DownloadConfirmation } from '../main/settings/enums/download-confirmation.enum'
+export { DownloadConfirmation } from '@shared/enums/settings/download-confirmation.enum'
 
 // Custom APIs for renderer
 const api = {
@@ -331,7 +326,7 @@ const settings = {
 }
 
 const dexReader = {
-  exportData: (savePath: string, options: DexreaderExportOption) =>
+  exportData: (savePath: string, options: DexreaderExportCommand) =>
     ipcRenderer.invoke('dexreader:export-data', savePath, options),
 
   importData: (filePath: string) => ipcRenderer.invoke('dexreader:import-data', filePath),
@@ -340,9 +335,9 @@ const dexReader = {
 }
 
 const downloads = {
-  downloadChapter: (options: DownloadChapterOptions) =>
+  downloadChapter: (options: DownloadChapterCommand) =>
     ipcRenderer.invoke('downloads:download-chapter', options),
-  deleteChapter: (options: DeleteChapterOptions) =>
+  deleteChapter: (options: DeleteChapterCommand) =>
     ipcRenderer.invoke('downloads:delete-chapter', options),
   getAllDownloads: () => ipcRenderer.invoke('download:get-all-downloads'),
   getStorageInfo: () => ipcRenderer.invoke('download:storage-stats'),

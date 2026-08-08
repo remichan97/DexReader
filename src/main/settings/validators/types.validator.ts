@@ -1,25 +1,25 @@
 import os from 'node:os'
-import { ChapterCacheTier } from './../enums/chapter-cache-tier.enum'
+import { ChapterCacheTier } from '../../../shared/enums/settings/chapter-cache-tier.enum'
 import { ImageQuality } from '../../api/enums'
-import { DownloadChapterOptions } from '../../services/options/download-chapter.option'
-import { QueuedDownloads } from '../../services/types/downloads/queued-downloads.type'
-import { DownloadSettings } from '../entities/downloads-settings.entity'
-import { MangaOverrideSettings } from '../entities/manga-override-settings.entity'
-import { ReaderSettings } from '../entities/reader-settings.entity'
+import { DownloadChapterCommand } from '@shared/commands/services/download-chapter.command'
+import { QueuedDownloads } from '@shared/types/downloads/queued-downloads.type'
+import { DownloadSettings } from '../../../shared/types/settings/downloads-settings.type'
+import { MangaOverrideSettings } from '../../../shared/types/settings/manga-override-settings.type'
+import { ReaderSettings } from '../../../shared/types/settings/reader-settings.type'
 import { MangaReadingSettings } from '@shared/contracts/settings/reading-settings.contract'
-import { DownloadConfirmation } from '../enums/download-confirmation.enum'
+import { DownloadConfirmation } from '@shared/enums/settings/download-confirmation.enum'
 import { ReadingMode } from '@shared/enums/settings/reading-mode.enum'
-import { AppTheme } from '../enums/theme-mode.enum'
-import { AppearanceSettings } from '../entities/appearance-settings.entity'
+import { AppTheme } from '../../../shared/enums/settings/theme-mode.enum'
+import { AppearanceSettings } from '../../../shared/types/settings/appearance-settings.type'
 import { ValidationError } from '../../ipc/error/validation.error'
-import { UpdateSettings } from '../entities/update-settings.entity'
-import { LogsSettings } from '../entities/logs-settings.entity'
-import { StartupPage } from '../enums/startup-page.enum'
-import { AppSettings } from '../entities/app-settings.entity'
-import { SearchSettings } from '../entities/search-settings.entity'
-import { DisplayLanguage } from '../enums/display-languages.enum'
-import { LanguageSettings } from '../entities/language-settings.entity'
-import { ContentLanguage } from '../enums/content-language.enum'
+import { UpdateSettings } from '../../../shared/types/settings/update-settings.type'
+import { LogsSettings } from '../../../shared/types/settings/logs-settings.type'
+import { StartupPage } from '../../../shared/enums/settings/startup-page.enum'
+import { AppSettings } from '@shared/types/settings/app-settings.type'
+import { SearchSettings } from '../../../shared/types/settings/search-settings.type'
+import { DisplayLanguage } from '../../../shared/enums/settings/display-languages.enum'
+import { LanguageSettings } from '../../../shared/types/settings/language-settings.type'
+import { ContentLanguage } from '../../../shared/enums/settings/content-language.enum'
 
 export function validateSettings(newSettings: unknown): newSettings is AppSettings {
   if (typeof newSettings !== 'object' || newSettings === null) {
@@ -258,7 +258,7 @@ export function isReaderSettings(values: unknown): values is ReaderSettings {
   return true
 }
 
-export function isDownloadChapterOptions(values: unknown): values is DownloadChapterOptions {
+export function isDownloadChapterOptions(values: unknown): values is DownloadChapterCommand {
   if (values === null || typeof values !== 'object') {
     throw new TypeError('Invalid parameters for downloading chapter')
   }

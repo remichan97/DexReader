@@ -37,8 +37,7 @@ import { MangaWithMetadataContract } from '@shared/contracts/database/manga/mang
 import type { ChapterWithMetadataContract } from '@shared/contracts/database/manga/chapter-with-metadata.contract'
 import type { ChapterDownloadContract } from '@shared/contracts/database/chapter-downloads/chapter-downloads.contract'
 import { ReadHistoryContract } from '@shared/contracts/database/history/reading-history.query'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import type { ChapterDownloadsEvent } from '../main/services/events/chapter-downloads.event'
+import type { ChapterDownloadsEvent } from '@shared/events/chapter-downloads.event'
 import type { MangaCacheStatsContract } from '@shared/contracts/database/manga/manga-cache-stats.contract'
 import { SearchPresetQuery } from '@shared/contracts/settings/search-preset.contract'
 
@@ -57,46 +56,30 @@ import { CollectionContract } from '@shared/contracts/database/collections/colle
 
 // Settings
 import type { MangaReadingSettings } from '@shared/contracts/settings/reading-settings.contract'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import type { AppSettings } from '../main/settings/entities/app-settings.entity'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import type { MemoryTierInfo } from '../main/settings/response/memory-tier.response'
+import type { AppSettings } from '@shared/types/settings/app-settings.type'
+import type { MemoryTierContract } from '@shared/contracts/settings/memory-tier.contract'
 
 // Service options
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import type { DexreaderExportOption } from '../main/services/options/dexreader-export.option'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import type { DownloadChapterOptions } from '../main/services/options/download-chapter.option'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import type { DeleteChapterOptions } from '../main/services/options/delete-chapter.option'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import type { CreateSearchPresetOptions } from '../main/services/options/create-search-preset.option'
+import type { DexreaderExportCommand } from '@shared/commands/services/dexreader-export.command'
+import type { DownloadChapterCommand } from '@shared/commands/services/download-chapter.command'
+import type { DeleteChapterCommand } from '@shared/commands/services/delete-chapter.command'
+import type { CreateSearchPresetCommand } from '@shared/commands/services/create-search-preset.command'
 
 // Service types
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import type { QueuedDownloads } from '../main/services/types/downloads/queued-downloads.type'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import type { QueueState } from '../main/services/types/downloads/queue-state.type'
+import type { QueuedDownloads } from '@shared/types/downloads/queued-downloads.type'
+import type { QueueState } from '@shared/types/downloads/queue-state.type'
 
 // Service results
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { ImportResult } from '../main/services/results/mihon/import.result'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { ExportResult } from '../main/services/results/mihon/export.result'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { DexReaderExportResult } from '../main/services/results/dexreader/export.result'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { DexReaderImportResult } from '../main/services/results/dexreader/import.result'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { DownloadChapterResult } from '../main/services/results/dexreader/download-chapter.result'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { DeleteMangaResult } from '../main/services/results/dexreader/delete-manga.result'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { DownloadStatResult } from '../main/services/results/dexreader/download-stats.result'
+import { MihonImportContract } from '@shared/contracts/services/mihon/mihon-import.contract'
+import { MihonExportContract } from '@shared/contracts/services/mihon/mihon-export.contract'
+import { DexReaderExportContract } from '@shared/contracts/services/dexreader/export.contract'
+import { DexReaderImportContract } from '@shared/contracts/services/dexreader/import.contract'
+import { DownloadChapterContract } from '@shared/contracts/services/dexreader/download-chapter.contract'
+import { DeleteMangaContract } from '@shared/contracts/services/dexreader/delete-manga.contract'
+import { DownloadStatContract } from '@shared/contracts/services/dexreader/download-stats.contract'
 
 // Data objects
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { StorageData } from '../main/services/data/storage.data'
+import { StorageDataContract } from '@shared/contracts/storage/storage-data.contract'
 
 // Re-export types for renderer use
 export type { IpcResponse } from './ipc.types'
@@ -118,43 +101,26 @@ export type { RemoveFromCollectionCommand } from '@shared/commands/repositories/
 export type { ReorderMangaInCollectionCommand } from '@shared/commands/repositories/collections/reorder-manga-collection.command'
 export type { RecordReadCommand } from '@shared/commands/repositories/history/record-read.command'
 export type { ReadHistoryContract } from '@shared/contracts/database/history/reading-history.query'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { ImportResult } from '../main/services/results/mihon/import.result'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { ExportResult } from '../main/services/results/mihon/export.result'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { DexReaderImportResult } from '../main/services/results/dexreader/import.result'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { DexReaderExportResult } from '../main/services/results/dexreader/export.result'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { DexreaderExportOption } from '../main/services/options/dexreader-export.option'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { DownloadChapterOptions } from '../main/services/options/download-chapter.option'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { CreateSearchPresetOptions } from '../main/services/options/create-search-preset.option'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { DeleteChapterOptions } from '../main/services/options/delete-chapter.option'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { DownloadChapterResult } from '../main/services/results/dexreader/download-chapter.result'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { QueuedDownloads } from '../main/services/types/downloads/queued-downloads.type'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { QueueState } from '../main/services/types/downloads/queue-state.type'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { ChapterDownloadsEvent } from '../main/services/events/chapter-downloads.event'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { StorageData } from '../main/services/data/storage.data'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { DeleteMangaResult } from '../main/services/results/dexreader/delete-manga.result'
+export type { MihonImportContract } from '@shared/contracts/services/mihon/mihon-import.contract'
+export type { MihonExportContract } from '@shared/contracts/services/mihon/mihon-export.contract'
+export type { DexReaderImportContract } from '@shared/contracts/services/dexreader/import.contract'
+export type { DexReaderExportContract } from '@shared/contracts/services/dexreader/export.contract'
+export type { DexreaderExportCommand } from '@shared/commands/services/dexreader-export.command'
+export type { DownloadChapterCommand } from '@shared/commands/services/download-chapter.command'
+export type { CreateSearchPresetCommand } from '@shared/commands/services/create-search-preset.command'
+export type { DeleteChapterCommand } from '@shared/commands/services/delete-chapter.command'
+export type { DownloadChapterContract } from '@shared/contracts/services/dexreader/download-chapter.contract'
+export type { QueuedDownloads } from '@shared/types/downloads/queued-downloads.type'
+export type { QueueState } from '@shared/types/downloads/queue-state.type'
+export type { ChapterDownloadsEvent } from '@shared/events/chapter-downloads.event'
+export type { StorageDataContract as StorageData } from '@shared/contracts/storage/storage-data.contract'
+export type { DeleteMangaContract } from '@shared/contracts/services/dexreader/delete-manga.contract'
 export type { CollectionContract } from '@shared/contracts/database/collections/collection.contract'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { AppSettings } from '../main/settings/entities/app-settings.entity'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { DownloadStatResult } from '../main/services/results/dexreader/download-stats.result'
+export type { AppSettings } from '@shared/types/settings/app-settings.type'
+export type { DownloadStatContract } from '@shared/contracts/services/dexreader/download-stats.contract'
 export type { MangaCacheStatsContract } from '@shared/contracts/database/manga/manga-cache-stats.contract'
 export type { SearchPresetQuery } from '@shared/contracts/settings/search-preset.contract'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { MemoryTierInfo } from '../main/settings/response/memory-tier.response'
+export type { MemoryTierContract } from '@shared/contracts/settings/memory-tier.contract'
 // eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
 export type { Manga } from '../main/api/entities/manga.entity'
 
@@ -320,9 +286,9 @@ interface ReadHistory {
 }
 
 interface Mihon {
-  importBackup: (filePath: string) => Promise<IpcResponse<ImportResult>>
+  importBackup: (filePath: string) => Promise<IpcResponse<MihonImportContract>>
   cancelImport: () => Promise<IpcResponse<void>>
-  exportBackup: (savePath: string) => Promise<IpcResponse<ExportResult>>
+  exportBackup: (savePath: string) => Promise<IpcResponse<MihonExportContract>>
 }
 
 interface Storage {
@@ -341,27 +307,29 @@ interface Settings {
   clearAllData: () => Promise<IpcResponse<boolean>>
   openSystemDateSettings: () => Promise<IpcResponse<boolean>>
   openSystemProxySettings: () => Promise<IpcResponse<boolean>>
-  getMemoryTierInfo: () => Promise<IpcResponse<MemoryTierInfo>>
+  getMemoryTierInfo: () => Promise<IpcResponse<MemoryTierContract>>
   restart: () => Promise<IpcResponse<void>>
 }
 
 interface DexReader {
   exportData: (
     savePath: string,
-    options: DexreaderExportOption
-  ) => Promise<IpcResponse<DexReaderExportResult>>
+    options: DexreaderExportCommand
+  ) => Promise<IpcResponse<DexReaderExportContract>>
 
-  importData: (filePath: string) => Promise<IpcResponse<DexReaderImportResult>>
+  importData: (filePath: string) => Promise<IpcResponse<DexReaderImportContract>>
   cancelImport: () => Promise<IpcResponse<void>>
 }
 
 interface Downloads {
-  downloadChapter: (options: DownloadChapterOptions) => Promise<IpcResponse<DownloadChapterResult>>
-  deleteChapter: (options: DeleteChapterOptions) => Promise<IpcResponse<void>>
+  downloadChapter: (
+    options: DownloadChapterCommand
+  ) => Promise<IpcResponse<DownloadChapterContract>>
+  deleteChapter: (options: DeleteChapterCommand) => Promise<IpcResponse<void>>
   getAllDownloads: () => Promise<IpcResponse<ChapterDownloadContract[]>>
   clearCompleted: () => Promise<IpcResponse<number>>
   getDownload: (chapterId: string) => Promise<IpcResponse<ChapterDownloadContract | undefined>>
-  getStorageInfo: () => Promise<IpcResponse<StorageData>>
+  getStorageInfo: () => Promise<IpcResponse<StorageDataContract>>
   isDownloaded: (chapterId: string) => Promise<IpcResponse<ChapterDownloadContract | undefined>>
   addToQueue: (options: QueuedDownloads) => Promise<IpcResponse<void>>
   addBatchToQueue: (options: QueuedDownloads[]) => Promise<IpcResponse<void>>
@@ -371,9 +339,9 @@ interface Downloads {
   retryDownload: (chapterId: string) => Promise<IpcResponse<void>>
   getQueueStats: () => Promise<IpcResponse<QueueState>>
   getQueuedItems: () => Promise<IpcResponse<QueuedDownloads[]>>
-  deleteManga: (mangaId: string) => Promise<IpcResponse<DeleteMangaResult>>
+  deleteManga: (mangaId: string) => Promise<IpcResponse<DeleteMangaContract>>
   batchDeleteManga: (mangaIds: string[]) => Promise<IpcResponse<void>>
-  getDownloadStats: (mangaId: string) => Promise<IpcResponse<DownloadStatResult>>
+  getDownloadStats: (mangaId: string) => Promise<IpcResponse<DownloadStatContract>>
   clearCoverCache: () => Promise<IpcResponse<void>>
 }
 
@@ -417,7 +385,7 @@ interface SearchPresets {
   getAll: () => Promise<IpcResponse<SearchPresetQuery[]>>
   getByName: (name: string) => Promise<IpcResponse<SearchPresetQuery | undefined>>
   getById: (id: number) => Promise<IpcResponse<SearchPresetQuery | undefined>>
-  create: (options: CreateSearchPresetOptions) => Promise<IpcResponse<SearchPresetQuery>>
+  create: (options: CreateSearchPresetCommand) => Promise<IpcResponse<SearchPresetQuery>>
   delete: (id: number) => Promise<IpcResponse<void>>
   updateLastUsedAt: (id: number) => Promise<IpcResponse<void>>
 }
