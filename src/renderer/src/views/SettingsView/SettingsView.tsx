@@ -25,8 +25,7 @@ import { UnsavedChangesBanner } from './components/UnsavedChangesBanner'
 import { SettingsHeader } from './components/SettingsHeader'
 import type { SettingsSection } from './components/SettingsHeader'
 import { useScrollSpy } from './hooks/useScrollSpy'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { ContentLanguage } from '../../../../main/settings/enums/content-language.enum'
+import { ContentLanguage } from '@shared/enums/settings/content-language.enum'
 import './SettingsView.css'
 
 interface PerMangaOverride {

@@ -20,7 +20,7 @@ import { handleUnfavourite } from '@renderer/utils/unfavouriteHandler'
 import './CreatorView.css'
 import { rendererLog } from '@renderer/services/logging.service'
 import { useTranslation } from '@renderer/hooks/useTranslation'
-import type { Manga } from '../../../../main/api/entities/manga.entity'
+import type { Manga } from '../../../../preload/window.types'
 
 type MangaEntity = Manga
 

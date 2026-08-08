@@ -9,7 +9,7 @@ import {
   Settings20Regular,
   Warning20Regular
 } from '@fluentui/react-icons'
-import type { DexReaderImportResult } from '../../../../preload/window.types'
+import type { DexReaderImportContract } from '../../../../preload/window.types'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import './DexReaderImportDialog.css'
 
@@ -17,7 +17,7 @@ interface DexReaderImportDialogProps {
   isOpen: boolean
   filePath: string | null
   onClose: () => void
-  onImportComplete: (result: DexReaderImportResult) => void
+  onImportComplete: (result: DexReaderImportContract) => void
 }
 
 export function DexReaderImportDialog({

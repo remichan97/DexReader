@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useToastStore } from '@renderer/stores'
 import type { ExportOptions } from '@renderer/components/DexReaderExportDialog'
-import type { DexReaderImportResult } from '../../../../../preload/window.types'
+import type { DexReaderImportContract } from '../../../../../preload/window.types'
 import { rendererLog } from '@renderer/services/logging.service'
 
 interface UseDexReaderImportExportReturn {
@@ -20,7 +20,7 @@ interface UseDexReaderImportExportReturn {
   // Handlers
   handleExport: (options: ExportOptions) => Promise<void>
   handleCloseExportDialog: () => void
-  handleImportComplete: (result: DexReaderImportResult) => Promise<void>
+  handleImportComplete: (result: DexReaderImportContract) => Promise<void>
   handleCloseImportDialog: () => void
 }
 
@@ -100,7 +100,7 @@ export function useDexReaderImportExport(
     }
   }
 
-  const handleImportComplete = async (result: DexReaderImportResult): Promise<void> => {
+  const handleImportComplete = async (result: DexReaderImportContract): Promise<void> => {
     // Refresh library to show imported manga
     await loadFavourites()
     await loadCollections()
