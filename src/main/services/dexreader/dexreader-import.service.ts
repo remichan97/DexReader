@@ -6,7 +6,6 @@ import fs from 'node:fs/promises'
 // ESM: Get __dirname equivalent
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
-import { DexReaderImportResult } from '../results/dexreader/import.result'
 import Pako from 'pako'
 import protobuf from 'protobufjs'
 import { DexReaderBackup } from '../types/dexreader/backup.type'
@@ -31,6 +30,7 @@ import { SaveProgressCommand } from '@shared/commands/repositories/progress/save
 import { progressRepo } from '../../database/repositories/manga-progress.repo'
 import { DexReaderMangaReaderOverride } from '../types/dexreader/manga-reader-override.type'
 import { readerSettingsRepo } from '../../database/repositories/reader-settings.repo'
+import { DexReaderImportContract } from '@shared/contracts/services/dexreader/import.contract'
 
 class DexReaderImportService {
   private readonly schemaPath = path.join(
@@ -42,7 +42,7 @@ class DexReaderImportService {
   )
   private abortController?: AbortController
 
-  async importLibrary(filePath: string): Promise<DexReaderImportResult> {
+  async importLibrary(filePath: string): Promise<DexReaderImportContract> {
     // Abort any ongoing import if exists
     if (this.abortController) {
       this.abortController.abort()
@@ -140,10 +140,10 @@ class DexReaderImportService {
     importManga: DexReaderManga[],
     importChapters: DexReaderChapter[],
     signal: AbortSignal
-  ): DexReaderImportResult {
+  ): DexReaderImportContract {
     const saveChapterCommand: SaveChapterCommand[] = []
     const upsertMangaCommand: UpsertMangaCommand[] = []
-    const result: DexReaderImportResult = {
+    const result: DexReaderImportContract = {
       importedMangaCount: 0,
       importedChaptersCount: 0,
       importedCollectionsCount: 0,
@@ -188,7 +188,7 @@ class DexReaderImportService {
     collections: DexReaderCollection[],
     collectionItems: DexReaderCollectionItem[],
     signal: AbortSignal,
-    result: DexReaderImportResult
+    result: DexReaderImportContract
   ): void {
     const createCollectionCommand: CreateCollectionCommand[] = []
 
@@ -264,7 +264,7 @@ class DexReaderImportService {
     mangaProgress: DexReaderMangaProgress[],
     chapterProgress: DexReaderChapterProgress[],
     signal: AbortSignal,
-    result: DexReaderImportResult
+    result: DexReaderImportContract
   ): void {
     const saveProgressCommand: SaveProgressCommand[] = []
     const updateFirstReadCommand: UpdateFirstReadCommand[] = []
@@ -297,7 +297,7 @@ class DexReaderImportService {
   private importMangaReaderOverrides(
     overrides: DexReaderMangaReaderOverride[],
     signal: AbortSignal,
-    result: DexReaderImportResult
+    result: DexReaderImportContract
   ): void {
     const updateMangaOverrideCommand: UpdateMangaOverrideCommand[] = []
 

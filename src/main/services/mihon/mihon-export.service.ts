@@ -11,12 +11,12 @@ import { collectionRepo } from '../../database/repositories/collection.repo'
 import { progressRepo } from '../../database/repositories/manga-progress.repo'
 import { mangaRepo } from '../../database/repositories/manga.repo'
 import { mihonExport } from '../helpers/mihon-export.helper'
-import { ExportResult } from '../results/mihon/export.result'
 import { BackupCategory } from '../types/mihon/backup-category.type'
 import { BackupManga } from '../types/mihon/backup-manga.type'
 import { Backup } from '../types/mihon/backup.type'
 import protobuf from 'protobufjs'
 import Pako from 'pako'
+import { MihonExportContract } from '@shared/contracts/services/mihon/mihon-export.contract'
 
 class MihonExportService {
   private readonly schemaPath = path.join(
@@ -27,7 +27,7 @@ class MihonExportService {
     'mihon.proto'
   )
 
-  async exportMihonData(savePath: string): Promise<ExportResult> {
+  async exportMihonData(savePath: string): Promise<MihonExportContract> {
     const categoryMap = new Map<string, number[]>()
     const chapterMetadataMap = new Map<string, ChapterWithMetadataContract>()
     const backupMangaList: BackupManga[] = []

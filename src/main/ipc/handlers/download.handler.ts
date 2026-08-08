@@ -1,14 +1,14 @@
 import { downloadService } from './../../services/download.service'
-import { DownloadChapterOptions } from './../../services/options/download-chapter.option'
+import { DownloadChapterCommand } from '@shared/commands/services/download-chapter.command'
 import { wrapIpcHandler } from '../wrap-handler'
 import {
   isDownloadChapterOptions,
   isQueuedDownloads
 } from '../../settings/validators/types.validator'
 import { downloadQueueService } from '../../services/download-queue.service'
-import { QueuedDownloads } from '../../services/types/downloads/queued-downloads.type'
+import { QueuedDownloads } from '@shared/types/downloads/queued-downloads.type'
 import { mainLog } from '../../services/logging/main-logging.service'
-import { DeleteChapterOptions } from '../../services/options/delete-chapter.option'
+import { DeleteChapterCommand } from '@shared/commands/services/delete-chapter.command'
 
 export function registerDownloadHandlers(): void {
   /**
@@ -44,7 +44,7 @@ export function registerDownloadHandlers(): void {
       throw new TypeError('Invalid parameters for downloading chapter')
     }
 
-    const options: DownloadChapterOptions = {
+    const options: DownloadChapterCommand = {
       chapterId: params.chapterId,
       mangaId: params.mangaId,
       language: params.language,
@@ -75,7 +75,7 @@ export function registerDownloadHandlers(): void {
       throw new TypeError('Invalid options for deleting chapter')
     }
 
-    const deleteOptions = options as DeleteChapterOptions
+    const deleteOptions = options as DeleteChapterCommand
 
     mainLog.info(`[Downloads] Chapter deletion requested: ${deleteOptions.chapterId}`)
     return await downloadService.deleteChapter(deleteOptions)

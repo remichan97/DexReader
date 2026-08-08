@@ -1,5 +1,5 @@
 import { DeleteChapterCommand } from '@shared/commands/repositories/chapter-downloads/delete-chapter.command'
-import { ChapterDownloadsEvent } from './events/chapter-downloads.event'
+import { ChapterDownloadsEvent } from '../../shared/events/chapter-downloads.event'
 import { ImageQuality } from '../api/enums'
 import { MangaDexClient } from '../api/mangadex-client'
 import { MarkDownloadStateCommand } from '@shared/commands/repositories/chapter-downloads/mark-state.command'
@@ -10,23 +10,22 @@ import { chapterRepo } from '../database/repositories/chapter.repo'
 import { getDownloadsPath } from '../filesystem/path-validator'
 import { secureFs } from '../filesystem/secure-fs'
 import { downloadData } from './helpers/dexreader-download.helper'
-import { DownloadChapterOptions } from './options/download-chapter.option'
-import { DownloadChapterResult } from './results/dexreader/download-chapter.result'
 import path from 'node:path'
 
 import { BrowserWindow } from 'electron'
 import { ChapterDownloadContract } from '@shared/contracts/database/chapter-downloads/chapter-downloads.contract'
 import { MangaStorageContract } from '@shared/contracts/database/chapter-downloads/manga-storage.contract'
 import { DiskSpaceData } from './data/disk-space.data'
-import { StorageData } from './data/storage.data'
-import { DeleteMangaResult } from './results/dexreader/delete-manga.result'
-import { DownloadStatResult } from './results/dexreader/download-stats.result'
+import { StorageDataContract } from '../../shared/contracts/storage/storage-data.contract'
 import { diskCacheUtil } from '../api/utils/disk-cache.util'
 import { DiskCacheContract } from '@shared/contracts/database/storage/disk-cache.contract'
 import { ImageUrlResponse } from '../api/responses/image-url.response'
 import { mainLog } from './logging/main-logging.service'
-import { DeleteChapterOptions } from './options/delete-chapter.option'
 import { settingsManager } from '../settings/settings-manager'
+import { DownloadChapterCommand } from '@shared/commands/services/download-chapter.command'
+import { DownloadStatContract } from '@shared/contracts/services/dexreader/download-stats.contract'
+import { DownloadChapterContract } from '@shared/contracts/services/dexreader/download-chapter.contract'
+import { DeleteMangaContract } from '@shared/contracts/services/dexreader/delete-manga.contract'
 
 interface ChapterImageCache {
   urls: ImageUrlResponse[]
@@ -49,7 +48,7 @@ class DownloadService {
     return chapterDownloadsRepo.getAllDownloads()
   }
 
-  async getStorageInfo(): Promise<StorageData> {
+  async getStorageInfo(): Promise<StorageDataContract> {
     return {
       mangaStorage: this.getMangaStorage(),
       diskSpace: await this.getDiskSpaceInfo(),
@@ -57,7 +56,7 @@ class DownloadService {
     }
   }
 
-  getDownloadStats(mangaId: string): DownloadStatResult {
+  getDownloadStats(mangaId: string): DownloadStatContract {
     const downloads = this.getDownloadByMangaId(mangaId)
 
     const chapterCount = downloads.length
@@ -69,7 +68,7 @@ class DownloadService {
     }
   }
 
-  async downloadChapter(options: DownloadChapterOptions): Promise<DownloadChapterResult> {
+  async downloadChapter(options: DownloadChapterCommand): Promise<DownloadChapterContract> {
     // make sure that we don't download something we already downloaded
     const isDownloaded = this.isDownloaded(options.chapterId)
 
@@ -174,7 +173,7 @@ class DownloadService {
     }
   }
 
-  async deleteChapter(options: DeleteChapterOptions): Promise<void> {
+  async deleteChapter(options: DeleteChapterCommand): Promise<void> {
     const download = chapterDownloadsRepo.getDownload(options.chapterId)
 
     if (!download) {
@@ -207,10 +206,10 @@ class DownloadService {
   }
 
   // Delete all chapters of a manga, use for single deletion
-  async deleteManga(mangaId: string): Promise<DeleteMangaResult> {
+  async deleteManga(mangaId: string): Promise<DeleteMangaContract> {
     const downloadsToBeDeleted = this.getDownloadByMangaId(mangaId)
     const successfulDeletions: DeleteChapterCommand[] = []
-    const result: DeleteMangaResult = {
+    const result: DeleteMangaContract = {
       success: false,
       successfulCount: 0,
       failedCount: 0,

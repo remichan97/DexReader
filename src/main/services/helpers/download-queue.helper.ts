@@ -2,7 +2,7 @@ import { BrowserWindow } from 'electron'
 import { DownloadStatus } from '@shared/enums/repositories/download-status.enum'
 import { ChapterDownloadContract } from '@shared/contracts/database/chapter-downloads/chapter-downloads.contract'
 import { OverallProgress } from '../types/downloads/overall-progress.type'
-import { QueuedDownloads } from '../types/downloads/queued-downloads.type'
+import { QueuedDownloads } from '../../../shared/types/downloads/queued-downloads.type'
 
 /**
  * Calculate aggregate download statistics across all downloads

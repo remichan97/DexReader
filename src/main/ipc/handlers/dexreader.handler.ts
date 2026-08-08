@@ -1,6 +1,6 @@
 import { dexreaderExportService } from '../../services/dexreader/dexreader-export.service'
 import { dexreaderImportService } from '../../services/dexreader/dexreader-import.service'
-import { DexreaderExportOption } from '../../services/options/dexreader-export.option'
+import { DexreaderExportCommand } from '@shared/commands/services/dexreader-export.command'
 import { wrapIpcHandler } from '../wrap-handler'
 import { mainLog } from '../../services/logging/main-logging.service'
 
@@ -52,7 +52,7 @@ export function registerDexReaderHandler(): void {
       throw new TypeError('Invalid export options')
     }
 
-    const exportOptions = options as DexreaderExportOption
+    const exportOptions = options as DexreaderExportCommand
     mainLog.debug('[DexReader] Export options:', exportOptions)
 
     const result = await dexreaderExportService.exportLibrary(savePath, exportOptions)

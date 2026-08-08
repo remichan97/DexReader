@@ -1,12 +1,10 @@
 import path, { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import fs from 'node:fs/promises'
-import { DexreaderExportOption } from '../options/dexreader-export.option'
 
 // ESM: Get __dirname equivalent
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
-import { DexReaderExportResult } from '../results/dexreader/export.result'
 import { LibraryData } from '../types/dexreader/library.type'
 import { mangaRepo } from '../../database/repositories/manga.repo'
 import { dexreaderExport } from '../helpers/dexreader-export.helper'
@@ -22,6 +20,8 @@ import { dateToUnixTimestamp } from '../../utils/timestamps.util'
 import { version } from '../../../../package.json'
 import protobuf from 'protobufjs'
 import Pako from 'pako'
+import { DexreaderExportCommand } from '@shared/commands/services/dexreader-export.command'
+import { DexReaderExportContract } from '@shared/contracts/services/dexreader/export.contract'
 
 class DexReaderExportService {
   private readonly schemaPath = path.join(
@@ -34,8 +34,8 @@ class DexReaderExportService {
 
   async exportLibrary(
     savePath: string,
-    options: DexreaderExportOption
-  ): Promise<DexReaderExportResult> {
+    options: DexreaderExportCommand
+  ): Promise<DexReaderExportContract> {
     const libraryData: LibraryData = this.fetchLibraryData(options)
 
     if (libraryData.mangaList.filter((it) => it.isFavourite === true).length === 0) {
@@ -95,7 +95,7 @@ class DexReaderExportService {
     }
   }
 
-  private fetchLibraryData(options: DexreaderExportOption): LibraryData {
+  private fetchLibraryData(options: DexreaderExportCommand): LibraryData {
     // If we need to export collections, progress, or reader settings, we need all manga data
     // to prevent FK violations (these sections can reference non-favourite manga)
     const mangaList =

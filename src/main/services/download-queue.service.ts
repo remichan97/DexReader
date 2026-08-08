@@ -2,10 +2,8 @@ import { BrowserWindow } from 'electron'
 import { DownloadStatus } from '@shared/enums/repositories/download-status.enum'
 import { chapterDownloadsRepo } from '../database/repositories/chapter-downloads.repo'
 import { downloadService } from './download.service'
-import { DownloadChapterOptions } from './options/download-chapter.option'
-import { DownloadChapterResult } from './results/dexreader/download-chapter.result'
-import { QueueState } from './types/downloads/queue-state.type'
-import { QueuedDownloads } from './types/downloads/queued-downloads.type'
+import { QueueState } from '../../shared/types/downloads/queue-state.type'
+import { QueuedDownloads } from '../../shared/types/downloads/queued-downloads.type'
 import {
   calculateAggregateStats,
   emitOverallProgressEvent,
@@ -22,12 +20,14 @@ import { DownloadErrorCategory } from './errors/enums/download-error.enum'
 import { ChapterDownloadContract } from '@shared/contracts/database/chapter-downloads/chapter-downloads.contract'
 import { mainLog } from './logging/main-logging.service'
 import { settingsManager } from '../settings/settings-manager'
+import { DownloadChapterCommand } from '@shared/commands/services/download-chapter.command'
+import { DownloadChapterContract } from '@shared/contracts/services/dexreader/download-chapter.contract'
 
 class DownloadQueueService {
   // Main states
   private queue: QueuedDownloads[] = []
   private pendingUpdates: MarkDownloadStateCommand[] = []
-  private readonly activeDownloads: Map<string, Promise<DownloadChapterResult>> = new Map()
+  private readonly activeDownloads: Map<string, Promise<DownloadChapterContract>> = new Map()
   private readonly retryCount: Map<string, number> = new Map()
   private batchUpdateTimeout: NodeJS.Timeout | undefined = undefined
 
@@ -211,7 +211,7 @@ class DownloadQueueService {
 
   // The actual download logic for a single chapter, with error handling and retry logic
   private async startDownload(item: QueuedDownloads): Promise<void> {
-    const downloadOptions: DownloadChapterOptions = {
+    const downloadOptions: DownloadChapterCommand = {
       chapterId: item.chapterId,
       quality: item.quality,
       language: item.language,

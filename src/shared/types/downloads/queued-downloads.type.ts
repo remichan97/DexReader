@@ -1,4 +1,4 @@
-import { ImageQuality } from '../../../api/enums'
+import { ImageQuality } from '../../../main/api/enums'
 
 export interface QueuedDownloads {
   chapterId: string

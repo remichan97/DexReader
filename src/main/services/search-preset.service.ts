@@ -1,12 +1,11 @@
-import { CreateSearchPresetCommand } from '@shared/commands/repositories/search-presets/create-search-preset.command'
 import { SearchPresetQuery } from '@shared/contracts/settings/search-preset.contract'
 import { searchPresetsRepo } from '../database/repositories/search-presets.repo'
 import { settingsManager } from '../settings/settings-manager'
 import { mainLog } from './logging/main-logging.service'
-import { CreateSearchPresetOptions } from './options/create-search-preset.option'
+import { CreateSearchPresetCommand } from '@shared/commands/services/create-search-preset.command'
 
 class SearchPresetService {
-  async createSearchPreset(options: CreateSearchPresetOptions): Promise<SearchPresetQuery> {
+  async createSearchPreset(options: CreateSearchPresetCommand): Promise<SearchPresetQuery> {
     if (options.name.trim() === '') {
       mainLog.error('[SearchPresetService] Failed to create search preset with empty name')
       throw new Error('Preset name cannot be empty')
