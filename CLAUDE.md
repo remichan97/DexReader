@@ -35,6 +35,14 @@ Defined scopes: `api`, `db`, `ipc`, `preload`, `filesystem`, `proxy`, `settings`
 
 Pre-commit hooks enforce the commit message format, run `typecheck`, and run `lint`. Never skip hooks with `--no-verify`.
 
+**AI-authorship disclosure**: any commit where Claude Code authored or materially contributed to the change must include a trailer:
+
+```text
+Co-Authored-By: Claude Code <noreply@anthropic.com>
+```
+
+as a footer (blank line, then the trailer), same as the subject/body. This is for transparency about AI usage in the project history, not just this repo's default tooling behavior — keep including it going forward even if not reminded.
+
 ## Architecture
 
 Three-process Electron model. All cross-process communication goes through a single security bridge:
