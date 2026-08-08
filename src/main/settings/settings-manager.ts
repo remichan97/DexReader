@@ -1,25 +1,25 @@
 import os from 'node:os'
-import { ChapterCacheTier } from './enums/chapter-cache-tier.enum'
+import { ChapterCacheTier } from '../../shared/enums/settings/chapter-cache-tier.enum'
 import {
   getDownloadsPath,
   updateDownloadsPath,
   validateDirectoryPath
 } from '../filesystem/path-validator'
 import { ImageQuality } from '../api/enums'
-import { AppTheme } from './enums/theme-mode.enum'
+import { AppTheme } from '../../shared/enums/settings/theme-mode.enum'
 import { ReadingMode } from '@shared/enums/settings/reading-mode.enum'
-import { AppSettings } from './entities/app-settings.entity'
+import { AppSettings } from '../../shared/types/settings/app-settings.type'
 import { MangaReadingSettings } from '@shared/contracts/settings/reading-settings.contract'
 import { readerSettingsRepo } from '../database/repositories/reader-settings.repo'
-import { DownloadConfirmation } from './enums/download-confirmation.enum'
-import { MemoryTierInfo } from './response/memory-tier.response'
+import { DownloadConfirmation } from '../../shared/enums/settings/download-confirmation.enum'
 import { memoryCacheUtil } from '../api/utils/memory-cache.util'
 import { mainLog } from '../services/logging/main-logging.service'
-import { StartupPage } from './enums/startup-page.enum'
+import { StartupPage } from '../../shared/enums/settings/startup-page.enum'
 import { CURRENT_SETTINGS_VERSION, migrateSettings } from './utils/settings-migration.util'
-import { DisplayLanguage } from './enums/display-languages.enum'
+import { DisplayLanguage } from '../../shared/enums/settings/display-languages.enum'
 import Store from 'electron-store'
-import { SidebarSize } from './enums/sidebar-size.enum'
+import { SidebarSize } from '../../shared/enums/settings/sidebar-size.enum'
+import { MemoryTierContract } from '@shared/contracts/settings/memory-tier.contract'
 
 class SettingsManager {
   private settingsStore!: Store<AppSettings>
@@ -181,7 +181,7 @@ class SettingsManager {
     return settings.reader.global
   }
 
-  getMemoryTierInfo(): MemoryTierInfo {
+  getMemoryTierInfo(): MemoryTierContract {
     const memoryTier = memoryCacheUtil.getDynamicTiers()
     const systemMemory = os.totalmem()
     const systemRAM_GB = Number((systemMemory / 1024 ** 3).toFixed(1))

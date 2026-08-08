@@ -1,5 +1,5 @@
-import { ContentLanguage } from '../enums/content-language.enum'
-import { DisplayLanguage } from '../enums/display-languages.enum'
+import { ContentLanguage } from '../../enums/settings/content-language.enum'
+import { DisplayLanguage } from '../../enums/settings/display-languages.enum'
 
 export interface LanguageSettings {
   displayLanguage: DisplayLanguage

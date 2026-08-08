@@ -1,4 +1,4 @@
-import { ChapterCacheTier } from './../enums/chapter-cache-tier.enum'
+import { ChapterCacheTier } from '../../enums/settings/chapter-cache-tier.enum'
 
 export interface ReaderPerformanceSettings {
   cacheTier: ChapterCacheTier

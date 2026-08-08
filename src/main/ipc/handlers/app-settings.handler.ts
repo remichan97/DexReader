@@ -1,6 +1,6 @@
 import { app, shell } from 'electron'
 import { is } from '@electron-toolkit/utils'
-import { AppSettings } from '../../settings/entities/app-settings.entity'
+import { AppSettings } from '../../../shared/types/settings/app-settings.type'
 import { mainLog } from '../../services/logging/main-logging.service'
 import { validateSettings } from '../../settings/validators/types.validator'
 import { wrapIpcHandler } from '../wrap-handler'

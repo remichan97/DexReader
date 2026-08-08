@@ -1,5 +1,5 @@
 import { mainLog } from '../../services/logging/main-logging.service'
-import { AppSettings } from '../entities/app-settings.entity'
+import { AppSettings } from '../../../shared/types/settings/app-settings.type'
 import { validateSettings } from '../validators/types.validator'
 
 // Each time we change the settings structure in a way that guarantees a full migration, increment this version number. This is used to determine if a migration is needed, and to apply the correct migration functions if there are breaking changes.

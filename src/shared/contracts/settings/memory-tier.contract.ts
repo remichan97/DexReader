@@ -1,4 +1,4 @@
-export interface MemoryTierInfo {
+export interface MemoryTierContract {
   lowTierMB: number
   normalTierMB: number
   highTierMB: number
