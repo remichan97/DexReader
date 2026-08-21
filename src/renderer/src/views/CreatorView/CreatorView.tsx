@@ -7,22 +7,15 @@ import { MangaCard } from '@renderer/components/MangaCard'
 import { SkeletonGrid } from '@renderer/components/Skeleton'
 import { Button } from '@renderer/components/Button'
 import { useLibraryStore, useToastStore } from '@renderer/stores'
-import {
-  getCoverImageUrl,
-  getAuthorName,
-  getMangaTitle,
-  mapPublicationStatus,
-  getAvailableLanguages
-} from '@renderer/utils/mangaHelpers'
-import { PublicationStatus } from '@renderer/stores/searchStore'
+import { getMangaTitle, mapPublicationStatus } from '@renderer/utils/mangaHelpers'
 import { cacheMangaMetadata } from '@renderer/utils/mangaCache'
 import { handleUnfavourite } from '@renderer/utils/unfavouriteHandler'
 import './CreatorView.css'
 import { rendererLog } from '@renderer/services/logging.service'
 import { useTranslation } from '@renderer/hooks/useTranslation'
-import type { Manga } from '../../../../preload/window.types'
+import type { MangaContract } from '../../../../preload/window.types'
 
-type MangaEntity = Manga
+type MangaEntity = MangaContract
 
 export function CreatorView(): JSX.Element {
   const { t } = useTranslation(['creator', 'common', 'browse'])
@@ -82,15 +75,9 @@ export function CreatorView(): JSX.Element {
           if (response.data.data.length > 0 && !creatorName) {
             const firstManga = response.data.data[0]
             const name =
-              creatorType === 'author'
-                ? getAuthorName(firstManga)
-                : (() => {
-                    const artistRel = firstManga.relationships?.find((r) => r.type === 'artist')
-                    if (artistRel?.attributes && 'name' in artistRel.attributes) {
-                      return (artistRel.attributes as { name?: string }).name || 'Unknown'
-                    }
-                    return 'Unknown'
-                  })()
+              (creatorType === 'author'
+                ? firstManga.authors[0]?.name
+                : firstManga.artists[0]?.name) || 'Unknown'
             setCreatorName(name)
           }
 
@@ -298,13 +285,11 @@ export function CreatorView(): JSX.Element {
           <MangaCard
             key={manga.id}
             id={manga.id}
-            coverUrl={getCoverImageUrl(manga)}
+            coverUrl={manga.coverUrl || '/placeholder-cover.jpg'}
             title={getMangaTitle(manga)}
-            author={getAuthorName(manga)}
-            status={mapPublicationStatus(
-              (manga.attributes as { status: PublicationStatus }).status
-            )}
-            languages={getAvailableLanguages(manga)}
+            author={manga.authors[0]?.name || 'Unknown'}
+            status={mapPublicationStatus(manga.status)}
+            languages={manga.availableTranslatedLanguages}
             isFavourite={isFavourite(manga.id)}
             onClick={handleMangaClick}
             onFavourite={handleFavouriteToggle}

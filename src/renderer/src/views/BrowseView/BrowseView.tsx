@@ -18,19 +18,12 @@ import {
   useSearchPresetsStore
 } from '@renderer/stores'
 import {
-  PublicationStatus,
   DEFAULT_FILTERS,
   type IncludedTagsMode,
   type OrderOptions,
   type OrderDirection
 } from '@renderer/stores/searchStore'
-import {
-  getCoverImageUrl,
-  getAuthorName,
-  getMangaTitle,
-  mapPublicationStatus,
-  getAvailableLanguages
-} from '@renderer/utils/mangaHelpers'
+import { getMangaTitle, mapPublicationStatus } from '@renderer/utils/mangaHelpers'
 import { cacheMangaMetadata } from '@renderer/utils/mangaCache'
 import { handleUnfavourite } from '@renderer/utils/unfavouriteHandler'
 import './BrowseView.css'
@@ -538,13 +531,11 @@ export function BrowseView(): JSX.Element {
               <MangaCard
                 key={manga.id}
                 id={manga.id}
-                coverUrl={getCoverImageUrl(manga)}
+                coverUrl={manga.coverUrl || '/placeholder-cover.jpg'}
                 title={getMangaTitle(manga)}
-                author={getAuthorName(manga)}
-                status={mapPublicationStatus(
-                  (manga.attributes as { status: PublicationStatus }).status
-                )}
-                languages={getAvailableLanguages(manga)}
+                author={manga.authors[0]?.name || 'Unknown'}
+                status={mapPublicationStatus(manga.status)}
+                languages={manga.availableTranslatedLanguages}
                 isFavourite={isFavourite(manga.id)}
                 onClick={handleMangaClick}
                 onFavourite={handleFavouriteToggle}
