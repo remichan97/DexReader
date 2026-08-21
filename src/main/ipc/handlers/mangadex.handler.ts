@@ -3,6 +3,12 @@ import { MangaDexClient } from '../../api/mangadex-client'
 import { FeedParams } from '../../api/search-params/feed.searchparam'
 import { MangaSearchParams } from '../../api/search-params/manga.searchparam'
 import { wrapIpcHandler } from '../wrap-handler'
+import { mapChapterEntityToContract, mapMangaEntityToContract } from '../../api/mapper/api.mapper'
+import { MangaContract } from '@shared/contracts/mangadex/manga.contract'
+import { ChapterContract } from '@shared/contracts/mangadex/chapter.contract'
+import { CollectionResponse } from '../../api/responses/collection.response'
+import { ApiResponse } from '../../api/responses/api.response'
+import { ImageUrlResponse } from '../../api/responses/image-url.response'
 
 const mangadexClient = new MangaDexClient()
 
@@ -38,9 +44,13 @@ export function registerMangaDexHandlers(): void {
    * })
    * console.log(`Found ${results.total} manga`)
    */
-  wrapIpcHandler('mangadex:search-manga', async (_, query: unknown) => {
-    return await mangadexClient.searchManga(query as MangaSearchParams)
-  })
+  wrapIpcHandler(
+    'mangadex:search-manga',
+    async (_, query: unknown): Promise<CollectionResponse<MangaContract>> => {
+      const response = await mangadexClient.searchManga(query as MangaSearchParams)
+      return { ...response, data: response.data.map(mapMangaEntityToContract) }
+    }
+  )
 
   /**
    * Get manga details by ID.
@@ -58,9 +68,13 @@ export function registerMangaDexHandlers(): void {
    * const result = await window.api.getMangaDetails('xyz789...', ['cover_art', 'author'])
    * console.log(result.data.attributes.title.en)
    */
-  wrapIpcHandler('mangadex:get-manga', async (_, id: unknown, includes: unknown) => {
-    return await mangadexClient.getManga(id as string, includes as string[] | undefined)
-  })
+  wrapIpcHandler(
+    'mangadex:get-manga',
+    async (_, id: unknown, includes: unknown): Promise<ApiResponse<MangaContract>> => {
+      const response = await mangadexClient.getManga(id as string, includes as string[] | undefined)
+      return { ...response, data: mapMangaEntityToContract(response.data) }
+    }
+  )
 
   /**
    * Get manga chapter feed (chapter list).
@@ -88,9 +102,13 @@ export function registerMangaDexHandlers(): void {
    * })
    * console.log(`${feed.total} English chapters available`)
    */
-  wrapIpcHandler('mangadex:get-manga-feed', async (_, id: unknown, query: unknown) => {
-    return await mangadexClient.getMangaFeed(id as string, query as FeedParams)
-  })
+  wrapIpcHandler(
+    'mangadex:get-manga-feed',
+    async (_, id: unknown, query: unknown): Promise<CollectionResponse<ChapterContract>> => {
+      const response = await mangadexClient.getMangaFeed(id as string, query as FeedParams)
+      return { ...response, data: response.data.map(mapChapterEntityToContract) }
+    }
+  )
 
   /**
    * Get chapter details by ID.
@@ -107,9 +125,16 @@ export function registerMangaDexHandlers(): void {
    * const result = await window.api.getChapterDetails('abc123...', ['scanlation_group'])
    * console.log(`Chapter ${result.data.attributes.chapter} - ${result.data.attributes.pages} pages`)
    */
-  wrapIpcHandler('mangadex:get-chapter', async (_, id: unknown, includes: unknown) => {
-    return await mangadexClient.getChapter(id as string, includes as string[] | undefined)
-  })
+  wrapIpcHandler(
+    'mangadex:get-chapter',
+    async (_, id: unknown, includes: unknown): Promise<ApiResponse<ChapterContract>> => {
+      const response = await mangadexClient.getChapter(
+        id as string,
+        includes as string[] | undefined
+      )
+      return { ...response, data: mapChapterEntityToContract(response.data) }
+    }
+  )
 
   /**
    * Get chapter image URLs.
@@ -130,9 +155,12 @@ export function registerMangaDexHandlers(): void {
    *   console.log(`Page ${i + 1}: ${url}`)
    * })
    */
-  wrapIpcHandler('mangadex:get-chapter-images', async (_, id: unknown, quality: unknown) => {
-    return await mangadexClient.getChapterImages(id as string, quality as ImageQuality)
-  })
+  wrapIpcHandler(
+    'mangadex:get-chapter-images',
+    async (_, id: unknown, quality: unknown): Promise<ImageUrlResponse[]> => {
+      return await mangadexClient.getChapterImages(id as string, quality as ImageQuality)
+    }
+  )
 
   /**
    * Check MangaDex API health status.
@@ -149,7 +177,7 @@ export function registerMangaDexHandlers(): void {
    *   showError('MangaDex API is offline')
    * }
    */
-  wrapIpcHandler('mangadex:healthcheck', async () => {
+  wrapIpcHandler('mangadex:healthcheck', async (): Promise<boolean> => {
     return await mangadexClient.isServiceAlive()
   })
 }
