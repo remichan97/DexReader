@@ -1,8 +1,11 @@
-import { SaveProgressCommand } from '@shared/commands/repositories/progress/save-progress.command'
 import { chapterRepo } from '../../database/repositories/chapter.repo'
 import { progressRepo } from '../../database/repositories/manga-progress.repo'
 import { readingRepo } from '../../database/repositories/reading-stats.repo'
 import { wrapIpcHandler } from '../wrap-handler'
+import {
+  isSaveProgressCommand,
+  isSaveChapterCommand
+} from '../../settings/validators/types.validator'
 
 export function registerProgressTrackingHandlers(): void {
   /**
@@ -22,7 +25,11 @@ export function registerProgressTrackingHandlers(): void {
    * }
    */
   wrapIpcHandler('progress:get-progress', async (_, id: unknown) => {
-    return progressRepo.getProgressByMangaId(id as string)
+    if (typeof id !== 'string') {
+      throw new TypeError('Invalid mangaId for getting progress')
+    }
+
+    return progressRepo.getProgressByMangaId(id)
   })
 
   /**
@@ -44,7 +51,11 @@ export function registerProgressTrackingHandlers(): void {
    * }])
    */
   wrapIpcHandler('progress:save-progress', async (_, progressData: unknown) => {
-    return progressRepo.saveProgress(progressData as SaveProgressCommand[])
+    if (!Array.isArray(progressData) || !progressData.every(isSaveProgressCommand)) {
+      throw new TypeError('Invalid parameters for saving progress')
+    }
+
+    return progressRepo.saveProgress(progressData)
   })
 
   /**
@@ -61,7 +72,11 @@ export function registerProgressTrackingHandlers(): void {
    * await window.api.deleteProgress('abc123-def456...')
    */
   wrapIpcHandler('progress:delete-progress', async (_, id: unknown) => {
-    return progressRepo.deleteProgress(id as string)
+    if (typeof id !== 'string') {
+      throw new TypeError('Invalid mangaId for deleting progress')
+    }
+
+    return progressRepo.deleteProgress(id)
   })
 
   /**
@@ -116,8 +131,18 @@ export function registerProgressTrackingHandlers(): void {
    * })
    */
   wrapIpcHandler('progress:get-chapter-progress', async (_, params: unknown) => {
-    const { mangaId, chapterId } = params as { mangaId: string; chapterId: string }
-    return progressRepo.getChapterProgress(mangaId, chapterId)
+    if (
+      typeof params !== 'object' ||
+      params === null ||
+      !('mangaId' in params) ||
+      typeof params.mangaId !== 'string' ||
+      !('chapterId' in params) ||
+      typeof params.chapterId !== 'string'
+    ) {
+      throw new TypeError('Invalid parameters for getting chapter progress')
+    }
+
+    return progressRepo.getChapterProgress(params.mangaId, params.chapterId)
   })
 
   /**
@@ -137,7 +162,11 @@ export function registerProgressTrackingHandlers(): void {
    * })
    */
   wrapIpcHandler('progress:get-all-chapter-progress', async (_, mangaId: unknown) => {
-    return progressRepo.getAllChapterProgress(mangaId as string)
+    if (typeof mangaId !== 'string') {
+      throw new TypeError('Invalid mangaId for getting all chapter progress')
+    }
+
+    return progressRepo.getAllChapterProgress(mangaId)
   })
 
   /**
@@ -164,18 +193,10 @@ export function registerProgressTrackingHandlers(): void {
    * ])
    */
   wrapIpcHandler('progress:save-chapters', async (_, chapters: unknown) => {
-    return chapterRepo.saveChapters(
-      chapters as Array<{
-        chapterId: string
-        mangaId: string
-        title?: string
-        chapterNumber?: string
-        volume?: string
-        language: string
-        publishAt: Date
-        scanlationGroup?: string
-        externalUrl?: string
-      }>
-    )
+    if (!Array.isArray(chapters) || !chapters.every(isSaveChapterCommand)) {
+      throw new TypeError('Invalid parameters for saving chapters')
+    }
+
+    return chapterRepo.saveChapters(chapters)
   })
 }

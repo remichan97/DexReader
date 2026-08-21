@@ -1,16 +1,18 @@
-import { AddToCollectionCommand } from '@shared/commands/repositories/collections/add-to-collection.command'
-import { CreateCollectionCommand } from '@shared/commands/repositories/collections/create-collection.command'
-import { RemoveFromCollectionCommand } from '@shared/commands/repositories/collections/remove-from-collection.command'
-import { ReorderMangaInCollectionCommand } from '@shared/commands/repositories/collections/reorder-manga-collection.command'
-import { UpdateCollectionCommand } from '@shared/commands/repositories/collections/update-collection.command'
-import { UpsertMangaCommand } from '@shared/commands/repositories/manga/upsert-manga.command'
-import { RecordReadCommand } from '@shared/commands/repositories/history/record-read.command'
-import { GetLibraryMangaCommand } from '@shared/commands/repositories/manga/get-library-manga.command'
 import { collectionRepo } from '../../database/repositories/collection.repo'
 import { mangaRepo } from '../../database/repositories/manga.repo'
 import { chapterRepo } from '../../database/repositories/chapter.repo'
 import { readHistoryRepo } from '../../database/repositories/read-history.repo'
 import { wrapIpcHandler } from '../wrap-handler'
+import {
+  isGetLibraryMangaCommand,
+  isUpsertMangaCommand,
+  isCreateCollectionCommand,
+  isUpdateCollectionCommand,
+  isAddToCollectionCommand,
+  isRemoveFromCollectionCommand,
+  isReorderMangaInCollectionCommand,
+  isRecordReadCommand
+} from '../../settings/validators/types.validator'
 
 export function registerLibraryHandlers(): void {
   /**
@@ -37,7 +39,11 @@ export function registerLibraryHandlers(): void {
    * })
    */
   wrapIpcHandler('library:get-manga', async (_, options: unknown) => {
-    return mangaRepo.getLibraryManga(options as GetLibraryMangaCommand)
+    if (!isGetLibraryMangaCommand(options)) {
+      throw new TypeError('Invalid parameters for getting library manga')
+    }
+
+    return mangaRepo.getLibraryManga(options)
   })
 
   /**
@@ -55,7 +61,11 @@ export function registerLibraryHandlers(): void {
    * if (manga) console.log(manga.title)
    */
   wrapIpcHandler('library:get-manga-by-id', async (_, mangaId: unknown) => {
-    return mangaRepo.getMangaById(mangaId as string)
+    if (typeof mangaId !== 'string') {
+      throw new TypeError('Invalid mangaId for getting manga by id')
+    }
+
+    return mangaRepo.getMangaById(mangaId)
   })
 
   /**
@@ -72,7 +82,11 @@ export function registerLibraryHandlers(): void {
    * const chapters = await window.api.getCachedChapters('xyz789...')
    */
   wrapIpcHandler('library:get-cached-chapters', async (_, mangaId: unknown) => {
-    return chapterRepo.getChaptersByMangaId(mangaId as string)
+    if (typeof mangaId !== 'string') {
+      throw new TypeError('Invalid mangaId for getting cached chapters')
+    }
+
+    return chapterRepo.getChaptersByMangaId(mangaId)
   })
 
   /**
@@ -89,7 +103,11 @@ export function registerLibraryHandlers(): void {
    * const result = await window.api.toggleFavorite('xyz789...')
    * console.log(result.favorited ? 'Added to library' : 'Removed from library')
    */
-  wrapIpcHandler('library:toggle-favourite', async (_, mangaId: string) => {
+  wrapIpcHandler('library:toggle-favourite', async (_, mangaId: unknown) => {
+    if (typeof mangaId !== 'string') {
+      throw new TypeError('Invalid mangaId for toggling favourite')
+    }
+
     return mangaRepo.toggleFavourite(mangaId)
   })
 
@@ -121,7 +139,11 @@ export function registerLibraryHandlers(): void {
    * })
    */
   wrapIpcHandler('library:upsert-manga', async (_, command: unknown) => {
-    return mangaRepo.upsertManga(command as UpsertMangaCommand)
+    if (!isUpsertMangaCommand(command)) {
+      throw new TypeError('Invalid parameters for upserting manga')
+    }
+
+    return mangaRepo.upsertManga(command)
   })
 
   /**
@@ -171,7 +193,11 @@ export function registerLibraryHandlers(): void {
    * const manga = await window.api.getCollectionManga(5)
    */
   wrapIpcHandler('collections:get-manga', async (_, collectionId: unknown) => {
-    return collectionRepo.getMangaInCollection(collectionId as number)
+    if (typeof collectionId !== 'number') {
+      throw new TypeError('Invalid collectionId for getting collection manga')
+    }
+
+    return collectionRepo.getMangaInCollection(collectionId)
   })
 
   /**
@@ -189,7 +215,11 @@ export function registerLibraryHandlers(): void {
    * console.log(`In ${collections.length} collections`)
    */
   wrapIpcHandler('collections:get-by-manga', async (_, mangaId: unknown) => {
-    return collectionRepo.getCollectionByManga(mangaId as string)
+    if (typeof mangaId !== 'string') {
+      throw new TypeError('Invalid mangaId for getting collections by manga')
+    }
+
+    return collectionRepo.getCollectionByManga(mangaId)
   })
 
   /**
@@ -212,7 +242,11 @@ export function registerLibraryHandlers(): void {
    * console.log(`Created collection ${result.id}`)
    */
   wrapIpcHandler('collections:create', async (_, command: unknown) => {
-    return collectionRepo.createCollection(command as CreateCollectionCommand)
+    if (!isCreateCollectionCommand(command)) {
+      throw new TypeError('Invalid parameters for creating collection')
+    }
+
+    return collectionRepo.createCollection(command)
   })
 
   /**
@@ -235,7 +269,11 @@ export function registerLibraryHandlers(): void {
    * })
    */
   wrapIpcHandler('collections:update', async (_, command: unknown) => {
-    return collectionRepo.updateCollection(command as UpdateCollectionCommand)
+    if (!isUpdateCollectionCommand(command)) {
+      throw new TypeError('Invalid parameters for updating collection')
+    }
+
+    return collectionRepo.updateCollection(command)
   })
 
   /**
@@ -252,7 +290,11 @@ export function registerLibraryHandlers(): void {
    * await window.api.deleteCollection(5)
    */
   wrapIpcHandler('collections:delete', async (_, collectionId: unknown) => {
-    return collectionRepo.deleteCollection(collectionId as number)
+    if (typeof collectionId !== 'number') {
+      throw new TypeError('Invalid collectionId for deleting collection')
+    }
+
+    return collectionRepo.deleteCollection(collectionId)
   })
 
   /**
@@ -274,7 +316,11 @@ export function registerLibraryHandlers(): void {
    * })
    */
   wrapIpcHandler('collections:add-manga', async (_, command: unknown) => {
-    return collectionRepo.addToCollection(command as AddToCollectionCommand)
+    if (!isAddToCollectionCommand(command)) {
+      throw new TypeError('Invalid parameters for adding manga to collection')
+    }
+
+    return collectionRepo.addToCollection(command)
   })
 
   /**
@@ -295,7 +341,11 @@ export function registerLibraryHandlers(): void {
    * ])
    */
   wrapIpcHandler('collections:remove-manga', async (_, command: unknown) => {
-    return collectionRepo.removeFromCollection(command as RemoveFromCollectionCommand[])
+    if (!Array.isArray(command) || !command.every(isRemoveFromCollectionCommand)) {
+      throw new TypeError('Invalid parameters for removing manga from collection')
+    }
+
+    return collectionRepo.removeFromCollection(command)
   })
 
   /**
@@ -316,7 +366,11 @@ export function registerLibraryHandlers(): void {
    * })
    */
   wrapIpcHandler('collections:reorder', async (_, command: unknown) => {
-    return collectionRepo.reorderMangaInCollection(command as ReorderMangaInCollectionCommand)
+    if (!isReorderMangaInCollectionCommand(command)) {
+      throw new TypeError('Invalid parameters for reordering collection manga')
+    }
+
+    return collectionRepo.reorderMangaInCollection(command)
   })
 
   /**
@@ -349,7 +403,11 @@ export function registerLibraryHandlers(): void {
    * const recent = await window.api.getRecentlyRead(10)
    */
   wrapIpcHandler('history:get-recently-read', async (_, limit: unknown) => {
-    return readHistoryRepo.getRecentlyRead(limit as number)
+    if (typeof limit !== 'number') {
+      throw new TypeError('Invalid limit for getting recently read manga')
+    }
+
+    return readHistoryRepo.getRecentlyRead(limit)
   })
 
   /**
@@ -374,7 +432,11 @@ export function registerLibraryHandlers(): void {
    * })
    */
   wrapIpcHandler('history:record-read', async (_, command: unknown) => {
-    return readHistoryRepo.recordRead(command as RecordReadCommand)
+    if (!isRecordReadCommand(command)) {
+      throw new TypeError('Invalid parameters for recording read')
+    }
+
+    return readHistoryRepo.recordRead(command)
   })
 
   /**
