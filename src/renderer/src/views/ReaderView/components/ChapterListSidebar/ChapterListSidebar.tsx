@@ -2,11 +2,12 @@ import { type JSX } from 'react'
 import { Button } from '@renderer/components/Button'
 import { EmptyState } from '@renderer/components/EmptyState'
 import { useTranslation } from '@renderer/hooks/useTranslation'
+import type { ChapterContract } from '../../../../../../preload/window.types'
 
 /**
- * Chapter Entity type from MangaDex feed response
+ * Chapter DTO type, re-exported for the ReaderView subtree
  */
-export type ChapterEntity = Awaited<ReturnType<Window['mangadex']['getMangaFeed']>>['data'][number]
+export type ChapterEntity = ChapterContract
 
 /**
  * Chapter List Sidebar Component Props
@@ -67,8 +68,8 @@ export function ChapterListSidebar({
           ) : (
             <ul className="chapter-list-sidebar__list">
               {chapters.map((chapter) => {
-                const chapterNumber = chapter.attributes.chapter || 'N/A'
-                const chapterTitle = chapter.attributes.title
+                const chapterNumber = chapter.chapter || 'N/A'
+                const chapterTitle = chapter.title
                 const ariaLabel = chapterTitle
                   ? t('reader:chapterList.chapterWithTitle', {
                       number: chapterNumber,
@@ -96,14 +97,14 @@ export function ChapterListSidebar({
                   >
                     <div className="chapter-list-sidebar__item-number">
                       {t('reader:chapterList.chapterShort')} {chapterNumber}
-                      {chapter.attributes.volume &&
-                        ` ${t('reader:chapterList.volumeShort')} ${chapter.attributes.volume}`}
+                      {chapter.volume &&
+                        ` ${t('reader:chapterList.volumeShort')} ${chapter.volume}`}
                     </div>
                     {chapterTitle && (
                       <div className="chapter-list-sidebar__item-title">{chapterTitle}</div>
                     )}
                     <div className="chapter-list-sidebar__item-meta">
-                      {t('reader:chapterList.pages', { count: chapter.attributes.pages })}
+                      {t('reader:chapterList.pages', { count: chapter.pages })}
                     </div>
                   </li>
                 )

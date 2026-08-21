@@ -49,8 +49,8 @@ export function EndOfChapterOverlay({
               <span>{t('reader:endOfChapter.previousChapter')}</span>
               <span className="end-of-chapter-overlay__chapter-info">
                 {t('reader:endOfChapter.chapterInfo', {
-                  number: previousChapter.attributes.chapter,
-                  title: previousChapter.attributes.title || ''
+                  number: previousChapter.chapter,
+                  title: previousChapter.title || ''
                 })}
               </span>
             </Button>
@@ -66,8 +66,8 @@ export function EndOfChapterOverlay({
               <span>{t('reader:endOfChapter.nextChapter')}</span>
               <span className="end-of-chapter-overlay__chapter-info">
                 {t('reader:endOfChapter.chapterInfo', {
-                  number: nextChapter.attributes.chapter,
-                  title: nextChapter.attributes.title || ''
+                  number: nextChapter.chapter,
+                  title: nextChapter.title || ''
                 })}
               </span>
             </Button>

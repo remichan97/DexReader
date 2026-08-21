@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
 // eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
 import { ImageQuality } from '../../../../../main/api/enums/image-quality.enum'
-import type { ImageUrlResponse } from '../../../../../preload/window.types'
+import type { ImageUrlResponse, ChapterContract } from '../../../../../preload/window.types'
 import { useConnectivityStore } from '@renderer/stores/connectivityStore'
 import { rendererLog } from '@renderer/services/logging.service'
 
-type ChapterEntity = Awaited<ReturnType<Window['mangadex']['getMangaFeed']>>['data'][number]
+type ChapterEntity = ChapterContract
 
 interface LocationState {
   chapterNumber?: string

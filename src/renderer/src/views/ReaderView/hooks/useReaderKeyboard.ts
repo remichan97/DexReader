@@ -1,7 +1,8 @@
 import { useEffect } from 'react'
 import type { ReadingMode } from '@renderer/components/ReadingModeSelector'
+import type { ChapterContract } from '../../../../../preload/window.types'
 
-type ChapterEntity = Awaited<ReturnType<Window['mangadex']['getMangaFeed']>>['data'][number]
+type ChapterEntity = ChapterContract
 type FitMode = 'width' | 'height' | 'actual' | 'custom'
 
 interface NavigationHandlers {

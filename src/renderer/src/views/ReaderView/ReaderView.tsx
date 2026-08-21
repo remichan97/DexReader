@@ -227,22 +227,17 @@ export function ReaderView(): JSX.Element {
   // Cache chapters to database when chapters are available
   useEffect(() => {
     if (mangaId && locationState?.chapters && locationState.chapters.length > 0) {
-      const chaptersToSave = locationState.chapters.map((ch) => {
-        // Get scanlation group from relationships
-        const scanlationGroup = ch.relationships.find((r) => r.type === 'scanlation_group')
-
-        return {
-          chapterId: ch.id,
-          mangaId: mangaId,
-          title: ch.attributes.title || undefined,
-          chapterNumber: ch.attributes.chapter || undefined,
-          volume: ch.attributes.volume || undefined,
-          language: ch.attributes.translatedLanguage,
-          publishAt: new Date(ch.attributes.publishAt),
-          scanlationGroup: scanlationGroup?.attributes?.name || undefined,
-          externalUrl: ch.attributes.externalUrl || undefined
-        }
-      })
+      const chaptersToSave = locationState.chapters.map((ch) => ({
+        chapterId: ch.id,
+        mangaId: mangaId,
+        title: ch.title || undefined,
+        chapterNumber: ch.chapter || undefined,
+        volume: ch.volume || undefined,
+        language: ch.translatedLanguage,
+        publishAt: new Date(ch.publishAt),
+        scanlationGroup: Object.values(ch.scanlationGroup)[0] || undefined,
+        externalUrl: ch.externalUrl || undefined
+      }))
 
       // Save chapters in background (non-blocking)
       void globalThis.progress.saveChapters(chaptersToSave)
