@@ -187,7 +187,7 @@ export function ReaderView(): JSX.Element {
   useEffect(() => {
     const loadReaderSettings = async (): Promise<void> => {
       try {
-        const settingsResult = await globalThis.electron.ipcRenderer.invoke('settings:load')
+        const settingsResult = await globalThis.settings.load()
         if (settingsResult.success && settingsResult.data?.reader?.forceDarkMode !== undefined) {
           setState((prev) => ({
             ...prev,
