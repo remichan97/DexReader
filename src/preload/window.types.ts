@@ -4,11 +4,9 @@ import { ElectronAPI } from '@electron-toolkit/preload'
 // IPC types
 import type { IpcResponse, FileStats, AllowedPaths, FolderSelectResult } from './ipc.types'
 
-// API entities
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { Manga } from '../main/api/entities/manga.entity'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { Chapter } from '../main/api/entities/chapter.entity'
+// API DTOs (renderer-safe, mapped from raw MangaDex entities in the main process)
+import { MangaContract } from '@shared/contracts/mangadex/manga.contract'
+import { ChapterContract } from '@shared/contracts/mangadex/chapter.contract'
 
 // API responses
 // eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
@@ -121,8 +119,10 @@ export type { DownloadStatContract } from '@shared/contracts/services/dexreader/
 export type { MangaCacheStatsContract } from '@shared/contracts/database/manga/manga-cache-stats.contract'
 export type { SearchPresetQuery } from '@shared/contracts/settings/search-preset.contract'
 export type { MemoryTierContract } from '@shared/contracts/settings/memory-tier.contract'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { Manga } from '../main/api/entities/manga.entity'
+export type { MangaContract } from '@shared/contracts/mangadex/manga.contract'
+export type { ChapterContract } from '@shared/contracts/mangadex/chapter.contract'
+export type { TagContract } from '@shared/contracts/mangadex/tag.contract'
+export type { CreatorContract } from '@shared/contracts/mangadex/creator.contract'
 
 interface MenuState {
   canAddToFavorites?: boolean
@@ -210,12 +210,19 @@ interface FileSystem {
 }
 
 interface MangaDexApi {
-  searchManga: (params: MangaSearchParams) => Promise<IpcResponse<CollectionResponse<Manga>>>
-  getManga: (id: string, includes?: string[]) => Promise<ApiResponse<Manga>>
-  getMangaFeed: (id: string, query: FeedParams) => Promise<CollectionResponse<Chapter>>
-  getChapter: (id: string, includes?: string[]) => Promise<ApiResponse<Chapter>>
+  searchManga: (
+    params: MangaSearchParams
+  ) => Promise<IpcResponse<CollectionResponse<MangaContract>>>
+  getManga: (id: string, includes?: string[]) => Promise<IpcResponse<ApiResponse<MangaContract>>>
+  getMangaFeed: (
+    id: string,
+    query: FeedParams
+  ) => Promise<IpcResponse<CollectionResponse<ChapterContract>>>
+  getChapter: (
+    id: string,
+    includes?: string[]
+  ) => Promise<IpcResponse<ApiResponse<ChapterContract>>>
   getChapterImages: (id: string, quality: ImageQuality) => Promise<IpcResponse<ImageUrlResponse[]>>
-  getCoverUrl: (id: string, fileName: string, size?: string) => string
   isServiceAlive: () => Promise<IpcResponse<boolean>>
 }
 
