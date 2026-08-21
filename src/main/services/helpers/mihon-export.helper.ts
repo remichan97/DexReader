@@ -1,4 +1,4 @@
-import { TagList } from '../../api/constants/tag-list.constant'
+import { TagList } from '@shared/constants/mangadex/tag-list.constant'
 import { PublicationStatus } from '../../api/enums'
 import { CollectionContract } from '@shared/contracts/database/collections/collection.contract'
 import { ChapterWithMetadataContract } from '@shared/contracts/database/manga/chapter-with-metadata.contract'
