@@ -3,12 +3,10 @@ import { useState } from 'react'
 import { Button } from '@renderer/components/Button'
 import { getLanguageName, getLanguageCode } from '@renderer/utils/languageHelpers'
 import { useTranslation } from '@renderer/hooks/useTranslation'
-
-// Extract types from global window interface
-type MangaEntity = Awaited<ReturnType<Window['mangadex']['getManga']>>['data']
+import type { MangaContract } from '../../../../../preload/window.types'
 
 interface AlternativeTitlesSectionProps {
-  readonly manga: MangaEntity
+  readonly manga: MangaContract
 }
 
 const INITIAL_DISPLAY_COUNT = 5
@@ -24,12 +22,7 @@ export default function AlternativeTitlesSection({
   const { t } = useTranslation(['mangaDetail', 'common'])
   const [showAll, setShowAll] = useState(false)
 
-  // Extract alternative titles from attributes
-  const altTitles = (
-    manga.attributes as {
-      altTitles?: Array<Record<string, string>>
-    }
-  )?.altTitles
+  const altTitles = manga.altTitles
 
   // Transform altTitles into a flat array with language codes
   const titles: Array<{ languageCode: string; title: string }> = []

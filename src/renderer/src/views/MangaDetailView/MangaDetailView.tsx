@@ -10,6 +10,7 @@ import { useConnectivityStore } from '@renderer/stores/connectivityStore'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import { getMangaTitle } from '@renderer/utils/mangaHelpers'
 import { cacheMangaMetadata } from '@renderer/utils/mangaCache'
+import { ContentRating } from '@shared/enums/mangadex'
 import MangaHeroSection from './components/MangaHeroSection'
 import DescriptionSection from './components/DescriptionSection'
 import ExternalLinksSection from './components/ExternalLinksSection'
@@ -19,13 +20,14 @@ import './MangaDetailView.css'
 import type {
   ChapterProgressContract,
   MangaWithMetadataContract,
-  ChapterWithMetadataContract
+  ChapterWithMetadataContract,
+  MangaContract,
+  ChapterContract
 } from '../../../../preload/window.types'
 import { rendererLog } from '@renderer/services/logging.service'
 
-// Extract types from global window interface
-type MangaEntity = Awaited<ReturnType<Window['mangadex']['getManga']>>['data']
-type ChapterEntity = Awaited<ReturnType<Window['mangadex']['getMangaFeed']>>['data'][number]
+type MangaEntity = MangaContract
+type ChapterEntity = ChapterContract
 
 interface MangaDetailViewState {
   manga: MangaEntity | null
@@ -184,98 +186,53 @@ export function MangaDetailView(): JSX.Element {
   }
 
   /**
-   * Convert database MangaWithMetadataContract to API MangaEntity format for display
-   * This creates a minimal manga entity that can be displayed in degraded mode
+   * Build a display DTO from cached database rows, used while offline or before the
+   * live API response arrives. Only fields the DB actually stores are populated -
+   * tags and the large cover variant aren't cached, so they're left empty/undefined.
    */
-  const convertDbToMangaEntity = (dbManga: MangaWithMetadataContract): MangaEntity => {
-    // Create a minimal manga entity structure
-    return {
-      id: dbManga.mangaId,
-      type: 'manga',
-      attributes: {
-        title: { en: dbManga.title },
-        altTitles: [],
-        description: dbManga.description ? { en: dbManga.description } : {},
-        isLocked: false,
-        links: dbManga.externalLinks || {},
-        originalLanguage: 'ja',
-        lastVolume: dbManga.lastVolume,
-        lastChapter: dbManga.lastChapter,
-        publicationDemographic: null,
-        status: dbManga.status,
-        year: dbManga.year,
-        contentRating: 'safe',
-        latestUploadedChapter: null,
-        tags: [],
-        state: 'published',
-        chapterNumbersResetOnNewVolume: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: dbManga.updatedAt.toISOString(),
-        version: 1,
-        availableTranslatedLanguages: []
-      },
-      relationships: [
-        ...(dbManga.coverUrl
-          ? [
-              {
-                id: 'cached-cover',
-                type: 'cover_art' as const,
-                attributes: { fileName: dbManga.coverUrl.split('/').pop() || '' }
-              }
-            ]
-          : []),
-        ...dbManga.authors.map((author, index) => ({
-          id: `cached-author-${index}`,
-          type: 'author' as const,
-          attributes: { name: author }
-        })),
-        ...dbManga.artists.map((artist, index) => ({
-          id: `cached-artist-${index}`,
-          type: 'artist' as const,
-          attributes: { name: artist }
-        }))
-      ]
-    } as MangaEntity
-  }
+  const convertDbToMangaEntity = (dbManga: MangaWithMetadataContract): MangaEntity => ({
+    id: dbManga.mangaId,
+    title: { en: dbManga.title },
+    altTitles: [],
+    description: dbManga.description ? { en: dbManga.description } : {},
+    links: dbManga.externalLinks || {},
+    lastVolume: dbManga.lastVolume,
+    lastChapter: dbManga.lastChapter,
+    publicationDemographic: undefined,
+    status: dbManga.status,
+    year: dbManga.year,
+    contentRating: ContentRating.Safe,
+    tags: [],
+    availableTranslatedLanguages: [],
+    coverUrl: dbManga.coverUrl,
+    coverUrlLarge: dbManga.coverUrl,
+    authors: dbManga.authors.map((name, index) => ({ id: `cached-author-${index}`, name })),
+    artists: dbManga.artists.map((name, index) => ({ id: `cached-artist-${index}`, name }))
+  })
 
   /**
-   * Convert database ChapterWithMetadataContract[] to API ChapterEntity[] format
+   * Build display DTOs for cached chapters. Page count isn't cached (chapters are only
+   * fetched from the API), so it's left at 0 until live data replaces this.
    */
-  const convertDbToChapterEntities = (
-    dbChapters: ChapterWithMetadataContract[]
-  ): ChapterEntity[] => {
-    return dbChapters.map(
-      (ch) =>
-        ({
-          id: ch.chapterId,
-          type: 'chapter',
-          attributes: {
-            title: ch.title,
-            volume: ch.volume,
-            chapter: ch.chapterNumber,
-            pages: 0,
-            translatedLanguage: ch.language,
-            uploader: 'unknown',
-            externalUrl: ch.externalUrl,
-            version: 1,
-            createdAt: ch.createdAt.toISOString(),
-            updatedAt: ch.updatedAt.toISOString(),
-            publishAt: ch.publishedAt.toISOString(),
-            readableAt: ch.publishedAt.toISOString(),
-            isUnavailable: false
-          },
-          relationships: ch.scanlatorGroup
-            ? [
-                {
-                  id: 'cached-group',
-                  type: 'scanlation_group' as const,
-                  attributes: { name: ch.scanlatorGroup }
-                }
-              ]
-            : []
-        }) as ChapterEntity
-    )
-  }
+  const convertDbToChapterEntities = (dbChapters: ChapterWithMetadataContract[]): ChapterEntity[] =>
+    dbChapters.map((ch) => {
+      const scanlationGroup: Record<string, string> = ch.scanlatorGroup
+        ? { 'cached-group': ch.scanlatorGroup }
+        : {}
+
+      return {
+        id: ch.chapterId,
+        title: ch.title,
+        volume: ch.volume,
+        chapter: ch.chapterNumber,
+        pages: 0,
+        translatedLanguage: ch.language,
+        externalUrl: ch.externalUrl,
+        publishAt: ch.publishedAt.toISOString(),
+        isUnavailable: false,
+        scanlationGroup
+      }
+    })
 
   /**
    * Fetch manga details from database first, then from API if online
@@ -466,7 +423,7 @@ export function MangaDetailView(): JSX.Element {
       })
 
       if (unfilteredResponse.success && unfilteredResponse.data?.data.length > 0) {
-        const firstChapterLang = unfilteredResponse.data.data[0].attributes.translatedLanguage
+        const firstChapterLang = unfilteredResponse.data.data[0].translatedLanguage
         setState((prev) => ({
           ...prev,
           chapters: unfilteredResponse.data.data,

@@ -2,9 +2,9 @@ import type { JSX } from 'react'
 import { DownloadStatusBadge } from '@renderer/components/DownloadStatusBadge'
 import type { DownloadStatus } from '@renderer/components/DownloadStatusBadge'
 import { useTranslation } from '@renderer/hooks/useTranslation'
+import type { ChapterContract } from '../../../../../../preload/window.types'
 
-// Extract types from global window interface
-type ChapterEntity = Awaited<ReturnType<Window['mangadex']['getMangaFeed']>>['data'][number]
+type ChapterEntity = ChapterContract
 
 interface ChapterListItemProps {
   readonly chapter: ChapterEntity
@@ -32,16 +32,14 @@ export function ChapterListItem({
 }: ChapterListItemProps): JSX.Element {
   const { t } = useTranslation(['mangaDetail', 'common'])
 
-  const chapterNum = chapter.attributes.chapter || '0'
+  const chapterNum = chapter.chapter || '0'
   const title =
-    chapter.attributes.title ||
-    t('mangaDetail:chapters.item.untitled', { defaultValue: 'Untitled' })
-  const publishDate = new Date(chapter.attributes.publishAt).toLocaleDateString()
+    chapter.title || t('mangaDetail:chapters.item.untitled', { defaultValue: 'Untitled' })
+  const publishDate = new Date(chapter.publishAt).toLocaleDateString()
 
   // Get scanlation group name
-  const scanlationGroup = chapter.relationships.find((r) => r.type === 'scanlation_group')
   const groupName =
-    (scanlationGroup?.attributes?.name as string | undefined) ||
+    Object.values(chapter.scanlationGroup)[0] ||
     t('mangaDetail:chapters.item.unknownGroup', { defaultValue: 'Unknown Group' })
 
   // Determine status classes

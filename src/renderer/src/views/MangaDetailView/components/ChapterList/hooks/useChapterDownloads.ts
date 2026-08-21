@@ -3,9 +3,9 @@ import { useToast } from '@renderer/components/Toast'
 import { useConnectivityStore } from '@renderer/stores/connectivityStore'
 import type { DownloadStatus } from '@renderer/components/DownloadStatusBadge'
 import { rendererLog } from '@renderer/services/logging.service'
+import type { ChapterContract } from '../../../../../../../preload/window.types'
 
-// Extract types from global window interface
-type ChapterEntity = Awaited<ReturnType<Window['mangadex']['getMangaFeed']>>['data'][number]
+type ChapterEntity = ChapterContract
 
 interface DownloadSettings {
   path: string

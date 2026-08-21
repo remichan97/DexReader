@@ -24,21 +24,16 @@ import { useConnectivityStore } from '@renderer/stores/connectivityStore'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import { handleUnfavourite } from '@renderer/utils/unfavouriteHandler'
 import {
-  getCoverImageUrl,
   getMangaTitle,
-  getAuthors,
-  getArtists,
-  getMangaYear,
   getContentRatingText,
-  mapPublicationStatus,
-  CoverSize,
-  type MangaStatus
+  mapPublicationStatus
 } from '@renderer/utils/mangaHelpers'
 import { rendererLog } from '@renderer/services/logging.service'
+import type { MangaStatus } from '@renderer/types/components'
+import type { MangaContract, ChapterContract } from '../../../../../preload/window.types'
 
-// Extract types from global window interface
-type MangaEntity = Awaited<ReturnType<Window['mangadex']['getManga']>>['data']
-type ChapterEntity = Awaited<ReturnType<Window['mangadex']['getMangaFeed']>>['data'][number]
+type MangaEntity = MangaContract
+type ChapterEntity = ChapterContract
 
 interface MangaHeroSectionProps {
   readonly manga: MangaEntity
@@ -62,19 +57,19 @@ export default function MangaHeroSection({
   const { isFavourite, toggleFavourite, loadFavourites } = useLibraryStore()
   const showToast = useToastStore((state) => state.show)
   const isOnline = useConnectivityStore((state) => state.isOnline)
-  const coverUrl = getCoverImageUrl(manga, CoverSize.Large)
+  const coverUrl = manga.coverUrlLarge ?? manga.coverUrl ?? '/placeholder-cover.jpg'
   const title = getMangaTitle(manga)
-  const authors = getAuthors(manga)
-  const artists = getArtists(manga)
-  const status = mapPublicationStatus(manga.attributes.status)
-  const year = getMangaYear(manga)
-  const contentRatingRaw = manga.attributes.contentRating?.toLowerCase() || 'safe'
+  const authors = manga.authors
+  const artists = manga.artists
+  const status = mapPublicationStatus(manga.status)
+  const year = manga.year ?? null
+  const contentRatingRaw = manga.contentRating?.toLowerCase() || 'safe'
   const contentRating = t(`browse:filter.contentRatings.${contentRatingRaw}`, {
-    defaultValue: getContentRatingText(manga.attributes.contentRating)
+    defaultValue: getContentRatingText(manga.contentRating)
   })
-  const demographic = manga.attributes.publicationDemographic
-  const lastVolume = manga.attributes.lastVolume
-  const lastChapter = manga.attributes.lastChapter
+  const demographic = manga.publicationDemographic
+  const lastVolume = manga.lastVolume
+  const lastChapter = manga.lastChapter
 
   // Download state
   const [showDownloadDialog, setShowDownloadDialog] = useState(false)
@@ -117,17 +112,7 @@ export default function MangaHeroSection({
     void loadDownloadStats()
   }, [manga.id])
 
-  // Extract tags from attributes
-  const tags =
-    (
-      manga.attributes as {
-        tags?: Array<{ id: string; attributes: { name: { en?: string }; group: string } }>
-      }
-    )?.tags?.map((tag) => ({
-      id: tag.id,
-      name: tag.attributes.name.en || 'Unknown',
-      group: tag.attributes.group
-    })) || []
+  const tags = manga.tags
 
   const handleReadClick = (): void => {
     if (chapters.length === 0) return
@@ -141,8 +126,8 @@ export default function MangaHeroSection({
 
         navigate(`/reader/${manga.id}/${lastChapter.id}`, {
           state: {
-            chapterNumber: lastChapter.attributes.chapter,
-            chapterTitle: lastChapter.attributes.title,
+            chapterNumber: lastChapter.chapter,
+            chapterTitle: lastChapter.title,
             mangaTitle: getMangaTitle(manga),
             chapters: chapters,
             startPage, // Start at last read page
@@ -157,8 +142,8 @@ export default function MangaHeroSection({
     const firstChapter = chapters[0]
     navigate(`/reader/${manga.id}/${firstChapter.id}`, {
       state: {
-        chapterNumber: firstChapter.attributes.chapter,
-        chapterTitle: firstChapter.attributes.title,
+        chapterNumber: firstChapter.chapter,
+        chapterTitle: firstChapter.title,
         mangaTitle: getMangaTitle(manga),
         chapters: chapters,
         coverUrl // Pass cover URL for progress tracking // Pass full chapter list for navigation
@@ -339,7 +324,7 @@ export default function MangaHeroSection({
         globalThis.downloads.addToQueue({
           chapterId: chapter.id,
           mangaId: manga.id,
-          language: chapter.attributes.translatedLanguage,
+          language: chapter.translatedLanguage,
           quality: selectedQuality,
           addedAt: new Date()
         })
@@ -469,21 +454,17 @@ export default function MangaHeroSection({
             <span className="creator-list">
               {authors.length > 0
                 ? authors.map((creator, index) => (
-                    <span key={creator.id ?? creator.name}>
-                      {creator.id ? (
-                        <button
-                          className="creator-link"
-                          onClick={() => handleCreatorClick(creator.id!, 'author')}
-                          title={t('mangaDetail:hero.viewAllByAuthor', {
-                            name: creator.name,
-                            defaultValue: `View all works by ${creator.name}`
-                          })}
-                        >
-                          {creator.name}
-                        </button>
-                      ) : (
-                        <span>{creator.name}</span>
-                      )}
+                    <span key={creator.id}>
+                      <button
+                        className="creator-link"
+                        onClick={() => handleCreatorClick(creator.id, 'author')}
+                        title={t('mangaDetail:hero.viewAllByAuthor', {
+                          name: creator.name,
+                          defaultValue: `View all works by ${creator.name}`
+                        })}
+                      >
+                        {creator.name}
+                      </button>
                       {index < authors.length - 1 && ', '}
                     </span>
                   ))
@@ -499,21 +480,17 @@ export default function MangaHeroSection({
             <span className="creator-list">
               {artists.length > 0
                 ? artists.map((creator, index) => (
-                    <span key={creator.id ?? creator.name}>
-                      {creator.id ? (
-                        <button
-                          className="creator-link"
-                          onClick={() => handleCreatorClick(creator.id!, 'artist')}
-                          title={t('mangaDetail:hero.viewAllByArtist', {
-                            name: creator.name,
-                            defaultValue: `View all works by ${creator.name}`
-                          })}
-                        >
-                          {creator.name}
-                        </button>
-                      ) : (
-                        <span>{creator.name}</span>
-                      )}
+                    <span key={creator.id}>
+                      <button
+                        className="creator-link"
+                        onClick={() => handleCreatorClick(creator.id, 'artist')}
+                        title={t('mangaDetail:hero.viewAllByArtist', {
+                          name: creator.name,
+                          defaultValue: `View all works by ${creator.name}`
+                        })}
+                      >
+                        {creator.name}
+                      </button>
                       {index < artists.length - 1 && ', '}
                     </span>
                   ))
