@@ -1,174 +1,33 @@
 /**
  * Manga Helper Utilities
  *
- * Helper functions for extracting and formatting manga data from API entities.
- * Handles cover images, author/artist extraction, and status mapping.
+ * Formatting helpers for displaying MangaContract data in the UI.
+ * Field extraction (cover URL, authors/artists, tags) now happens in the main
+ * process mapper - these helpers only resolve locale-dependent display strings
+ * and map API enums to UI-facing values.
  */
 
-import { PublicationStatus } from '@renderer/stores/searchStore'
-import type { Manga } from '../../../preload/window.types'
-
-type MangaEntity = Manga
-
-/**
- * Cover image sizes available from MangaDex
- * Must match the backend CoverSize enum values
- */
-export enum CoverSize {
-  Medium = 256,
-  Large = 512
-}
-
-/**
- * Manga status for UI display
- */
-export type MangaStatus = 'ongoing' | 'completed' | 'hiatus' | 'cancelled'
-
-/**
- * Extract cover image URL from manga entity
- * Returns proxy protocol URL for renderer to use
- */
-export function getCoverImageUrl(manga: MangaEntity, size: CoverSize = CoverSize.Medium): string {
-  try {
-    // Find cover_art relationship
-    const coverRel = manga.relationships?.find((r) => r.type === 'cover_art')
-
-    if (!coverRel?.attributes || !('fileName' in coverRel.attributes)) {
-      return '/placeholder-cover.jpg' // Fallback to placeholder
-    }
-
-    const fileName = (coverRel.attributes as { fileName?: string }).fileName
-    if (!fileName) {
-      return '/placeholder-cover.jpg'
-    }
-
-    // Build cover URL directly (no need for IPC call since it's just a URL builder)
-    // Format: https://uploads.mangadex.org/cover/{mangaId}/{fileName}{size}.jpg
-    const coverUrl = `https://uploads.mangadex.org/covers/${manga.id}/${fileName}.${size}.jpg`
-
-    // Convert to proxy protocol for renderer
-    return coverUrl.replace('https://', 'mangadex://')
-  } catch {
-    return '/placeholder-cover.jpg'
-  }
-}
-
-/**
- * Extract author name from manga entity
- */
-export function getAuthorName(manga: MangaEntity): string {
-  try {
-    const author = manga.relationships?.find((r) => r.type === 'author')
-
-    if (!author?.attributes || !('name' in author.attributes)) {
-      return 'Unknown'
-    }
-
-    return (author.attributes as { name?: string }).name || 'Unknown'
-  } catch {
-    return 'Unknown'
-  }
-}
-
-/**
- * Extract artist name from manga entity
- */
-export function getArtistName(manga: MangaEntity): string {
-  try {
-    const artist = manga.relationships?.find((r) => r.type === 'artist')
-
-    if (!artist?.attributes || !('name' in artist.attributes)) {
-      return 'Unknown'
-    }
-
-    return (artist.attributes as { name?: string }).name || 'Unknown'
-  } catch {
-    return 'Unknown'
-  }
-}
-
-/**
- * Extract author ID from manga entity
- */
-export function getAuthorId(manga: MangaEntity): string | null {
-  try {
-    const author = manga.relationships?.find((r) => r.type === 'author')
-    return author?.id || null
-  } catch {
-    return null
-  }
-}
-
-/**
- * Extract artist ID from manga entity
- */
-export function getArtistId(manga: MangaEntity): string | null {
-  try {
-    const artist = manga.relationships?.find((r) => r.type === 'artist')
-    return artist?.id || null
-  } catch {
-    return null
-  }
-}
-
-interface Creator {
-  id: string | null
-  name: string
-}
-
-/**
- * Extract all authors from manga entity
- */
-export function getAuthors(manga: MangaEntity): Creator[] {
-  try {
-    const authors = manga.relationships?.filter((r) => r.type === 'author') ?? []
-    return authors.map((r) => ({
-      id: r.id ?? null,
-      name: (r.attributes as { name?: string } | undefined)?.name ?? 'Unknown'
-    }))
-  } catch {
-    return []
-  }
-}
-
-/**
- * Extract all artists from manga entity
- */
-export function getArtists(manga: MangaEntity): Creator[] {
-  try {
-    const artists = manga.relationships?.filter((r) => r.type === 'artist') ?? []
-    return artists.map((r) => ({
-      id: r.id ?? null,
-      name: (r.attributes as { name?: string } | undefined)?.name ?? 'Unknown'
-    }))
-  } catch {
-    return []
-  }
-}
+import { PublicationStatus } from '@shared/enums/mangadex'
+import type { MangaStatus } from '@renderer/types/components'
+import type { MangaContract } from '../../../preload/window.types'
 
 /**
  * Get manga title in preferred language
  * Falls back to English, then any available language
  */
-export function getMangaTitle(manga: MangaEntity): string {
-  try {
-    const titleObj = (manga.attributes as { title?: Record<string, string> }).title
+export function getMangaTitle(manga: MangaContract): string {
+  const titleObj = manga.title
 
-    if (!titleObj || typeof titleObj !== 'object') {
-      return 'Untitled'
-    }
-
-    // Try English first
-    if (titleObj.en) {
-      return titleObj.en
-    }
-
-    // Fall back to first available title
-    const titles = Object.values(titleObj)
-    return titles[0] || 'Untitled'
-  } catch {
+  if (!titleObj || typeof titleObj !== 'object') {
     return 'Untitled'
   }
+
+  if (titleObj.en) {
+    return titleObj.en
+  }
+
+  const titles = Object.values(titleObj)
+  return titles[0] || 'Untitled'
 }
 
 /**
@@ -206,58 +65,26 @@ export function formatChapterCount(read: number | undefined, total: number | und
 }
 
 /**
- * Extract available translation languages from manga entity
- * Returns array of language codes (e.g., ['en', 'ja', 'es'])
- */
-export function getAvailableLanguages(manga: MangaEntity): string[] {
-  try {
-    const attrs = manga.attributes as { availableTranslatedLanguages?: string[] }
-    return attrs.availableTranslatedLanguages || []
-  } catch {
-    return []
-  }
-}
-
-/**
  * Get manga description in preferred language
  * Falls back to English, romaji, then first available
  */
-export function getMangaDescription(manga: MangaEntity): string {
-  try {
-    const descObj = (manga.attributes as { description?: Record<string, string> }).description
+export function getMangaDescription(manga: MangaContract): string {
+  const descObj = manga.description
 
-    if (!descObj || typeof descObj !== 'object') {
-      return 'No description available.'
-    }
-
-    // Try English first
-    if (descObj.en) {
-      return descObj.en
-    }
-
-    // Try romaji
-    if (descObj['ja-ro']) {
-      return descObj['ja-ro']
-    }
-
-    // Fall back to first available
-    const descriptions = Object.values(descObj)
-    return descriptions[0] || 'No description available.'
-  } catch {
+  if (!descObj || typeof descObj !== 'object') {
     return 'No description available.'
   }
-}
 
-/**
- * Get manga publication year
- */
-export function getMangaYear(manga: MangaEntity): number | null {
-  try {
-    const year = (manga.attributes as { year?: number | null }).year
-    return year ?? null
-  } catch {
-    return null
+  if (descObj.en) {
+    return descObj.en
   }
+
+  if (descObj['ja-ro']) {
+    return descObj['ja-ro']
+  }
+
+  const descriptions = Object.values(descObj)
+  return descriptions[0] || 'No description available.'
 }
 
 /**
@@ -271,34 +98,4 @@ export function getContentRatingText(rating: string): string {
     pornographic: '18+'
   }
   return map[rating?.toLowerCase()] || 'Unknown'
-}
-
-/**
- * Extract tags from manga relationships
- */
-export function getMangaTags(manga: MangaEntity): Array<{ id: string; name: string }> {
-  try {
-    return (
-      manga.relationships
-        ?.filter((r) => r.type === 'tag')
-        .map((r) => ({
-          id: r.id,
-          name: (r.attributes as { name?: { en?: string } })?.name?.en || 'Unknown'
-        })) || []
-    )
-  } catch {
-    return []
-  }
-}
-
-/**
- * Get all available titles for manga (internationalization)
- */
-export function getAllTitles(manga: MangaEntity): Record<string, string> {
-  try {
-    const titleObj = (manga.attributes as { title?: Record<string, string> }).title
-    return titleObj || {}
-  } catch {
-    return {}
-  }
 }

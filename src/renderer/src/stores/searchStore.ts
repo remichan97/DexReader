@@ -16,7 +16,10 @@
 import { create } from 'zustand'
 import { useConnectivityStore } from './connectivityStore'
 import { rendererLog } from '@renderer/services/logging.service'
-import type { Manga } from '../../../preload/window.types'
+import type { MangaContract } from '../../../preload/window.types'
+import { PublicationStatus } from '@shared/enums/mangadex'
+
+export { PublicationStatus }
 
 // Re-export enum values for convenience
 export enum ContentRating {
@@ -24,13 +27,6 @@ export enum ContentRating {
   Suggestive = 'suggestive',
   Erotica = 'erotica',
   Pornographic = 'pornographic'
-}
-
-export enum PublicationStatus {
-  Ongoing = 'ongoing',
-  Completed = 'completed',
-  Hiatus = 'hiatus',
-  Cancelled = 'cancelled'
 }
 
 export enum PublicationDemographic {
@@ -70,7 +66,7 @@ export enum MangaIncludes {
   Tag = 'tag'
 }
 
-type MangaEntity = Manga
+type MangaEntity = MangaContract
 
 export interface SearchFilters {
   contentRating: ContentRating[]
