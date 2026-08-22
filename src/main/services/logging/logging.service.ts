@@ -63,7 +63,7 @@ class LoggingService {
     try {
       const files = await secureFs.readDir(this.logFolder)
       const now = Date.now()
-      const retentionDays = (await settingsManager.getByPath('logs', 'retentionInDays')) as number
+      const retentionDays = settingsManager.getByPath('logs', 'retentionInDays')
       const maxAge = retentionDays * 24 * 60 * 60 * 1000 // Convert days to milliseconds
 
       for (const file of files) {

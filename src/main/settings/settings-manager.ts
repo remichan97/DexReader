@@ -20,6 +20,7 @@ import { DisplayLanguage } from '../../shared/enums/settings/display-languages.e
 import Store from 'electron-store'
 import { SidebarSize } from '../../shared/enums/settings/sidebar-size.enum'
 import { MemoryTierContract } from '@shared/contracts/settings/memory-tier.contract'
+import { PathValue } from '@shared/types/settings/path-value.type'
 
 class SettingsManager {
   private settingsStore!: Store<AppSettings>
@@ -50,7 +51,25 @@ class SettingsManager {
     return settings
   }
 
+  getByPath<K extends keyof AppSettings>(key: K): AppSettings[K]
+  getByPath<K extends keyof AppSettings, P extends string>(
+    key: K,
+    path: P
+  ): PathValue<AppSettings[K], P>
   getByPath<K extends keyof AppSettings>(key: K, path?: string): unknown {
+    return this.resolvePath(key, path)
+  }
+
+  /**
+   * Runtime-string variant of getByPath() for callers whose path isn't known at compile
+   * time (e.g. forwarded from an IPC message) - no static path means no static return
+   * type, so this always returns unknown for the caller to narrow itself.
+   */
+  getByDynamicPath(key: keyof AppSettings, path?: string): unknown {
+    return this.resolvePath(key, path)
+  }
+
+  private resolvePath(key: keyof AppSettings, path?: string): unknown {
     const section = this.settingsStore.store[key]
 
     if (!path) {

@@ -87,10 +87,7 @@ class SearchPresetService {
       }
 
       // Check Settings if the deleted preset was set as default, and if so, delete the default preset setting as well
-      const defaultSearchPresetId = settingsManager.getByPath(
-        'search',
-        'defaultPresetId'
-      ) as unknown as number | undefined
+      const defaultSearchPresetId = settingsManager.getByPath('search', 'defaultPresetId')
       if (defaultSearchPresetId === id) {
         mainLog.info(
           '[SearchPresetService] Deleted preset was set as default, clearing default preset setting',

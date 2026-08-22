@@ -39,7 +39,7 @@ class AppUpdateService {
     }
 
     if (!isManual) {
-      const isAutoUpdate = settingsManager.getByPath('update', 'autoCheck') as boolean
+      const isAutoUpdate = settingsManager.getByPath('update', 'autoCheck')
 
       if (!isAutoUpdate) {
         mainLog.info('[AppUpdate] Auto-update is disabled. Skipping update check.')
@@ -121,8 +121,7 @@ class AppUpdateService {
   }
 
   private async shouldAutoDownload(): Promise<boolean> {
-    const autoDownload = settingsManager.getByPath('update', 'autoDownload') as boolean
-    return autoDownload
+    return settingsManager.getByPath('update', 'autoDownload')
   }
 
   private setupUpdateEventListeners(): void {

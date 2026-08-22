@@ -84,7 +84,7 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
       throw new Error('Path must be a string')
     }
 
-    return settingsManager.getByPath(section as keyof AppSettings, path)
+    return settingsManager.getByDynamicPath(section as keyof AppSettings, path)
   })
 
   /**

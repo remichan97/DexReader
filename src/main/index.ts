@@ -20,10 +20,7 @@ import { settingsManager } from './settings/settings-manager'
 
 const imageProxy = new ImageProxy()
 const localImageProxy = new LocalImageProxy()
-const isHardwareAccelerationEnabled = settingsManager.getByPath(
-  'system',
-  'useHardwareAcceleration'
-) as boolean
+const isHardwareAccelerationEnabled = settingsManager.getByPath('system', 'useHardwareAcceleration')
 
 // Store menu state
 let menuState = {

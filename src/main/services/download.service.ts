@@ -371,7 +371,8 @@ class DownloadService {
   }
 
   private async getDiskSpaceInfo(): Promise<DiskSpaceData> {
-    const downloadsPath = (await settingsManager.getByPath('downloads', 'downloadPath')) as string
+    const downloadsPath =
+      settingsManager.getByPath('downloads', 'downloadPath') ?? getDownloadsPath()
 
     const stats = await secureFs.statFs(downloadsPath)
 
