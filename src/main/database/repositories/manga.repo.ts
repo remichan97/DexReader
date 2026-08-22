@@ -2,7 +2,7 @@ import { and, eq, inArray, like, lt, SQL, sql, notExists, or, isNotNull } from '
 import { databaseConnection } from '../connection'
 import { chapterDownloads, collectionItems, manga } from '../schemas'
 import { MangaMapper } from '../mappers/manga.mapper'
-import { executeBatchOperations } from '../utils/batch-operations.util'
+import { DbExecutor, executeBatchOperations } from '../utils/batch-operations.util'
 import { UpsertMangaCommand } from '@shared/commands/repositories/manga/upsert-manga.command'
 import { GetLibraryMangaCommand } from '@shared/commands/repositories/manga/get-library-manga.command'
 import { SearchMangaCommand } from '@shared/commands/repositories/manga/search-manga.command'
@@ -17,13 +17,13 @@ class MangaRepository {
     return databaseConnection.getDb()
   }
 
-  batchUpsertManga(mangaData: UpsertMangaCommand[]): void {
+  batchUpsertManga(mangaData: UpsertMangaCommand[], executor: DbExecutor = this.db): void {
     const now: Date = new Date()
 
     executeBatchOperations({
       commands: mangaData,
-      db: this.db,
-      singleOperation: (data) => this.upsertManga(data),
+      db: executor,
+      singleOperation: (data) => this.upsertManga(data, executor),
       batchOperation: (tx, data) => {
         tx.insert(manga)
           .values({
@@ -45,10 +45,10 @@ class MangaRepository {
     })
   }
 
-  upsertManga(mangaData: UpsertMangaCommand): void {
+  upsertManga(mangaData: UpsertMangaCommand, executor: DbExecutor = this.db): void {
     const now: Date = new Date()
 
-    this.db
+    executor
       .insert(manga)
       .values({
         ...mangaData,
@@ -316,7 +316,7 @@ class MangaRepository {
         totalFavouriteManga: sql<number>`COUNT(DISTINCT CASE WHEN ${manga.isFavourite} = 1 THEN ${manga.mangaId} END)`,
         downloadedManga: sql<number>`COUNT(DISTINCT CASE WHEN ${chapterDownloads.status} = ${DownloadStatus.Completed} THEN ${manga.mangaId} END)`,
         browsingCache: sql<number>`COUNT(DISTINCT CASE WHEN ${manga.isFavourite} = 0 AND ${chapterDownloads.status} IS NULL THEN ${manga.mangaId} END)`,
-        oldCache: sql<number>`COUNT(DISTINCT CASE WHEN ${manga.isFavourite} = 0 AND ${chapterDownloads.status} IS NULL AND ${manga.lastAccessedAt} < ${thresholdDate.toISOString()} THEN ${manga.mangaId} END)`
+        oldCache: sql<number>`COUNT(DISTINCT CASE WHEN ${manga.isFavourite} = 0 AND ${chapterDownloads.status} IS NULL AND ${manga.lastAccessedAt} < ${thresholdDate} THEN ${manga.mangaId} END)`
       })
       .from(manga)
       .leftJoin(
