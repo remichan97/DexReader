@@ -1,3 +1,4 @@
+import { databaseConnection } from './../../database/connection'
 import { UpdateFirstReadCommand } from '@shared/commands/repositories/progress/update-firstread.command'
 import path, { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -31,7 +32,6 @@ import { progressRepo } from '../../database/repositories/manga-progress.repo'
 import { DexReaderMangaReaderOverride } from '../types/dexreader/manga-reader-override.type'
 import { readerSettingsRepo } from '../../database/repositories/reader-settings.repo'
 import { DexReaderImportContract } from '@shared/contracts/services/dexreader/import.contract'
-import { databaseConnection } from 'src/main/database/connection'
 
 class DexReaderImportService {
   private readonly schemaPath = path.join(
