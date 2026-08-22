@@ -3,7 +3,7 @@ import { databaseConnection } from '../connection'
 
 import { collectionItems, collections, manga } from '../schemas'
 import { CollectionMapper } from '../mappers/collection.mapper'
-import { executeBatchOperations } from '../utils/batch-operations.util'
+import { DbExecutor, executeBatchOperations } from '../utils/batch-operations.util'
 import { CreateCollectionCommand } from '@shared/commands/repositories/collections/create-collection.command'
 import { UpdateCollectionCommand } from '@shared/commands/repositories/collections/update-collection.command'
 import { AddToCollectionCommand } from '@shared/commands/repositories/collections/add-to-collection.command'
@@ -64,10 +64,10 @@ class CollectionRepository {
     return results.map(CollectionMapper.toCollectionItemQuery)
   }
 
-  createCollection(command: CreateCollectionCommand): number {
+  createCollection(command: CreateCollectionCommand, executor: DbExecutor = this.db): number {
     const now = new Date()
 
-    const result = this.db
+    const result = executor
       .insert(collections)
       .values({
         name: command.name,
@@ -81,14 +81,17 @@ class CollectionRepository {
     return result.id
   }
 
-  batchCreateCollections(command: CreateCollectionCommand[]): number[] {
+  batchCreateCollections(
+    command: CreateCollectionCommand[],
+    executor: DbExecutor = this.db
+  ): number[] {
     const now = new Date()
 
     return executeBatchOperations({
       commands: command,
-      db: this.db,
+      db: executor,
       collectResults: true, // Need to collect the generated collection IDs
-      singleOperation: (cmd) => this.createCollection(cmd),
+      singleOperation: (cmd) => this.createCollection(cmd, executor),
       batchOperation: (tx, cmd) => {
         const result = tx
           .insert(collections)
@@ -123,14 +126,14 @@ class CollectionRepository {
     this.db.delete(collections).where(eq(collections.id, collectionId)).run()
   }
 
-  batchAddToCollection(command: AddToCollectionCommand[]): void {
+  batchAddToCollection(command: AddToCollectionCommand[], executor: DbExecutor = this.db): void {
     const now = new Date()
 
     executeBatchOperations({
       commands: command,
-      db: this.db,
+      db: executor,
       singleOperation: (cmd) => {
-        this.addToCollection(cmd)
+        this.addToCollection(cmd, executor)
       },
       batchOperation: (tx, cmd) => {
         tx.insert(collectionItems)
@@ -145,10 +148,10 @@ class CollectionRepository {
     })
   }
 
-  addToCollection(command: AddToCollectionCommand): boolean {
+  addToCollection(command: AddToCollectionCommand, executor: DbExecutor = this.db): boolean {
     const now = new Date()
 
-    const result = this.db
+    const result = executor
       .insert(collectionItems)
       .values({
         collectionId: command.collectionId,

@@ -31,6 +31,7 @@ import { progressRepo } from '../../database/repositories/manga-progress.repo'
 import { DexReaderMangaReaderOverride } from '../types/dexreader/manga-reader-override.type'
 import { readerSettingsRepo } from '../../database/repositories/reader-settings.repo'
 import { DexReaderImportContract } from '@shared/contracts/services/dexreader/import.contract'
+import { databaseConnection } from 'src/main/database/connection'
 
 class DexReaderImportService {
   private readonly schemaPath = path.join(
@@ -175,11 +176,10 @@ class DexReaderImportService {
     // Final signal check before we start the database operations
     signal.throwIfAborted()
 
-    mangaRepo.batchUpsertManga(upsertMangaCommand)
-    result.importedMangaCount = upsertMangaCommand.filter((m) => m.isFavourite === true).length
-
-    chapterRepo.saveChapters(saveChapterCommand)
-    result.importedChaptersCount = saveChapterCommand.length
+    databaseConnection.getDb().transaction((tx) => {
+      mangaRepo.batchUpsertManga(upsertMangaCommand, tx)
+      chapterRepo.saveChapters(saveChapterCommand, tx)
+    })
 
     return result
   }
@@ -220,44 +220,46 @@ class DexReaderImportService {
     // Final signal check before we start the database operations
     signal.throwIfAborted()
 
-    // Step 3: Create new collections and map their old IDs to new IDs
-    if (createCollectionCommand.length > 0) {
-      const newCollectionIds = collectionRepo.batchCreateCollections(createCollectionCommand)
-      result.importedCollectionsCount = newCollectionIds.length
+    databaseConnection.getDb().transaction((tx) => {
+      // Step 3: Create new collections and map their old IDs to new IDs
+      if (createCollectionCommand.length > 0) {
+        const newCollectionIds = collectionRepo.batchCreateCollections(createCollectionCommand, tx)
+        result.importedCollectionsCount = newCollectionIds.length
 
-      // Map each old collection ID to its new database ID
-      for (let i = 0; i < collectionsToCreate.length; i++) {
-        collectionIdMap.set(collectionsToCreate[i].id, newCollectionIds[i])
+        // Map each old collection ID to its new database ID
+        for (let i = 0; i < collectionsToCreate.length; i++) {
+          collectionIdMap.set(collectionsToCreate[i].id, newCollectionIds[i])
+        }
       }
-    }
 
-    // Step 4: Add manga to collections using the mapped IDs
-    const addToCollectionCommand: AddToCollectionCommand[] = []
+      // Step 4: Add manga to collections using the mapped IDs
+      const addToCollectionCommand: AddToCollectionCommand[] = []
 
-    for (const item of collectionItems) {
+      for (const item of collectionItems) {
+        signal.throwIfAborted()
+
+        // Translate old collection ID to new ID
+        const newCollectionId = collectionIdMap.get(item.collectionId)
+
+        if (newCollectionId === undefined) {
+          // Collection wasn't imported (shouldn't happen, but defensive)
+          continue
+        }
+
+        addToCollectionCommand.push({
+          collectionId: newCollectionId, // Use the NEW mapped ID
+          mangaId: item.mangaId
+        })
+      }
+
+      // Final signal check before adding items
       signal.throwIfAborted()
 
-      // Translate old collection ID to new ID
-      const newCollectionId = collectionIdMap.get(item.collectionId)
-
-      if (newCollectionId === undefined) {
-        // Collection wasn't imported (shouldn't happen, but defensive)
-        continue
+      if (addToCollectionCommand.length > 0) {
+        collectionRepo.batchAddToCollection(addToCollectionCommand, tx)
+        result.importedCollectionItemsCount = addToCollectionCommand.length
       }
-
-      addToCollectionCommand.push({
-        collectionId: newCollectionId, // Use the NEW mapped ID
-        mangaId: item.mangaId
-      })
-    }
-
-    // Final signal check before adding items
-    signal.throwIfAborted()
-
-    if (addToCollectionCommand.length > 0) {
-      collectionRepo.batchAddToCollection(addToCollectionCommand)
-      result.importedCollectionItemsCount = addToCollectionCommand.length
-    }
+    })
   }
 
   private importProgressData(

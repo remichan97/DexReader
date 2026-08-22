@@ -5,6 +5,12 @@ type DatabaseType = ReturnType<typeof databaseConnection.getDb>
 type TransactionCallback = Parameters<DatabaseType['transaction']>[0]
 type TransactionType = Parameters<TransactionCallback>[0]
 
+// Either the top-level connection or an in-flight transaction handle - both expose
+// the same query builder surface (insert/select/update/delete), so repo methods can
+// accept either without knowing whether they're running standalone or nested in a
+// caller's transaction
+export type DbExecutor = DatabaseType | TransactionType
+
 /**
  * Configuration for batch operation execution
  * @template TCommand - The type of command object being processed
@@ -14,7 +20,7 @@ export type BatchCommand<TCommand, TResult> = {
   /** Array of commands to process */
   commands: TCommand[]
   /** Database connection instance */
-  db: DatabaseType
+  db: DatabaseType | TransactionType
   /** Single operation handler - called when only one command exists */
   singleOperation: (command: TCommand) => TResult
   /** Batch operation handler - called for each command within a transaction */

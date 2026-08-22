@@ -2,6 +2,7 @@ import { eq, inArray } from 'drizzle-orm'
 import { databaseConnection } from '../connection'
 import { chapter } from '../schemas/chapter.schema'
 import { ChapterMapper } from '../mappers/chapter.mapper'
+import { DbExecutor } from '../utils/batch-operations.util'
 import { SaveChapterCommand } from '@shared/commands/repositories/progress/save-chapter.command'
 import { ChapterWithMetadataContract } from '@shared/contracts/database/manga/chapter-with-metadata.contract'
 
@@ -12,10 +13,10 @@ class ChapterRepository {
     return databaseConnection.getDb()
   }
 
-  saveChapters(chapters: SaveChapterCommand[]): void {
+  saveChapters(chapters: SaveChapterCommand[], executor: DbExecutor = this.db): void {
     const now = new Date()
 
-    this.db.transaction((tx) => {
+    executor.transaction((tx) => {
       for (const ch of chapters) {
         tx.insert(chapter)
           .values({
