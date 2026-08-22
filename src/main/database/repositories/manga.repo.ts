@@ -307,6 +307,11 @@ class MangaRepository {
   statsMangaTable(): MangaCacheStatsContract {
     const thresholdDate = new Date()
     thresholdDate.setDate(thresholdDate.getDate() - 90)
+    // last_accessed_at is stored as epoch seconds (drizzle's `timestamp` mode column mapping) -
+    // raw sql template interpolation doesn't go through that column-aware conversion the way
+    // the typed query builder does, so the threshold must be pre-converted to match, not passed
+    // as a Date or ISO string
+    const thresholdEpochSeconds = Math.floor(thresholdDate.getTime() / 1000)
 
     // Single query with conditional aggregation - most efficient approach
     // Uses LEFT JOIN to detect downloads, then aggregates with CASE expressions
@@ -316,7 +321,7 @@ class MangaRepository {
         totalFavouriteManga: sql<number>`COUNT(DISTINCT CASE WHEN ${manga.isFavourite} = 1 THEN ${manga.mangaId} END)`,
         downloadedManga: sql<number>`COUNT(DISTINCT CASE WHEN ${chapterDownloads.status} = ${DownloadStatus.Completed} THEN ${manga.mangaId} END)`,
         browsingCache: sql<number>`COUNT(DISTINCT CASE WHEN ${manga.isFavourite} = 0 AND ${chapterDownloads.status} IS NULL THEN ${manga.mangaId} END)`,
-        oldCache: sql<number>`COUNT(DISTINCT CASE WHEN ${manga.isFavourite} = 0 AND ${chapterDownloads.status} IS NULL AND ${manga.lastAccessedAt} < ${thresholdDate} THEN ${manga.mangaId} END)`
+        oldCache: sql<number>`COUNT(DISTINCT CASE WHEN ${manga.isFavourite} = 0 AND ${chapterDownloads.status} IS NULL AND ${manga.lastAccessedAt} < ${thresholdEpochSeconds} THEN ${manga.mangaId} END)`
       })
       .from(manga)
       .leftJoin(
