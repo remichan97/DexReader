@@ -13,5 +13,5 @@ export const readingStatistics = sqliteTable(
       .notNull()
       .default(sql`(unixepoch())`)
   },
-  (table) => [check('chk_reading_statistics_id', sql`"${table.id}" = 1`)]
+  (table) => [check('chk_reading_statistics_id', sql`${table.id} = 1`)]
 )

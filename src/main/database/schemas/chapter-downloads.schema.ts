@@ -35,6 +35,7 @@ export const chapterDownloads = sqliteTable(
   (table) => [
     primaryKey({ name: 'pk_chapter_downloads', columns: [table.chapterId, table.mangaId] }),
     index('idx_chapter_manga_downloads').on(table.mangaId),
+    index('idx_chapter_chapterId').on(table.chapterId),
     index('idx_chapter_status_downloads').on(table.status)
   ]
 )
