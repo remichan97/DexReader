@@ -10,7 +10,7 @@ export function serializeError(error: unknown): ISerializeError {
       name: error.name,
       message: error.message,
       code: error.code,
-      details: error.details,
+      details: process.env.NODE_ENV === 'development' ? error.details : undefined,
       stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     }
   }
