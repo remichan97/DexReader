@@ -10,6 +10,10 @@ class DatabaseConnection {
   private drizzle: ReturnType<typeof drizzle> | undefined = undefined
   private dbPath: string | undefined = undefined
 
+  getDbFilePath(): string {
+    return this.getDbPath()
+  }
+
   private getDbPath(): string {
     if (!this.dbPath) {
       // Lazy-load the path only when needed (after Electron app is ready)

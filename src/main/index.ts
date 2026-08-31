@@ -11,6 +11,7 @@ import { setupAppLifecycle } from './app-lifecycle'
 import { registerAllHandlers } from './ipc/registry'
 import { databaseConnection } from './database/connection'
 import { runMigrations } from './database/migrations/migrations'
+import { recoverFromDatabaseOpenFailure, handleMigrationFailure } from './database/db-recovery'
 import { downloadQueueService } from './services/download-queue.service'
 import { diskCacheUtil } from './api/utils/disk-cache.util'
 import { appUpdateService } from './services/app-update.service'
@@ -102,11 +103,25 @@ app.whenReady().then(async () => {
   await initFileSystem()
 
   mainLog.info('[Main] Initializing database connection...')
-  databaseConnection.init()
+  try {
+    databaseConnection.init()
+  } catch (error) {
+    const recovered = await recoverFromDatabaseOpenFailure(error)
+    if (!recovered) {
+      app.exit(1)
+      return
+    }
+  }
   mainLog.info('[Main] Database connection initialized')
 
   mainLog.info('[Main] Running database migrations...')
-  runMigrations()
+  try {
+    runMigrations()
+  } catch (error) {
+    await handleMigrationFailure(error)
+    app.exit(1)
+    return
+  }
   mainLog.info('[Main] Database migrations complete')
 
   mainLog.info('[Main] Registering protocol handlers...')
