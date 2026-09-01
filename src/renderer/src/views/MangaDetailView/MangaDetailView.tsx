@@ -14,6 +14,7 @@ import {
   convertDbMangaToContract,
   convertDbChaptersToContract
 } from '@renderer/utils/mangaDbConversion'
+import { toError } from '@shared/utils/to-error.util'
 import MangaHeroSection from './components/MangaHeroSection'
 import DescriptionSection from './components/DescriptionSection'
 import ExternalLinksSection from './components/ExternalLinksSection'
@@ -400,7 +401,7 @@ export function MangaDetailView(): JSX.Element {
         ...prev,
         chapters: [],
         chaptersLoading: false,
-        chaptersError: error instanceof Error ? error : new Error(String(error))
+        chaptersError: toError(error)
       }))
     }
   }
@@ -455,7 +456,7 @@ export function MangaDetailView(): JSX.Element {
         ...prev,
         chapters: [],
         chaptersLoading: false,
-        chaptersError: error instanceof Error ? error : new Error(String(error))
+        chaptersError: toError(error)
       }))
     }
   }

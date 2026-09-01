@@ -2,11 +2,12 @@ import { app, clipboard, dialog, shell } from 'electron'
 import { databaseConnection } from './connection'
 import { secureFs } from '../filesystem/secure-fs'
 import { mainLog } from '../services/logging/main-logging.service'
+import { toError } from '@shared/utils/to-error.util'
 
 const RELEASES_URL = 'https://github.com/remichan97/dexreader/releases'
 
 function buildDiagnosticInfo(error: unknown): string {
-  const normalisedError = error instanceof Error ? error : new Error(String(error))
+  const normalisedError = toError(error)
 
   return [
     `DexReader ${app.getVersion()}`,

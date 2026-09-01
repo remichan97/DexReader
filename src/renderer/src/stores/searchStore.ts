@@ -18,6 +18,7 @@ import { useConnectivityStore } from './connectivityStore'
 import { rendererLog } from '@renderer/services/logging.service'
 import type { MangaContract } from '../../../preload/window.types'
 import { PublicationStatus } from '@shared/enums/mangadex'
+import { toError } from '@shared/utils/to-error.util'
 
 export { PublicationStatus }
 
@@ -273,7 +274,7 @@ export const useSearchStore = create<SearchState>((set, get) => ({
     } catch (error) {
       rendererLog.error('[SearchStore] Search error:', error)
       set({
-        error: error instanceof Error ? error : new Error(String(error)),
+        error: toError(error),
         loading: false
       })
     }
@@ -379,7 +380,7 @@ export const useSearchStore = create<SearchState>((set, get) => ({
     } catch (error) {
       rendererLog.error('[SearchStore] Load more error:', error)
       set({
-        loadMoreError: error instanceof Error ? error : new Error(String(error)),
+        loadMoreError: toError(error),
         loadingMore: false,
         hasMore: true // Keep hasMore true so user can retry
       })

@@ -4,6 +4,7 @@ import { ImageQuality } from '../../../../../main/api/enums/image-quality.enum'
 import type { ImageUrlResponse, ChapterContract } from '../../../../../preload/window.types'
 import { useConnectivityStore } from '@renderer/stores/connectivityStore'
 import { rendererLog } from '@renderer/services/logging.service'
+import { toError } from '@shared/utils/to-error.util'
 
 type ChapterEntity = ChapterContract
 
@@ -155,7 +156,7 @@ export function useChapterData(
         rendererLog.error('[useChapterData] Failed to load chapter images:', error)
         setData((prev) => ({
           ...prev,
-          error: error instanceof Error ? error : new Error(String(error)),
+          error: toError(error),
           loading: false
         }))
       }
