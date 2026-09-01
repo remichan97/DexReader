@@ -8,9 +8,12 @@ import { getMainWindow } from '../window'
 import { BrowserWindow } from 'electron'
 import { registerAdditionalDialogHandlers } from './handlers/dialogs.handler'
 import { registerLibraryHandlers } from './handlers/library.handler'
+import { registerCollectionsHandlers } from './handlers/collections.handler'
+import { registerHistoryHandlers } from './handlers/history.handler'
 import { registerMihonHandlers } from './handlers/mihon.handler'
 import { registerDexReaderHandler } from './handlers/dexreader.handler'
 import { registerDownloadHandlers } from './handlers/download.handler'
+import { registerDownloadQueueHandlers } from './handlers/download-queue.handler'
 import { registerStorageHandlers } from './handlers/storage.handler'
 import type { ImageProxy } from '../api/proxy/image.proxy'
 import { registerAppUpdateHandler } from './handlers/app-update.handler'
@@ -32,9 +35,12 @@ export function registerAllHandlers(imageProxy?: ImageProxy): void {
   registerReaderSettingsHandlers()
   registerAdditionalDialogHandlers()
   registerLibraryHandlers()
+  registerCollectionsHandlers()
+  registerHistoryHandlers()
   registerMihonHandlers()
   registerDexReaderHandler()
   registerDownloadHandlers()
+  registerDownloadQueueHandlers()
   registerStorageHandlers()
   registerLoggerHandlers()
   registerAppUpdateHandler()
