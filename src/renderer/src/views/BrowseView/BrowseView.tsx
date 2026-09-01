@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Warning48Regular, CloudOff48Regular, Search48Regular } from '@fluentui/react-icons'
 import { SearchBar } from '@renderer/components/SearchBar'
@@ -10,25 +10,15 @@ import { SkeletonGrid } from '@renderer/components/Skeleton'
 import { Button } from '@renderer/components/Button'
 import { InfoBar } from '@renderer/components/InfoBar'
 import { SavePresetDialog } from '@renderer/components/SavePresetDialog'
-import {
-  useSearchStore,
-  useLibraryStore,
-  useToastStore,
-  useConnectivityStore,
-  useSearchPresetsStore
-} from '@renderer/stores'
-import {
-  DEFAULT_FILTERS,
-  type IncludedTagsMode,
-  type OrderOptions,
-  type OrderDirection
-} from '@renderer/stores/searchStore'
+import { useSearchStore, useToastStore, useConnectivityStore } from '@renderer/stores'
+import { DEFAULT_FILTERS } from '@renderer/stores/searchStore'
 import { getMangaTitle, mapPublicationStatus } from '@renderer/utils/mangaHelpers'
-import { cacheMangaMetadata } from '@renderer/utils/mangaCache'
-import { handleUnfavourite } from '@renderer/utils/unfavouriteHandler'
 import './BrowseView.css'
-import { rendererLog } from '@renderer/services/logging.service'
 import { useTranslation } from '@renderer/hooks/useTranslation'
+import { useInfiniteScroll } from './hooks/useInfiniteScroll'
+import { useStickyFilterBar } from './hooks/useStickyFilterBar'
+import { useFavouriteToggle } from './hooks/useFavouriteToggle'
+import { useSearchPresets } from './hooks/useSearchPresets'
 
 export function BrowseView(): JSX.Element {
   const { t } = useTranslation(['browse', 'common'])
@@ -52,23 +42,27 @@ export function BrowseView(): JSX.Element {
     retryLoadMore
   } = useSearchStore()
 
-  // Library store for favorite management
-  const { isFavourite, toggleFavourite, loadFavourites } = useLibraryStore()
   const showToast = useToastStore((state) => state.show)
   const isOnline = useConnectivityStore((state) => state.isOnline)
 
-  // Search presets store
-  const { presets, loadPresets, createPreset, deletePreset, updateLastUsedAt } =
-    useSearchPresetsStore()
+  // Favourite toggling (with metadata caching + shared unfavourite flow)
+  const { isFavourite, handleFavouriteToggle } = useFavouriteToggle(results, t, showToast)
+
+  // Saved search presets
+  const {
+    presets,
+    appliedPresetId,
+    setAppliedPresetId,
+    showSaveDialog,
+    setShowSaveDialog,
+    handlePresetSelect,
+    handleSavePreset,
+    handleDeletePreset
+  } = useSearchPresets(t, showToast)
 
   // Hide filters by default - users reveal when needed
   const [showFilters, setShowFilters] = useState(false)
-  const [showFilterBar, setShowFilterBar] = useState(false) // Show info bar when filters out of view
-  const filterPanelRef = useRef<HTMLDivElement>(null)
-
-  // Preset state
-  const [appliedPresetId, setAppliedPresetId] = useState<number | null>(null)
-  const [showSaveDialog, setShowSaveDialog] = useState(false)
+  const { filterPanelRef, showFilterBar } = useStickyFilterBar(showFilters)
 
   // Calculate active filter count (excluding default content ratings)
   const filterCount =
@@ -79,46 +73,8 @@ export function BrowseView(): JSX.Element {
     filters.excludedTags.length
 
   // Ref for infinite scroll sentinel
-  const sentinelRef = useRef<HTMLDivElement>(null)
+  const sentinelRef = useInfiniteScroll(loading, hasMore, loadMore)
   const initialLoadRef = useRef(false)
-
-  // Helper functions to convert between backend and frontend filter types
-  const convertToFrontendFilters = (
-    backendFilters: (typeof presets)[number]['filters']
-  ): typeof filters => {
-    return {
-      contentRating: backendFilters.contentRating,
-      publicationStatus: backendFilters.publicationStatus ? [backendFilters.publicationStatus] : [],
-      publicationDemographic: backendFilters.publicationDemographic
-        ? [backendFilters.publicationDemographic]
-        : [],
-      includedTags: backendFilters.includedTags || [],
-      excludedTags: backendFilters.excludedTags || [],
-      includedTagsMode: backendFilters.includedTagsMode as unknown as IncludedTagsMode,
-      availableTranslatedLanguage: backendFilters.availableTranslatedLanguages,
-      sortBy: backendFilters.sortBy as unknown as OrderOptions,
-      sortDirection: backendFilters.sortDirection as unknown as OrderDirection
-    }
-  }
-
-  const convertToBackendFilters = (
-    frontendFilters: typeof filters
-  ): (typeof presets)[number]['filters'] => {
-    return {
-      contentRating: frontendFilters.contentRating,
-      publicationStatus: frontendFilters.publicationStatus[0], // Take first item or undefined
-      publicationDemographic: frontendFilters.publicationDemographic[0] || undefined, // Take first or undefined
-      includedTags: frontendFilters.includedTags,
-      excludedTags: frontendFilters.excludedTags,
-      includedTagsMode:
-        frontendFilters.includedTagsMode as unknown as (typeof presets)[number]['filters']['includedTagsMode'],
-      availableTranslatedLanguages: frontendFilters.availableTranslatedLanguage,
-      resultPerPage: limit,
-      sortBy: frontendFilters.sortBy as unknown as (typeof presets)[number]['filters']['sortBy'],
-      sortDirection:
-        frontendFilters.sortDirection as unknown as (typeof presets)[number]['filters']['sortDirection']
-    }
-  }
 
   // Handle tag parameter from URL and apply to filters
   useEffect(() => {
@@ -142,67 +98,6 @@ export function BrowseView(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Load presets on mount
-  useEffect(() => {
-    loadPresets()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  // Observe filter panel visibility to show/hide info bar
-  useEffect(() => {
-    const filterPanel = filterPanelRef.current
-    if (!filterPanel || !showFilters) {
-      setShowFilterBar(false)
-      return
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        // Show info bar when filter panel is not visible
-        setShowFilterBar(!entry.isIntersecting)
-      },
-      {
-        root: null,
-        threshold: 0,
-        rootMargin: '0px'
-      }
-    )
-
-    observer.observe(filterPanel)
-
-    return () => {
-      observer.disconnect()
-    }
-  }, [showFilters])
-
-  // Infinite scroll: load more when sentinel comes into view
-  const handleIntersection = useCallback(
-    (entries: IntersectionObserverEntry[]) => {
-      const [entry] = entries
-      if (entry.isIntersecting && !loading && hasMore) {
-        loadMore()
-      }
-    },
-    [loading, hasMore, loadMore]
-  )
-
-  useEffect(() => {
-    const sentinel = sentinelRef.current
-    if (!sentinel) return
-
-    const observer = new IntersectionObserver(handleIntersection, {
-      root: null,
-      rootMargin: '200px', // Trigger 200px before reaching the sentinel
-      threshold: 0
-    })
-
-    observer.observe(sentinel)
-
-    return () => {
-      observer.disconnect()
-    }
-  }, [handleIntersection])
-
   // Clear offline errors and retry search when going online
   useEffect(() => {
     if (isOnline && error?.message.toLowerCase().includes('offline')) {
@@ -218,55 +113,6 @@ export function BrowseView(): JSX.Element {
 
   const handleMangaClick = (id: string): void => {
     navigate(`/browse/${id}`)
-  }
-
-  const handleFavouriteToggle = async (id: string): Promise<void> => {
-    try {
-      // Find the manga for caching and toast message
-      const manga = results.find((m) => m.id === id)
-
-      if (!manga) {
-        throw new Error('Manga not found in results')
-      }
-
-      const currentlyFavourited = isFavourite(id)
-
-      if (currentlyFavourited) {
-        // Unfavouriting - show dialog with download options
-        await handleUnfavourite({
-          mangaId: id,
-          mangaTitle: getMangaTitle(manga),
-          onSuccess: () => {
-            // Refresh library store to update heart icon
-            loadFavourites()
-          }
-        })
-      } else {
-        // Favouriting - cache metadata and toggle
-        try {
-          await cacheMangaMetadata(manga)
-        } catch {
-          // Continue with toggle - metadata might already exist
-        }
-
-        await toggleFavourite(id)
-
-        showToast({
-          title: t('browse:toasts.addedToLibrary'),
-          message: getMangaTitle(manga),
-          variant: 'info',
-          duration: 3000
-        })
-      }
-    } catch (error) {
-      rendererLog.error('[BrowseView] Error toggling favourite:', error)
-      showToast({
-        title: t('browse:toasts.error'),
-        message: t('browse:toasts.failedToUpdate'),
-        variant: 'error',
-        duration: 3000
-      })
-    }
   }
 
   const handleFilterClick = (): void => {
@@ -285,94 +131,6 @@ export function BrowseView(): JSX.Element {
     setFilters(DEFAULT_FILTERS)
     setAppliedPresetId(null) // Clear preset selection
     search()
-  }
-
-  // Preset handlers
-  const handlePresetSelect = (presetId: number | null): void => {
-    if (presetId === null) {
-      // Clear preset
-      setAppliedPresetId(null)
-      return
-    }
-
-    const preset = presets.find((p) => p.id === presetId)
-    if (!preset) return
-
-    // Apply preset to search state - convert backend format to frontend format
-    setQuery(preset.searchQuery || '')
-    setFilters(convertToFrontendFilters(preset.filters))
-    setLimit(preset.resultsPerPage)
-
-    // Mark as applied and update last used
-    setAppliedPresetId(preset.id)
-    updateLastUsedAt(preset.id)
-
-    // Trigger search
-    search()
-
-    showToast({
-      title: t('browse:toasts.presetLoaded'),
-      message: preset.name,
-      variant: 'info',
-      duration: 2000
-    })
-  }
-
-  const handleSavePreset = async (name: string, setAsDefault: boolean): Promise<void> => {
-    try {
-      const backendFilters = convertToBackendFilters(filters)
-      const preset = await createPreset({
-        name,
-        searchQuery: query,
-        filters: backendFilters,
-        resultsPerPage: limit,
-        setAsDefault
-      })
-
-      setAppliedPresetId(preset?.id ?? null)
-
-      showToast({
-        title: t('browse:toasts.presetSaved'),
-        message: name,
-        variant: 'success',
-        duration: 2000
-      })
-    } catch (error) {
-      rendererLog.error('[BrowseView] Error saving preset:', error)
-      showToast({
-        title: t('browse:toasts.error'),
-        message: error instanceof Error ? error.message : t('browse:toasts.failedToSave'),
-        variant: 'error',
-        duration: 4000
-      })
-      throw error // Re-throw to let dialog handle it
-    }
-  }
-
-  const handleDeletePreset = async (id: number, name: string): Promise<void> => {
-    try {
-      await deletePreset(id)
-
-      // Clear applied preset if it was deleted
-      if (appliedPresetId === id) {
-        setAppliedPresetId(null)
-      }
-
-      showToast({
-        title: t('browse:toasts.presetDeleted'),
-        message: name,
-        variant: 'info',
-        duration: 2000
-      })
-    } catch (error) {
-      rendererLog.error('[BrowseView] Error deleting preset:', error)
-      showToast({
-        title: t('browse:toasts.error'),
-        message: t('browse:toasts.failedToDelete'),
-        variant: 'error',
-        duration: 3000
-      })
-    }
   }
 
   const handleRetry = (): void => {
