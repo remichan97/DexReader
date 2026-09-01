@@ -70,8 +70,9 @@ export function useAppearanceSettingsDomain(
   params: UseAppearanceSettingsDomainParams
 ): UseAppearanceSettingsDomainResult {
   const { markSettingModified } = params
-  const { themeMode, setThemeMode } = useAppStore()
-  const { setDisplayMode: setSidebarDisplayMode } = useSidebarStore()
+  const themeMode = useAppStore((state) => state.themeMode)
+  const setThemeMode = useAppStore((state) => state.setThemeMode)
+  const setSidebarDisplayMode = useSidebarStore((state) => state.setDisplayMode)
 
   const [accentColor, setAccentColor] = useState<string>('#0078d4')
   const [isUsingSystemColor, setIsUsingSystemColor] = useState<boolean>(true)

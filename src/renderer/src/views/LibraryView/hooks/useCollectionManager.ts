@@ -54,8 +54,10 @@ export function useCollectionManager(): UseCollectionManagerReturn {
   const [pickerDialogOpen, setPickerDialogOpen] = useState(false)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
 
-  const { collections, createCollection, updateCollection, deleteCollection } =
-    useCollectionsStore()
+  const collections = useCollectionsStore((state) => state.collections)
+  const createCollection = useCollectionsStore((state) => state.createCollection)
+  const updateCollection = useCollectionsStore((state) => state.updateCollection)
+  const deleteCollection = useCollectionsStore((state) => state.deleteCollection)
   const show = useToastStore((state) => state.show)
 
   // Load manga IDs for all collections

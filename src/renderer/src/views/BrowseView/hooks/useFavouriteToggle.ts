@@ -30,7 +30,9 @@ export function useFavouriteToggle(
   t: TFunction,
   showToast: (options: ToastOptions) => void
 ): UseFavouriteToggleResult {
-  const { isFavourite, toggleFavourite, loadFavourites } = useLibraryStore()
+  const isFavourite = useLibraryStore((state) => state.isFavourite)
+  const toggleFavourite = useLibraryStore((state) => state.toggleFavourite)
+  const loadFavourites = useLibraryStore((state) => state.loadFavourites)
 
   const handleFavouriteToggle = async (id: string): Promise<void> => {
     try {

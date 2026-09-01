@@ -75,9 +75,19 @@ export function useSearchPresets(
   t: TFunction,
   showToast: (options: ToastOptions) => void
 ): UseSearchPresetsResult {
-  const { query, setQuery, filters, setFilters, limit, setLimit, search } = useSearchStore()
-  const { presets, loadPresets, createPreset, deletePreset, updateLastUsedAt } =
-    useSearchPresetsStore()
+  const query = useSearchStore((state) => state.query)
+  const setQuery = useSearchStore((state) => state.setQuery)
+  const filters = useSearchStore((state) => state.filters)
+  const setFilters = useSearchStore((state) => state.setFilters)
+  const limit = useSearchStore((state) => state.limit)
+  const setLimit = useSearchStore((state) => state.setLimit)
+  const search = useSearchStore((state) => state.search)
+
+  const presets = useSearchPresetsStore((state) => state.presets)
+  const loadPresets = useSearchPresetsStore((state) => state.loadPresets)
+  const createPreset = useSearchPresetsStore((state) => state.createPreset)
+  const deletePreset = useSearchPresetsStore((state) => state.deletePreset)
+  const updateLastUsedAt = useSearchPresetsStore((state) => state.updateLastUsedAt)
 
   const [appliedPresetId, setAppliedPresetId] = useState<number | null>(null)
   const [showSaveDialog, setShowSaveDialog] = useState(false)

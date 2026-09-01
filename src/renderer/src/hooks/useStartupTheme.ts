@@ -11,7 +11,7 @@ export function useStartupTheme(): void {
   const setSystemTheme = useAppStore((state) => state.setSystemTheme)
   const setThemeMode = useAppStore((state) => state.setThemeMode)
   const theme = useAppStore((state) => state.theme)
-  const { setDisplayMode: setSidebarDisplayMode } = useSidebarStore()
+  const setSidebarDisplayMode = useSidebarStore((state) => state.setDisplayMode)
 
   // Load theme preference FIRST (before anything else)
   useEffect(() => {

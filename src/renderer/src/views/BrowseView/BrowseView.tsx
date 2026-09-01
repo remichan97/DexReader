@@ -25,22 +25,20 @@ export function BrowseView(): JSX.Element {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [showErrorDetails, setShowErrorDetails] = useState<boolean>(false)
-  const {
-    query,
-    results,
-    loading,
-    error,
-    loadMoreError,
-    hasMore,
-    filters,
-    limit,
-    setQuery,
-    setFilters,
-    setLimit,
-    search,
-    loadMore,
-    retryLoadMore
-  } = useSearchStore()
+  const query = useSearchStore((state) => state.query)
+  const results = useSearchStore((state) => state.results)
+  const loading = useSearchStore((state) => state.loading)
+  const error = useSearchStore((state) => state.error)
+  const loadMoreError = useSearchStore((state) => state.loadMoreError)
+  const hasMore = useSearchStore((state) => state.hasMore)
+  const filters = useSearchStore((state) => state.filters)
+  const limit = useSearchStore((state) => state.limit)
+  const setQuery = useSearchStore((state) => state.setQuery)
+  const setFilters = useSearchStore((state) => state.setFilters)
+  const setLimit = useSearchStore((state) => state.setLimit)
+  const search = useSearchStore((state) => state.search)
+  const loadMore = useSearchStore((state) => state.loadMore)
+  const retryLoadMore = useSearchStore((state) => state.retryLoadMore)
 
   const showToast = useToastStore((state) => state.show)
   const isOnline = useConnectivityStore((state) => state.isOnline)

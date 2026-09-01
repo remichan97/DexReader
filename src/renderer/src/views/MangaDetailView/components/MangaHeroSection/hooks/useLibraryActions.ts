@@ -36,7 +36,9 @@ export interface UseLibraryActionsResult {
  */
 export function useLibraryActions(params: UseLibraryActionsParams): UseLibraryActionsResult {
   const { manga, downloadStats, refreshDownloadStats, t, showToast } = params
-  const { isFavourite, toggleFavourite, loadFavourites } = useLibraryStore()
+  const isFavourite = useLibraryStore((state) => state.isFavourite)
+  const toggleFavourite = useLibraryStore((state) => state.toggleFavourite)
+  const loadFavourites = useLibraryStore((state) => state.loadFavourites)
 
   async function addToLibrary(): Promise<void> {
     try {

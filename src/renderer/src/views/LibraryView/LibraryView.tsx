@@ -55,9 +55,12 @@ export function LibraryView(): JSX.Element {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Stores
-  const { favourites, loadFavourites } = useLibraryStore()
-  const { collections, loadCollections } = useCollectionsStore()
+  // Stores - narrow selectors so this view doesn't re-render on unrelated
+  // store field changes (e.g. loading/error flags this component never reads)
+  const favourites = useLibraryStore((state) => state.favourites)
+  const loadFavourites = useLibraryStore((state) => state.loadFavourites)
+  const collections = useCollectionsStore((state) => state.collections)
+  const loadCollections = useCollectionsStore((state) => state.loadCollections)
   const show = useToastStore((state) => state.show)
   const isOnline = useConnectivityStore((state) => state.isOnline)
 
