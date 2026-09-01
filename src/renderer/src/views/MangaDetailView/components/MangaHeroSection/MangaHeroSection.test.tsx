@@ -1,4 +1,5 @@
 import { act, render, screen, waitFor } from '@testing-library/react'
+import { ContentRating, PublicationStatus } from '@shared/enums/mangadex'
 import MangaHeroSection from './MangaHeroSection'
 
 const showDialog = vi.fn()
@@ -51,17 +52,22 @@ vi.mock('@renderer/services/logging.service', () => ({
 function buildManga(): Parameters<typeof MangaHeroSection>[0]['manga'] {
   return {
     id: 'manga-1',
-    attributes: {
-      title: { en: 'Test Manga' },
-      status: 'ongoing',
-      contentRating: 'safe',
-      tags: []
-    },
-    relationships: []
-    // The full MangaDex entity shape is large and irrelevant here - every field this
-    // component reads goes through mangaHelpers.ts, which already degrades gracefully
-    // (try/catch + fallback) for a minimal fixture like this one.
-  } as unknown as Parameters<typeof MangaHeroSection>[0]['manga']
+    title: { en: 'Test Manga' },
+    altTitles: [],
+    description: { en: '' },
+    links: {},
+    status: PublicationStatus.Ongoing,
+    contentRating: ContentRating.Safe,
+    tags: [],
+    availableTranslatedLanguages: [],
+    authors: [],
+    artists: []
+    // This is the flat MangaContract DTO the component actually consumes
+    // (post Phase-4 DTO migration) - not the raw MangaDex API entity shape.
+    // Every field this component reads directly (tags/authors/artists) needs
+    // a real array here; the rest go through mangaHelpers.ts, which degrades
+    // gracefully for missing optional fields.
+  }
 }
 
 async function renderAndOpenManageDownloads(): Promise<void> {
