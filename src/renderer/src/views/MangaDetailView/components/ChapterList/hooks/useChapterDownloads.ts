@@ -4,6 +4,7 @@ import { useConnectivityStore } from '@renderer/stores/connectivityStore'
 import type { DownloadStatus } from '@renderer/components/DownloadStatusBadge'
 import { rendererLog } from '@renderer/services/logging.service'
 import type { ChapterContract } from '../../../../../../../preload/window.types'
+import { ImageQuality } from '@shared/enums/mangadex'
 
 type ChapterEntity = ChapterContract
 
@@ -161,7 +162,7 @@ export function useChapterDownloads({
       chapterId: chapter.id,
       mangaId: mangaId,
       language: selectedLanguage,
-      quality: quality,
+      quality: quality as ImageQuality,
       addedAt: new Date()
     })
 
@@ -222,7 +223,7 @@ export function useChapterDownloads({
           chapterId: chapter.id,
           mangaId: mangaId,
           language: selectedLanguage,
-          quality: selectedQuality,
+          quality: selectedQuality as ImageQuality,
           addedAt: new Date()
         })
       )

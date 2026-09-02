@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useConnectivityStore } from '@renderer/stores/connectivityStore'
 import type { MangaContract, ChapterContract } from '../../../../../../../preload/window.types'
 import type { DownloadDefaultQuality, DownloadSettingsInfo } from './useMangaDownloadInfo'
+import { ImageQuality } from '@shared/enums/mangadex'
 
 type MangaEntity = MangaContract
 type ChapterEntity = ChapterContract
@@ -57,7 +58,7 @@ export function useDownloadQueueActions(
           chapterId: chapter.id,
           mangaId: manga.id,
           language: chapter.translatedLanguage,
-          quality: selectedQuality,
+          quality: selectedQuality as ImageQuality,
           addedAt: new Date()
         })
       )

@@ -13,6 +13,7 @@ import { handleUnfavourite } from '@renderer/utils/unfavouriteHandler'
 import './CreatorView.css'
 import { rendererLog } from '@renderer/services/logging.service'
 import { useTranslation } from '@renderer/hooks/useTranslation'
+import { MangaIncludes } from '@shared/enums/mangadex'
 import type { MangaContract } from '../../../../preload/window.types'
 
 type MangaEntity = MangaContract
@@ -61,7 +62,7 @@ export function CreatorView(): JSX.Element {
           authorOrArtist: creatorId,
           limit,
           offset: currentOffset,
-          includes: ['cover_art', 'author', 'artist']
+          includes: [MangaIncludes.COVER_ART, MangaIncludes.AUTHOR, MangaIncludes.ARTIST]
         }
 
         const response = await globalThis.mangadex.searchManga(params)

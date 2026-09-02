@@ -8,6 +8,7 @@ import {
 import { toError } from '@shared/utils/to-error.util'
 import { rendererLog } from '@renderer/services/logging.service'
 import type { MangaContract, ChapterContract } from '../../../../../preload/window.types'
+import { ChapterIncludes, OrderDirection } from '@shared/enums/mangadex'
 
 type MangaEntity = MangaContract
 type ChapterEntity = ChapterContract
@@ -116,15 +117,16 @@ export function useMangaDetailData(
           limit: 100,
           offset: 0,
           translatedLanguage: [lang],
-          order: { chapter: chapterSort },
-          includes: ['scanlation_group']
+          order: { chapter: chapterSort as OrderDirection },
+          includes: [ChapterIncludes.SCANLATION_GROUP]
         })
 
-        if (response.success && response.data?.data.length > 0) {
+        if (response.success && response.data && response.data.data.length > 0) {
           // Found chapters in this language!
+          const chapters = response.data.data
           setState((prev) => ({
             ...prev,
-            chapters: response.data.data,
+            chapters,
             selectedLanguage: lang,
             chaptersLoading: false,
             chaptersError: null,
@@ -138,16 +140,21 @@ export function useMangaDetailData(
       const unfilteredResponse = await globalThis.mangadex.getMangaFeed(id, {
         limit: 100,
         offset: 0,
-        order: { chapter: chapterSort },
-        includes: ['scanlation_group']
+        order: { chapter: chapterSort as OrderDirection },
+        includes: [ChapterIncludes.SCANLATION_GROUP]
         // No translatedLanguage filter
       })
 
-      if (unfilteredResponse.success && unfilteredResponse.data?.data.length > 0) {
-        const firstChapterLang = unfilteredResponse.data.data[0].translatedLanguage
+      if (
+        unfilteredResponse.success &&
+        unfilteredResponse.data &&
+        unfilteredResponse.data.data.length > 0
+      ) {
+        const chapters = unfilteredResponse.data.data
+        const firstChapterLang = chapters[0].translatedLanguage
         setState((prev) => ({
           ...prev,
-          chapters: unfilteredResponse.data.data,
+          chapters,
           selectedLanguage: firstChapterLang,
           chaptersLoading: false,
           chaptersError: null,
@@ -303,8 +310,8 @@ export function useMangaDetailData(
         limit: 100,
         offset: 0,
         translatedLanguage: [language],
-        order: { chapter: state.chapterSort },
-        includes: ['scanlation_group']
+        order: { chapter: state.chapterSort as OrderDirection },
+        includes: [ChapterIncludes.SCANLATION_GROUP]
       })
 
       // Check IPC success
@@ -317,9 +324,10 @@ export function useMangaDetailData(
         throw new Error('Failed to fetch chapters from API')
       }
 
+      const chapters = chaptersResponse.data.data
       setState((prev) => ({
         ...prev,
-        chapters: chaptersResponse.data.data,
+        chapters,
         selectedLanguage: language,
         chaptersLoading: false,
         chaptersError: null,

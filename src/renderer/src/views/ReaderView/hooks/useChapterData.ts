@@ -5,6 +5,7 @@ import type { ImageUrlResponse, ChapterContract } from '../../../../../preload/w
 import { useConnectivityStore } from '@renderer/stores/connectivityStore'
 import { rendererLog } from '@renderer/services/logging.service'
 import { toError } from '@shared/utils/to-error.util'
+import { ChapterIncludes, OrderDirection } from '@shared/enums/mangadex'
 
 type ChapterEntity = ChapterContract
 
@@ -202,8 +203,8 @@ export function useChapterData(
           limit: 500,
           offset: 0,
           translatedLanguage: ['en'], // Fallback to English
-          order: { chapter: 'asc' },
-          includes: ['scanlation_group']
+          order: { chapter: OrderDirection.Asc },
+          includes: [ChapterIncludes.SCANLATION_GROUP]
         })
 
         if (!chaptersResponse.success || !chaptersResponse.data) {

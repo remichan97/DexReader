@@ -1,9 +1,11 @@
 import { useCallback, useState } from 'react'
 import type { AppSettings } from '../../../../../../preload/window.types'
 import type { SettingsDomain } from './settingsDomain.types'
+import { DownloadConfirmation } from '@shared/enums/settings/download-confirmation.enum'
+import { ImageQuality } from '@shared/enums/mangadex'
 
-export type DownloadConfirmation = 'always' | 'batch-only' | 'never'
-export type DownloadQuality = 'data' | 'data-saver'
+export { DownloadConfirmation }
+export type DownloadQuality = ImageQuality
 
 export interface DownloadsPayload {
   downloads: {
@@ -57,9 +59,10 @@ export function useDownloadsSettingsDomain(
   const [downloadsPath, setDownloadsPath] = useState<string>('')
   const [isLoadingPath, setIsLoadingPath] = useState(true)
   const [isChangingPath, setIsChangingPath] = useState(false)
-  const [downloadConfirmation, setDownloadConfirmation] =
-    useState<DownloadConfirmation>('batch-only')
-  const [defaultQuality, setDefaultQuality] = useState<DownloadQuality>('data')
+  const [downloadConfirmation, setDownloadConfirmation] = useState<DownloadConfirmation>(
+    DownloadConfirmation.BatchDownload
+  )
+  const [defaultQuality, setDefaultQuality] = useState<DownloadQuality>(ImageQuality.High)
   const [maxConcurrentDownloads, setMaxConcurrentDownloads] = useState<number>(3)
   const [maxDiskCacheSize, setMaxDiskCacheSize] = useState<number>(50 * 1024 * 1024)
 

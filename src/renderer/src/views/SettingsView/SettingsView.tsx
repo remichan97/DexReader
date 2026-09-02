@@ -226,7 +226,13 @@ export function SettingsView(): JSX.Element {
         ...advanced.buildPayload()
       }
 
-      const saveResult = await globalThis.settings.saveAll(completeSettings)
+      // Each settings-domain hook (appearance, language, downloads, reader, advanced) declares
+      // its own locally-scoped, value-compatible type for its enum-like fields (e.g. ThemeMode,
+      // DownloadConfirmation, ImageQualityPreference) rather than importing the canonical
+      // @shared/enums/settings/* enums directly. Unifying every domain hook onto the shared
+      // enums is a larger, separate cleanup; this cast is the one deliberate boundary crossing
+      // where the assembled payload meets the strictly-typed IPC contract.
+      const saveResult = await globalThis.settings.saveAll(completeSettings as AppSettings)
       if (!saveResult.success) {
         throw new Error(saveResult.error?.message || 'Failed to save settings')
       }

@@ -25,6 +25,7 @@ import {
   OrderOptions,
   OrderDirection
 } from '@shared/enums/mangadex'
+import { ContentLanguage } from '@shared/enums/settings/content-language.enum'
 import { toError } from '@shared/utils/to-error.util'
 
 // Re-export the shared filter enums so this store stays the single import point
@@ -128,7 +129,7 @@ async function getSearchLanguageFilter(): Promise<string[]> {
     } else {
       // Sync disabled: Use priority list + always include English
       const priorities = languageSettings.contentLanguage || []
-      languages = [...priorities, ...(priorities.includes('en') ? [] : ['en'])]
+      languages = [...priorities, ...(priorities.includes(ContentLanguage.English) ? [] : ['en'])]
     }
 
     return languages.length > 0 ? languages : ['en']
