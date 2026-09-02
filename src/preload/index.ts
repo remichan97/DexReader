@@ -19,6 +19,7 @@ import { DexreaderExportCommand } from '@shared/commands/services/dexreader-expo
 import { QueuedDownloads } from '@shared/types/downloads/queued-downloads.type'
 import { DeleteChapterCommand } from '@shared/commands/services/delete-chapter.command'
 import { CreateSearchPresetCommand } from '@shared/commands/services/create-search-preset.command'
+import type { ChapterDownloadsEvent } from '@shared/events/chapter-downloads.event'
 
 // Export enums for renderer
 export { DownloadConfirmation } from '@shared/enums/settings/download-confirmation.enum'
@@ -127,8 +128,8 @@ const api = {
     ipcRenderer.on('download-manga', callback)
     return () => ipcRenderer.removeListener('download-manga', callback)
   },
-  onDownloadProgress: (callback: (event: unknown) => void) => {
-    const listener = (_: unknown, event: unknown): void => callback(event)
+  onDownloadProgress: (callback: (event: ChapterDownloadsEvent) => void) => {
+    const listener = (_: unknown, event: ChapterDownloadsEvent): void => callback(event)
     ipcRenderer.on('download:chapter-progress', listener)
     return () => ipcRenderer.removeListener('download:chapter-progress', listener)
   },
@@ -384,7 +385,14 @@ const appUpdate = {
     ipcRenderer.on('app-update:update-downloading', callback)
     return () => ipcRenderer.removeListener('app-update:update-downloading', callback)
   },
-  onDownloadProgress: (callback: (progress: unknown) => void) => {
+  onDownloadProgress: (
+    callback: (progress: {
+      percent: number
+      transferred: number
+      total: number
+      bytesPerSecond: number
+    }) => void
+  ) => {
     ipcRenderer.on('app-update:update-download-progress', (_, progress) => callback(progress))
     return () => ipcRenderer.removeListener('app-update:update-download-progress', () => {})
   },
@@ -394,7 +402,7 @@ const appUpdate = {
     ipcRenderer.on('app-update:update-downloaded', (_, info) => callback(info))
     return () => ipcRenderer.removeListener('app-update:update-downloaded', () => {})
   },
-  onUpdateError: (callback: (error: unknown) => void) => {
+  onUpdateError: (callback: (error: { message: string; userMessage: string }) => void) => {
     ipcRenderer.on('app-update:update-error', (_, error) => callback(error))
     return () => ipcRenderer.removeListener('app-update:update-error', () => {})
   }
@@ -458,40 +466,22 @@ if (process.contextIsolated) {
     console.error(error)
   }
 } else {
-  // @ts-ignore (define in dts)
   globalThis.electron = electronAPI
-  // @ts-ignore (define in dts)
   globalThis.api = api
-  // @ts-ignore (define in dts)
   globalThis.fileSystem = fileSystem
-  // @ts-ignore (define in dts)
   globalThis.mangadex = mangadexApi
-  // @ts-ignore (define in dts)
   globalThis.progress = progress
-  // @ts-ignore (define in dts)
   globalThis.reader = reader
-  // @ts-ignore (define in dts)
   globalThis.library = library
-  // @ts-ignore (define in dts)
   globalThis.collections = collections
-  // @ts-ignore (define in dts)
   globalThis.readHistory = readHistory
-  // @ts-ignore (define in dts)
   globalThis.mihon = mihon
-  // @ts-ignore (define in dts)
   globalThis.settings = settings
-  // @ts-ignore (define in dts)
   globalThis.dexreader = dexReader
-  // @ts-ignore (define in dts)
   globalThis.downloads = downloads
-  // @ts-ignore (define in dts)
   globalThis.storage = storage
-  // @ts-ignore (define in dts)
   globalThis.appUpdate = appUpdate
-  // @ts-ignore (define in dts)
   globalThis.logger = logger
-  // @ts-ignore (define in dts)
   globalThis.searchPresets = searchPresets
-  // @ts-ignore (define in dts)
   globalThis.gatekeeper = gatekeeper
 }

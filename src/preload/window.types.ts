@@ -28,7 +28,6 @@ import { FeedParams } from '../main/api/search-params/feed.searchparam'
 import type { MangaProgressContract } from '@shared/contracts/database/progress/manga-progress.contract'
 import type { MangaProgressMetadataContract } from '@shared/contracts/database/progress/manga-progress-metadata.contract'
 import type { ChapterProgressContract } from '@shared/contracts/database/progress/chapter-progress.contract'
-import type { ProgressDatabaseContract } from '@shared/contracts/database/progress/progress-database.contract'
 import type { ReadingStatsContract } from '@shared/contracts/database/reading-stats/reading-stats.contract'
 import { MangaOverrideContract } from '@shared/contracts/database/manga/manga-override.contract'
 import { MangaWithMetadataContract } from '@shared/contracts/database/manga/manga-with-metadata.contract'
@@ -85,7 +84,6 @@ export type { ImageUrlResponse } from '../main/api/responses/image-url.response'
 export type { MangaProgressContract } from '@shared/contracts/database/progress/manga-progress.contract'
 export type { MangaProgressMetadataContract } from '@shared/contracts/database/progress/manga-progress-metadata.contract'
 export type { ChapterProgressContract } from '@shared/contracts/database/progress/chapter-progress.contract'
-export type { ProgressDatabaseContract } from '@shared/contracts/database/progress/progress-database.contract'
 export type { ReadingStatsContract } from '@shared/contracts/database/reading-stats/reading-stats.contract'
 export type { MangaOverrideContract } from '@shared/contracts/database/manga/manga-override.contract'
 export type { MangaWithMetadataContract } from '@shared/contracts/database/manga/manga-with-metadata.contract'
@@ -137,8 +135,8 @@ interface API {
   // Theme API
   onThemeChanged: (callback: (theme: 'light' | 'dark') => void) => () => void
   onAccentColorChanged: (callback: (color: string) => void) => () => void
-  getTheme: () => Promise<'light' | 'dark'>
-  getSystemAccentColor: () => Promise<string>
+  getTheme: () => Promise<IpcResponse<'light' | 'dark'>>
+  getSystemAccentColor: () => Promise<IpcResponse<string>>
 
   // Navigation API
   onNavigate: (callback: (route: string) => void) => () => void
@@ -149,7 +147,7 @@ interface API {
     detail?: string,
     confirmLabel?: string,
     cancelLabel?: string
-  ) => Promise<boolean>
+  ) => Promise<IpcResponse<boolean>>
   showDialog: (options: {
     message: string
     detail?: string
@@ -160,13 +158,13 @@ interface API {
     noLink?: boolean
     checkboxLabel?: string
     checkboxChecked?: boolean
-  }) => Promise<{ response: number; checkboxChecked: boolean }>
+  }) => Promise<IpcResponse<{ response: number; checkboxChecked: boolean }>>
 
   // Menu state API
   updateMenuState: (state: MenuState) => void
 
   // Shell API
-  openExternal: (url: string) => Promise<void>
+  openExternal: (url: string) => Promise<IpcResponse<void>>
 
   // Menu action handlers
   onCheckForUpdates: (callback: () => void) => () => void
@@ -230,7 +228,6 @@ interface Progress {
   getAllProgress: () => Promise<IpcResponse<MangaProgressMetadataContract[]>>
   deleteProgress: (mangaId: string) => Promise<IpcResponse<void>>
   getStatistics: () => Promise<IpcResponse<ReadingStatsContract>>
-  loadProgress: () => Promise<IpcResponse<ProgressDatabaseContract>>
   onIncognitoToggle: (callback: () => void) => () => void // Returns cleanup function
   getChapterProgress: (
     mangaId: string,
@@ -253,11 +250,14 @@ interface Progress {
 }
 
 interface Reader {
-  getMangaReaderSettings: (mangaId: string) => Promise<MangaReadingSettings>
-  updateMangaReaderSettings: (mangaId: string, settings: MangaReadingSettings) => Promise<void>
-  resetMangaReaderSettings: (mangaId: string) => Promise<void>
-  clearAllMangaReaderOverrides: () => Promise<void>
-  getAllReaderOverrides: () => Promise<IpcResponse<MangaOverrideContract[]>>
+  getMangaReaderSettings: (mangaId: string) => Promise<IpcResponse<MangaReadingSettings>>
+  updateMangaReaderSettings: (
+    mangaId: string,
+    settings: MangaReadingSettings
+  ) => Promise<IpcResponse<void>>
+  resetMangaReaderSettings: (mangaId: string) => Promise<IpcResponse<void>>
+  clearAllOverrides: () => Promise<IpcResponse<void>>
+  getAllMangaOverrides: () => Promise<IpcResponse<MangaOverrideContract[]>>
 }
 
 interface Library {
@@ -377,12 +377,12 @@ interface AppUpdate {
 }
 
 interface Logger {
-  info: (message: string, ...args: unknown[]) => void
-  warn: (message: string, ...args: unknown[]) => void
-  error: (message: string, ...args: unknown[]) => void
-  debug: (message: string, ...args: unknown[]) => void
-  cleanupLogs: (forceCleanup?: boolean) => Promise<void>
-  openLogsFolder: () => Promise<string>
+  info: (message: string, ...args: unknown[]) => Promise<IpcResponse<void>>
+  warn: (message: string, ...args: unknown[]) => Promise<IpcResponse<void>>
+  error: (message: string, ...args: unknown[]) => Promise<IpcResponse<void>>
+  debug: (message: string, ...args: unknown[]) => Promise<IpcResponse<void>>
+  cleanupLogs: (forceCleanup?: boolean) => Promise<IpcResponse<void>>
+  openLogsFolder: () => Promise<IpcResponse<string>>
 }
 
 interface SearchPresets {
@@ -426,4 +426,29 @@ declare global {
     searchPresets: SearchPresets
     gatekeeper: Gatekeeper
   }
+
+  // `Window` augmentation above only types `window.<api>` - DOM lib types `window` as
+  // `Window & typeof globalThis`, but `globalThis` itself is typed from its own ambient
+  // `var globalThis` declaration that the `Window` interface augmentation doesn't flow
+  // into. Without these, every `globalThis.<api>.<method>(...)` call in the renderer
+  // (the pattern CLAUDE.md's "prefer globalThis over window" rule asks for) is silently
+  // unchecked. Redeclaring the same members as ambient `var`s here closes that gap.
+  var electron: ElectronAPI
+  var api: API
+  var fileSystem: FileSystem
+  var mangadex: MangaDexApi
+  var progress: Progress
+  var reader: Reader
+  var library: Library
+  var collections: Collections
+  var readHistory: ReadHistory
+  var mihon: Mihon
+  var settings: Settings
+  var dexreader: DexReader
+  var downloads: Downloads
+  var storage: Storage
+  var appUpdate: AppUpdate
+  var logger: Logger
+  var searchPresets: SearchPresets
+  var gatekeeper: Gatekeeper
 }
