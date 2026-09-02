@@ -72,10 +72,10 @@ export function useAccentColor(): void {
 
         // Try to load custom color from settings
         const pathsResult = await globalThis.fileSystem.getAllowedPaths()
-        if (!pathsResult.success) {
+        if (!pathsResult.success || !pathsResult.data) {
           throw new Error('Failed to get allowed paths')
         }
-        const paths = pathsResult.data!
+        const paths = pathsResult.data
 
         try {
           const settingsResult = await globalThis.fileSystem.readFile(

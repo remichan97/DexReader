@@ -73,9 +73,16 @@ class MihonBackupHelper {
           .filter((id): id is string => !!id) // Remove undefined/null values
       : []
 
+    const mangaId = this.extractIdFromUrl(manga.url, 'manga')
+    if (!mangaId) {
+      // Should be unreachable - the caller already extracts and validates the manga
+      // ID before calling this method - but fail loudly rather than silently continuing.
+      throw new Error(`Unable to extract manga ID from URL: ${manga.url}`)
+    }
+
     // Create manga entry
     return {
-      mangaId: this.extractIdFromUrl(manga.url, 'manga')!, // We already validated this before calling the method
+      mangaId,
       title: manga.title || 'Unknown Title',
       authors: manga.author ? [manga.author] : [],
       artists: manga.artist ? [manga.artist] : [],
@@ -160,16 +167,15 @@ class MihonBackupHelper {
         continue
       }
 
+      const publishAtTimestamp = ch.dateUpload || ch.dateFetch
+
       chapterCommands.push({
         chapterId,
         mangaId,
         title: ch.name || 'Untitled Chapter',
         chapterNumber: ch.chapterNumber?.toString() || 'Unknown',
         language: 'en', // Assuming English, as Mihon backup does not store language info
-        publishAt:
-          ch.dateUpload || ch.dateFetch
-            ? unixTimestampToDate(ch.dateUpload || ch.dateFetch!)
-            : new Date(),
+        publishAt: publishAtTimestamp ? unixTimestampToDate(publishAtTimestamp) : new Date(),
         scanlationGroup: ch.scanlator || 'Unknown',
         externalUrl: ch.url
       })

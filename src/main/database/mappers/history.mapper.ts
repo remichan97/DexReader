@@ -1,4 +1,5 @@
 import { ReadHistoryContract } from '@shared/contracts/database/history/reading-history.query'
+import { PublicationStatus } from '@shared/enums/mangadex'
 import { readHistory } from '../schemas/read-history.schema'
 import { manga } from '../schemas/manga.schema'
 import { chapter } from '../schemas/chapter.schema'
@@ -24,7 +25,7 @@ export class ReadHistoryMapper {
       readAt: row.read_history.readAt,
       mangaTitle: row.manga.title,
       coverId: row.manga.coverUrl ?? undefined,
-      status: row.manga.status!
+      status: row.manga.status as PublicationStatus
     }
   }
 }

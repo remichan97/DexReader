@@ -140,7 +140,7 @@ export function MangaDetailView(): JSX.Element {
   }
 
   // Render manga not found
-  if (!data.manga) {
+  if (!data.manga || !mangaId) {
     return (
       <div className="manga-detail-view flex flex-col">
         <div className="manga-detail-view__back-button">
@@ -211,7 +211,7 @@ export function MangaDetailView(): JSX.Element {
 
       {/* Chapter list */}
       <ChapterList
-        mangaId={mangaId!}
+        mangaId={mangaId}
         manga={data.manga}
         chapters={data.chapters}
         selectedLanguage={data.selectedLanguage}
