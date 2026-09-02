@@ -9,16 +9,6 @@ import { create } from 'zustand'
 import type { MangaWithMetadataContract } from '../../../preload/window.types'
 import { rendererLog } from '@renderer/services/logging.service'
 
-export interface LibraryManga {
-  mangaId: string
-  title: string
-  coverUrl?: string
-  authors: string[]
-  status: string
-  lastChapter?: string
-  hasNewChapters: boolean
-}
-
 interface LibraryState {
   // Data
   favourites: MangaWithMetadataContract[]
