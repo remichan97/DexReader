@@ -1,11 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useSearchStore, useSearchPresetsStore } from '@renderer/stores'
-import {
-  type SearchFilters,
-  type IncludedTagsMode,
-  type OrderOptions,
-  type OrderDirection
-} from '@renderer/stores/searchStore'
+import { type SearchFilters } from '@renderer/stores/searchStore'
 import { rendererLog } from '@renderer/services/logging.service'
 import type { SearchPresetQuery } from '@shared/contracts/settings/search-preset.contract'
 
@@ -30,11 +25,6 @@ export interface UseSearchPresetsResult {
   handleDeletePreset: (id: number, name: string) => Promise<void>
 }
 
-// The `as unknown as` casts below bridge two independently-declared filter
-// enum types (the frontend searchStore's and the backend search-preset
-// contract's) that happen to share the same string values. Left as-is here -
-// unifying them is tracked separately (Phase 7 cleanup), not part of this
-// extraction.
 function convertToFrontendFilters(backendFilters: BackendFilters): SearchFilters {
   return {
     contentRating: backendFilters.contentRating,
@@ -44,10 +34,10 @@ function convertToFrontendFilters(backendFilters: BackendFilters): SearchFilters
       : [],
     includedTags: backendFilters.includedTags || [],
     excludedTags: backendFilters.excludedTags || [],
-    includedTagsMode: backendFilters.includedTagsMode as unknown as IncludedTagsMode,
+    includedTagsMode: backendFilters.includedTagsMode,
     availableTranslatedLanguage: backendFilters.availableTranslatedLanguages,
-    sortBy: backendFilters.sortBy as unknown as OrderOptions,
-    sortDirection: backendFilters.sortDirection as unknown as OrderDirection
+    sortBy: backendFilters.sortBy,
+    sortDirection: backendFilters.sortDirection
   }
 }
 
@@ -58,12 +48,11 @@ function convertToBackendFilters(frontendFilters: SearchFilters, limit: number):
     publicationDemographic: frontendFilters.publicationDemographic[0] || undefined, // Take first or undefined
     includedTags: frontendFilters.includedTags,
     excludedTags: frontendFilters.excludedTags,
-    includedTagsMode:
-      frontendFilters.includedTagsMode as unknown as BackendFilters['includedTagsMode'],
+    includedTagsMode: frontendFilters.includedTagsMode,
     availableTranslatedLanguages: frontendFilters.availableTranslatedLanguage,
     resultPerPage: limit,
-    sortBy: frontendFilters.sortBy as unknown as BackendFilters['sortBy'],
-    sortDirection: frontendFilters.sortDirection as unknown as BackendFilters['sortDirection']
+    sortBy: frontendFilters.sortBy,
+    sortDirection: frontendFilters.sortDirection
   }
 }
 

@@ -17,46 +17,28 @@ import { create } from 'zustand'
 import { useConnectivityStore } from './connectivityStore'
 import { rendererLog } from '@renderer/services/logging.service'
 import type { MangaContract } from '../../../preload/window.types'
-import { PublicationStatus } from '@shared/enums/mangadex'
+import {
+  PublicationStatus,
+  ContentRating,
+  PublicationDemographic,
+  IncludedTagsMode,
+  OrderOptions,
+  OrderDirection
+} from '@shared/enums/mangadex'
 import { toError } from '@shared/utils/to-error.util'
 
-export { PublicationStatus }
-
-// Re-export enum values for convenience
-export enum ContentRating {
-  Safe = 'safe',
-  Suggestive = 'suggestive',
-  Erotica = 'erotica',
-  Pornographic = 'pornographic'
-}
-
-export enum PublicationDemographic {
-  Shounen = 'shounen',
-  Shoujo = 'shoujo',
-  Josei = 'josei',
-  Seinen = 'seinen',
-  None = 'none'
-}
-
-export enum IncludedTagsMode {
-  And = 'AND',
-  Or = 'OR'
-}
-
-export enum OrderOptions {
-  Title = 'title',
-  Year = 'year',
-  CreatedAt = 'createdAt',
-  UpdatedAt = 'updatedAt',
-  LatestUploadedChapter = 'latestUploadedChapter',
-  FollowedCount = 'followedCount',
-  Relevance = 'relevance',
-  Rating = 'rating'
-}
-
-export enum OrderDirection {
-  Asc = 'asc',
-  Desc = 'desc'
+// Re-export the shared filter enums so this store stays the single import point
+// for renderer search state - previously these were redeclared here from
+// scratch, which meant the frontend and backend (search-preset contract) had
+// two independently-declared enum types that happened to share the same
+// values, forcing `as unknown as` casts anywhere they crossed that boundary.
+export {
+  PublicationStatus,
+  ContentRating,
+  PublicationDemographic,
+  IncludedTagsMode,
+  OrderOptions,
+  OrderDirection
 }
 
 export enum MangaIncludes {
@@ -87,7 +69,7 @@ export const DEFAULT_FILTERS: SearchFilters = {
   publicationDemographic: [],
   includedTags: [],
   excludedTags: [],
-  includedTagsMode: IncludedTagsMode.And,
+  includedTagsMode: IncludedTagsMode.AND,
   availableTranslatedLanguage: ['en'],
   sortBy: OrderOptions.Relevance,
   sortDirection: OrderDirection.Desc
