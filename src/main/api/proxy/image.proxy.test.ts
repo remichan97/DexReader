@@ -32,6 +32,7 @@ vi.mock('../utils/at-home-guards.utl', () => ({
 }))
 
 const CHAPTER_URL = 'https://example-node.mangadex.network/data/abc123hash/page1.png'
+const COVER_URL = 'https://uploads.mangadex.org/covers/manga-id/cover-file.jpg'
 
 function fakeNetworkResponse(init: {
   ok: boolean
@@ -132,6 +133,39 @@ describe('ImageProxy', () => {
       expect(cached).toBe(false)
       expect(bytes).toBe(0)
       expect(duration).toBeGreaterThanOrEqual(0)
+    })
+  })
+
+  describe('cover images (isCover: true)', () => {
+    it('never reports to @Home on a successful cover fetch - covers are not on the @Home network', async () => {
+      const body = new Uint8Array([1, 2, 3, 4]).buffer
+      vi.mocked(net.fetch).mockResolvedValue(
+        fakeNetworkResponse({ ok: true, body, headers: { 'Content-Type': 'image/jpeg' } })
+      )
+
+      const response = await imageProxy.handleImageRequest(COVER_URL, true)
+
+      expect(response.status).toBe(200)
+      expect(reportAtHomeNetworkStatus).not.toHaveBeenCalled()
+    })
+
+    it('never reports to @Home on a failed cover fetch (non-OK response)', async () => {
+      const body = new Uint8Array([1, 2, 3]).buffer
+      vi.mocked(net.fetch).mockResolvedValue(fakeNetworkResponse({ ok: false, status: 404, body }))
+
+      const response = await imageProxy.handleImageRequest(COVER_URL, true)
+
+      expect(response.status).toBe(502)
+      expect(reportAtHomeNetworkStatus).not.toHaveBeenCalled()
+    })
+
+    it('never reports to @Home when the cover fetch throws (connection failure)', async () => {
+      vi.mocked(net.fetch).mockRejectedValue(new Error('net::ERR_CONNECTION_REFUSED'))
+
+      const response = await imageProxy.handleImageRequest(COVER_URL, true)
+
+      expect(response.status).toBe(502)
+      expect(reportAtHomeNetworkStatus).not.toHaveBeenCalled()
     })
   })
 
