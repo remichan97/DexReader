@@ -18,74 +18,88 @@ export class RateLimiter {
     }
   }
 
-  async waitForToken(endpoint?: string): Promise<void> {
-    // Refill global tokens based on elapsed time
-    // Check whether the endpoint has its own limit
-    // Wait till both global and endpoint tokens are available
-    // Return when a request can proceed
-
-    // Refill global tokens
+  /**
+   * Refill global tokens (and the given endpoint's, if any) based on elapsed time.
+   * Returns the endpoint's limit entry, creating it at full capacity on first use.
+   */
+  private refill(endpoint?: string): EndpointLimit | undefined {
     const now = Date.now()
-    const elapsed = now - this.lastGlobalRefill
-    const tokensToAdd = Math.floor((elapsed / 1000) * this.globalRefillRate)
-    if (tokensToAdd > 0) {
-      this.globalTokens = Math.min(this.globalTokens + tokensToAdd, this.globalCapacity)
+
+    const globalElapsed = now - this.lastGlobalRefill
+    const globalTokensToAdd = Math.floor((globalElapsed / 1000) * this.globalRefillRate)
+    if (globalTokensToAdd > 0) {
+      this.globalTokens = Math.min(this.globalTokens + globalTokensToAdd, this.globalCapacity)
       this.lastGlobalRefill = now
     }
 
-    // Refill endpoint tokens
-    let endpointLimit: EndpointLimit | undefined
-    let endpointCapacity: number = ApiConfig.GLOBAL_RATE_LIMIT
-    let endpointRefillRate: number = ApiConfig.GLOBAL_RATE_LIMIT
+    if (!endpoint) return undefined
 
-    if (endpoint) {
-      const config = this.endpointConfigs[endpoint]
-      endpointCapacity = config?.capacity ?? ApiConfig.GLOBAL_RATE_LIMIT
-      endpointRefillRate = config?.refillRatePerSecond ?? ApiConfig.GLOBAL_RATE_LIMIT
+    const config = this.endpointConfigs[endpoint]
+    const capacity = config?.capacity ?? ApiConfig.GLOBAL_RATE_LIMIT
+    const refillRate = config?.refillRatePerSecond ?? ApiConfig.GLOBAL_RATE_LIMIT
 
-      endpointLimit = this.endpointLimits.get(endpoint)
-      if (endpointLimit) {
-        const endpointElapsed = now - endpointLimit.lastRefill
-        const endpointTokensToAdd = Math.floor((endpointElapsed / 1000) * endpointRefillRate)
-        if (endpointTokensToAdd > 0) {
-          endpointLimit.tokens = Math.min(
-            endpointLimit.tokens + endpointTokensToAdd,
-            endpointCapacity
-          )
-          endpointLimit.lastRefill = now
-        }
-      } else {
-        endpointLimit = {
-          tokens: endpointCapacity,
-          lastRefill: now
-        }
-        this.endpointLimits.set(endpoint, endpointLimit)
-      }
+    let endpointLimit = this.endpointLimits.get(endpoint)
+    if (!endpointLimit) {
+      endpointLimit = { tokens: capacity, lastRefill: now }
+      this.endpointLimits.set(endpoint, endpointLimit)
+      return endpointLimit
     }
 
-    // Wait until tokens are available
+    const endpointElapsed = now - endpointLimit.lastRefill
+    const endpointTokensToAdd = Math.floor((endpointElapsed / 1000) * refillRate)
+    if (endpointTokensToAdd > 0) {
+      endpointLimit.tokens = Math.min(endpointLimit.tokens + endpointTokensToAdd, capacity)
+      endpointLimit.lastRefill = now
+    }
+
+    return endpointLimit
+  }
+
+  // Refill accumulates tokens via Math.floor((elapsedMs / 1000) * refillRate) - for rates
+  // that aren't a whole number per second (e.g. 20/60 = 0.3333...), the exact theoretical
+  // wait time undershoots that floor() threshold by a hair due to floating-point
+  // imprecision, which would otherwise make waitForToken wait a second full cycle instead
+  // of converging in one. This buffer guarantees the actual elapsed time comfortably
+  // clears the threshold.
+  private static readonly REFILL_ROUNDING_BUFFER_MS = 5
+
+  /**
+   * Milliseconds until at least one token is available in both the global bucket and
+   * (if given) the endpoint bucket - whichever is longer. Zero if a token is already
+   * available in both right now.
+   */
+  private msUntilToken(endpointLimit: EndpointLimit | undefined, endpoint?: string): number {
+    const globalWaitMs =
+      this.globalTokens > 0
+        ? 0
+        : (1 / this.globalRefillRate) * 1000 -
+          (Date.now() - this.lastGlobalRefill) +
+          RateLimiter.REFILL_ROUNDING_BUFFER_MS
+
+    if (!endpointLimit || !endpoint) {
+      return Math.max(globalWaitMs, 0)
+    }
+
+    const refillRate = this.endpointConfigs[endpoint]?.refillRatePerSecond ?? this.globalRefillRate
+    const endpointWaitMs =
+      endpointLimit.tokens > 0
+        ? 0
+        : (1 / refillRate) * 1000 -
+          (Date.now() - endpointLimit.lastRefill) +
+          RateLimiter.REFILL_ROUNDING_BUFFER_MS
+
+    return Math.max(globalWaitMs, endpointWaitMs, 0)
+  }
+
+  async waitForToken(endpoint?: string): Promise<void> {
+    let endpointLimit = this.refill(endpoint)
+
+    // A single computed sleep almost always suffices; loop only guards against a
+    // concurrent caller consuming the token that just became available underneath us.
     while (this.globalTokens <= 0 || (endpointLimit && endpointLimit.tokens <= 0)) {
-      await new Promise((resolve) => setTimeout(resolve, 50))
-
-      const now = Date.now()
-      const elapsed = now - this.lastGlobalRefill
-      const tokensToAdd = Math.floor((elapsed / 1000) * this.globalRefillRate)
-      if (tokensToAdd > 0) {
-        this.globalTokens = Math.min(this.globalTokens + tokensToAdd, this.globalCapacity)
-        this.lastGlobalRefill = now
-      }
-
-      if (endpointLimit) {
-        const endpointElapsed = now - endpointLimit.lastRefill
-        const endpointTokensToAdd = Math.floor((endpointElapsed / 1000) * endpointRefillRate)
-        if (endpointTokensToAdd > 0) {
-          endpointLimit.tokens = Math.min(
-            endpointLimit.tokens + endpointTokensToAdd,
-            endpointCapacity
-          )
-          endpointLimit.lastRefill = now
-        }
-      }
+      const waitMs = this.msUntilToken(endpointLimit, endpoint)
+      await new Promise((resolve) => setTimeout(resolve, Math.max(waitMs, 1)))
+      endpointLimit = this.refill(endpoint)
     }
 
     this.globalTokens--
