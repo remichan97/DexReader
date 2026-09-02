@@ -1,4 +1,5 @@
 import os from 'node:os'
+import { assertNonNullObject } from '@shared/utils/assert-non-null-object.util'
 import { ChapterCacheTier } from '../../../shared/enums/settings/chapter-cache-tier.enum'
 import { ImageQuality } from '../../api/enums'
 import { DownloadChapterCommand } from '@shared/commands/services/download-chapter.command'
@@ -32,11 +33,9 @@ import { SaveProgressCommand } from '@shared/commands/repositories/progress/save
 import { SaveChapterCommand } from '@shared/commands/repositories/progress/save-chapter.command'
 
 export function validateSettings(newSettings: unknown): newSettings is AppSettings {
-  if (typeof newSettings !== 'object' || newSettings === null) {
-    throw new TypeError('Settings must be an object')
-  }
+  assertNonNullObject<AppSettings>(newSettings, 'Settings must be an object')
 
-  const settings = newSettings as AppSettings
+  const settings = newSettings
 
   // Validate each section using the specific validators
   if (!isAppearanceSettings(settings.appearance)) {
@@ -68,11 +67,12 @@ export function validateSettings(newSettings: unknown): newSettings is AppSettin
 
 // Validate appearance settings
 export function isAppearanceSettings(values: unknown): values is AppearanceSettings {
-  if (typeof values !== 'object' || values === null) {
-    throw new TypeError('Refused to save appearance settings: not an object')
-  }
+  assertNonNullObject<AppearanceSettings>(
+    values,
+    'Refused to save appearance settings: not an object'
+  )
 
-  const appearanceSettings = values as AppearanceSettings
+  const appearanceSettings = values
 
   // Validate theme is a valid AppTheme enum value
   if (!Object.values(AppTheme).includes(appearanceSettings.theme)) {
@@ -104,11 +104,9 @@ export function isAppearanceSettings(values: unknown): values is AppearanceSetti
 
 // Validate download settings
 export function isDownloadsSettings(values: unknown): values is DownloadSettings {
-  if (typeof values !== 'object' || values === null) {
-    throw new TypeError('Refused to save download settings: not an object')
-  }
+  assertNonNullObject<DownloadSettings>(values, 'Refused to save download settings: not an object')
 
-  const downloadsSettings = values as DownloadSettings
+  const downloadsSettings = values
 
   // Validate downloadPath type
   if (downloadsSettings.downloadPath && typeof downloadsSettings.downloadPath !== 'string') {
@@ -164,11 +162,12 @@ export function isDownloadsSettings(values: unknown): values is DownloadSettings
 // Validate manga reader override settings
 
 export function isMangaOverrideSettings(values: unknown): values is MangaOverrideSettings {
-  if (typeof values !== 'object' || values === null) {
-    throw new TypeError('Refused to save manga override settings: not an object')
-  }
+  assertNonNullObject<MangaOverrideSettings>(
+    values,
+    'Refused to save manga override settings: not an object'
+  )
 
-  const mangaOverrideSettings = values as MangaOverrideSettings
+  const mangaOverrideSettings = values
 
   // Validate settings
   if (
@@ -184,11 +183,12 @@ export function isMangaOverrideSettings(values: unknown): values is MangaOverrid
 
 // Validate manga reading settings
 export function isMangaReadingSettings(values: unknown): values is MangaReadingSettings {
-  if (typeof values !== 'object' || values === null) {
-    throw new TypeError('Refused to save manga reading settings: not an object')
-  }
+  assertNonNullObject<MangaReadingSettings>(
+    values,
+    'Refused to save manga reading settings: not an object'
+  )
 
-  const mangaReadingSettings = values as MangaReadingSettings
+  const mangaReadingSettings = values
 
   const isDoublePageModeValid =
     mangaReadingSettings.doublePageMode === undefined ||
@@ -204,11 +204,9 @@ export function isMangaReadingSettings(values: unknown): values is MangaReadingS
 
 // Validate reader settings
 export function isReaderSettings(values: unknown): values is ReaderSettings {
-  if (typeof values !== 'object' || values === null) {
-    throw new Error('Refused to save reader settings: not an object')
-  }
+  assertNonNullObject<ReaderSettings>(values, 'Refused to save reader settings: not an object')
 
-  const readerSettings = values as ReaderSettings
+  const readerSettings = values
 
   // Validate forceDarkMode
   if (typeof readerSettings.forceDarkMode !== 'boolean') {
@@ -269,23 +267,21 @@ export function isReaderSettings(values: unknown): values is ReaderSettings {
 }
 
 export function isDownloadChapterOptions(values: unknown): values is DownloadChapterCommand {
-  if (values === null || typeof values !== 'object') {
-    throw new TypeError('Invalid parameters for downloading chapter')
-  }
+  assertNonNullObject<DownloadChapterCommand>(values, 'Invalid parameters for downloading chapter')
 
-  if (!('chapterId' in values) || typeof values.chapterId !== 'string') {
+  if (typeof values.chapterId !== 'string') {
     throw new TypeError('Missing or invalid chapterId')
   }
 
-  if (!('mangaId' in values) || typeof values.mangaId !== 'string') {
+  if (typeof values.mangaId !== 'string') {
     throw new TypeError('Missing or invalid mangaId')
   }
 
-  if (!('language' in values) || typeof values.language !== 'string') {
+  if (typeof values.language !== 'string') {
     throw new TypeError('Missing or invalid language')
   }
 
-  if (!('quality' in values) || typeof values.quality !== 'string') {
+  if (typeof values.quality !== 'string') {
     throw new TypeError('Missing or invalid quality')
   }
 
@@ -293,27 +289,25 @@ export function isDownloadChapterOptions(values: unknown): values is DownloadCha
 }
 
 export function isQueuedDownloads(values: unknown): values is QueuedDownloads {
-  if (values === null || typeof values !== 'object') {
-    throw new TypeError('Invalid parameters for queued downloads')
-  }
+  assertNonNullObject<QueuedDownloads>(values, 'Invalid parameters for queued downloads')
 
-  if (!('chapterId' in values) || typeof values.chapterId !== 'string') {
+  if (typeof values.chapterId !== 'string') {
     throw new TypeError('Missing or invalid chapterId')
   }
 
-  if (!('mangaId' in values) || typeof values.mangaId !== 'string') {
+  if (typeof values.mangaId !== 'string') {
     throw new TypeError('Missing or invalid mangaId')
   }
 
-  if (!('language' in values) || typeof values.language !== 'string') {
+  if (typeof values.language !== 'string') {
     throw new TypeError('Missing or invalid language')
   }
 
-  if (!('quality' in values) || typeof values.quality !== 'string') {
+  if (typeof values.quality !== 'string') {
     throw new TypeError('Missing or invalid quality')
   }
 
-  if (!('addedAt' in values) || !(values.addedAt instanceof Date)) {
+  if (!(values.addedAt instanceof Date)) {
     throw new TypeError('Missing or invalid addedAt')
   }
 
@@ -321,11 +315,9 @@ export function isQueuedDownloads(values: unknown): values is QueuedDownloads {
 }
 
 export function isUpdateSettings(values: unknown): values is UpdateSettings {
-  if (typeof values !== 'object' || values === null) {
-    throw new TypeError('Refused to save update settings: not an object')
-  }
+  assertNonNullObject<UpdateSettings>(values, 'Refused to save update settings: not an object')
 
-  const updateSettings = values as UpdateSettings
+  const updateSettings = values
 
   if (typeof updateSettings.autoCheck !== 'boolean') {
     throw new TypeError('Refused to save update settings: autoCheck is not a boolean')
@@ -339,11 +331,9 @@ export function isUpdateSettings(values: unknown): values is UpdateSettings {
 }
 
 export function isLogSettings(values: unknown): values is LogsSettings {
-  if (typeof values !== 'object' || values === null) {
-    throw new TypeError('Refused to save log settings: not an object')
-  }
+  assertNonNullObject<LogsSettings>(values, 'Refused to save log settings: not an object')
 
-  const logSettings = values as LogsSettings
+  const logSettings = values
 
   // At most 30 days of retention
   if (
@@ -361,11 +351,9 @@ export function isLogSettings(values: unknown): values is LogsSettings {
 }
 
 export function isSearchSettings(values: unknown): values is SearchSettings {
-  if (typeof values !== 'object' || values === null) {
-    throw new TypeError('Refused to save search settings: not an object')
-  }
+  assertNonNullObject<SearchSettings>(values, 'Refused to save search settings: not an object')
 
-  const searchSettings = values as SearchSettings
+  const searchSettings = values
 
   if (
     searchSettings.defaultPresetId !== undefined &&
@@ -378,11 +366,9 @@ export function isSearchSettings(values: unknown): values is SearchSettings {
 }
 
 export function isLanguageSettings(values: unknown): values is LanguageSettings {
-  if (typeof values !== 'object' || values === null) {
-    throw new TypeError('Refused to save language settings: not an object')
-  }
+  assertNonNullObject<LanguageSettings>(values, 'Refused to save language settings: not an object')
 
-  const languageSettings = values as LanguageSettings
+  const languageSettings = values
 
   if (!Object.values(DisplayLanguage).includes(languageSettings.displayLanguage)) {
     throw new TypeError(
@@ -412,11 +398,12 @@ export function isLanguageSettings(values: unknown): values is LanguageSettings 
 
 // Validate IPC input for library:get-manga
 export function isGetLibraryMangaCommand(values: unknown): values is GetLibraryMangaCommand {
-  if (typeof values !== 'object' || values === null) {
-    throw new TypeError('Invalid parameters for getting library manga')
-  }
+  assertNonNullObject<GetLibraryMangaCommand>(
+    values,
+    'Invalid parameters for getting library manga'
+  )
 
-  const command = values as GetLibraryMangaCommand
+  const command = values
 
   if (command.collectionId !== undefined && typeof command.collectionId !== 'number') {
     throw new TypeError('Invalid collectionId for getting library manga')
@@ -443,11 +430,9 @@ export function isGetLibraryMangaCommand(values: unknown): values is GetLibraryM
 
 // Validate IPC input for library:upsert-manga
 export function isUpsertMangaCommand(values: unknown): values is UpsertMangaCommand {
-  if (typeof values !== 'object' || values === null) {
-    throw new TypeError('Invalid parameters for upserting manga')
-  }
+  assertNonNullObject<UpsertMangaCommand>(values, 'Invalid parameters for upserting manga')
 
-  const command = values as UpsertMangaCommand
+  const command = values
 
   if (typeof command.mangaId !== 'string') {
     throw new TypeError('Missing or invalid mangaId for upserting manga')
@@ -482,11 +467,9 @@ export function isUpsertMangaCommand(values: unknown): values is UpsertMangaComm
 
 // Validate IPC input for collections:create
 export function isCreateCollectionCommand(values: unknown): values is CreateCollectionCommand {
-  if (typeof values !== 'object' || values === null) {
-    throw new TypeError('Invalid parameters for creating collection')
-  }
+  assertNonNullObject<CreateCollectionCommand>(values, 'Invalid parameters for creating collection')
 
-  const command = values as CreateCollectionCommand
+  const command = values
 
   if (typeof command.name !== 'string' || command.name.trim().length === 0) {
     throw new TypeError('Missing or invalid name for creating collection')
@@ -501,11 +484,9 @@ export function isCreateCollectionCommand(values: unknown): values is CreateColl
 
 // Validate IPC input for collections:update
 export function isUpdateCollectionCommand(values: unknown): values is UpdateCollectionCommand {
-  if (typeof values !== 'object' || values === null) {
-    throw new TypeError('Invalid parameters for updating collection')
-  }
+  assertNonNullObject<UpdateCollectionCommand>(values, 'Invalid parameters for updating collection')
 
-  const command = values as UpdateCollectionCommand
+  const command = values
 
   if (typeof command.id !== 'number') {
     throw new TypeError('Missing or invalid id for updating collection')
@@ -524,11 +505,12 @@ export function isUpdateCollectionCommand(values: unknown): values is UpdateColl
 
 // Validate IPC input for collections:add-manga
 export function isAddToCollectionCommand(values: unknown): values is AddToCollectionCommand {
-  if (typeof values !== 'object' || values === null) {
-    throw new TypeError('Invalid parameters for adding manga to collection')
-  }
+  assertNonNullObject<AddToCollectionCommand>(
+    values,
+    'Invalid parameters for adding manga to collection'
+  )
 
-  const command = values as AddToCollectionCommand
+  const command = values
 
   if (typeof command.collectionId !== 'number') {
     throw new TypeError('Missing or invalid collectionId for adding manga to collection')
@@ -545,11 +527,12 @@ export function isAddToCollectionCommand(values: unknown): values is AddToCollec
 export function isRemoveFromCollectionCommand(
   values: unknown
 ): values is RemoveFromCollectionCommand {
-  if (typeof values !== 'object' || values === null) {
-    throw new TypeError('Invalid parameters for removing manga from collection')
-  }
+  assertNonNullObject<RemoveFromCollectionCommand>(
+    values,
+    'Invalid parameters for removing manga from collection'
+  )
 
-  const command = values as RemoveFromCollectionCommand
+  const command = values
 
   if (typeof command.collectionId !== 'number') {
     throw new TypeError('Missing or invalid collectionId for removing manga from collection')
@@ -564,11 +547,9 @@ export function isRemoveFromCollectionCommand(
 
 // Validate IPC input for history:record-read
 export function isRecordReadCommand(values: unknown): values is RecordReadCommand {
-  if (typeof values !== 'object' || values === null) {
-    throw new TypeError('Invalid parameters for recording read')
-  }
+  assertNonNullObject<RecordReadCommand>(values, 'Invalid parameters for recording read')
 
-  const command = values as RecordReadCommand
+  const command = values
 
   if (typeof command.mangaId !== 'string') {
     throw new TypeError('Missing or invalid mangaId for recording read')
@@ -583,11 +564,9 @@ export function isRecordReadCommand(values: unknown): values is RecordReadComman
 
 // Validate IPC input for progress:save-progress (called per-entry against an array)
 export function isSaveProgressCommand(values: unknown): values is SaveProgressCommand {
-  if (typeof values !== 'object' || values === null) {
-    throw new TypeError('Invalid parameters for saving progress')
-  }
+  assertNonNullObject<SaveProgressCommand>(values, 'Invalid parameters for saving progress')
 
-  const command = values as SaveProgressCommand
+  const command = values
 
   if (typeof command.mangaId !== 'string') {
     throw new TypeError('Missing or invalid mangaId for saving progress')
@@ -614,11 +593,9 @@ export function isSaveProgressCommand(values: unknown): values is SaveProgressCo
 
 // Validate IPC input for progress:save-chapters (called per-entry against an array)
 export function isSaveChapterCommand(values: unknown): values is SaveChapterCommand {
-  if (typeof values !== 'object' || values === null) {
-    throw new TypeError('Invalid parameters for saving chapter')
-  }
+  assertNonNullObject<SaveChapterCommand>(values, 'Invalid parameters for saving chapter')
 
-  const command = values as SaveChapterCommand
+  const command = values
 
   if (typeof command.chapterId !== 'string') {
     throw new TypeError('Missing or invalid chapterId for saving chapter')
