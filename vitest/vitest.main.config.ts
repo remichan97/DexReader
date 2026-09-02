@@ -5,6 +5,11 @@ import { defineProject } from 'vitest/config'
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 export default defineProject({
+  resolve: {
+    alias: {
+      '@shared': resolve(__dirname, '../src/shared')
+    }
+  },
   test: {
     root: resolve(__dirname, '..'),
     name: 'main',
