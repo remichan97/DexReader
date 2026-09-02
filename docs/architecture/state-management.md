@@ -31,7 +31,6 @@ src/renderer/src/stores/
 ├── types.ts                    # Shared TypeScript interfaces
 ├── appStore.ts                 # Theme & global UI state
 ├── toastStore.ts               # Notification system
-├── userPreferencesStore.ts     # User settings & preferences
 ├── progressStore.ts            # Reading progress (SQLite-backed)
 └── libraryStore.ts             # Bookmarks & collections (Phase 3)
 ```
@@ -43,7 +42,6 @@ src/renderer/src/stores/
 import {
   useAppStore,
   useToastStore,
-  useUserPreferencesStore,
   useLibraryStore,
   type ToastItem,
   type Theme
@@ -267,177 +265,7 @@ function App() {
 
 ---
 
-### 3. User Preferences Store
-
-**File**: `src/renderer/src/stores/userPreferencesStore.ts`
-**Purpose**: Persistent user settings across all application features
-
-#### State Schema
-
-```typescript
-interface UserPreferencesState {
-  // Reading Preferences
-  preloadPages: number // 1-5, number of chapters to preload
-  zoomLevel: number // 50-200, percentage
-  readerMode: 'single' | 'double' | 'webtoon'
-  readingDirection: 'ltr' | 'rtl'
-
-  // Download Preferences
-  simultaneousDownloads: number // 1-5, concurrent downloads
-  downloadLocation: string // File path
-  imageQuality: 'original' | 'high' | 'medium'
-  saveMangaMetadata: boolean
-
-  // UI Preferences
-  enableAnimations: boolean
-  sidebarCollapsed: boolean
-  defaultTheme: 'light' | 'dark' | 'system'
-  compactMode: boolean
-
-  // Notification Preferences
-  notifyDownloadComplete: boolean
-  notifyChapterUpdates: boolean
-  notifyErrors: boolean
-
-  // Actions (individual setters)
-  setPreloadPages: (pages: number) => void
-  setZoomLevel: (level: number) => void
-  setReaderMode: (mode: 'single' | 'double' | 'webtoon') => void
-  setReadingDirection: (direction: 'ltr' | 'rtl') => void
-
-  setSimultaneousDownloads: (count: number) => void
-  setDownloadLocation: (location: string) => void
-  setImageQuality: (quality: 'original' | 'high' | 'medium') => void
-  setSaveMangaMetadata: (save: boolean) => void
-
-  setEnableAnimations: (enable: boolean) => void
-  setSidebarCollapsed: (collapsed: boolean) => void
-  setDefaultTheme: (theme: 'light' | 'dark' | 'system') => void
-  setCompactMode: (compact: boolean) => void
-
-  setNotifyDownloadComplete: (notify: boolean) => void
-  setNotifyChapterUpdates: (notify: boolean) => void
-  setNotifyErrors: (notify: boolean) => void
-
-  // Actions (bulk updates)
-  updateReadingPreferences: (preferences: Partial<ReadingPreferences>) => void
-  updateDownloadPreferences: (preferences: Partial<DownloadPreferences>) => void
-  updateUIPreferences: (preferences: Partial<UIPreferences>) => void
-  updateNotificationPreferences: (preferences: Partial<NotificationPreferences>) => void
-
-  // Reset to defaults
-  resetToDefaults: () => void
-}
-```
-
-#### Default Values
-
-```typescript
-const defaultPreferences = {
-  // Reading
-  preloadPages: 2,
-  zoomLevel: 100,
-  readerMode: 'single' as const,
-  readingDirection: 'ltr' as const,
-
-  // Downloads
-  simultaneousDownloads: 3,
-  downloadLocation: '', // Set to Downloads folder on first run
-  imageQuality: 'high' as const,
-  saveMangaMetadata: true,
-
-  // UI
-  enableAnimations: true,
-  sidebarCollapsed: false,
-  defaultTheme: 'system' as const,
-  compactMode: false,
-
-  // Notifications
-  notifyDownloadComplete: true,
-  notifyChapterUpdates: true,
-  notifyErrors: true
-}
-```
-
-#### Validation Example
-
-```typescript
-setPreloadPages: (pages) =>
-  set((state) => ({
-    ...state,
-    preloadPages: Math.max(1, Math.min(5, pages)) // Clamp to 1-5
-  }))
-
-setSimultaneousDownloads: (count) =>
-  set((state) => ({
-    ...state,
-    simultaneousDownloads: Math.max(1, Math.min(5, count)) // Clamp to 1-5
-  }))
-```
-
-#### Persistence Strategy
-
-```typescript
-persist(
-  // Store implementation
-  {
-    name: 'dexreader-preferences'
-    // Persist ALL preferences (no partialize needed)
-  }
-)
-```
-
-**Persisted**: All preferences
-**Hydration**: Automatic on app start
-
-#### Usage Example
-
-```typescript
-// SettingsView.tsx
-function SettingsView() {
-  const preloadPages = useUserPreferencesStore((state) => state.preloadPages)
-  const setPreloadPages = useUserPreferencesStore((state) => state.setPreloadPages)
-
-  const handlePreloadChange = (value: number) => {
-    setPreloadPages(value)
-    // Changes are automatically persisted to localStorage
-  }
-
-  return <Slider value={preloadPages} onChange={handlePreloadChange} min={1} max={5} />
-}
-```
-
-#### Extensibility
-
-This store is designed for easy expansion in future phases. When adding new settings:
-
-1. Add properties to the relevant category in `types.ts`
-2. Add default values to `defaultPreferences`
-3. Add individual setter and/or bulk update support
-4. Document new settings in this file
-
-Example for future Phase 2 feature:
-
-```typescript
-// Add to ReadingPreferences
-interface ReadingPreferences {
-  // ...existing properties
-  autoBookmark: boolean // NEW: Auto-bookmark on exit
-}
-
-// Add to defaults
-const defaultPreferences = {
-  // ...
-  autoBookmark: true
-}
-
-// Add setter
-setAutoBookmark: (enable) => set((state) => ({ ...state, autoBookmark: enable }))
-```
-
----
-
-### 4. Library Store
+### 3. Library Store
 
 **File**: `src/renderer/src/stores/libraryStore.ts`
 **Purpose**: Manage bookmarks and collections (Phase 3 implementation)
@@ -591,7 +419,6 @@ persist(
 // ✅ Good - Single responsibility
 useAppStore // UI state only
 useToastStore // Notifications only
-useUserPreferencesStore // Settings only
 
 // ❌ Bad - Mixed concerns
 useAppStore // UI, toasts, settings, library all in one
@@ -684,25 +511,6 @@ function AppShell() {
 }
 ```
 
-### Bulk Updates Pattern
-
-```typescript
-function SettingsPanel() {
-  const updateReadingPreferences = useUserPreferencesStore(
-    (state) => state.updateReadingPreferences
-  )
-
-  const handleSubmit = (formData) => {
-    // Update multiple settings at once
-    updateReadingPreferences({
-      preloadPages: formData.preload,
-      zoomLevel: formData.zoom,
-      readerMode: formData.mode
-    })
-  }
-}
-```
-
 ---
 
 ## Testing Strategy
@@ -755,12 +563,6 @@ Zustand automatically optimises selectors using shallow equality checks:
 ```typescript
 // ✅ Efficient - Only re-renders when specific value changes
 const theme = useAppStore((state) => state.theme)
-
-// ✅ Also efficient - Zustand compares return value
-const preferences = useUserPreferencesStore((state) => ({
-  preload: state.preloadPages,
-  zoom: state.zoomLevel
-}))
 ```
 
 ### Avoiding Unnecessary Re-renders
@@ -780,7 +582,7 @@ const setFullscreen = useAppStore((state) => state.setFullscreen)
 ### Bundle Size Impact
 
 - **Zustand**: ~1.4kb gzipped
-- **All 4 stores**: ~3-4kb total (including types)
+- **All stores**: ~3-4kb total (including types)
 - **localStorage overhead**: Negligible (<1ms serialization)
 
 ---
