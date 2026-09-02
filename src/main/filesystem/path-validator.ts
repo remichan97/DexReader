@@ -67,12 +67,12 @@ export async function validateDirectoryPath(dirPath: string): Promise<void> {
 
     if (!stats.isDirectory()) {
       mainLog.warn(`[PathValidator] Path is not a directory: ${dirPath}`)
-      throw new Error(`The path "${dirPath}" is not a directory.`)
+      throw new Error('The selected path is not a directory.')
     }
     mainLog.debug(`[PathValidator] Directory validated: ${dirPath}`)
   } catch (error) {
     mainLog.error(`[PathValidator] Directory validation failed for ${dirPath}:`, error)
-    throw new Error(`The path "${dirPath}" does not exist or is not accessible. Error: ${error}`)
+    throw new Error('The selected path does not exist or is not accessible.')
   }
 }
 
@@ -81,7 +81,7 @@ export async function validatePath(inputPath: string): Promise<string> {
 
   if (!(await isPathAllowed(normalizedPath))) {
     mainLog.warn(`[PathValidator] Access denied to path: ${inputPath}`)
-    throw new Error(`Access to the path "${inputPath}" is not allowed.`)
+    throw new Error('Access to the selected path is not allowed.')
   }
 
   return normalizedPath

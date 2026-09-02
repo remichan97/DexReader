@@ -4,6 +4,7 @@ import { secureFs } from '../../filesystem/secure-fs'
 import { validateEncoding, validatePath } from '../validators'
 import { wrapIpcHandler } from '../wrap-handler'
 import { settingsManager } from '../../settings/settings-manager'
+import { toError } from '@shared/utils/to-error.util'
 
 export function registerFileSystemHandlers(getWindow: () => BrowserWindow): void {
   /**
@@ -326,7 +327,7 @@ export function registerFileSystemHandlers(getWindow: () => BrowserWindow): void
       await settingsManager.validateDownloadsPath(selectedPath)
       return { cancelled: false, filePath: selectedPath }
     } catch (error) {
-      throw new Error(`Unable to set downloads folder: ${error}`)
+      throw new Error(`Unable to set downloads folder: ${toError(error).message}`)
     }
   })
 
