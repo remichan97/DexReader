@@ -102,7 +102,7 @@ Zustand 5 stores in `src/renderer/src/stores/`. Stores are ephemeral (rehydrated
 - No inline destructuring in function parameters — define an `interface` for params
 - Explicit return types on all functions and methods
 - `interface` for object shapes, `type` for aliases/unions/intersections
-- `const` enums where runtime values are not needed
+- Regular `enum`, not `const enum` — the build's `isolatedModules: true` (inherited from `@electron-toolkit/tsconfig`) transpiles each file independently, which is incompatible with `const enum`'s whole-program inlining
 - Prefer `undefined` over `null`
 - Prefer `globalThis` over `window`
 - `async/await` over raw Promises

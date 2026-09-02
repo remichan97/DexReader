@@ -38,7 +38,6 @@ class DatabaseConnection {
     this.db.exec('PRAGMA foreign_keys = ON') // Enable foreign key constraints
     this.db.exec('PRAGMA synchronous = NORMAL') // Set synchronous mode to NORMAL for better performance
     this.db.exec('PRAGMA temp_store = MEMORY') // Store temporary tables in memory for faster access
-    this.db.exec('PRAGMA mmap_size = 268435456') // Set memory-mapped I/O size to 256MB
 
     mainLog.debug('[Database] SQLite pragmas configured (WAL, 64MB cache, 256MB mmap)')
     this.drizzle = drizzle({ client: this.db, relations })
