@@ -333,9 +333,9 @@ const dexReader = {
 
 const downloads = {
   downloadChapter: (options: DownloadChapterCommand) =>
-    ipcRenderer.invoke('downloads:download-chapter', options),
+    ipcRenderer.invoke('download:download-chapter', options),
   deleteChapter: (options: DeleteChapterCommand) =>
-    ipcRenderer.invoke('downloads:delete-chapter', options),
+    ipcRenderer.invoke('download:delete-chapter', options),
   getAllDownloads: () => ipcRenderer.invoke('download:get-all-downloads'),
   getStorageInfo: () => ipcRenderer.invoke('download:storage-stats'),
   clearCompleted: () => ipcRenderer.invoke('download:clear-completed'),

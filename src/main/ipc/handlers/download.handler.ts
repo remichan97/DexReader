@@ -31,7 +31,7 @@ export function registerDownloadHandlers(): void {
    *   quality: 'data'
    * })
    */
-  wrapIpcHandler('downloads:download-chapter', async (_, params: unknown) => {
+  wrapIpcHandler('download:download-chapter', async (_, params: unknown) => {
     isDownloadChapterOptions(params)
 
     if (!isDownloadChapterOptions(params)) {
@@ -65,7 +65,7 @@ export function registerDownloadHandlers(): void {
    * // Permanently delete a downloaded chapter
    * await window.api.deleteDownloadedChapter({ chapterId: 'abc123-def456...', isDeletePermanent: true })
    */
-  wrapIpcHandler('downloads:delete-chapter', async (_, options: unknown) => {
+  wrapIpcHandler('download:delete-chapter', async (_, options: unknown) => {
     if (typeof options !== 'object' || options === null || !('chapterId' in options)) {
       throw new TypeError('Invalid options for deleting chapter')
     }
