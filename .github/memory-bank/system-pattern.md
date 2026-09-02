@@ -1,6 +1,6 @@
 # DexReader System Pattern
 
-**Last Updated**: 12 June 2026
+**Last Updated**: 2 September 2026
 **Version**: 1.0.0 (v1.0 Release Baseline)
 **Architecture**: Electron Multi-Process Desktop Application
 **Status**: Active - This document defines architectural patterns, design principles, and technical decisions
@@ -158,6 +158,20 @@
 **Network Access**: Whitelist-only (`api.mangadex.org`, `uploads.mangadex.org`, MangaDex at-home servers)
 
 **User Controls**: Native folder picker dialog for downloads directory selection
+
+---
+
+## Database & Transaction Patterns
+
+### `PRAGMA foreign_keys` is set once, globally, at connection init
+
+**Location**: `connection.ts` sets `PRAGMA foreign_keys = ON` when the `DatabaseSync` connection is created — not per-transaction.
+
+**Gotcha**: SQLite silently ignores `PRAGMA foreign_keys = OFF/ON` issued _inside_ a transaction — the pragma can only take effect between transactions. Toggling it mid-`db.transaction()` block does nothing (found and fixed 2 September 2026 in `cleanup.repo.ts`'s `clearAllData()`, which had toggled it around a bulk delete under the mistaken assumption it would suspend FK checks for that delete).
+
+**Practical implication**: because FK enforcement is genuinely active for the whole connection lifetime, any manual multi-table delete (bulk wipes, cascading manual cleanup) must either delete children before parents, or rely on `onDelete: 'cascade'` already being correct on every relevant FK and only delete the roots. Don't assume a pragma toggle will relax this for you inside a transaction.
+
+**Full `collection_items`/`chapter`/`manga`/etc. delete order reference**: see `clearAllData()` in `src/main/database/repositories/cleanup.repo.ts` for the current children-before-parents ordering, derived from `relationships.schema.ts`.
 
 ---
 

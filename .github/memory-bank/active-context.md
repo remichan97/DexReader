@@ -1,7 +1,7 @@
 # DexReader Active Context
 
-**Last Updated**: 25 July 2026
-**Version**: v1.12.1
+**Last Updated**: 2 September 2026
+**Version**: v1.12.1 (released) — unreleased refactor work in progress on `refactor/code-cleanup`
 **Mode**: Active Development
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next. Keep all entries as short, concise as possible
@@ -10,21 +10,20 @@
 
 ## Current Status
 
-**v1.12.1 Released**: 25 July 2026 ✅
+**v1.12.1 Released**: 25 July 2026 ✅ — its monitoring period (through ~8 August) closed with no reported regressions from the path-validator/settings/image-proxy fixes.
 
-**Monitoring Period**: Now through ~8 August 2026
+**Now in progress**: `claude-plans/full-codebase-refactor-plan.md`, on branch `refactor/code-cleanup`, unreleased:
 
-- Monitor for any filesystem-operation regressions from the path-validator symlink/boundary fix (sandbox denies should only ever affect genuinely out-of-bounds or symlinked paths)
-- Confirm the MangaDex@Home report POST is firing reliably for real chapter-image fetches (compliance requirement, not just a functional one)
-- Watch for reports of the downloads path resetting unexpectedly (should be fixed by the nested-settings-backfill fix, but was silent before)
-- Verify collection delete and downloads-delete confirm dialogs behave correctly across platforms
+- Phases 2–5 (shared package foundation, preload contract migration, MangaDex DTO mapping layer, main-process integrity fixes) — complete, 1–22 August 2026
+- **Phase 6** (renderer god-component decomposition) — ✅ complete 1 September 2026 (all 8 deliverables: `SettingsView`, `MangaDetailView`, `App.tsx`, `MangaHeroSection`, `BrowseView`, `DownloadQueueService`, Zustand selector adoption, IPC handler file splits)
+- **Phase 7** (medium-priority cleanup sweep) — in progress, started 2 September 2026. Re-audited all 12 original findings against current code first (2 were already fixed by earlier phases: migration-runner driver import, and — same day — the `clearAllData()` FK/table-list bug). Then fixed 2 more same-day: removed the dead `userPreferencesStore.ts` (superseded by `electron-store`, zero real consumers) and fully removed the never-finished collections-reorder feature (command/handler/repo-method/preload binding) per an explicit decision that it's no longer wanted. **8 items remain** — see the plan file for the current list.
 
 **Next Planned Work:**
 
-- Continue the full-codebase refactor plan (`claude-plans/full-codebase-refactor-plan.md`) — Phase 1 (critical security fixes) is complete as of this release; Phase 2 (`src/shared` package scaffold) is next
+- Finish Phase 7's remaining 8 items, then Phase 8 (low-priority polish backlog)
 - Once the refactor/cleanup effort finishes: plan and execute the react-router v6 → v7 migration (see Known Issues — CVE-2026-53669, no 6.x fix exists)
+- Cut a release once Phase 7 (and ideally 8) land — nothing has shipped since v1.12.1
 - Plan next feature development cycle
-- Continue monitoring for dependency updates
 
 ---
 
@@ -51,6 +50,29 @@
 
 ## Recent Changes (Last 1-2 Weeks)
 
+### 2 September 2026 - Phase 7 cleanup sweep (in progress)
+
+- **Type**: Refactor/cleanup, unreleased
+- **Summary**: Started the medium-priority cleanup sweep from the full-codebase refactor plan. Audited all 12 original findings against the current codebase (several had drifted since the audit — code had moved during Phase 6, or been fixed incidentally); fixed 3 items same-day.
+- **Key Changes**:
+  - `cleanup.repo.ts`: `clearAllData()` no longer relies on a `PRAGMA foreign_keys` toggle that's a documented SQLite no-op inside a transaction — all 10 tables are now deleted explicitly in dependency order, closing a gap where `chapterDownloads`/`readHistory` weren't in the explicit clear list
+  - Removed dead `userPreferencesStore.ts` (a pre-`electron-store` leftover with zero real consumers) and its now-orphaned types from `stores/types.ts`
+  - Removed the never-finished collections-reorder feature end-to-end (shared command type, repo method, IPC handler, validator, preload binding) — was planned but is no longer wanted, per explicit decision
+- **Status**: 🔄 In progress — 8 of the original 12 Phase 7 items remain (CSP `img-src` tightening, ID validation in `mangadex-client.ts`, `assertObject<T>()` helper, re-enabling `no-non-null-assertion`, `download:`/`downloads:` channel prefix consistency, `BrowseView` filter-enum double-casts, `globalThis.*` typing gap, missing `@shared` alias in `vitest.main.config.ts`)
+
+### 1 September 2026 - Phase 6 complete: renderer god-component decomposition ✅
+
+- **Type**: Refactor, unreleased
+- **Summary**: Decomposed every "god component" flagged by the original audit into focused hooks/collaborators — `SettingsView`, `MangaDetailView`, `App.tsx`'s `AppContent`, `MangaHeroSection`, `BrowseView`, and the main-process `DownloadQueueService`; adopted narrow Zustand selectors in hot-path views; split oversized IPC handler files by domain (`library`/`collections`/`history`, `download`/`download-queue`).
+- **Impact**: No component in the decomposed set exceeds ~300 lines now. `npm run typecheck`/`npm run lint` clean throughout; `npm run test:renderer` passes. App boot-smoke-tested after every commit; full manual click-through regression was not run (no UI-driving harness in the agent's environment) — only `MangaDetailView` got a human spot-check.
+- **Status**: ✅ Complete, unreleased (see `claude-plans/full-codebase-refactor-plan.md` Phase 6 for the full commit list)
+
+### 1–22 August 2026 - Phases 2–5: shared package, DTO mapping, main-process integrity ✅
+
+- **Type**: Refactor, unreleased
+- **Summary**: Built the `src/shared/` package (contracts/constants/utils, wired into all three TS configs + electron-vite + an ESLint guard against reaching into `src/main` from preload/renderer); migrated the preload contract surface and MangaDex API entities onto it as renderer-safe DTOs; fixed main-process integrity issues (transactional imports, typed settings getters, cache-age SQL bug, `chapter_downloads` uniqueness constraint, DB-init crash recovery).
+- **Status**: ✅ Complete, unreleased — see the plan file for the detailed deliverable list per phase
+
 ### 25 July 2026 - v1.12.1 Release ✅
 
 - **Type**: Patch Release - Critical Security Fixes (Phase 1 of the full-codebase refactor plan)
@@ -66,26 +88,7 @@
 - **Status**: ✅ Released
 - **CHANGELOG**: All changes documented in CHANGELOG.md v1.12.1 section
 
-### 29 June 2026 - v1.12.0 Release ✅
-
-- **Type**: Feature Release - Detail View Enhancements
-- **Summary**: Clickable author/artist links, multiple authors/artists display, Sidebar mode, and Canvas/Sidebar settings
-- **Key Changes**:
-  - Clickable author/artist names in manga detail view for quick search
-  - Multiple authors/artists now displayed (was single entry)
-  - New Sidebar display mode for manga detail view
-  - Canvas and Sidebar sizing settings added
-  - Hero Backdrop feature dropped (to be revisited)
-  - Fixed IPC bridge typing imports and manga shape typing issues
-- **Impact**: Improved discoverability of authors/artists and more flexible detail view layout
-- **Status**: ✅ Released
-- **CHANGELOG**: All changes documented in CHANGELOG.md v1.12.0 section
-
-### 24 June 2026 - v1.11.1 Release ✅
-
-- **Type**: Patch Release - Build Fixes
-- **Summary**: Fixed electron-builder configuration issue and updated Electron
-- **Status**: ✅ Released
+<!-- Older entries (v1.12.0, v1.11.1 releases) pruned per the 2-3 week retention rule — see CHANGELOG.md for full release history. -->
 
 <!-- Template for future entries:
 ### [Date] - [Title]

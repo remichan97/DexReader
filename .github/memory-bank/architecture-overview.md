@@ -97,13 +97,14 @@ This is what users see and interact with - the entire React application.
 
 **Location**: `src/renderer/src/stores/`
 
-| Store                    | Purpose                               | Persistence                  |
-| ------------------------ | ------------------------------------- | ---------------------------- |
-| **appStore**             | Theme, fullscreen, UI state           | Synced with Settings Manager |
-| **userPreferencesStore** | Reader preferences, download settings | Synced with Settings Manager |
-| **libraryStore**         | Bookmarks, collections                | SQLite via IPC               |
-| **toastStore**           | Notifications                         | Ephemeral (memory only)      |
-| **connectivityStore**    | Online/offline state                  | Ephemeral (system events)    |
+| Store                 | Purpose                     | Persistence                  |
+| --------------------- | --------------------------- | ---------------------------- |
+| **appStore**          | Theme, fullscreen, UI state | Synced with Settings Manager |
+| **libraryStore**      | Bookmarks, collections      | SQLite via IPC               |
+| **toastStore**        | Notifications               | Ephemeral (memory only)      |
+| **connectivityStore** | Online/offline state        | Ephemeral (system events)    |
+
+> Reader/download/UI/notification preferences are settings, not a separate store — persisted via `electron-store` (`src/shared/types/settings/*`), not a Zustand store. A `userPreferencesStore` duplicating this existed as dead code and was removed 2 September 2026.
 
 #### Services (Frontend Logic)
 
@@ -300,7 +301,7 @@ SQLite database with Drizzle ORM for all persistent data.
 ### 5. Settings Persistence Flow
 
 1. User changes setting in Settings View
-2. Local state updates (userPreferencesStore)
+2. Local component/hook state updates (per-domain settings hooks, not a Zustand store)
 3. Renderer calls `window.api.saveSetting(key, value)`
 4. Main process: Settings Manager writes to electron-store
 5. Data persisted to `AppData/settings.json` (encrypted)
