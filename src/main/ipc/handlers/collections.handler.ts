@@ -4,8 +4,7 @@ import {
   isCreateCollectionCommand,
   isUpdateCollectionCommand,
   isAddToCollectionCommand,
-  isRemoveFromCollectionCommand,
-  isReorderMangaInCollectionCommand
+  isRemoveFromCollectionCommand
 } from '../../settings/validators/types.validator'
 
 export function registerCollectionsHandlers(): void {
@@ -193,30 +192,5 @@ export function registerCollectionsHandlers(): void {
     }
 
     return collectionRepo.removeFromCollection(command)
-  })
-
-  /**
-   * Reorder manga within a collection.
-   *
-   * Updates custom sort order for manga in collection. Used for drag-and-drop reordering.
-   *
-   * @param command - Reorder operation
-   * @param command.collectionId - Collection ID
-   * @param command.mangaIds - Array of manga UUIDs in new order
-   * @returns Promise<void>
-   *
-   * @example
-   * // Reorder manga (drag-and-drop)
-   * await window.api.reorderCollectionManga({
-   *   collectionId: 5,
-   *   mangaIds: ['id3...', 'id1...', 'id2...'] // New order
-   * })
-   */
-  wrapIpcHandler('collections:reorder', async (_, command: unknown) => {
-    if (!isReorderMangaInCollectionCommand(command)) {
-      throw new TypeError('Invalid parameters for reordering collection manga')
-    }
-
-    return collectionRepo.reorderMangaInCollection(command)
   })
 }

@@ -27,7 +27,6 @@ import { CreateCollectionCommand } from '@shared/commands/repositories/collectio
 import { UpdateCollectionCommand } from '@shared/commands/repositories/collections/update-collection.command'
 import { AddToCollectionCommand } from '@shared/commands/repositories/collections/add-to-collection.command'
 import { RemoveFromCollectionCommand } from '@shared/commands/repositories/collections/remove-from-collection.command'
-import { ReorderMangaInCollectionCommand } from '@shared/commands/repositories/collections/reorder-manga-collection.command'
 import { RecordReadCommand } from '@shared/commands/repositories/history/record-read.command'
 import { SaveProgressCommand } from '@shared/commands/repositories/progress/save-progress.command'
 import { SaveChapterCommand } from '@shared/commands/repositories/progress/save-chapter.command'
@@ -558,27 +557,6 @@ export function isRemoveFromCollectionCommand(
 
   if (typeof command.mangaId !== 'string') {
     throw new TypeError('Missing or invalid mangaId for removing manga from collection')
-  }
-
-  return true
-}
-
-// Validate IPC input for collections:reorder
-export function isReorderMangaInCollectionCommand(
-  values: unknown
-): values is ReorderMangaInCollectionCommand {
-  if (typeof values !== 'object' || values === null) {
-    throw new TypeError('Invalid parameters for reordering collection manga')
-  }
-
-  const command = values as ReorderMangaInCollectionCommand
-
-  if (typeof command.collectionId !== 'number') {
-    throw new TypeError('Missing or invalid collectionId for reordering collection manga')
-  }
-
-  if (!Array.isArray(command.mangaIds) || command.mangaIds.some((id) => typeof id !== 'string')) {
-    throw new TypeError('Missing or invalid mangaIds for reordering collection manga')
   }
 
   return true

@@ -44,7 +44,6 @@ import { CreateCollectionCommand } from '@shared/commands/repositories/collectio
 import { UpdateCollectionCommand } from '@shared/commands/repositories/collections/update-collection.command'
 import { AddToCollectionCommand } from '@shared/commands/repositories/collections/add-to-collection.command'
 import { RemoveFromCollectionCommand } from '@shared/commands/repositories/collections/remove-from-collection.command'
-import { ReorderMangaInCollectionCommand } from '@shared/commands/repositories/collections/reorder-manga-collection.command'
 import { RecordReadCommand } from '@shared/commands/repositories/history/record-read.command'
 import { GetLibraryMangaCommand } from '@shared/commands/repositories/manga/get-library-manga.command'
 import { UpsertMangaCommand } from '@shared/commands/repositories/manga/upsert-manga.command'
@@ -96,7 +95,6 @@ export type { CreateCollectionCommand } from '@shared/commands/repositories/coll
 export type { UpdateCollectionCommand } from '@shared/commands/repositories/collections/update-collection.command'
 export type { AddToCollectionCommand } from '@shared/commands/repositories/collections/add-to-collection.command'
 export type { RemoveFromCollectionCommand } from '@shared/commands/repositories/collections/remove-from-collection.command'
-export type { ReorderMangaInCollectionCommand } from '@shared/commands/repositories/collections/reorder-manga-collection.command'
 export type { RecordReadCommand } from '@shared/commands/repositories/history/record-read.command'
 export type { ReadHistoryContract } from '@shared/contracts/database/history/reading-history.query'
 export type { MihonImportContract } from '@shared/contracts/services/mihon/mihon-import.contract'
@@ -282,7 +280,6 @@ interface Collections {
   deleteCollection: (collectionId: number) => Promise<IpcResponse<void>>
   addToCollection: (command: AddToCollectionCommand) => Promise<IpcResponse<boolean>>
   removeFromCollection: (command: RemoveFromCollectionCommand[]) => Promise<IpcResponse<void>>
-  reorderMangaInCollection: (command: ReorderMangaInCollectionCommand) => Promise<IpcResponse<void>>
 }
 
 interface ReadHistory {

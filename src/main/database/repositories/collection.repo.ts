@@ -8,7 +8,6 @@ import { CreateCollectionCommand } from '@shared/commands/repositories/collectio
 import { UpdateCollectionCommand } from '@shared/commands/repositories/collections/update-collection.command'
 import { AddToCollectionCommand } from '@shared/commands/repositories/collections/add-to-collection.command'
 import { RemoveFromCollectionCommand } from '@shared/commands/repositories/collections/remove-from-collection.command'
-import { ReorderMangaInCollectionCommand } from '@shared/commands/repositories/collections/reorder-manga-collection.command'
 import { CollectionContract } from '@shared/contracts/database/collections/collection.contract'
 import { CollectionMetadataContract } from '@shared/contracts/database/collections/collection-metadata.contract'
 import { CollectionItemContract } from '@shared/contracts/database/collections/collection-item.contract'
@@ -190,22 +189,6 @@ class CollectionRepository {
       .all()
 
     return results.map(CollectionMapper.toCollectionQuery)
-  }
-
-  reorderMangaInCollection(command: ReorderMangaInCollectionCommand): void {
-    this.db.transaction((tx) => {
-      command.mangaIds.forEach((mangaId, index) => {
-        tx.update(collectionItems)
-          .set({ position: index })
-          .where(
-            and(
-              eq(collectionItems.collectionId, command.collectionId),
-              eq(collectionItems.mangaId, mangaId)
-            )
-          )
-          .run()
-      })
-    })
   }
 }
 export const collectionRepo = new CollectionRepository()

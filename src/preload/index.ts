@@ -14,7 +14,6 @@ import { CreateCollectionCommand } from '@shared/commands/repositories/collectio
 import { UpdateCollectionCommand } from '@shared/commands/repositories/collections/update-collection.command'
 import { AddToCollectionCommand } from '@shared/commands/repositories/collections/add-to-collection.command'
 import { RemoveFromCollectionCommand } from '@shared/commands/repositories/collections/remove-from-collection.command'
-import { ReorderMangaInCollectionCommand } from '@shared/commands/repositories/collections/reorder-manga-collection.command'
 import { RecordReadCommand } from '@shared/commands/repositories/history/record-read.command'
 import { DexreaderExportCommand } from '@shared/commands/services/dexreader-export.command'
 import { QueuedDownloads } from '@shared/types/downloads/queued-downloads.type'
@@ -293,9 +292,7 @@ const collections = {
   addToCollection: (command: AddToCollectionCommand) =>
     ipcRenderer.invoke('collections:add-manga', command),
   removeFromCollection: (command: RemoveFromCollectionCommand[]) =>
-    ipcRenderer.invoke('collections:remove-manga', command),
-  reorderMangaInCollection: (command: ReorderMangaInCollectionCommand) =>
-    ipcRenderer.invoke('collections:reorder', command)
+    ipcRenderer.invoke('collections:remove-manga', command)
 }
 
 const readHistory = {
