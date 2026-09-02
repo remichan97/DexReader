@@ -21,6 +21,7 @@ import { registerLoggerHandlers } from './handlers/logger.handler'
 import { registerSearchPresetsHandler } from './handlers/search-presets.handler'
 import { registerGatekeeperHandlers } from './handlers/gatekeeper.handler'
 import { registerShellHandlers } from './handlers/shell.handler'
+import { registerMenuStateHandler } from './handlers/menu.handler'
 
 /**
  * Register all IPC handlers
@@ -47,6 +48,7 @@ export function registerAllHandlers(imageProxy?: ImageProxy): void {
   registerSearchPresetsHandler()
   registerGatekeeperHandlers()
   registerShellHandlers()
+  registerMenuStateHandler()
 
   // File system handlers need window for dialogs
   // Get window reference when handlers are actually called

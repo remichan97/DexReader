@@ -1,8 +1,7 @@
 import { LocalImageProxy } from './api/proxy/local-image.proxy'
-import { app, ipcMain } from 'electron'
+import { app } from 'electron'
 import path from 'node:path'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
-import { updateMenuState } from './menu/index'
 import { secureFs } from './filesystem/secure-fs'
 import { getAppDataPath, getDownloadsPath } from './filesystem/path-validator'
 import { ImageProxy } from './api/proxy/image.proxy'
@@ -22,11 +21,6 @@ import { settingsManager } from './settings/settings-manager'
 const imageProxy = new ImageProxy()
 const localImageProxy = new LocalImageProxy()
 const isHardwareAccelerationEnabled = settingsManager.getByPath('system', 'useHardwareAcceleration')
-
-// Store menu state
-let menuState = {
-  isIncognito: false
-}
 
 async function initFileSystem(): Promise<void> {
   mainLog.info('[Main] Initialising secure filesystem...')
@@ -87,17 +81,6 @@ app.whenReady().then(async () => {
   // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
-  })
-
-  // IPC test
-  ipcMain.on('ping', () => mainLog.debug('[Main] pong'))
-
-  // IPC handler for menu state updates
-  ipcMain.on('update-menu-state', (_, state) => {
-    // Merge new state
-    menuState = { ...menuState, ...state }
-    // Rebuild menu with current state (handles both labels and enabled states)
-    updateMenuState(menuState)
   })
 
   await initFileSystem()
