@@ -3,6 +3,7 @@ import { databaseConnection } from './connection'
 import { secureFs } from '../filesystem/secure-fs'
 import { mainLog } from '../services/logging/main-logging.service'
 import { toError } from '@shared/utils/to-error.util'
+import i18next from '../i18n/i18n.config'
 
 const RELEASES_URL = 'https://github.com/remichan97/dexreader/releases'
 
@@ -42,13 +43,13 @@ export async function recoverFromDatabaseOpenFailure(error: unknown): Promise<bo
 
   const { response } = await dialog.showMessageBox({
     type: 'error',
-    title: 'Database problem',
-    message: "DexReader couldn't open its database.",
-    detail:
-      'The database file appears to be corrupted and can\'t be opened. Choosing "Back up & reset" ' +
-      'moves the broken file aside (it is not deleted) and starts a fresh, empty database. ' +
-      "Your library and reading history won't be restored automatically — re-import from a backup afterwards if you have one.",
-    buttons: ['Back up & reset', 'Quit'],
+    title: i18next.t('dialogs:databaseRecovery.openFailure.title'),
+    message: i18next.t('dialogs:databaseRecovery.openFailure.message'),
+    detail: i18next.t('dialogs:databaseRecovery.openFailure.detail'),
+    buttons: [
+      i18next.t('dialogs:databaseRecovery.openFailure.buttons.backupAndReset'),
+      i18next.t('dialogs:databaseRecovery.openFailure.buttons.quit')
+    ],
     defaultId: 0,
     cancelId: 1
   })
@@ -66,11 +67,10 @@ export async function recoverFromDatabaseOpenFailure(error: unknown): Promise<bo
     mainLog.error('[Database] Failed to reset database after open failure:', resetError)
     await dialog.showMessageBox({
       type: 'error',
-      title: 'Database problem',
-      message: "DexReader still couldn't recover its database.",
-      detail:
-        'Please reinstall the app, or contact support with the log files from the app data folder.',
-      buttons: ['Quit']
+      title: i18next.t('dialogs:databaseRecovery.recoveryFailure.title'),
+      message: i18next.t('dialogs:databaseRecovery.recoveryFailure.message'),
+      detail: i18next.t('dialogs:databaseRecovery.recoveryFailure.detail'),
+      buttons: [i18next.t('dialogs:databaseRecovery.openFailure.buttons.quit')]
     })
     return false
   }
@@ -90,13 +90,14 @@ export async function handleMigrationFailure(error: unknown): Promise<void> {
   for (;;) {
     const { response } = await dialog.showMessageBox({
       type: 'error',
-      title: 'Update problem',
-      message: "DexReader couldn't update its database for this version.",
-      detail:
-        'This is a bug in this release, not a problem with your data — your library and reading ' +
-        'history are untouched. Copy the diagnostic details to report it, and consider installing ' +
-        'the previous release until a fix is out.',
-      buttons: ['Copy diagnostic info', 'Previous releases', 'Quit'],
+      title: i18next.t('dialogs:databaseRecovery.migrationFailure.title'),
+      message: i18next.t('dialogs:databaseRecovery.migrationFailure.message'),
+      detail: i18next.t('dialogs:databaseRecovery.migrationFailure.detail'),
+      buttons: [
+        i18next.t('dialogs:databaseRecovery.migrationFailure.buttons.copyDiagnostics'),
+        i18next.t('dialogs:databaseRecovery.migrationFailure.buttons.previousReleases'),
+        i18next.t('dialogs:databaseRecovery.migrationFailure.buttons.quit')
+      ],
       defaultId: 2,
       cancelId: 2,
       noLink: true

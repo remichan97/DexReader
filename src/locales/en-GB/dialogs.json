@@ -518,5 +518,31 @@
       "restart": "Yes, Restart Now",
       "later": "Maybe Later"
     }
+  },
+  "databaseRecovery": {
+    "openFailure": {
+      "title": "Database problem",
+      "message": "DexReader couldn't open its database.",
+      "detail": "The database file appears to be corrupted and can't be opened. Choosing \"Back up & reset\" moves the broken file aside (it is not deleted) and starts a fresh, empty database. Your library and reading history won't be restored automatically — re-import from a backup afterwards if you have one.",
+      "buttons": {
+        "backupAndReset": "Back up & reset",
+        "quit": "Quit"
+      }
+    },
+    "recoveryFailure": {
+      "title": "Database problem",
+      "message": "DexReader still couldn't recover its database.",
+      "detail": "Please reinstall the app, or contact support with the log files from the app data folder."
+    },
+    "migrationFailure": {
+      "title": "Update problem",
+      "message": "DexReader couldn't update its database for this version.",
+      "detail": "This is a bug in this release, not a problem with your data — your library and reading history are untouched. Copy the diagnostic details to report it, and consider installing the previous release until a fix is out.",
+      "buttons": {
+        "copyDiagnostics": "Copy diagnostic info",
+        "previousReleases": "Previous releases",
+        "quit": "Quit"
+      }
+    }
   }
 }
