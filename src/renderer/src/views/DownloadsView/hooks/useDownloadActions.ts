@@ -150,7 +150,7 @@ export function useDownloadActions({
           cancelId: 0
         })
 
-        if (result.success && result.data.response === 1) {
+        if (result.success && result.data?.response === 1) {
           // Hide from view (soft delete)
           const response = await globalThis.downloads.deleteChapter({
             chapterId,
@@ -166,7 +166,7 @@ export function useDownloadActions({
               duration: 3000
             })
           }
-        } else if (result.success && result.data.response === 2) {
+        } else if (result.success && result.data?.response === 2) {
           // User chose to permanently delete, give them a final chance to back out
           const confirmed = await globalThis.api.showConfirmDialog(
             i18next.t('dialogs:confirmations.deleteChapterDownload.finalConfirmation.title'),

@@ -194,7 +194,7 @@ export function useReaderSettingsDomain(
     try {
       const result = await globalThis.reader.clearAllOverrides()
       if (!result.success) {
-        throw new Error(result.error || 'Failed to clear all overrides')
+        throw new Error(result.error?.message || 'Failed to clear all overrides')
       }
       setPerMangaOverrides([])
     } catch (error) {
@@ -270,7 +270,7 @@ export function useReaderSettingsDomain(
       })
 
       // User cancelled
-      if (!result.success || result.data.response === 1) return false
+      if (!result.success || !result.data || result.data.response === 1) return false
 
       if (result.data.checkboxChecked) {
         localStorage.setItem('suppressCacheWarnings', 'true')

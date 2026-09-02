@@ -100,7 +100,7 @@ export function useLibraryActions(params: UseLibraryActionsParams): UseLibraryAc
         title: t('mangaDetail:hero.deleteDownloads.failed', {
           defaultValue: 'Failed to delete downloads'
         }),
-        message: deleteResult.error || t('common:message.error.unknownError'),
+        message: deleteResult.error?.message || t('common:message.error.unknownError'),
         variant: 'error',
         duration: 3000
       })

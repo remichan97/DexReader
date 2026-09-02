@@ -188,10 +188,13 @@ export function ReaderView(): JSX.Element {
     const loadReaderSettings = async (): Promise<void> => {
       try {
         const settingsResult = await globalThis.settings.load()
-        if (settingsResult.success && settingsResult.data?.reader?.forceDarkMode !== undefined) {
+        const forceDarkMode = settingsResult.success
+          ? settingsResult.data?.reader?.forceDarkMode
+          : undefined
+        if (forceDarkMode !== undefined) {
           setState((prev) => ({
             ...prev,
-            forceReaderDarkMode: settingsResult.data.reader.forceDarkMode
+            forceReaderDarkMode: forceDarkMode
           }))
         }
       } catch (error) {

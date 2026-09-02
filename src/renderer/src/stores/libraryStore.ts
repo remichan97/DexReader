@@ -45,7 +45,7 @@ export const useLibraryStore = create<LibraryState>()((set, get) => ({
       if (result.success && result.data) {
         set({ favourites: result.data, loading: false })
       } else {
-        set({ error: result.error || 'Failed to load library', loading: false })
+        set({ error: result.error?.message || 'Failed to load library', loading: false })
       }
     } catch (error) {
       rendererLog.error('[LibraryStore] Error loading favourites:', error)
@@ -62,7 +62,7 @@ export const useLibraryStore = create<LibraryState>()((set, get) => ({
         await get().loadFavourites()
         return result.data ?? false
       } else {
-        set({ error: result.error || 'Failed to toggle favourite' })
+        set({ error: result.error?.message || 'Failed to toggle favourite' })
         return false
       }
     } catch (error) {

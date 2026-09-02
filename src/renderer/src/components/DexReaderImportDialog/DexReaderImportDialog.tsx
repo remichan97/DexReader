@@ -49,7 +49,7 @@ export function DexReaderImportDialog({
 
       const result = await globalThis.dexreader.importData(filePath)
 
-      if (!result.success) {
+      if (!result.success || !result.data) {
         throw new Error(
           result.error?.message ||
             t('dialogs:dexreaderImport.errors.importFailed', { message: 'Unknown error' })

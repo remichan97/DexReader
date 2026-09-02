@@ -27,7 +27,7 @@ export function useStartupRoute(): string | null {
     async function loadStartupPreference(): Promise<void> {
       try {
         const settings = await globalThis.settings.load()
-        if (settings.success) {
+        if (settings.success && settings.data) {
           setStartupRoute(mapStartupPageToRoute(settings.data.appearance.startupPage))
           return
         }

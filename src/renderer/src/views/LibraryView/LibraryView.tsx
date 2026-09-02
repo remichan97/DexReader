@@ -126,7 +126,7 @@ export function LibraryView(): JSX.Element {
         if (response.success && response.data) {
           setMangaList(response.data)
         } else {
-          setError(response.error || 'Failed to load library')
+          setError(response.error?.message || 'Failed to load library')
           setMangaList([])
         }
       } catch (err) {

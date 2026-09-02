@@ -12,7 +12,7 @@ export function useStartupLanguage(): void {
     async function loadLanguagePreference(): Promise<void> {
       try {
         const settings = await globalThis.settings.load()
-        if (settings.success && settings.data.language?.displayLanguage) {
+        if (settings.success && settings.data?.language?.displayLanguage) {
           const userLanguage = settings.data.language.displayLanguage
           await i18next.changeLanguage(userLanguage)
           rendererLog.info(`[useStartupLanguage] Display language set to: ${userLanguage}`)
