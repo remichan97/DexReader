@@ -163,13 +163,21 @@ export function getUserFriendlyError(error: Error | string): UserFriendlyError {
     }
   }
 
-  // Then try to match by error message
+  // Then try to match by error message. ERROR_CATALOG's last entry is a catch-all
+  // (pattern: /.*/), so find() is guaranteed to match something - genericFallback only
+  // exists to give TypeScript a non-undefined value to fall back to if that invariant
+  // is ever violated.
+  const genericFallback = ERROR_CATALOG.at(-1)
+  if (!genericFallback) {
+    throw new Error('ERROR_CATALOG must contain at least one entry')
+  }
+
   const match =
     ERROR_CATALOG.find((p) =>
       typeof p.pattern === 'string'
         ? errorMessage.includes(p.pattern)
         : p.pattern.test(errorMessage)
-    ) || ERROR_CATALOG.at(-1)!
+    ) ?? genericFallback
 
   return { ...match, technical: errorMessage }
 }

@@ -1,14 +1,14 @@
 import { PublicationStatus } from '../../api/enums'
-import { AddToCollectionCommand } from '../../database/commands/collections/add-to-collection.command'
-import { UpsertMangaCommand } from '../../database/commands/manga/upsert-manga.command'
+import { AddToCollectionCommand } from '@shared/commands/repositories/collections/add-to-collection.command'
+import { UpsertMangaCommand } from '@shared/commands/repositories/manga/upsert-manga.command'
 import { collectionRepo } from '../../database/repositories/collection.repo'
-import { TagList } from '../../api/constants/tag-list.constant'
+import { TagList } from '@shared/constants/mangadex/tag-list.constant'
 import { BackupCategory } from '../types/mihon/backup-category.type'
 import { BackupManga } from '../types/mihon/backup-manga.type'
 import { BackupChapter } from '../types/mihon/backup-chapter.type'
-import { SaveProgressCommand } from '../../database/commands/progress/save-progress.command'
+import { SaveProgressCommand } from '@shared/commands/repositories/progress/save-progress.command'
 import { BackupHistory } from '../types/mihon/backup-history.type'
-import { SaveChapterCommand } from '../../database/commands/progress/save-chapter.command'
+import { SaveChapterCommand } from '@shared/commands/repositories/progress/save-chapter.command'
 import { unixTimestampToDate } from '../../utils/timestamps.util'
 
 const MANGADEX_URL_PATTERN = /\/(?:manga|title)\/([a-f0-9-]{36})(?:\/|$)/i
@@ -73,9 +73,16 @@ class MihonBackupHelper {
           .filter((id): id is string => !!id) // Remove undefined/null values
       : []
 
+    const mangaId = this.extractIdFromUrl(manga.url, 'manga')
+    if (!mangaId) {
+      // Should be unreachable - the caller already extracts and validates the manga
+      // ID before calling this method - but fail loudly rather than silently continuing.
+      throw new Error(`Unable to extract manga ID from URL: ${manga.url}`)
+    }
+
     // Create manga entry
     return {
-      mangaId: this.extractIdFromUrl(manga.url, 'manga')!, // We already validated this before calling the method
+      mangaId,
       title: manga.title || 'Unknown Title',
       authors: manga.author ? [manga.author] : [],
       artists: manga.artist ? [manga.artist] : [],
@@ -160,16 +167,15 @@ class MihonBackupHelper {
         continue
       }
 
+      const publishAtTimestamp = ch.dateUpload || ch.dateFetch
+
       chapterCommands.push({
         chapterId,
         mangaId,
         title: ch.name || 'Untitled Chapter',
         chapterNumber: ch.chapterNumber?.toString() || 'Unknown',
         language: 'en', // Assuming English, as Mihon backup does not store language info
-        publishAt:
-          ch.dateUpload || ch.dateFetch
-            ? unixTimestampToDate(ch.dateUpload || ch.dateFetch!)
-            : new Date(),
+        publishAt: publishAtTimestamp ? unixTimestampToDate(publishAtTimestamp) : new Date(),
         scanlationGroup: ch.scanlator || 'Unknown',
         externalUrl: ch.url
       })

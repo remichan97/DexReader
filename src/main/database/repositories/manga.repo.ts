@@ -1,14 +1,15 @@
 import { and, eq, inArray, like, lt, SQL, sql, notExists, or, isNotNull } from 'drizzle-orm'
-import { UpsertMangaCommand } from '../commands/manga/upsert-manga.command'
 import { databaseConnection } from '../connection'
 import { chapterDownloads, collectionItems, manga } from '../schemas'
-import { GetLibraryMangaCommand } from '../commands/manga/get-library-manga.command'
-import { MangaWithMetadata } from '../queries/manga/manga-with-metadata.query'
 import { MangaMapper } from '../mappers/manga.mapper'
-import { SearchMangaCommand } from '../commands/manga/search-manga.command'
-import { DownloadStatus } from '../enums/download-status.enum'
-import { MangaCacheStatsQuery } from '../queries/manga/manga-cache-stats.query'
-import { executeBatchOperations } from '../utils/batch-operations.util'
+import { DbExecutor, executeBatchOperations } from '../utils/batch-operations.util'
+import { UpsertMangaCommand } from '@shared/commands/repositories/manga/upsert-manga.command'
+import { GetLibraryMangaCommand } from '@shared/commands/repositories/manga/get-library-manga.command'
+import { SearchMangaCommand } from '@shared/commands/repositories/manga/search-manga.command'
+import { MangaWithMetadataContract } from '@shared/contracts/database/manga/manga-with-metadata.contract'
+import { MangaCacheStatsContract } from '@shared/contracts/database/manga/manga-cache-stats.contract'
+import { DownloadStatus } from '@shared/enums/repositories/download-status.enum'
+import { AnySQLiteSelectQueryBuilder, SQLiteSelectDynamic } from 'drizzle-orm/sqlite-core'
 
 type MangaRow = typeof manga.$inferSelect
 
@@ -17,13 +18,13 @@ class MangaRepository {
     return databaseConnection.getDb()
   }
 
-  batchUpsertManga(mangaData: UpsertMangaCommand[]): void {
+  batchUpsertManga(mangaData: UpsertMangaCommand[], executor: DbExecutor = this.db): void {
     const now: Date = new Date()
 
     executeBatchOperations({
       commands: mangaData,
-      db: this.db,
-      singleOperation: (data) => this.upsertManga(data),
+      db: executor,
+      singleOperation: (data) => this.upsertManga(data, executor),
       batchOperation: (tx, data) => {
         tx.insert(manga)
           .values({
@@ -45,10 +46,10 @@ class MangaRepository {
     })
   }
 
-  upsertManga(mangaData: UpsertMangaCommand): void {
+  upsertManga(mangaData: UpsertMangaCommand, executor: DbExecutor = this.db): void {
     const now: Date = new Date()
 
-    this.db
+    executor
       .insert(manga)
       .values({
         ...mangaData,
@@ -133,24 +134,22 @@ class MangaRepository {
     return newStatus
   }
 
-  getLibraryManga(options?: GetLibraryMangaCommand): MangaWithMetadata[] {
+  getLibraryManga(options?: GetLibraryMangaCommand): MangaWithMetadataContract[] {
     // If no option is provided, return all favourited manga with their download status - this is the default library view without filters
     if (!options) {
-      const result = this.db
-        .select({
-          manga: manga,
-          downloadCount: sql<number>`COUNT(CASE WHEN ${chapterDownloads.status} = ${DownloadStatus.Completed} THEN 1 END)`
-        })
-        .from(manga)
-        .leftJoin(chapterDownloads, eq(manga.mangaId, chapterDownloads.mangaId))
-        .where(eq(manga.isFavourite, true))
-        .groupBy(manga.mangaId)
-        .all()
-      return result.map((row) => ({
-        ...MangaMapper.toMangaWithMetadata(row.manga),
-        hasDownloads: row.downloadCount > 0,
-        downloadedChapterCount: row.downloadCount
-      }))
+      const query = this.baseMangaJoin(
+        this.db
+          .select({
+            manga: manga,
+            downloadCount: sql<number>`COUNT(CASE WHEN ${chapterDownloads.status} = ${DownloadStatus.Completed} THEN 1 END)`
+          })
+          .from(manga)
+          .where(eq(manga.isFavourite, true))
+          .groupBy(manga.mangaId)
+          .$dynamic()
+      )
+      const result = query.all()
+      return result.map((row) => this.toMangaWithMetadata(row))
     }
 
     // Now build query based on provided filters
@@ -192,50 +191,42 @@ class MangaRepository {
       condition.push(eq(manga.isFavourite, true))
     }
 
-    const query = this.db
-      .select({
-        manga: manga,
-        downloadCount: sql<number>`COUNT(CASE WHEN ${chapterDownloads.status} = ${DownloadStatus.Completed} THEN 1 END)`
-      })
-      .from(manga)
-      .leftJoin(chapterDownloads, eq(manga.mangaId, chapterDownloads.mangaId))
-      .where(and(...condition))
-      .groupBy(manga.mangaId)
-      .$dynamic()
-      .limit(options.limit ?? 100)
-      .offset(options.offset ?? 0)
-      .all()
+    const query = this.baseMangaJoin(
+      this.db
+        .select({
+          manga: manga,
+          downloadCount: sql<number>`COUNT(CASE WHEN ${chapterDownloads.status} = ${DownloadStatus.Completed} THEN 1 END)`
+        })
+        .from(manga)
+        .where(and(...condition))
+        .groupBy(manga.mangaId)
+        .$dynamic()
+        .limit(options.limit ?? 100)
+        .offset(options.offset ?? 0)
+    )
 
-    return query.map((row) => ({
-      ...MangaMapper.toMangaWithMetadata(row.manga),
-      hasDownloads: row.downloadCount > 0,
-      downloadedChapterCount: row.downloadCount
-    }))
+    return query.all().map((row) => this.toMangaWithMetadata(row))
   }
 
-  getDownloadedManga(): MangaWithMetadata[] {
-    const results = this.db
-      .select({
-        manga: manga,
-        downloadCount: sql<number>`COUNT(CASE WHEN ${chapterDownloads.status} = ${DownloadStatus.Completed} THEN 1 END)`
-      })
-      .from(manga)
-      .innerJoin(chapterDownloads, eq(manga.mangaId, chapterDownloads.mangaId))
-      .where(
-        eq(chapterDownloads.status, DownloadStatus.Completed) // Only completed downloads (isHidden is for DownloadView only)
-      )
-      .groupBy(manga.mangaId) // Get unique manga (one manga can have multiple downloaded chapters)
-      .all()
+  getDownloadedManga(): MangaWithMetadataContract[] {
+    // Filtering on status = Completed after the (shared) left join excludes non-matching rows
+    // the same way an inner join would - all results have downloads by definition
+    const query = this.baseMangaJoin(
+      this.db
+        .select({
+          manga: manga,
+          downloadCount: sql<number>`COUNT(CASE WHEN ${chapterDownloads.status} = ${DownloadStatus.Completed} THEN 1 END)`
+        })
+        .from(manga)
+        .where(eq(chapterDownloads.status, DownloadStatus.Completed))
+        .groupBy(manga.mangaId) // Get unique manga (one manga can have multiple downloaded chapters)
+        .$dynamic()
+    )
 
-    // All results have downloads by definition (innerJoin + where clause)
-    return results.map((row) => ({
-      ...MangaMapper.toMangaWithMetadata(row.manga),
-      hasDownloads: true,
-      downloadedChapterCount: row.downloadCount
-    }))
+    return query.all().map((row) => this.toMangaWithMetadata(row))
   }
 
-  getLibraryMangaByCustomCondition(command: SearchMangaCommand): MangaWithMetadata[] {
+  getLibraryMangaByCustomCondition(command: SearchMangaCommand): MangaWithMetadataContract[] {
     const condition: (SQL | undefined)[] = []
     // Only return explicitly favourited manga (library = curated bookmarks)
     condition.push(eq(manga.isFavourite, true))
@@ -260,53 +251,53 @@ class MangaRepository {
       condition.push(like(manga.tags, `%${command.tag}%`))
     }
 
-    const query = this.db
-      .select({
-        manga: manga,
-        downloadCount: sql<number>`COUNT(CASE WHEN ${chapterDownloads.status} = ${DownloadStatus.Completed} THEN 1 END)`
-      })
-      .from(manga)
-      .leftJoin(chapterDownloads, eq(manga.mangaId, chapterDownloads.mangaId))
-      .where(and(...condition))
-      .groupBy(manga.mangaId)
-      .$dynamic()
-      .limit(command.limit ?? 100)
-      .offset(command.offset ?? 0)
-      .all()
+    const query = this.baseMangaJoin(
+      this.db
+        .select({
+          manga: manga,
+          downloadCount: sql<number>`COUNT(CASE WHEN ${chapterDownloads.status} = ${DownloadStatus.Completed} THEN 1 END)`
+        })
+        .from(manga)
+        .where(and(...condition))
+        .groupBy(manga.mangaId)
+        .$dynamic()
+        .limit(command.limit ?? 100)
+        .offset(command.offset ?? 0)
+    )
 
-    return query.map((row) => ({
-      ...MangaMapper.toMangaWithMetadata(row.manga),
-      hasDownloads: row.downloadCount > 0,
-      downloadedChapterCount: row.downloadCount
-    }))
+    return query.all().map((row) => this.toMangaWithMetadata(row))
   }
 
-  getMangaById(mangaId: string): MangaWithMetadata | undefined {
-    const result = this.db
-      .select({
-        manga: manga,
-        downloadCount: sql<number>`COUNT(CASE WHEN ${chapterDownloads.status} = ${DownloadStatus.Completed} THEN 1 END)`
-      })
-      .from(manga)
-      .leftJoin(chapterDownloads, eq(manga.mangaId, chapterDownloads.mangaId))
-      .where(eq(manga.mangaId, mangaId))
-      .groupBy(manga.mangaId)
-      .get()
+  getMangaById(mangaId: string): MangaWithMetadataContract | undefined {
+    const query = this.baseMangaJoin(
+      this.db
+        .select({
+          manga: manga,
+          downloadCount: sql<number>`COUNT(CASE WHEN ${chapterDownloads.status} = ${DownloadStatus.Completed} THEN 1 END)`
+        })
+        .from(manga)
+        .where(eq(manga.mangaId, mangaId))
+        .groupBy(manga.mangaId)
+        .$dynamic()
+    )
+
+    const result = query.get()
 
     if (!result) {
       return undefined
     }
 
-    return {
-      ...MangaMapper.toMangaWithMetadata(result.manga),
-      hasDownloads: result.downloadCount > 0,
-      downloadedChapterCount: result.downloadCount
-    }
+    return this.toMangaWithMetadata(result)
   }
 
-  statsMangaTable(): MangaCacheStatsQuery {
+  statsMangaTable(): MangaCacheStatsContract {
     const thresholdDate = new Date()
     thresholdDate.setDate(thresholdDate.getDate() - 90)
+    // last_accessed_at is stored as epoch seconds (drizzle's `timestamp` mode column mapping) -
+    // raw sql template interpolation doesn't go through that column-aware conversion the way
+    // the typed query builder does, so the threshold must be pre-converted to match, not passed
+    // as a Date or ISO string
+    const thresholdEpochSeconds = Math.floor(thresholdDate.getTime() / 1000)
 
     // Single query with conditional aggregation - most efficient approach
     // Uses LEFT JOIN to detect downloads, then aggregates with CASE expressions
@@ -316,7 +307,7 @@ class MangaRepository {
         totalFavouriteManga: sql<number>`COUNT(DISTINCT CASE WHEN ${manga.isFavourite} = 1 THEN ${manga.mangaId} END)`,
         downloadedManga: sql<number>`COUNT(DISTINCT CASE WHEN ${chapterDownloads.status} = ${DownloadStatus.Completed} THEN ${manga.mangaId} END)`,
         browsingCache: sql<number>`COUNT(DISTINCT CASE WHEN ${manga.isFavourite} = 0 AND ${chapterDownloads.status} IS NULL THEN ${manga.mangaId} END)`,
-        oldCache: sql<number>`COUNT(DISTINCT CASE WHEN ${manga.isFavourite} = 0 AND ${chapterDownloads.status} IS NULL AND ${manga.lastAccessedAt} < ${thresholdDate.toISOString()} THEN ${manga.mangaId} END)`
+        oldCache: sql<number>`COUNT(DISTINCT CASE WHEN ${manga.isFavourite} = 0 AND ${chapterDownloads.status} IS NULL AND ${manga.lastAccessedAt} < ${thresholdEpochSeconds} THEN ${manga.mangaId} END)`
       })
       .from(manga)
       .leftJoin(
@@ -382,6 +373,21 @@ class MangaRepository {
   // Unconditionally get all manga rows for when we need to export reader settings and progress
   getAllManga(): MangaRow[] {
     return this.db.select().from(manga).all()
+  }
+
+  private baseMangaJoin<T extends AnySQLiteSelectQueryBuilder>(qb: T): SQLiteSelectDynamic<T> {
+    return qb.leftJoin(chapterDownloads, eq(manga.mangaId, chapterDownloads.mangaId))
+  }
+
+  private toMangaWithMetadata(row: {
+    manga: MangaRow
+    downloadCount: number
+  }): MangaWithMetadataContract {
+    return {
+      ...MangaMapper.toMangaWithMetadata(row.manga),
+      hasDownloads: row.downloadCount > 0,
+      downloadedChapterCount: row.downloadCount
+    }
   }
 }
 

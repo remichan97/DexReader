@@ -2,13 +2,16 @@ import { sql } from 'drizzle-orm/sql'
 import { databaseConnection } from '../connection'
 import {
   chapter,
+  chapterDownloads,
   chapterProgress,
   collectionItems,
   collections,
   manga,
   mangaProgress,
   mangaReaderOverrides,
-  readingStatistics
+  readHistory,
+  readingStatistics,
+  searchPresets
 } from '../schemas'
 import path from 'node:path'
 import fs from 'node:fs/promises'
@@ -35,24 +38,21 @@ class CleanUpRepository {
 
   clearAllData(): void {
     this.db().transaction((tx) => {
-      // Temporarily disable foreign key checks
-      tx.run(sql`PRAGMA foreign_keys = OFF`)
-
-      // Now clear all tables, one by one
-      tx.delete(collectionItems).run()
-      tx.delete(collections).run()
+      // Clear all tables, one by one
+      tx.delete(chapterDownloads).run()
       tx.delete(chapterProgress).run()
-      tx.delete(mangaProgress).run()
+      tx.delete(collectionItems).run()
+      tx.delete(readHistory).run()
+      tx.delete(mangaReaderOverrides).run()
       tx.delete(chapter).run()
+      tx.delete(mangaProgress).run()
+      tx.delete(collections).run()
       tx.delete(manga).run()
       tx.delete(readingStatistics).run()
-      tx.delete(mangaReaderOverrides).run()
+      tx.delete(searchPresets).run()
 
       //Reset identity counters for autoincrement primary keys
       tx.run(sql`DELETE FROM sqlite_sequence`)
-
-      // Re-enable foreign key checks
-      tx.run(sql`PRAGMA foreign_keys = ON`)
     })
     // Vacuum the database to reclaim space after deletions
     this.db().run(sql`VACUUM`)

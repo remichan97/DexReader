@@ -72,8 +72,10 @@ export function groupDownloadsByManga(downloads: Download[]): MangaDownloadGroup
   const grouped = new Map<string, MangaDownloadGroup>()
 
   downloads.forEach((download) => {
-    if (!grouped.has(download.mangaId)) {
-      grouped.set(download.mangaId, {
+    const existingGroup = grouped.get(download.mangaId)
+    const group =
+      existingGroup ??
+      ({
         mangaId: download.mangaId,
         mangaTitle: download.mangaTitle,
         downloads: [],
@@ -83,10 +85,12 @@ export function groupDownloadsByManga(downloads: Download[]): MangaDownloadGroup
         activeChapters: 0,
         totalStorageSize: 0,
         isExpanded: true // Expand all by default
-      })
+      } satisfies MangaDownloadGroup)
+
+    if (!existingGroup) {
+      grouped.set(download.mangaId, group)
     }
 
-    const group = grouped.get(download.mangaId)!
     group.downloads.push(download)
     group.totalChapters++
     group.totalStorageSize += download.storageSize

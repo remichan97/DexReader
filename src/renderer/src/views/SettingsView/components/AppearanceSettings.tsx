@@ -73,9 +73,6 @@ export function AppearanceSettings({
         }),
         type: 'error',
         buttons: [t('common:button.ok')],
-        label: t('appearance.configureDateFallbackTitle', {
-          defaultValue: 'Unable to Open system settings'
-        }),
         noLink: true
       })
     }

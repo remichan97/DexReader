@@ -294,8 +294,8 @@ export function FilterPanel({
               value={filters.includedTagsMode}
               onChange={handleTagModeChange}
               options={[
-                { value: IncludedTagsMode.And, label: t('filter.matchAllTags') },
-                { value: IncludedTagsMode.Or, label: t('filter.matchAnyTag') }
+                { value: IncludedTagsMode.AND, label: t('filter.matchAllTags') },
+                { value: IncludedTagsMode.OR, label: t('filter.matchAnyTag') }
               ]}
             />
           </div>

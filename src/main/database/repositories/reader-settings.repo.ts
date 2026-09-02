@@ -1,11 +1,11 @@
 import { eq } from 'drizzle-orm'
 import { databaseConnection } from '../connection'
 import { manga, mangaReaderOverrides } from '../schemas'
-import { MangaReadingSettings } from '../../settings/entities/reading-settings.entity'
-import { UpdateMangaOverrideCommand } from '../commands/manga/update-manga-override.command'
-import { MangaOverride } from '../queries/manga/manga-override.query'
+import { MangaReadingSettings } from '@shared/contracts/settings/reading-settings.contract'
 import { MangaMapper } from '../mappers/manga.mapper'
 import { executeBatchOperations } from '../utils/batch-operations.util'
+import { UpdateMangaOverrideCommand } from '@shared/commands/repositories/manga/update-manga-override.command'
+import { MangaOverrideContract } from '@shared/contracts/database/manga/manga-override.contract'
 
 class ReaderSettingsRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
@@ -38,7 +38,7 @@ class ReaderSettingsRepository {
    * Get all manga reader overrides with manga metadata (title, coverUrl)
    * Used for Settings page display and export functionality
    */
-  getAllOverridesWithMetadata(): MangaOverride[] {
+  getAllOverridesWithMetadata(): MangaOverrideContract[] {
     const results = this.db
       .select({
         mangaId: mangaReaderOverrides.mangaId,

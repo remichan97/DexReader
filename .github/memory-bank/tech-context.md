@@ -258,8 +258,9 @@ All IPC handlers use `wrapIpcHandler` for consistent error handling:
 
 1. **appStore.ts** - Theme, UI state, fullscreen
 2. **toastStore.ts** - Global notifications (ephemeral)
-3. **userPreferencesStore.ts** - Reader preferences, download settings, UI preferences
-4. **libraryStore.ts** - Bookmarks and collections
+3. **libraryStore.ts** - Bookmarks and collections
+
+> Note: a `userPreferencesStore.ts` existed pre-`electron-store` handoff and was removed as dead code on 2 September 2026 (zero real consumers) — all reader/download/UI/notification preferences now live in `src/shared/types/settings/*`, persisted via `electron-store`.
 
 **Persistence Strategy**:
 

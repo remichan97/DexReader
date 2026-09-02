@@ -6,22 +6,12 @@
  */
 
 import { create } from 'zustand'
-import type { MangaWithMetadata } from '../../../preload/index.d'
+import type { MangaWithMetadataContract } from '../../../preload/window.types'
 import { rendererLog } from '@renderer/services/logging.service'
-
-export interface LibraryManga {
-  mangaId: string
-  title: string
-  coverUrl?: string
-  authors: string[]
-  status: string
-  lastChapter?: string
-  hasNewChapters: boolean
-}
 
 interface LibraryState {
   // Data
-  favourites: MangaWithMetadata[]
+  favourites: MangaWithMetadataContract[]
   loading: boolean
   error: string | null
 
@@ -45,7 +35,7 @@ export const useLibraryStore = create<LibraryState>()((set, get) => ({
       if (result.success && result.data) {
         set({ favourites: result.data, loading: false })
       } else {
-        set({ error: result.error || 'Failed to load library', loading: false })
+        set({ error: result.error?.message || 'Failed to load library', loading: false })
       }
     } catch (error) {
       rendererLog.error('[LibraryStore] Error loading favourites:', error)
@@ -62,7 +52,7 @@ export const useLibraryStore = create<LibraryState>()((set, get) => ({
         await get().loadFavourites()
         return result.data ?? false
       } else {
-        set({ error: result.error || 'Failed to toggle favourite' })
+        set({ error: result.error?.message || 'Failed to toggle favourite' })
         return false
       }
     } catch (error) {

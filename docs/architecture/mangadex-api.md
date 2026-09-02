@@ -630,7 +630,7 @@ contextBridge.exposeInMainWorld('mangadex', mangadexApi)
 
 ### TypeScript Support
 
-**File**: `src/preload/index.d.ts`
+**File**: `src/preload/window.types.ts`
 
 ```typescript
 interface MangaDexApi {

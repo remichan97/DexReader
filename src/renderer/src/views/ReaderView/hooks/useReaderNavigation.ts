@@ -1,8 +1,9 @@
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { ReadingMode } from '@renderer/components/ReadingModeSelector'
+import type { ChapterContract } from '../../../../../preload/window.types'
 
-type ChapterEntity = Awaited<ReturnType<Window['mangadex']['getMangaFeed']>>['data'][number]
+type ChapterEntity = ChapterContract
 
 interface UseReaderNavigationProps {
   mangaId: string | null
@@ -82,8 +83,8 @@ export function useReaderNavigation(
         const chapter = nextChapter
         navigate(`/reader/${mangaId}/${chapter.id}`, {
           state: {
-            chapterNumber: chapter.attributes.chapter,
-            chapterTitle: chapter.attributes.title,
+            chapterNumber: chapter.chapter,
+            chapterTitle: chapter.title,
             mangaTitle,
             chapters,
             startAtLastPage: false
@@ -98,8 +99,8 @@ export function useReaderNavigation(
       const chapter = nextChapter
       navigate(`/reader/${mangaId}/${chapter.id}`, {
         state: {
-          chapterNumber: chapter.attributes.chapter,
-          chapterTitle: chapter.attributes.title,
+          chapterNumber: chapter.chapter,
+          chapterTitle: chapter.title,
           mangaTitle,
           chapters,
           startAtLastPage: false
@@ -134,8 +135,8 @@ export function useReaderNavigation(
         const chapter = previousChapter
         navigate(`/reader/${mangaId}/${chapter.id}`, {
           state: {
-            chapterNumber: chapter.attributes.chapter,
-            chapterTitle: chapter.attributes.title,
+            chapterNumber: chapter.chapter,
+            chapterTitle: chapter.title,
             mangaTitle,
             chapters,
             startAtLastPage: true
@@ -150,8 +151,8 @@ export function useReaderNavigation(
       const chapter = previousChapter
       navigate(`/reader/${mangaId}/${chapter.id}`, {
         state: {
-          chapterNumber: chapter.attributes.chapter,
-          chapterTitle: chapter.attributes.title,
+          chapterNumber: chapter.chapter,
+          chapterTitle: chapter.title,
           mangaTitle,
           chapters,
           startAtLastPage: true
@@ -193,8 +194,8 @@ export function useReaderNavigation(
       const chapter = previousChapter
       navigate(`/reader/${mangaId}/${chapter.id}`, {
         state: {
-          chapterNumber: chapter.attributes.chapter,
-          chapterTitle: chapter.attributes.title,
+          chapterNumber: chapter.chapter,
+          chapterTitle: chapter.title,
           mangaTitle,
           chapters
         }
@@ -210,8 +211,8 @@ export function useReaderNavigation(
       const chapter = nextChapter
       navigate(`/reader/${mangaId}/${chapter.id}`, {
         state: {
-          chapterNumber: chapter.attributes.chapter,
-          chapterTitle: chapter.attributes.title,
+          chapterNumber: chapter.chapter,
+          chapterTitle: chapter.title,
           mangaTitle,
           chapters
         }
@@ -244,8 +245,8 @@ export function useReaderNavigation(
 
       navigate(`/reader/${mangaId}/${chapterId}`, {
         state: {
-          chapterNumber: selectedChapter.attributes.chapter,
-          chapterTitle: selectedChapter.attributes.title,
+          chapterNumber: selectedChapter.chapter,
+          chapterTitle: selectedChapter.title,
           mangaTitle,
           chapters
         }

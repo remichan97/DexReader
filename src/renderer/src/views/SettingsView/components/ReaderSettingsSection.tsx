@@ -5,7 +5,7 @@ import { Select, type SelectOption } from '@renderer/components/Select'
 import { RadioGroup, Radio } from '@renderer/components/Radio'
 import { Switch } from '@renderer/components/Switch'
 import { useTranslation } from '@renderer/hooks/useTranslation'
-import type { MangaReadingSettings } from '../../../../../preload/index.d'
+import type { MangaReadingSettings } from '../../../../../preload/window.types'
 import './ReaderSettingsSection.css'
 
 interface PerMangaOverride {

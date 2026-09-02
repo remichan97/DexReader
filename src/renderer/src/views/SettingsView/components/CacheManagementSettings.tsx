@@ -4,7 +4,7 @@ import { Select, type SelectOption } from '@renderer/components/Select'
 import { Button } from '@renderer/components/Button'
 import { useToastStore } from '@renderer/stores'
 import { formatBytes } from '@renderer/utils/formatBytes'
-import type { MangaCacheStatsQuery } from '../../../../../preload/index.d'
+import type { MangaCacheStatsContract } from '../../../../../preload/window.types'
 import './CacheManagementSettings.css'
 import { rendererLog } from '@renderer/services/logging.service'
 import { useTranslation } from '@renderer/hooks/useTranslation'
@@ -19,7 +19,7 @@ export function CacheManagementSettings({
   onCoverCacheLimitChange
 }: CacheManagementSettingsProps): JSX.Element {
   const { t } = useTranslation(['settings', 'dialogs', 'common', 'errors'])
-  const [cacheStats, setCacheStats] = useState<MangaCacheStatsQuery | null>(null)
+  const [cacheStats, setCacheStats] = useState<MangaCacheStatsContract | null>(null)
   const [coverCacheSize, setCoverCacheSize] = useState<number>(0)
   const [coverCacheCount, setCoverCacheCount] = useState<number>(0)
   const [coverCachePath, setCoverCachePath] = useState<string>('')

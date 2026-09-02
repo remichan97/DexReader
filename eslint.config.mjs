@@ -25,7 +25,24 @@ export default defineConfig(
     },
     rules: {
       ...eslintPluginReactHooks.configs.recommended.rules,
-      ...eslintPluginReactRefresh.configs.vite.rules
+      ...eslintPluginReactRefresh.configs.vite.rules,
+      '@typescript-eslint/no-non-null-assertion': 'error'
+    }
+  },
+  {
+    files: ['src/preload/**/*.ts', 'src/renderer/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/main/**', '**/main'],
+              message: 'Do not import from src/main. Move shared code to src/shared instead.'
+            }
+          ]
+        }
+      ]
     }
   },
   eslintConfigPrettier

@@ -2,9 +2,9 @@ import { ContentRating } from '../enums/content-rating.enum'
 import { PublicationDemographic } from '../enums/demographic.enum'
 import { PublicationStatus } from '../enums/publication-status.enum'
 import { MangaEntityType } from '../enums/manga-entity-type.enum'
-import { LocalizedString } from '../shared/common-types.shared'
 import { Tag } from './tag-entity'
 import { Relationship } from './relationship.entity'
+import { LocalizedString } from '@shared/types/strings/localised-string.type'
 
 /**
  * Manga entity representation

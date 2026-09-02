@@ -1,7 +1,7 @@
-import { index, integer, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { index, integer, primaryKey, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
 import { chapter } from './chapter.schema'
 import { manga } from './manga.schema'
-import { DownloadStatus } from '../enums/download-status.enum'
+import { DownloadStatus } from '@shared/enums/repositories/download-status.enum'
 import { ImageQuality } from '../../api/enums'
 import { sql } from 'drizzle-orm/sql'
 
@@ -34,6 +34,7 @@ export const chapterDownloads = sqliteTable(
   },
   (table) => [
     primaryKey({ name: 'pk_chapter_downloads', columns: [table.chapterId, table.mangaId] }),
+    unique('uq_chapter_downloads_chapter_id').on(table.chapterId),
     index('idx_chapter_manga_downloads').on(table.mangaId),
     index('idx_chapter_status_downloads').on(table.status)
   ]

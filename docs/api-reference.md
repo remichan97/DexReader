@@ -1476,26 +1476,6 @@ Removes manga from collection(s).
 await window.api.removeMangaFromCollection([{ collectionId: 5, mangaId: 'xyz789...' }])
 ```
 
-#### `window.api.reorderCollectionManga(command)`
-
-Reorders manga in collection.
-
-**Parameters:**
-
-```typescript
-{
-  collectionId: number
-  mangaIds: string[]  // New order
-}
-```
-
-```typescript
-await window.api.reorderCollectionManga({
-  collectionId: 5,
-  mangaIds: ['id3...', 'id1...', 'id2...']
-})
-```
-
 ---
 
 ### Reading History

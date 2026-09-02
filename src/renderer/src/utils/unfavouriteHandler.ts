@@ -65,6 +65,10 @@ export async function handleUnfavourite(options: UnfavouriteOptions): Promise<vo
         cancelId: 2
       })
 
+      if (!result.success || !result.data) {
+        return
+      }
+
       switch (result.data.response) {
         case 0:
           // Remove from library only (downloads remain accessible in Downloads view)
@@ -138,7 +142,7 @@ async function executeRemoveFromLibrary(
       title: i18next.t('library:toasts.error'),
       message: i18next.t('library:toasts.failedToRemove')
     })
-    onError?.(result.error || 'Unknown error')
+    onError?.(result.error?.message || 'Unknown error')
   }
 }
 

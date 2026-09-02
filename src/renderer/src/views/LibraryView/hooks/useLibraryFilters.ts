@@ -6,11 +6,11 @@ import {
   type ParsedLibraryQuery,
   type ActiveFilter
 } from '@renderer/utils/librarySearchParser'
-import type { MangaWithMetadata } from '../../../../../preload/index.d'
+import type { MangaWithMetadataContract } from '../../../../../preload/window.types'
 import { rendererLog } from '@renderer/services/logging.service'
 
 interface UseLibraryFiltersReturn {
-  filterManga: (manga: MangaWithMetadata[]) => MangaWithMetadata[]
+  filterManga: (manga: MangaWithMetadataContract[]) => MangaWithMetadataContract[]
   downloadedMangaIds: Set<string>
   parsedQuery: ParsedLibraryQuery
   activeFilters: ActiveFilter[]
@@ -46,7 +46,7 @@ export function useLibraryFilters(searchQuery: string): UseLibraryFiltersReturn 
     void loadDownloadedManga()
   }, [isOnline])
 
-  const filterManga = (manga: MangaWithMetadata[]): MangaWithMetadata[] => {
+  const filterManga = (manga: MangaWithMetadataContract[]): MangaWithMetadataContract[] => {
     let filtered = manga
 
     // Filter to downloaded-only when offline

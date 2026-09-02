@@ -8,7 +8,6 @@
 // Store hooks
 export { useAppStore } from './appStore'
 export { useToastStore, useToast } from './toastStore'
-export { useUserPreferencesStore } from './userPreferencesStore'
 export { useProgressStore } from './progressStore'
 export { useLibraryStore } from './libraryStore'
 export { useCollectionsStore } from './collectionsStore'
@@ -28,20 +27,6 @@ export {
 } from './searchStore'
 
 // Types - re-export from types.ts for convenience
-export type {
-  Theme,
-  ThemeMode,
-  ToastVariant,
-  ToastItem,
-  ReadingMode,
-  ReadingDirection,
-  ImageFit,
-  ImageQuality,
-  ReadingPreferences,
-  DownloadPreferences,
-  UIPreferences,
-  NotificationPreferences,
-  Collection
-} from './types'
+export type { Theme, ThemeMode, ToastVariant, ToastItem } from './types'
 export type { SearchFilters } from './searchStore'
 export type { SidebarDisplayMode } from './sidebarStore'

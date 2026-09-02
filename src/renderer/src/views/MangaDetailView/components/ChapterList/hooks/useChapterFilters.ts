@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
+import type { MangaContract, ChapterContract } from '../../../../../../../preload/window.types'
 
-// Extract types from global window interface
-type MangaEntity = Awaited<ReturnType<Window['mangadex']['getManga']>>['data']
-type ChapterEntity = Awaited<ReturnType<Window['mangadex']['getMangaFeed']>>['data'][number]
+type MangaEntity = MangaContract
+type ChapterEntity = ChapterContract
 
 interface UseChapterFiltersParams {
   manga: MangaEntity
@@ -23,20 +23,16 @@ export function useChapterFilters({
   chapters,
   sortOrder
 }: UseChapterFiltersParams): UseChapterFiltersResult {
-  // Get available languages from manga attributes
+  // Get available languages from manga
   const availableLanguages = useMemo(() => {
-    const langs =
-      (manga.attributes as { availableTranslatedLanguages?: string[] })
-        .availableTranslatedLanguages || []
+    const langs = manga.availableTranslatedLanguages || []
     return langs.sort((a, b) => a.localeCompare(b))
   }, [manga])
 
   // Filter and sort chapters
   const displayChapters = useMemo(() => {
     // Filter out unavailable chapters
-    const filtered = chapters.filter(
-      (chapter) => !(chapter.attributes as { isUnavailable?: boolean }).isUnavailable
-    )
+    const filtered = chapters.filter((chapter) => !chapter.isUnavailable)
 
     // Remove duplicates by chapter ID (shouldn't happen but ensures unique keys)
     const uniqueChapters = Array.from(
@@ -45,8 +41,8 @@ export function useChapterFilters({
 
     // Sort by chapter number
     uniqueChapters.sort((a, b) => {
-      const aNum = Number.parseFloat(a.attributes.chapter || '0')
-      const bNum = Number.parseFloat(b.attributes.chapter || '0')
+      const aNum = Number.parseFloat(a.chapter || '0')
+      const bNum = Number.parseFloat(b.chapter || '0')
       return sortOrder === 'asc' ? aNum - bNum : bNum - aNum
     })
 

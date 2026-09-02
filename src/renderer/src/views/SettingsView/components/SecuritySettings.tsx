@@ -51,10 +51,10 @@ export function SecuritySettings({
           return
         }
 
-        setIsEnabled(enabledResult.data)
+        setIsEnabled(enabledResult.data ?? false)
 
         if (requireResult.success) {
-          setRequireForSettings(requireResult.data)
+          setRequireForSettings(requireResult.data ?? false)
         }
       } catch (err) {
         rendererLog.error('[SecuritySettings] Unexpected error:', err)
@@ -75,11 +75,11 @@ export function SecuritySettings({
       ])
 
       if (enabledResult.success) {
-        setIsEnabled(enabledResult.data)
+        setIsEnabled(enabledResult.data ?? false)
       }
 
       if (requireResult.success) {
-        setRequireForSettings(requireResult.data)
+        setRequireForSettings(requireResult.data ?? false)
       }
     } catch (err) {
       rendererLog.error('[SecuritySettings] Failed to refresh status:', err)

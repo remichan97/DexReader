@@ -6,8 +6,8 @@
  */
 
 import { create } from 'zustand'
-import type { SearchFiltersData } from '../../../main/database/types/search-preset.type'
-import type { SearchPresetQuery } from '../../../main/database/queries/search-presets/search-preset.query'
+import type { SearchFiltersData } from '@shared/contracts/settings/search-filters.contract'
+import type { SearchPresetQuery } from '@shared/contracts/settings/search-preset.contract'
 import { rendererLog } from '../services/logging.service'
 
 interface SearchPresetsState {
@@ -46,7 +46,7 @@ export const useSearchPresetsStore = create<SearchPresetsState>()((set, get) => 
       if (result.success && result.data) {
         set({ presets: result.data, loading: false })
       } else {
-        set({ error: result.error || 'Failed to load presets', loading: false })
+        set({ error: result.error?.message || 'Failed to load presets', loading: false })
         rendererLog.error('[SearchPresetsStore] Failed to load presets:', result.error)
       }
     } catch (error) {
@@ -66,7 +66,7 @@ export const useSearchPresetsStore = create<SearchPresetsState>()((set, get) => 
         return result.data
       } else {
         rendererLog.error('[SearchPresetsStore] Failed to create preset:', result.error)
-        set({ error: result.error || 'Failed to create preset' })
+        set({ error: result.error?.message || 'Failed to create preset' })
         return null
       }
     } catch (error) {
@@ -88,7 +88,7 @@ export const useSearchPresetsStore = create<SearchPresetsState>()((set, get) => 
         rendererLog.info('[SearchPresetsStore] Preset deleted:', id)
       } else {
         rendererLog.error('[SearchPresetsStore] Failed to delete preset:', result.error)
-        set({ error: result.error || 'Failed to delete preset' })
+        set({ error: result.error?.message || 'Failed to delete preset' })
       }
     } catch (error) {
       rendererLog.error('[SearchPresetsStore] Error deleting preset:', error)

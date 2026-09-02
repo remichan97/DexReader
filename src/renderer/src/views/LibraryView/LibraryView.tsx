@@ -1,7 +1,7 @@
 import type { JSX } from 'react'
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { MangaWithMetadata } from '../../../../preload/index.d'
+import type { MangaWithMetadataContract } from '../../../../preload/window.types'
 import { Tabs, TabList, Tab, TabPanel } from '@renderer/components/Tabs'
 import { SearchBar } from '@renderer/components/SearchBar'
 import { Badge } from '@renderer/components/Badge'
@@ -51,13 +51,16 @@ export function LibraryView(): JSX.Element {
   })
 
   // Local manga list (loaded with includeDownloaded flag)
-  const [mangaList, setMangaList] = useState<MangaWithMetadata[]>([])
+  const [mangaList, setMangaList] = useState<MangaWithMetadataContract[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Stores
-  const { favourites, loadFavourites } = useLibraryStore()
-  const { collections, loadCollections } = useCollectionsStore()
+  // Stores - narrow selectors so this view doesn't re-render on unrelated
+  // store field changes (e.g. loading/error flags this component never reads)
+  const favourites = useLibraryStore((state) => state.favourites)
+  const loadFavourites = useLibraryStore((state) => state.loadFavourites)
+  const collections = useCollectionsStore((state) => state.collections)
+  const loadCollections = useCollectionsStore((state) => state.loadCollections)
   const show = useToastStore((state) => state.show)
   const isOnline = useConnectivityStore((state) => state.isOnline)
 
@@ -123,7 +126,7 @@ export function LibraryView(): JSX.Element {
         if (response.success && response.data) {
           setMangaList(response.data)
         } else {
-          setError(response.error || 'Failed to load library')
+          setError(response.error?.message || 'Failed to load library')
           setMangaList([])
         }
       } catch (err) {

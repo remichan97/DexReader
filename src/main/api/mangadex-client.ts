@@ -19,6 +19,9 @@ export class MangaDexClient {
   userAgent: string
   timeout: number
   rateLimiter: RateLimiter
+
+  private uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
   constructor(baseUrl?: string, userAgent?: string, timeout?: number) {
     this.baseUrl = baseUrl || ApiConfig.BASE_API_URL
     this.userAgent = userAgent || ApiConfig.REQUEST_USER_AGENT
@@ -41,6 +44,10 @@ export class MangaDexClient {
   async getManga(mangaId: string, includes?: string[]): Promise<ApiResponse<Manga>> {
     await this.rateLimiter.waitForToken()
 
+    if (!this.uuidPattern.test(mangaId)) {
+      throw new MangaDexApiError('Invalid manga ID format')
+    }
+
     const includeParams = includes ? includes.map((inc) => `includes[]=${inc}`).join('&') : ''
 
     return this.fetch<ApiResponse<Manga>>(
@@ -51,6 +58,10 @@ export class MangaDexClient {
   // Get Chapter list of a Manga
   async getMangaFeed(mangaId: string, params: FeedParams): Promise<CollectionResponse<Chapter>> {
     await this.rateLimiter.waitForToken()
+
+    if (!this.uuidPattern.test(mangaId)) {
+      throw new MangaDexApiError('Invalid manga ID format')
+    }
 
     const queryParams = this.buildQueryParams(params)
 
@@ -89,6 +100,10 @@ export class MangaDexClient {
   async getChapter(chapterId: string, includes?: string[]): Promise<ApiResponse<Chapter>> {
     await this.rateLimiter.waitForToken()
 
+    if (!this.uuidPattern.test(chapterId)) {
+      throw new MangaDexApiError('Invalid chapter ID format')
+    }
+
     const includeParams = includes ? includes.map((inc) => `includes[]=${inc}`).join('&') : ''
 
     return this.fetch<ApiResponse<Chapter>>(
@@ -103,6 +118,14 @@ export class MangaDexClient {
   // Get chapter images by chapter ID
   async getChapterImages(chapterId: string, quality: ImageQuality): Promise<ImageUrlResponse[]> {
     await this.rateLimiter.waitForToken('at-home/server') // This thing has its own limit of 40reqs/min
+
+    if (!this.uuidPattern.test(chapterId)) {
+      throw new MangaDexApiError('Invalid chapter ID format')
+    }
+
+    if (!Object.values(ImageQuality).includes(quality)) {
+      throw new MangaDexApiError('Invalid image quality specified')
+    }
 
     const response = await this.fetch<ChapterImagesResponse>(`/at-home/server/${chapterId}`)
 

@@ -17,7 +17,8 @@ const collectionsState = {
 }
 
 vi.mock('@renderer/stores', () => ({
-  useCollectionsStore: () => collectionsState,
+  useCollectionsStore: (selector?: (state: typeof collectionsState) => unknown) =>
+    selector ? selector(collectionsState) : collectionsState,
   useToastStore: (selector: (state: { show: typeof showToast }) => unknown) =>
     selector({ show: showToast })
 }))

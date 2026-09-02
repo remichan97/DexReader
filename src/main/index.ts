@@ -1,8 +1,7 @@
 import { LocalImageProxy } from './api/proxy/local-image.proxy'
-import { app, ipcMain } from 'electron'
+import { app } from 'electron'
 import path from 'node:path'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
-import { updateMenuState } from './menu/index'
 import { secureFs } from './filesystem/secure-fs'
 import { getAppDataPath, getDownloadsPath } from './filesystem/path-validator'
 import { ImageProxy } from './api/proxy/image.proxy'
@@ -11,6 +10,7 @@ import { setupAppLifecycle } from './app-lifecycle'
 import { registerAllHandlers } from './ipc/registry'
 import { databaseConnection } from './database/connection'
 import { runMigrations } from './database/migrations/migrations'
+import { recoverFromDatabaseOpenFailure, handleMigrationFailure } from './database/db-recovery'
 import { downloadQueueService } from './services/download-queue.service'
 import { diskCacheUtil } from './api/utils/disk-cache.util'
 import { appUpdateService } from './services/app-update.service'
@@ -20,15 +20,7 @@ import { settingsManager } from './settings/settings-manager'
 
 const imageProxy = new ImageProxy()
 const localImageProxy = new LocalImageProxy()
-const isHardwareAccelerationEnabled = settingsManager.getByPath(
-  'system',
-  'useHardwareAcceleration'
-) as boolean
-
-// Store menu state
-let menuState = {
-  isIncognito: false
-}
+const isHardwareAccelerationEnabled = settingsManager.getByPath('system', 'useHardwareAcceleration')
 
 async function initFileSystem(): Promise<void> {
   mainLog.info('[Main] Initialising secure filesystem...')
@@ -91,25 +83,28 @@ app.whenReady().then(async () => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
-  ipcMain.on('ping', () => mainLog.debug('[Main] pong'))
-
-  // IPC handler for menu state updates
-  ipcMain.on('update-menu-state', (_, state) => {
-    // Merge new state
-    menuState = { ...menuState, ...state }
-    // Rebuild menu with current state (handles both labels and enabled states)
-    updateMenuState(menuState)
-  })
-
   await initFileSystem()
 
   mainLog.info('[Main] Initializing database connection...')
-  databaseConnection.init()
+  try {
+    databaseConnection.init()
+  } catch (error) {
+    const recovered = await recoverFromDatabaseOpenFailure(error)
+    if (!recovered) {
+      app.exit(1)
+      return
+    }
+  }
   mainLog.info('[Main] Database connection initialized')
 
   mainLog.info('[Main] Running database migrations...')
-  runMigrations()
+  try {
+    runMigrations()
+  } catch (error) {
+    await handleMigrationFailure(error)
+    app.exit(1)
+    return
+  }
   mainLog.info('[Main] Database migrations complete')
 
   mainLog.info('[Main] Registering protocol handlers...')

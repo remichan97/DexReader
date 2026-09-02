@@ -23,7 +23,7 @@ interface CollectionsState {
 
   // Actions
   loadCollections: () => Promise<void>
-  createCollection: (command: { name: string; description?: string }) => Promise<Collection | null>
+  createCollection: (command: { name: string; description?: string }) => Promise<number | null>
   updateCollection: (command: { id: number; name?: string; description?: string }) => Promise<void>
   deleteCollection: (collectionId: number) => Promise<void>
   addToCollection: (command: { collectionId: number; mangaId: string }) => Promise<boolean>
@@ -45,7 +45,7 @@ export const useCollectionsStore = create<CollectionsState>()((set, get) => ({
       if (result.success && result.data) {
         set({ collections: result.data, loading: false })
       } else {
-        set({ error: result.error || 'Failed to load collections', loading: false })
+        set({ error: result.error?.message || 'Failed to load collections', loading: false })
       }
     } catch (error) {
       rendererLog.error('[CollectionsStore] Error loading collections:', error)
@@ -62,8 +62,7 @@ export const useCollectionsStore = create<CollectionsState>()((set, get) => ({
         await get().loadCollections()
         return result.data
       } else {
-        const errorMsg =
-          typeof result.error === 'string' ? result.error : 'Failed to create collection'
+        const errorMsg = result.error?.message || 'Failed to create collection'
         set({ error: errorMsg })
         return null
       }
@@ -82,8 +81,7 @@ export const useCollectionsStore = create<CollectionsState>()((set, get) => ({
         // Reload collections after update
         await get().loadCollections()
       } else {
-        const errorMsg =
-          typeof result.error === 'string' ? result.error : 'Failed to update collection'
+        const errorMsg = result.error?.message || 'Failed to update collection'
         set({ error: errorMsg })
       }
     } catch (error) {
@@ -100,8 +98,7 @@ export const useCollectionsStore = create<CollectionsState>()((set, get) => ({
         // Reload collections after deletion
         await get().loadCollections()
       } else {
-        const errorMsg =
-          typeof result.error === 'string' ? result.error : 'Failed to delete collection'
+        const errorMsg = result.error?.message || 'Failed to delete collection'
         set({ error: errorMsg })
       }
     } catch (error) {
@@ -116,13 +113,12 @@ export const useCollectionsStore = create<CollectionsState>()((set, get) => ({
     try {
       const result = await globalThis.collections.addToCollection(command)
       if (!result.success) {
-        const errorMsg =
-          typeof result.error === 'string' ? result.error : 'Failed to add manga to collection'
+        const errorMsg = result.error?.message || 'Failed to add manga to collection'
         set({ error: errorMsg })
         return false
       }
       // Note: We don't reload collections here as it doesn't change the collection list
-      return result.data // true if added, false if already existed
+      return result.data ?? false // true if added, false if already existed
     } catch (error) {
       rendererLog.error('[CollectionsStore] Error adding manga to collection:', error)
       set({ error: 'Failed to add manga to collection' })
@@ -135,8 +131,7 @@ export const useCollectionsStore = create<CollectionsState>()((set, get) => ({
     try {
       const result = await globalThis.collections.removeFromCollection(commands)
       if (!result.success) {
-        const errorMsg =
-          typeof result.error === 'string' ? result.error : 'Failed to remove manga from collection'
+        const errorMsg = result.error?.message || 'Failed to remove manga from collection'
         set({ error: errorMsg })
       }
       // Note: We don't reload collections here as it doesn't change the collection list

@@ -146,9 +146,10 @@ export class ImageProxy {
   }
 
   /**
-   * Fetch an image from the network, cache it on success, and report the outcome to
-   * MangaDex@Home. Reporting is always attempted exactly once per call, with a real
-   * measured duration in every branch, and never affects the Response returned here.
+   * Fetch an image from the network, cache it on success, and - for chapter images
+   * fetched from an at-home node only - report the outcome to MangaDex@Home. Covers
+   * (uploads.mangadex.org) aren't part of the @Home network, so they're never reported.
+   * Reporting never affects the Response returned here.
    */
   private async fetchAndCacheImage(url: string, isCover: boolean): Promise<Response> {
     const startTime = Date.now()
@@ -160,7 +161,9 @@ export class ImageProxy {
       })
     } catch (error) {
       mainLog.error('[ImageProxy] Failed to reach network for image:', url, error)
-      await this.reportNetworkStatus(url, false, false, Date.now() - startTime, 0)
+      if (!isCover) {
+        await this.reportNetworkStatus(url, false, false, Date.now() - startTime, 0)
+      }
       return new Response('Failed to fetch image', { status: 502 })
     }
 
@@ -170,7 +173,9 @@ export class ImageProxy {
     const isCached = response.headers.get('X-Cache')?.startsWith('HIT') ?? false
     const success = response.ok && body !== undefined
 
-    await this.reportNetworkStatus(url, success, isCached, durationMs, bytes)
+    if (!isCover) {
+      await this.reportNetworkStatus(url, success, isCached, durationMs, bytes)
+    }
 
     if (!success || body === undefined) {
       mainLog.error(

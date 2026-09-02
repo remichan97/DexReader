@@ -1,14 +1,15 @@
 import { eq, sql, and } from 'drizzle-orm'
 import { databaseConnection } from '../connection'
 import { chapter, chapterDownloads, manga } from '../schemas'
-import { CreateDownloadCommand } from '../commands/chapter-downloads/create-download.command'
-import { ChapterDownloadQuery } from '../queries/chapter-downloads/chapter-downloads.query'
 import { ChapterDownloadMapper } from '../mappers/chapter-downloads.mapper'
-import { MarkDownloadStateCommand } from '../commands/chapter-downloads/mark-state.command'
-import { DownloadStatus } from '../enums/download-status.enum'
-import { DeleteChapterCommand } from '../commands/chapter-downloads/delete-chapter.command'
-import { MangaStorageQuery } from '../queries/chapter-downloads/manga-storage.query'
+import { DownloadStatus } from '@shared/enums/repositories/download-status.enum'
 import { executeBatchOperations } from '../utils/batch-operations.util'
+import { DeleteChapterCommand } from '@shared/commands/repositories/chapter-downloads/delete-chapter.command'
+import { CreateDownloadCommand } from '@shared/commands/repositories/chapter-downloads/create-download.command'
+import { MarkDownloadStateCommand } from '@shared/commands/repositories/chapter-downloads/mark-state.command'
+import { MangaStorageContract } from '@shared/contracts/database/chapter-downloads/manga-storage.contract'
+import { ChapterDownloadContract } from '@shared/contracts/database/chapter-downloads/chapter-downloads.contract'
+import { AnySQLiteSelectQueryBuilder, SQLiteSelectDynamic } from 'drizzle-orm/sqlite-core'
 
 class ChapterDownloadsRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
@@ -16,7 +17,7 @@ class ChapterDownloadsRepository {
   }
 
   // Calculate total storage used by all manga downloads, and storage used by each manga grouped by title (sum of all chapters of the same manga)
-  getStorageByManga(): MangaStorageQuery {
+  getStorageByManga(): MangaStorageContract {
     const mangaStorageByTitle = this.db
       .select({
         mangaId: manga.mangaId,
@@ -44,8 +45,8 @@ class ChapterDownloadsRepository {
     return ChapterDownloadMapper.toMangaStorageQuery(totalAppStorage, mangaStorageByTitle)
   }
 
-  getDownload(chapterId: string): ChapterDownloadQuery | undefined {
-    const result = this.db
+  getDownload(chapterId: string): ChapterDownloadContract | undefined {
+    let selectQuery = this.db
       .select({
         chapterId: chapterDownloads.chapterId,
         mangaId: chapterDownloads.mangaId,
@@ -66,10 +67,12 @@ class ChapterDownloadsRepository {
         language: chapter.language
       })
       .from(chapterDownloads)
-      .innerJoin(manga, eq(chapterDownloads.mangaId, manga.mangaId))
-      .innerJoin(chapter, eq(chapterDownloads.chapterId, chapter.chapterId))
       .where(eq(chapterDownloads.chapterId, chapterId))
-      .get()
+      .$dynamic()
+
+    selectQuery = this.baseChapterDownloadInnerJoin(selectQuery)
+
+    const result = selectQuery.get()
 
     if (result) {
       return ChapterDownloadMapper.toChapterDownloadQuery(result)
@@ -78,8 +81,8 @@ class ChapterDownloadsRepository {
     return undefined
   }
 
-  getAllDownloads(): ChapterDownloadQuery[] {
-    const results = this.db
+  getAllDownloads(): ChapterDownloadContract[] {
+    let query = this.db
       .select({
         chapterId: chapterDownloads.chapterId,
         mangaId: chapterDownloads.mangaId,
@@ -100,16 +103,18 @@ class ChapterDownloadsRepository {
         language: chapter.language
       })
       .from(chapterDownloads)
-      .innerJoin(manga, eq(chapterDownloads.mangaId, manga.mangaId))
-      .innerJoin(chapter, eq(chapterDownloads.chapterId, chapter.chapterId))
       .where(eq(chapterDownloads.isHidden, false))
-      .all()
+      .$dynamic()
+
+    query = this.baseChapterDownloadInnerJoin(query)
+
+    const results = query.all()
 
     return results.map(ChapterDownloadMapper.toChapterDownloadQuery)
   }
 
-  filterDownloadsByMangaId(mangaId: string): ChapterDownloadQuery[] {
-    const results = this.db
+  filterDownloadsByMangaId(mangaId: string): ChapterDownloadContract[] {
+    let query = this.db
       .select({
         chapterId: chapterDownloads.chapterId,
         mangaId: chapterDownloads.mangaId,
@@ -130,10 +135,12 @@ class ChapterDownloadsRepository {
         language: chapter.language
       })
       .from(chapterDownloads)
-      .innerJoin(manga, eq(chapterDownloads.mangaId, manga.mangaId))
-      .innerJoin(chapter, eq(chapterDownloads.chapterId, chapter.chapterId))
       .where(eq(chapterDownloads.mangaId, mangaId))
-      .all()
+      .$dynamic()
+
+    query = this.baseChapterDownloadInnerJoin(query)
+
+    const results = query.all()
 
     return results.map(ChapterDownloadMapper.toChapterDownloadQuery)
   }
@@ -190,27 +197,9 @@ class ChapterDownloadsRepository {
   }
 
   markDownloadState(command: MarkDownloadStateCommand): void {
-    const updates: Partial<typeof chapterDownloads.$inferInsert> = {}
-
-    if (command.isDownloaded) {
-      updates.status = DownloadStatus.Completed
-      updates.storageSize = command.storageSize
-      updates.totalPages = command.totalPages
-      updates.downloadedAt = new Date()
-      if (command.imageFormat) {
-        updates.imageFormat = command.imageFormat
-      }
-    }
-
-    if (command.isFailed) {
-      updates.status = DownloadStatus.Failed
-      updates.errorMessage = command.errorMessage ?? undefined
-      updates.lastAttemptedAt = new Date()
-    }
-
     this.db
       .update(chapterDownloads)
-      .set(updates)
+      .set(this.buildDownloadStateUpdates(command))
       .where(eq(chapterDownloads.chapterId, command.chapterId))
       .run()
   }
@@ -221,26 +210,8 @@ class ChapterDownloadsRepository {
       db: this.db,
       singleOperation: (command) => this.markDownloadState(command),
       batchOperation: (tx, command) => {
-        const updates: Partial<typeof chapterDownloads.$inferInsert> = {}
-
-        if (command.isDownloaded) {
-          updates.status = DownloadStatus.Completed
-          updates.storageSize = command.storageSize
-          updates.totalPages = command.totalPages
-          updates.downloadedAt = new Date()
-          if (command.imageFormat) {
-            updates.imageFormat = command.imageFormat
-          }
-        }
-
-        if (command.isFailed) {
-          updates.status = DownloadStatus.Failed
-          updates.errorMessage = command.errorMessage ?? undefined
-          updates.lastAttemptedAt = new Date()
-        }
-
         tx.update(chapterDownloads)
-          .set(updates)
+          .set(this.buildDownloadStateUpdates(command))
           .where(eq(chapterDownloads.chapterId, command.chapterId))
           .run()
       }
@@ -263,6 +234,38 @@ class ChapterDownloadsRepository {
       .all()
 
     return result.length
+  }
+
+  private buildDownloadStateUpdates(
+    command: MarkDownloadStateCommand
+  ): Partial<typeof chapterDownloads.$inferInsert> {
+    const updates: Partial<typeof chapterDownloads.$inferInsert> = {}
+
+    if (command.isDownloaded) {
+      updates.status = DownloadStatus.Completed
+      updates.storageSize = command.storageSize
+      updates.totalPages = command.totalPages
+      updates.downloadedAt = new Date()
+      if (command.imageFormat) {
+        updates.imageFormat = command.imageFormat
+      }
+    }
+
+    if (command.isFailed) {
+      updates.status = DownloadStatus.Failed
+      updates.errorMessage = command.errorMessage ?? undefined
+      updates.lastAttemptedAt = new Date()
+    }
+
+    return updates
+  }
+
+  private baseChapterDownloadInnerJoin<T extends AnySQLiteSelectQueryBuilder>(
+    qb: T
+  ): SQLiteSelectDynamic<T> {
+    return qb
+      .innerJoin(manga, eq(chapterDownloads.mangaId, manga.mangaId))
+      .innerJoin(chapter, eq(chapterDownloads.chapterId, chapter.chapterId))
   }
 }
 export const chapterDownloadsRepo = new ChapterDownloadsRepository()

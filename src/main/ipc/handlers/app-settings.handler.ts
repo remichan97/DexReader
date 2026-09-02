@@ -1,6 +1,6 @@
 import { app, shell } from 'electron'
 import { is } from '@electron-toolkit/utils'
-import { AppSettings } from '../../settings/entities/app-settings.entity'
+import { AppSettings } from '../../../shared/types/settings/app-settings.type'
 import { mainLog } from '../../services/logging/main-logging.service'
 import { validateSettings } from '../../settings/validators/types.validator'
 import { wrapIpcHandler } from '../wrap-handler'
@@ -84,7 +84,7 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
       throw new Error('Path must be a string')
     }
 
-    return settingsManager.getByPath(section as keyof AppSettings, path)
+    return settingsManager.getByDynamicPath(section as keyof AppSettings, path)
   })
 
   /**

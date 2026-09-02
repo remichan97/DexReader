@@ -1,32 +1,31 @@
-import { DeleteChapterCommand } from './../database/commands/chapter-downloads/delete-chapter.command'
-import { ChapterDownloadsEvent } from './events/chapter-downloads.event'
+import { DeleteChapterCommand } from '@shared/commands/repositories/chapter-downloads/delete-chapter.command'
+import { ChapterDownloadsEvent } from '../../shared/events/chapter-downloads.event'
 import { ImageQuality } from '../api/enums'
 import { MangaDexClient } from '../api/mangadex-client'
-import { MarkDownloadStateCommand } from '../database/commands/chapter-downloads/mark-state.command'
-import { DownloadStatus } from '../database/enums/download-status.enum'
-import { ChapterWithMetadata } from '../database/queries/manga/chapter-with-metadata.query'
+import { MarkDownloadStateCommand } from '@shared/commands/repositories/chapter-downloads/mark-state.command'
+import { DownloadStatus } from '@shared/enums/repositories/download-status.enum'
+import { ChapterWithMetadataContract } from '@shared/contracts/database/manga/chapter-with-metadata.contract'
 import { chapterDownloadsRepo } from '../database/repositories/chapter-downloads.repo'
 import { chapterRepo } from '../database/repositories/chapter.repo'
 import { getDownloadsPath } from '../filesystem/path-validator'
 import { secureFs } from '../filesystem/secure-fs'
 import { downloadData } from './helpers/dexreader-download.helper'
-import { DownloadChapterOptions } from './options/download-chapter.option'
-import { DownloadChapterResult } from './results/dexreader/download-chapter.result'
 import path from 'node:path'
 
 import { BrowserWindow } from 'electron'
-import { ChapterDownloadQuery } from '../database/queries/chapter-downloads/chapter-downloads.query'
-import { MangaStorageQuery } from '../database/queries/chapter-downloads/manga-storage.query'
+import { ChapterDownloadContract } from '@shared/contracts/database/chapter-downloads/chapter-downloads.contract'
+import { MangaStorageContract } from '@shared/contracts/database/chapter-downloads/manga-storage.contract'
 import { DiskSpaceData } from './data/disk-space.data'
-import { StorageData } from './data/storage.data'
-import { DeleteMangaResult } from './results/dexreader/delete-manga.result'
-import { DownloadStatResult } from './results/dexreader/download-stats.result'
+import { StorageDataContract } from '../../shared/contracts/storage/storage-data.contract'
 import { diskCacheUtil } from '../api/utils/disk-cache.util'
-import { DiskCacheQuery } from '../database/queries/storage/disk-cache.query'
+import { DiskCacheContract } from '@shared/contracts/database/storage/disk-cache.contract'
 import { ImageUrlResponse } from '../api/responses/image-url.response'
 import { mainLog } from './logging/main-logging.service'
-import { DeleteChapterOptions } from './options/delete-chapter.option'
 import { settingsManager } from '../settings/settings-manager'
+import { DownloadChapterCommand } from '@shared/commands/services/download-chapter.command'
+import { DownloadStatContract } from '@shared/contracts/services/dexreader/download-stats.contract'
+import { DownloadChapterContract } from '@shared/contracts/services/dexreader/download-chapter.contract'
+import { DeleteMangaContract } from '@shared/contracts/services/dexreader/delete-manga.contract'
 
 interface ChapterImageCache {
   urls: ImageUrlResponse[]
@@ -41,15 +40,15 @@ class DownloadService {
   private readonly chapterImageCache = new Map<string, ChapterImageCache>()
   private readonly IMAGE_CACHE_TTL = 5 * 60 * 1000 // 5 minutes
 
-  isDownloaded(chapterId: string): ChapterDownloadQuery | undefined {
+  isDownloaded(chapterId: string): ChapterDownloadContract | undefined {
     return chapterDownloadsRepo.getDownload(chapterId)
   }
 
-  getAllDownloads(): ChapterDownloadQuery[] {
+  getAllDownloads(): ChapterDownloadContract[] {
     return chapterDownloadsRepo.getAllDownloads()
   }
 
-  async getStorageInfo(): Promise<StorageData> {
+  async getStorageInfo(): Promise<StorageDataContract> {
     return {
       mangaStorage: this.getMangaStorage(),
       diskSpace: await this.getDiskSpaceInfo(),
@@ -57,7 +56,7 @@ class DownloadService {
     }
   }
 
-  getDownloadStats(mangaId: string): DownloadStatResult {
+  getDownloadStats(mangaId: string): DownloadStatContract {
     const downloads = this.getDownloadByMangaId(mangaId)
 
     const chapterCount = downloads.length
@@ -69,7 +68,7 @@ class DownloadService {
     }
   }
 
-  async downloadChapter(options: DownloadChapterOptions): Promise<DownloadChapterResult> {
+  async downloadChapter(options: DownloadChapterCommand): Promise<DownloadChapterContract> {
     // make sure that we don't download something we already downloaded
     const isDownloaded = this.isDownloaded(options.chapterId)
 
@@ -88,7 +87,7 @@ class DownloadService {
 
     // Collect chapter data from either database cache, or API
 
-    let chapterMetadata: ChapterWithMetadata | undefined = chapterRepo.getChapterById(
+    let chapterMetadata: ChapterWithMetadataContract | undefined = chapterRepo.getChapterById(
       options.chapterId
     )
 
@@ -174,7 +173,7 @@ class DownloadService {
     }
   }
 
-  async deleteChapter(options: DeleteChapterOptions): Promise<void> {
+  async deleteChapter(options: DeleteChapterCommand): Promise<void> {
     const download = chapterDownloadsRepo.getDownload(options.chapterId)
 
     if (!download) {
@@ -207,10 +206,10 @@ class DownloadService {
   }
 
   // Delete all chapters of a manga, use for single deletion
-  async deleteManga(mangaId: string): Promise<DeleteMangaResult> {
+  async deleteManga(mangaId: string): Promise<DeleteMangaContract> {
     const downloadsToBeDeleted = this.getDownloadByMangaId(mangaId)
     const successfulDeletions: DeleteChapterCommand[] = []
-    const result: DeleteMangaResult = {
+    const result: DeleteMangaContract = {
       success: false,
       successfulCount: 0,
       failedCount: 0,
@@ -367,12 +366,13 @@ class DownloadService {
     return updateData
   }
 
-  private getMangaStorage(): MangaStorageQuery {
+  private getMangaStorage(): MangaStorageContract {
     return chapterDownloadsRepo.getStorageByManga()
   }
 
   private async getDiskSpaceInfo(): Promise<DiskSpaceData> {
-    const downloadsPath = (await settingsManager.getByPath('downloads', 'downloadPath')) as string
+    const downloadsPath =
+      settingsManager.getByPath('downloads', 'downloadPath') ?? getDownloadsPath()
 
     const stats = await secureFs.statFs(downloadsPath)
 
@@ -383,11 +383,11 @@ class DownloadService {
     }
   }
 
-  private async getDiskCacheSize(): Promise<DiskCacheQuery> {
+  private async getDiskCacheSize(): Promise<DiskCacheContract> {
     return await diskCacheUtil.getDiskCacheSize()
   }
 
-  private getDownloadByMangaId(mangaId: string): ChapterDownloadQuery[] {
+  private getDownloadByMangaId(mangaId: string): ChapterDownloadContract[] {
     return chapterDownloadsRepo.filterDownloadsByMangaId(mangaId)
   }
 

@@ -20,8 +20,9 @@
 import { create } from 'zustand'
 import { useToastStore } from './toastStore'
 import { rendererLog } from '@renderer/services/logging.service'
+import { toError } from '@shared/utils/to-error.util'
 
-// Types are available globally through Window interface (see preload/index.d.ts)
+// Types are available globally through Window interface (see preload/window.types.ts)
 type MangaProgress = NonNullable<Awaited<ReturnType<Window['progress']['getProgress']>>['data']>
 type MangaProgressMetadata = NonNullable<
   Awaited<ReturnType<Window['progress']['getAllProgress']>>['data']
@@ -99,7 +100,7 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
       }
     } catch (error) {
       rendererLog.error('[ProgressStore] Failed to load progress:', error)
-      set({ error: error as Error, loading: false })
+      set({ error: toError(error), loading: false })
     }
   },
 
@@ -163,9 +164,7 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
         const response = await globalThis.progress.saveProgress([cmd])
 
         if (!response.success) {
-          throw new Error(
-            typeof response.error === 'string' ? response.error : 'Failed to save progress'
-          )
+          throw new Error(response.error?.message || 'Failed to save progress')
         }
         // Success! Silent save - no toast notification
       } catch (error) {
@@ -176,7 +175,7 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
           message: 'Your reading progress could not be saved.',
           duration: 5000
         })
-        set({ error: error as Error })
+        set({ error: toError(error) })
       }
     }, 1000) // 1 second debounce
 
@@ -239,7 +238,7 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
       }
     } catch (error) {
       rendererLog.error('[ProgressStore] Failed to load all progress:', error)
-      set({ error: error as Error, loading: false })
+      set({ error: toError(error), loading: false })
     }
   },
 
@@ -255,7 +254,7 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
       }
     } catch (error) {
       rendererLog.error('[ProgressStore] Failed to load statistics:', error)
-      set({ error: error as Error })
+      set({ error: toError(error) })
     }
   },
 
@@ -295,16 +294,13 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
         useToastStore.getState().show({
           variant: 'error',
           title: 'Failed to delete progress',
-          message:
-            typeof response.error === 'string'
-              ? response.error
-              : 'Could not remove progress from history.',
+          message: response.error?.message || 'Could not remove progress from history.',
           duration: 5000
         })
       }
     } catch (error) {
       rendererLog.error('[ProgressStore] Failed to delete progress:', error)
-      set({ error: error as Error, loading: false })
+      set({ error: toError(error), loading: false })
 
       useToastStore.getState().show({
         variant: 'error',

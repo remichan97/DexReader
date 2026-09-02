@@ -16,50 +16,30 @@
 import { create } from 'zustand'
 import { useConnectivityStore } from './connectivityStore'
 import { rendererLog } from '@renderer/services/logging.service'
-import type { Manga } from '../../../preload/index.d'
+import type { MangaContract } from '../../../preload/window.types'
+import {
+  PublicationStatus,
+  ContentRating,
+  PublicationDemographic,
+  IncludedTagsMode,
+  OrderOptions,
+  OrderDirection
+} from '@shared/enums/mangadex'
+import { ContentLanguage } from '@shared/enums/settings/content-language.enum'
+import { toError } from '@shared/utils/to-error.util'
 
-// Re-export enum values for convenience
-export enum ContentRating {
-  Safe = 'safe',
-  Suggestive = 'suggestive',
-  Erotica = 'erotica',
-  Pornographic = 'pornographic'
-}
-
-export enum PublicationStatus {
-  Ongoing = 'ongoing',
-  Completed = 'completed',
-  Hiatus = 'hiatus',
-  Cancelled = 'cancelled'
-}
-
-export enum PublicationDemographic {
-  Shounen = 'shounen',
-  Shoujo = 'shoujo',
-  Josei = 'josei',
-  Seinen = 'seinen',
-  None = 'none'
-}
-
-export enum IncludedTagsMode {
-  And = 'AND',
-  Or = 'OR'
-}
-
-export enum OrderOptions {
-  Title = 'title',
-  Year = 'year',
-  CreatedAt = 'createdAt',
-  UpdatedAt = 'updatedAt',
-  LatestUploadedChapter = 'latestUploadedChapter',
-  FollowedCount = 'followedCount',
-  Relevance = 'relevance',
-  Rating = 'rating'
-}
-
-export enum OrderDirection {
-  Asc = 'asc',
-  Desc = 'desc'
+// Re-export the shared filter enums so this store stays the single import point
+// for renderer search state - previously these were redeclared here from
+// scratch, which meant the frontend and backend (search-preset contract) had
+// two independently-declared enum types that happened to share the same
+// values, forcing `as unknown as` casts anywhere they crossed that boundary.
+export {
+  PublicationStatus,
+  ContentRating,
+  PublicationDemographic,
+  IncludedTagsMode,
+  OrderOptions,
+  OrderDirection
 }
 
 export enum MangaIncludes {
@@ -70,7 +50,7 @@ export enum MangaIncludes {
   Tag = 'tag'
 }
 
-type MangaEntity = Manga
+type MangaEntity = MangaContract
 
 export interface SearchFilters {
   contentRating: ContentRating[]
@@ -90,7 +70,7 @@ export const DEFAULT_FILTERS: SearchFilters = {
   publicationDemographic: [],
   includedTags: [],
   excludedTags: [],
-  includedTagsMode: IncludedTagsMode.And,
+  includedTagsMode: IncludedTagsMode.AND,
   availableTranslatedLanguage: ['en'],
   sortBy: OrderOptions.Relevance,
   sortDirection: OrderDirection.Desc
@@ -149,7 +129,7 @@ async function getSearchLanguageFilter(): Promise<string[]> {
     } else {
       // Sync disabled: Use priority list + always include English
       const priorities = languageSettings.contentLanguage || []
-      languages = [...priorities, ...(priorities.includes('en') ? [] : ['en'])]
+      languages = [...priorities, ...(priorities.includes(ContentLanguage.English) ? [] : ['en'])]
     }
 
     return languages.length > 0 ? languages : ['en']
@@ -277,7 +257,7 @@ export const useSearchStore = create<SearchState>((set, get) => ({
     } catch (error) {
       rendererLog.error('[SearchStore] Search error:', error)
       set({
-        error: error instanceof Error ? error : new Error(String(error)),
+        error: toError(error),
         loading: false
       })
     }
@@ -383,7 +363,7 @@ export const useSearchStore = create<SearchState>((set, get) => ({
     } catch (error) {
       rendererLog.error('[SearchStore] Load more error:', error)
       set({
-        loadMoreError: error instanceof Error ? error : new Error(String(error)),
+        loadMoreError: toError(error),
         loadingMore: false,
         hasMore: true // Keep hasMore true so user can retry
       })

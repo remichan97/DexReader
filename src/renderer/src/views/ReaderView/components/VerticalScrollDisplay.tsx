@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react'
 import { LoadingState } from '@renderer/components/LoadingState'
 import { Warning48Regular } from '@fluentui/react-icons'
 import { useTranslation } from '@renderer/hooks/useTranslation'
-import type { ImageUrlResponse } from '../../../../../preload/index.d'
+import type { ImageUrlResponse } from '../../../../../preload/window.types'
 
 /**
  * Vertical Scroll Display Component

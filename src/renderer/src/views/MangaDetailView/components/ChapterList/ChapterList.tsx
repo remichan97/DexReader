@@ -6,17 +6,17 @@ import { EmptyState } from '@renderer/components/EmptyState'
 import { Skeleton } from '@renderer/components/Skeleton'
 import { DownloadConfirmationDialog } from '@renderer/components/DownloadConfirmationDialog'
 import { BookOpen48Regular } from '@fluentui/react-icons'
-import { getCoverImageUrl, getMangaTitle, CoverSize } from '@renderer/utils/mangaHelpers'
+import { getMangaTitle } from '@renderer/utils/mangaHelpers'
 import { getLanguageName } from '@renderer/constants/language-list.constant'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import { ChapterListHeader } from './ChapterListHeader'
 import { ChapterListItem } from './ChapterListItem'
 import { useChapterFilters } from './hooks/useChapterFilters'
 import { useChapterDownloads } from './hooks/useChapterDownloads'
+import type { MangaContract, ChapterContract } from '../../../../../../preload/window.types'
 
-// Extract types from global window interface
-type MangaEntity = Awaited<ReturnType<Window['mangadex']['getManga']>>['data']
-type ChapterEntity = Awaited<ReturnType<Window['mangadex']['getMangaFeed']>>['data'][number]
+type MangaEntity = MangaContract
+type ChapterEntity = ChapterContract
 
 interface ChapterListProps {
   readonly mangaId: string
@@ -185,7 +185,7 @@ export default function ChapterList({
             const chapterProg = chapterProgress.get(chapter.id)
             const isRead = chapterProg?.completed ?? false
             const pageProgress = chapterProg
-              ? { currentPage: chapterProg.currentPage, totalPages: chapter.attributes.pages }
+              ? { currentPage: chapterProg.currentPage, totalPages: chapter.pages }
               : undefined
 
             // Get download status from map
@@ -204,11 +204,11 @@ export default function ChapterList({
                 onClick={() =>
                   navigate(`/reader/${mangaId}/${chapter.id}`, {
                     state: {
-                      chapterNumber: chapter.attributes.chapter,
-                      chapterTitle: chapter.attributes.title,
+                      chapterNumber: chapter.chapter,
+                      chapterTitle: chapter.title,
                       mangaTitle: manga ? getMangaTitle(manga) : 'Manga',
                       chapters: chapters, // Pass full chapter list for navigation
-                      coverUrl: manga ? getCoverImageUrl(manga, CoverSize.Large) : undefined
+                      coverUrl: manga ? (manga.coverUrlLarge ?? manga.coverUrl) : undefined
                     }
                   })
                 }
@@ -227,7 +227,7 @@ export default function ChapterList({
           }}
           onConfirm={handleDownloadConfirm}
           chapterCount={1}
-          chapterTitle={selectedChapter.attributes.title || 'Untitled'}
+          chapterTitle={selectedChapter.title || 'Untitled'}
           defaultQuality={downloadSettings.defaultQuality}
           downloadsPath={downloadSettings.path}
           showBatchInfo={false}

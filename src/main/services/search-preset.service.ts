@@ -1,12 +1,11 @@
-import { CreateSearchPresetCommand } from '../database/commands/search-presets/create-search-preset.command'
-import { SearchPresetQuery } from '../database/queries/search-presets/search-preset.query'
+import { SearchPresetQuery } from '@shared/contracts/settings/search-preset.contract'
 import { searchPresetsRepo } from '../database/repositories/search-presets.repo'
 import { settingsManager } from '../settings/settings-manager'
 import { mainLog } from './logging/main-logging.service'
-import { CreateSearchPresetOptions } from './options/create-search-preset.option'
+import { CreateSearchPresetCommand } from '@shared/commands/services/create-search-preset.command'
 
 class SearchPresetService {
-  async createSearchPreset(options: CreateSearchPresetOptions): Promise<SearchPresetQuery> {
+  async createSearchPreset(options: CreateSearchPresetCommand): Promise<SearchPresetQuery> {
     if (options.name.trim() === '') {
       mainLog.error('[SearchPresetService] Failed to create search preset with empty name')
       throw new Error('Preset name cannot be empty')
@@ -88,10 +87,7 @@ class SearchPresetService {
       }
 
       // Check Settings if the deleted preset was set as default, and if so, delete the default preset setting as well
-      const defaultSearchPresetId = settingsManager.getByPath(
-        'search',
-        'defaultPresetId'
-      ) as unknown as number | undefined
+      const defaultSearchPresetId = settingsManager.getByPath('search', 'defaultPresetId')
       if (defaultSearchPresetId === id) {
         mainLog.info(
           '[SearchPresetService] Deleted preset was set as default, clearing default preset setting',

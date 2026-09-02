@@ -1,7 +1,7 @@
 import { countDistinct, eq, sql } from 'drizzle-orm'
 import { databaseConnection } from '../connection'
 import { chapterProgress, readingStatistics } from '../schemas'
-import { ReadingStats } from '../queries/reading-stats/reading-stats.query'
+import { ReadingStatsContract } from '@shared/contracts/database/reading-stats/reading-stats.contract'
 
 class ReadingStatisticRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
@@ -44,7 +44,7 @@ class ReadingStatisticRepository {
       .run()
   }
 
-  getStats(): ReadingStats {
+  getStats(): ReadingStatsContract {
     const stats = this.db.select().from(readingStatistics).where(eq(readingStatistics.id, 1)).get()
 
     return {

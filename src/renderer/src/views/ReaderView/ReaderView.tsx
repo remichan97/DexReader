@@ -1,7 +1,8 @@
 import React, { type JSX, useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useLocation, useNavigate } from 'react-router-dom'
+// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
 import { ImageQuality } from '../../../../main/api/enums/image-quality.enum'
-import type { MangaReadingSettings } from '../../../../preload/index.d'
+import type { MangaReadingSettings } from '../../../../preload/window.types'
 import { Button } from '@renderer/components/Button'
 import { LoadingState } from '@renderer/components/LoadingState'
 import { ErrorState } from '@renderer/components/ErrorState'
@@ -186,11 +187,14 @@ export function ReaderView(): JSX.Element {
   useEffect(() => {
     const loadReaderSettings = async (): Promise<void> => {
       try {
-        const settingsResult = await globalThis.electron.ipcRenderer.invoke('settings:load')
-        if (settingsResult.success && settingsResult.data?.reader?.forceDarkMode !== undefined) {
+        const settingsResult = await globalThis.settings.load()
+        const forceDarkMode = settingsResult.success
+          ? settingsResult.data?.reader?.forceDarkMode
+          : undefined
+        if (forceDarkMode !== undefined) {
           setState((prev) => ({
             ...prev,
-            forceReaderDarkMode: settingsResult.data.reader.forceDarkMode
+            forceReaderDarkMode: forceDarkMode
           }))
         }
       } catch (error) {
@@ -226,22 +230,17 @@ export function ReaderView(): JSX.Element {
   // Cache chapters to database when chapters are available
   useEffect(() => {
     if (mangaId && locationState?.chapters && locationState.chapters.length > 0) {
-      const chaptersToSave = locationState.chapters.map((ch) => {
-        // Get scanlation group from relationships
-        const scanlationGroup = ch.relationships.find((r) => r.type === 'scanlation_group')
-
-        return {
-          chapterId: ch.id,
-          mangaId: mangaId,
-          title: ch.attributes.title || undefined,
-          chapterNumber: ch.attributes.chapter || undefined,
-          volume: ch.attributes.volume || undefined,
-          language: ch.attributes.translatedLanguage,
-          publishAt: new Date(ch.attributes.publishAt),
-          scanlationGroup: scanlationGroup?.attributes?.name || undefined,
-          externalUrl: ch.attributes.externalUrl || undefined
-        }
-      })
+      const chaptersToSave = locationState.chapters.map((ch) => ({
+        chapterId: ch.id,
+        mangaId: mangaId,
+        title: ch.title || undefined,
+        chapterNumber: ch.chapter || undefined,
+        volume: ch.volume || undefined,
+        language: ch.translatedLanguage,
+        publishAt: new Date(ch.publishAt),
+        scanlationGroup: Object.values(ch.scanlationGroup)[0] || undefined,
+        externalUrl: ch.externalUrl || undefined
+      }))
 
       // Save chapters in background (non-blocking)
       void globalThis.progress.saveChapters(chaptersToSave)

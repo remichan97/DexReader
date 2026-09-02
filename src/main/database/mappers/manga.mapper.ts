@@ -1,10 +1,10 @@
-import { MangaProgressMetadata } from '../queries/progress/manga-progress-metadata.query'
-import { MangaWithMetadata } from '../queries/manga/manga-with-metadata.query'
+import { MangaProgressMetadataContract } from '@shared/contracts/database/progress/manga-progress-metadata.contract'
+import { MangaWithMetadataContract } from '@shared/contracts/database/manga/manga-with-metadata.contract'
 import { manga } from '../schemas'
 import { dateToUnixTimestamp } from '../../utils/timestamps.util'
 import { PublicationStatus } from '../../api/enums'
-import { MangaReadingSettings } from '../../settings/entities/reading-settings.entity'
-import { MangaOverride } from '../queries/manga/manga-override.query'
+import { MangaReadingSettings } from '@shared/contracts/settings/reading-settings.contract'
+import { MangaOverrideContract } from '@shared/contracts/database/manga/manga-override.contract'
 
 type MangaRow = typeof manga.$inferSelect
 
@@ -32,7 +32,7 @@ type MangaOverrideRow = {
 }
 
 export class MangaMapper {
-  static toMangaWithMetadata(row: MangaRow): MangaWithMetadata {
+  static toMangaWithMetadata(row: MangaRow): MangaWithMetadataContract {
     return {
       mangaId: row.mangaId,
       title: row.title,
@@ -51,7 +51,9 @@ export class MangaMapper {
     }
   }
 
-  static toMangaProgressWithMetadata(row: MangaProgressWithMetadataRow): MangaProgressMetadata {
+  static toMangaProgressWithMetadata(
+    row: MangaProgressWithMetadataRow
+  ): MangaProgressMetadataContract {
     return {
       mangaId: row.mangaId,
       lastChapterId: row.lastChapterId,
@@ -67,7 +69,7 @@ export class MangaMapper {
     }
   }
 
-  static toMangaOverrideQuery(row: MangaOverrideRow): MangaOverride {
+  static toMangaOverrideQuery(row: MangaOverrideRow): MangaOverrideContract {
     return {
       mangaId: row.mangaId,
       title: row.title,

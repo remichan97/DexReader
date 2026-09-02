@@ -14,7 +14,7 @@ interface IAllowedPath {
 // Lazy-loaded to avoid accessing app.getPath() before Electron is ready
 let allowedPaths: IAllowedPath | undefined = undefined
 
-function initializePaths(): void {
+function initializePaths(): IAllowedPath {
   if (!allowedPaths) {
     // Use home directory pattern (like VS Code's .vscode/)
     // This separates user data from Electron's internal userData files
@@ -32,31 +32,30 @@ function initializePaths(): void {
       logs: appLogs
     }
   }
+
+  return allowedPaths
 }
 
 // Get the application data path
 export function getAppDataPath(): string {
-  initializePaths()
-  return allowedPaths!.appData
+  return initializePaths().appData
 }
 
 // Get the downloads path
 export function getDownloadsPath(): string {
-  initializePaths()
-  return allowedPaths!.downloads
+  return initializePaths().downloads
 }
 
 export function getCachedCoverPath(): string {
-  initializePaths()
-  return allowedPaths!.cachedCover
+  return initializePaths().cachedCover
 }
 
 // Update the downloads path in memory (should be called by settingsManager after validation)
 export function updateDownloadsPath(newPath: string): void {
-  initializePaths()
+  const paths = initializePaths()
   const normalized = normalizePath(newPath)
   mainLog.debug(`[PathValidator] Downloads path updated to: ${normalized}`)
-  allowedPaths!.downloads = normalized
+  paths.downloads = normalized
 }
 
 // Validate that a path exists and is a directory
@@ -68,12 +67,12 @@ export async function validateDirectoryPath(dirPath: string): Promise<void> {
 
     if (!stats.isDirectory()) {
       mainLog.warn(`[PathValidator] Path is not a directory: ${dirPath}`)
-      throw new Error(`The path "${dirPath}" is not a directory.`)
+      throw new Error('The selected path is not a directory.')
     }
     mainLog.debug(`[PathValidator] Directory validated: ${dirPath}`)
   } catch (error) {
     mainLog.error(`[PathValidator] Directory validation failed for ${dirPath}:`, error)
-    throw new Error(`The path "${dirPath}" does not exist or is not accessible. Error: ${error}`)
+    throw new Error('The selected path does not exist or is not accessible.')
   }
 }
 
@@ -82,7 +81,7 @@ export async function validatePath(inputPath: string): Promise<string> {
 
   if (!(await isPathAllowed(normalizedPath))) {
     mainLog.warn(`[PathValidator] Access denied to path: ${inputPath}`)
-    throw new Error(`Access to the path "${inputPath}" is not allowed.`)
+    throw new Error('Access to the selected path is not allowed.')
   }
 
   return normalizedPath
@@ -127,7 +126,7 @@ async function resolveRealPath(normalizedInputPath: string): Promise<string> {
 }
 
 async function isPathAllowed(inputPath: string): Promise<boolean> {
-  initializePaths()
+  const paths = initializePaths()
   const normalizedInputPath = normalizePath(inputPath)
 
   const realResolvedPath = await resolveRealPath(normalizedInputPath)
@@ -139,7 +138,7 @@ async function isPathAllowed(inputPath: string): Promise<boolean> {
     return false
   }
 
-  const isAllowed = Object.values(allowedPaths!).some((allowedRoot) =>
+  const isAllowed = Object.values(paths).some((allowedRoot) =>
     isWithinAllowedRoot(normalizedInputPath, allowedRoot)
   )
 

@@ -1,6 +1,6 @@
 import { desc } from 'drizzle-orm'
 import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
-import { MangaReadingSettings } from '../../settings/entities/reading-settings.entity'
+import { MangaReadingSettings } from '@shared/contracts/settings/reading-settings.contract'
 import { manga } from './manga.schema'
 
 export const mangaReaderOverrides = sqliteTable(

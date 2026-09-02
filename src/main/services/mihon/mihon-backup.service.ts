@@ -1,4 +1,4 @@
-import { SaveChapterCommand } from '../../database/commands/progress/save-chapter.command'
+import { SaveChapterCommand } from '@shared/commands/repositories/progress/save-chapter.command'
 import { mihonBackup } from '../helpers/mihon-backup.helper'
 import fs from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
@@ -7,19 +7,19 @@ import path, { dirname } from 'node:path'
 // ESM: Get __dirname equivalent
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
-import { UpsertMangaCommand } from '../../database/commands/manga/upsert-manga.command'
+import { UpsertMangaCommand } from '@shared/commands/repositories/manga/upsert-manga.command'
 import Pako from 'pako'
-import { ImportResult } from '../results/mihon/import.result'
 import { BackupCategory } from '../types/mihon/backup-category.type'
 import { BackupManga } from '../types/mihon/backup-manga.type'
 import protobuf from 'protobufjs'
 import { Backup } from '../types/mihon/backup.type'
 import { collectionRepo } from '../../database/repositories/collection.repo'
 import { mangaRepo } from '../../database/repositories/manga.repo'
-import { AddToCollectionCommand } from '../../database/commands/collections/add-to-collection.command'
-import { SaveProgressCommand } from '../../database/commands/progress/save-progress.command'
+import { AddToCollectionCommand } from '@shared/commands/repositories/collections/add-to-collection.command'
+import { SaveProgressCommand } from '@shared/commands/repositories/progress/save-progress.command'
 import { progressRepo } from '../../database/repositories/manga-progress.repo'
 import { chapterRepo } from '../../database/repositories/chapter.repo'
+import { MihonImportContract } from '@shared/contracts/services/mihon/mihon-import.contract'
 
 // MangaDex source ID from Tachiyomi extension
 // See: https://github.com/tachiyomiorg/tachiyomi-extensions
@@ -35,7 +35,7 @@ class MihonBackupService {
     'mihon.proto'
   )
 
-  async importFromBackup(filePath: string): Promise<ImportResult> {
+  async importFromBackup(filePath: string): Promise<MihonImportContract> {
     this.abortController?.abort()
     this.abortController = new AbortController()
     // Use node's fs instead of our secureFs since this is what users provide themselves using the file picker, not an external file.
@@ -73,8 +73,8 @@ class MihonBackupService {
     mangaList: BackupManga[],
     categories: BackupCategory[],
     signal: AbortSignal
-  ): Promise<ImportResult> {
-    const result: ImportResult = {
+  ): Promise<MihonImportContract> {
+    const result: MihonImportContract = {
       importedMangaCount: 0,
       skippedMangaCount: 0,
       failedMangaCount: 0,

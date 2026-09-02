@@ -35,6 +35,14 @@ Defined scopes: `api`, `db`, `ipc`, `preload`, `filesystem`, `proxy`, `settings`
 
 Pre-commit hooks enforce the commit message format, run `typecheck`, and run `lint`. Never skip hooks with `--no-verify`.
 
+**AI-authorship disclosure**: any commit where Claude Code authored or materially contributed to the change must include a trailer:
+
+```text
+Co-Authored-By: Claude Code <noreply@anthropic.com>
+```
+
+as a footer (blank line, then the trailer), same as the subject/body. This is for transparency about AI usage in the project history, not just this repo's default tooling behavior — keep including it going forward even if not reminded.
+
 ## Architecture
 
 Three-process Electron model. All cross-process communication goes through a single security bridge:
@@ -46,6 +54,7 @@ Renderer (React/Zustand) → Preload (contextBridge) → Main (Node.js/SQLite/Ma
 - **Renderer**: `src/renderer/src/` — React 19, React Router v6, Zustand 5 stores, `window.api.*` calls only
 - **Preload**: `src/preload/` — exposes typed `window.api.*` surface via `contextBridge`; all channels return `IpcResponse<T>` (defined in `src/preload/ipc.types.ts`)
 - **Main**: `src/main/` — IPC handlers, SQLite database, MangaDex API client, filesystem security, settings
+- **Shared**: `src/shared/` — a fourth source root, importable from both main and renderer: enums, contracts/DTOs, command types, and utilities that must stay identical on both sides of the IPC boundary
 
 ### IPC Channel Conventions
 
@@ -94,7 +103,7 @@ Zustand 5 stores in `src/renderer/src/stores/`. Stores are ephemeral (rehydrated
 - No inline destructuring in function parameters — define an `interface` for params
 - Explicit return types on all functions and methods
 - `interface` for object shapes, `type` for aliases/unions/intersections
-- `const` enums where runtime values are not needed
+- Regular `enum`, not `const enum` — the build's `isolatedModules: true` (inherited from `@electron-toolkit/tsconfig`) transpiles each file independently, which is incompatible with `const enum`'s whole-program inlining
 - Prefer `undefined` over `null`
 - Prefer `globalThis` over `window`
 - `async/await` over raw Promises
@@ -122,20 +131,21 @@ Zustand 5 stores in `src/renderer/src/stores/`. Stores are ephemeral (rehydrated
 
 ## Key File Locations
 
-| What                  | Where                                             |
-| --------------------- | ------------------------------------------------- |
-| IPC registry          | `src/main/ipc/registry.ts`                        |
-| IPC wrap helper       | `src/main/ipc/wrap-handler.ts`                    |
-| Preload API surface   | `src/preload/index.ts` + `src/preload/index.d.ts` |
-| Secure filesystem     | `src/main/filesystem/secureFs.ts`                 |
-| MangaDex API client   | `src/main/api/mangadex-client.ts`                 |
-| Settings manager      | `src/main/settings/settings-manager.ts`           |
-| Image proxy protocols | `src/main/api/proxy/`                             |
-| Zustand stores        | `src/renderer/src/stores/`                        |
-| Routing               | `src/renderer/src/router.tsx`                     |
-| CSS design tokens     | `src/renderer/src/assets/base.css`                |
-| Translations          | `src/locales/`                                    |
-| IPC types (preload)   | `src/preload/ipc.types.ts`                        |
+| What                            | Where                                             |
+| ------------------------------- | ------------------------------------------------- |
+| IPC registry                    | `src/main/ipc/registry.ts`                        |
+| IPC wrap helper                 | `src/main/ipc/wrap-handler.ts`                    |
+| Preload API surface             | `src/preload/index.ts` + `src/preload/index.d.ts` |
+| Secure filesystem               | `src/main/filesystem/secure-fs.ts`                |
+| MangaDex API client             | `src/main/api/mangadex-client.ts`                 |
+| Settings manager                | `src/main/settings/settings-manager.ts`           |
+| Image proxy protocols           | `src/main/api/proxy/`                             |
+| Zustand stores                  | `src/renderer/src/stores/`                        |
+| Routing                         | `src/renderer/src/router.tsx`                     |
+| CSS design tokens               | `src/renderer/src/assets/base.css`                |
+| Translations                    | `src/locales/`                                    |
+| IPC types (preload)             | `src/preload/ipc.types.ts`                        |
+| Shared enums/contracts/commands | `src/shared/`                                     |
 
 ## Memory Bank
 

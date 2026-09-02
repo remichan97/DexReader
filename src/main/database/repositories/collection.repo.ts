@@ -1,35 +1,34 @@
 import { and, eq, sql } from 'drizzle-orm'
 import { databaseConnection } from '../connection'
-import { CollectionQuery } from '../queries/collections/collection.query'
 
-import { CreateCollectionCommand } from '../commands/collections/create-collection.command'
 import { collectionItems, collections, manga } from '../schemas'
-import { AddToCollectionCommand } from '../commands/collections/add-to-collection.command'
-import { RemoveFromCollectionCommand } from '../commands/collections/remove-from-collection.command'
-import { UpdateCollectionCommand } from '../commands/collections/update-collection.command'
-import { CollectionMetadataQuery } from '../queries/collections/collection-metadata.query'
 import { CollectionMapper } from '../mappers/collection.mapper'
-import { ReorderMangaInCollectionCommand } from '../commands/collections/reorder-manga-collection.command'
-import { CollectionItemQuery } from '../queries/collections/collection-item.query'
-import { executeBatchOperations } from '../utils/batch-operations.util'
+import { DbExecutor, executeBatchOperations } from '../utils/batch-operations.util'
+import { CreateCollectionCommand } from '@shared/commands/repositories/collections/create-collection.command'
+import { UpdateCollectionCommand } from '@shared/commands/repositories/collections/update-collection.command'
+import { AddToCollectionCommand } from '@shared/commands/repositories/collections/add-to-collection.command'
+import { RemoveFromCollectionCommand } from '@shared/commands/repositories/collections/remove-from-collection.command'
+import { CollectionContract } from '@shared/contracts/database/collections/collection.contract'
+import { CollectionMetadataContract } from '@shared/contracts/database/collections/collection-metadata.contract'
+import { CollectionItemContract } from '@shared/contracts/database/collections/collection-item.contract'
 
 class CollectionRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
     return databaseConnection.getDb()
   }
 
-  getAllCollections(): CollectionQuery[] {
+  getAllCollections(): CollectionContract[] {
     const query = this.db.select().from(collections).all()
     return query.map(CollectionMapper.toCollectionQuery)
   }
 
-  getCollectionById(collectionId: number): CollectionQuery | undefined {
+  getCollectionById(collectionId: number): CollectionContract | undefined {
     const result = this.db.select().from(collections).where(eq(collections.id, collectionId)).get()
     return result ? CollectionMapper.toCollectionQuery(result) : undefined
   }
 
   // Rich query with metadata (manga counts, cover urls)
-  getAllCollectionsWithMetadata(): CollectionMetadataQuery[] {
+  getAllCollectionsWithMetadata(): CollectionMetadataContract[] {
     // JOINS with collection_items and manga for counts and cover
     const result = this.db
       .select({
@@ -59,15 +58,15 @@ class CollectionRepository {
     return results.map((result) => result.mangaId)
   }
 
-  getAllCollectionItems(): CollectionItemQuery[] {
+  getAllCollectionItems(): CollectionItemContract[] {
     const results = this.db.select().from(collectionItems).all()
     return results.map(CollectionMapper.toCollectionItemQuery)
   }
 
-  createCollection(command: CreateCollectionCommand): number {
+  createCollection(command: CreateCollectionCommand, executor: DbExecutor = this.db): number {
     const now = new Date()
 
-    const result = this.db
+    const result = executor
       .insert(collections)
       .values({
         name: command.name,
@@ -81,14 +80,17 @@ class CollectionRepository {
     return result.id
   }
 
-  batchCreateCollections(command: CreateCollectionCommand[]): number[] {
+  batchCreateCollections(
+    command: CreateCollectionCommand[],
+    executor: DbExecutor = this.db
+  ): number[] {
     const now = new Date()
 
     return executeBatchOperations({
       commands: command,
-      db: this.db,
+      db: executor,
       collectResults: true, // Need to collect the generated collection IDs
-      singleOperation: (cmd) => this.createCollection(cmd),
+      singleOperation: (cmd) => this.createCollection(cmd, executor),
       batchOperation: (tx, cmd) => {
         const result = tx
           .insert(collections)
@@ -123,14 +125,14 @@ class CollectionRepository {
     this.db.delete(collections).where(eq(collections.id, collectionId)).run()
   }
 
-  batchAddToCollection(command: AddToCollectionCommand[]): void {
+  batchAddToCollection(command: AddToCollectionCommand[], executor: DbExecutor = this.db): void {
     const now = new Date()
 
     executeBatchOperations({
       commands: command,
-      db: this.db,
+      db: executor,
       singleOperation: (cmd) => {
-        this.addToCollection(cmd)
+        this.addToCollection(cmd, executor)
       },
       batchOperation: (tx, cmd) => {
         tx.insert(collectionItems)
@@ -145,10 +147,10 @@ class CollectionRepository {
     })
   }
 
-  addToCollection(command: AddToCollectionCommand): boolean {
+  addToCollection(command: AddToCollectionCommand, executor: DbExecutor = this.db): boolean {
     const now = new Date()
 
-    const result = this.db
+    const result = executor
       .insert(collectionItems)
       .values({
         collectionId: command.collectionId,
@@ -176,7 +178,7 @@ class CollectionRepository {
     })
   }
 
-  getCollectionByManga(mangaId: string): CollectionQuery[] {
+  getCollectionByManga(mangaId: string): CollectionContract[] {
     const results = this.db
       .select()
       .from(collectionItems)
@@ -187,22 +189,6 @@ class CollectionRepository {
       .all()
 
     return results.map(CollectionMapper.toCollectionQuery)
-  }
-
-  reorderMangaInCollection(command: ReorderMangaInCollectionCommand): void {
-    this.db.transaction((tx) => {
-      command.mangaIds.forEach((mangaId, index) => {
-        tx.update(collectionItems)
-          .set({ position: index })
-          .where(
-            and(
-              eq(collectionItems.collectionId, command.collectionId),
-              eq(collectionItems.mangaId, mangaId)
-            )
-          )
-          .run()
-      })
-    })
   }
 }
 export const collectionRepo = new CollectionRepository()

@@ -6,6 +6,7 @@
  */
 
 import { MangaDexApiError, MangaDexNetworkError } from '../../api/shared/error.shared'
+import { toError } from '@shared/utils/to-error.util'
 import { DownloadErrorCategory } from './enums/download-error.enum'
 
 export interface ErrorClassification {
@@ -43,7 +44,7 @@ export function classifyDownloadError(error: unknown): ErrorClassification {
   }
 
   // Handle generic Error objects by message content
-  const errorMessage = error instanceof Error ? error.message : String(error)
+  const errorMessage = toError(error).message
 
   // Check for rate limit patterns
   if (errorMessage.includes('429') || errorMessage.toLowerCase().includes('rate limit')) {

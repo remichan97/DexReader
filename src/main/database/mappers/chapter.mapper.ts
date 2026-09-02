@@ -1,10 +1,10 @@
-import { ChapterWithMetadata } from '../queries/manga/chapter-with-metadata.query'
+import { ChapterWithMetadataContract } from '@shared/contracts/database/manga/chapter-with-metadata.contract'
 import { chapter } from '../schemas/chapter.schema'
 
 type ChapterRow = typeof chapter.$inferSelect
 
 export class ChapterMapper {
-  static toChapterMetadata(data: ChapterRow): ChapterWithMetadata {
+  static toChapterMetadata(data: ChapterRow): ChapterWithMetadataContract {
     return {
       chapterId: data.chapterId,
       mangaId: data.mangaId,

@@ -1,4 +1,4 @@
-import type { AppSettings } from './entities/app-settings.entity'
+import type { AppSettings } from '../../shared/types/settings/app-settings.type'
 import {
   getDownloadsPath,
   updateDownloadsPath,

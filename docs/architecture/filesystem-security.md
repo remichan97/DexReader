@@ -145,7 +145,7 @@ DexReader implements a restricted filesystem access model that limits all file o
                    │
 ┌──────────────────▼──────────────────────────────────┐
 │          Filesystem Security Layer                  │
-│    (src/main/filesystem/secureFs.ts)                │
+│    (src/main/filesystem/secure-fs.ts)               │
 │                                                     │
 │  All operations call validatePath() first          │
 └──────────────────┬──────────────────────────────────┘
@@ -154,7 +154,7 @@ DexReader implements a restricted filesystem access model that limits all file o
                    │
 ┌──────────────────▼──────────────────────────────────┐
 │           Path Validator                            │
-│    (src/main/filesystem/pathValidator.ts)           │
+│    (src/main/filesystem/path-validator.ts)          │
 │                                                     │
 │  1. Normalize path (resolve, canonicalize)         │
 │  2. Resolve symlinks (deepest existing ancestor)   │
@@ -172,7 +172,7 @@ DexReader implements a restricted filesystem access model that limits all file o
 
 ### Core Modules
 
-#### 1. Path Validator (`src/main/filesystem/pathValidator.ts`)
+#### 1. Path Validator (`src/main/filesystem/path-validator.ts`)
 
 **Purpose**: Centralized path validation and normalization.
 
@@ -206,7 +206,7 @@ async function validateDirectoryPath(dirPath: string): Promise<void>
 - ✅ Exact-match-or-child-boundary check (not raw prefix matching) so a sibling directory that merely shares a name prefix with an allowed root is rejected
 - ✅ Throws descriptive errors for unauthorized access attempts
 
-#### 2. Secure Filesystem (`src/main/filesystem/secureFs.ts`)
+#### 2. Secure Filesystem (`src/main/filesystem/secure-fs.ts`)
 
 **Purpose**: Wrapper around Node.js `fs/promises` with automatic path validation.
 

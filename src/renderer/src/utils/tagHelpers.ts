@@ -5,7 +5,7 @@
  * including display name conversion and grouping.
  */
 
-import { TagList, TagGroups } from '@renderer/constants/tag-list.constant'
+import { TagList, TagGroups } from '@shared/constants/mangadex/tag-list.constant'
 
 /**
  * Convert camelCase tag key to display name

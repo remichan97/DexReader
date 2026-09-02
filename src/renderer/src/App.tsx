@@ -1,19 +1,18 @@
-import { HashRouter, useLocation, useNavigate } from 'react-router-dom'
-import { useEffect, useState, useCallback } from 'react'
+import { HashRouter, useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { AppShell } from './layouts/AppShell'
 import { AppRoutes } from './router'
 import { useAccentColor } from './hooks/useAccentColor'
 import { KeyboardShortcutsHandler } from './components/KeyboardShortcutsHandler'
 import { useIncognitoListener } from './hooks/useIncognitoListener'
 import { useConnectivityListener } from './hooks/useConnectivityListener'
+import { useGatekeeperGuard } from './hooks/useGatekeeperGuard'
+import { useStartupTheme } from './hooks/useStartupTheme'
+import { useStartupLanguage } from './hooks/useStartupLanguage'
+import { useStartupRoute } from './hooks/useStartupRoute'
+import { useUpdateBanner } from './hooks/useUpdateBanner'
 import { ToastContainer } from './components/Toast'
-import {
-  useToastStore,
-  useProgressStore,
-  useLibraryStore,
-  useAppStore,
-  useSidebarStore
-} from './stores'
+import { useToastStore, useProgressStore, useLibraryStore } from './stores'
 import { useConnectivityStore } from './stores/connectivityStore'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { ProgressRing } from './components/ProgressRing'
@@ -23,251 +22,32 @@ import { UnsavedChangesProvider } from './contexts/UnsavedChangesProvider'
 import { SecureNavigationProvider } from './contexts/SecureNavigationContext'
 import { useUnsavedChanges } from './hooks/useUnsavedChanges'
 import { rendererLog } from './services/logging.service'
-import i18next from './i18n/config'
-
-/**
- * Map startup page setting to route path
- */
-function mapStartupPageToRoute(startupPage: string): string {
-  switch (startupPage) {
-    case 'library':
-      return '/library'
-    case 'downloads':
-      return '/downloads'
-    case 'browse':
-    default:
-      return '/browse'
-  }
-}
 
 function AppContent(): React.JSX.Element {
   const location = useLocation()
-  const navigate = useNavigate()
   const isReaderRoute = location.pathname.startsWith('/reader/')
   const flushPendingSaves = useProgressStore((state) => state.flushPendingSaves)
   const loadFavourites = useLibraryStore((state) => state.loadFavourites)
   const startPolling = useConnectivityStore((state) => state.startPolling)
   const stopPolling = useConnectivityStore((state) => state.stopPolling)
   const [isClosing, setIsClosing] = useState(false)
-  const [startupRoute, setStartupRoute] = useState<string | null>(null)
-  const [showUpdateBanner, setShowUpdateBanner] = useState(false)
-  const [updateVersion, setUpdateVersion] = useState<string>('')
-  const setSystemTheme = useAppStore((state) => state.setSystemTheme)
-  const setThemeMode = useAppStore((state) => state.setThemeMode)
-  const theme = useAppStore((state) => state.theme)
-  const { setDisplayMode: setSidebarDisplayMode } = useSidebarStore()
 
-  // Gatekeeper state
-  const [isLocked, setIsLocked] = useState(false)
-  const [isCheckingLock, setIsCheckingLock] = useState(true)
+  const startupRoute = useStartupRoute()
+  useStartupTheme()
+  useStartupLanguage()
 
-  // Gatekeeper re-authentication state
-  const [showReauthModal, setShowReauthModal] = useState(false)
-  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null)
+  const {
+    isLocked,
+    isCheckingLock,
+    unlock,
+    showReauthModal,
+    handleNavigate,
+    handleReauthSuccess,
+    handleReauthCancel
+  } = useGatekeeperGuard()
 
-  // Load theme preference FIRST (before anything else)
-  useEffect(() => {
-    async function loadThemeEarly(): Promise<void> {
-      try {
-        // Load theme from settings
-        const settingsResult = await globalThis.settings.load()
-        if (settingsResult.success && settingsResult.data?.appearance?.theme) {
-          setThemeMode(settingsResult.data.appearance.theme)
-        }
-
-        // Load sidebar display mode from settings
-        if (settingsResult.success && settingsResult.data?.appearance?.sidebarSize) {
-          setSidebarDisplayMode(settingsResult.data.appearance.sidebarSize)
-        }
-
-        // Get system theme
-        const themeResult = await globalThis.api.getTheme()
-        if (themeResult.success && themeResult.data) {
-          setSystemTheme(themeResult.data as 'light' | 'dark')
-        }
-      } catch (error) {
-        rendererLog.error('[App] Failed to load theme early:', error)
-      }
-    }
-    void loadThemeEarly()
-  }, [setThemeMode, setSystemTheme, setSidebarDisplayMode])
-
-  // Apply theme to document
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme
-  }, [theme])
-
-  // Custom navigation handler that checks for gatekeeper re-auth
-  const handleNavigate = useCallback(
-    async (route: string): Promise<void> => {
-      // Check if navigating to Settings and re-auth is required
-      if (route === '/settings') {
-        try {
-          const [isEnabledResult, requireSettingsResult] = await Promise.all([
-            globalThis.gatekeeper.isEnabled(),
-            globalThis.gatekeeper.getRequireForSettings()
-          ])
-
-          if (
-            isEnabledResult.success &&
-            isEnabledResult.data &&
-            requireSettingsResult.success &&
-            requireSettingsResult.data
-          ) {
-            // Re-auth is required - show modal
-            setPendingNavigation(route)
-            setShowReauthModal(true)
-            return
-          }
-        } catch (err) {
-          rendererLog.error('[App] Failed to check gatekeeper re-auth requirements:', err)
-          // On error, allow navigation (fail-open for better UX)
-        }
-      }
-
-      // No re-auth needed, proceed with navigation
-      navigate(route)
-    },
-    [navigate]
-  )
-
-  // Override navigation listener with custom handler
-  useEffect(() => {
-    // Listen for navigation commands from menu
-    globalThis.api.onNavigate(handleNavigate)
-  }, [handleNavigate])
-
-  const handleReauthSuccess = (): void => {
-    // Re-authentication successful - proceed with pending navigation
-    if (pendingNavigation) {
-      rendererLog.info('[App] Re-authentication successful, navigating to Settings')
-      navigate(pendingNavigation)
-      setPendingNavigation(null)
-    }
-    setShowReauthModal(false)
-  }
-
-  const handleReauthCancel = (): void => {
-    // Re-authentication cancelled - return to previous screen
-    rendererLog.info('[App] Re-authentication cancelled, staying on current page')
-    setPendingNavigation(null)
-    setShowReauthModal(false)
-    // Navigation automatically stays on current page (no action needed)
-  }
-
-  // Check if Gatekeeper is enabled on mount
-  useEffect(() => {
-    async function checkGatekeeper(): Promise<void> {
-      try {
-        const result = await globalThis.gatekeeper.isEnabled()
-        if (result.success && result.data) {
-          setIsLocked(true)
-        }
-      } catch (err) {
-        rendererLog.error('[App] Failed to check Gatekeeper status:', err)
-      } finally {
-        setIsCheckingLock(false)
-      }
-    }
-    void checkGatekeeper()
-  }, [])
-
-  // Load startup page preference from settings
-  useEffect(() => {
-    async function loadStartupPreference(): Promise<void> {
-      try {
-        const settings = await globalThis.settings.load()
-        if (settings.success) {
-          const route = mapStartupPageToRoute(settings.data.appearance.startupPage)
-          setStartupRoute(route)
-          return
-        }
-        // If loading fails, fall back to default
-        setStartupRoute('/browse')
-      } catch (error) {
-        rendererLog.error('[App] Failed to load startup page setting:', error)
-        // Fall back to default
-        setStartupRoute('/browse')
-      }
-    }
-    void loadStartupPreference()
-  }, [])
-
-  // Load display language preference from settings and apply it
-  useEffect(() => {
-    async function loadLanguagePreference(): Promise<void> {
-      try {
-        const settings = await globalThis.settings.load()
-        if (settings.success && settings.data.language?.displayLanguage) {
-          const userLanguage = settings.data.language.displayLanguage
-          await i18next.changeLanguage(userLanguage)
-          rendererLog.info(`[App] Display language set to: ${userLanguage}`)
-        }
-      } catch (error) {
-        rendererLog.error('[App] Failed to load display language setting:', error)
-        // Fall back to default (en-GB) already set in i18n config
-      }
-    }
-    void loadLanguagePreference()
-  }, [])
-
-  // Check for update completion flag on startup
-  useEffect(() => {
-    async function checkForUpdateCompletion(): Promise<void> {
-      try {
-        const flagValue = localStorage.getItem('dexreader:updateJustCompleted')
-
-        if (flagValue === 'true') {
-          // Get version from localStorage (set before quit)
-          const storedVersion = localStorage.getItem('dexreader:newVersion')
-
-          // Fallback to app version if storage failed
-          let version = storedVersion || ''
-          if (!version) {
-            const versionResult = await globalThis.appUpdate.getAppVersion()
-            version = versionResult.data || 'unknown'
-          }
-
-          setUpdateVersion(version)
-          setShowUpdateBanner(true)
-
-          // Clear flags immediately (one-time trigger)
-          localStorage.removeItem('dexreader:updateJustCompleted')
-          localStorage.removeItem('dexreader:newVersion')
-
-          rendererLog.info(`[App] Update detected, showing banner for v${version}`)
-        }
-      } catch (error) {
-        rendererLog.error('[App] Failed to check update completion flag:', error)
-        // Clean up flags even on error
-        localStorage.removeItem('dexreader:updateJustCompleted')
-        localStorage.removeItem('dexreader:newVersion')
-      }
-    }
-
-    void checkForUpdateCompletion()
-  }, [])
-
-  const handleDismissBanner = (): void => {
-    setShowUpdateBanner(false)
-    rendererLog.info('[App] Update banner dismissed by user')
-  }
-
-  const handleViewReleaseNotes = async (): Promise<void> => {
-    try {
-      const repoUrl = 'https://github.com/remichan97/DexReader'
-      const releaseUrl = `${repoUrl}/releases/tag/v${updateVersion}`
-
-      // Open in external browser
-      globalThis.open(releaseUrl, '_blank', 'noopener,noreferrer')
-
-      // Auto-dismiss banner after opening release notes
-      handleDismissBanner()
-    } catch (error) {
-      rendererLog.error('[App] Failed to open release notes:', error)
-      // Don't auto-dismiss on error - let user try again or manually dismiss
-    }
-  }
+  const { showUpdateBanner, updateVersion, handleDismissBanner, handleViewReleaseNotes } =
+    useUpdateBanner()
 
   // Listen for incognito toggle from menu
   useIncognitoListener()
@@ -336,7 +116,7 @@ function AppContent(): React.JSX.Element {
   }
 
   if (isLocked) {
-    return <GatekeeperUnlockScreen onUnlock={() => setIsLocked(false)} />
+    return <GatekeeperUnlockScreen onUnlock={unlock} />
   }
 
   // Show loading state while fetching startup preference

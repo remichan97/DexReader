@@ -1,10 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
+// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
 import { ImageQuality } from '../../../../../main/api/enums/image-quality.enum'
-import type { ImageUrlResponse } from '../../../../../preload/index.d'
+import type { ImageUrlResponse, ChapterContract } from '../../../../../preload/window.types'
 import { useConnectivityStore } from '@renderer/stores/connectivityStore'
 import { rendererLog } from '@renderer/services/logging.service'
+import { toError } from '@shared/utils/to-error.util'
+import { ChapterIncludes, OrderDirection } from '@shared/enums/mangadex'
 
-type ChapterEntity = Awaited<ReturnType<Window['mangadex']['getMangaFeed']>>['data'][number]
+type ChapterEntity = ChapterContract
 
 interface LocationState {
   chapterNumber?: string
@@ -154,7 +157,7 @@ export function useChapterData(
         rendererLog.error('[useChapterData] Failed to load chapter images:', error)
         setData((prev) => ({
           ...prev,
-          error: error instanceof Error ? error : new Error(String(error)),
+          error: toError(error),
           loading: false
         }))
       }
@@ -200,8 +203,8 @@ export function useChapterData(
           limit: 500,
           offset: 0,
           translatedLanguage: ['en'], // Fallback to English
-          order: { chapter: 'asc' },
-          includes: ['scanlation_group']
+          order: { chapter: OrderDirection.Asc },
+          includes: [ChapterIncludes.SCANLATION_GROUP]
         })
 
         if (!chaptersResponse.success || !chaptersResponse.data) {

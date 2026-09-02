@@ -1,5 +1,5 @@
-import { SearchPresetQuery } from '../queries/search-presets/search-preset.query'
-import { SearchFiltersData } from '../types/search-preset.type'
+import { SearchPresetQuery } from '@shared/contracts/settings/search-preset.contract'
+import { SearchFiltersData } from '@shared/contracts/settings/search-filters.contract'
 
 type SearchPresetRow = {
   id: number

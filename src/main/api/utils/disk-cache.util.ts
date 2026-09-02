@@ -2,7 +2,7 @@ import path from 'node:path'
 import { getCachedCoverPath } from '../../filesystem/path-validator'
 import { secureFs } from '../../filesystem/secure-fs'
 import { mangaRepo } from '../../database/repositories/manga.repo'
-import { DiskCacheQuery } from '../../database/queries/storage/disk-cache.query'
+import { DiskCacheContract } from '@shared/contracts/database/storage/disk-cache.contract'
 import { mainLog } from '../../services/logging/main-logging.service'
 import { settingsManager } from '../../settings/settings-manager'
 
@@ -18,7 +18,7 @@ export class DiskCacheUtil {
     }
   }
 
-  async getDiskCacheSize(): Promise<DiskCacheQuery> {
+  async getDiskCacheSize(): Promise<DiskCacheContract> {
     const cachePath = this.coverCachePath
 
     const files = await secureFs.readDir(cachePath)
@@ -197,7 +197,7 @@ export class DiskCacheUtil {
   }
 
   private async getMaxCacheSize(): Promise<number> {
-    const cacheLimit = settingsManager.getByPath('downloads', 'maxDiskCacheSize') as number
+    const cacheLimit = settingsManager.getByPath('downloads', 'maxDiskCacheSize')
     return cacheLimit ?? 50 * 1024 * 1024 // Default to 50MB if not set, 0 means unlimited
   }
 

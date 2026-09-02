@@ -7,10 +7,15 @@
     "vitest/setup.main.ts",
     "src/main/**/*",
     "src/preload/**/*",
-    "src/locales/**/*"
+    "src/locales/**/*",
+    "src/shared/**/*",
   ],
   "compilerOptions": {
     "composite": true,
-    "types": ["electron-vite/node", "vitest/globals"]
+    "types": ["electron-vite/node", "vitest/globals"],
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["src/shared/*"]
+    }
   }
 }

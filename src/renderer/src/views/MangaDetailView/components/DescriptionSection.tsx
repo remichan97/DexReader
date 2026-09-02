@@ -2,12 +2,10 @@ import type { JSX } from 'react'
 import { useState } from 'react'
 import { Button } from '@renderer/components/Button'
 import { useTranslation } from '@renderer/hooks/useTranslation'
-
-// Extract types from global window interface
-type MangaEntity = Awaited<ReturnType<Window['mangadex']['getManga']>>['data']
+import type { MangaContract } from '../../../../../preload/window.types'
 
 interface DescriptionSectionProps {
-  readonly manga: MangaEntity
+  readonly manga: MangaContract
 }
 
 /**
@@ -19,9 +17,9 @@ export default function DescriptionSection({ manga }: DescriptionSectionProps): 
 
   // Get description (prefer English)
   const description =
-    manga.attributes.description?.en ||
-    manga.attributes.description?.['ja-ro'] ||
-    Object.values(manga.attributes.description || {})[0] ||
+    manga.description?.en ||
+    manga.description?.['ja-ro'] ||
+    Object.values(manga.description || {})[0] ||
     t('mangaDetail:section.description.noDescription', {
       defaultValue: 'No description available.'
     })

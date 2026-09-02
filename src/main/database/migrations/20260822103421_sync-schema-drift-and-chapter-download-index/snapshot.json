@@ -1,0 +1,1505 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "id": "b2305d91-9994-4574-8f83-2772dedc192c",
+  "prevIds": [
+    "3635dbcc-6f10-410c-bd8c-bf339c3587fc"
+  ],
+  "ddl": [
+    {
+      "name": "chapter_downloads",
+      "entityType": "tables"
+    },
+    {
+      "name": "chapter_progress",
+      "entityType": "tables"
+    },
+    {
+      "name": "chapter",
+      "entityType": "tables"
+    },
+    {
+      "name": "collection_items",
+      "entityType": "tables"
+    },
+    {
+      "name": "collections",
+      "entityType": "tables"
+    },
+    {
+      "name": "manga_progress",
+      "entityType": "tables"
+    },
+    {
+      "name": "manga_reader_overrides",
+      "entityType": "tables"
+    },
+    {
+      "name": "manga",
+      "entityType": "tables"
+    },
+    {
+      "name": "read_history",
+      "entityType": "tables"
+    },
+    {
+      "name": "reading_statistics",
+      "entityType": "tables"
+    },
+    {
+      "name": "search_presets",
+      "entityType": "tables"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "chapter_id",
+      "entityType": "columns",
+      "table": "chapter_downloads"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "manga_id",
+      "entityType": "columns",
+      "table": "chapter_downloads"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": "'queued'",
+      "generated": null,
+      "name": "status",
+      "entityType": "columns",
+      "table": "chapter_downloads"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "downloaded_at",
+      "entityType": "columns",
+      "table": "chapter_downloads"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "downloads_base_path",
+      "entityType": "columns",
+      "table": "chapter_downloads"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "file_path",
+      "entityType": "columns",
+      "table": "chapter_downloads"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "total_pages",
+      "entityType": "columns",
+      "table": "chapter_downloads"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "storage_size",
+      "entityType": "columns",
+      "table": "chapter_downloads"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": "'data'",
+      "generated": null,
+      "name": "image_quality",
+      "entityType": "columns",
+      "table": "chapter_downloads"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": "'.jpg'",
+      "generated": null,
+      "name": "image_format",
+      "entityType": "columns",
+      "table": "chapter_downloads"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "error_message",
+      "entityType": "columns",
+      "table": "chapter_downloads"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": "(unixepoch())",
+      "generated": null,
+      "name": "last_attempted_at",
+      "entityType": "columns",
+      "table": "chapter_downloads"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": "(unixepoch())",
+      "generated": null,
+      "name": "last_verified_at",
+      "entityType": "columns",
+      "table": "chapter_downloads"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": "false",
+      "generated": null,
+      "name": "is_hidden",
+      "entityType": "columns",
+      "table": "chapter_downloads"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": true,
+      "default": null,
+      "generated": null,
+      "name": "id",
+      "entityType": "columns",
+      "table": "chapter_progress"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "manga_id",
+      "entityType": "columns",
+      "table": "chapter_progress"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "chapter_id",
+      "entityType": "columns",
+      "table": "chapter_progress"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": "0",
+      "generated": null,
+      "name": "current_page",
+      "entityType": "columns",
+      "table": "chapter_progress"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": "false",
+      "generated": null,
+      "name": "completed",
+      "entityType": "columns",
+      "table": "chapter_progress"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "last_read_at",
+      "entityType": "columns",
+      "table": "chapter_progress"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "chapter_id",
+      "entityType": "columns",
+      "table": "chapter"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "manga_id",
+      "entityType": "columns",
+      "table": "chapter"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "title",
+      "entityType": "columns",
+      "table": "chapter"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "chapter_number",
+      "entityType": "columns",
+      "table": "chapter"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "volume",
+      "entityType": "columns",
+      "table": "chapter"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "language",
+      "entityType": "columns",
+      "table": "chapter"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "publish_at",
+      "entityType": "columns",
+      "table": "chapter"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "table": "chapter"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "table": "chapter"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "scanlation_group",
+      "entityType": "columns",
+      "table": "chapter"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "external_url",
+      "entityType": "columns",
+      "table": "chapter"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": true,
+      "default": null,
+      "generated": null,
+      "name": "id",
+      "entityType": "columns",
+      "table": "collection_items"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "collection_id",
+      "entityType": "columns",
+      "table": "collection_items"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "manga_id",
+      "entityType": "columns",
+      "table": "collection_items"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "added_at",
+      "entityType": "columns",
+      "table": "collection_items"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": false,
+      "default": "0",
+      "generated": null,
+      "name": "position",
+      "entityType": "columns",
+      "table": "collection_items"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": true,
+      "default": null,
+      "generated": null,
+      "name": "id",
+      "entityType": "columns",
+      "table": "collections"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "name",
+      "entityType": "columns",
+      "table": "collections"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "description",
+      "entityType": "columns",
+      "table": "collections"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "table": "collections"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "table": "collections"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "manga_id",
+      "entityType": "columns",
+      "table": "manga_progress"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "last_chapter_id",
+      "entityType": "columns",
+      "table": "manga_progress"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "first_read_at",
+      "entityType": "columns",
+      "table": "manga_progress"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "last_read_at",
+      "entityType": "columns",
+      "table": "manga_progress"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "manga_id",
+      "entityType": "columns",
+      "table": "manga_reader_overrides"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "settings",
+      "entityType": "columns",
+      "table": "manga_reader_overrides"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "table": "manga_reader_overrides"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "table": "manga_reader_overrides"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "manga_id",
+      "entityType": "columns",
+      "table": "manga"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "title",
+      "entityType": "columns",
+      "table": "manga"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "description",
+      "entityType": "columns",
+      "table": "manga"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "status",
+      "entityType": "columns",
+      "table": "manga"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "cover_url",
+      "entityType": "columns",
+      "table": "manga"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "cover_cached_at",
+      "entityType": "columns",
+      "table": "manga"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "year",
+      "entityType": "columns",
+      "table": "manga"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": "false",
+      "generated": null,
+      "name": "is_favourite",
+      "entityType": "columns",
+      "table": "manga"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "added_at",
+      "entityType": "columns",
+      "table": "manga"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "table": "manga"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "last_accessed_at",
+      "entityType": "columns",
+      "table": "manga"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "external_links",
+      "entityType": "columns",
+      "table": "manga"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "tags",
+      "entityType": "columns",
+      "table": "manga"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "authors",
+      "entityType": "columns",
+      "table": "manga"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "artists",
+      "entityType": "columns",
+      "table": "manga"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "alternative_titles",
+      "entityType": "columns",
+      "table": "manga"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "last_volume",
+      "entityType": "columns",
+      "table": "manga"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "last_chapter",
+      "entityType": "columns",
+      "table": "manga"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "manga_id",
+      "entityType": "columns",
+      "table": "read_history"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "chapter_id",
+      "entityType": "columns",
+      "table": "read_history"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "read_at",
+      "entityType": "columns",
+      "table": "read_history"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": false,
+      "default": "1",
+      "generated": null,
+      "name": "id",
+      "entityType": "columns",
+      "table": "reading_statistics"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": "0",
+      "generated": null,
+      "name": "total_mangas_read",
+      "entityType": "columns",
+      "table": "reading_statistics"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": "0",
+      "generated": null,
+      "name": "total_chapters_read",
+      "entityType": "columns",
+      "table": "reading_statistics"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": "0",
+      "generated": null,
+      "name": "total_pages_read",
+      "entityType": "columns",
+      "table": "reading_statistics"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": "0",
+      "generated": null,
+      "name": "total_estimated_minutes",
+      "entityType": "columns",
+      "table": "reading_statistics"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": "(unixepoch())",
+      "generated": null,
+      "name": "last_calculated_at",
+      "entityType": "columns",
+      "table": "reading_statistics"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": true,
+      "default": null,
+      "generated": null,
+      "name": "id",
+      "entityType": "columns",
+      "table": "search_presets"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "name",
+      "entityType": "columns",
+      "table": "search_presets"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": "''",
+      "generated": null,
+      "name": "search_query",
+      "entityType": "columns",
+      "table": "search_presets"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "filters",
+      "entityType": "columns",
+      "table": "search_presets"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": "20",
+      "generated": null,
+      "name": "results_per_page",
+      "entityType": "columns",
+      "table": "search_presets"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "table": "search_presets"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "table": "search_presets"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "last_used_at",
+      "entityType": "columns",
+      "table": "search_presets"
+    },
+    {
+      "columns": [
+        "chapter_id"
+      ],
+      "tableTo": "chapter",
+      "columnsTo": [
+        "chapter_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "nameExplicit": false,
+      "name": "chapter_downloads_chapter_id_chapter_chapter_id_fk",
+      "entityType": "fks",
+      "table": "chapter_downloads"
+    },
+    {
+      "columns": [
+        "manga_id"
+      ],
+      "tableTo": "manga",
+      "columnsTo": [
+        "manga_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "nameExplicit": false,
+      "name": "chapter_downloads_manga_id_manga_manga_id_fk",
+      "entityType": "fks",
+      "table": "chapter_downloads"
+    },
+    {
+      "columns": [
+        "manga_id"
+      ],
+      "tableTo": "manga_progress",
+      "columnsTo": [
+        "manga_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "nameExplicit": false,
+      "name": "chapter_progress_manga_id_manga_progress_manga_id_fk",
+      "entityType": "fks",
+      "table": "chapter_progress"
+    },
+    {
+      "columns": [
+        "manga_id"
+      ],
+      "tableTo": "manga",
+      "columnsTo": [
+        "manga_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "nameExplicit": false,
+      "name": "chapter_manga_id_manga_manga_id_fk",
+      "entityType": "fks",
+      "table": "chapter"
+    },
+    {
+      "columns": [
+        "collection_id"
+      ],
+      "tableTo": "collections",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "nameExplicit": false,
+      "name": "collection_items_collection_id_collections_id_fk",
+      "entityType": "fks",
+      "table": "collection_items"
+    },
+    {
+      "columns": [
+        "manga_id"
+      ],
+      "tableTo": "manga",
+      "columnsTo": [
+        "manga_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "nameExplicit": false,
+      "name": "collection_items_manga_id_manga_manga_id_fk",
+      "entityType": "fks",
+      "table": "collection_items"
+    },
+    {
+      "columns": [
+        "manga_id"
+      ],
+      "tableTo": "manga",
+      "columnsTo": [
+        "manga_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "nameExplicit": false,
+      "name": "manga_reader_overrides_manga_id_manga_manga_id_fk",
+      "entityType": "fks",
+      "table": "manga_reader_overrides"
+    },
+    {
+      "columns": [
+        "manga_id"
+      ],
+      "tableTo": "manga",
+      "columnsTo": [
+        "manga_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "nameExplicit": false,
+      "name": "read_history_manga_id_manga_manga_id_fk",
+      "entityType": "fks",
+      "table": "read_history"
+    },
+    {
+      "columns": [
+        "chapter_id",
+        "manga_id"
+      ],
+      "nameExplicit": true,
+      "name": "pk_chapter_downloads",
+      "entityType": "pks",
+      "table": "chapter_downloads"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "chapter_progress_pk",
+      "table": "chapter_progress",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "chapter_id"
+      ],
+      "nameExplicit": false,
+      "name": "chapter_pk",
+      "table": "chapter",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "collection_items_pk",
+      "table": "collection_items",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "collections_pk",
+      "table": "collections",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "manga_id"
+      ],
+      "nameExplicit": false,
+      "name": "manga_progress_pk",
+      "table": "manga_progress",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "manga_id"
+      ],
+      "nameExplicit": false,
+      "name": "manga_reader_overrides_pk",
+      "table": "manga_reader_overrides",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "manga_id"
+      ],
+      "nameExplicit": false,
+      "name": "manga_pk",
+      "table": "manga",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "manga_id"
+      ],
+      "nameExplicit": false,
+      "name": "read_history_pk",
+      "table": "read_history",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "reading_statistics_pk",
+      "table": "reading_statistics",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "search_presets_pk",
+      "table": "search_presets",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        {
+          "value": "manga_id",
+          "isExpression": false
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "idx_chapter_manga_downloads",
+      "entityType": "indexes",
+      "table": "chapter_downloads"
+    },
+    {
+      "columns": [
+        {
+          "value": "chapter_id",
+          "isExpression": false
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "idx_chapter_chapterId",
+      "entityType": "indexes",
+      "table": "chapter_downloads"
+    },
+    {
+      "columns": [
+        {
+          "value": "status",
+          "isExpression": false
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "idx_chapter_status_downloads",
+      "entityType": "indexes",
+      "table": "chapter_downloads"
+    },
+    {
+      "columns": [
+        {
+          "value": "manga_id",
+          "isExpression": false
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "idx_chapter_progress_manga",
+      "entityType": "indexes",
+      "table": "chapter_progress"
+    },
+    {
+      "columns": [
+        {
+          "value": "\"last_read_at\" desc",
+          "isExpression": true
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "idx_chapter_progress_last_read",
+      "entityType": "indexes",
+      "table": "chapter_progress"
+    },
+    {
+      "columns": [
+        {
+          "value": "manga_id",
+          "isExpression": false
+        },
+        {
+          "value": "completed",
+          "isExpression": false
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "idx_chapter_progress_manga_completed",
+      "entityType": "indexes",
+      "table": "chapter_progress"
+    },
+    {
+      "columns": [
+        {
+          "value": "manga_id",
+          "isExpression": false
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "idx_chapter_manga",
+      "entityType": "indexes",
+      "table": "chapter"
+    },
+    {
+      "columns": [
+        {
+          "value": "\"publish_at\" desc",
+          "isExpression": true
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "idx_chapter_published",
+      "entityType": "indexes",
+      "table": "chapter"
+    },
+    {
+      "columns": [
+        {
+          "value": "manga_id",
+          "isExpression": false
+        },
+        {
+          "value": "chapter_number",
+          "isExpression": false
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "idx_chapter_number",
+      "entityType": "indexes",
+      "table": "chapter"
+    },
+    {
+      "columns": [
+        {
+          "value": "collection_id",
+          "isExpression": false
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "idx_collection_items_collection",
+      "entityType": "indexes",
+      "table": "collection_items"
+    },
+    {
+      "columns": [
+        {
+          "value": "manga_id",
+          "isExpression": false
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "idx_collection_items_manga",
+      "entityType": "indexes",
+      "table": "collection_items"
+    },
+    {
+      "columns": [
+        {
+          "value": "name",
+          "isExpression": false
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "idx_collections_name",
+      "entityType": "indexes",
+      "table": "collections"
+    },
+    {
+      "columns": [
+        {
+          "value": "\"last_read_at\" desc",
+          "isExpression": true
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "idx_manga_progress_last_read",
+      "entityType": "indexes",
+      "table": "manga_progress"
+    },
+    {
+      "columns": [
+        {
+          "value": "\"updated_at\" desc",
+          "isExpression": true
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "idx_manga_override_updated",
+      "entityType": "indexes",
+      "table": "manga_reader_overrides"
+    },
+    {
+      "columns": [
+        {
+          "value": "is_favourite",
+          "isExpression": false
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "idx_manga_favourite",
+      "entityType": "indexes",
+      "table": "manga"
+    },
+    {
+      "columns": [
+        {
+          "value": "\"added_at\" desc",
+          "isExpression": true
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "idx_manga_added",
+      "entityType": "indexes",
+      "table": "manga"
+    },
+    {
+      "columns": [
+        {
+          "value": "status",
+          "isExpression": false
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "idx_manga_status",
+      "entityType": "indexes",
+      "table": "manga"
+    },
+    {
+      "columns": [
+        {
+          "value": "\"last_accessed_at\" desc",
+          "isExpression": true
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "idx_last_accessed",
+      "entityType": "indexes",
+      "table": "manga"
+    },
+    {
+      "columns": [
+        {
+          "value": "\"added_at\" desc",
+          "isExpression": true
+        },
+        {
+          "value": "\"last_accessed_at\" desc",
+          "isExpression": true
+        }
+      ],
+      "isUnique": false,
+      "where": "\"manga\".\"is_favourite\" = 1",
+      "origin": "manual",
+      "name": "idx_manga_library",
+      "entityType": "indexes",
+      "table": "manga"
+    },
+    {
+      "columns": [
+        {
+          "value": "manga_id",
+          "isExpression": false
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "idx_read_history_manga",
+      "entityType": "indexes",
+      "table": "read_history"
+    },
+    {
+      "columns": [
+        {
+          "value": "\"read_at\" desc",
+          "isExpression": true
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "idx_read_history_timestamp",
+      "entityType": "indexes",
+      "table": "read_history"
+    },
+    {
+      "columns": [
+        {
+          "value": "manga_id",
+          "isExpression": false
+        },
+        {
+          "value": "\"chapter_id\" desc",
+          "isExpression": true
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "idx_read_history_manga_chapter",
+      "entityType": "indexes",
+      "table": "read_history"
+    },
+    {
+      "columns": [
+        {
+          "value": "name",
+          "isExpression": false
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "idx_search_presets_name",
+      "entityType": "indexes",
+      "table": "search_presets"
+    },
+    {
+      "columns": [
+        {
+          "value": "last_used_at",
+          "isExpression": false
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "idx_search_presets_last_used_at",
+      "entityType": "indexes",
+      "table": "search_presets"
+    },
+    {
+      "columns": [
+        "manga_id",
+        "chapter_id"
+      ],
+      "nameExplicit": true,
+      "name": "un_manga_chapter",
+      "entityType": "uniques",
+      "table": "chapter_progress"
+    },
+    {
+      "columns": [
+        "collection_id",
+        "manga_id"
+      ],
+      "nameExplicit": true,
+      "name": "uq_collection_manga",
+      "entityType": "uniques",
+      "table": "collection_items"
+    },
+    {
+      "value": "\"status\" IN ('ongoing', 'completed', 'hiatus', 'cancelled')",
+      "name": "chk_manga_status",
+      "entityType": "checks",
+      "table": "manga"
+    },
+    {
+      "value": "\"id\" = 1",
+      "name": "chk_reading_statistics_id",
+      "entityType": "checks",
+      "table": "reading_statistics"
+    },
+    {
+      "value": "length(name) <= 50",
+      "name": "chk_search_presets_char_limit",
+      "entityType": "checks",
+      "table": "search_presets"
+    }
+  ],
+  "renames": []
+}

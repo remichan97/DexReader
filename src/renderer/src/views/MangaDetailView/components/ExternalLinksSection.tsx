@@ -3,12 +3,10 @@ import { GlobeRegular } from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
 import { rendererLog } from '@renderer/services/logging.service'
 import { useTranslation } from '@renderer/hooks/useTranslation'
-
-// Extract types from global window interface
-type MangaEntity = Awaited<ReturnType<Window['mangadex']['getManga']>>['data']
+import type { MangaContract } from '../../../../../preload/window.types'
 
 interface ExternalLinksSectionProps {
-  readonly manga: MangaEntity
+  readonly manga: MangaContract
 }
 
 /**
@@ -16,7 +14,7 @@ interface ExternalLinksSectionProps {
  */
 export default function ExternalLinksSection({ manga }: ExternalLinksSectionProps): JSX.Element {
   const { t } = useTranslation(['mangaDetail', 'common'])
-  const links = manga.attributes.links || {}
+  const links = manga.links || {}
 
   // Service name mapping
   const serviceNames: Record<string, string> = {

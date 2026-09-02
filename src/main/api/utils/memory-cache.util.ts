@@ -1,4 +1,4 @@
-import { ChapterCacheTier } from '../../settings/enums/chapter-cache-tier.enum'
+import { ChapterCacheTier } from '../../../shared/enums/settings/chapter-cache-tier.enum'
 import os from 'node:os'
 import { settingsManager } from '../../settings/settings-manager'
 

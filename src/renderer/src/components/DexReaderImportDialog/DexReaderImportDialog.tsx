@@ -9,7 +9,7 @@ import {
   Settings20Regular,
   Warning20Regular
 } from '@fluentui/react-icons'
-import type { DexReaderImportResult } from '../../../../preload/index.d'
+import type { DexReaderImportContract } from '../../../../preload/window.types'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import './DexReaderImportDialog.css'
 
@@ -17,7 +17,7 @@ interface DexReaderImportDialogProps {
   isOpen: boolean
   filePath: string | null
   onClose: () => void
-  onImportComplete: (result: DexReaderImportResult) => void
+  onImportComplete: (result: DexReaderImportContract) => void
 }
 
 export function DexReaderImportDialog({
@@ -49,7 +49,7 @@ export function DexReaderImportDialog({
 
       const result = await globalThis.dexreader.importData(filePath)
 
-      if (!result.success) {
+      if (!result.success || !result.data) {
         throw new Error(
           result.error?.message ||
             t('dialogs:dexreaderImport.errors.importFailed', { message: 'Unknown error' })

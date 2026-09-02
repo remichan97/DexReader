@@ -9,7 +9,9 @@ permissions:
 
 jobs:
   # Single job that runs all CI checks sequentially
-  # More efficient than parallel jobs (1x checkout + 1x npm ci vs 3x each)
+  # More efficient than parallel jobs (1x checkout + 1x npm ci vs 4x each)
+  # create-release-tag needs this job, so a release tag is only ever created
+  # once lint, typecheck, unit tests, and the production build all pass
   ci:
     runs-on: ubuntu-latest
     steps:
@@ -29,6 +31,9 @@ jobs:
 
       - name: Run TypeScript type checking
         run: npm run typecheck
+
+      - name: Run unit tests
+        run: npm run test
 
       - name: Build the project
         run: npm run build

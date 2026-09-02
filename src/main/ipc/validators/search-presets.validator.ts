@@ -6,17 +6,17 @@ import {
   PublicationDemographic,
   PublicationStatus
 } from '../../api/enums'
-import { SearchFiltersData } from '../../database/types/search-preset.type'
-import { CreateSearchPresetOptions } from '../../services/options/create-search-preset.option'
+import { SearchFiltersData } from '@shared/contracts/settings/search-filters.contract'
+import { CreateSearchPresetCommand } from '@shared/commands/services/create-search-preset.command'
 
 export function isValidCreateSearchPresetOptions(
   options: unknown
-): options is CreateSearchPresetOptions {
+): options is CreateSearchPresetCommand {
   if (typeof options !== 'object' || options === undefined || options === null) {
     throw new TypeError('Expected an object for the create search preset command')
   }
 
-  const createCommand = options as CreateSearchPresetOptions
+  const createCommand = options as CreateSearchPresetCommand
 
   if (typeof createCommand.name !== 'string') {
     throw new TypeError('Expected a string for the preset name')

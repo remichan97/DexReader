@@ -1,8 +1,26 @@
 import fs from 'node:fs/promises'
 import { defineConfig } from 'electron-vite'
 import react from '@vitejs/plugin-react'
+import type { Plugin } from 'vite'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
+// Vite's dev server delivers component CSS via injected <style> tags with inline
+// content (not just for HMR updates, but on initial load too) - this requires
+// style-src 'unsafe-inline'. The production build extracts CSS into real .css files
+// loaded via <link>, so the shipped app doesn't need it. Only add it back for `vite dev`.
+function devOnlyUnsafeInlineStyles(): Plugin {
+  return {
+    name: 'dev-csp-unsafe-inline-styles',
+    transformIndexHtml: {
+      order: 'post',
+      handler(html, ctx) {
+        if (!ctx.server) return html
+        return html.replace("style-src 'self';", "style-src 'self' 'unsafe-inline';")
+      }
+    }
+  }
+}
 
 // ESM: Get __dirname equivalent
 const __filename = fileURLToPath(import.meta.url)
@@ -10,6 +28,11 @@ const __dirname = dirname(__filename)
 
 export default defineConfig({
   main: {
+    resolve: {
+      alias: {
+        '@shared': resolve('src/shared')
+      }
+    },
     build: {
       rollupOptions: {
         external: [
@@ -106,6 +129,11 @@ export default defineConfig({
     ]
   },
   preload: {
+    resolve: {
+      alias: {
+        '@shared': resolve('src/shared')
+      }
+    },
     build: {
       // IMPORTANT: Must bundle dependencies for sandbox mode
       // Sandboxed preload cannot access node_modules at runtime
@@ -121,7 +149,8 @@ export default defineConfig({
   renderer: {
     resolve: {
       alias: {
-        '@renderer': resolve('src/renderer/src')
+        '@renderer': resolve('src/renderer/src'),
+        '@shared': resolve('src/shared')
       }
     },
     build: {
@@ -154,6 +183,6 @@ export default defineConfig({
         }
       }
     },
-    plugins: [react()]
+    plugins: [react(), devOnlyUnsafeInlineStyles()]
   }
 })

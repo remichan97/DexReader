@@ -1,4 +1,5 @@
-import { UpdateFirstReadCommand } from './../../database/commands/progress/update-firstread.command'
+import { databaseConnection } from './../../database/connection'
+import { UpdateFirstReadCommand } from '@shared/commands/repositories/progress/update-firstread.command'
 import path, { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import fs from 'node:fs/promises'
@@ -6,17 +7,16 @@ import fs from 'node:fs/promises'
 // ESM: Get __dirname equivalent
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
-import { DexReaderImportResult } from '../results/dexreader/import.result'
 import Pako from 'pako'
 import protobuf from 'protobufjs'
 import { DexReaderBackup } from '../types/dexreader/backup.type'
 import packgageData from '../../../../package.json'
 import { ValidationError } from '../../ipc/error/validation.error'
-import { UpsertMangaCommand } from '../../database/commands/manga/upsert-manga.command'
-import { SaveChapterCommand } from '../../database/commands/progress/save-chapter.command'
-import { AddToCollectionCommand } from '../../database/commands/collections/add-to-collection.command'
-import { UpdateMangaOverrideCommand } from '../../database/commands/manga/update-manga-override.command'
-import { CreateCollectionCommand } from '../../database/commands/collections/create-collection.command'
+import { UpsertMangaCommand } from '@shared/commands/repositories/manga/upsert-manga.command'
+import { SaveChapterCommand } from '@shared/commands/repositories/progress/save-chapter.command'
+import { AddToCollectionCommand } from '@shared/commands/repositories/collections/add-to-collection.command'
+import { UpdateMangaOverrideCommand } from '@shared/commands/repositories/manga/update-manga-override.command'
+import { CreateCollectionCommand } from '@shared/commands/repositories/collections/create-collection.command'
 import { DexReaderManga } from '../types/dexreader/manga.type'
 import { DexReaderChapter } from '../types/dexreader/chapter.type'
 import { dexreaderImport } from '../helpers/dexreader-import.helper'
@@ -27,10 +27,11 @@ import { DexReaderCollectionItem } from '../types/dexreader/collection-item.type
 import { collectionRepo } from '../../database/repositories/collection.repo'
 import { DexReaderMangaProgress } from '../types/dexreader/manga-progress.type'
 import { DexReaderChapterProgress } from '../types/dexreader/chapter-progress.type'
-import { SaveProgressCommand } from '../../database/commands/progress/save-progress.command'
+import { SaveProgressCommand } from '@shared/commands/repositories/progress/save-progress.command'
 import { progressRepo } from '../../database/repositories/manga-progress.repo'
 import { DexReaderMangaReaderOverride } from '../types/dexreader/manga-reader-override.type'
 import { readerSettingsRepo } from '../../database/repositories/reader-settings.repo'
+import { DexReaderImportContract } from '@shared/contracts/services/dexreader/import.contract'
 
 class DexReaderImportService {
   private readonly schemaPath = path.join(
@@ -42,7 +43,7 @@ class DexReaderImportService {
   )
   private abortController?: AbortController
 
-  async importLibrary(filePath: string): Promise<DexReaderImportResult> {
+  async importLibrary(filePath: string): Promise<DexReaderImportContract> {
     // Abort any ongoing import if exists
     if (this.abortController) {
       this.abortController.abort()
@@ -140,10 +141,10 @@ class DexReaderImportService {
     importManga: DexReaderManga[],
     importChapters: DexReaderChapter[],
     signal: AbortSignal
-  ): DexReaderImportResult {
+  ): DexReaderImportContract {
     const saveChapterCommand: SaveChapterCommand[] = []
     const upsertMangaCommand: UpsertMangaCommand[] = []
-    const result: DexReaderImportResult = {
+    const result: DexReaderImportContract = {
       importedMangaCount: 0,
       importedChaptersCount: 0,
       importedCollectionsCount: 0,
@@ -175,11 +176,10 @@ class DexReaderImportService {
     // Final signal check before we start the database operations
     signal.throwIfAborted()
 
-    mangaRepo.batchUpsertManga(upsertMangaCommand)
-    result.importedMangaCount = upsertMangaCommand.filter((m) => m.isFavourite === true).length
-
-    chapterRepo.saveChapters(saveChapterCommand)
-    result.importedChaptersCount = saveChapterCommand.length
+    databaseConnection.getDb().transaction((tx) => {
+      mangaRepo.batchUpsertManga(upsertMangaCommand, tx)
+      chapterRepo.saveChapters(saveChapterCommand, tx)
+    })
 
     return result
   }
@@ -188,7 +188,7 @@ class DexReaderImportService {
     collections: DexReaderCollection[],
     collectionItems: DexReaderCollectionItem[],
     signal: AbortSignal,
-    result: DexReaderImportResult
+    result: DexReaderImportContract
   ): void {
     const createCollectionCommand: CreateCollectionCommand[] = []
 
@@ -220,51 +220,53 @@ class DexReaderImportService {
     // Final signal check before we start the database operations
     signal.throwIfAborted()
 
-    // Step 3: Create new collections and map their old IDs to new IDs
-    if (createCollectionCommand.length > 0) {
-      const newCollectionIds = collectionRepo.batchCreateCollections(createCollectionCommand)
-      result.importedCollectionsCount = newCollectionIds.length
+    databaseConnection.getDb().transaction((tx) => {
+      // Step 3: Create new collections and map their old IDs to new IDs
+      if (createCollectionCommand.length > 0) {
+        const newCollectionIds = collectionRepo.batchCreateCollections(createCollectionCommand, tx)
+        result.importedCollectionsCount = newCollectionIds.length
 
-      // Map each old collection ID to its new database ID
-      for (let i = 0; i < collectionsToCreate.length; i++) {
-        collectionIdMap.set(collectionsToCreate[i].id, newCollectionIds[i])
+        // Map each old collection ID to its new database ID
+        for (let i = 0; i < collectionsToCreate.length; i++) {
+          collectionIdMap.set(collectionsToCreate[i].id, newCollectionIds[i])
+        }
       }
-    }
 
-    // Step 4: Add manga to collections using the mapped IDs
-    const addToCollectionCommand: AddToCollectionCommand[] = []
+      // Step 4: Add manga to collections using the mapped IDs
+      const addToCollectionCommand: AddToCollectionCommand[] = []
 
-    for (const item of collectionItems) {
+      for (const item of collectionItems) {
+        signal.throwIfAborted()
+
+        // Translate old collection ID to new ID
+        const newCollectionId = collectionIdMap.get(item.collectionId)
+
+        if (newCollectionId === undefined) {
+          // Collection wasn't imported (shouldn't happen, but defensive)
+          continue
+        }
+
+        addToCollectionCommand.push({
+          collectionId: newCollectionId, // Use the NEW mapped ID
+          mangaId: item.mangaId
+        })
+      }
+
+      // Final signal check before adding items
       signal.throwIfAborted()
 
-      // Translate old collection ID to new ID
-      const newCollectionId = collectionIdMap.get(item.collectionId)
-
-      if (newCollectionId === undefined) {
-        // Collection wasn't imported (shouldn't happen, but defensive)
-        continue
+      if (addToCollectionCommand.length > 0) {
+        collectionRepo.batchAddToCollection(addToCollectionCommand, tx)
+        result.importedCollectionItemsCount = addToCollectionCommand.length
       }
-
-      addToCollectionCommand.push({
-        collectionId: newCollectionId, // Use the NEW mapped ID
-        mangaId: item.mangaId
-      })
-    }
-
-    // Final signal check before adding items
-    signal.throwIfAborted()
-
-    if (addToCollectionCommand.length > 0) {
-      collectionRepo.batchAddToCollection(addToCollectionCommand)
-      result.importedCollectionItemsCount = addToCollectionCommand.length
-    }
+    })
   }
 
   private importProgressData(
     mangaProgress: DexReaderMangaProgress[],
     chapterProgress: DexReaderChapterProgress[],
     signal: AbortSignal,
-    result: DexReaderImportResult
+    result: DexReaderImportContract
   ): void {
     const saveProgressCommand: SaveProgressCommand[] = []
     const updateFirstReadCommand: UpdateFirstReadCommand[] = []
@@ -297,7 +299,7 @@ class DexReaderImportService {
   private importMangaReaderOverrides(
     overrides: DexReaderMangaReaderOverride[],
     signal: AbortSignal,
-    result: DexReaderImportResult
+    result: DexReaderImportContract
   ): void {
     const updateMangaOverrideCommand: UpdateMangaOverrideCommand[] = []
 

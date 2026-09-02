@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [1.13.0] - 2026-09-02
+
+### Added
+
+- **Reliability**: The app now recovers automatically from a database it can't open — the corrupt file is backed up and a fresh database is created instead of the app failing to launch; a failed migration now shows diagnostics and a link to previous releases instead of retrying the same broken migration indefinitely
+
+### Security
+
+- **UI**: Tightened the Content-Security-Policy — dropped the blanket image-domain allowance now that all images route through the app's own proxy protocols, and dropped inline styles from the shipped app
+- **IPC**: Internal exception details and stack traces are no longer sent to the renderer outside development builds
+- **Filesystem**: Absolute file paths are no longer leaked into error messages shown to the renderer
+- **API Compliance**: Cover images no longer trigger MangaDex@Home network reports — those now only fire for chapter images fetched through an at-home node, as MangaDex's API terms require
+
+### Fixed
+
+- **Settings**: Fixed the "leave anyway" confirmation on the unsaved-changes prompt silently doing nothing
+- **Settings**: Fixed a crash when changing the passphrase in Gatekeeper settings
+- **Library**: "Clear All Data" now correctly wipes every table instead of leaving some rows behind
+- **Downloads**: Enforced chapter-download uniqueness at the database level to prevent duplicate download rows
+- **Backup**: Fixed a broken import path in the DexReader backup import service
+- **Detail View**: Fixed a bug that could cause cached manga metadata to be treated as stale or fresh incorrectly, due to a unit mismatch between epoch-seconds storage and Date-based comparisons
+
+### Changed
+
+- Completed a multi-phase internal refactor: introduced a shared DTO/contract layer between the main and renderer processes, decomposed several large components and services (`BrowseView`, `MangaDetailView`, `SettingsView`, `DownloadQueueService`, various IPC handlers) into focused modules, and closed a number of type-safety gaps across the IPC boundary. No user-facing behaviour change is intended beyond the fixes listed above.
+
+### Build
+
+- CI and PR checks now run the unit test suite before the production build and release-tag creation, rather than only linting and type-checking
+
+---
+
 ## [1.12.1] - 2026-07-25
 
 ### Security

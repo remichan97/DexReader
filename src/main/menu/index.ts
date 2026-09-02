@@ -8,7 +8,11 @@ import { getMainWindow } from '../window'
 import { MenuState } from './menu-state'
 
 export function createMenu(state: MenuState): Menu {
-  const mainWindow = getMainWindow()!
+  const mainWindow = getMainWindow()
+  if (!mainWindow) {
+    throw new Error('Cannot create menu before the main window exists')
+  }
+
   const template: MenuItemConstructorOptions[] = [
     buildFileMenu(mainWindow, state),
     buildViewMenu(mainWindow),

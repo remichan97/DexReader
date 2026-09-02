@@ -1,25 +1,28 @@
-import { DownloadChapterOptions } from './../main/services/options/download-chapter.option'
+import { DownloadChapterCommand } from '@shared/commands/services/download-chapter.command'
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { IpcResponse, FileStats, AllowedPaths, FolderSelectResult } from './ipc.types'
+// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
 import { MangaSearchParams } from '../main/api/search-params/manga.searchparam'
+// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
 import { FeedParams } from '../main/api/search-params/feed.searchparam'
+// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
 import { ImageQuality } from '../main/api/enums'
-import { GetLibraryMangaCommand } from '../main/database/commands/manga/get-library-manga.command'
-import { UpsertMangaCommand } from '../main/database/commands/manga/upsert-manga.command'
-import { CreateCollectionCommand } from '../main/database/commands/collections/create-collection.command'
-import { UpdateCollectionCommand } from '../main/database/commands/collections/update-collection.command'
-import { AddToCollectionCommand } from '../main/database/commands/collections/add-to-collection.command'
-import { RemoveFromCollectionCommand } from '../main/database/commands/collections/remove-from-collection.command'
-import { ReorderMangaInCollectionCommand } from '../main/database/commands/collections/reorder-manga-collection.command'
-import { RecordReadCommand } from '../main/database/commands/history/record-read.command'
-import { DexreaderExportOption } from '../main/services/options/dexreader-export.option'
-import { QueuedDownloads } from '../main/services/types/downloads/queued-downloads.type'
-import { DeleteChapterOptions } from '../main/services/options/delete-chapter.option'
-import { CreateSearchPresetCommand } from '../main/database/commands/search-presets/create-search-preset.command'
+import { GetLibraryMangaCommand } from '@shared/commands/repositories/manga/get-library-manga.command'
+import { UpsertMangaCommand } from '@shared/commands/repositories/manga/upsert-manga.command'
+import { CreateCollectionCommand } from '@shared/commands/repositories/collections/create-collection.command'
+import { UpdateCollectionCommand } from '@shared/commands/repositories/collections/update-collection.command'
+import { AddToCollectionCommand } from '@shared/commands/repositories/collections/add-to-collection.command'
+import { RemoveFromCollectionCommand } from '@shared/commands/repositories/collections/remove-from-collection.command'
+import { RecordReadCommand } from '@shared/commands/repositories/history/record-read.command'
+import { DexreaderExportCommand } from '@shared/commands/services/dexreader-export.command'
+import { QueuedDownloads } from '@shared/types/downloads/queued-downloads.type'
+import { DeleteChapterCommand } from '@shared/commands/services/delete-chapter.command'
+import { CreateSearchPresetCommand } from '@shared/commands/services/create-search-preset.command'
+import type { ChapterDownloadsEvent } from '@shared/events/chapter-downloads.event'
 
 // Export enums for renderer
-export { DownloadConfirmation } from '../main/settings/enums/download-confirmation.enum'
+export { DownloadConfirmation } from '@shared/enums/settings/download-confirmation.enum'
 
 // Custom APIs for renderer
 const api = {
@@ -125,8 +128,8 @@ const api = {
     ipcRenderer.on('download-manga', callback)
     return () => ipcRenderer.removeListener('download-manga', callback)
   },
-  onDownloadProgress: (callback: (event: unknown) => void) => {
-    const listener = (_: unknown, event: unknown): void => callback(event)
+  onDownloadProgress: (callback: (event: ChapterDownloadsEvent) => void) => {
+    const listener = (_: unknown, event: ChapterDownloadsEvent): void => callback(event)
     ipcRenderer.on('download:chapter-progress', listener)
     return () => ipcRenderer.removeListener('download:chapter-progress', listener)
   },
@@ -290,9 +293,7 @@ const collections = {
   addToCollection: (command: AddToCollectionCommand) =>
     ipcRenderer.invoke('collections:add-manga', command),
   removeFromCollection: (command: RemoveFromCollectionCommand[]) =>
-    ipcRenderer.invoke('collections:remove-manga', command),
-  reorderMangaInCollection: (command: ReorderMangaInCollectionCommand) =>
-    ipcRenderer.invoke('collections:reorder', command)
+    ipcRenderer.invoke('collections:remove-manga', command)
 }
 
 const readHistory = {
@@ -323,7 +324,7 @@ const settings = {
 }
 
 const dexReader = {
-  exportData: (savePath: string, options: DexreaderExportOption) =>
+  exportData: (savePath: string, options: DexreaderExportCommand) =>
     ipcRenderer.invoke('dexreader:export-data', savePath, options),
 
   importData: (filePath: string) => ipcRenderer.invoke('dexreader:import-data', filePath),
@@ -332,10 +333,10 @@ const dexReader = {
 }
 
 const downloads = {
-  downloadChapter: (options: DownloadChapterOptions) =>
-    ipcRenderer.invoke('downloads:download-chapter', options),
-  deleteChapter: (options: DeleteChapterOptions) =>
-    ipcRenderer.invoke('downloads:delete-chapter', options),
+  downloadChapter: (options: DownloadChapterCommand) =>
+    ipcRenderer.invoke('download:download-chapter', options),
+  deleteChapter: (options: DeleteChapterCommand) =>
+    ipcRenderer.invoke('download:delete-chapter', options),
   getAllDownloads: () => ipcRenderer.invoke('download:get-all-downloads'),
   getStorageInfo: () => ipcRenderer.invoke('download:storage-stats'),
   clearCompleted: () => ipcRenderer.invoke('download:clear-completed'),
@@ -384,7 +385,14 @@ const appUpdate = {
     ipcRenderer.on('app-update:update-downloading', callback)
     return () => ipcRenderer.removeListener('app-update:update-downloading', callback)
   },
-  onDownloadProgress: (callback: (progress: unknown) => void) => {
+  onDownloadProgress: (
+    callback: (progress: {
+      percent: number
+      transferred: number
+      total: number
+      bytesPerSecond: number
+    }) => void
+  ) => {
     ipcRenderer.on('app-update:update-download-progress', (_, progress) => callback(progress))
     return () => ipcRenderer.removeListener('app-update:update-download-progress', () => {})
   },
@@ -394,7 +402,7 @@ const appUpdate = {
     ipcRenderer.on('app-update:update-downloaded', (_, info) => callback(info))
     return () => ipcRenderer.removeListener('app-update:update-downloaded', () => {})
   },
-  onUpdateError: (callback: (error: unknown) => void) => {
+  onUpdateError: (callback: (error: { message: string; userMessage: string }) => void) => {
     ipcRenderer.on('app-update:update-error', (_, error) => callback(error))
     return () => ipcRenderer.removeListener('app-update:update-error', () => {})
   }
@@ -458,40 +466,22 @@ if (process.contextIsolated) {
     console.error(error)
   }
 } else {
-  // @ts-ignore (define in dts)
   globalThis.electron = electronAPI
-  // @ts-ignore (define in dts)
   globalThis.api = api
-  // @ts-ignore (define in dts)
   globalThis.fileSystem = fileSystem
-  // @ts-ignore (define in dts)
   globalThis.mangadex = mangadexApi
-  // @ts-ignore (define in dts)
   globalThis.progress = progress
-  // @ts-ignore (define in dts)
   globalThis.reader = reader
-  // @ts-ignore (define in dts)
   globalThis.library = library
-  // @ts-ignore (define in dts)
   globalThis.collections = collections
-  // @ts-ignore (define in dts)
   globalThis.readHistory = readHistory
-  // @ts-ignore (define in dts)
   globalThis.mihon = mihon
-  // @ts-ignore (define in dts)
   globalThis.settings = settings
-  // @ts-ignore (define in dts)
   globalThis.dexreader = dexReader
-  // @ts-ignore (define in dts)
   globalThis.downloads = downloads
-  // @ts-ignore (define in dts)
   globalThis.storage = storage
-  // @ts-ignore (define in dts)
   globalThis.appUpdate = appUpdate
-  // @ts-ignore (define in dts)
   globalThis.logger = logger
-  // @ts-ignore (define in dts)
   globalThis.searchPresets = searchPresets
-  // @ts-ignore (define in dts)
   globalThis.gatekeeper = gatekeeper
 }
