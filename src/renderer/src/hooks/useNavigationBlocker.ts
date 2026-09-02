@@ -47,7 +47,7 @@ export function useNavigationBlocker(shouldBlock: boolean, customMessage?: strin
             globalThis.api
               .showConfirmDialog(message, detail, confirmButton, cancelButton)
               .then((confirmed) => {
-                if (confirmed.success && confirmed.result) {
+                if (confirmed.success && confirmed.data) {
                   navigate(targetPath)
                 }
               })

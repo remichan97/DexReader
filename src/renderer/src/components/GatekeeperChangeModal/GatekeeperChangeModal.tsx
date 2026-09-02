@@ -78,7 +78,7 @@ export function GatekeeperChangeModal({
         rendererLog.error('[GatekeeperChange] Failed to change:', result.error)
 
         // Parse error message for specific cases
-        const errorMsg = result.error || ''
+        const errorMsg = result.error?.message || ''
         if (errorMsg.includes('incorrect') || errorMsg.includes('Current passphrase')) {
           setError(t('gatekeeper:settings.errors.change.currentIncorrect'))
         } else if (errorMsg.includes('same')) {
