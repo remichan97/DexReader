@@ -55,9 +55,9 @@ IPC enables the renderer to request operations from the main process (like files
 ```
 Main Process (index.ts)
   ↓ registers handlers
-IPC Handlers (filesystemHandlers.ts, etc.)
+IPC Handlers (file-systems.handler.ts, etc.)
   ↓ validates & processes
-Secure Services (secureFs.ts, theme.ts)
+Secure Services (secure-fs.ts, theme.ts)
   ↓ exposes via preload
 Preload Script (index.ts)
   ↓ type-safe bridge
@@ -400,7 +400,7 @@ export interface FolderSelectResult {
 ### Preload API Types
 
 ```typescript
-// src/preload/index.d.ts
+// src/preload/window.types.ts
 interface FileSystem {
   readFile: (filePath: string, encoding?: BufferEncoding) => Promise<IpcResponse<string | Buffer>>
   writeFile: (filePath: string, data: string | Buffer) => Promise<IpcResponse<boolean>>
@@ -679,7 +679,7 @@ contextBridge.exposeInMainWorld('myApi', api)
 
 ### Step 5: Update Type Definitions
 
-Add types to `src/preload/index.d.ts`:
+Add types to `src/preload/window.types.ts`:
 
 ```typescript
 interface MyApi {
@@ -763,7 +763,7 @@ const allowedPaths = [
   getDownloadsPath() // User-configured downloads folder
 ]
 
-// Path validation (in secureFs.ts)
+// Path validation (in secure-fs.ts)
 function isPathAllowed(targetPath: string): boolean {
   const normalized = normalizePath(targetPath)
   return allowedPaths.some((allowed) => normalized.startsWith(allowed))
