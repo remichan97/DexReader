@@ -1,5 +1,5 @@
 import { wrapIpcHandler } from '../wrap-handler'
-import { isQueuedDownloads } from '../../settings/validators/types.validator'
+import { isQueuedDownloads } from '../../settings/validators/command.validator'
 import { downloadQueueService } from '../../services/download-queue.service'
 import { QueuedDownloads } from '@shared/types/downloads/queued-downloads.type'
 

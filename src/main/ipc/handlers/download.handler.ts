@@ -1,7 +1,7 @@
 import { downloadService } from './../../services/download.service'
 import { DownloadChapterCommand } from '@shared/commands/services/download-chapter.command'
 import { wrapIpcHandler } from '../wrap-handler'
-import { isDownloadChapterOptions } from '../../settings/validators/types.validator'
+import { isDownloadChapterOptions } from '../../settings/validators/command.validator'
 import { mainLog } from '../../services/logging/main-logging.service'
 import { DeleteChapterCommand } from '@shared/commands/services/delete-chapter.command'
 

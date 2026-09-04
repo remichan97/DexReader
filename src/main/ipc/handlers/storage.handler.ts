@@ -1,7 +1,7 @@
 import { cleanupRepo } from '../../database/repositories/cleanup.repo'
 import { mangaRepo } from '../../database/repositories/manga.repo'
 import { settingsManager } from '../../settings/settings-manager'
-import { isDownloadsSettings } from '../../settings/validators/types.validator'
+import { isDownloadsSettings } from '../../settings/validators/settings.validator'
 import { wrapIpcHandler } from '../wrap-handler'
 
 export function registerStorageHandlers(): void {

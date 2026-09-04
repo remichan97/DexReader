@@ -1,6 +1,6 @@
 import { readHistoryRepo } from '../../database/repositories/read-history.repo'
 import { wrapIpcHandler } from '../wrap-handler'
-import { isRecordReadCommand } from '../../settings/validators/types.validator'
+import { isRecordReadCommand } from '../../settings/validators/command.validator'
 
 export function registerHistoryHandlers(): void {
   /**

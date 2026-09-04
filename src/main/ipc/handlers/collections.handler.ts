@@ -5,7 +5,7 @@ import {
   isUpdateCollectionCommand,
   isAddToCollectionCommand,
   isRemoveFromCollectionCommand
-} from '../../settings/validators/types.validator'
+} from '../../settings/validators/command.validator'
 
 export function registerCollectionsHandlers(): void {
   /**

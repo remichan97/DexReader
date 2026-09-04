@@ -5,7 +5,7 @@ import { wrapIpcHandler } from '../wrap-handler'
 import {
   isSaveProgressCommand,
   isSaveChapterCommand
-} from '../../settings/validators/types.validator'
+} from '../../settings/validators/command.validator'
 
 export function registerProgressTrackingHandlers(): void {
   /**
