@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [1.13.1] - 2026-09-04
+
+### Security
+
+- **Router**: Upgraded `react-router-dom` to v7.18.3, resolving CVE-2026-53669 (GHSA-wrjc-x8rr-h8h6) — a backslash-based open-redirect in declarative-mode navigation (`useNavigate`/`<Link>`) with no fix available in the 6.x line
+
+---
+
 ## [1.13.0] - 2026-09-02
 
 ### Added
