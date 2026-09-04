@@ -15,10 +15,8 @@ import path from 'node:path'
 import { BrowserWindow } from 'electron'
 import { ChapterDownloadContract } from '@shared/contracts/database/chapter-downloads/chapter-downloads.contract'
 import { MangaStorageContract } from '@shared/contracts/database/chapter-downloads/manga-storage.contract'
-import { DiskSpaceData } from './data/disk-space.data'
 import { StorageDataContract } from '../../shared/contracts/storage/storage-data.contract'
 import { diskCacheUtil } from '../api/utils/disk-cache.util'
-import { DiskCacheContract } from '@shared/contracts/database/storage/disk-cache.contract'
 import { ImageUrlResponse } from '../api/responses/image-url.response'
 import { mainLog } from './logging/main-logging.service'
 import { settingsManager } from '../settings/settings-manager'
@@ -26,6 +24,8 @@ import { DownloadChapterCommand } from '@shared/commands/services/download-chapt
 import { DownloadStatContract } from '@shared/contracts/services/dexreader/download-stats.contract'
 import { DownloadChapterContract } from '@shared/contracts/services/dexreader/download-chapter.contract'
 import { DeleteMangaContract } from '@shared/contracts/services/dexreader/delete-manga.contract'
+import { DiskSpaceContract } from '@shared/contracts/storage/disk-space-data.contract'
+import { DiskCacheContract } from '@shared/contracts/database/storage/disk-cache.contract'
 
 interface ChapterImageCache {
   urls: ImageUrlResponse[]
@@ -370,7 +370,7 @@ class DownloadService {
     return chapterDownloadsRepo.getStorageByManga()
   }
 
-  private async getDiskSpaceInfo(): Promise<DiskSpaceData> {
+  private async getDiskSpaceInfo(): Promise<DiskSpaceContract> {
     const downloadsPath =
       settingsManager.getByPath('downloads', 'downloadPath') ?? getDownloadsPath()
 
