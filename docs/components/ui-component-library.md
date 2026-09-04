@@ -771,7 +771,7 @@ When creating new components, ensure:
 {
   "react": "^19.0.0",
   "react-dom": "^19.0.0",
-  "react-router-dom": "^6.28.0",
+  "react-router-dom": "^7.18.3",
   "@fluentui/react-icons": "^2.0.0"
 }
 ```
