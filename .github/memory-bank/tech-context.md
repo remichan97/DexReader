@@ -60,7 +60,7 @@
 **UI Components**:
 
 - `@fluentui/react-icons@2.0.315` - Microsoft Fluent UI icon library
-- `react-router-dom@6.30.4` - Client-side routing
+- `react-router-dom@7.18.3` - Client-side routing
 
 **Internationalisation**:
 
