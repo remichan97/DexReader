@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/node-sqlite'
 import { getAppDataPath } from '../filesystem/path-validator'
 import path from 'node:path'
-import { relations } from '../database/schemas/relationships.schema'
+import { relations } from './schemas/relationships.schema'
 import { mainLog } from '../services/logging/main-logging.service'
 import { DatabaseSync } from 'node:sqlite'
 

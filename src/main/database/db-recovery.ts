@@ -1,5 +1,5 @@
 import { app, clipboard, dialog, shell } from 'electron'
-import { databaseConnection } from './connection'
+import { databaseConnection } from './db-connection'
 import { secureFs } from '../filesystem/secure-fs'
 import { mainLog } from '../services/logging/main-logging.service'
 import { toError } from '@shared/utils/to-error.util'

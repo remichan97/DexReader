@@ -1,5 +1,5 @@
 import { eq, sql, and } from 'drizzle-orm'
-import { databaseConnection } from '../connection'
+import { databaseConnection } from '../db-connection'
 import { chapter, chapterDownloads, manga } from '../schemas'
 import { ChapterDownloadMapper } from '../mappers/chapter-downloads.mapper'
 import { DownloadStatus } from '@shared/enums/repositories/download-status.enum'

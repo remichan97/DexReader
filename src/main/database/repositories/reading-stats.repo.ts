@@ -1,5 +1,5 @@
 import { countDistinct, eq, sql } from 'drizzle-orm'
-import { databaseConnection } from '../connection'
+import { databaseConnection } from '../db-connection'
 import { chapterProgress, readingStatistics } from '../schemas'
 import { ReadingStatsContract } from '@shared/contracts/database/reading-stats/reading-stats.contract'
 

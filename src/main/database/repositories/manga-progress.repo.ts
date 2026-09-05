@@ -1,4 +1,4 @@
-import { databaseConnection } from '../connection'
+import { databaseConnection } from '../db-connection'
 import { and, eq } from 'drizzle-orm'
 import { chapter, chapterProgress, manga, mangaProgress } from '../schemas'
 import { MangaMapper } from '../mappers/manga.mapper'

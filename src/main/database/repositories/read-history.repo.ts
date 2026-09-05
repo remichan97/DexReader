@@ -1,5 +1,5 @@
 import { eq, desc, max } from 'drizzle-orm'
-import { databaseConnection } from '../connection'
+import { databaseConnection } from '../db-connection'
 import { chapter, manga, readHistory } from '../schemas'
 import { ReadHistoryMapper } from '../mappers/history.mapper'
 import { RecordReadCommand } from 'src/preload/window.types'
