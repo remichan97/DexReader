@@ -1,9 +1,9 @@
 import { mainLog } from '../../services/logging/main-logging.service'
 import { AppSettings } from '../../../shared/types/settings/app-settings.type'
-import { validateSettings } from '../validators/types.validator'
+import { validateSettings } from '../validators/settings.validator'
 
 // Each time we change the settings structure in a way that guarantees a full migration, increment this version number. This is used to determine if a migration is needed, and to apply the correct migration functions if there are breaking changes.
-export const CURRENT_SETTINGS_VERSION = 6
+export const CURRENT_SETTINGS_VERSION = 7
 
 // Define a type for migration function, which takes settings object, and migrate it to the next version. Use when there are breaking changes.
 type MigrationFunction = (settings: Partial<AppSettings>) => AppSettings

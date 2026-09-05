@@ -19,6 +19,7 @@ import { SearchSettings } from '../../../shared/types/settings/search-settings.t
 import { DisplayLanguage } from '../../../shared/enums/settings/display-languages.enum'
 import { LanguageSettings } from '../../../shared/types/settings/language-settings.type'
 import { ContentLanguage } from '../../../shared/enums/settings/content-language.enum'
+import { SnapshotSettings } from '@shared/types/settings/snapshot-settings.type'
 
 export function validateSettings(newSettings: unknown): newSettings is AppSettings {
   assertNonNullObject<AppSettings>(newSettings, 'Settings must be an object')
@@ -48,6 +49,14 @@ export function validateSettings(newSettings: unknown): newSettings is AppSettin
 
   if (!isLanguageSettings(settings.language)) {
     throw new TypeError('Invalid language settings')
+  }
+
+  if (!isSnapshotSettings(settings.snapshot)) {
+    throw new TypeError('Invalid snapshot settings')
+  }
+
+  if (!isSearchSettings(settings.search)) {
+    throw new TypeError('Invalid search settings')
   }
 
   return true
@@ -331,6 +340,40 @@ export function isLanguageSettings(values: unknown): values is LanguageSettings 
     throw new TypeError(
       'Refused to save language settings: contentLanguage must be an array of valid ContentLanguage values with at most 5 items if provided'
     )
+  }
+
+  return true
+}
+
+export function isSnapshotSettings(values: unknown): values is SnapshotSettings {
+  assertNonNullObject<SnapshotSettings>(values, 'Refused to save snapshot settings: not an object')
+
+  const snapshotSettings = values
+
+  if (typeof snapshotSettings.isEnabled !== 'boolean') {
+    throw new TypeError('Refused to save snapshot settings: isEnabled is not a boolean')
+  }
+
+  if (snapshotSettings.isEnabled) {
+    if (
+      typeof snapshotSettings.intervalInHours !== 'number' ||
+      snapshotSettings.intervalInHours <= 0 ||
+      snapshotSettings.intervalInHours > 6
+    ) {
+      throw new TypeError(
+        'Refused to save snapshot settings: intervalInHours must be a positive number between 1 and 6 when isEnabled is enabled'
+      )
+    }
+
+    if (
+      typeof snapshotSettings.maxSnapshotsCount !== 'number' ||
+      snapshotSettings.maxSnapshotsCount <= 0 ||
+      snapshotSettings.maxSnapshotsCount > 5
+    ) {
+      throw new TypeError(
+        'Refused to save snapshot settings: maxSnapshotsCount must be a positive number between 1 and 5 when isEnabled is enabled'
+      )
+    }
   }
 
   return true
