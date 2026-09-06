@@ -9,6 +9,7 @@ interface IAllowedPath {
   cachedCover: string
   logs: string
   snapshot: string
+  devDatabase?: string
 }
 
 // Define allowed paths
@@ -33,6 +34,14 @@ function initializePaths(): IAllowedPath {
       cachedCover: path.join(appDataRoot, 'cache', 'covers'),
       logs: appLogs,
       snapshot: snapshotDir
+    }
+
+    // In development, DatabaseConnection keeps the SQLite file at the project root (for
+    // easy inspection with tools like DataGrip) instead of under appDataRoot, which puts
+    // it outside every root above. Widen the sandbox to cover it too, otherwise every
+    // snapshot backup/restore operation on it via secureFs is rejected in dev.
+    if (process.env.NODE_ENV_ELECTRON_VITE === 'development') {
+      allowedPaths.devDatabase = process.cwd()
     }
   }
 
