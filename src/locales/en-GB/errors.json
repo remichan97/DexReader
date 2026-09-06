@@ -301,6 +301,28 @@
       "action": "Try again or restart the app."
     }
   },
+  "restorePoints": {
+    "load_failed": {
+      "title": "Failed to load restore points",
+      "message": "Couldn't load the list of restore points.",
+      "action": "Try refreshing."
+    },
+    "create_failed": {
+      "title": "Failed to create restore point",
+      "message": "Couldn't create a new restore point.",
+      "action": "Try again."
+    },
+    "delete_failed": {
+      "title": "Failed to delete restore point",
+      "message": "Couldn't delete the restore point.",
+      "action": "Try again or check file permissions."
+    },
+    "restore_failed": {
+      "title": "Failed to restore",
+      "message": "Couldn't restore from this restore point. Your library has not been changed.",
+      "action": "Try again or choose a different restore point."
+    }
+  },
   "logging": {
     "open_folder_failed": {
       "title": "Failed to open logs folder",

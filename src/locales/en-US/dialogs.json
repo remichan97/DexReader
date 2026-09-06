@@ -157,6 +157,14 @@
       "title": "Clear all logs?",
       "message": "This will permanently delete all log files. This action cannot be undone."
     },
+    "deleteRestorePoint": {
+      "title": "Delete this restore point?",
+      "message": "This restore point will be permanently deleted. This action cannot be undone."
+    },
+    "restoreToPoint": {
+      "title": "Restore to this point?",
+      "message": "This will replace your current library and settings with the state saved at this restore point, then restart DexReader. Anything added or changed since then will be lost. This action cannot be undone."
+    },
     "clearAllOverrides": {
       "title": "Clear all custom reading settings?",
       "message": "You have custom settings for {{count}} manga. They'll all be reset to your global defaults. You can't undo this!"

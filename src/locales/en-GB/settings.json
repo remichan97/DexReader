@@ -16,6 +16,7 @@
     "downloads": "Downloads",
     "performance": "Performance",
     "storage": "Storage",
+    "restorePoints": "Restore Points",
     "security": "Security",
     "advanced": "Advanced"
   },
@@ -317,6 +318,29 @@
     "clearAllButton": "Clear All Logs",
     "clearAllSuccess": "Logs cleared",
     "clearedAllLogs": "All logs cleared!"
+  },
+  "restorePoints": {
+    "sectionTitle": "Restore Points",
+    "sectionDescription": "DexReader can automatically save restore points of your library and settings, so you can roll back if something goes wrong. Restoring replaces your current data and restarts the app.",
+    "enable": {
+      "label": "Enable restore points",
+      "description": "Automatically create a restore point on startup once the interval below has passed, and allow creating one manually at any time"
+    },
+    "intervalLabel": "Automatic interval",
+    "hoursSuffix": "hours",
+    "maxCountLabel": "Restore points to keep",
+    "listTitle": "Available restore points",
+    "createNowButton": "Create Restore Point Now",
+    "createSuccess": "Restore point created",
+    "deleteSuccess": "Restore point deleted",
+    "loading": "Loading restore points...",
+    "emptyState": "No restore points yet",
+    "trigger": {
+      "manual": "Manual",
+      "automatic": "Automatic"
+    },
+    "restoreButton": "Restore",
+    "restoreConfirmButton": "Restore and Restart"
   },
   "dangerZone": {
     "title": "Danger Zone",

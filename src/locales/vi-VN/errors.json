@@ -279,6 +279,28 @@
       "action": "Thử lại hoặc kiểm tra quyền truy cập tệp."
     }
   },
+  "restorePoints": {
+    "load_failed": {
+      "title": "Không thể tải điểm khôi phục",
+      "message": "Không thể tải danh sách điểm khôi phục.",
+      "action": "Thử làm mới."
+    },
+    "create_failed": {
+      "title": "Không thể tạo điểm khôi phục",
+      "message": "Không thể tạo điểm khôi phục mới.",
+      "action": "Thử lại."
+    },
+    "delete_failed": {
+      "title": "Không thể xóa điểm khôi phục",
+      "message": "Không thể xóa điểm khôi phục.",
+      "action": "Thử lại hoặc kiểm tra quyền truy cập tệp."
+    },
+    "restore_failed": {
+      "title": "Không thể khôi phục",
+      "message": "Không thể khôi phục từ điểm khôi phục này. Thư viện của bạn chưa bị thay đổi.",
+      "action": "Thử lại hoặc chọn một điểm khôi phục khác."
+    }
+  },
   "cache": {
     "load_failed": {
       "title": "Không thể tải dữ liệu cache",

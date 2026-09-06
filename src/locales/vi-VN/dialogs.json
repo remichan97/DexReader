@@ -161,6 +161,14 @@
       "title": "Xóa tất cả logs?",
       "message": "Thao tác này sẽ xóa vĩnh viễn tất cả tệp log. Thao tác này không thể hoàn tác."
     },
+    "deleteRestorePoint": {
+      "title": "Xóa điểm khôi phục này?",
+      "message": "Điểm khôi phục này sẽ bị xóa vĩnh viễn. Thao tác này không thể hoàn tác."
+    },
+    "restoreToPoint": {
+      "title": "Khôi phục về điểm này?",
+      "message": "Thao tác này sẽ thay thế thư viện và cài đặt hiện tại của bạn bằng trạng thái đã lưu tại điểm khôi phục này, sau đó khởi động lại DexReader. Mọi thứ được thêm hoặc thay đổi kể từ đó sẽ bị mất. Thao tác này không thể hoàn tác."
+    },
     "clearAllOverrides": {
       "title": "Xóa tất cả cài đặt ghi đè?",
       "message": "Bạn có cài đặt ghi đè cho {{count}} manga. Tất cả sẽ được đặt lại về cài đặt chung. Thao tác này không thể hoàn tác!",

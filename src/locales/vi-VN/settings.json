@@ -16,6 +16,7 @@
     "downloads": "Tải xuống",
     "performance": "Hiệu suất",
     "storage": "Dung lượng",
+    "restorePoints": "Điểm khôi phục",
     "security": "Bảo mật",
     "advanced": "Nâng cao"
   },
@@ -312,6 +313,29 @@
     "clearAllButton": "Xóa tất cả log",
     "clearAllSuccess": "Đã xóa tất cả log",
     "clearedAllLogs": "Đã xóa tất cả log!"
+  },
+  "restorePoints": {
+    "sectionTitle": "Điểm khôi phục",
+    "sectionDescription": "DexReader có thể tự động lưu các điểm khôi phục cho thư viện và cài đặt của bạn, giúp bạn khôi phục lại nếu có sự cố xảy ra. Việc khôi phục sẽ thay thế dữ liệu hiện tại và khởi động lại ứng dụng.",
+    "enable": {
+      "label": "Bật điểm khôi phục",
+      "description": "Tự động tạo điểm khôi phục khi khởi động ứng dụng nếu đã đủ khoảng thời gian bên dưới, và cho phép tạo điểm khôi phục thủ công bất cứ lúc nào"
+    },
+    "intervalLabel": "Khoảng thời gian tự động",
+    "hoursSuffix": "giờ",
+    "maxCountLabel": "Số điểm khôi phục lưu giữ",
+    "listTitle": "Các điểm khôi phục hiện có",
+    "createNowButton": "Tạo điểm khôi phục ngay",
+    "createSuccess": "Đã tạo điểm khôi phục",
+    "deleteSuccess": "Đã xóa điểm khôi phục",
+    "loading": "Đang tải điểm khôi phục...",
+    "emptyState": "Chưa có điểm khôi phục nào",
+    "trigger": {
+      "manual": "Thủ công",
+      "automatic": "Tự động"
+    },
+    "restoreButton": "Khôi phục",
+    "restoreConfirmButton": "Khôi phục và khởi động lại"
   },
   "dangerZone": {
     "title": "Khu vực nguy hiểm",
