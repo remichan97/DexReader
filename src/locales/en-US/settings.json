@@ -106,14 +106,7 @@
     "concurrentSection": "Concurrent Downloads",
     "concurrentDescription": "How many chapters should download at the same time?",
     "concurrentLabel": "Maximum concurrent downloads",
-    "concurrentHelper": "Higher values download faster but use more bandwidth and resources",
-    "concurrentOptions": {
-      "1": "1 (Sequential)",
-      "2": "2",
-      "3": "3",
-      "4": "4",
-      "5": "5"
-    }
+    "concurrentHelper": "Higher values download faster but use more bandwidth and resources"
   },
   "reader": {
     "displaySection": "Reader Display Settings",

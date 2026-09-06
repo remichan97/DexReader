@@ -4,6 +4,7 @@ import { Button } from '@renderer/components/Button'
 import { Select, type SelectOption } from '@renderer/components/Select'
 import { RadioGroup, Radio } from '@renderer/components/Radio'
 import { Switch } from '@renderer/components/Switch'
+import { List, ListItem } from '@renderer/components/ListItem'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import type { MangaReadingSettings } from '../../../../../preload/window.types'
 import './ReaderSettingsSection.css'
@@ -169,22 +170,22 @@ export function ReaderSettingsSection({
         ) : null}
 
         {!isLoading && perMangaOverrides.length > 0 ? (
-          <div className="reader-settings__overrides-list flex flex-col gap-2">
+          <List>
             {perMangaOverrides.map((override) => (
-              <div
+              <ListItem
                 key={override.mangaId}
-                className="reader-settings__override-item flex justify-between items-center gap-3"
-              >
-                {override.coverUrl && (
-                  <img
-                    src={override.coverUrl.replace('https://', 'mangadex://')}
-                    alt={`${override.mangaTitle} cover`}
-                    className="reader-settings__override-cover"
-                  />
-                )}
-                <div className="reader-settings__override-info">
-                  <div className="reader-settings__override-title">{override.mangaTitle}</div>
-                  <div className="reader-settings__override-mode">
+                leading={
+                  override.coverUrl ? (
+                    <img
+                      src={override.coverUrl.replace('https://', 'mangadex://')}
+                      alt={`${override.mangaTitle} cover`}
+                      className="reader-settings__override-cover"
+                    />
+                  ) : undefined
+                }
+                title={override.mangaTitle}
+                subtitle={
+                  <>
                     {t('settings:reader.overrideMode', {
                       mode: getModeName(override.settings.readingMode)
                     })}
@@ -197,18 +198,20 @@ export function ReaderSettingsSection({
                           })}
                         </>
                       )}
-                  </div>
-                </div>
-                <Button
-                  onClick={() => onResetMangaOverride(override.mangaId)}
-                  variant="secondary"
-                  icon={<Delete24Regular />}
-                >
-                  {t('settings:reader.resetButton')}
-                </Button>
-              </div>
+                  </>
+                }
+                trailing={
+                  <Button
+                    onClick={() => onResetMangaOverride(override.mangaId)}
+                    variant="secondary"
+                    icon={<Delete24Regular />}
+                  >
+                    {t('settings:reader.resetButton')}
+                  </Button>
+                }
+              />
             ))}
-          </div>
+          </List>
         ) : null}
       </div>
     </div>

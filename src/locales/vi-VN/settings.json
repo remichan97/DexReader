@@ -107,14 +107,7 @@
     "concurrentSection": "Tải xuống đồng thời",
     "concurrentDescription": "Bao nhiêu chương nên được tải xuống cùng một lúc?",
     "concurrentLabel": "Số lượng tải xuống đồng thời tối đa",
-    "concurrentHelper": "Giá trị cao hơn tải xuống nhanh hơn nhưng sử dụng nhiều băng thông và tài nguyên hơn",
-    "concurrentOptions": {
-      "1": "1 (Tuần tự)",
-      "2": "2",
-      "3": "3",
-      "4": "4",
-      "5": "5"
-    }
+    "concurrentHelper": "Giá trị cao hơn tải xuống nhanh hơn nhưng sử dụng nhiều băng thông và tài nguyên hơn"
   },
   "reader": {
     "displaySection": "Cài đặt hiển thị trình đọc",

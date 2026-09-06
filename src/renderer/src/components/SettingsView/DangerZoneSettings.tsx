@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { FolderOpen24Regular, ArrowReset24Regular, Delete24Regular } from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
+import { List, ListItem } from '@renderer/components/ListItem'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import './DangerZoneSettings.css'
 import { rendererLog } from '@renderer/services/logging.service'
@@ -86,66 +87,51 @@ export const DangerZoneSettings: React.FC = () => {
         })}
       </p>
 
-      <div className="danger-zone-actions flex flex-col gap-4">
-        {/* Open Settings File */}
-        <div className="danger-zone-item flex items-center justify-between">
-          <div className="danger-zone-item-info">
-            <h4>{t('dangerZone.openFile.title', { defaultValue: 'Open Settings File' })}</h4>
-            <p>
-              {t('dangerZone.openFile.description', {
-                defaultValue: 'Edit settings.json directly in your default editor'
-              })}
-            </p>
-          </div>
-          <Button variant="secondary" icon={<FolderOpen24Regular />} onClick={handleOpenFile}>
-            {t('dangerZone.openFile.button', { defaultValue: 'Open File' })}
-          </Button>
-        </div>
+      <List>
+        <ListItem
+          leading={<FolderOpen24Regular />}
+          title={t('dangerZone.openFile.title', { defaultValue: 'Open Settings File' })}
+          subtitle={t('dangerZone.openFile.description', {
+            defaultValue: 'Edit settings.json directly in your default editor'
+          })}
+          trailing={
+            <Button variant="secondary" onClick={handleOpenFile}>
+              {t('dangerZone.openFile.button', { defaultValue: 'Open File' })}
+            </Button>
+          }
+        />
 
-        {/* Reset to Default */}
-        <div className="danger-zone-item flex items-center justify-between">
-          <div className="danger-zone-item-info">
-            <h4>{t('dangerZone.reset.title', { defaultValue: 'Reset to Default' })}</h4>
-            <p>
-              {t('dangerZone.reset.description', {
-                defaultValue: 'Restore all settings to their default values'
-              })}
-            </p>
-          </div>
-          <Button
-            variant="warning"
-            icon={<ArrowReset24Regular />}
-            onClick={handleResetToDefault}
-            loading={isResetting}
-          >
-            {isResetting
-              ? t('dangerZone.reset.buttonLoading', { defaultValue: 'Resetting...' })
-              : t('dangerZone.reset.button', { defaultValue: 'Reset Settings' })}
-          </Button>
-        </div>
+        <ListItem
+          leading={<ArrowReset24Regular />}
+          title={t('dangerZone.reset.title', { defaultValue: 'Reset to Default' })}
+          subtitle={t('dangerZone.reset.description', {
+            defaultValue: 'Restore all settings to their default values'
+          })}
+          trailing={
+            <Button variant="warning" onClick={handleResetToDefault} loading={isResetting}>
+              {isResetting
+                ? t('dangerZone.reset.buttonLoading', { defaultValue: 'Resetting...' })
+                : t('dangerZone.reset.button', { defaultValue: 'Reset Settings' })}
+            </Button>
+          }
+        />
 
-        {/* Clear All Data */}
-        <div className="danger-zone-item danger-zone-item-critical flex items-center justify-between">
-          <div className="danger-zone-item-info">
-            <h4>{t('dangerZone.clearAll.title', { defaultValue: 'Clear Data & Reset App' })}</h4>
-            <p>
-              {t('dangerZone.clearAll.description', {
-                defaultValue: 'Delete all data (library, progress, settings) and restart'
-              })}
-            </p>
-          </div>
-          <Button
-            variant="danger"
-            icon={<Delete24Regular />}
-            onClick={handleClearAllData}
-            loading={isClearing}
-          >
-            {isClearing
-              ? t('dangerZone.clearAll.buttonLoading', { defaultValue: 'Clearing...' })
-              : t('dangerZone.clearAll.button', { defaultValue: 'Clear All Data' })}
-          </Button>
-        </div>
-      </div>
+        <ListItem
+          className="danger-zone-item--critical"
+          leading={<Delete24Regular />}
+          title={t('dangerZone.clearAll.title', { defaultValue: 'Clear Data & Reset App' })}
+          subtitle={t('dangerZone.clearAll.description', {
+            defaultValue: 'Delete all data (library, progress, settings) and restart'
+          })}
+          trailing={
+            <Button variant="danger" onClick={handleClearAllData} loading={isClearing}>
+              {isClearing
+                ? t('dangerZone.clearAll.buttonLoading', { defaultValue: 'Clearing...' })
+                : t('dangerZone.clearAll.button', { defaultValue: 'Clear All Data' })}
+            </Button>
+          }
+        />
+      </List>
     </div>
   )
 }

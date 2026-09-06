@@ -40,7 +40,7 @@ export interface UseDownloadsSettingsDomainResult extends SettingsDomain<Downloa
   handleSelectDownloadsFolder: () => Promise<void>
   handleDownloadConfirmationChange: (confirmation: string) => void
   handleDefaultQualityChange: (quality: string) => void
-  handleMaxConcurrentDownloadsChange: (count: string | string[]) => void
+  handleMaxConcurrentDownloadsChange: (count: number) => void
   handleCoverCacheLimitChange: (limitMB: number) => void
   loadFromSettings: (settings: AppSettings) => void
   finishLoading: () => void
@@ -83,10 +83,8 @@ export function useDownloadsSettingsDomain(
   )
 
   const handleMaxConcurrentDownloadsChange = useCallback(
-    (count: string | string[]): void => {
-      const selectedCount = Array.isArray(count) ? count[0] : count
-      const numericCount = Number.parseInt(selectedCount, 10)
-      setMaxConcurrentDownloads(numericCount)
+    (count: number): void => {
+      setMaxConcurrentDownloads(count)
       markSettingModified('maxConcurrentDownloads')
     },
     [markSettingModified]
