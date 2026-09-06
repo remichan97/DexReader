@@ -38,7 +38,13 @@ export function deepMergeDefaults<T extends object>(defaults: T, stored: Partial
   const storedRecord = stored as Record<string, unknown>
   const result: Record<string, unknown> = { ...defaultsRecord }
 
-  for (const key of Object.keys(defaultsRecord)) {
+  // Must walk the union of both objects' keys, not just the defaults' - an optional field
+  // that's never given a default value (e.g. SnapshotSettings.intervalInHours) has no key
+  // in defaultsRecord at all, so iterating defaults-only silently drops it from stored on
+  // every load even though the user's value is present and valid.
+  const allKeys = new Set([...Object.keys(defaultsRecord), ...Object.keys(storedRecord)])
+
+  for (const key of allKeys) {
     const storedValue = storedRecord[key]
     if (storedValue === undefined) continue
 
