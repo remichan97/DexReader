@@ -1,0 +1,96 @@
+/**
+ * List / ListItem Component Styles
+ * Following Windows 11 Fluent Design principles
+ */
+
+/* List Container */
+.list {
+  display: flex;
+  flex-direction: column;
+  background: var(--win-bg-card);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+/* List Item Row */
+.list-item {
+  padding: var(--space-3) var(--space-4);
+  background: transparent;
+  transition: var(--transition-bg);
+  outline: none;
+}
+
+.list-item:not(:last-child) {
+  border-bottom: 1px solid var(--win-border-default);
+}
+
+.list-item--interactive {
+  cursor: pointer;
+}
+
+.list-item--interactive:hover {
+  background: var(--win-bg-hover);
+}
+
+.list-item--interactive:active {
+  background: var(--win-bg-active);
+}
+
+.list-item--interactive:focus-visible {
+  outline: 2px solid var(--win-border-focus);
+  outline-offset: -2px;
+}
+
+.list-item--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Leading Slot */
+.list-item__leading {
+  flex-shrink: 0;
+  color: var(--win-text-secondary);
+}
+
+/* Content (title + subtitle) */
+.list-item__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.list-item__title {
+  font-family: var(--win-font-family);
+  font-size: var(--win-font-size-body);
+  font-weight: var(--win-font-weight-semibold);
+  color: var(--win-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.list-item--disabled .list-item__title {
+  color: var(--win-text-disabled);
+}
+
+.list-item__subtitle {
+  font-family: var(--win-font-family);
+  font-size: var(--win-font-size-caption);
+  color: var(--win-text-secondary);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Trailing Slot */
+.list-item__trailing {
+  flex-shrink: 0;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .list-item {
+    transition: none;
+  }
+}
