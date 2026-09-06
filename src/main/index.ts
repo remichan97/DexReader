@@ -17,6 +17,7 @@ import { appUpdateService } from './services/app-update.service'
 import { mainLog } from './services/logging/main-logging.service'
 import i18next from './i18n/i18n.config'
 import { settingsManager } from './settings/settings-manager'
+import { databaseSnapshotService } from './services/database-snapshot.service'
 
 const imageProxy = new ImageProxy()
 const localImageProxy = new LocalImageProxy()
@@ -34,6 +35,7 @@ async function initFileSystem(): Promise<void> {
   await secureFs.ensureDir(path.join(appDataPath, 'metadata'))
   await secureFs.ensureDir(path.join(appDataPath, 'logs'))
   await secureFs.ensureDir(path.join(appDataPath, 'downloads'))
+  await secureFs.ensureDir(path.join(appDataPath, 'snapshots'))
   await diskCacheUtil.initCachePath()
 
   // Load App settings
@@ -143,5 +145,9 @@ app.whenReady().then(async () => {
 
   mainLog.cleanupLogs().catch((error) => {
     mainLog.error('[Main] Error during log cleanup on startup:', error)
+  })
+
+  databaseSnapshotService.createSnapshotOnAppStartup().catch((error) => {
+    mainLog.error('[Main] Startup database update failed:', error)
   })
 })

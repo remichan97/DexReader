@@ -22,6 +22,7 @@ import { registerSearchPresetsHandler } from './handlers/search-presets.handler'
 import { registerGatekeeperHandlers } from './handlers/gatekeeper.handler'
 import { registerShellHandlers } from './handlers/shell.handler'
 import { registerMenuStateHandler } from './handlers/menu.handler'
+import { registerDatabaseSnapshotHandlers } from './handlers/database-snapshots.handler'
 
 /**
  * Register all IPC handlers
@@ -47,6 +48,7 @@ export function registerAllHandlers(imageProxy?: ImageProxy): void {
   registerAppUpdateHandler()
   registerSearchPresetsHandler()
   registerGatekeeperHandlers()
+  registerDatabaseSnapshotHandlers()
   registerShellHandlers()
   registerMenuStateHandler()
 

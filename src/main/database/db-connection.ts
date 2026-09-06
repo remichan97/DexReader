@@ -3,7 +3,7 @@ import { getAppDataPath } from '../filesystem/path-validator'
 import path from 'node:path'
 import { relations } from './schemas/relationships.schema'
 import { mainLog } from '../services/logging/main-logging.service'
-import { DatabaseSync } from 'node:sqlite'
+import { backup, DatabaseSync } from 'node:sqlite'
 
 class DatabaseConnection {
   private db: DatabaseSync | undefined = undefined
@@ -66,6 +66,29 @@ class DatabaseConnection {
       this.db = undefined
       this.drizzle = undefined
       mainLog.info('[Database] Database connection closed successfully')
+    }
+  }
+
+  // Given a backup file path, create a backup of the current database to said path
+  async backupDatabase(backupFilePath: string): Promise<void> {
+    if (!this.db) {
+      throw new Error('Database not initialized. Call init() first.')
+    }
+
+    mainLog.info(`[Database] Creating backup at: ${backupFilePath}`)
+    try {
+      // Use the Node.js SQLite backup API to create a backup of the current database
+      await backup(this.db, backupFilePath, {
+        progress: (info) => {
+          mainLog.debug(
+            `[Database] Backup progress: ${info.remainingPages} pages remaining, ${info.totalPages - info.remainingPages} pages copied`
+          )
+        }
+      })
+      mainLog.info('[Database] Finished database backup successfully')
+    } catch (error) {
+      mainLog.error('[Database] Error during database backup:', error)
+      throw error
     }
   }
 }
