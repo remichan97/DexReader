@@ -1,4 +1,4 @@
-import { ImageQuality } from '../../../main/api/enums'
+import { ImageQuality } from '@shared/enums/mangadex'
 import { DownloadConfirmation } from '../../enums/settings/download-confirmation.enum'
 
 export interface DownloadSettings {

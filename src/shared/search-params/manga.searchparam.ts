@@ -6,7 +6,7 @@ import {
   OrderDirection,
   IncludedTagsMode,
   MangaIncludes
-} from '../../enums/mangadex'
+} from '@shared/enums/mangadex'
 
 export interface MangaSearchParams {
   title?: string

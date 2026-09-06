@@ -2,12 +2,9 @@ import { DownloadChapterCommand } from '@shared/commands/services/download-chapt
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { IpcResponse, FileStats, AllowedPaths, FolderSelectResult } from './ipc.types'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { MangaSearchParams } from '../main/api/search-params/manga.searchparam'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { FeedParams } from '../main/api/search-params/feed.searchparam'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { ImageQuality } from '../main/api/enums'
+import { MangaSearchParams } from '../shared/search-params/manga.searchparam'
+import { FeedParams } from '../shared/search-params/feed.searchparam'
+import { ImageQuality } from '@shared/enums/mangadex/image-quality.enum'
 import { GetLibraryMangaCommand } from '@shared/commands/repositories/manga/get-library-manga.command'
 import { UpsertMangaCommand } from '@shared/commands/repositories/manga/upsert-manga.command'
 import { CreateCollectionCommand } from '@shared/commands/repositories/collections/create-collection.command'

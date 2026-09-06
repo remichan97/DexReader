@@ -17,7 +17,7 @@ import { ChapterDownloadContract } from '@shared/contracts/database/chapter-down
 import { MangaStorageContract } from '@shared/contracts/database/chapter-downloads/manga-storage.contract'
 import { StorageDataContract } from '../../shared/contracts/storage/storage-data.contract'
 import { diskCacheUtil } from '../api/utils/disk-cache.util'
-import { ImageUrlResponse } from '../api/responses/image-url.response'
+import { ImageUrlResponse } from '../../shared/responses/image-url.response'
 import { mainLog } from './logging/main-logging.service'
 import { settingsManager } from '../settings/settings-manager'
 import { DownloadChapterCommand } from '@shared/commands/services/download-chapter.command'

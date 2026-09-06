@@ -9,20 +9,14 @@ import { MangaContract } from '@shared/contracts/mangadex/manga.contract'
 import { ChapterContract } from '@shared/contracts/mangadex/chapter.contract'
 
 // API responses
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { ApiResponse } from '../main/api/responses/api.response'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { CollectionResponse } from '../main/api/responses/collection.response'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { ImageUrlResponse } from '../main/api/responses/image-url.response'
+import { ApiResponse } from '@shared/responses/api.response'
+import { CollectionResponse } from '@shared/responses/collection.response'
+import { ImageUrlResponse } from '@shared/responses/image-url.response'
 
 // API enums & params
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { ImageQuality } from '../main/api/enums/image-quality.enum'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { MangaSearchParams } from '../main/api/search-params/manga.searchparam'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { FeedParams } from '../main/api/search-params/feed.searchparam'
+import { ImageQuality } from '@shared/enums/mangadex/image-quality.enum'
+import { MangaSearchParams } from '../shared/search-params/manga.searchparam'
+import { FeedParams } from '../shared/search-params/feed.searchparam'
 
 // Database queries
 import type { MangaProgressContract } from '@shared/contracts/database/progress/manga-progress.contract'
@@ -79,8 +73,7 @@ import { StorageDataContract } from '@shared/contracts/storage/storage-data.cont
 
 // Re-export types for renderer use
 export type { IpcResponse } from './ipc.types'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { ImageUrlResponse } from '../main/api/responses/image-url.response'
+export type { ImageUrlResponse } from '@shared/responses/image-url.response'
 export type { MangaProgressContract } from '@shared/contracts/database/progress/manga-progress.contract'
 export type { MangaProgressMetadataContract } from '@shared/contracts/database/progress/manga-progress-metadata.contract'
 export type { ChapterProgressContract } from '@shared/contracts/database/progress/chapter-progress.contract'

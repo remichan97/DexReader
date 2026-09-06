@@ -1,4 +1,4 @@
-import { ImageQuality } from '../../../main/api/enums'
+import { ImageQuality } from '@shared/enums/mangadex'
 
 export interface QueuedDownloads {
   chapterId: string

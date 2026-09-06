@@ -1,4 +1,4 @@
-import { ImageQuality } from '../enums'
+import { ImageQuality } from '@shared/enums/mangadex'
 
 export interface ImageUrlResponse {
   url: string
