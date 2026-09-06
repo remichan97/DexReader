@@ -1,6 +1,6 @@
 # DexReader System Pattern
 
-**Last Updated**: 2 September 2026
+**Last Updated**: 6 September 2026
 **Version**: 1.0.0 (v1.0 Release Baseline)
 **Architecture**: Electron Multi-Process Desktop Application
 **Status**: Active - This document defines architectural patterns, design principles, and technical decisions
@@ -172,6 +172,18 @@
 **Practical implication**: because FK enforcement is genuinely active for the whole connection lifetime, any manual multi-table delete (bulk wipes, cascading manual cleanup) must either delete children before parents, or rely on `onDelete: 'cascade'` already being correct on every relevant FK and only delete the roots. Don't assume a pragma toggle will relax this for you inside a transaction.
 
 **Full `collection_items`/`chapter`/`manga`/etc. delete order reference**: see `clearAllData()` in `src/main/database/repositories/cleanup.repo.ts` for the current children-before-parents ordering, derived from `relationships.schema.ts`.
+
+### Database Snapshot & Restore ("Time Machine")
+
+**Location**: `src/main/services/database-snapshot.service.ts`, backed by `node:sqlite`'s Online Backup API (`databaseConnection.backupDatabase()`) to safely copy a live DB — including one in WAL mode — without closing the connection.
+
+**Snapshots are opaque, never addressed by path.** The public surface (IPC, service methods) only ever takes a bare filename drawn from `listSnapshots()`, resolved solely inside the managed `~/.dexreader/snapshots/` folder — never an absolute or user-picked path. A first implementation pass let `restoreSnapshot` accept an arbitrary filesystem path, which was a path-traversal / arbitrary-file-as-database vulnerability; every entry point that takes a filename now rejects anything failing a `path.basename(name) !== name` check before touching disk. This deliberately keeps the feature non-overlapping with Import/Export (the `.dexreader` format) — moving a backup off-machine is that feature's job, not this one's.
+
+**No new DB table** — snapshot metadata (timestamp, trigger, size) is derived entirely from filenames and `stat()` on the snapshots folder, the same pattern `logging.service.ts`'s `cleanupLogs()` uses for the logs folder.
+
+**Trigger model is check-on-startup only**, run once at DB-init time (`src/main/index.ts`), not a live timer: compares the newest automatic snapshot's age against `settings.snapshot.intervalInHours` and only creates a new one if overdue. Chosen over a live `setInterval` (needless lifecycle management once a manual "Create Now" button exists) and over an exit-only hook (this codebase's `before-quit` handling is synchronous while `node:sqlite`'s `backup()` is async, and exit-only misses every ungraceful exit — exactly when a recent snapshot matters most).
+
+**Full design rationale**: `claude-plans/db-snapshot-restore-plan.md`.
 
 ---
 

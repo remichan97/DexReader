@@ -1,6 +1,6 @@
 # DexReader Active Context
 
-**Last Updated**: 4 September 2026
+**Last Updated**: 6 September 2026
 **Version**: v1.13.1 (release prepared, not yet merged/tagged) — was v1.13.0
 **Mode**: Active Development
 
@@ -14,11 +14,14 @@
 
 **Release v1.13.1 prepared, not yet shipped**: react-router v6 → v7 migration (see Recent Changes below) on `fix/react-router-dom-vuln`, version bumped (`package.json`/`package-lock.json`), `CHANGELOG.md` updated. Awaiting: PR opened against `main`, merged, and the `chore: v1.13.1 release`-style tip commit landing on `main` so `ci.yaml`'s `create-release-tag` job fires. This release is a single-purpose security patch — keep the PR scoped to the router fix and its supporting test/docs commits, not bundled with unrelated feature work.
 
+**Database Snapshot & Restore feature, functionally complete, not yet merged**: on `feat/database-snapshots`, rescoped mid-implementation (see `claude-plans/db-snapshot-restore-plan.md` for the full rationale) from an earlier "arbitrary file in/out" design to opaque, internally-managed checkpoints only — closes a path-traversal gap the original design had (`restoreSnapshot` accepted any filesystem path). Settings plumbing, the `database-snapshot.service.ts` engine (create/list/delete/restore, check-on-startup trigger, N-snapshot retention), IPC handlers, preload wiring, and the full Settings → Restore Points UI (enable toggle, interval/max-count spinners, snapshot list with auto/manual badges, Create Now / Restore / Delete with native confirm dialogs) are all in place. User has completed a manual testing pass. A unit test suite for the service's pure logic (`database-snapshot.service.test.ts`, 30 tests: filename parsing, retention-cap pruning, the startup due-check, and unsafe-filename rejection on delete/restore) was added 6 September 2026 — full main-process suite (76 tests) passes. Remaining before merge: a project-wide `typecheck`/`lint` pass and opening the PR against `main`.
+
 **Next Planned Work:**
 
 - Once v1.13.1 ships: confirm the Dependabot Security-tab alert for react-router auto-closes
-- Start building out real unit test coverage beyond the ~9 files that exist today — was explicitly deferred out of v1.13.0 as ongoing/opportunistic backlog, not a blocker
-- Plan next feature development cycle
+- Run `npm run typecheck` and `npm run lint` on `feat/database-snapshots`, then open its PR against `main`
+- Continue building out real unit test coverage beyond the now ~10 files that exist today — was explicitly deferred out of v1.13.0 as ongoing/opportunistic backlog, not a blocker
+- Plan next feature development cycle (candidate: the Settings page immediate-apply migration, planned but not started — see `claude-plans/settings-immediate-save-migration-plan.md`)
 
 ---
 
@@ -36,6 +39,14 @@
 ---
 
 ## Recent Changes (Last 1-2 Weeks)
+
+### 5-6 September 2026 - Database Snapshot & Restore feature 🔄
+
+- **Type**: Feature
+- **Summary**: "Time machine" for `dexreader.db` — periodic snapshots taken while the app is running (check-on-startup trigger, since there's no background/tray process to schedule against), a manual "Create Now" action, and a restore flow that swaps the DB file and relaunches. Rescoped mid-implementation to close a security gap in the first pass: `restoreSnapshot` originally accepted an arbitrary filesystem path over IPC with no validation; the feature now only ever addresses a snapshot by filename drawn from `listSnapshots()`, resolved solely inside the managed `~/.dexreader/snapshots/` folder, with a `path.basename` equality check rejecting traversal/absolute-path input before it ever reaches the filesystem. Also fixed along the way: a dead branch in the original `createSnapshot` that silently wrote a directory path instead of a file path, and inconsistent filename shapes between auto/manual snapshots that broke naive positional parsing (now a single regex, `dexreader-(\d+)_(manual|auto)\.db`, handles both).
+- **Key Changes**: `database-snapshot.service.ts` (create/list/delete/restore/prune/due-check engine), `database-snapshots.handler.ts` + preload `window.snapshots.*`, new `snapshot` settings section (`isEnabled`, `intervalInHours` 1–6, `maxSnapshotsCount` 1–5), Settings → Restore Points UI, and a 30-test unit suite covering the service's filename parsing, retention pruning, startup due-check, and unsafe-filename rejection.
+- **Impact**: Recovery path for accidental data loss (bad import, "Clear All Data" misclick, silent corruption) that the existing DB crash-recovery fallback can't address, since that one only triggers on a hard _open_ failure.
+- **Status**: 🔄 Functionally complete + manually tested + unit tested on `feat/database-snapshots`, not yet merged — see Current Status above for what's left
 
 ### 4 September 2026 - react-router v6 → v7 migration ✅
 
