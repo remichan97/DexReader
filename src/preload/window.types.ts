@@ -70,6 +70,8 @@ import { DownloadStatContract } from '@shared/contracts/services/dexreader/downl
 
 // Data objects
 import { StorageDataContract } from '@shared/contracts/storage/storage-data.contract'
+import { SnapshotTrigger } from '@shared/enums/services/snapshot-trigger.enum'
+import { SnapshotItemContract } from '@shared/contracts/services/download-snapshots/snapshot-item.contract'
 
 // Re-export types for renderer use
 export type { IpcResponse } from './ipc.types'
@@ -398,6 +400,13 @@ interface Gatekeeper {
   toggleRequiredForSettings: (required: boolean) => Promise<IpcResponse<void>>
 }
 
+interface Snapshots {
+  createSnapshot: (trigger: SnapshotTrigger) => Promise<IpcResponse<void>>
+  listSnapshots: () => Promise<IpcResponse<SnapshotItemContract[]>>
+  deleteSnapshot: (snapshotName: string) => Promise<IpcResponse<void>>
+  restoreSnapshot: (snapshotName: string) => Promise<IpcResponse<void>>
+}
+
 declare global {
   interface Window {
     electron: ElectronAPI
@@ -418,6 +427,7 @@ declare global {
     logger: Logger
     searchPresets: SearchPresets
     gatekeeper: Gatekeeper
+    snapshots: Snapshots
   }
 
   // `Window` augmentation above only types `window.<api>` - DOM lib types `window` as
@@ -444,4 +454,5 @@ declare global {
   var logger: Logger
   var searchPresets: SearchPresets
   var gatekeeper: Gatekeeper
+  var snapshots: Snapshots
 }

@@ -17,6 +17,7 @@ import { QueuedDownloads } from '@shared/types/downloads/queued-downloads.type'
 import { DeleteChapterCommand } from '@shared/commands/services/delete-chapter.command'
 import { CreateSearchPresetCommand } from '@shared/commands/services/create-search-preset.command'
 import type { ChapterDownloadsEvent } from '@shared/events/chapter-downloads.event'
+import { SnapshotTrigger } from '@shared/enums/services/snapshot-trigger.enum'
 
 // Export enums for renderer
 export { DownloadConfirmation } from '@shared/enums/settings/download-confirmation.enum'
@@ -436,6 +437,13 @@ const gatekeeper = {
     ipcRenderer.invoke('gatekeeper:toggleRequireForSettings', required)
 }
 
+const snapshots = {
+  createSnapshot: (trigger: SnapshotTrigger) => ipcRenderer.invoke('snapshot:create', trigger),
+  listSnapshots: () => ipcRenderer.invoke('snapshot:list'),
+  deleteSnapshot: (snapshotName: string) => ipcRenderer.invoke('snapshot:delete', snapshotName),
+  restoreSnapshot: (snapshotName: string) => ipcRenderer.invoke('snapshot:restore', snapshotName)
+}
+
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
@@ -459,6 +467,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('logger', logger)
     contextBridge.exposeInMainWorld('searchPresets', searchPresets)
     contextBridge.exposeInMainWorld('gatekeeper', gatekeeper)
+    contextBridge.exposeInMainWorld('snapshots', snapshots)
   } catch (error) {
     console.error(error)
   }
@@ -481,4 +490,5 @@ if (process.contextIsolated) {
   globalThis.logger = logger
   globalThis.searchPresets = searchPresets
   globalThis.gatekeeper = gatekeeper
+  globalThis.snapshots = snapshots
 }
