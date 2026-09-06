@@ -15,6 +15,7 @@ import { CacheManagementSettings } from './components/CacheManagementSettings'
 import { SecuritySettings } from './components/SecuritySettings'
 import { AdvancedSettings } from './components/AdvancedSettings'
 import { LoggingSettings } from './components/LoggingSettings'
+import { RestorePointsSettings } from './components/RestorePointsSettings'
 import { DangerZoneSettings } from '../../components/SettingsView/DangerZoneSettings'
 import { GatekeeperSetupModal } from '@renderer/components/GatekeeperSetupModal'
 import { GatekeeperChangeModal } from '@renderer/components/GatekeeperChangeModal'
@@ -28,6 +29,7 @@ import { useLanguageSettingsDomain } from './hooks/domains/useLanguageSettingsDo
 import { useDownloadsSettingsDomain } from './hooks/domains/useDownloadsSettingsDomain'
 import { useReaderSettingsDomain } from './hooks/domains/useReaderSettingsDomain'
 import { useAdvancedSettingsDomain } from './hooks/domains/useAdvancedSettingsDomain'
+import { useRestorePointsSettingsDomain } from './hooks/domains/useRestorePointsSettingsDomain'
 import { SECTION_IDS, getSettingLabel, getSettingSection } from './utils/settingsMeta'
 import type { AppSettings } from '../../../../preload/window.types'
 import './SettingsView.css'
@@ -74,8 +76,9 @@ export function SettingsView(): JSX.Element {
   const downloads = useDownloadsSettingsDomain({ markSettingModified, showToast })
   const reader = useReaderSettingsDomain({ markSettingModified, showToast, t })
   const advanced = useAdvancedSettingsDomain({ markSettingModified })
+  const restorePoints = useRestorePointsSettingsDomain({ markSettingModified })
 
-  const domains = [appearance, language, downloads, reader, advanced]
+  const domains = [appearance, language, downloads, reader, advanced, restorePoints]
 
   // Build settings sections array for navigation
   const settingsSections: SettingsSection[] = SECTION_IDS.map((id) => ({
@@ -106,7 +109,7 @@ export function SettingsView(): JSX.Element {
     if (!originalSettings) return
     setHasUnsavedChanges(domains.some((domain) => domain.isDirty(originalSettings)))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [originalSettings, appearance, language, downloads, reader, advanced])
+  }, [originalSettings, appearance, language, downloads, reader, advanced, restorePoints])
 
   // Search params support for deep linking to sections
   // Note: Intentionally using empty dependency array - this should only run once on mount
@@ -170,6 +173,7 @@ export function SettingsView(): JSX.Element {
           reader.loadFromSettings(settings)
           await language.loadFromSettings(settings)
           advanced.loadFromSettings(settings)
+          restorePoints.loadFromSettings(settings)
 
           // Store original settings for dirty tracking
           // IMPORTANT: Include the actual downloadsPath to avoid false dirty state
@@ -223,7 +227,8 @@ export function SettingsView(): JSX.Element {
         ...language.buildPayload(),
         ...downloads.buildPayload(),
         ...reader.buildPayload(),
-        ...advanced.buildPayload()
+        ...advanced.buildPayload(),
+        ...restorePoints.buildPayload()
       }
 
       // Each settings-domain hook (appearance, language, downloads, reader, advanced) declares
@@ -429,6 +434,22 @@ export function SettingsView(): JSX.Element {
         >
           <h2 className="settings-section__title">{t('settings:tabs.storage')}</h2>
           <StorageManagementSettings />
+        </section>
+
+        {/* Restore Point Settings */}
+        <section
+          id="restorePoints"
+          className={`settings-section ${highlightedSection === 'restorePoints' ? 'settings-section--highlighted' : ''}`}
+        >
+          <h2 className="settings-section__title">{t('settings:tabs.restorePoints')}</h2>
+          <RestorePointsSettings
+            isEnabled={restorePoints.isEnabled}
+            intervalInHours={restorePoints.intervalInHours}
+            maxSnapshotsCount={restorePoints.maxSnapshotsCount}
+            onEnabledChange={restorePoints.handleEnabledChange}
+            onIntervalChange={restorePoints.handleIntervalChange}
+            onMaxCountChange={restorePoints.handleMaxCountChange}
+          />
         </section>
 
         {/* Security Settings */}

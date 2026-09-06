@@ -6,6 +6,7 @@ export const SECTION_IDS = [
   'downloads',
   'performance',
   'storage',
+  'restorePoints',
   'security',
   'advanced'
 ] as const
@@ -115,6 +116,20 @@ const SETTING_METADATA: Record<string, { section: string; label: (t: TFunction) 
   logRetentionDays: {
     section: 'advanced',
     label: (t) => t('settings:logging.retentionLabel', { defaultValue: 'Log Retention Period' })
+  },
+  restorePointsEnabled: {
+    section: 'restorePoints',
+    label: (t) =>
+      t('settings:restorePoints.enable.label', { defaultValue: 'Enable restore points' })
+  },
+  restorePointsInterval: {
+    section: 'restorePoints',
+    label: (t) => t('settings:restorePoints.intervalLabel', { defaultValue: 'Automatic interval' })
+  },
+  restorePointsMaxCount: {
+    section: 'restorePoints',
+    label: (t) =>
+      t('settings:restorePoints.maxCountLabel', { defaultValue: 'Restore points to keep' })
   }
 }
 
