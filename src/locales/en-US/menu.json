@@ -45,8 +45,7 @@
         "filterName": "Mihon/Tachiyomi Backup"
       },
       "exportLibrary": {
-        "title": "Export Library",
-        "defaultFilename": "dexreader-backup.dexreader"
+        "title": "Export Library"
       },
       "exportMihonTachiyomiWarning": {
         "title": "Export to Mihon/Tachiyomi",
@@ -57,18 +56,9 @@
       },
       "exportMihonTachiyomi": {
         "title": "Export Library to Mihon/Tachiyomi",
-        "defaultFilenamePattern": "dexreader-backup-{{date}}.tachibk",
         "filterName": "Mihon/Tachiyomi Backup"
       }
     }
-  },
-  "tools": {
-    "label": "Tools",
-    "downloadChapter": "Download Chapter",
-    "downloadManga": "Download Manga",
-    "manageStorage": "Manage Storage...",
-    "clearCache": "Clear Cache...",
-    "clearReadingHistory": "Clear Reading History..."
   },
   "help": {
     "label": "Help",

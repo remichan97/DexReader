@@ -55,8 +55,6 @@
     "configureDateButton": "Cấu hình định dạng ngày trong cài đặt hệ thống",
     "configureDateHelper": "Thao tác này sẽ mở cài đặt khu vực của hệ điều hành, nơi bạn có thể tùy chỉnh định dạng ngày và giờ.",
     "configureDateFallback": "Không thể mở cài đặt hệ thống tự động. Vui lòng mở cài đặt ngày/giờ của hệ thống thủ công:\n\nWindows: Settings → Time & Language → Region\nmacOS: System Preferences → Language & Region\nLinux: Kiểm tra cài đặt môi trường desktop của bạn",
-    "configureDateFallbackTitle": "Không thể mở cài đặt hệ thống",
-    "languageSection": "Ngôn ngữ",
     "languageLabel": "Ngôn ngữ hiển thị",
     "languageHelper": "Chọn ngôn ngữ cho giao diện DexReader. Thay đổi này sẽ ảnh hưởng đến toàn bộ giao diện của ứng dụng. Cần khởi động lại để áp dụng ngôn ngữ mới.",
     "languageOptions": {
@@ -69,8 +67,7 @@
     "contentLanguages": "Ngôn ngữ nội dung ưu tiên",
     "contentLanguagesDescription": "Chọn tối đa 5 ngôn ngữ theo thứ tự ưu tiên. Các chương sẽ được lọc dựa trên tùy chọn này.",
     "contentLanguageFallbackInfo": "Nếu ngôn ngữ ưu tiên của bạn không khả dụng, các chương sẽ hiển thị bằng tiếng Anh, sau đó là bất kỳ ngôn ngữ nào có sẵn.",
-    "addLanguage": "Thêm ngôn ngữ",
-    "maxLanguagesReached": "Tối đa 5 ngôn ngữ được phép"
+    "addLanguage": "Thêm ngôn ngữ"
   },
   "language": {
     "languageSectionDescription": "Cấu hình ngôn ngữ hiển thị của DexReader và tùy chọn ngôn ngữ nội dung để lọc các chương manga.",
@@ -103,7 +100,6 @@
     "qualityDescription": "Chất lượng sử dụng cho tất cả các tải xuống",
     "qualityDescriptionWithConfirm": "Chọn chất lượng mặc định",
     "qualityLabel": "Chất lượng mặc định",
-
     "concurrentSection": "Tải xuống đồng thời",
     "concurrentDescription": "Bao nhiêu chương nên được tải xuống cùng một lúc?",
     "concurrentLabel": "Số lượng tải xuống đồng thời tối đa",
@@ -187,9 +183,6 @@
   },
   "storage": {
     "chartTitle": "Phân tích dung lượng DexReader",
-    "dexReader": "DexReader",
-    "other": "Khác",
-    "free": "Trống",
     "dexReaderTooltip": "DexReader: {{size}}",
     "otherTooltip": "Ứng dụng khác: {{size}}",
     "freeTooltip": "Dung lượng trống: {{size}}",
@@ -256,7 +249,6 @@
     "cleanMetadataSuccess": "Đã dọn dẹp bộ nhớ đệm thông tin",
     "cleanedMetadata": "Đã dọn dẹp {{count}} manga trong bộ nhớ đệm",
     "clearAllCacheButton": "Xóa tất cả bộ nhớ đệm",
-    "clearAllMetadataButton": "Xóa tất cả",
     "clearAllMetadataSuccess": "Đã xóa bộ nhớ đệm thông tin"
   },
   "advanced": {
@@ -271,7 +263,6 @@
       "description": "Tải xuống các bản cập nhật trong nền. Bạn chọn khi nào cài đặt."
     },
     "checkNowButton": "Kiểm tra cập nhật ngay",
-    "checkingButton": "Đang kiểm tra...",
     "currentVersion": "Phiên bản hiện tại: {{version}}",
     "systemSection": "Hệ thống",
     "systemDescription": "Cấu hình hành vi ứng dụng ở mức hệ thống",

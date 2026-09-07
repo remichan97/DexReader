@@ -37,7 +37,6 @@
   },
   "downloadGroup": {
     "chapterCount": "{{count}} chapter{{s}}",
-    "storageSize": "{{size}}",
     "activeBadge": "{{count}} active",
     "failedBadge": "{{count}} failed"
   },

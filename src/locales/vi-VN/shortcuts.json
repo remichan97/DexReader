@@ -34,8 +34,7 @@
         "checkForUpdates": "Kiểm tra cập nhật thư viện",
         "downloadChapter": "Tải xuống chương",
         "downloadManga": "Tải xuống toàn bộ manga",
-        "editCollection": "Chỉnh sửa bộ sưu tập",
-        "exportLibrary": "Xuất Thư viện sang Sao lưu DexReader"
+        "editCollection": "Chỉnh sửa bộ sưu tập"
       }
     },
     "reader": {

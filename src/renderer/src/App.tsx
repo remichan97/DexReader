@@ -22,6 +22,7 @@ import { UnsavedChangesProvider } from './contexts/UnsavedChangesProvider'
 import { SecureNavigationProvider } from './contexts/SecureNavigationContext'
 import { useUnsavedChanges } from './hooks/useUnsavedChanges'
 import { rendererLog } from './services/logging.service'
+import { useTranslation } from './hooks/useTranslation'
 
 function AppContent(): React.JSX.Element {
   const location = useLocation()
@@ -168,6 +169,7 @@ function AppContent(): React.JSX.Element {
 }
 
 function ClosingOverlay(): React.JSX.Element {
+  const { t } = useTranslation('common')
   return (
     <div
       style={{
@@ -188,8 +190,8 @@ function ClosingOverlay(): React.JSX.Element {
       }}
     >
       <ProgressRing size="large" />
-      <div style={{ fontSize: '16px', fontWeight: 500 }}>A little bit of house keeping...</div>
-      <div style={{ fontSize: '14px', opacity: 0.7 }}>Hang tight...</div>
+      <div style={{ fontSize: '16px', fontWeight: 500 }}>{t('closing.title')}</div>
+      <div style={{ fontSize: '14px', opacity: 0.7 }}>{t('closing.subtitle')}</div>
     </div>
   )
 }

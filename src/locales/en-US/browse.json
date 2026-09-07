@@ -1,7 +1,6 @@
 {
   "pageTitle": "Browse Manga",
   "searchPlaceholder": "Search by title, author, or genre...",
-  "filterButton": "Filter",
   "applyFiltersButton": "Apply Filters",
   "clearFiltersButton": "Clear Filters",
   "savePresetButton": "Save Preset",
@@ -10,15 +9,17 @@
     "action": "Go to Library"
   },
   "emptyState": {
-    "searching": "Searching for manga...",
-    "noResults": "No manga found",
-    "scrollForMore": "scroll for more"
+    "noResults": "No manga found"
+  },
+  "loadMore": {
+    "loading": "Loading more manga...",
+    "error": "Couldn't load more manga. This might be a connection issue.",
+    "noMoreResults": "No more results to load"
   },
   "errorState": {
     "title": "Couldn't load manga",
     "message": "Something went wrong while searching. This might be a connection issue or the service might be temporarily unavailable.",
-    "showDetailsButton": "Show technical details",
-    "hideDetailsButton": "Hide"
+    "showDetailsButton": "Show technical details"
   },
   "filterInfo": {
     "activeFilters": "{{count}} filter{{s}} active",
@@ -42,39 +43,8 @@
     "hasMore": ", scroll for more",
     "noResults": "No manga found"
   },
-  "import": {
-    "imported": "Imported",
-    "skipped": "Skipped",
-    "failed": "Failed",
-    "cancelImport": "Cancel Import",
-    "importBackup": "Import Backup",
-    "importBehaviour": "Import Behaviour:",
-    "importMessage": "Importing manga from your Tachiyomi/Mihon backup. This may take a few moments depending on the size of your library.",
-    "importInfo": "This backup will be merged with your existing library. The following data will be imported:",
-    "successMessage": "Successfully imported {{count}} out of {{total}} manga from your backup.",
-    "skippedMessage": "{{count}} manga were skipped (already in library or not from MangaDex)."
-  },
-  "export": {
-    "exportBackup": "Export Backup",
-    "saveTo": "Save to:",
-    "chooseWhatToInclude": "Choose what to include in your backup file. Library manga metadata is always included.",
-    "noteSettings": "Note: App settings (theme, language, shortcuts) are stored separately. Use Settings → Advanced → Open Settings File to back them up."
-  },
-  "download": {
-    "downloadChapter": "Download chapter",
-    "downloading": "Downloading...",
-    "downloadingPages": "Downloading... {{current}} of {{total}} pages",
-    "downloadQueued": "Download queued",
-    "chapterDownloaded": "Chapter downloaded",
-    "downloadFailed": "Download failed. Click to retry",
-    "downloadMessage": "You're about to download {{count}} chapters."
-  },
   "preset": {
     "searchPreset": "Search Preset",
-    "noPreset": "No Preset",
-    "loadingPresets": "Loading presets...",
-    "selectAPreset": "Select a preset",
-    "setAsDefault": "Set as default",
     "previewCurrentFilters": "Preview: Current Filters"
   },
   "filter": {

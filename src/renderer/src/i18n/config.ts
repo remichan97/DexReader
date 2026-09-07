@@ -22,7 +22,6 @@ i18next.use(initReactI18next).init({
     'menu',
     'errors',
     'dialogs',
-    'validation',
     'shortcuts',
     'browse',
     'library',
@@ -30,7 +29,9 @@ i18next.use(initReactI18next).init({
     'reader',
     'settings',
     'history',
-    'mangaDetail'
+    'mangaDetail',
+    'gatekeeper',
+    'creator'
   ],
   defaultNS: 'common'
 })

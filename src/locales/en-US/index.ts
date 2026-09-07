@@ -2,7 +2,6 @@ import common from './common.json' with { type: 'json' }
 import menu from './menu.json' with { type: 'json' }
 import errors from './errors.json' with { type: 'json' }
 import dialogs from './dialogs.json' with { type: 'json' }
-import validation from './validation.json' with { type: 'json' }
 import shortcuts from './shortcuts.json' with { type: 'json' }
 import browse from './browse.json' with { type: 'json' }
 import library from './library.json' with { type: 'json' }
@@ -19,7 +18,6 @@ export default {
   menu,
   errors,
   dialogs,
-  validation,
   shortcuts,
   browse,
   library,

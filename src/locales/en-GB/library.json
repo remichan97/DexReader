@@ -24,8 +24,7 @@
   "searchHelpButton": "Search syntax help",
   "activeFilters": "Active filters:",
   "tabs": {
-    "all": "All",
-    "collections": "{{name}}"
+    "all": "All"
   },
   "emptyState": {
     "noManga": "Nothing here yet! Start adding some manga from Browse.",
@@ -52,15 +51,6 @@
       "downloadsOnly": "Downloads deleted, but failed to remove from library"
     },
     "unexpectedError": "Unexpected error"
-  },
-  "collections": {
-    "toasts": {
-      "created": "Collection Created",
-      "updated": "Collection Updated",
-      "deleted": "Collection Deleted",
-      "updateFailed": "Could not update collection",
-      "deleteFailed": "Could not delete collection"
-    }
   },
   "liveRegion": {
     "loading": "Loading your library...",

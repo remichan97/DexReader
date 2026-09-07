@@ -34,8 +34,7 @@
         "checkForUpdates": "Check library for updates",
         "downloadChapter": "Download chapter",
         "downloadManga": "Download entire manga",
-        "editCollection": "Edit collection",
-        "exportLibrary": "Export Library to DexReader Backup"
+        "editCollection": "Edit collection"
       }
     },
     "reader": {

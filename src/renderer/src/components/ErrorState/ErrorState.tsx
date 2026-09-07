@@ -147,8 +147,8 @@ export function ErrorState({
               onClick={() => setDetailsExpanded(!detailsExpanded)}
               size="medium"
             >
-              {detailsExpanded ? t('common:action.hide') : t('common:action.show')} technical
-              details
+              {detailsExpanded ? t('common:action.hide') : t('common:action.show')}{' '}
+              {t('common:label.technicalDetails')}
             </Button>
           )}
         </div>
@@ -157,11 +157,11 @@ export function ErrorState({
       {showTechnicalDetails && error && detailsExpanded && (
         <div className="error-state__technical-details">
           <div>
-            <strong>Error:</strong> {error.message}
+            <strong>{t('common:label.error')}</strong> {error.message}
           </div>
           {error.stack && (
             <div className="error-state__stack-trace">
-              <strong>Stack Trace:</strong>
+              <strong>{t('common:label.stackTrace')}</strong>
               <pre>{error.stack}</pre>
             </div>
           )}
