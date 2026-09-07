@@ -432,7 +432,13 @@
     },
     "behaviour": {
       "title": "Import Behaviour:",
-      "description": "Existing library entries will be preserved. Only new data will be added."
+      "description": "Existing library entries will be preserved. Only new data will be added.",
+      "points": {
+        "existingUpdated": "Existing manga in your library will be updated, not duplicated.",
+        "collectionsMerged": "Collections will be merged with your existing ones.",
+        "settingsPriority": "Your current reader settings take priority over imported ones.",
+        "noDataDeleted": "No existing data will be deleted during import."
+      }
     },
     "buttons": {
       "cancel": "Cancel",

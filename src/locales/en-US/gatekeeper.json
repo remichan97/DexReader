@@ -82,7 +82,13 @@
       "passphrasePlaceholder": "Enter your passphrase",
       "resetButton": "Reset App Lock",
       "cancelButton": "Cancel",
-      "resetting": "Resetting..."
+      "resetting": "Resetting...",
+      "confirm": {
+        "title": "Reset App Lock?",
+        "message": "This will disable App Lock and delete your passphrase. You'll need to set up App Lock again if you want to use it.",
+        "confirmButton": "Reset",
+        "cancelButton": "Cancel"
+      }
     },
     "errors": {
       "enable": {
@@ -121,6 +127,14 @@
       "reset": {
         "title": "App Lock Reset",
         "message": "App Lock has been disabled. Your manga library is no longer protected."
+      }
+    },
+    "help": {
+      "recovery": "If you forget your passphrase, you'll need to manually delete the gatekeeper.lock file from your AppData folder and restart the app.",
+      "location": {
+        "windows": "Windows: %APPDATA%\\DexReader\\gatekeeper.lock",
+        "macos": "macOS: ~/Library/Application Support/DexReader/gatekeeper.lock",
+        "linux": "Linux: ~/.config/DexReader/gatekeeper.lock"
       }
     }
   }

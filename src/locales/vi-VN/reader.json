@@ -81,7 +81,8 @@
       "fitHeight": "Vừa khít theo chiều dọc",
       "actualSize": "Kích thước thực",
       "zoomIn": "Phóng to",
-      "zoomOut": "Thu nhỏ"
+      "zoomOut": "Thu nhỏ",
+      "reset": "Đặt lại mức thu phóng về mặc định"
     }
   },
   "documentTitle": {

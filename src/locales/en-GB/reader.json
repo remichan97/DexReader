@@ -79,7 +79,8 @@
       "fitHeight": "Fit to height",
       "actualSize": "Actual size",
       "zoomIn": "Zoom in",
-      "zoomOut": "Zoom out"
+      "zoomOut": "Zoom out",
+      "reset": "Reset zoom to default"
     }
   },
   "documentTitle": {

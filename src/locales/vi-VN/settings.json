@@ -199,7 +199,6 @@
     "diskSpaceTitle": "Tổng dung lượng đĩa: {{total}} GB",
     "diskSpaceUsage": "Đã sử dụng: {{used}} GB • Còn trống: {{free}} GB",
     "loadingStorage": "Đang tải dữ liệu lưu trữ...",
-    "failedToLoad": "Không thể tải dữ liệu lưu trữ",
     "mangaStorageHeader": "Dung lượng Manga ({{size}})",
     "emptyState": "Chưa có tải xuống nào",
     "sortOptions": {
@@ -211,13 +210,10 @@
     "deleteSelectedButton": "Xóa đã chọn ({{count}})",
     "deleteConfirm": {
       "title": "Xóa {{count}} manga?",
-      "message": "Bạn sắp xóa vĩnh viễn các bản tải xuống cho:\n\n{{list}}\n\nBạn sẽ giải phóng: {{size}} dung lượng ổ cứng\n\nHành động này không thể hoàn tác.",
-      "deleteButton": "Xóa",
-      "cancelButton": "Hủy"
+      "message": "Bạn sắp xóa vĩnh viễn các bản tải xuống cho:\n\n{{list}}\n\nBạn sẽ giải phóng: {{size}} dung lượng ổ cứng\n\nHành động này không thể hoàn tác."
     },
     "deleteSuccess": "Đã xóa thành công {{count}} manga",
-    "deletedSpace": "Đã giải phóng {{size}} dung lượng ổ cứng!",
-    "deleteFailed": "Không thể xóa manga"
+    "deletedSpace": "Đã giải phóng {{size}} dung lượng ổ cứng!"
   },
   "cacheManagement": {
     "sectionTitle": "Quản lý bộ nhớ đệm",

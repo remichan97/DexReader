@@ -40,7 +40,8 @@
     "viewReleaseNotes": "View Release Notes",
     "letsGo": "Let's Go!",
     "openInBrowser": "Open in Browser",
-    "copyLink": "Copy Link"
+    "copyLink": "Copy Link",
+    "viewLibrary": "View Library"
   },
   "action": {
     "add": "Add",
@@ -167,7 +168,8 @@
   "message": {
     "success": {
       "importSuccessful": "Import Successful",
-      "changesSaved": "Changes saved"
+      "changesSaved": "Changes saved",
+      "addedToLibrary": "Added to Library"
     },
     "warning": {
       "importCompletedWithWarnings": "Import Completed with Warnings"
@@ -250,7 +252,7 @@
     "alwaysIncluded": "Always included"
   },
   "emptyState": {
-    "noFavorites": "No favorites yet!",
+    "noFavourites": "No favorites yet!",
     "noReadingHistory": "No reading history yet",
     "noResults": "No results found for your search.",
     "noResultsFound": "No results found",

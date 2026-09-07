@@ -40,7 +40,8 @@
     "viewReleaseNotes": "View Release Notes",
     "letsGo": "Let's Go!",
     "openInBrowser": "Open in Browser",
-    "copyLink": "Copy Link"
+    "copyLink": "Copy Link",
+    "viewLibrary": "View Library"
   },
   "action": {
     "add": "Add",
@@ -167,7 +168,8 @@
   "message": {
     "success": {
       "importSuccessful": "Import Successful",
-      "changesSaved": "Changes saved"
+      "changesSaved": "Changes saved",
+      "addedToLibrary": "Added to Library"
     },
     "warning": {
       "importCompletedWithWarnings": "Import Completed with Warnings"

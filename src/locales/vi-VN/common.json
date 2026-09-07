@@ -40,7 +40,8 @@
     "viewReleaseNotes": "Xem ghi chú phát hành",
     "letsGo": "Tuyệt vời!",
     "openInBrowser": "Mở trong Trình duyệt",
-    "copyLink": "Sao chép Liên kết"
+    "copyLink": "Sao chép Liên kết",
+    "viewLibrary": "Xem Thư viện"
   },
   "action": {
     "add": "Thêm",
@@ -167,7 +168,8 @@
   "message": {
     "success": {
       "importSuccessful": "Nhập thành công",
-      "changesSaved": "Đã lưu thay đổi"
+      "changesSaved": "Đã lưu thay đổi",
+      "addedToLibrary": "Đã thêm vào Thư viện"
     },
     "warning": {
       "importCompletedWithWarnings": "Nhập dữ liệu hoàn tất với cảnh báo"

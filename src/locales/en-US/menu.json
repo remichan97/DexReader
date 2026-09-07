@@ -21,8 +21,8 @@
   },
   "library": {
     "label": "Library",
-    "addToFavorites": "Add to Favorites",
-    "removeFromFavorites": "Remove from Favorites",
+    "addToFavourites": "Add to Favorites",
+    "removeFromFavourites": "Remove from Favorites",
     "createCollection": "Create Collection...",
     "manageCollections": "Manage Collections...",
     "downloadChapter": "Download Chapter",

@@ -139,11 +139,7 @@
     },
     "clearCoverCache": {
       "title": "Xóa tất cả bìa đã lưu trong bộ nhớ đệm?",
-      "message": "Thao tác này sẽ xóa {{count}} hình ảnh đã lưu trong cache ({{size}}).\n\nHình ảnh bìa sẽ được tải lại khi cần thiết trong quá trình sử dụng ứng dụng. Việc này có thể tạm thời làm chậm hiệu suất ứng dụng.",
-      "buttons": {
-        "clear": "Xóa tất cả",
-        "cancel": "Hủy"
-      }
+      "message": "Thao tác này sẽ xóa {{count}} hình ảnh đã lưu trong cache ({{size}}).\n\nHình ảnh bìa sẽ được tải lại khi cần thiết trong quá trình sử dụng ứng dụng. Việc này có thể tạm thời làm chậm hiệu suất ứng dụng."
     },
     "cleanMetadataCache": {
       "title": "Dọn dẹp bộ nhớ đệm metadata?",
@@ -171,11 +167,7 @@
     },
     "clearAllOverrides": {
       "title": "Xóa tất cả cài đặt ghi đè?",
-      "message": "Bạn có cài đặt ghi đè cho {{count}} manga. Tất cả sẽ được đặt lại về cài đặt chung. Thao tác này không thể hoàn tác!",
-      "buttons": {
-        "clear": "Xóa tất cả",
-        "cancel": "Hủy"
-      }
+      "message": "Bạn có cài đặt ghi đè cho {{count}} manga. Tất cả sẽ được đặt lại về cài đặt chung. Thao tác này không thể hoàn tác!"
     },
     "openExternalLink": {
       "title": "Mở {{serviceName}}?",
@@ -440,7 +432,13 @@
     },
     "behaviour": {
       "title": "Hành vi nhập:",
-      "description": "Các mục thư viện hiện có sẽ được giữ nguyên. Chỉ dữ liệu mới sẽ được thêm vào."
+      "description": "Các mục thư viện hiện có sẽ được giữ nguyên. Chỉ dữ liệu mới sẽ được thêm vào.",
+      "points": {
+        "existingUpdated": "Các đầu truyện hiện có trong thư viện của bạn sẽ được cập nhật, không bị trùng lặp.",
+        "collectionsMerged": "Bộ sưu tập sẽ được hợp nhất với bộ sưu tập hiện có của bạn.",
+        "settingsPriority": "Cài đặt đọc hiện tại của bạn được ưu tiên hơn cài đặt được nhập.",
+        "noDataDeleted": "Không có dữ liệu hiện có nào bị xóa trong quá trình nhập."
+      }
     },
     "buttons": {
       "cancel": "Hủy",
@@ -533,6 +531,32 @@
     "buttons": {
       "restart": "Có, Khởi động lại ngay",
       "later": "Không, để sau"
+    }
+  },
+  "databaseRecovery": {
+    "openFailure": {
+      "title": "Sự cố cơ sở dữ liệu",
+      "message": "DexReader không thể mở cơ sở dữ liệu của nó.",
+      "detail": "Tệp cơ sở dữ liệu có vẻ đã bị hỏng và không thể mở được. Chọn \"Sao lưu & đặt lại\" sẽ chuyển tệp bị lỗi sang nơi khác (không xóa) và bắt đầu một cơ sở dữ liệu mới, trống. Thư viện và lịch sử đọc của bạn sẽ không được khôi phục tự động — hãy nhập lại từ bản sao lưu sau đó nếu bạn có.",
+      "buttons": {
+        "backupAndReset": "Sao lưu & đặt lại",
+        "quit": "Thoát"
+      }
+    },
+    "recoveryFailure": {
+      "title": "Sự cố cơ sở dữ liệu",
+      "message": "DexReader vẫn không thể khôi phục cơ sở dữ liệu của nó.",
+      "detail": "Vui lòng cài đặt lại ứng dụng, hoặc liên hệ hỗ trợ kèm theo các tệp nhật ký từ thư mục dữ liệu ứng dụng."
+    },
+    "migrationFailure": {
+      "title": "Sự cố cập nhật",
+      "message": "DexReader không thể cập nhật cơ sở dữ liệu cho phiên bản này.",
+      "detail": "Đây là lỗi của bản phát hành này, không phải vấn đề với dữ liệu của bạn — thư viện và lịch sử đọc của bạn không bị ảnh hưởng. Hãy sao chép thông tin chẩn đoán để báo cáo lỗi, và cân nhắc cài đặt bản phát hành trước đó cho đến khi có bản sửa lỗi.",
+      "buttons": {
+        "copyDiagnostics": "Sao chép thông tin chẩn đoán",
+        "previousReleases": "Các bản phát hành trước",
+        "quit": "Thoát"
+      }
     }
   }
 }

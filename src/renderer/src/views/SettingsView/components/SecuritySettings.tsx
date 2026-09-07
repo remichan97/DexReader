@@ -46,7 +46,7 @@ export function SecuritySettings({
           rendererLog.error('[SecuritySettings] Failed to check status:', enabledResult.error)
           showToast({
             variant: 'error',
-            title: t('common:errors.generic', { defaultValue: 'An unexpected error occurred' })
+            title: t('common:message.error.unexpectedError')
           })
           return
         }
@@ -99,7 +99,7 @@ export function SecuritySettings({
         rendererLog.error('[SecuritySettings] Failed to toggle requireForSettings:', result.error)
         showToast({
           variant: 'error',
-          title: t('common:errors.generic', { defaultValue: 'An unexpected error occurred' })
+          title: t('common:message.error.unexpectedError')
         })
         return
       }
@@ -119,7 +119,7 @@ export function SecuritySettings({
       rendererLog.error('[SecuritySettings] Unexpected error toggling requireForSettings:', err)
       showToast({
         variant: 'error',
-        title: t('common:errors.generic', { defaultValue: 'An unexpected error occurred' })
+        title: t('common:message.error.unexpectedError')
       })
     } finally {
       setIsTogglingRequireSettings(false)

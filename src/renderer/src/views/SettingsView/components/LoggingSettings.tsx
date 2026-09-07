@@ -34,8 +34,8 @@ export function LoggingSettings({
       rendererLog.error('[LoggingSettings] Failed to open logs folder:', error)
       showToast({
         variant: 'error',
-        title: t('errors:logs.open_failed.title'),
-        message: t('errors:logs.open_failed.message'),
+        title: t('errors:logging.open_folder_failed.title'),
+        message: t('errors:logging.open_folder_failed.message'),
         duration: 4000
       })
     } finally {
@@ -68,8 +68,8 @@ export function LoggingSettings({
       rendererLog.error('[LoggingSettings] Failed to delete old logs:', error)
       showToast({
         variant: 'error',
-        title: t('errors:logs.delete_old_failed.title'),
-        message: t('errors:logs.delete_old_failed.message'),
+        title: t('errors:logging.delete_old_logs_failed.title'),
+        message: t('errors:logging.delete_old_logs_failed.message'),
         duration: 4000
       })
     } finally {
@@ -102,8 +102,8 @@ export function LoggingSettings({
       rendererLog.error('[LoggingSettings] Failed to clear logs:', error)
       showToast({
         variant: 'error',
-        title: t('errors:logs.clear_failed.title'),
-        message: t('errors:logs.clear_failed.message'),
+        title: t('errors:logging.clear_logs_failed.title'),
+        message: t('errors:logging.clear_logs_failed.message'),
         duration: 4000
       })
     } finally {

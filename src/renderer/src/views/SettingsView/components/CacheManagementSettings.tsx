@@ -61,7 +61,7 @@ export function CacheManagementSettings({
         showToast({
           variant: 'error',
           title: t('errors:cache.load_failed.title'),
-          message: error instanceof Error ? error.message : t('common:error.unknownError')
+          message: error instanceof Error ? error.message : t('common:message.error.unknownError')
         })
       } finally {
         setIsLoading(false)
@@ -117,15 +117,15 @@ export function CacheManagementSettings({
       } else {
         showToast({
           variant: 'error',
-          title: t('errors:cache.clear_cover_failed.title')
+          title: t('errors:cache.clear_cover_cache_failed.title')
         })
       }
     } catch (error) {
       rendererLog.error('[CacheManagementSettings] Error clearing cover cache:', error)
       showToast({
         variant: 'error',
-        title: t('errors:cache.clear_cover_failed.title'),
-        message: error instanceof Error ? error.message : t('common:error.unknownError')
+        title: t('errors:cache.clear_cover_cache_failed.title'),
+        message: error instanceof Error ? error.message : t('common:message.error.unknownError')
       })
     } finally {
       setIsClearingCovers(false)
@@ -165,15 +165,15 @@ export function CacheManagementSettings({
       } else {
         showToast({
           variant: 'error',
-          title: t('errors:cache.clean_metadata_failed.title')
+          title: t('errors:cache.clean_metadata_cache_failed.title')
         })
       }
     } catch (error) {
       rendererLog.error('[CacheManagementSettings] Error cleaning metadata cache:', error)
       showToast({
         variant: 'error',
-        title: t('errors:cache.clean_metadata_failed.title'),
-        message: error instanceof Error ? error.message : t('common:error.unknownError')
+        title: t('errors:cache.clean_metadata_cache_failed.title'),
+        message: error instanceof Error ? error.message : t('common:message.error.unknownError')
       })
     } finally {
       setIsCleaningMetadata(false)
@@ -213,15 +213,15 @@ export function CacheManagementSettings({
       } else {
         showToast({
           variant: 'error',
-          title: t('errors:cache.clear_metadata_failed.title')
+          title: t('errors:cache.clear_metadata_cache_failed.title')
         })
       }
     } catch (error) {
       rendererLog.error('[CacheManagementSettings] Error clearing metadata cache:', error)
       showToast({
         variant: 'error',
-        title: t('errors:cache.clear_metadata_failed.title'),
-        message: error instanceof Error ? error.message : t('common:error.unknownError')
+        title: t('errors:cache.clear_metadata_cache_failed.title'),
+        message: error instanceof Error ? error.message : t('common:message.error.unknownError')
       })
     } finally {
       setIsClearingAllMetadata(false)

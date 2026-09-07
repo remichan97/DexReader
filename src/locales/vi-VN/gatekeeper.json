@@ -82,7 +82,13 @@
       "passphrasePlaceholder": "Nhập mật khẩu của bạn",
       "resetButton": "Đặt lại khóa ứng dụng",
       "cancelButton": "Hủy",
-      "resetting": "Đang đặt lại..."
+      "resetting": "Đang đặt lại...",
+      "confirm": {
+        "title": "Đặt lại khóa ứng dụng?",
+        "message": "Điều này sẽ tắt khóa ứng dụng và xóa mật khẩu của bạn. Bạn sẽ cần thiết lập lại khóa ứng dụng nếu muốn sử dụng lại chức năng này.",
+        "confirmButton": "Đặt lại",
+        "cancelButton": "Hủy"
+      }
     },
     "errors": {
       "enable": {
