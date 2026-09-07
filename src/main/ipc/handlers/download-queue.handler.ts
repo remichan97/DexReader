@@ -49,45 +49,6 @@ export function registerDownloadQueueHandlers(): void {
   })
 
   /**
-   * Add multiple chapters to download queue (batch operation).
-   *
-   * Batch version of add-to-queue for bulk downloads. Chapters added in array order
-   * and downloaded sequentially based on queue FIFO.
-   *
-   * @param params - Array of queue entry objects (same structure as add-to-queue)
-   * @returns Promise<void>
-   * @throws {TypeError} - If params is not an array or any entry is invalid
-   *
-   * @example
-   * // Queue multiple chapters for download
-   * await window.api.addBatchToDownloadQueue([
-   *   {chapterId: 'ch1...', mangaId: 'mg1...', language: 'en', quality: 'data', addedAt: Date.now()},
-   *   {chapterId: 'ch2...', mangaId: 'mg1...', language: 'en', quality: 'data', addedAt: Date.now()}
-   * ])
-   */
-  wrapIpcHandler('download:add-batch-to-queue', async (_, params: unknown) => {
-    if (!Array.isArray(params)) {
-      throw new TypeError('Invalid parameters for adding batch of chapters to download queue')
-    }
-
-    const options: QueuedDownloads[] = params.map((param) => {
-      if (!isQueuedDownloads(param)) {
-        throw new TypeError('Invalid parameters for adding chapter to download queue')
-      }
-
-      return {
-        chapterId: param.chapterId,
-        mangaId: param.mangaId,
-        language: param.language,
-        quality: param.quality,
-        addedAt: param.addedAt
-      }
-    })
-
-    return downloadQueueService.addBatchToQueue(options)
-  })
-
-  /**
    * Remove a chapter from the download queue.
    *
    * Removes queued or in-progress download. If download is active, it's cancelled.
@@ -161,23 +122,6 @@ export function registerDownloadQueueHandlers(): void {
     }
 
     return downloadQueueService.retryDownload(chapterId)
-  })
-
-  /**
-   * Get download queue statistics.
-   *
-   * Returns counts of downloads by status (pending, active, completed, failed).
-   * Used in DownloadsView header to show queue summary.
-   *
-   * @returns Promise<{pending: number, active: number, completed: number, failed: number}> - Queue stats
-   *
-   * @example
-   * // Show queue stats
-   * const stats = await window.api.getQueueStats()
-   * console.log(`${stats.active} active, ${stats.pending} pending`)
-   */
-  wrapIpcHandler('download:get-queue-stats', async () => {
-    return downloadQueueService.getQueueStats()
   })
 
   /**

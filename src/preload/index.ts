@@ -1,4 +1,3 @@
-import { DownloadChapterCommand } from '@shared/commands/services/download-chapter.command'
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { IpcResponse, FileStats, AllowedPaths, FolderSelectResult } from './ipc.types'
@@ -11,7 +10,6 @@ import { CreateCollectionCommand } from '@shared/commands/repositories/collectio
 import { UpdateCollectionCommand } from '@shared/commands/repositories/collections/update-collection.command'
 import { AddToCollectionCommand } from '@shared/commands/repositories/collections/add-to-collection.command'
 import { RemoveFromCollectionCommand } from '@shared/commands/repositories/collections/remove-from-collection.command'
-import { RecordReadCommand } from '@shared/commands/repositories/history/record-read.command'
 import { DexreaderExportCommand } from '@shared/commands/services/dexreader-export.command'
 import { QueuedDownloads } from '@shared/types/downloads/queued-downloads.type'
 import { DeleteChapterCommand } from '@shared/commands/services/delete-chapter.command'
@@ -82,10 +80,6 @@ const api = {
   openExternal: (url: string) => ipcRenderer.invoke('shell:open-external', url),
 
   // Menu action handlers
-  onCheckForUpdates: (callback: () => void) => {
-    ipcRenderer.on('check-for-updates', callback)
-    return () => ipcRenderer.removeListener('check-for-updates', callback)
-  },
   onAddToFavorites: (callback: () => void) => {
     ipcRenderer.on('add-to-favorites', callback)
     return () => ipcRenderer.removeListener('add-to-favorites', callback)
@@ -130,14 +124,6 @@ const api = {
     const listener = (_: unknown, event: ChapterDownloadsEvent): void => callback(event)
     ipcRenderer.on('download:chapter-progress', listener)
     return () => ipcRenderer.removeListener('download:chapter-progress', listener)
-  },
-  onClearMetadata: (callback: () => void) => {
-    ipcRenderer.on('clear-metadata', callback)
-    return () => ipcRenderer.removeListener('clear-metadata', callback)
-  },
-  onClearHistory: (callback: () => void) => {
-    ipcRenderer.on('clear-history', callback)
-    return () => ipcRenderer.removeListener('clear-history', callback)
   },
   onShowShortcuts: (callback: () => void) => {
     ipcRenderer.on('show-shortcuts', callback)
@@ -238,8 +224,6 @@ const progress = {
       ipcRenderer.removeListener('progress:toggle-incognito', callback)
     }
   },
-  getChapterProgress: (mangaId: string, chapterId: string) =>
-    ipcRenderer.invoke('progress:get-chapter-progress', { mangaId, chapterId }),
   getAllChapterProgress: (mangaId: string) =>
     ipcRenderer.invoke('progress:get-all-chapter-progress', mangaId),
   saveChapters: (chapters: unknown) => ipcRenderer.invoke('progress:save-chapters', chapters)
@@ -294,13 +278,6 @@ const collections = {
     ipcRenderer.invoke('collections:remove-manga', command)
 }
 
-const readHistory = {
-  getHistory: () => ipcRenderer.invoke('history:get-all'),
-  getRecentlyRead: (limit: number) => ipcRenderer.invoke('history:get-recently-read', limit),
-  recordRead: (command: RecordReadCommand) => ipcRenderer.invoke('history:record-read', command),
-  clearAllHistory: () => ipcRenderer.invoke('history:clear-history')
-}
-
 const mihon = {
   importBackup: (filePath: string) => ipcRenderer.invoke('mihon:import-backup', filePath),
   cancelImport: () => ipcRenderer.invoke('mihon:cancel-import'),
@@ -331,8 +308,6 @@ const dexReader = {
 }
 
 const downloads = {
-  downloadChapter: (options: DownloadChapterCommand) =>
-    ipcRenderer.invoke('download:download-chapter', options),
   deleteChapter: (options: DeleteChapterCommand) =>
     ipcRenderer.invoke('download:delete-chapter', options),
   getAllDownloads: () => ipcRenderer.invoke('download:get-all-downloads'),
@@ -341,8 +316,6 @@ const downloads = {
   getDownload: (chapterId: string) => ipcRenderer.invoke('download:get-download', chapterId),
   isDownloaded: (chapterId: string) => ipcRenderer.invoke('download:is-downloaded', chapterId),
   addToQueue: (options: QueuedDownloads) => ipcRenderer.invoke('download:add-to-queue', options),
-  addBatchToQueue: (options: QueuedDownloads[]) =>
-    ipcRenderer.invoke('download:add-batch-to-queue', options),
   removeFromQueue: (chapterId: string) =>
     ipcRenderer.invoke('download:remove-from-queue', chapterId),
   clearQueue: () => ipcRenderer.invoke('download:clear-queue'),
@@ -352,7 +325,6 @@ const downloads = {
     ipcRenderer.invoke('download:batch-delete-manga', mangaIds),
   cancelAllQueued: () => ipcRenderer.invoke('download:cancel-all-queued'),
   retryDownload: (chapterId: string) => ipcRenderer.invoke('download:retry', chapterId),
-  getQueueStats: () => ipcRenderer.invoke('download:get-queue-stats'),
   getQueuedItems: () => ipcRenderer.invoke('download:get-queued-items'),
   getDownloadStats: (mangaId: string) => ipcRenderer.invoke('download:get-download-stats', mangaId)
 }
@@ -417,8 +389,6 @@ const logger = {
 
 const searchPresets = {
   getAll: () => ipcRenderer.invoke('search-presets:getAll'),
-  getByName: (name: string) => ipcRenderer.invoke('search-presets:getByName', name),
-  getById: (id: number) => ipcRenderer.invoke('search-presets:getById', id),
   updateLastUsedAt: (id: number) => ipcRenderer.invoke('search-presets:updateLastUsedAt', id),
   delete: (id: number) => ipcRenderer.invoke('search-presets:delete', id),
   create: (command: CreateSearchPresetCommand) => ipcRenderer.invoke('search-presets:save', command)
@@ -457,7 +427,6 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('reader', reader)
     contextBridge.exposeInMainWorld('library', library)
     contextBridge.exposeInMainWorld('collections', collections)
-    contextBridge.exposeInMainWorld('readHistory', readHistory)
     contextBridge.exposeInMainWorld('mihon', mihon)
     contextBridge.exposeInMainWorld('settings', settings)
     contextBridge.exposeInMainWorld('dexreader', dexReader)
@@ -480,7 +449,6 @@ if (process.contextIsolated) {
   globalThis.reader = reader
   globalThis.library = library
   globalThis.collections = collections
-  globalThis.readHistory = readHistory
   globalThis.mihon = mihon
   globalThis.settings = settings
   globalThis.dexreader = dexReader

@@ -116,36 +116,6 @@ export function registerProgressTrackingHandlers(): void {
   })
 
   /**
-   * Get reading progress for a specific chapter.
-   *
-   * Returns the last page read in a specific chapter. Null if chapter hasn't been started.
-   *
-   * @param params - Object containing mangaId and chapterId
-   * @returns Promise<{page: number, lastReadAt: Date} | null> - Chapter progress or null
-   *
-   * @example
-   * // Check if chapter is partially read
-   * const chapterProgress = await window.api.getChapterProgress({
-   *   mangaId: 'abc123...',
-   *   chapterId: 'xyz789...'
-   * })
-   */
-  wrapIpcHandler('progress:get-chapter-progress', async (_, params: unknown) => {
-    if (
-      typeof params !== 'object' ||
-      params === null ||
-      !('mangaId' in params) ||
-      typeof params.mangaId !== 'string' ||
-      !('chapterId' in params) ||
-      typeof params.chapterId !== 'string'
-    ) {
-      throw new TypeError('Invalid parameters for getting chapter progress')
-    }
-
-    return progressRepo.getChapterProgress(params.mangaId, params.chapterId)
-  })
-
-  /**
    * Get reading progress for all chapters in a manga.
    *
    * Returns progress data for every chapter in a manga that has been read.

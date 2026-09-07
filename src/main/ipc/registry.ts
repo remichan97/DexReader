@@ -9,7 +9,6 @@ import { BrowserWindow } from 'electron'
 import { registerAdditionalDialogHandlers } from './handlers/dialogs.handler'
 import { registerLibraryHandlers } from './handlers/library.handler'
 import { registerCollectionsHandlers } from './handlers/collections.handler'
-import { registerHistoryHandlers } from './handlers/history.handler'
 import { registerMihonHandlers } from './handlers/mihon.handler'
 import { registerDexReaderHandler } from './handlers/dexreader.handler'
 import { registerDownloadHandlers } from './handlers/download.handler'
@@ -38,7 +37,6 @@ export function registerAllHandlers(imageProxy?: ImageProxy): void {
   registerAdditionalDialogHandlers()
   registerLibraryHandlers()
   registerCollectionsHandlers()
-  registerHistoryHandlers()
   registerMihonHandlers()
   registerDexReaderHandler()
   registerDownloadHandlers()

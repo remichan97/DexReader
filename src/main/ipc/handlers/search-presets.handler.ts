@@ -17,40 +17,6 @@ export function registerSearchPresetsHandler(): void {
   })
 
   /**
-   * Get a search preset by its name
-   *
-   * @param name - The name of the search preset
-   * @returns Promise<SearchPresetQuery | undefined>
-   *
-   * @example
-   * // Get a search preset by name
-   * const preset = await window.api.invoke('search-presets:getByName', 'My Preset')
-   */
-  wrapIpcHandler('search-presets:getByName', async (_, name: unknown) => {
-    if (typeof name !== 'string') {
-      throw new TypeError('Expected a string for the preset name')
-    }
-    return searchPresetService.getSearchPresetByName(name)
-  })
-
-  /**
-   * Get a search preset by its id
-   *
-   * @param id - The id of the search preset
-   * @returns Promise<SearchPresetQuery | undefined>
-   *
-   * @example
-   * // Get a search preset by id
-   * const preset = await window.api.invoke('search-presets:getById', 1)
-   */
-  wrapIpcHandler('search-presets:getById', async (_, id: unknown) => {
-    if (typeof id !== 'number') {
-      throw new TypeError('Expected a number for the preset id')
-    }
-    return searchPresetService.getSearchPresetById(id)
-  })
-
-  /**
    * Update the last used timestamp of a search preset
    *
    * @param id - The id of the search preset

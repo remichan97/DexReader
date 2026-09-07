@@ -1,5 +1,4 @@
 import { assertNonNullObject } from '@shared/utils/assert-non-null-object.util'
-import { DownloadChapterCommand } from '@shared/commands/services/download-chapter.command'
 import { QueuedDownloads } from '@shared/types/downloads/queued-downloads.type'
 import { PublicationStatus } from '@shared/enums/mangadex'
 import { GetLibraryMangaCommand } from '@shared/commands/repositories/manga/get-library-manga.command'
@@ -8,31 +7,8 @@ import { CreateCollectionCommand } from '@shared/commands/repositories/collectio
 import { UpdateCollectionCommand } from '@shared/commands/repositories/collections/update-collection.command'
 import { AddToCollectionCommand } from '@shared/commands/repositories/collections/add-to-collection.command'
 import { RemoveFromCollectionCommand } from '@shared/commands/repositories/collections/remove-from-collection.command'
-import { RecordReadCommand } from '@shared/commands/repositories/history/record-read.command'
 import { SaveProgressCommand } from '@shared/commands/repositories/progress/save-progress.command'
 import { SaveChapterCommand } from '@shared/commands/repositories/progress/save-chapter.command'
-
-export function isDownloadChapterOptions(values: unknown): values is DownloadChapterCommand {
-  assertNonNullObject<DownloadChapterCommand>(values, 'Invalid parameters for downloading chapter')
-
-  if (typeof values.chapterId !== 'string') {
-    throw new TypeError('Missing or invalid chapterId')
-  }
-
-  if (typeof values.mangaId !== 'string') {
-    throw new TypeError('Missing or invalid mangaId')
-  }
-
-  if (typeof values.language !== 'string') {
-    throw new TypeError('Missing or invalid language')
-  }
-
-  if (typeof values.quality !== 'string') {
-    throw new TypeError('Missing or invalid quality')
-  }
-
-  return true
-}
 
 export function isQueuedDownloads(values: unknown): values is QueuedDownloads {
   assertNonNullObject<QueuedDownloads>(values, 'Invalid parameters for queued downloads')
@@ -204,23 +180,6 @@ export function isRemoveFromCollectionCommand(
 
   if (typeof command.mangaId !== 'string') {
     throw new TypeError('Missing or invalid mangaId for removing manga from collection')
-  }
-
-  return true
-}
-
-// Validate IPC input for history:record-read
-export function isRecordReadCommand(values: unknown): values is RecordReadCommand {
-  assertNonNullObject<RecordReadCommand>(values, 'Invalid parameters for recording read')
-
-  const command = values
-
-  if (typeof command.mangaId !== 'string') {
-    throw new TypeError('Missing or invalid mangaId for recording read')
-  }
-
-  if (typeof command.chapterId !== 'string') {
-    throw new TypeError('Missing or invalid chapterId for recording read')
   }
 
   return true
