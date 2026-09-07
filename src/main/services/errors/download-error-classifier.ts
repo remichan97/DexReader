@@ -103,12 +103,12 @@ export function classifyDownloadError(error: unknown): ErrorClassification {
  */
 function classifyApiError(error: MangaDexApiError): ErrorClassification {
   const statusCode = error.statusCode
-  const errorString = JSON.stringify(error.error || {})
+  const apiErrorStatuses = error.error?.errors.map((apiError) => apiError.status) ?? []
 
   // Rate limit (429) - retryable with suggested delay from Retry-After header
   if (
     statusCode === 429 ||
-    errorString.includes('429') ||
+    apiErrorStatuses.includes('429') ||
     error.message.toLowerCase().includes('rate limit')
   ) {
     const suggestedDelayMs = error.retryAfterSeconds ? error.retryAfterSeconds * 1000 : undefined
@@ -125,8 +125,8 @@ function classifyApiError(error: MangaDexApiError): ErrorClassification {
   if (
     statusCode === 404 ||
     statusCode === 410 ||
-    errorString.includes('404') ||
-    errorString.includes('410') ||
+    apiErrorStatuses.includes('404') ||
+    apiErrorStatuses.includes('410') ||
     error.message.toLowerCase().includes('not found')
   ) {
     return {
@@ -140,7 +140,7 @@ function classifyApiError(error: MangaDexApiError): ErrorClassification {
   // Forbidden (403) - permissions issue, not retryable
   if (
     statusCode === 403 ||
-    errorString.includes('403') ||
+    apiErrorStatuses.includes('403') ||
     error.message.toLowerCase().includes('forbidden')
   ) {
     return {
@@ -154,9 +154,7 @@ function classifyApiError(error: MangaDexApiError): ErrorClassification {
   // Server errors (5xx) - transient, retryable
   if (
     (statusCode && statusCode >= 500 && statusCode < 600) ||
-    errorString.includes('500') ||
-    errorString.includes('502') ||
-    errorString.includes('503')
+    apiErrorStatuses.some((status) => ['500', '502', '503'].includes(status))
   ) {
     return {
       category: DownloadErrorCategory.TRANSIENT_SERVER,

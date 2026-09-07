@@ -13,6 +13,7 @@ import { ImageQuality } from './enums'
 import { ImageUrlResponse } from '../../shared/responses/image-url.response'
 import { ChapterImagesResponse } from '../../shared/responses/chapter-image.response'
 import { atHomeGuardsUtil } from './utils/at-home-guards.utl'
+import { ErrorResponse, isMangaDexErrorResponse } from './responses/error.response'
 
 export class MangaDexClient {
   baseUrl: string
@@ -213,9 +214,12 @@ export class MangaDexClient {
 
       if (!response.ok) {
         const errorBody = await response.text()
-        let parsedError: unknown
+        let parsedError: ErrorResponse | undefined
         try {
-          parsedError = JSON.parse(errorBody)
+          const parsed: unknown = JSON.parse(errorBody)
+          if (isMangaDexErrorResponse(parsed)) {
+            parsedError = parsed
+          }
         } catch {
           // If parsing fails, leave it undefined
         }
