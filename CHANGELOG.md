@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [1.14.0] - 2026-09-08
+
+### Added
+
+- **Settings**: New "Restore Points" section — DexReader can automatically save a restore point of your library and settings on startup at a configurable interval, and you can create one manually at any time. Restoring or deleting a restore point asks for confirmation first, since restoring replaces your current data and restarts the app.
+
+### Fixed
+
+- **Settings**: Fixed a bug where an optional setting saved for the first time (e.g. the new restore-point interval) could be silently dropped on the very next load, since the merge with defaults only ever walked the default object's own keys
+- **Localisation**: Fixed several `t()` calls pointing at translation keys that no longer existed (typos and keys renamed out from under their callers), which had been rendering raw key strings instead of copy in a handful of error dialogs and settings labels; also reconciled en-US and vi-VN against en-GB so every locale now carries the same set of keys
+
+### Removed
+
+- **Localisation**: Pruned roughly 700 unused translation keys across all three locales, including two fully-dead parallel key trees and an unused namespace, and wired up several components that had hardcoded English text instead of using the (or a new) translation key
+- **IPC**: Removed IPC channels with no live caller left in the renderer, and removed the unused `readHistory` subsystem (handler, repository, and database mapper) that the History view stopped reading from after it was rebuilt on the progress-tracking system
+
+### Changed
+
+- **Settings**: Adopted the new `List`/`ListItem` and `NumberSpinner` components in the Downloads, Danger Zone, and Reader settings sections for a more consistent look, and fixed Danger Zone's styling to use the app's actual colour tokens instead of a set that was never defined
+- Continued the internal refactor from 1.13.0: moved MangaDex response and search-param types into the shared contract layer, and cleaned up several remaining dead-code and file-organisation loose ends. No user-facing behaviour change is intended beyond the fixes listed above.
+
+---
+
 ## [1.13.1] - 2026-09-04
 
 ### Security
