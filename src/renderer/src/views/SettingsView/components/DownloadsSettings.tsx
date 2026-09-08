@@ -2,7 +2,7 @@ import React from 'react'
 import { Lightbulb16Regular } from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
 import { Input } from '@renderer/components/Input'
-import { Select, type SelectOption } from '@renderer/components/Select'
+import { NumberSpinner } from '@renderer/components/NumberSpinner'
 import { RadioGroup, Radio } from '@renderer/components/Radio'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import './DownloadsSettings.css'
@@ -17,7 +17,7 @@ interface DownloadsSettingsProps {
   onSelectDownloadsFolder: () => void
   onDownloadConfirmationChange: (confirmation: string) => void
   onDefaultQualityChange: (quality: string) => void
-  onMaxConcurrentDownloadsChange: (count: string | string[]) => void
+  onMaxConcurrentDownloadsChange: (count: number) => void
 }
 
 export function DownloadsSettings({
@@ -33,14 +33,6 @@ export function DownloadsSettings({
   onMaxConcurrentDownloadsChange
 }: Readonly<DownloadsSettingsProps>): React.JSX.Element {
   const { t } = useTranslation(['settings', 'common'])
-
-  const concurrentDownloadsOptions: SelectOption[] = [
-    { value: '1', label: t('downloads.concurrentOptions.1') },
-    { value: '2', label: t('downloads.concurrentOptions.2') },
-    { value: '3', label: t('downloads.concurrentOptions.3') },
-    { value: '4', label: t('downloads.concurrentOptions.4') },
-    { value: '5', label: t('downloads.concurrentOptions.5') }
-  ]
 
   return (
     <div className="downloads-settings__container flex flex-col gap-5">
@@ -139,10 +131,11 @@ export function DownloadsSettings({
         <p className="downloads-settings__description">{t('downloads.concurrentDescription')}</p>
 
         <div>
-          <Select
-            value={String(maxConcurrentDownloads)}
+          <NumberSpinner
+            value={maxConcurrentDownloads}
             onChange={onMaxConcurrentDownloadsChange}
-            options={concurrentDownloadsOptions}
+            min={1}
+            max={5}
             label={t('downloads.concurrentLabel')}
             helperText={t('downloads.concurrentHelper')}
           />

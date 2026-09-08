@@ -60,36 +60,12 @@
   margin-bottom: var(--space-3);
 }
 
-.reader-settings__overrides-list {
-}
-
-.reader-settings__override-item {
-  padding: var(--space-3) var(--space-4);
-  background: var(--win-bg-subtle);
-  border-radius: var(--radius-md);
-}
-
 .reader-settings__override-cover {
   width: 40px;
   height: 56px;
   object-fit: cover;
   border-radius: var(--radius-sm);
   flex-shrink: 0;
-}
-
-.reader-settings__override-info {
-  flex: 1;
-}
-
-.reader-settings__override-title {
-  font-size: var(--win-font-size-body);
-  font-weight: var(--win-font-weight-semibold);
-  margin-bottom: var(--space-1);
-}
-
-.reader-settings__override-mode {
-  font-size: 13px;
-  color: var(--win-text-secondary);
 }
 
 /* Empty State */

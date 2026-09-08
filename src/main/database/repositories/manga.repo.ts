@@ -1,5 +1,5 @@
 import { and, eq, inArray, like, lt, SQL, sql, notExists, or, isNotNull } from 'drizzle-orm'
-import { databaseConnection } from '../connection'
+import { databaseConnection } from '../db-connection'
 import { chapterDownloads, collectionItems, manga } from '../schemas'
 import { MangaMapper } from '../mappers/manga.mapper'
 import { DbExecutor, executeBatchOperations } from '../utils/batch-operations.util'

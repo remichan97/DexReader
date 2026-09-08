@@ -1,6 +1,6 @@
 import { app, BrowserWindow } from 'electron'
 import { createWindow } from './window'
-import { databaseConnection } from './database/connection'
+import { databaseConnection } from './database/db-connection'
 import { downloadQueueService } from './services/download-queue.service'
 import type { ImageProxy } from './api/proxy/image.proxy'
 

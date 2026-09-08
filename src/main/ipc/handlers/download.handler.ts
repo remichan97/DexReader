@@ -1,55 +1,9 @@
 import { downloadService } from './../../services/download.service'
-import { DownloadChapterCommand } from '@shared/commands/services/download-chapter.command'
 import { wrapIpcHandler } from '../wrap-handler'
-import { isDownloadChapterOptions } from '../../settings/validators/types.validator'
 import { mainLog } from '../../services/logging/main-logging.service'
 import { DeleteChapterCommand } from '@shared/commands/services/delete-chapter.command'
 
 export function registerDownloadHandlers(): void {
-  /**
-   * Download a manga chapter for offline reading.
-   *
-   * Queues a chapter for download with specified language and image quality.
-   * Download proceeds asynchronously in background. Progress events emitted via IPC.
-   * Downloaded chapters are saved to user-configured downloads directory and accessible
-   * via local-manga:// protocol.
-   *
-   * @param params - Download configuration object
-   * @param params.chapterId - MangaDex chapter UUID
-   * @param params.mangaId - MangaDex manga UUID (for organizing downloads by series)
-   * @param params.language - Chapter language code (e.g., 'en', 'ja')
-   * @param params.quality - Image quality: 'data' (original) or 'data-saver' (compressed ~60% size)
-   * @returns Promise<void> - Resolves when download is queued (not completed)
-   * @throws {TypeError} - If params object is invalid or missing required fields
-   *
-   * @example
-   * // Download English chapter at original quality
-   * await window.api.downloadChapter({
-   *   chapterId: 'abc123-def456...',
-   *   mangaId: 'xyz789-uvw012...',
-   *   language: 'en',
-   *   quality: 'data'
-   * })
-   */
-  wrapIpcHandler('download:download-chapter', async (_, params: unknown) => {
-    isDownloadChapterOptions(params)
-
-    if (!isDownloadChapterOptions(params)) {
-      mainLog.warn('[Downloads] Invalid download chapter options')
-      throw new TypeError('Invalid parameters for downloading chapter')
-    }
-
-    const options: DownloadChapterCommand = {
-      chapterId: params.chapterId,
-      mangaId: params.mangaId,
-      language: params.language,
-      quality: params.quality
-    }
-
-    mainLog.info(`[Downloads] Chapter download requested: ${options.chapterId}`)
-    return await downloadService.downloadChapter(options)
-  })
-
   /**
    * Delete a downloaded chapter.
    *

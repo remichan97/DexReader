@@ -118,14 +118,14 @@ export function StorageManagementSettings(): JSX.Element {
       } else {
         showToast({
           variant: 'error',
-          title: t('errors:storage.delete_failed.title')
+          title: t('errors:storage.delete_manga_failed.title')
         })
       }
     } catch (error) {
       rendererLog.error('[StorageManagementSettings] Error deleting manga:', error)
       showToast({
         variant: 'error',
-        title: t('errors:storage.delete_failed.title'),
+        title: t('errors:storage.delete_manga_failed.title'),
         message: error instanceof Error ? error.message : t('common:message.error.unknownError')
       })
     } finally {

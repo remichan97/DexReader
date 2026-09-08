@@ -1,9 +1,9 @@
 import { mainLog } from '../../services/logging/main-logging.service'
 import { AppSettings } from '../../../shared/types/settings/app-settings.type'
-import { validateSettings } from '../validators/types.validator'
+import { validateSettings } from '../validators/settings.validator'
 
 // Each time we change the settings structure in a way that guarantees a full migration, increment this version number. This is used to determine if a migration is needed, and to apply the correct migration functions if there are breaking changes.
-export const CURRENT_SETTINGS_VERSION = 6
+export const CURRENT_SETTINGS_VERSION = 7
 
 // Define a type for migration function, which takes settings object, and migrate it to the next version. Use when there are breaking changes.
 type MigrationFunction = (settings: Partial<AppSettings>) => AppSettings
@@ -38,7 +38,13 @@ export function deepMergeDefaults<T extends object>(defaults: T, stored: Partial
   const storedRecord = stored as Record<string, unknown>
   const result: Record<string, unknown> = { ...defaultsRecord }
 
-  for (const key of Object.keys(defaultsRecord)) {
+  // Must walk the union of both objects' keys, not just the defaults' - an optional field
+  // that's never given a default value (e.g. SnapshotSettings.intervalInHours) has no key
+  // in defaultsRecord at all, so iterating defaults-only silently drops it from stored on
+  // every load even though the user's value is present and valid.
+  const allKeys = new Set([...Object.keys(defaultsRecord), ...Object.keys(storedRecord)])
+
+  for (const key of allKeys) {
     const storedValue = storedRecord[key]
     if (storedValue === undefined) continue
 

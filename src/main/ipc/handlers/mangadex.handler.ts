@@ -1,14 +1,14 @@
 import { ImageQuality } from '../../api/enums'
 import { MangaDexClient } from '../../api/mangadex-client'
-import { FeedParams } from '../../api/search-params/feed.searchparam'
-import { MangaSearchParams } from '../../api/search-params/manga.searchparam'
+import { FeedParams } from '../../../shared/search-params/feed.searchparam'
+import { MangaSearchParams } from '../../../shared/search-params/manga.searchparam'
 import { wrapIpcHandler } from '../wrap-handler'
 import { mapChapterEntityToContract, mapMangaEntityToContract } from '../../api/mapper/api.mapper'
 import { MangaContract } from '@shared/contracts/mangadex/manga.contract'
 import { ChapterContract } from '@shared/contracts/mangadex/chapter.contract'
-import { CollectionResponse } from '../../api/responses/collection.response'
-import { ApiResponse } from '../../api/responses/api.response'
-import { ImageUrlResponse } from '../../api/responses/image-url.response'
+import { CollectionResponse } from '../../../shared/responses/collection.response'
+import { ApiResponse } from '../../../shared/responses/api.response'
+import { ImageUrlResponse } from '../../../shared/responses/image-url.response'
 
 const mangadexClient = new MangaDexClient()
 

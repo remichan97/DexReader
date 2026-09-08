@@ -5,9 +5,6 @@
     "placeholder": "Mật khẩu",
     "button": "Mở khóa",
     "unlocking": "Đang mở khóa...",
-    "waitButton": "Đợi {{seconds}}s...",
-    "showPassphrase": "Hiện mật khẩu",
-    "hidePassphrase": "Ẩn mật khẩu",
     "errors": {
       "empty": "Vui lòng nhập mật khẩu",
       "incorrect": "Hay đó, nhưng sai rồi. Vui lòng thử lại.",
@@ -78,7 +75,6 @@
     "reset": {
       "title": "Đặt lại khóa ứng dụng?",
       "description": "Điều này sẽ tắt khóa ứng dụng và xóa mật khẩu của bạn. Bạn sẽ cần thiết lập lại mật khẩu nếu muốn sử dụng lại chức năng này. Để tiếp tục, vui lòng nhập mật khẩu hiện tại của bạn vào ô bên dưới.",
-      "passphraseLabel": "Mật khẩu",
       "passphrasePlaceholder": "Nhập mật khẩu của bạn",
       "resetButton": "Đặt lại khóa ứng dụng",
       "cancelButton": "Hủy",
@@ -86,15 +82,12 @@
     },
     "errors": {
       "enable": {
-        "title": "Không thể bật khóa ứng dụng",
         "lengthInvalid": "Mật khẩu phải có từ 4 đến 128 ký tự",
         "mismatch": "Mật khẩu không khớp",
         "empty": "Vui lòng nhập mật khẩu",
-        "alreadyEnabled": "Khóa ứng dụng đã được bật",
         "generic": "Không thể bật khóa ứng dụng. Vui lòng thử lại."
       },
       "change": {
-        "title": "Không thể đổi mật khẩu",
         "currentIncorrect": "Mật khẩu hiện tại không đúng",
         "lengthInvalid": "Mật khẩu mới phải có từ 4 đến 128 ký tự",
         "mismatch": "Mật khẩu mới không khớp",
@@ -103,33 +96,23 @@
         "generic": "Không thể đổi mật khẩu. Vui lòng thử lại."
       },
       "reset": {
-        "title": "Không thể đặt lại khóa ứng dụng",
         "incorrect": "Mật khẩu không đúng",
-        "notEnabled": "Khóa ứng dụng chưa được bật",
         "generic": "Không thể đặt lại khóa ứng dụng. Vui lòng thử lại."
       }
     },
     "success": {
       "enabled": {
-        "title": "Đã bật khóa ứng dụng",
         "message": "Thư viện manga của bạn giờ đã được bảo vệ bằng mật khẩu"
       },
       "changed": {
-        "title": "Đã đổi mật khẩu",
         "message": "Mật khẩu của bạn đã được cập nhật thành công"
       },
       "reset": {
-        "title": "Đã đặt lại khóa ứng dụng",
         "message": "Khóa ứng dụng đã bị tắt. Thư viện manga của bạn không còn được bảo vệ."
       }
     },
     "help": {
-      "recovery": "Nếu quên mật khẩu, bạn cần xóa thủ công tệp gatekeeper.lock trong thư mục AppData và khởi động lại ứng dụng.",
-      "location": {
-        "windows": "Windows: %APPDATA%\\DexReader\\gatekeeper.lock",
-        "macos": "macOS: ~/Library/Application Support/DexReader/gatekeeper.lock",
-        "linux": "Linux: ~/.config/DexReader/gatekeeper.lock"
-      }
+      "recovery": "Nếu quên mật khẩu, bạn cần xóa thủ công tệp gatekeeper.lock trong thư mục AppData và khởi động lại ứng dụng."
     }
   }
 }

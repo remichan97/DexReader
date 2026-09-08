@@ -44,17 +44,8 @@
       "title": "Không thể tải chương này",
       "message": "Chúng tôi gặp sự cố khi tải các trang cho chương này. Đây có thể là sự cố mạng tạm thời, hoặc dữ liệu chương có thể không khả dụng ngay bây giờ."
     },
-
     "goBackButton": "Quay lại",
-    "goToLibraryButton": "Đi tới Thư viện",
-    "showTechnicalDetails": "Hiển thị chi tiết kỹ thuật"
-  },
-  "settings": {
-    "readingMode": "Chế độ đọc",
-
-    "doublePageOptions": "Tùy chọn chế độ trang đôi",
-    "skipCoverPages": "Bỏ qua trang bìa (chỉ hiển thị trang đầu tiên)",
-    "readRightToLeft": "Đọc từ phải sang trái (giống manga)"
+    "goToLibraryButton": "Đi tới Thư viện"
   },
   "zoomControls": {
     "sectionTitle": {
@@ -64,8 +55,6 @@
     "fitWidth": "Chiều ngang",
     "fitHeight": "Chiều dọc",
     "actualSize": "100%",
-    "zoomIn": "+",
-    "zoomOut": "-",
     "reset": "Đặt lại mặc định",
     "tooltips": {
       "fitWidth": "Vừa khít theo chiều ngang trang",
@@ -81,7 +70,8 @@
       "fitHeight": "Vừa khít theo chiều dọc",
       "actualSize": "Kích thước thực",
       "zoomIn": "Phóng to",
-      "zoomOut": "Thu nhỏ"
+      "zoomOut": "Thu nhỏ",
+      "reset": "Đặt lại mức thu phóng về mặc định"
     }
   },
   "documentTitle": {

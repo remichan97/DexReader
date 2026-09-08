@@ -45,8 +45,7 @@
         "filterName": "Sao lưu Mihon/Tachiyomi"
       },
       "exportLibrary": {
-        "title": "Xuất Thư viện",
-        "defaultFilename": "dexreader-backup.dexreader"
+        "title": "Xuất Thư viện"
       },
       "exportMihonTachiyomiWarning": {
         "title": "Xuất sang Mihon/Tachiyomi",
@@ -57,18 +56,9 @@
       },
       "exportMihonTachiyomi": {
         "title": "Xuất Thư viện sang Mihon/Tachiyomi",
-        "defaultFilenamePattern": "dexreader-backup-{{date}}.tachibk",
         "filterName": "Sao lưu Mihon/Tachiyomi"
       }
     }
-  },
-  "tools": {
-    "label": "Công cụ",
-    "downloadChapter": "Tải xuống Chương",
-    "downloadManga": "Tải xuống Manga",
-    "manageStorage": "Quản lý Dung lượng...",
-    "clearCache": "Xóa Bộ nhớ đệm...",
-    "clearReadingHistory": "Xóa Lịch sử đọc..."
   },
   "help": {
     "label": "Trợ giúp",

@@ -5,9 +5,6 @@
     "placeholder": "Passphrase",
     "button": "Unlock",
     "unlocking": "Unlocking...",
-    "waitButton": "Wait {{seconds}}s...",
-    "showPassphrase": "Show passphrase",
-    "hidePassphrase": "Hide passphrase",
     "errors": {
       "empty": "Please enter your passphrase",
       "incorrect": "Nice try, but not quite. Please try again.",
@@ -78,7 +75,6 @@
     "reset": {
       "title": "Reset App Lock?",
       "description": "This will disable App Lock and delete your passphrase. You'll need to set up App Lock again if you want to use it. To proceed, enter your current passphrase below.",
-      "passphraseLabel": "Passphrase",
       "passphrasePlaceholder": "Enter your passphrase",
       "resetButton": "Reset App Lock",
       "cancelButton": "Cancel",
@@ -86,15 +82,12 @@
     },
     "errors": {
       "enable": {
-        "title": "Failed to Enable App Lock",
         "lengthInvalid": "Passphrase must be between 4 and 128 characters",
         "mismatch": "Passphrases do not match",
         "empty": "Please enter a passphrase",
-        "alreadyEnabled": "App Lock is already enabled",
         "generic": "Failed to enable App Lock. Please try again."
       },
       "change": {
-        "title": "Failed to Change Passphrase",
         "currentIncorrect": "Current passphrase is incorrect",
         "lengthInvalid": "New passphrase must be between 4 and 128 characters",
         "mismatch": "New passphrases do not match",
@@ -103,25 +96,23 @@
         "generic": "Failed to change passphrase. Please try again."
       },
       "reset": {
-        "title": "Failed to Reset App Lock",
         "incorrect": "Incorrect passphrase",
-        "notEnabled": "App Lock is not enabled",
         "generic": "Failed to reset App Lock. Please try again."
       }
     },
     "success": {
       "enabled": {
-        "title": "App Lock Enabled",
         "message": "Your manga library is now protected with a passphrase"
       },
       "changed": {
-        "title": "Passphrase Changed",
         "message": "Your passphrase has been updated successfully"
       },
       "reset": {
-        "title": "App Lock Reset",
         "message": "App Lock has been disabled. Your manga library is no longer protected."
       }
+    },
+    "help": {
+      "recovery": "If you forget your passphrase, you'll need to manually delete the gatekeeper.lock file from your AppData folder and restart the app."
     }
   }
 }

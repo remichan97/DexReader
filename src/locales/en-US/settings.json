@@ -16,6 +16,7 @@
     "downloads": "Downloads",
     "performance": "Performance",
     "storage": "Storage",
+    "restorePoints": "Restore Points",
     "security": "Security",
     "advanced": "Advanced"
   },
@@ -54,8 +55,6 @@
     "configureDateButton": "Configure Date Format in System Settings",
     "configureDateHelper": "This will open your operating system's regional settings where you can customize date and time formats.",
     "configureDateFallback": "Unable to open system settings automatically. Please open your system date/time settings manually:\n\nWindows: Settings → Time & Language → Region\nmacOS: System Preferences → Language & Region\nLinux: Check your desktop environment settings",
-    "configureDateFallbackTitle": "Unable to Open system settings",
-    "languageSection": "Language",
     "languageLabel": "Display language",
     "languageHelper": "Choose the language for DexReader's interface. Changing this will affect menus, buttons, and all UI text. A restart will be required to apply the new language.",
     "languageOptions": {
@@ -68,8 +67,7 @@
     "contentLanguages": "Preferred content languages",
     "contentLanguagesDescription": "Select up to 5 languages in priority order. Chapters will be filtered based on this preference.",
     "contentLanguageFallbackInfo": "If your preferred language isn't available, chapters will fallback to English, then any available language.",
-    "addLanguage": "Add language",
-    "maxLanguagesReached": "Maximum 5 languages allowed"
+    "addLanguage": "Add language"
   },
   "language": {
     "languageSectionDescription": "Configure DexReader display language, and content language preferences for filtering manga chapters.",
@@ -105,14 +103,7 @@
     "concurrentSection": "Concurrent Downloads",
     "concurrentDescription": "How many chapters should download at the same time?",
     "concurrentLabel": "Maximum concurrent downloads",
-    "concurrentHelper": "Higher values download faster but use more bandwidth and resources",
-    "concurrentOptions": {
-      "1": "1 (Sequential)",
-      "2": "2",
-      "3": "3",
-      "4": "4",
-      "5": "5"
-    }
+    "concurrentHelper": "Higher values download faster but use more bandwidth and resources"
   },
   "reader": {
     "displaySection": "Reader Display Settings",
@@ -192,9 +183,6 @@
   },
   "storage": {
     "chartTitle": "DexReader Storage Breakdown",
-    "dexReader": "DexReader",
-    "other": "Other",
-    "free": "Free",
     "dexReaderTooltip": "DexReader: {{size}}",
     "otherTooltip": "Other Apps: {{size}}",
     "freeTooltip": "Free Space: {{size}}",
@@ -261,7 +249,6 @@
     "cleanMetadataSuccess": "Metadata cache cleaned",
     "cleanedMetadata": "Cleaned up {{count}} cached manga",
     "clearAllCacheButton": "Clear All Cache",
-    "clearAllMetadataButton": "Clear All",
     "clearAllMetadataSuccess": "Metadata cache cleared"
   },
   "advanced": {
@@ -276,7 +263,6 @@
       "description": "Download updates in the background. You choose when to install."
     },
     "checkNowButton": "Check for Updates Now",
-    "checkingButton": "Checking...",
     "currentVersion": "Current version: {{version}}",
     "systemSection": "System",
     "systemDescription": "Configure system-level application behavior",
@@ -307,6 +293,29 @@
     "clearAllButton": "Clear All Logs",
     "clearAllSuccess": "Logs cleared",
     "clearedAllLogs": "All logs cleared!"
+  },
+  "restorePoints": {
+    "sectionTitle": "Restore Points",
+    "sectionDescription": "DexReader can automatically save restore points of your library and settings, so you can roll back if something goes wrong. Restoring replaces your current data and restarts the app.",
+    "enable": {
+      "label": "Enable restore points",
+      "description": "Automatically create a restore point on startup once the interval below has passed, and allow creating one manually at any time"
+    },
+    "intervalLabel": "Automatic interval",
+    "hoursSuffix": "hours",
+    "maxCountLabel": "Restore points to keep",
+    "listTitle": "Available restore points",
+    "createNowButton": "Create Restore Point Now",
+    "createSuccess": "Restore point created",
+    "deleteSuccess": "Restore point deleted",
+    "loading": "Loading restore points...",
+    "emptyState": "No restore points yet",
+    "trigger": {
+      "manual": "Manual",
+      "automatic": "Automatic"
+    },
+    "restoreButton": "Restore",
+    "restoreConfirmButton": "Restore and Restart"
   },
   "dangerZone": {
     "title": "Danger Zone",

@@ -161,7 +161,7 @@ export function Sidebar({ onNavigate }: SidebarProps = {}): JSX.Element {
     <nav
       className={`sidebar flex flex-col ${displayMode === 'compact' ? 'sidebar--compact' : ''} ${displayMode === 'auto-hide' ? 'sidebar--auto-hide' : ''}`}
       ref={sidebarRef}
-      aria-label="Main navigation"
+      aria-label={t('aria.mainNavigation')}
       data-display-mode={displayMode}
     >
       <div

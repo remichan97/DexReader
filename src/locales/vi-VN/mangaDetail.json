@@ -7,7 +7,6 @@
   "errorState": {
     "title": "Không thể tải manga",
     "message": "Chúng tôi gặp sự cố khi tải manga này. Đây có thể là vấn đề kết nối hoặc dịch vụ tạm thời không khả dụng.",
-
     "showDetails": "Hiển thị chi tiết kỹ thuật",
     "hideDetails": "Ẩn chi tiết"
   },
@@ -31,10 +30,6 @@
     "loading": "Đang tải... - DexReader",
     "detail": "{{manga}} - DexReader"
   },
-  "liveRegion": {
-    "loading": "Đang tải chi tiết manga...",
-    "loaded": "Đã tải {{title}} của {{author}}"
-  },
   "stickyTitle": "{{title}}",
   "hero": {
     "coverAlt": "Bìa {{title}}",
@@ -53,7 +48,6 @@
       "status": "Trạng thái xuất bản",
       "year": "Năm xuất bản",
       "demographic": "Đối tượng mục tiêu",
-      "originalLanguage": "Ngôn ngữ gốc",
       "lastChapter": "Chương cuối"
     },
     "volumeCount": "{{count}} tập",

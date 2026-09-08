@@ -9,7 +9,6 @@ import { BrowserWindow } from 'electron'
 import { registerAdditionalDialogHandlers } from './handlers/dialogs.handler'
 import { registerLibraryHandlers } from './handlers/library.handler'
 import { registerCollectionsHandlers } from './handlers/collections.handler'
-import { registerHistoryHandlers } from './handlers/history.handler'
 import { registerMihonHandlers } from './handlers/mihon.handler'
 import { registerDexReaderHandler } from './handlers/dexreader.handler'
 import { registerDownloadHandlers } from './handlers/download.handler'
@@ -22,6 +21,7 @@ import { registerSearchPresetsHandler } from './handlers/search-presets.handler'
 import { registerGatekeeperHandlers } from './handlers/gatekeeper.handler'
 import { registerShellHandlers } from './handlers/shell.handler'
 import { registerMenuStateHandler } from './handlers/menu.handler'
+import { registerDatabaseSnapshotHandlers } from './handlers/database-snapshots.handler'
 
 /**
  * Register all IPC handlers
@@ -37,7 +37,6 @@ export function registerAllHandlers(imageProxy?: ImageProxy): void {
   registerAdditionalDialogHandlers()
   registerLibraryHandlers()
   registerCollectionsHandlers()
-  registerHistoryHandlers()
   registerMihonHandlers()
   registerDexReaderHandler()
   registerDownloadHandlers()
@@ -47,6 +46,7 @@ export function registerAllHandlers(imageProxy?: ImageProxy): void {
   registerAppUpdateHandler()
   registerSearchPresetsHandler()
   registerGatekeeperHandlers()
+  registerDatabaseSnapshotHandlers()
   registerShellHandlers()
   registerMenuStateHandler()
 

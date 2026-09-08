@@ -6,6 +6,7 @@ export const SECTION_IDS = [
   'downloads',
   'performance',
   'storage',
+  'restorePoints',
   'security',
   'advanced'
 ] as const
@@ -29,7 +30,7 @@ const SETTING_METADATA: Record<string, { section: string; label: (t: TFunction) 
   },
   startupPage: {
     section: 'appearance',
-    label: (t) => t('settings:appearance.startupPageLabel', { defaultValue: 'Startup Page' })
+    label: (t) => t('settings:appearance.startupLabel', { defaultValue: 'Startup Page' })
   },
   sidebarSize: {
     section: 'appearance',
@@ -48,7 +49,7 @@ const SETTING_METADATA: Record<string, { section: string; label: (t: TFunction) 
   },
   contentLanguages: {
     section: 'language',
-    label: (t) => t('settings:language.contentLanguageLabel', { defaultValue: 'Content Languages' })
+    label: (t) => t('settings:appearance.contentLanguages', { defaultValue: 'Content Languages' })
   },
   globalReaderSettings: {
     section: 'reader',
@@ -96,12 +97,12 @@ const SETTING_METADATA: Record<string, { section: string; label: (t: TFunction) 
   autoCheckForUpdates: {
     section: 'advanced',
     label: (t) =>
-      t('settings:advanced.autoCheckLabel', { defaultValue: 'Automatically check for updates' })
+      t('settings:advanced.autoCheck.label', { defaultValue: 'Automatically check for updates' })
   },
   autoDownloadUpdates: {
     section: 'advanced',
     label: (t) =>
-      t('settings:advanced.autoDownloadLabel', {
+      t('settings:advanced.autoDownload.label', {
         defaultValue: 'Automatically download updates'
       })
   },
@@ -115,6 +116,20 @@ const SETTING_METADATA: Record<string, { section: string; label: (t: TFunction) 
   logRetentionDays: {
     section: 'advanced',
     label: (t) => t('settings:logging.retentionLabel', { defaultValue: 'Log Retention Period' })
+  },
+  restorePointsEnabled: {
+    section: 'restorePoints',
+    label: (t) =>
+      t('settings:restorePoints.enable.label', { defaultValue: 'Enable restore points' })
+  },
+  restorePointsInterval: {
+    section: 'restorePoints',
+    label: (t) => t('settings:restorePoints.intervalLabel', { defaultValue: 'Automatic interval' })
+  },
+  restorePointsMaxCount: {
+    section: 'restorePoints',
+    label: (t) =>
+      t('settings:restorePoints.maxCountLabel', { defaultValue: 'Restore points to keep' })
   }
 }
 

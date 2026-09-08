@@ -11,7 +11,6 @@ locales/
 │   ├── menu.json           # Application menu items
 │   ├── errors.json         # Error messages organized by category
 │   ├── dialogs.json        # Dialog messages, confirmations, toasts
-│   ├── validation.json     # Form validation messages
 │   ├── shortcuts.json      # Keyboard shortcuts descriptions
 │   ├── browse.json         # Browse view strings
 │   ├── library.json        # Library view strings
@@ -20,6 +19,8 @@ locales/
 │   ├── settings.json       # Settings view strings
 │   ├── history.json        # Reading history view strings
 │   ├── mangaDetail.json    # Manga detail view strings
+│   ├── gatekeeper.json     # Gatekeeper (app lock) strings
+│   ├── creator.json        # Creator view strings
 │   └── index.ts            # Exports all locale files
 └── en-US/          # American English
     └── (same structure as en-GB)
@@ -120,16 +121,6 @@ Dialog and modal content:
 - Toast notifications (success, error, info)
 - Update notifications
 
-### validation.json (40+ strings)
-
-Form validation messages:
-
-- Common validation (required, invalid type)
-- Settings validation (appearance, downloads, reader)
-- Performance validation (cache size limits)
-- Path validation (file system errors)
-- UI validation messages
-
 ### shortcuts.json (50+ strings)
 
 Keyboard shortcuts organized by category:
@@ -183,8 +174,8 @@ const label = i18n.t('menu.file.settings')
 
 ## Statistics
 
-- **Total namespaces**: 13
-- **Total translation keys**: ~1,500+
+- **Total namespaces**: 14
+- **Total translation keys**: ~1,135
 - **Supported languages**: 3 (en-GB, en-US, vi-VN)
 - **Planned languages**: en-US (American English)
 

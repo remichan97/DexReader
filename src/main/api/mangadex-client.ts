@@ -1,18 +1,19 @@
 import { RateLimiter } from './rate-limiter'
 import { ApiConfig } from './constants/api-config.constant'
 import { MangaDexApiError, MangaDexNetworkError } from './shared/error.shared'
-import { MangaSearchParams } from './search-params/manga.searchparam'
-import { CollectionResponse } from './responses/collection.response'
+import { MangaSearchParams } from '../../shared/search-params/manga.searchparam'
+import { CollectionResponse } from '../../shared/responses/collection.response'
 import { Manga } from './entities/manga.entity'
 import { URLSearchParams } from 'node:url'
-import { ApiResponse } from './responses/api.response'
-import { FeedParams } from './search-params/feed.searchparam'
+import { ApiResponse } from '../../shared/responses/api.response'
+import { FeedParams } from '../../shared/search-params/feed.searchparam'
 import { Chapter } from './entities/chapter.entity'
 import { mainLog } from '../services/logging/main-logging.service'
 import { ImageQuality } from './enums'
-import { ImageUrlResponse } from './responses/image-url.response'
-import { ChapterImagesResponse } from './responses/chapter-image.response'
+import { ImageUrlResponse } from '../../shared/responses/image-url.response'
+import { ChapterImagesResponse } from '../../shared/responses/chapter-image.response'
 import { atHomeGuardsUtil } from './utils/at-home-guards.utl'
+import { ErrorResponse, isMangaDexErrorResponse } from './responses/error.response'
 
 export class MangaDexClient {
   baseUrl: string
@@ -213,9 +214,12 @@ export class MangaDexClient {
 
       if (!response.ok) {
         const errorBody = await response.text()
-        let parsedError: unknown
+        let parsedError: ErrorResponse | undefined
         try {
-          parsedError = JSON.parse(errorBody)
+          const parsed: unknown = JSON.parse(errorBody)
+          if (isMangaDexErrorResponse(parsed)) {
+            parsedError = parsed
+          }
         } catch {
           // If parsing fails, leave it undefined
         }

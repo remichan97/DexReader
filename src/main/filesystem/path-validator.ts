@@ -8,6 +8,8 @@ interface IAllowedPath {
   downloads: string
   cachedCover: string
   logs: string
+  snapshot: string
+  devDatabase?: string
 }
 
 // Define allowed paths
@@ -24,12 +26,22 @@ function initializePaths(): IAllowedPath {
     const homeDir = app.getPath('home')
     const appDataRoot = path.join(homeDir, '.dexreader')
     const appLogs = path.join(app.getPath('userData'), 'logs')
+    const snapshotDir = path.join(appDataRoot, 'snapshots')
 
     allowedPaths = {
       appData: appDataRoot,
       downloads: path.join(appDataRoot, 'downloads'),
       cachedCover: path.join(appDataRoot, 'cache', 'covers'),
-      logs: appLogs
+      logs: appLogs,
+      snapshot: snapshotDir
+    }
+
+    // In development, DatabaseConnection keeps the SQLite file at the project root (for
+    // easy inspection with tools like DataGrip) instead of under appDataRoot, which puts
+    // it outside every root above. Widen the sandbox to cover it too, otherwise every
+    // snapshot backup/restore operation on it via secureFs is rejected in dev.
+    if (process.env.NODE_ENV_ELECTRON_VITE === 'development') {
+      allowedPaths.devDatabase = process.cwd()
     }
   }
 
@@ -46,8 +58,19 @@ export function getDownloadsPath(): string {
   return initializePaths().downloads
 }
 
+// Get the cached cover path
 export function getCachedCoverPath(): string {
   return initializePaths().cachedCover
+}
+
+// Get the logs path
+export function getLogsPath(): string {
+  return initializePaths().logs
+}
+
+// Get the snapshot path
+export function getSnapshotPath(): string {
+  return initializePaths().snapshot
 }
 
 // Update the downloads path in memory (should be called by settingsManager after validation)

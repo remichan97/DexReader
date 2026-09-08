@@ -1,5 +1,5 @@
 import { SearchPresetQuery } from '@shared/contracts/settings/search-preset.contract'
-import { databaseConnection } from '../connection'
+import { databaseConnection } from '../db-connection'
 import { searchPresets } from '../schemas'
 import { SearchPresetsMapper } from '../mappers/search-presets.mapper'
 import { eq } from 'drizzle-orm'

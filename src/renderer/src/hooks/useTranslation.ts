@@ -22,7 +22,7 @@ import { useTranslation as useI18nTranslation } from 'react-i18next'
  * // Use multiple namespaces
  * const { t } = useTranslation(['common', 'dialogs'])
  * t('common:button.cancel') // "Cancel"
- * t('dialogs:confirmDelete.title') // "Delete this manga?"
+ * t('dialogs:confirmDelete') // "Yes, Delete"
  */
 export function useTranslation(
   namespace?: string | string[]

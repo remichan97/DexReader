@@ -16,7 +16,6 @@ i18next.init({
     'menu',
     'dialogs',
     'errors',
-    'validation',
     'settings',
     'shortcuts',
     'browse',
@@ -24,7 +23,9 @@ i18next.init({
     'downloads',
     'reader',
     'history',
-    'mangaDetail'
+    'mangaDetail',
+    'gatekeeper',
+    'creator'
   ],
   defaultNS: 'menu'
 })

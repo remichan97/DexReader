@@ -305,11 +305,9 @@ export function BrowseView(): JSX.Element {
           {/* Load more error - inline, doesn't crash the view */}
           {loadMoreError && (
             <div className="browse-view__load-more-error">
-              <p className="text-secondary text-body mb-4">
-                Couldn&apos;t load more manga. This might be a connection issue.
-              </p>
+              <p className="text-secondary text-body mb-4">{t('browse:loadMore.error')}</p>
               <Button variant="primary" onClick={retryLoadMore} size="small">
-                Try Again
+                {t('common:button.tryAgain')}
               </Button>
             </div>
           )}
@@ -317,14 +315,14 @@ export function BrowseView(): JSX.Element {
           {/* Loading more indicator */}
           {loading && hasMore && !loadMoreError && (
             <div className="text-center p-6">
-              <p className="text-secondary text-body">Loading more manga...</p>
+              <p className="text-secondary text-body">{t('browse:loadMore.loading')}</p>
             </div>
           )}
 
           {/* End of results */}
           {!hasMore && (
             <div className="text-center p-6">
-              <p className="text-secondary text-body">No more results to load</p>
+              <p className="text-secondary text-body">{t('browse:loadMore.noMoreResults')}</p>
             </div>
           )}
         </>

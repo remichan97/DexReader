@@ -1,7 +1,7 @@
 import path, { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { sql } from 'drizzle-orm'
-import { databaseConnection } from '../connection'
+import { databaseConnection } from '../db-connection'
 import { mainLog } from '../../services/logging/main-logging.service'
 import { migrate } from 'drizzle-orm/node-sqlite/migrator'
 

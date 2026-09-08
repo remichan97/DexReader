@@ -4,7 +4,7 @@ import {
   ChapterOrderOptions,
   ChapterIncludes,
   IncludeFutureUpdates
-} from '../../enums/mangadex'
+} from '@shared/enums/mangadex'
 
 export interface FeedParams {
   limit?: number

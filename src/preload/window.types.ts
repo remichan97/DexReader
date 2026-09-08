@@ -9,20 +9,14 @@ import { MangaContract } from '@shared/contracts/mangadex/manga.contract'
 import { ChapterContract } from '@shared/contracts/mangadex/chapter.contract'
 
 // API responses
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { ApiResponse } from '../main/api/responses/api.response'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { CollectionResponse } from '../main/api/responses/collection.response'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { ImageUrlResponse } from '../main/api/responses/image-url.response'
+import { ApiResponse } from '@shared/responses/api.response'
+import { CollectionResponse } from '@shared/responses/collection.response'
+import { ImageUrlResponse } from '@shared/responses/image-url.response'
 
 // API enums & params
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { ImageQuality } from '../main/api/enums/image-quality.enum'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { MangaSearchParams } from '../main/api/search-params/manga.searchparam'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-import { FeedParams } from '../main/api/search-params/feed.searchparam'
+import { ImageQuality } from '@shared/enums/mangadex/image-quality.enum'
+import { MangaSearchParams } from '../shared/search-params/manga.searchparam'
+import { FeedParams } from '../shared/search-params/feed.searchparam'
 
 // Database queries
 import type { MangaProgressContract } from '@shared/contracts/database/progress/manga-progress.contract'
@@ -33,7 +27,6 @@ import { MangaOverrideContract } from '@shared/contracts/database/manga/manga-ov
 import { MangaWithMetadataContract } from '@shared/contracts/database/manga/manga-with-metadata.contract'
 import type { ChapterWithMetadataContract } from '@shared/contracts/database/manga/chapter-with-metadata.contract'
 import type { ChapterDownloadContract } from '@shared/contracts/database/chapter-downloads/chapter-downloads.contract'
-import { ReadHistoryContract } from '@shared/contracts/database/history/reading-history.query'
 import type { ChapterDownloadsEvent } from '@shared/events/chapter-downloads.event'
 import type { MangaCacheStatsContract } from '@shared/contracts/database/manga/manga-cache-stats.contract'
 import { SearchPresetQuery } from '@shared/contracts/settings/search-preset.contract'
@@ -43,7 +36,6 @@ import { CreateCollectionCommand } from '@shared/commands/repositories/collectio
 import { UpdateCollectionCommand } from '@shared/commands/repositories/collections/update-collection.command'
 import { AddToCollectionCommand } from '@shared/commands/repositories/collections/add-to-collection.command'
 import { RemoveFromCollectionCommand } from '@shared/commands/repositories/collections/remove-from-collection.command'
-import { RecordReadCommand } from '@shared/commands/repositories/history/record-read.command'
 import { GetLibraryMangaCommand } from '@shared/commands/repositories/manga/get-library-manga.command'
 import { UpsertMangaCommand } from '@shared/commands/repositories/manga/upsert-manga.command'
 
@@ -57,30 +49,28 @@ import type { MemoryTierContract } from '@shared/contracts/settings/memory-tier.
 
 // Service options
 import type { DexreaderExportCommand } from '@shared/commands/services/dexreader-export.command'
-import type { DownloadChapterCommand } from '@shared/commands/services/download-chapter.command'
 import type { DeleteChapterCommand } from '@shared/commands/services/delete-chapter.command'
 import type { CreateSearchPresetCommand } from '@shared/commands/services/create-search-preset.command'
 
 // Service types
 import type { QueuedDownloads } from '@shared/types/downloads/queued-downloads.type'
-import type { QueueState } from '@shared/types/downloads/queue-state.type'
 
 // Service results
 import { MihonImportContract } from '@shared/contracts/services/mihon/mihon-import.contract'
 import { MihonExportContract } from '@shared/contracts/services/mihon/mihon-export.contract'
 import { DexReaderExportContract } from '@shared/contracts/services/dexreader/export.contract'
 import { DexReaderImportContract } from '@shared/contracts/services/dexreader/import.contract'
-import { DownloadChapterContract } from '@shared/contracts/services/dexreader/download-chapter.contract'
 import { DeleteMangaContract } from '@shared/contracts/services/dexreader/delete-manga.contract'
 import { DownloadStatContract } from '@shared/contracts/services/dexreader/download-stats.contract'
 
 // Data objects
 import { StorageDataContract } from '@shared/contracts/storage/storage-data.contract'
+import { SnapshotTrigger } from '@shared/enums/services/snapshot-trigger.enum'
+import { SnapshotItemContract } from '@shared/contracts/services/download-snapshots/snapshot-item.contract'
 
 // Re-export types for renderer use
 export type { IpcResponse } from './ipc.types'
-// eslint-disable-next-line no-restricted-imports -- TODO(shared-migration): move this type to src/shared
-export type { ImageUrlResponse } from '../main/api/responses/image-url.response'
+export type { ImageUrlResponse } from '@shared/responses/image-url.response'
 export type { MangaProgressContract } from '@shared/contracts/database/progress/manga-progress.contract'
 export type { MangaProgressMetadataContract } from '@shared/contracts/database/progress/manga-progress-metadata.contract'
 export type { ChapterProgressContract } from '@shared/contracts/database/progress/chapter-progress.contract'
@@ -93,19 +83,14 @@ export type { CreateCollectionCommand } from '@shared/commands/repositories/coll
 export type { UpdateCollectionCommand } from '@shared/commands/repositories/collections/update-collection.command'
 export type { AddToCollectionCommand } from '@shared/commands/repositories/collections/add-to-collection.command'
 export type { RemoveFromCollectionCommand } from '@shared/commands/repositories/collections/remove-from-collection.command'
-export type { RecordReadCommand } from '@shared/commands/repositories/history/record-read.command'
-export type { ReadHistoryContract } from '@shared/contracts/database/history/reading-history.query'
 export type { MihonImportContract } from '@shared/contracts/services/mihon/mihon-import.contract'
 export type { MihonExportContract } from '@shared/contracts/services/mihon/mihon-export.contract'
 export type { DexReaderImportContract } from '@shared/contracts/services/dexreader/import.contract'
 export type { DexReaderExportContract } from '@shared/contracts/services/dexreader/export.contract'
 export type { DexreaderExportCommand } from '@shared/commands/services/dexreader-export.command'
-export type { DownloadChapterCommand } from '@shared/commands/services/download-chapter.command'
 export type { CreateSearchPresetCommand } from '@shared/commands/services/create-search-preset.command'
 export type { DeleteChapterCommand } from '@shared/commands/services/delete-chapter.command'
-export type { DownloadChapterContract } from '@shared/contracts/services/dexreader/download-chapter.contract'
 export type { QueuedDownloads } from '@shared/types/downloads/queued-downloads.type'
-export type { QueueState } from '@shared/types/downloads/queue-state.type'
 export type { ChapterDownloadsEvent } from '@shared/events/chapter-downloads.event'
 export type { StorageDataContract as StorageData } from '@shared/contracts/storage/storage-data.contract'
 export type { DeleteMangaContract } from '@shared/contracts/services/dexreader/delete-manga.contract'
@@ -167,7 +152,6 @@ interface API {
   openExternal: (url: string) => Promise<IpcResponse<void>>
 
   // Menu action handlers
-  onCheckForUpdates: (callback: () => void) => () => void
   onAddToFavorites: (callback: () => void) => () => void
   onCreateCollection: (callback: () => void) => () => void
   onManageCollections: (callback: () => void) => () => void
@@ -178,8 +162,6 @@ interface API {
   onDownloadChapter: (callback: () => void) => () => void
   onDownloadManga: (callback: () => void) => () => void
   onDownloadProgress: (callback: (event: ChapterDownloadsEvent) => void) => () => void
-  onClearMetadata: (callback: () => void) => () => void
-  onClearHistory: (callback: () => void) => () => void
   onShowShortcuts: (callback: () => void) => () => void
   onConnectivityToggle: (callback: () => void) => () => void
 }
@@ -229,10 +211,6 @@ interface Progress {
   deleteProgress: (mangaId: string) => Promise<IpcResponse<void>>
   getStatistics: () => Promise<IpcResponse<ReadingStatsContract>>
   onIncognitoToggle: (callback: () => void) => () => void // Returns cleanup function
-  getChapterProgress: (
-    mangaId: string,
-    chapterId: string
-  ) => Promise<IpcResponse<ChapterProgressContract | undefined>>
   getAllChapterProgress: (mangaId: string) => Promise<IpcResponse<ChapterProgressContract[]>>
   saveChapters: (
     chapters: Array<{
@@ -282,13 +260,6 @@ interface Collections {
   removeFromCollection: (command: RemoveFromCollectionCommand[]) => Promise<IpcResponse<void>>
 }
 
-interface ReadHistory {
-  getHistory: () => Promise<IpcResponse<ReadHistoryContract[]>>
-  getRecentlyRead: (limit: number) => Promise<IpcResponse<ReadHistoryContract[]>>
-  recordRead: (command: RecordReadCommand) => Promise<IpcResponse<void>>
-  clearAllHistory: () => Promise<IpcResponse<void>>
-}
-
 interface Mihon {
   importBackup: (filePath: string) => Promise<IpcResponse<MihonImportContract>>
   cancelImport: () => Promise<IpcResponse<void>>
@@ -326,9 +297,6 @@ interface DexReader {
 }
 
 interface Downloads {
-  downloadChapter: (
-    options: DownloadChapterCommand
-  ) => Promise<IpcResponse<DownloadChapterContract>>
   deleteChapter: (options: DeleteChapterCommand) => Promise<IpcResponse<void>>
   getAllDownloads: () => Promise<IpcResponse<ChapterDownloadContract[]>>
   clearCompleted: () => Promise<IpcResponse<number>>
@@ -336,12 +304,10 @@ interface Downloads {
   getStorageInfo: () => Promise<IpcResponse<StorageDataContract>>
   isDownloaded: (chapterId: string) => Promise<IpcResponse<ChapterDownloadContract | undefined>>
   addToQueue: (options: QueuedDownloads) => Promise<IpcResponse<void>>
-  addBatchToQueue: (options: QueuedDownloads[]) => Promise<IpcResponse<void>>
   removeFromQueue: (chapterId: string) => Promise<IpcResponse<void>>
   clearQueue: () => Promise<IpcResponse<void>>
   cancelAllQueued: () => Promise<IpcResponse<number>>
   retryDownload: (chapterId: string) => Promise<IpcResponse<void>>
-  getQueueStats: () => Promise<IpcResponse<QueueState>>
   getQueuedItems: () => Promise<IpcResponse<QueuedDownloads[]>>
   deleteManga: (mangaId: string) => Promise<IpcResponse<DeleteMangaContract>>
   batchDeleteManga: (mangaIds: string[]) => Promise<IpcResponse<void>>
@@ -387,8 +353,6 @@ interface Logger {
 
 interface SearchPresets {
   getAll: () => Promise<IpcResponse<SearchPresetQuery[]>>
-  getByName: (name: string) => Promise<IpcResponse<SearchPresetQuery | undefined>>
-  getById: (id: number) => Promise<IpcResponse<SearchPresetQuery | undefined>>
   create: (options: CreateSearchPresetCommand) => Promise<IpcResponse<SearchPresetQuery>>
   delete: (id: number) => Promise<IpcResponse<void>>
   updateLastUsedAt: (id: number) => Promise<IpcResponse<void>>
@@ -405,6 +369,13 @@ interface Gatekeeper {
   toggleRequiredForSettings: (required: boolean) => Promise<IpcResponse<void>>
 }
 
+interface Snapshots {
+  createSnapshot: (trigger: SnapshotTrigger) => Promise<IpcResponse<void>>
+  listSnapshots: () => Promise<IpcResponse<SnapshotItemContract[]>>
+  deleteSnapshot: (snapshotName: string) => Promise<IpcResponse<void>>
+  restoreSnapshot: (snapshotName: string) => Promise<IpcResponse<void>>
+}
+
 declare global {
   interface Window {
     electron: ElectronAPI
@@ -415,7 +386,6 @@ declare global {
     reader: Reader
     library: Library
     collections: Collections
-    readHistory: ReadHistory
     mihon: Mihon
     settings: Settings
     dexreader: DexReader
@@ -425,6 +395,7 @@ declare global {
     logger: Logger
     searchPresets: SearchPresets
     gatekeeper: Gatekeeper
+    snapshots: Snapshots
   }
 
   // `Window` augmentation above only types `window.<api>` - DOM lib types `window` as
@@ -441,7 +412,6 @@ declare global {
   var reader: Reader
   var library: Library
   var collections: Collections
-  var readHistory: ReadHistory
   var mihon: Mihon
   var settings: Settings
   var dexreader: DexReader
@@ -451,4 +421,5 @@ declare global {
   var logger: Logger
   var searchPresets: SearchPresets
   var gatekeeper: Gatekeeper
+  var snapshots: Snapshots
 }

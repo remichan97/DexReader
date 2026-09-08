@@ -44,7 +44,7 @@ export function SavePresetDialog({
   currentSearchState,
   onSave
 }: Readonly<SavePresetDialogProps>): JSX.Element {
-  const { t } = useTranslation(['dialogs', 'common'])
+  const { t } = useTranslation(['dialogs', 'common', 'browse'])
   const [name, setName] = useState(initialName)
   const [setAsDefault, setSetAsDefault] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
@@ -200,7 +200,9 @@ export function SavePresetDialog({
 
         {filterSummary.length > 0 && (
           <div className="save-preset-dialog__preview">
-            <h4 className="save-preset-dialog__preview-title">Preview: Current Filters</h4>
+            <h4 className="save-preset-dialog__preview-title">
+              {t('browse:preset.previewCurrentFilters')}
+            </h4>
             <ul className="save-preset-dialog__preview-list">
               {filterSummary.map((item) => (
                 <li key={item} className="save-preset-dialog__preview-item">

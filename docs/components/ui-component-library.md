@@ -378,6 +378,52 @@ showToast({
 
 ### Layout & Display
 
+#### List / ListItem
+
+**Purpose**: Generic row-list primitive for settings lists (restore points, storage entries, presets, etc.)
+**Composition**: `List` (bordered container, auto-dividers) + `ListItem` (row: leading/title/subtitle/trailing slots)
+**Features**: Optional per-row interactivity, disabled state, trailing-slot click isolation
+
+```tsx
+<List>
+  <ListItem
+    leading={<Badge variant="info">Auto</Badge>}
+    title="6 September 2026, 14:32"
+    subtitle="128 MB"
+    trailing={
+      <Button variant="danger" size="small">
+        Delete
+      </Button>
+    }
+  />
+</List>
+```
+
+[Full Documentation](./ListItem/README.md)
+
+---
+
+#### NumberSpinner
+
+**Purpose**: Numeric stepper input for small bounded ranges (Fluent NumberBox pattern)
+**Features**: Clamps to `[min, max]` before calling onChange, stacked chevron steppers, unit suffix
+**Keyboard**: Arrow Up/Down to step, Enter to commit typed value
+
+```tsx
+<NumberSpinner
+  label="Snapshot interval"
+  value={intervalInHours}
+  onChange={setIntervalInHours}
+  min={1}
+  max={6}
+  suffix="hours"
+/>
+```
+
+[Full Documentation](./NumberSpinner/README.md)
+
+---
+
 #### MangaCard
 
 **Purpose**: Display manga with cover, title, and metadata

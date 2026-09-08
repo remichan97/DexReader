@@ -1,5 +1,5 @@
 import { and, eq, sql } from 'drizzle-orm'
-import { databaseConnection } from '../connection'
+import { databaseConnection } from '../db-connection'
 
 import { collectionItems, collections, manga } from '../schemas'
 import { CollectionMapper } from '../mappers/collection.mapper'

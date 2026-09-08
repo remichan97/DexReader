@@ -1,4 +1,4 @@
-import { databaseConnection } from './../../database/connection'
+import { databaseConnection } from '../../database/db-connection'
 import { UpdateFirstReadCommand } from '@shared/commands/repositories/progress/update-firstread.command'
 import path, { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'

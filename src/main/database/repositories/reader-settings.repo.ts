@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm'
-import { databaseConnection } from '../connection'
+import { databaseConnection } from '../db-connection'
 import { manga, mangaReaderOverrides } from '../schemas'
 import { MangaReadingSettings } from '@shared/contracts/settings/reading-settings.contract'
 import { MangaMapper } from '../mappers/manga.mapper'

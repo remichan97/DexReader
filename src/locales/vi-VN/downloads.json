@@ -37,7 +37,6 @@
   },
   "downloadGroup": {
     "chapterCount": "{{count}} chương",
-    "storageSize": "{{size}}",
     "activeBadge": "{{count}} đang hoạt động",
     "failedBadge": "{{count}} thất bại"
   },

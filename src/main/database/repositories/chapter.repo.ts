@@ -1,5 +1,5 @@
 import { eq, inArray } from 'drizzle-orm'
-import { databaseConnection } from '../connection'
+import { databaseConnection } from '../db-connection'
 import { chapter } from '../schemas/chapter.schema'
 import { ChapterMapper } from '../mappers/chapter.mapper'
 import { DbExecutor } from '../utils/batch-operations.util'

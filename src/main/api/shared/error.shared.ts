@@ -1,7 +1,9 @@
+import { ErrorResponse } from '../responses/error.response'
+
 export class MangaDexApiError extends Error {
   constructor(
     public message: string,
-    public error?: unknown,
+    public error?: ErrorResponse,
     public requestId?: string,
     public statusCode?: number,
     public retryAfterSeconds?: number

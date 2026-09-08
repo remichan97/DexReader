@@ -4,7 +4,7 @@ import { wrapIpcHandler } from '../wrap-handler'
 import {
   isGetLibraryMangaCommand,
   isUpsertMangaCommand
-} from '../../settings/validators/types.validator'
+} from '../../settings/validators/command.validator'
 
 export function registerLibraryHandlers(): void {
   /**

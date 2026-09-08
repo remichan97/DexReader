@@ -50,8 +50,8 @@ export function AdvancedSettings({
       rendererLog.error('[AdvancedSettings] Update check failed:', error)
       showToast({
         variant: 'error',
-        title: t('errors:updates.check_failed.title'),
-        message: t('errors:updates.check_failed.message'),
+        title: t('errors:settings.check_updates_failed.title'),
+        message: t('errors:settings.check_updates_failed.message'),
         duration: 4000
       })
     } finally {

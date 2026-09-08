@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm/sql'
-import { databaseConnection } from '../connection'
+import { databaseConnection } from '../db-connection'
 import {
   chapter,
   chapterDownloads,
