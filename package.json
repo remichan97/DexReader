@@ -78,7 +78,7 @@
     "tsx": "^4.21.0",
     "typescript": "^5.9.2",
     "vite": "^7.3.5",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.11"
   },
   "allowScripts": {
     "electron-winstaller@5.4.0": true,
