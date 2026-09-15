@@ -270,7 +270,6 @@ interface Storage {
   statsMangaTable: () => Promise<IpcResponse<MangaCacheStatsContract>>
   clearMangaCache: (immediate: boolean) => Promise<IpcResponse<number>>
   optimiseMangaCache: () => Promise<IpcResponse<number>>
-  setCoverCacheLimit: (limitInMB: number) => Promise<IpcResponse<void>>
 }
 
 interface Settings {
@@ -284,6 +283,7 @@ interface Settings {
   openSystemProxySettings: () => Promise<IpcResponse<boolean>>
   getMemoryTierInfo: () => Promise<IpcResponse<MemoryTierContract>>
   restart: () => Promise<IpcResponse<void>>
+  updateSection: (section: unknown, value: unknown) => Promise<IpcResponse<void>>
 }
 
 interface DexReader {

@@ -255,9 +255,7 @@ const storage = {
   statsMangaTable: () => ipcRenderer.invoke('storage:get-stats'),
   clearMangaCache: (immediate: boolean) =>
     ipcRenderer.invoke('storage:clear-manga-cache', immediate),
-  optimiseMangaCache: () => ipcRenderer.invoke('storage:optimise-manga-cache'),
-  setCoverCacheLimit: (limitInMB: number) =>
-    ipcRenderer.invoke('storage:set-cover-cache-limit', limitInMB)
+  optimiseMangaCache: () => ipcRenderer.invoke('storage:optimise-manga-cache')
 }
 
 const collections = {
@@ -295,6 +293,8 @@ const settings = {
   openSystemDateSettings: () => ipcRenderer.invoke('settings:open-system-date-settings'),
   openSystemProxySettings: () => ipcRenderer.invoke('settings:open-system-proxy-settings'),
   getMemoryTierInfo: () => ipcRenderer.invoke('settings:get-memory-tier-info'),
+  updateSection: (section: unknown, value: unknown) =>
+    ipcRenderer.invoke('settings:update-section', section, value),
   restart: () => ipcRenderer.invoke('app:restart')
 }
 

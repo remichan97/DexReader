@@ -1,7 +1,5 @@
 import { cleanupRepo } from '../../database/repositories/cleanup.repo'
 import { mangaRepo } from '../../database/repositories/manga.repo'
-import { settingsManager } from '../../settings/settings-manager'
-import { isDownloadsSettings } from '../../settings/validators/settings.validator'
 import { wrapIpcHandler } from '../wrap-handler'
 
 export function registerStorageHandlers(): void {
@@ -66,47 +64,5 @@ export function registerStorageHandlers(): void {
    */
   wrapIpcHandler('storage:optimise-manga-cache', async () => {
     return await cleanupRepo.reclaimStorage()
-  })
-
-  /**
-   * Set cover image cache size limit.
-   *
-   * Updates the maximum disk space for cached manga cover images. Accepts values
-   * from 10 MB to 500 MB, or 0 for unlimited. When limit is exceeded, least recently
-   * used covers are evicted. Changes take effect immediately.
-   *
-   * @param limit - Cache limit in megabytes (10-500, or 0 for unlimited)
-   * @returns Promise<void>
-   * @throws {TypeError} - If limit is not a number or is negative
-   * @throws {RangeError} - If limit is not 0 and is outside 10-500 MB range
-   *
-   * @example
-   * // Set 200 MB limit
-   * await window.api.setCoverCacheLimit(200)
-   *
-   * @example
-   * // Set unlimited (0)
-   * await window.api.setCoverCacheLimit(0)
-   */
-  wrapIpcHandler('storage:set-cover-cache-limit', async (_, limit: unknown) => {
-    if (typeof limit !== 'number' || limit < 0) {
-      throw new TypeError('Invalid cover cache limit value')
-    }
-
-    // Make sure we only accept the value ranging from 10 MB to 500 MB (after converted to bytes) to prevent potential issues, 0 is accepted as it means "unlimited"
-    const byteLimit = limit * 1024 * 1024
-    if (byteLimit !== 0 && (byteLimit < 10 * 1024 * 1024 || byteLimit > 500 * 1024 * 1024)) {
-      throw new RangeError('Cover cache limit must be between 10 MB and 500 MB')
-    }
-
-    // Use validated approach: load settings, update field, validate section, save
-    const settings = settingsManager.load()
-    settings.downloads.maxDiskCacheSize = byteLimit
-
-    if (!isDownloadsSettings(settings.downloads)) {
-      throw new Error('Invalid downloads settings after updating cache limit')
-    }
-
-    settingsManager.save(settings)
   })
 }

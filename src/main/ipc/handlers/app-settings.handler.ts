@@ -8,18 +8,9 @@ import { cleanupRepo } from '../../database/repositories/cleanup.repo'
 import type { ImageProxy } from '../../api/proxy/image.proxy'
 import { settingsManager } from '../../settings/settings-manager'
 import { gatekeeperService } from '../../services/gatekeeper.service'
+import { isSettingsSectionKey, validateSection } from '../../settings/validators/section.validator'
 
 export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
-  const validSections: Set<keyof AppSettings> = new Set([
-    'appearance',
-    'downloads',
-    'reader',
-    'update',
-    'logs',
-    'search',
-    'language'
-  ])
-
   /**
    * Load all application settings.
    *
@@ -76,8 +67,8 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
     }
 
     // Validate section is a valid top-level key in AppSettings
-    if (!validSections.has(section as keyof AppSettings)) {
-      throw new Error(`Unknown settings section: ${section}`)
+    if (typeof section !== 'string' || !isSettingsSectionKey(section)) {
+      throw new TypeError(`Unknown settings section: ${section}`)
     }
 
     if (path !== undefined && typeof path !== 'string') {
@@ -297,5 +288,17 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
    */
   wrapIpcHandler('settings:get-memory-tier-info', async () => {
     return settingsManager.getMemoryTierInfo()
+  })
+
+  wrapIpcHandler('settings:update-section', async (_, section: unknown, value: unknown) => {
+    if (typeof section !== 'string' || !isSettingsSectionKey(section)) {
+      throw new TypeError(`Unknown settings section: ${section}`)
+    }
+
+    if (!validateSection(section, value)) {
+      throw new TypeError(`Invalid settings values for ${section}`)
+    }
+
+    settingsManager.update(section, value)
   })
 }
