@@ -1,9 +1,6 @@
 import path from 'node:path'
 import { IpcError } from './ipc.error'
-
-// Re-export shared type for convenience
-export type { ISerializeError } from '../../../preload/ipc.types'
-import type { ISerializeError } from '../../../preload/ipc.types'
+import type { ISerializeError } from '@shared/contracts/ipc/ipc-response.contract'
 
 // Node's fs errors (ENOENT, EACCES, etc.) embed the full absolute path directly in
 // `.message` (and separately on `.path`) - that path would otherwise reach the renderer
