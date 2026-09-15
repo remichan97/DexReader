@@ -275,7 +275,6 @@ interface Storage {
 interface Settings {
   load: () => Promise<IpcResponse<AppSettings>>
   getSettingByPath: (section: string, settingsPath?: string) => Promise<IpcResponse<unknown>>
-  saveAll: (settings: AppSettings) => Promise<IpcResponse<boolean>>
   openFile: () => Promise<IpcResponse<boolean>>
   resetToDefaults: () => Promise<IpcResponse<boolean>>
   clearAllData: () => Promise<IpcResponse<boolean>>

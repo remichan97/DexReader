@@ -1,31 +1,8 @@
-import { getMainWindow, setHasUnsavedChanges } from '../../window'
+import { getMainWindow } from '../../window'
 import { wrapIpcHandler } from '../wrap-handler'
 import i18next from '../../i18n/i18n.config'
 
 export function registerAdditionalDialogHandlers(): void {
-  /**
-   * Notify main process about unsaved changes state.
-   *
-   * Updates the window's unsaved changes flag, which affects the behavior of the
-   * window close button (shows confirmation dialog if there are unsaved changes).
-   * Used to prevent accidental data loss.
-   *
-   * @param hasChanges - True if there are unsaved changes, false otherwise
-   * @returns Promise<boolean> - Always returns true
-   *
-   * @example
-   * // Mark form as having unsaved changes
-   * await window.api.setHasUnsavedChanges(true)
-   *
-   * @example
-   * // Clear unsaved changes flag after save
-   * await window.api.setHasUnsavedChanges(false)
-   */
-  wrapIpcHandler('set-has-unsaved-changes', async (_event, hasChanges: unknown) => {
-    setHasUnsavedChanges(Boolean(hasChanges))
-    return true
-  })
-
   /**
    * Show a native confirmation dialog (Yes/No or custom labels).
    *

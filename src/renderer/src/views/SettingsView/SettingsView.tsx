@@ -1,9 +1,7 @@
 import type { JSX } from 'react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useToastStore } from '@renderer/stores'
-import { useNavigationBlocker } from '@renderer/hooks/useNavigationBlocker'
-import { useUnsavedChanges } from '@renderer/hooks/useUnsavedChanges'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import { AppearanceSettings } from './components/AppearanceSettings'
 import { LanguageSettings } from './components/LanguageSettings'
@@ -20,19 +18,29 @@ import { DangerZoneSettings } from '../../components/SettingsView/DangerZoneSett
 import { GatekeeperSetupModal } from '@renderer/components/GatekeeperSetupModal'
 import { GatekeeperChangeModal } from '@renderer/components/GatekeeperChangeModal'
 import { GatekeeperResetPrompt } from '@renderer/components/GatekeeperResetPrompt'
-import { UnsavedChangesBanner } from './components/UnsavedChangesBanner'
 import { SettingsHeader } from './components/SettingsHeader'
 import type { SettingsSection } from './components/SettingsHeader'
+import { RestartRequiredBanner } from './components/RestartRequiredBanner'
 import { useScrollSpy } from './hooks/useScrollSpy'
 import { useAppearanceSettingsDomain } from './hooks/domains/useAppearanceSettingsDomain'
 import { useLanguageSettingsDomain } from './hooks/domains/useLanguageSettingsDomain'
+import type { DisplayLanguage } from './hooks/domains/useLanguageSettingsDomain'
 import { useDownloadsSettingsDomain } from './hooks/domains/useDownloadsSettingsDomain'
 import { useReaderSettingsDomain } from './hooks/domains/useReaderSettingsDomain'
 import { useAdvancedSettingsDomain } from './hooks/domains/useAdvancedSettingsDomain'
 import { useRestorePointsSettingsDomain } from './hooks/domains/useRestorePointsSettingsDomain'
 import { SECTION_IDS, getSettingLabel, getSettingSection } from './utils/settingsMeta'
-import type { AppSettings } from '../../../../preload/window.types'
+import {
+  subscribeToSettingsChange,
+  markRestartLeaveNudgeShown,
+  hasRestartLeaveNudgeBeenShown
+} from '@renderer/utils/settingsPendingWrites'
 import './SettingsView.css'
+
+interface RestartRequiredSnapshot {
+  displayLanguage: DisplayLanguage
+  useHardwareAcceleration: boolean
+}
 
 export function SettingsView(): JSX.Element {
   // Translation
@@ -44,41 +52,87 @@ export function SettingsView(): JSX.Element {
   // Zustand stores
   const showToast = useToastStore((state) => state.show)
 
-  // Unsaved changes context for app-wide tracking
-  const { setHasUnsavedChanges: setGlobalUnsavedChanges } = useUnsavedChanges()
-
-  // Settings tracking for unsaved changes
-  const [originalSettings, setOriginalSettings] = useState<AppSettings | null>(null)
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
-
   // Section navigation state
   const [highlightedSection, setHighlightedSection] = useState<string | null>(null)
   const [isInitialMount, setIsInitialMount] = useState(true)
-
-  // Track modified settings for UnsavedChangesBanner
-  const [modifiedSettings, setModifiedSettings] = useState<Set<string>>(new Set())
 
   // Gatekeeper modal states
   const [isSetupModalOpen, setIsSetupModalOpen] = useState(false)
   const [isChangeModalOpen, setIsChangeModalOpen] = useState(false)
   const [isResetModalOpen, setIsResetModalOpen] = useState(false)
 
-  // Helper to mark a setting as modified
-  const markSettingModified = (settingKey: string): void => {
-    setModifiedSettings((prev) => new Set(prev).add(settingKey))
+  // Restart-required banner state - see the block below the domain hooks for how these
+  // are derived/used.
+  const [bootSnapshot, setBootSnapshot] = useState<RestartRequiredSnapshot | null>(null)
+  const [isRestartBannerDismissed, setIsRestartBannerDismissed] = useState(false)
+
+  // One hook per settings domain - each owns its own state and writes directly to
+  // disk via settings:update-section as the user changes it (see settingsPendingWrites.ts).
+  const appearance = useAppearanceSettingsDomain()
+  const language = useLanguageSettingsDomain()
+  const downloads = useDownloadsSettingsDomain({ showToast })
+  const reader = useReaderSettingsDomain({ showToast, t })
+  const advanced = useAdvancedSettingsDomain()
+  const restorePoints = useRestorePointsSettingsDomain()
+
+  // Restart-required fields (displayLanguage, useHardwareAcceleration) autosave
+  // immediately (Phase 3), so "needs a restart" can't mean "differs from last save" -
+  // it means "differs from the value that was actually running when the app launched".
+  // bootSnapshot captures that once on mount (below, alongside loadFromSettings).
+  const restartRequiredKeys: string[] = []
+  if (bootSnapshot) {
+    if (language.displayLanguage !== bootSnapshot.displayLanguage) {
+      restartRequiredKeys.push('displayLanguage')
+    }
+    if (advanced.useHardwareAcceleration !== bootSnapshot.useHardwareAcceleration) {
+      restartRequiredKeys.push('useHardwareAcceleration')
+    }
   }
 
-  // One hook per settings domain - each owns its own state plus
-  // isDirty/buildPayload/reset, so the effects below drive all of them
-  // through a single registry instead of enumerating each domain by hand.
-  const appearance = useAppearanceSettingsDomain({ markSettingModified })
-  const language = useLanguageSettingsDomain({ markSettingModified, t })
-  const downloads = useDownloadsSettingsDomain({ markSettingModified, showToast })
-  const reader = useReaderSettingsDomain({ markSettingModified, showToast, t })
-  const advanced = useAdvancedSettingsDomain({ markSettingModified })
-  const restorePoints = useRestorePointsSettingsDomain({ markSettingModified })
+  // Dismissing the banner only suppresses it until the user changes any setting on the
+  // page again (not just the restart-required ones) - settingsPendingWrites.ts notifies
+  // on every write, immediate or queued, so this is the one place that needs to know
+  // about "any edit happened" rather than threading a callback through all 6 domains.
+  useEffect(() => {
+    return subscribeToSettingsChange(() => setIsRestartBannerDismissed(false))
+  }, [])
 
-  const domains = [appearance, language, downloads, reader, advanced, restorePoints]
+  const handleRestartNow = async (): Promise<void> => {
+    await globalThis.settings.restart()
+  }
+
+  // One-time native-dialog nudge on leaving the Settings page with a restart-required
+  // field still stale - a stronger, but still non-blocking, complement to the banner
+  // (never fires on quit; navigation itself is never blocked either way). "Shown" is
+  // tracked at module scope, not component state, so it survives this component
+  // unmounting when the route changes, and only resets when a setting changes again
+  // (same trigger as the banner's dismiss reset) - so it truly only nags once.
+  const restartRequiredKeysRef = useRef(restartRequiredKeys)
+  restartRequiredKeysRef.current = restartRequiredKeys
+
+  useEffect(() => {
+    return () => {
+      const keysOnLeave = restartRequiredKeysRef.current
+      if (keysOnLeave.length === 0 || hasRestartLeaveNudgeBeenShown()) {
+        return
+      }
+      markRestartLeaveNudgeShown()
+
+      void globalThis.api
+        .showConfirmDialog(
+          t('dialogs:confirmations.restartRequired.title'),
+          t('dialogs:confirmations.restartRequired.message'),
+          t('dialogs:confirmations.restartRequired.confirmButton'),
+          t('dialogs:confirmations.restartRequired.cancelButton')
+        )
+        .then((result) => {
+          if (result.success && result.data) {
+            void globalThis.settings.restart()
+          }
+        })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Build settings sections array for navigation
   const settingsSections: SettingsSection[] = SECTION_IDS.map((id) => ({
@@ -94,22 +148,6 @@ export function SettingsView(): JSX.Element {
   useEffect(() => {
     document.title = `${t('settings:pageTitle')} - DexReader`
   }, [t])
-
-  // Block navigation when there are unsaved changes (uses translations automatically)
-  useNavigationBlocker(hasUnsavedChanges)
-
-  // Sync local hasUnsavedChanges with global context for app-wide tracking
-  useEffect(() => {
-    setGlobalUnsavedChanges(hasUnsavedChanges)
-  }, [hasUnsavedChanges, setGlobalUnsavedChanges])
-
-  // Smart dirty checking - ask every domain whether it changed instead of
-  // hand-comparing each field here
-  useEffect(() => {
-    if (!originalSettings) return
-    setHasUnsavedChanges(domains.some((domain) => domain.isDirty(originalSettings)))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [originalSettings, appearance, language, downloads, reader, advanced, restorePoints])
 
   // Search params support for deep linking to sections
   // Note: Intentionally using empty dependency array - this should only run once on mount
@@ -175,16 +213,10 @@ export function SettingsView(): JSX.Element {
           advanced.loadFromSettings(settings)
           restorePoints.loadFromSettings(settings)
 
-          // Store original settings for dirty tracking
-          // IMPORTANT: Include the actual downloadsPath to avoid false dirty state
-          const settingsWithPath = {
-            ...settings,
-            downloads: {
-              ...settings.downloads,
-              downloadPath: paths.downloads
-            }
-          }
-          setOriginalSettings(settingsWithPath)
+          setBootSnapshot({
+            displayLanguage: settings.language?.displayLanguage ?? 'en-GB',
+            useHardwareAcceleration: settings.system?.useHardwareAcceleration ?? true
+          })
         } catch {
           // Settings file doesn't exist - use system color
           appearance.applyFallbackAccent(systemAccent)
@@ -212,55 +244,6 @@ export function SettingsView(): JSX.Element {
     }
   }
 
-  // Save all settings changes using validated batch save
-  const handleSaveSettings = async (): Promise<void> => {
-    if (!originalSettings) return
-
-    try {
-      if (!(await reader.validateBeforeSave())) return
-
-      // Build complete settings object and save in one operation (single disk write)
-      const completeSettings = {
-        version: originalSettings.version,
-        search: originalSettings.search || {},
-        ...appearance.buildPayload(),
-        ...language.buildPayload(),
-        ...downloads.buildPayload(),
-        ...reader.buildPayload(),
-        ...advanced.buildPayload(),
-        ...restorePoints.buildPayload()
-      }
-
-      // Each settings-domain hook (appearance, language, downloads, reader, advanced) declares
-      // its own locally-scoped, value-compatible type for its enum-like fields (e.g. ThemeMode,
-      // DownloadConfirmation, ImageQualityPreference) rather than importing the canonical
-      // @shared/enums/settings/* enums directly. Unifying every domain hook onto the shared
-      // enums is a larger, separate cleanup; this cast is the one deliberate boundary crossing
-      // where the assembled payload meets the strictly-typed IPC contract.
-      const saveResult = await globalThis.settings.saveAll(completeSettings as AppSettings)
-      if (!saveResult.success) {
-        throw new Error(saveResult.error?.message || 'Failed to save settings')
-      }
-
-      // Update original settings to current state (load fresh to get properly typed values)
-      const freshSettings = await globalThis.settings.load()
-      if (freshSettings.success && freshSettings.data) {
-        setOriginalSettings(freshSettings.data)
-      }
-      setHasUnsavedChanges(false)
-      setModifiedSettings(new Set()) // Clear modified indicators
-
-      // If the display language changed, prompt for restart
-      await language.maybePromptRestart(originalSettings)
-    } catch (error) {
-      showToast({
-        variant: 'error',
-        title: 'Failed to save settings',
-        message: error instanceof Error ? error.message : 'Validation failed'
-      })
-    }
-  }
-
   // Handle section navigation with smooth scroll
   const handleSectionSelect = (sectionId: string): void => {
     const element = document.getElementById(sectionId)
@@ -280,28 +263,18 @@ export function SettingsView(): JSX.Element {
     }
   }
 
-  // Reset all settings to their saved values
-  const handleResetSettings = (): void => {
-    if (!originalSettings) return
-
-    domains.forEach((domain) => domain.reset(originalSettings))
-
-    setHasUnsavedChanges(false)
-    setModifiedSettings(new Set()) // Clear modified indicators
-  }
-
   return (
     <div className="settings-view__container">
-      {/* Unsaved changes banner (fixed bottom) */}
-      {hasUnsavedChanges && (
-        <UnsavedChangesBanner
-          onSave={handleSaveSettings}
-          onReset={handleResetSettings}
-          disabled={reader.isInvalidCustomCache}
-          modifiedSettings={modifiedSettings}
+      {/* Restart-required banner (fixed bottom) - inline nudge, never blocks navigation
+          or quit; see the settings-autosave migration plan, Phase 5. */}
+      {restartRequiredKeys.length > 0 && !isRestartBannerDismissed && (
+        <RestartRequiredBanner
+          settingKeys={restartRequiredKeys}
           getSettingLabel={(key) => getSettingLabel(key, t)}
           getSettingSection={getSettingSection}
           onScrollToSection={handleSectionSelect}
+          onRestartNow={handleRestartNow}
+          onDismiss={() => setIsRestartBannerDismissed(true)}
         />
       )}
 

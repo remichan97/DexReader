@@ -1,23 +1,11 @@
 import { useCallback, useState } from 'react'
+import { writeSettingsSection } from '@renderer/utils/settingsPendingWrites'
 import type { AppSettings } from '../../../../../../preload/window.types'
-import type { SettingsDomain } from './settingsDomain.types'
 
 const DEFAULT_INTERVAL_HOURS = 6
 const DEFAULT_MAX_SNAPSHOTS_COUNT = 5
 
-export interface RestorePointsPayload {
-  snapshot: {
-    isEnabled: boolean
-    intervalInHours: number
-    maxSnapshotsCount: number
-  }
-}
-
-interface UseRestorePointsSettingsDomainParams {
-  markSettingModified: (key: string) => void
-}
-
-export interface UseRestorePointsSettingsDomainResult extends SettingsDomain<RestorePointsPayload> {
+export interface UseRestorePointsSettingsDomainResult {
   isEnabled: boolean
   intervalInHours: number
   maxSnapshotsCount: number
@@ -28,17 +16,14 @@ export interface UseRestorePointsSettingsDomainResult extends SettingsDomain<Res
 }
 
 /**
- * Owns the "Restore Points" section's buffered settings (isEnabled,
- * intervalInHours, maxSnapshotsCount). The restore-point list itself and the
- * create/delete/restore actions are NOT buffered here - they call the
- * snapshot IPC channels directly and take effect immediately, the same way
- * StorageManagementSettings and LoggingSettings' log actions do.
+ * Owns the "Restore Points" section (isEnabled, intervalInHours, maxSnapshotsCount).
+ * Every field writes immediately via settings:update-section - since
+ * settingsManager.update() replaces the whole `snapshot` section, each handler sends
+ * the complete section (current values for the other two fields, the new value for
+ * the one that changed). The restore-point list itself and the create/delete/restore
+ * actions are separate direct IPC calls, unrelated to this domain's fields.
  */
-export function useRestorePointsSettingsDomain(
-  params: UseRestorePointsSettingsDomainParams
-): UseRestorePointsSettingsDomainResult {
-  const { markSettingModified } = params
-
+export function useRestorePointsSettingsDomain(): UseRestorePointsSettingsDomainResult {
   const [isEnabled, setIsEnabled] = useState(false)
   const [intervalInHours, setIntervalInHours] = useState(DEFAULT_INTERVAL_HOURS)
   const [maxSnapshotsCount, setMaxSnapshotsCount] = useState(DEFAULT_MAX_SNAPSHOTS_COUNT)
@@ -46,25 +31,37 @@ export function useRestorePointsSettingsDomain(
   const handleEnabledChange = useCallback(
     (enabled: boolean): void => {
       setIsEnabled(enabled)
-      markSettingModified('restorePointsEnabled')
+      void writeSettingsSection('snapshot', {
+        isEnabled: enabled,
+        intervalInHours,
+        maxSnapshotsCount
+      })
     },
-    [markSettingModified]
+    [intervalInHours, maxSnapshotsCount]
   )
 
   const handleIntervalChange = useCallback(
     (hours: number): void => {
       setIntervalInHours(hours)
-      markSettingModified('restorePointsInterval')
+      void writeSettingsSection('snapshot', {
+        isEnabled,
+        intervalInHours: hours,
+        maxSnapshotsCount
+      })
     },
-    [markSettingModified]
+    [isEnabled, maxSnapshotsCount]
   )
 
   const handleMaxCountChange = useCallback(
     (count: number): void => {
       setMaxSnapshotsCount(count)
-      markSettingModified('restorePointsMaxCount')
+      void writeSettingsSection('snapshot', {
+        isEnabled,
+        intervalInHours,
+        maxSnapshotsCount: count
+      })
     },
-    [markSettingModified]
+    [isEnabled, intervalInHours]
   )
 
   const loadFromSettings = useCallback((settings: AppSettings): void => {
@@ -75,34 +72,6 @@ export function useRestorePointsSettingsDomain(
     }
   }, [])
 
-  const isDirty = useCallback(
-    (original: AppSettings): boolean =>
-      isEnabled !== (original.snapshot?.isEnabled ?? false) ||
-      intervalInHours !== (original.snapshot?.intervalInHours ?? DEFAULT_INTERVAL_HOURS) ||
-      maxSnapshotsCount !== (original.snapshot?.maxSnapshotsCount ?? DEFAULT_MAX_SNAPSHOTS_COUNT),
-    [isEnabled, intervalInHours, maxSnapshotsCount]
-  )
-
-  const buildPayload = useCallback(
-    (): RestorePointsPayload => ({
-      snapshot: {
-        isEnabled,
-        // Defends the IPC boundary: guarantees the validator never sees `undefined` for
-        // these two fields even if state was ever left unset by a caller bypassing the
-        // handlers above (e.g. a future direct setState call added without the fallback).
-        intervalInHours: intervalInHours ?? DEFAULT_INTERVAL_HOURS,
-        maxSnapshotsCount: maxSnapshotsCount ?? DEFAULT_MAX_SNAPSHOTS_COUNT
-      }
-    }),
-    [isEnabled, intervalInHours, maxSnapshotsCount]
-  )
-
-  const reset = useCallback((original: AppSettings): void => {
-    setIsEnabled(original.snapshot?.isEnabled ?? false)
-    setIntervalInHours(original.snapshot?.intervalInHours ?? DEFAULT_INTERVAL_HOURS)
-    setMaxSnapshotsCount(original.snapshot?.maxSnapshotsCount ?? DEFAULT_MAX_SNAPSHOTS_COUNT)
-  }, [])
-
   return {
     isEnabled,
     intervalInHours,
@@ -110,9 +79,6 @@ export function useRestorePointsSettingsDomain(
     handleEnabledChange,
     handleIntervalChange,
     handleMaxCountChange,
-    loadFromSettings,
-    isDirty,
-    buildPayload,
-    reset
+    loadFromSettings
   }
 }

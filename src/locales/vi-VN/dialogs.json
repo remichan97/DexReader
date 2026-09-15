@@ -159,19 +159,11 @@
       "title": "Xóa tất cả cài đặt ghi đè?",
       "message": "Bạn có cài đặt ghi đè cho {{count}} manga. Tất cả sẽ được đặt lại về cài đặt chung. Thao tác này không thể hoàn tác!"
     },
-    "unsavedChanges": {
-      "navigation": {
-        "title": "Bạn có các thiết lập chưa được lưu. Bạn có muốn rời đi mà không lưu các thay đổi không?",
-        "message": "Các thiết lập của bạn sẽ bị mất.",
-        "confirmButton": "Có, rời đi",
-        "cancelButton": "Không"
-      },
-      "windowClose": {
-        "title": "Bạn có các thiết lập chưa được lưu. Bạn có muốn thoát DexReader mà không lưu các thay đổi không?",
-        "message": "Các thiết lập của bạn sẽ bị mất.",
-        "confirmButton": "Có, loại bỏ thay đổi",
-        "cancelButton": "Hủy"
-      }
+    "restartRequired": {
+      "title": "Cần khởi động lại",
+      "message": "Một số thay đổi cần khởi động lại để có hiệu lực. Bạn có muốn khởi động lại DexReader ngay bây giờ?",
+      "confirmButton": "Có, khởi động lại ngay",
+      "cancelButton": "Để sau"
     },
     "notFound": {
       "title": "Ôi! Lạc đường?",
@@ -281,14 +273,6 @@
       "readRightToLeft": "Đọc từ phải sang trái"
     },
     "savedForMangaOnly": "Các thay đổi về chế độ đọc ở đây sẽ chỉ áp dụng cho manga này"
-  },
-  "changeLanguage": {
-    "title": "Thay đổi ngôn ngữ hiển thị",
-    "message": "Tùy chọn ngôn ngữ của bạn đã được cập nhật thành {{language}}. Để có thể áp dụng đầy đủ thay đổi này trên toàn ứng dụng, DexReader cần được khởi động lại. Bạn có muốn khởi động lại DexReader ngay bây giờ không?",
-    "buttons": {
-      "restart": "Có, Khởi động lại ngay",
-      "later": "Không, để sau"
-    }
   },
   "databaseRecovery": {
     "openFailure": {

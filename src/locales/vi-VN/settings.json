@@ -2,12 +2,10 @@
   "pageTitle": "Cài đặt",
   "jumpToSection": "Chuyển đến phần",
   "jumpTo": "Chuyển đến...",
-  "unsavedChangesBanner": {
-    "message": "Đừng quên lưu các thiết lập của bạn trước khi rời đi!",
-    "validationError": "Một số cài đặt không hợp lệ. Sửa lỗi trước khi lưu.",
-    "saveButton": "Lưu thay đổi",
-    "discardButton": "Bỏ qua",
-    "modifiedCount": "{{count}} thay đổi"
+  "restartRequiredBanner": {
+    "message": "Một số thay đổi cần khởi động lại để có hiệu lực",
+    "restartButton": "Khởi động lại ngay",
+    "dismissButton": "Để sau"
   },
   "tabs": {
     "appearance": "Giao diện",

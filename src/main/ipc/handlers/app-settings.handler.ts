@@ -2,7 +2,6 @@ import { app, shell } from 'electron'
 import { is } from '@electron-toolkit/utils'
 import { AppSettings } from '../../../shared/types/settings/app-settings.type'
 import { mainLog } from '../../services/logging/main-logging.service'
-import { validateSettings } from '../../settings/validators/settings.validator'
 import { wrapIpcHandler } from '../wrap-handler'
 import { cleanupRepo } from '../../database/repositories/cleanup.repo'
 import type { ImageProxy } from '../../api/proxy/image.proxy'
@@ -76,49 +75,6 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
     }
 
     return settingsManager.getByDynamicPath(section as keyof AppSettings, path)
-  })
-
-  /**
-   * Save entire settings object.
-   *
-   * Updates all settings sections (appearance, downloads, reader, update, logs, search, language) at once.
-   * Validates the entire settings structure before saving.
-   *
-   * @param newSettings - Complete settings object
-   * @returns Promise<boolean> - Always returns true on success
-   * @throws {Error} - If settings structure is invalid
-   *
-   * @example
-   * // Save all settings
-   * await window.api.saveAllSettings({
-   *   appearance: { theme: 'dark', accentColor: '#0078D4' },
-   *   downloads: { downloadPath: '/downloads', defaultQuality: 'high' },
-   *   reader: { readingMode: 'vertical', fitMode: 'width', zoom: 100 },
-   *   update: { autoUpdate: true },
-   *   logs: { logLevel: 'info' }
-   * })
-   */
-  wrapIpcHandler('settings:save-all', async (_, newSettings: unknown) => {
-    if (typeof newSettings !== 'object' || newSettings === null) {
-      throw new TypeError('Settings must be an object')
-    }
-
-    if (!validateSettings(newSettings)) {
-      throw new Error('Invalid settings structure')
-    }
-
-    // Validates the downloads path (including the system-directory blocklist) before
-    // persisting anything, so a rejected path fails the whole call instead of being
-    // written to settings.json and only patched over afterwards.
-    await settingsManager.saveAll(newSettings)
-
-    // Update chapter cache size dynamically when reader settings change
-    if (imageProxy) {
-      await imageProxy.updateChapterCacheSize()
-      mainLog.info('[Settings] Chapter cache size updated after saving all settings')
-    }
-
-    return true
   })
 
   /**
@@ -290,6 +246,15 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
     return settingsManager.getMemoryTierInfo()
   })
 
+  /**
+   * Update a single settings section, immediately (used by the Settings page's
+   * autosave - see the settings-autosave migration plan).
+   *
+   * @param section - Top-level settings section
+   * @param value - The section's complete new value (settingsManager.update replaces
+   * the whole section, not a merge)
+   * @throws {TypeError} - If section is unknown or value fails that section's validator
+   */
   wrapIpcHandler('settings:update-section', async (_, section: unknown, value: unknown) => {
     if (typeof section !== 'string' || !isSettingsSectionKey(section)) {
       throw new TypeError(`Unknown settings section: ${section}`)
@@ -299,6 +264,14 @@ export function registerAppSettingsHandlers(imageProxy?: ImageProxy): void {
       throw new TypeError(`Invalid settings values for ${section}`)
     }
 
-    settingsManager.update(section, value)
+    await settingsManager.updateSection(section, value)
+
+    // Chapter cache size lives under `reader.performance` - refresh the running
+    // proxy's cache immediately rather than waiting for a restart (mirrors what
+    // settings:save-all used to do after every whole-object save).
+    if (imageProxy && section === 'reader') {
+      await imageProxy.updateChapterCacheSize()
+      mainLog.info('[Settings] Chapter cache size updated after reader settings change')
+    }
   })
 }

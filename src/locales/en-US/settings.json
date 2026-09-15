@@ -2,12 +2,10 @@
   "pageTitle": "Settings",
   "jumpToSection": "Jump to section",
   "jumpTo": "Jump to...",
-  "unsavedChangesBanner": {
-    "message": "Don't forget to save your changes before you leave!",
-    "validationError": "Some settings are invalid. Fix validation errors before saving.",
-    "saveButton": "Save Changes",
-    "discardButton": "Discard",
-    "modifiedCount": "{{count}} modified"
+  "restartRequiredBanner": {
+    "message": "Some changes need a restart to take effect",
+    "restartButton": "Restart Now",
+    "dismissButton": "Maybe Later"
   },
   "tabs": {
     "appearance": "Appearance",

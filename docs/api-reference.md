@@ -979,22 +979,28 @@ const result = await window.api.optimiseStorage()
 console.log(`Reclaimed ${result.freedSpace / 1024 / 1024} MB`)
 ```
 
-#### `window.api.setCoverCacheLimit(limit: number)`
+#### `window.settings.updateSection(section: string, value: object)`
 
-Sets cover image cache size limit.
+Updates a single settings section immediately, replacing it entirely (not a merge). This
+is the write path the Settings page uses for autosave - every control writes here the
+instant it changes, instead of a batched whole-object save.
 
 **Parameters:**
 
-- `limit` - Limit in MB (10-500, or 0 for unlimited)
+- `section` - Top-level settings section name (e.g. `'downloads'`, `'reader'`, `'appearance'`)
+- `value` - The section's complete new value, including fields that didn't change
 
-**Throws:** `RangeError` if limit is outside valid range
+**Throws:** `TypeError` if the section is unknown or `value` fails that section's validator
 
 ```typescript
-// Set 200 MB limit
-await window.api.setCoverCacheLimit(200)
-
-// Set unlimited
-await window.api.setCoverCacheLimit(0)
+// Cover cache limit lives under the `downloads` section - include the other fields
+// unchanged, since this replaces the whole section
+await window.settings.updateSection('downloads', {
+  shouldConfirmDownload: 'batch-only',
+  defaultQuality: 'high',
+  maxConcurrentDownloads: 3,
+  maxDiskCacheSize: 200 * 1024 * 1024 // 200 MB, in bytes
+})
 ```
 
 ---
@@ -1835,7 +1841,7 @@ Thrown when numeric parameters are outside valid ranges.
 
 ```typescript
 try {
-  await window.api.setCoverCacheLimit(5000) // Too large
+  await window.searchPresets.create({ ...preset, resultPerPage: 23 }) // Not a multiple of 5
 } catch (error) {
   if (error instanceof RangeError) {
     console.error('Value out of range:', error.message)
@@ -1849,7 +1855,7 @@ Error messages are descriptive and user-friendly:
 
 - `"Invalid file path"` - Path validation failed
 - `"Selected file isn't a valid Tachiyomi/Mihon backup file"` - File extension check failed
-- `"Cover cache limit must be between 10 MB and 500 MB"` - Range validation failed
+- `"resultPerPage must be between 20 and 100, with increments of 5"` - Range validation failed
 - `"At least one mangaId is required for batch deleting manga downloads"` - Empty array
 
 ---
