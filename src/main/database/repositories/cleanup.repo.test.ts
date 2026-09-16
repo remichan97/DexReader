@@ -78,7 +78,10 @@ function seedEveryTable(): void {
     .returning({ id: collections.id })
     .get().id
   testDb.insert(collectionItems).values({ collectionId, mangaId: 'manga-1', addedAt: now }).run()
-  testDb.insert(readHistory).values({ mangaId: 'manga-1', chapterId: 'ch-1', readAt: now }).run()
+  testDb
+    .insert(readHistory)
+    .values({ mangaId: 'manga-1', chapterId: 'ch-1', readAt: now, readDate: '2026-09-16' })
+    .run()
   testDb
     .insert(mangaReaderOverrides)
     .values({
