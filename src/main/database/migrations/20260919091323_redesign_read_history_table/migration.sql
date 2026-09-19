@@ -3,7 +3,7 @@ ALTER TABLE `read_history` ADD `read_date` text NOT NULL;--> statement-breakpoin
 PRAGMA foreign_keys=OFF;--> statement-breakpoint
 CREATE TABLE `__new_read_history` (
 	`id` integer PRIMARY KEY AUTOINCREMENT,
-	`manga_id` text,
+	`manga_id` text NOT NULL,
 	`chapter_id` text NOT NULL,
 	`read_date` text NOT NULL,
 	`read_at` integer NOT NULL,
