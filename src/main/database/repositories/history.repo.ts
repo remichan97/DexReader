@@ -4,12 +4,36 @@ import { MangaMapper } from '../mappers/manga.mapper'
 import { isDateStamp, isUUID } from '@shared/utils/common-assertion.util'
 import { databaseConnection } from '../db-connection'
 import { chapter, manga, mangaProgress, readHistory } from '../schemas'
-import { between, eq } from 'drizzle-orm'
+import { between, desc, eq } from 'drizzle-orm'
 import { dateToLocalDateString } from '../../utils/timestamps.util'
+import { AnySQLiteSelectQueryBuilder, SQLiteSelectDynamic } from 'drizzle-orm/sqlite-core'
 
 class HistoryRepo {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
     return databaseConnection.getDb()
+  }
+
+  private readonly HISTORY_EVENT_COLUMNS = {
+    id: readHistory.id,
+    mangaId: manga.mangaId,
+    title: manga.title,
+    chapterId: chapter.chapterId,
+    coverUrl: manga.coverUrl,
+    status: manga.status,
+    chapterTitle: chapter.title,
+    chapterNumber: chapter.chapterNumber,
+    chapterVolume: chapter.volume,
+    language: chapter.language,
+    readDate: readHistory.readDate,
+    readAt: readHistory.readAt
+  }
+
+  private baseHistoryEventJoin<T extends AnySQLiteSelectQueryBuilder>(
+    query: T
+  ): SQLiteSelectDynamic<T> {
+    return query
+      .innerJoin(manga, eq(readHistory.mangaId, manga.mangaId))
+      .leftJoin(chapter, eq(readHistory.chapterId, chapter.chapterId))
   }
 
   public getActiveDates(command: GetActiveDatesCommand): string[] {
@@ -34,24 +58,30 @@ class HistoryRepo {
       throw new TypeError('Invalid date format')
     }
 
-    const resultSet = this.db
-      .select({
-        id: readHistory.id,
-        mangaId: manga.mangaId,
-        title: manga.title,
-        chapterId: chapter.chapterId,
-        coverUrl: manga.coverUrl,
-        status: manga.status,
-        chapterTitle: chapter.title,
-        chapterNumber: chapter.chapterNumber,
-        chapterVolume: chapter.volume,
-        language: chapter.language
-      })
-      .from(readHistory)
-      .innerJoin(manga, eq(readHistory.mangaId, manga.mangaId))
-      .leftJoin(chapter, eq(readHistory.chapterId, chapter.chapterId))
-      .where(eq(readHistory.readDate, onDate))
-      .all()
+    const resultSet = this.baseHistoryEventJoin(
+      this.db
+        .select(this.HISTORY_EVENT_COLUMNS)
+        .from(readHistory)
+        .$dynamic()
+        .where(eq(readHistory.readDate, onDate))
+    ).all()
+
+    return resultSet.map(MangaMapper.toMangaHistory)
+  }
+
+  public getRecentEvents(limit: number): HistoryEventMetadataContract[] {
+    if (!Number.isInteger(limit) || limit <= 0) {
+      throw new TypeError('Invalid limit for getting recent events')
+    }
+
+    const resultSet = this.baseHistoryEventJoin(
+      this.db
+        .select(this.HISTORY_EVENT_COLUMNS)
+        .from(readHistory)
+        .$dynamic()
+        .orderBy(desc(readHistory.readAt))
+        .limit(limit)
+    ).all()
 
     return resultSet.map(MangaMapper.toMangaHistory)
   }
@@ -113,6 +143,7 @@ class HistoryRepo {
         lastReadAt: mangaProgress.lastReadAt
       })
       .from(mangaProgress)
+      .innerJoin(manga, eq(mangaProgress.mangaId, manga.mangaId))
       .all()
 
     if (progressRows.length === 0) {

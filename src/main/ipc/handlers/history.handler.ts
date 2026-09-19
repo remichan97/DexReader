@@ -18,4 +18,12 @@ export function registerHistoryHandler(): void {
 
     return historyRepo.getEventsByDate(date)
   })
+
+  wrapIpcHandler('history:get-recent-events', async (_, limit: unknown) => {
+    if (typeof limit !== 'number') {
+      throw new TypeError('Invalid limit for getting recent events')
+    }
+
+    return historyRepo.getRecentEvents(limit)
+  })
 }

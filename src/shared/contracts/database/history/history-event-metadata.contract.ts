@@ -11,4 +11,6 @@ export interface HistoryEventMetadataContract {
   chapterTitle?: string
   chapterVolume?: string
   language?: string
+  readDate: string
+  readAt: number
 }

@@ -43,6 +43,8 @@ type MangaHistoryRow = {
   chapterNumber: string | null
   chapterVolume: string | null
   language: string | null
+  readDate: string
+  readAt: Date
 }
 
 export class MangaMapper {
@@ -105,7 +107,9 @@ export class MangaMapper {
       chapterTitle: row.chapterTitle ?? undefined,
       chapterNumber: row.chapterNumber ?? undefined,
       chapterVolume: row.chapterVolume ?? undefined,
-      language: row.language ?? undefined
+      language: row.language ?? undefined,
+      readDate: row.readDate,
+      readAt: dateToUnixTimestamp(row.readAt)
     }
   }
 }

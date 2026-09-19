@@ -380,6 +380,7 @@ interface Snapshots {
 interface ReadHistory {
   getActiveDates: (command: GetActiveDatesCommand) => Promise<IpcResponse<string[]>>
   getEventsByDate: (date: string) => Promise<IpcResponse<HistoryEventMetadataContract[]>>
+  getRecentEvents: (limit: number) => Promise<IpcResponse<HistoryEventMetadataContract[]>>
 }
 
 declare global {

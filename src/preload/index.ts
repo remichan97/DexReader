@@ -417,7 +417,8 @@ const snapshots = {
 const readHistory = {
   getActiveDates: (command: GetActiveDatesCommand) =>
     ipcRenderer.invoke('history:get-active-dates', command),
-  getEventsByDate: (date: string) => ipcRenderer.invoke('history:get-events-by-date', date)
+  getEventsByDate: (date: string) => ipcRenderer.invoke('history:get-events-by-date', date),
+  getRecentEvents: (limit: number) => ipcRenderer.invoke('history:get-recent-events', limit)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
