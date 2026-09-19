@@ -23,13 +23,10 @@
   },
   "calendar": {
     "previousMonth": "Tháng trước",
-    "nextMonth": "Tháng sau",
-    "toggleAriaLabel": "Bật/tắt lịch"
+    "nextMonth": "Tháng sau"
   },
   "feed": {
     "today": "Hôm nay",
-    "yesterday": "Hôm qua",
-    "readOnDate": "Đã đọc vào {{date}}",
-    "clearFilter": "Xóa bộ lọc"
+    "yesterday": "Hôm qua"
   }
 }

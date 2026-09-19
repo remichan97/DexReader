@@ -23,13 +23,10 @@
   },
   "calendar": {
     "previousMonth": "Previous month",
-    "nextMonth": "Next month",
-    "toggleAriaLabel": "Toggle calendar"
+    "nextMonth": "Next month"
   },
   "feed": {
     "today": "Today",
-    "yesterday": "Yesterday",
-    "readOnDate": "Read on {{date}}",
-    "clearFilter": "Clear filter"
+    "yesterday": "Yesterday"
   }
 }

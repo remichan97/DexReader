@@ -21,3 +21,17 @@ export function parseLocalDateString(dateString: string): Date {
   const [year, month, day] = dateString.split('-').map(Number)
   return new Date(year, month - 1, day)
 }
+
+export function startOfMonth(reference: Date): Date {
+  return new Date(reference.getFullYear(), reference.getMonth(), 1)
+}
+
+export function addMonths(reference: Date, delta: number): Date {
+  return new Date(reference.getFullYear(), reference.getMonth() + delta, 1)
+}
+
+/** Local-day `from`/`to` bounds of the month containing `viewedMonth`. */
+export function monthRange(viewedMonth: Date): { from: string; to: string } {
+  const monthEnd = new Date(viewedMonth.getFullYear(), viewedMonth.getMonth() + 1, 0)
+  return { from: toLocalDateString(startOfMonth(viewedMonth)), to: toLocalDateString(monthEnd) }
+}

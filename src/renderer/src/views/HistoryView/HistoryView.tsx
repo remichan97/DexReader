@@ -1,20 +1,19 @@
 import type { JSX } from 'react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  Calendar24Filled,
-  Calendar24Regular,
-  Dismiss24Regular,
-  History24Regular
-} from '@fluentui/react-icons'
-import { Button } from '@renderer/components/Button'
+import { History24Regular } from '@fluentui/react-icons'
 import { EmptyState } from '@renderer/components/EmptyState'
 import { LoadingState } from '@renderer/components/LoadingState'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import { useProgressStore } from '@renderer/stores/progressStore'
 import { useHistoryStore } from '@renderer/stores/historyStore'
-import { parseLocalDateString, toLocalDateString } from '@renderer/utils/historyDate.util'
-import { HistoryCalendar } from './components/HistoryCalendar'
+import {
+  monthRange,
+  parseLocalDateString,
+  startOfMonth,
+  toLocalDateString
+} from '@renderer/utils/historyDate.util'
+import { HistoryScheduleHeader } from './components/HistoryScheduleHeader'
 import { HistoryEventCard } from './components/HistoryEventCard'
 import './HistoryView.css'
 
@@ -79,12 +78,17 @@ export function HistoryView(): JSX.Element {
   const clearSelectedDate = useHistoryStore((state) => state.clearSelectedDate)
 
   const [searchQuery, setSearchQuery] = useState('')
-  const [calendarOpen, setCalendarOpen] = useState(true)
+  const [viewedMonth, setViewedMonth] = useState(() => startOfMonth(new Date()))
+  const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     loadRecentEvents()
     loadStatistics()
   }, [loadRecentEvents, loadStatistics])
+
+  useEffect(() => {
+    void loadActiveDates(monthRange(viewedMonth))
+  }, [viewedMonth, loadActiveDates])
 
   useEffect(() => {
     document.title = t('history:documentTitle')
@@ -97,10 +101,7 @@ export function HistoryView(): JSX.Element {
     ? baseEvents.filter((event) => event.title.toLowerCase().includes(searchQuery.toLowerCase()))
     : baseEvents
 
-  const sections = useMemo(
-    () => (isDateFiltered ? [] : groupEventsByDate(filteredEvents, t)),
-    [isDateFiltered, filteredEvents, t]
-  )
+  const sections = useMemo(() => groupEventsByDate(filteredEvents, t), [filteredEvents, t])
 
   const handleContinueReading = (event: HistoryEventMetadata): void => {
     if (!event.chapterId) {
@@ -129,9 +130,11 @@ export function HistoryView(): JSX.Element {
     }
   }
 
-  const selectedDateLabel = selectedDate
-    ? parseLocalDateString(selectedDate).toLocaleDateString()
-    : ''
+  const handleToday = (): void => {
+    clearSelectedDate()
+    setViewedMonth(startOfMonth(new Date()))
+    contentRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   return (
     <div className="history-view flex flex-col">
@@ -140,80 +143,44 @@ export function HistoryView(): JSX.Element {
 
       {/* Statistics */}
       {statistics && (
-        <div className="history-view__stats">
-          <div className="stat-card flex flex-col items-center">
-            <span className="stat-card__value">{statistics.totalMangaRead}</span>
-            <span className="stat-card__label">{t('history:stats.mangaRead')}</span>
-          </div>
-          <div className="stat-card flex flex-col items-center">
-            <span className="stat-card__value">{statistics.totalChaptersRead}</span>
-            <span className="stat-card__label">{t('history:stats.chapters')}</span>
-          </div>
-          <div className="stat-card flex flex-col items-center">
-            <span className="stat-card__value">{statistics.totalPagesRead}</span>
-            <span className="stat-card__label">{t('history:stats.pages')}</span>
-          </div>
-          <div className="stat-card flex flex-col items-center">
-            <span className="stat-card__value">{statistics.totalEstimatedMinutesRead}</span>
-            <span className="stat-card__label">{t('history:stats.minutes')}</span>
-          </div>
+        <div className="history-view__stats-strip flex items-center gap-2">
+          <span>
+            <strong>{statistics.totalMangaRead}</strong> {t('history:stats.mangaRead')}
+          </span>
+          <span className="history-view__stats-divider" aria-hidden="true">
+            &middot;
+          </span>
+          <span>
+            <strong>{statistics.totalChaptersRead}</strong> {t('history:stats.chapters')}
+          </span>
+          <span className="history-view__stats-divider" aria-hidden="true">
+            &middot;
+          </span>
+          <span>
+            <strong>{statistics.totalPagesRead}</strong> {t('history:stats.pages')}
+          </span>
+          <span className="history-view__stats-divider" aria-hidden="true">
+            &middot;
+          </span>
+          <span>
+            <strong>{statistics.totalEstimatedMinutesRead}</strong> {t('history:stats.minutes')}
+          </span>
         </div>
       )}
 
-      {/* Search + calendar toggle */}
-      <div className="history-view__search flex items-center gap-2">
-        <input
-          type="search"
-          placeholder={t('history:searchPlaceholder')}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="history-view__search-input"
-        />
-        <Button
-          variant={calendarOpen ? 'primary' : 'secondary'}
-          size="small"
-          icon={calendarOpen ? <Calendar24Filled /> : <Calendar24Regular />}
-          onClick={() => setCalendarOpen((open) => !open)}
-          aria-pressed={calendarOpen}
-          aria-label={t('history:calendar.toggleAriaLabel', { defaultValue: 'Toggle calendar' })}
-        >
-          {''}
-        </Button>
-      </div>
-
-      {/* Calendar */}
-      {calendarOpen && (
-        <div className="history-view__calendar">
-          <HistoryCalendar
-            activeDates={activeDates}
-            selectedDate={selectedDate}
-            onSelectDate={(date) => void selectDate(date)}
-            onMonthChange={(range) => void loadActiveDates(range)}
-          />
-        </div>
-      )}
+      <HistoryScheduleHeader
+        viewedMonth={viewedMonth}
+        onViewedMonthChange={setViewedMonth}
+        activeDates={activeDates}
+        selectedDate={selectedDate}
+        onSelectDate={(date) => void selectDate(date)}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onToday={handleToday}
+      />
 
       {/* Content */}
-      <div className="history-view__content">
-        {isDateFiltered && (
-          <div className="history-view__content-header flex items-center justify-between">
-            <h2 className="history-view__content-title">
-              {t('history:feed.readOnDate', {
-                date: selectedDateLabel,
-                defaultValue: 'Read on {{date}}'
-              })}
-            </h2>
-            <Button
-              variant="ghost"
-              size="small"
-              icon={<Dismiss24Regular />}
-              onClick={clearSelectedDate}
-            >
-              {t('history:feed.clearFilter', { defaultValue: 'Clear filter' })}
-            </Button>
-          </div>
-        )}
-
+      <div className="history-view__content" ref={contentRef}>
         {historyLoading && <LoadingState message={t('history:loadingState.message')} />}
 
         {!historyLoading && filteredEvents.length === 0 && !searchQuery && (
@@ -233,22 +200,8 @@ export function HistoryView(): JSX.Element {
           <EmptyState message={t('history:searchEmpty', { query: searchQuery })} variant="search" />
         )}
 
-        {!historyLoading && filteredEvents.length > 0 && isDateFiltered && (
-          <div className="history-view__list flex flex-col gap-3">
-            {filteredEvents.map((event) => (
-              <HistoryEventCard
-                key={event.id}
-                event={event}
-                onContinueReading={() => handleContinueReading(event)}
-                onRemove={() => handleRemove(event.mangaId)}
-              />
-            ))}
-          </div>
-        )}
-
         {!historyLoading &&
           filteredEvents.length > 0 &&
-          !isDateFiltered &&
           sections.map((section) => (
             <div key={section.dateStr} className="history-view__section">
               <h2 className="history-view__section-header">{section.label}</h2>

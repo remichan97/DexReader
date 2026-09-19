@@ -1,20 +1,16 @@
 import type { JSX } from 'react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { ChevronLeft24Regular, ChevronRight24Regular } from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
 import { useTranslation } from '@renderer/hooks/useTranslation'
-import { toLocalDateString } from '@renderer/utils/historyDate.util'
-
-interface DateRange {
-  readonly from: string
-  readonly to: string
-}
+import { addMonths, toLocalDateString } from '@renderer/utils/historyDate.util'
 
 interface HistoryCalendarProps {
+  readonly viewedMonth: Date
+  readonly onViewedMonthChange: (month: Date) => void
   readonly activeDates: ReadonlySet<string>
   readonly selectedDate: string | undefined
   readonly onSelectDate: (date: string) => void
-  readonly onMonthChange: (range: DateRange) => void
 }
 
 interface CalendarCell {
@@ -29,14 +25,6 @@ interface CalendarCell {
 const WEEKS_SHOWN = 6
 const DAYS_PER_WEEK = 7
 
-function startOfMonth(reference: Date): Date {
-  return new Date(reference.getFullYear(), reference.getMonth(), 1)
-}
-
-function addMonths(reference: Date, delta: number): Date {
-  return new Date(reference.getFullYear(), reference.getMonth() + delta, 1)
-}
-
 // Grid weeks start on Monday, matching the project's British-English default
 function startOfCalendarGrid(monthStart: Date): Date {
   const mondayOffset = (monthStart.getDay() + 6) % 7
@@ -46,25 +34,13 @@ function startOfCalendarGrid(monthStart: Date): Date {
 }
 
 export function HistoryCalendar({
+  viewedMonth,
+  onViewedMonthChange,
   activeDates,
   selectedDate,
-  onSelectDate,
-  onMonthChange
+  onSelectDate
 }: HistoryCalendarProps): JSX.Element {
   const { t, i18n } = useTranslation(['history', 'common'])
-  const [viewedMonth, setViewedMonth] = useState(() => startOfMonth(new Date()))
-
-  useEffect(() => {
-    const monthEnd = addMonths(viewedMonth, 1)
-    monthEnd.setDate(monthEnd.getDate() - 1)
-
-    onMonthChange({
-      from: toLocalDateString(viewedMonth),
-      to: toLocalDateString(monthEnd)
-    })
-    // Only re-fetch when the displayed month actually changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewedMonth])
 
   const cells = useMemo<CalendarCell[]>(() => {
     const todayStr = toLocalDateString(new Date())
@@ -106,7 +82,7 @@ export function HistoryCalendar({
           variant="ghost"
           size="small"
           icon={<ChevronLeft24Regular />}
-          onClick={() => setViewedMonth((month) => addMonths(month, -1))}
+          onClick={() => onViewedMonthChange(addMonths(viewedMonth, -1))}
           aria-label={t('history:calendar.previousMonth', { defaultValue: 'Previous month' })}
         >
           {''}
@@ -116,7 +92,7 @@ export function HistoryCalendar({
           variant="ghost"
           size="small"
           icon={<ChevronRight24Regular />}
-          onClick={() => setViewedMonth((month) => addMonths(month, 1))}
+          onClick={() => onViewedMonthChange(addMonths(viewedMonth, 1))}
           aria-label={t('history:calendar.nextMonth', { defaultValue: 'Next month' })}
         >
           {''}

@@ -15,43 +15,55 @@
   padding-bottom: var(--space-3);
 }
 
-/* Statistics */
-.history-view__stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: var(--space-3);
-  padding: var(--space-4);
+/* Statistics - a single slim strip, not full cards, so it doesn't compete
+   with the schedule feed for vertical space */
+.history-view__stats-strip {
+  padding: var(--space-2) var(--space-4);
   background: var(--win-bg-card);
   border-bottom: 1px solid var(--win-border-default);
-}
-
-.stat-card {
-  padding: var(--space-3);
-  background: var(--win-bg-subtle);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--win-border-default);
-}
-
-.stat-card__value {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--win-accent);
-}
-
-.stat-card__label {
   font-size: var(--font-size-caption);
   color: var(--win-text-secondary);
-  margin-top: var(--space-1);
+  flex-wrap: wrap;
 }
 
-/* Search */
-.history-view__search {
-  padding: var(--space-3);
+.history-view__stats-strip strong {
+  color: var(--win-accent);
+  font-weight: var(--win-font-weight-semibold);
+}
+
+.history-view__stats-divider {
+  color: var(--win-text-tertiary);
+}
+
+/* Compact schedule header: date label (opens the calendar popover), search
+   toggle, Today action - replaces the old always-open calendar panel */
+.history-schedule-header {
+  padding: var(--space-2) var(--space-4);
   background: var(--win-bg-card);
   border-bottom: 1px solid var(--win-border-default);
 }
 
-.history-view__search-input {
+.history-schedule-header__date-label {
+  padding: var(--space-1) var(--space-3);
+  background: transparent;
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-sm);
+  color: var(--win-text-primary);
+  font-size: var(--font-size-body);
+  font-weight: var(--win-font-weight-semibold);
+  cursor: pointer;
+  transition: var(--transition-bg);
+}
+
+.history-schedule-header__date-label:hover {
+  background: var(--win-bg-hover);
+}
+
+.history-schedule-header__spacer {
+  flex: 1;
+}
+
+.history-schedule-header__search-input {
   flex: 1;
   min-width: 0;
   padding: 8px 12px;
@@ -64,25 +76,22 @@
   transition: all 0.2s;
 }
 
-.history-view__search-input:focus {
+.history-schedule-header__search-input:focus {
   border-color: var(--win-accent);
   box-shadow: 0 0 0 1px var(--win-accent);
 }
 
-.history-view__search-input::placeholder {
+.history-schedule-header__search-input::placeholder {
   color: var(--win-text-tertiary);
 }
 
-/* Calendar */
-.history-view__calendar {
-  padding: var(--space-3) var(--space-4);
-  background: var(--win-bg-card);
-  border-bottom: 1px solid var(--win-border-default);
-}
-
+/* Calendar (rendered inside a Popover, floats over the feed). Every
+   dimension here is explicit rather than aspect-ratio/auto-sized - a grid
+   cell's aspect-ratio-derived height depends on the grid's resolved width,
+   which depends on the popover's own auto-sizing, and that chain could
+   settle taller than the box the popover measured for itself. */
 .history-calendar {
-  max-width: 320px;
-  margin: 0 auto;
+  width: 288px;
 }
 
 .history-calendar__nav {
@@ -118,7 +127,8 @@
 }
 
 .history-calendar__cell {
-  aspect-ratio: 1;
+  height: 32px;
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -161,19 +171,6 @@
   flex: 1;
   overflow-y: auto;
   padding: var(--space-4);
-}
-
-.history-view__content-header {
-  padding-bottom: var(--space-3);
-  margin-bottom: var(--space-3);
-  border-bottom: 1px solid var(--win-border-default);
-}
-
-.history-view__content-title {
-  font-size: var(--win-font-size-subtitle);
-  font-weight: var(--win-font-weight-semibold);
-  color: var(--win-text-primary);
-  margin: 0;
 }
 
 /* Date sections (sticky friendly-date headers) */
