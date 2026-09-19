@@ -18,6 +18,7 @@ import { mainLog } from './services/logging/main-logging.service'
 import i18next from './i18n/i18n.config'
 import { settingsManager } from './settings/settings-manager'
 import { databaseSnapshotService } from './services/database-snapshot.service'
+import { historyRepo } from './database/repositories/history.repo'
 
 const imageProxy = new ImageProxy()
 const localImageProxy = new LocalImageProxy()
@@ -108,6 +109,18 @@ app.whenReady().then(async () => {
     return
   }
   mainLog.info('[Main] Database migrations complete')
+
+  mainLog.info('[Main] Migrating history from manga progress...')
+  try {
+    const migrated = historyRepo.migrateHistoryFromMangaProgress()
+    if (migrated) {
+      mainLog.info('[Main] History migration from manga progress completed successfully')
+    } else {
+      mainLog.info('[Main] No history records to migrate from manga progress')
+    }
+  } catch (error) {
+    mainLog.error('[Main] History migration from manga progress failed:', error)
+  }
 
   mainLog.info('[Main] Registering protocol handlers...')
   await imageProxy.registerProtocol()
