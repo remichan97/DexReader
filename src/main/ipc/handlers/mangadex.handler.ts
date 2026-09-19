@@ -1,5 +1,6 @@
 import { ImageQuality } from '../../api/enums'
 import { MangaDexClient } from '../../api/mangadex-client'
+import { buildUserAgent } from '../../api/utils/user-agent.util'
 import { FeedParams } from '../../../shared/search-params/feed.searchparam'
 import { MangaSearchParams } from '../../../shared/search-params/manga.searchparam'
 import { wrapIpcHandler } from '../wrap-handler'
@@ -10,7 +11,7 @@ import { CollectionResponse } from '../../../shared/responses/collection.respons
 import { ApiResponse } from '../../../shared/responses/api.response'
 import { ImageUrlResponse } from '../../../shared/responses/image-url.response'
 
-const mangadexClient = new MangaDexClient()
+const mangadexClient = new MangaDexClient(undefined, buildUserAgent())
 
 export function registerMangaDexHandlers(): void {
   /**

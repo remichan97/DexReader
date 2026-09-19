@@ -1,5 +1,4 @@
 import { net, protocol } from 'electron'
-import { ApiConfig } from '../constants/api-config.constant'
 import { diskCacheUtil } from '../utils/disk-cache.util'
 import { LRUMemoryCache } from '../utils/lru-memory-cache.util'
 import { memoryCacheUtil } from '../utils/memory-cache.util'
@@ -157,7 +156,7 @@ export class ImageProxy {
     let response: Response
     try {
       response = await net.fetch(url, {
-        headers: { 'User-Agent': ApiConfig.REQUEST_USER_AGENT }
+        headers: { 'User-Agent': this.mangaDexClient.userAgent }
       })
     } catch (error) {
       mainLog.error('[ImageProxy] Failed to reach network for image:', url, error)

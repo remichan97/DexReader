@@ -6,8 +6,10 @@ export const ApiConfig = {
   BASE_CDN_URL,
   HEALTH_CHECK_URL: `${BASE_API_URL}/ping`,
   NETWORK_REPORT_URL: `https://api.mangadex.network/report`,
-  REQUEST_USER_AGENT:
-    'DexReader/1.0.0 (Windows; NodeJS 22; +https://github.com/remichan97/DexReader)',
+  // Fallback only - real instantiations pass buildUserAgent() (user-agent.util.ts)
+  // explicitly, since this constants file can't depend on `electron.app` without
+  // breaking tests that import it without mocking electron.
+  REQUEST_USER_AGENT: 'DexReader (+https://github.com/remichan97/DexReader)',
   API_TIMEOUT_MS: 15000,
   IMAGE_TIMEOUT_MS: 30000,
   GLOBAL_RATE_LIMIT: 5,
