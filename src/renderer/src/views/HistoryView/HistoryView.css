@@ -52,7 +52,8 @@
 }
 
 .history-view__search-input {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   padding: 8px 12px;
   background: var(--win-bg-subtle);
   border: 1px solid var(--win-border-default);
@@ -72,11 +73,125 @@
   color: var(--win-text-tertiary);
 }
 
+/* Calendar */
+.history-view__calendar {
+  padding: var(--space-3) var(--space-4);
+  background: var(--win-bg-card);
+  border-bottom: 1px solid var(--win-border-default);
+}
+
+.history-calendar {
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.history-calendar__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+}
+
+.history-calendar__month-label {
+  font-size: var(--font-size-body);
+  font-weight: var(--win-font-weight-semibold);
+  color: var(--win-text-primary);
+}
+
+.history-calendar__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: var(--space-1);
+}
+
+.history-calendar__weekday {
+  text-align: center;
+  font-size: var(--font-size-caption);
+  color: var(--win-text-tertiary);
+  text-transform: uppercase;
+}
+
+.history-calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.history-calendar__cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-body);
+  color: var(--win-text-disabled);
+  cursor: default;
+  transition: var(--transition-bg);
+}
+
+.history-calendar__cell[data-in-month='true'] {
+  color: var(--win-text-tertiary);
+}
+
+.history-calendar__cell[data-active='true'] {
+  background: var(--win-accent-subtle);
+  color: var(--win-accent);
+  cursor: pointer;
+  font-weight: var(--win-font-weight-semibold);
+}
+
+.history-calendar__cell[data-active='true']:hover {
+  background: var(--win-accent-subtle);
+  box-shadow: inset 0 0 0 1px var(--win-accent);
+}
+
+.history-calendar__cell[data-today='true'] {
+  box-shadow: inset 0 0 0 1px var(--win-accent);
+}
+
+.history-calendar__cell[data-selected='true'] {
+  background: var(--win-accent);
+  color: var(--win-text-on-accent);
+}
+
 /* Content */
 .history-view__content {
   flex: 1;
   overflow-y: auto;
   padding: var(--space-4);
+}
+
+.history-view__content-header {
+  padding-bottom: var(--space-3);
+  margin-bottom: var(--space-3);
+  border-bottom: 1px solid var(--win-border-default);
+}
+
+.history-view__content-title {
+  font-size: var(--win-font-size-subtitle);
+  font-weight: var(--win-font-weight-semibold);
+  color: var(--win-text-primary);
+  margin: 0;
+}
+
+/* Date sections (sticky friendly-date headers) */
+.history-view__section {
+  margin-bottom: var(--space-4);
+}
+
+.history-view__section-header {
+  position: sticky;
+  top: calc(-1 * var(--space-4));
+  margin: 0 calc(-1 * var(--space-4)) var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  background: var(--win-bg-base);
+  font-size: var(--font-size-body);
+  font-weight: var(--win-font-weight-semibold);
+  color: var(--win-text-secondary);
+  border-bottom: 1px solid var(--win-border-default);
+  z-index: 1;
 }
 
 /* Loading */

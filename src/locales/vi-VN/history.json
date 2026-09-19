@@ -20,5 +20,16 @@
   "card": {
     "lastRead": "Đọc lần cuối",
     "removeAriaLabel": "Xóa khỏi lịch sử"
+  },
+  "calendar": {
+    "previousMonth": "Tháng trước",
+    "nextMonth": "Tháng sau",
+    "toggleAriaLabel": "Bật/tắt lịch"
+  },
+  "feed": {
+    "today": "Hôm nay",
+    "yesterday": "Hôm qua",
+    "readOnDate": "Đã đọc vào {{date}}",
+    "clearFilter": "Xóa bộ lọc"
   }
 }
