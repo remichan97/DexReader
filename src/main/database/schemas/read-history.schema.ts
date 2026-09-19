@@ -7,7 +7,6 @@ export const readHistory = sqliteTable(
   {
     id: integer('id').primaryKey({ autoIncrement: true }),
     mangaId: text('manga_id')
-      .primaryKey()
       .notNull()
       .references(() => manga.mangaId, { onDelete: 'cascade' }),
     chapterId: text('chapter_id').notNull(),

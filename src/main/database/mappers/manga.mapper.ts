@@ -5,6 +5,7 @@ import { dateToUnixTimestamp } from '../../utils/timestamps.util'
 import { PublicationStatus } from '../../api/enums'
 import { MangaReadingSettings } from '@shared/contracts/settings/reading-settings.contract'
 import { MangaOverrideContract } from '@shared/contracts/database/manga/manga-override.contract'
+import { HistoryEventMetadataContract } from '@shared/contracts/database/history/history-event-metadata.contract'
 
 type MangaRow = typeof manga.$inferSelect
 
@@ -29,6 +30,19 @@ type MangaOverrideRow = {
   readerSettings: MangaReadingSettings
   createdAt: Date
   updatedAt: Date
+}
+
+type MangaHistoryRow = {
+  id: number
+  mangaId: string
+  title: string
+  chapterId: string | null
+  coverUrl: string | null
+  status: PublicationStatus | null
+  chapterTitle: string | null
+  chapterNumber: string | null
+  chapterVolume: string | null
+  language: string | null
 }
 
 export class MangaMapper {
@@ -77,6 +91,21 @@ export class MangaMapper {
       readerSettings: row.readerSettings,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt
+    }
+  }
+
+  static toMangaHistory(row: MangaHistoryRow): HistoryEventMetadataContract {
+    return {
+      id: row.id,
+      mangaId: row.mangaId,
+      title: row.title,
+      chapterId: row.chapterId ?? undefined,
+      coverUrl: row.coverUrl ?? undefined,
+      status: row.status as PublicationStatus,
+      chapterTitle: row.chapterTitle ?? undefined,
+      chapterNumber: row.chapterNumber ?? undefined,
+      chapterVolume: row.chapterVolume ?? undefined,
+      language: row.language ?? undefined
     }
   }
 }

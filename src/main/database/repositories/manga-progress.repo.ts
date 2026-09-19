@@ -2,7 +2,11 @@ import { databaseConnection } from '../db-connection'
 import { and, eq } from 'drizzle-orm'
 import { chapter, chapterProgress, manga, mangaProgress } from '../schemas'
 import { MangaMapper } from '../mappers/manga.mapper'
-import { dateToUnixTimestamp, unixTimestampToDate } from '../../utils/timestamps.util'
+import {
+  dateToUnixTimestamp,
+  timestampToLocalDateString,
+  unixTimestampToDate
+} from '../../utils/timestamps.util'
 import { mangaRepo } from './manga.repo'
 import { readingRepo } from './reading-stats.repo'
 import { SaveProgressCommand } from '@shared/commands/repositories/progress/save-progress.command'
@@ -10,6 +14,7 @@ import { UpdateFirstReadCommand } from '@shared/commands/repositories/progress/u
 import { MangaProgressMetadataContract } from '@shared/contracts/database/progress/manga-progress-metadata.contract'
 import { MangaProgressContract } from '@shared/contracts/database/progress/manga-progress.contract'
 import { ChapterProgressContract } from '@shared/contracts/database/progress/chapter-progress.contract'
+import { historyRepo } from './history.repo'
 
 class MangaProgressRepository {
   private get db(): ReturnType<typeof databaseConnection.getDb> {
@@ -52,7 +57,10 @@ class MangaProgressRepository {
   }
 
   deleteProgress(mangaId: string): void {
-    this.db.delete(mangaProgress).where(eq(mangaProgress.mangaId, mangaId)).run()
+    this.db.transaction((tx) => {
+      tx.delete(mangaProgress).where(eq(mangaProgress.mangaId, mangaId)).run()
+      historyRepo.deleteHistoryForManga(mangaId)
+    })
   }
 
   getAllProgressWithMetadata(): MangaProgressMetadataContract[] {
@@ -120,6 +128,12 @@ class MangaProgressRepository {
             }
           })
           .run()
+
+        historyRepo.logReadEvent(
+          item.mangaId,
+          item.chapterId,
+          timestampToLocalDateString(item.lastReadAt ?? dateToUnixTimestamp(new Date()))
+        )
       }
 
       // Calculate statistics and cleanup once after all items
