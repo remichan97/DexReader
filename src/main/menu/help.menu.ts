@@ -80,14 +80,27 @@ export function buildHelpMenu(mainWindow: BrowserWindow): MenuItemConstructorOpt
       {
         label: i18next.t('menu:help.aboutDexReader'),
         click: () => {
-          dialog.showMessageBox(mainWindow, {
-            type: 'info',
-            title: i18next.t('menu:help.dialogs.about.title'),
-            message: i18next.t('menu:help.dialogs.about.message'),
-            detail: i18next.t('menu:help.dialogs.about.detail', { version: app.getVersion() }),
-            buttons: [i18next.t('menu:help.dialogs.about.buttonOk')],
-            noLink: true
-          })
+          dialog
+            .showMessageBox(mainWindow, {
+              type: 'info',
+              title: i18next.t('menu:help.dialogs.about.title'),
+              message: i18next.t('menu:help.dialogs.about.message'),
+              detail: i18next.t('menu:help.dialogs.about.detail', { version: app.getVersion() }),
+              buttons: [
+                i18next.t('menu:help.dialogs.about.buttonOk'),
+                i18next.t('menu:help.dialogs.about.buttonVisitMangaDex')
+              ],
+              defaultId: 0,
+              cancelId: 0,
+              noLink: true
+            })
+            .then(({ response }) => {
+              if (response === 1) {
+                return shell.openExternal('https://mangadex.org')
+              }
+              return undefined
+            })
+            .catch((error) => mainLog.error('[Menu] Failed to show about dialog:', error))
         }
       }
     ]

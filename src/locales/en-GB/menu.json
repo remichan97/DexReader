@@ -75,8 +75,9 @@
       "about": {
         "title": "About DexReader",
         "message": "DexReader",
-        "detail": "Version {{version}}\n\nA desktop manga reader for MangaDex\n\nDeveloped by remichan97",
-        "buttonOk": "OK"
+        "detail": "Version {{version}}\nDeveloped by remichan97\n\nContent and cover art are provided by MangaDex (mangadex.org).\n\nDexReader is an independent project and is not affiliated with or endorsed by MangaDex.",
+        "buttonOk": "OK",
+        "buttonVisitMangaDex": "Visit MangaDex"
       }
     }
   }

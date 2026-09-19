@@ -75,8 +75,9 @@
       "about": {
         "title": "Giới thiệu DexReader",
         "message": "DexReader",
-        "detail": "Phiên bản {{version}}\n\nTrình đọc manga trên máy tính cho MangaDex\n\nPhát triển bởi remichan97",
-        "buttonOk": "OK"
+        "detail": "Phiên bản {{version}}\nPhát triển bởi remichan97\n\nNội dung và ảnh bìa được cung cấp bởi MangaDex (mangadex.org).\n\nDexReader là một dự án độc lập, không liên kết hay được MangaDex xác nhận.",
+        "buttonOk": "OK",
+        "buttonVisitMangaDex": "Truy cập MangaDex"
       }
     }
   }
