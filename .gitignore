@@ -13,3 +13,5 @@ claude-plans/
 *.db-shm
 # Benchmark results (local reference only)
 benchmark-results/
+# Test coverage reports
+coverage/

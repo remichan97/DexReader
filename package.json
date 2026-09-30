@@ -26,6 +26,7 @@
     "test:watch": "vitest",
     "test:main": "vitest run --project=main",
     "test:renderer": "vitest run --project=renderer",
+    "test:coverage": "vitest run --coverage",
     "prepare": "husky"
   },
   "dependencies": {
