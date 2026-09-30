@@ -343,13 +343,15 @@ const appUpdate = {
   onUpdateAvailable: (
     callback: (info: { version: string; releaseDate?: string; releaseNotes?: string }) => void
   ) => {
-    ipcRenderer.on('app-update:update-available', (_, info) => callback(info))
-    return () => ipcRenderer.removeListener('app-update:update-available', () => {})
+    const listener = (_: unknown, info: { version: string }): void => callback(info)
+    ipcRenderer.on('app-update:update-available', listener)
+    return () => ipcRenderer.removeListener('app-update:update-available', listener)
   },
 
   onUpdateNotAvailable: (callback: (info: { version: string }) => void) => {
-    ipcRenderer.on('app-update:update-not-available', (_, info) => callback(info))
-    return () => ipcRenderer.removeListener('app-update:update-not-available', () => {})
+    const listener = (_: unknown, info: { version: string }): void => callback(info)
+    ipcRenderer.on('app-update:update-not-available', listener)
+    return () => ipcRenderer.removeListener('app-update:update-not-available', listener)
   },
   onUpdateDownloading: (callback: () => void) => {
     ipcRenderer.on('app-update:update-downloading', callback)
@@ -363,18 +365,25 @@ const appUpdate = {
       bytesPerSecond: number
     }) => void
   ) => {
-    ipcRenderer.on('app-update:update-download-progress', (_, progress) => callback(progress))
-    return () => ipcRenderer.removeListener('app-update:update-download-progress', () => {})
+    const listener = (
+      _: unknown,
+      progress: { percent: number; transferred: number; total: number; bytesPerSecond: number }
+    ): void => callback(progress)
+    ipcRenderer.on('app-update:update-download-progress', listener)
+    return () => ipcRenderer.removeListener('app-update:update-download-progress', listener)
   },
   onUpdateDownloaded: (
     callback: (info: { version: string; releaseDate?: string; releaseNotes?: string }) => void
   ) => {
-    ipcRenderer.on('app-update:update-downloaded', (_, info) => callback(info))
-    return () => ipcRenderer.removeListener('app-update:update-downloaded', () => {})
+    const listener = (_: unknown, info: { version: string }): void => callback(info)
+    ipcRenderer.on('app-update:update-downloaded', listener)
+    return () => ipcRenderer.removeListener('app-update:update-downloaded', listener)
   },
   onUpdateError: (callback: (error: { message: string; userMessage: string }) => void) => {
-    ipcRenderer.on('app-update:update-error', (_, error) => callback(error))
-    return () => ipcRenderer.removeListener('app-update:update-error', () => {})
+    const listener = (_: unknown, error: { message: string; userMessage: string }): void =>
+      callback(error)
+    ipcRenderer.on('app-update:update-error', listener)
+    return () => ipcRenderer.removeListener('app-update:update-error', listener)
   }
 }
 
