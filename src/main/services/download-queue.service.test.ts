@@ -223,10 +223,11 @@ describe('DownloadQueueService', () => {
         if (status === DownloadStatus.Failed) return 2
         return 0
       })
-      downloadQueueService.addToQueue(queuedItem('ch-1'))
+      const item = queuedItem('ch-1')
+      downloadQueueService.addToQueue(item)
 
       expect(downloadQueueService.getQueueStats()).toEqual({
-        items: [queuedItem('ch-1')],
+        items: [item],
         totalItems: 1,
         activeCounts: 0,
         completedCounts: 5,
