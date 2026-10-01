@@ -2,6 +2,7 @@ import { net } from 'electron'
 import { ImageProxy } from './image.proxy'
 import { MangaDexClient } from '../mangadex-client'
 import { atHomeGuardsUtil } from '../utils/at-home-guards.utl'
+import { diskCacheUtil } from '../utils/disk-cache.util'
 
 vi.mock('electron', () => ({
   net: { fetch: vi.fn() },
@@ -166,6 +167,38 @@ describe('ImageProxy', () => {
 
       expect(response.status).toBe(502)
       expect(reportAtHomeNetworkStatus).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('in-memory cache hit', () => {
+    it('serves the exact cached bytes without re-fetching, even for a small (pool-allocated) buffer', async () => {
+      // A buffer this small is allocated from Node's shared buffer pool, which is
+      // exactly the scenario that exposed the .buffer-vs-Buffer bug this test guards.
+      const body = new Uint8Array([1, 2, 3]).buffer
+      vi.mocked(net.fetch).mockResolvedValue(fakeNetworkResponse({ ok: true, body }))
+      await imageProxy.handleImageRequest(CHAPTER_URL, false)
+      vi.mocked(net.fetch).mockClear()
+
+      const response = await imageProxy.handleImageRequest(CHAPTER_URL, false)
+
+      expect(net.fetch).not.toHaveBeenCalled()
+      const responseBytes = new Uint8Array(await response.arrayBuffer())
+      expect(responseBytes).toEqual(new Uint8Array(body))
+      expect(responseBytes.byteLength).toBe(3)
+    })
+  })
+
+  describe('disk cache hit (cover)', () => {
+    it('serves the exact disk-cached bytes without hitting the network', async () => {
+      const diskBuffer = Buffer.from([9, 9, 9])
+      vi.mocked(diskCacheUtil.loadCoverFromDisk).mockResolvedValue(diskBuffer)
+
+      const response = await imageProxy.handleImageRequest(COVER_URL, true)
+
+      expect(net.fetch).not.toHaveBeenCalled()
+      const responseBytes = new Uint8Array(await response.arrayBuffer())
+      expect(responseBytes).toEqual(new Uint8Array(diskBuffer))
+      expect(responseBytes.byteLength).toBe(3)
     })
   })
 
