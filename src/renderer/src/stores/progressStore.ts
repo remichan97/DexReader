@@ -265,7 +265,9 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
     try {
       set({ loading: true, error: null })
 
-      // Optimistic delete from both maps
+      // Optimistic delete from both maps - keep the removed entry so a failed
+      // delete can restore it (the map it came from no longer has it by then)
+      const deletedProgress = get().progressMap.get(mangaId)
       const newProgressMap = new Map(get().progressMap)
       const newMetadataMap = new Map(get().progressMetadataMap)
       newProgressMap.delete(mangaId)
@@ -285,7 +287,6 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
       } else {
         // Rollback on failure
         const rollbackMap = new Map(get().progressMap)
-        const deletedProgress = get().progressMap.get(mangaId)
         if (deletedProgress) {
           rollbackMap.set(mangaId, deletedProgress)
         }
