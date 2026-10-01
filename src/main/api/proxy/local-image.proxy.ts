@@ -34,8 +34,13 @@ export class LocalImageProxy {
         // Ensure we have a Buffer (readFile returns string | Buffer)
         const buffer = Buffer.isBuffer(fileData) ? fileData : Buffer.from(fileData)
 
-        // Convert to ArrayBuffer for Response (same pattern as imageProxy.ts)
-        return new Response(buffer.buffer as ArrayBuffer, {
+        // Pass the Buffer itself (a Uint8Array, a valid BodyInit at runtime) rather
+        // than its underlying .buffer - small/medium buffers are allocated from
+        // Node's shared pool, so .buffer can be a much larger ArrayBuffer than the
+        // actual data, appending unrelated trailing bytes onto the response. The cast
+        // is only needed because TS's DOM lib doesn't structurally accept Node's
+        // Buffer<ArrayBufferLike> as a BodyInit.
+        return new Response(buffer as unknown as BodyInit, {
           headers: {
             'Content-Type': this.getContentType(pagePath),
             'Cache-Control': 'no-store'

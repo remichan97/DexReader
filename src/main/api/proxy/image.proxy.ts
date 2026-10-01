@@ -108,7 +108,13 @@ export class ImageProxy {
       } else {
         // Valid cache hit - LRU update is handled automatically by the cache
         const cachedBuffer = Buffer.from(cached.buffer)
-        return new Response(cachedBuffer.buffer, {
+        // Pass the Buffer itself (a Uint8Array, a valid BodyInit at runtime) rather
+        // than its underlying .buffer - small/medium buffers are allocated from
+        // Node's shared pool, so .buffer can be a much larger ArrayBuffer than the
+        // actual data, appending unrelated trailing bytes onto the response. The cast
+        // is only needed because TS's DOM lib doesn't structurally accept Node's
+        // Buffer<ArrayBufferLike> as a BodyInit.
+        return new Response(cachedBuffer as unknown as BodyInit, {
           headers: { 'Content-Type': this.getContentType(url), 'Cache-Control': 'no-store' }
         })
       }
@@ -126,7 +132,8 @@ export class ImageProxy {
           size: diskCachedBuffer.length,
           lastAccessed: now
         })
-        return new Response(diskCachedBuffer.buffer as ArrayBuffer, {
+        // Pass the Buffer itself, not .buffer - see the in-memory cache-hit branch above
+        return new Response(diskCachedBuffer as unknown as BodyInit, {
           headers: { 'Content-Type': this.getContentType(url), 'Cache-Control': 'no-store' }
         })
       }
