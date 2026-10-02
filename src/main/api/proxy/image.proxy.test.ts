@@ -249,4 +249,60 @@ describe('ImageProxy', () => {
       expect(response.status).toBe(502)
     })
   })
+
+  describe('reporting runs in the background', () => {
+    const NEVER_RESOLVES = new Promise<void>(() => {})
+
+    it('returns the image without waiting for a report that never resolves', async () => {
+      const body = new Uint8Array([1, 2, 3, 4]).buffer
+      vi.mocked(net.fetch).mockResolvedValue(fakeNetworkResponse({ ok: true, body }))
+      reportAtHomeNetworkStatus.mockReturnValue(NEVER_RESOLVES)
+
+      const response = await imageProxy.handleImageRequest(CHAPTER_URL, false)
+
+      expect(response.status).toBe(200)
+      expect(reportAtHomeNetworkStatus).toHaveBeenCalledTimes(1)
+    })
+
+    it('returns the 502 without waiting for a report that never resolves', async () => {
+      vi.mocked(net.fetch).mockRejectedValue(new Error('net::ERR_CONNECTION_REFUSED'))
+      reportAtHomeNetworkStatus.mockReturnValue(NEVER_RESOLVES)
+
+      const response = await imageProxy.handleImageRequest(CHAPTER_URL, false)
+
+      expect(response.status).toBe(502)
+      expect(reportAtHomeNetworkStatus).toHaveBeenCalledTimes(1)
+    })
+
+    it('drops reports beyond the pending cap while still serving every image', async () => {
+      vi.mocked(net.fetch).mockImplementation(async () =>
+        fakeNetworkResponse({ ok: true, body: new Uint8Array([1, 2, 3, 4]).buffer })
+      )
+      reportAtHomeNetworkStatus.mockReturnValue(NEVER_RESOLVES)
+
+      const statuses: number[] = []
+      for (let page = 0; page < 105; page++) {
+        const response = await imageProxy.handleImageRequest(`${CHAPTER_URL}?page=${page}`, false)
+        statuses.push(response.status)
+      }
+
+      expect(statuses.every((status) => status === 200)).toBe(true)
+      expect(reportAtHomeNetworkStatus).toHaveBeenCalledTimes(100)
+    })
+
+    it('frees a pending slot once its report settles', async () => {
+      vi.mocked(net.fetch).mockImplementation(async () =>
+        fakeNetworkResponse({ ok: true, body: new Uint8Array([1, 2, 3, 4]).buffer })
+      )
+      reportAtHomeNetworkStatus.mockResolvedValue(undefined)
+
+      for (let page = 0; page < 150; page++) {
+        await imageProxy.handleImageRequest(`${CHAPTER_URL}?page=${page}`, false)
+        await Promise.resolve() // let the settled report release its slot
+        await Promise.resolve()
+      }
+
+      expect(reportAtHomeNetworkStatus).toHaveBeenCalledTimes(150)
+    })
+  })
 })
