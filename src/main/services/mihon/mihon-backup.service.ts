@@ -38,6 +38,10 @@ class MihonBackupService {
   async importFromBackup(filePath: string): Promise<MihonImportContract> {
     this.abortController?.abort()
     this.abortController = new AbortController()
+    // Captured now, not read back through this.abortController later - a second import
+    // starting mid-await would otherwise reassign that field, leaving this call's signal
+    // pointing at the NEW controller instead of its own and defeating cancellation entirely.
+    const signal = this.abortController.signal
     // Use node's fs instead of our secureFs since this is what users provide themselves using the file picker, not an external file.
     const buffer = await fs.readFile(filePath)
 
@@ -63,8 +67,6 @@ class MihonBackupService {
         skippedMangaCount: 0
       }
     }
-
-    const signal = this.abortController.signal
 
     return await this.importManga(mangadexManga, backup.backupCategories, signal)
   }
