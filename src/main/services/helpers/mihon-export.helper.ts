@@ -27,8 +27,9 @@ const TagIdToNameMap: Record<string, string> = Object.entries(TagList).reduce(
   (acc, [name, id]) => {
     // Convert PascalCase to space-separated (e.g., "SliceOfLife" -> "Slice of Life")
     const spacedName = name.replaceAll(/([A-Z])/g, ' $1').trim()
-    acc[id] = spacedName
-    acc[id.toLowerCase()] = spacedName.toLowerCase() // Also support lowercase version
+    // Keyed by the lowercased id to match the lowercased lookup in buildBackupManga below -
+    // MangaDex tag ids are already all-lowercase UUIDs, so this is the only entry that matters.
+    acc[id.toLowerCase()] = spacedName
     return acc
   },
   {} as Record<string, string>
