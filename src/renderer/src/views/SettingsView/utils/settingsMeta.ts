@@ -13,12 +13,10 @@ export const SECTION_IDS = [
 
 type TFunction = (key: string, options?: Record<string, unknown>) => string
 
-// Single source of truth for every modified-setting key shown in the UnsavedChangesBanner:
-// which section to scroll to, and the human-readable label to display. Previously this was
-// two separately hand-maintained maps (one per concern) keyed by the same setting names,
-// which could silently drift apart - the settings-domain registry in SettingsView.tsx
-// (isDirty/buildPayload/reset per domain) doesn't carry per-key metadata like this, so it
-// isn't a fit to derive from directly.
+// Single source of truth for setting keys: which section to scroll to, and the
+// human-readable label to display. Used by the restart-required banner
+// (RestartRequiredBanner, scoped to just its restart-required subset), and previously by
+// the now-removed buffered-save banner's "N modified" list.
 const SETTING_METADATA: Record<string, { section: string; label: (t: TFunction) => string }> = {
   themeMode: {
     section: 'appearance',
@@ -138,7 +136,7 @@ export function getSettingSection(key: string): string {
 }
 
 /**
- * Human-readable label for a modified-setting key, shown in the UnsavedChangesBanner.
+ * Human-readable label for a setting key, shown in the RestartRequiredBanner.
  */
 export function getSettingLabel(key: string, t: TFunction): string {
   return SETTING_METADATA[key]?.label(t) ?? key

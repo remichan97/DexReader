@@ -20,5 +20,13 @@
   "card": {
     "lastRead": "Đọc lần cuối",
     "removeAriaLabel": "Xóa khỏi lịch sử"
+  },
+  "calendar": {
+    "previousMonth": "Tháng trước",
+    "nextMonth": "Tháng sau"
+  },
+  "feed": {
+    "today": "Hôm nay",
+    "yesterday": "Hôm qua"
   }
 }

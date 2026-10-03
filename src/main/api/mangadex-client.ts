@@ -15,6 +15,9 @@ import { ChapterImagesResponse } from '../../shared/responses/chapter-image.resp
 import { atHomeGuardsUtil } from './utils/at-home-guards.utl'
 import { ErrorResponse, isMangaDexErrorResponse } from './responses/error.response'
 
+// A stalled report must not hold its rate-limit slot or pending-report budget indefinitely
+const REPORT_TIMEOUT_MS = 10_000
+
 export class MangaDexClient {
   baseUrl: string
   userAgent: string
@@ -173,7 +176,8 @@ export class MangaDexClient {
       const response = await fetch(ApiConfig.NETWORK_REPORT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(reportData)
+        body: JSON.stringify(reportData),
+        signal: AbortSignal.timeout(REPORT_TIMEOUT_MS)
       })
 
       if (!response.ok) {

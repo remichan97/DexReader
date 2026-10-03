@@ -1,4 +1,5 @@
 import type { AppSettings } from '../../shared/types/settings/app-settings.type'
+import { AppTheme } from '../../shared/enums/settings/theme-mode.enum'
 import {
   getDownloadsPath,
   updateDownloadsPath,
@@ -106,6 +107,47 @@ describe('SettingsManager', () => {
       }
 
       await settingsManager.saveAll(newSettings)
+
+      expect(settingsManager.load().downloads.downloadPath).toBe('D:\\MyDownloads')
+      expect(updateDownloadsPath).toHaveBeenCalledWith('D:\\MyDownloads')
+    })
+  })
+
+  describe('updateSection', () => {
+    it('replaces only the given section, leaving the rest of settings untouched', async () => {
+      await settingsManager.updateSection('appearance', {
+        ...baseline.appearance,
+        theme: baseline.appearance.theme === AppTheme.Dark ? AppTheme.Light : AppTheme.Dark
+      })
+
+      expect(settingsManager.load().appearance.theme).not.toBe(baseline.appearance.theme)
+      expect(settingsManager.load().downloads).toEqual(baseline.downloads)
+    })
+
+    it('applies non-downloads sections without touching downloads-path validation', async () => {
+      await settingsManager.updateSection('system', { useHardwareAcceleration: false })
+
+      expect(settingsManager.load().system.useHardwareAcceleration).toBe(false)
+      expect(validateDirectoryPath).not.toHaveBeenCalled()
+    })
+
+    it('rejects and persists nothing when the downloads section has a system-directory path', async () => {
+      await expect(
+        settingsManager.updateSection('downloads', {
+          ...baseline.downloads,
+          downloadPath: String.raw`C:\Windows\System32`
+        })
+      ).rejects.toThrow(/system director/i)
+
+      expect(settingsManager.load().downloads.downloadPath).toBeUndefined()
+      expect(updateDownloadsPath).not.toHaveBeenCalled()
+    })
+
+    it('sanitizes control characters, persists the sanitized path, and applies it in-memory', async () => {
+      await settingsManager.updateSection('downloads', {
+        ...baseline.downloads,
+        downloadPath: 'D:\\MyDownloads\t'
+      })
 
       expect(settingsManager.load().downloads.downloadPath).toBe('D:\\MyDownloads')
       expect(updateDownloadsPath).toHaveBeenCalledWith('D:\\MyDownloads')

@@ -2,6 +2,7 @@ import { net } from 'electron'
 import { ImageProxy } from './image.proxy'
 import { MangaDexClient } from '../mangadex-client'
 import { atHomeGuardsUtil } from '../utils/at-home-guards.utl'
+import { diskCacheUtil } from '../utils/disk-cache.util'
 
 vi.mock('electron', () => ({
   net: { fetch: vi.fn() },
@@ -169,6 +170,38 @@ describe('ImageProxy', () => {
     })
   })
 
+  describe('in-memory cache hit', () => {
+    it('serves the exact cached bytes without re-fetching, even for a small (pool-allocated) buffer', async () => {
+      // A buffer this small is allocated from Node's shared buffer pool, which is
+      // exactly the scenario that exposed the .buffer-vs-Buffer bug this test guards.
+      const body = new Uint8Array([1, 2, 3]).buffer
+      vi.mocked(net.fetch).mockResolvedValue(fakeNetworkResponse({ ok: true, body }))
+      await imageProxy.handleImageRequest(CHAPTER_URL, false)
+      vi.mocked(net.fetch).mockClear()
+
+      const response = await imageProxy.handleImageRequest(CHAPTER_URL, false)
+
+      expect(net.fetch).not.toHaveBeenCalled()
+      const responseBytes = new Uint8Array(await response.arrayBuffer())
+      expect(responseBytes).toEqual(new Uint8Array(body))
+      expect(responseBytes.byteLength).toBe(3)
+    })
+  })
+
+  describe('disk cache hit (cover)', () => {
+    it('serves the exact disk-cached bytes without hitting the network', async () => {
+      const diskBuffer = Buffer.from([9, 9, 9])
+      vi.mocked(diskCacheUtil.loadCoverFromDisk).mockResolvedValue(diskBuffer)
+
+      const response = await imageProxy.handleImageRequest(COVER_URL, true)
+
+      expect(net.fetch).not.toHaveBeenCalled()
+      const responseBytes = new Uint8Array(await response.arrayBuffer())
+      expect(responseBytes).toEqual(new Uint8Array(diskBuffer))
+      expect(responseBytes.byteLength).toBe(3)
+    })
+  })
+
   describe('domain allowlist', () => {
     it('fetches when the URL passes the allowlist check', async () => {
       const body = new Uint8Array([1, 2, 3]).buffer
@@ -214,6 +247,62 @@ describe('ImageProxy', () => {
       const response = await imageProxy.handleImageRequest(CHAPTER_URL, false)
 
       expect(response.status).toBe(502)
+    })
+  })
+
+  describe('reporting runs in the background', () => {
+    const NEVER_RESOLVES = new Promise<void>(() => {})
+
+    it('returns the image without waiting for a report that never resolves', async () => {
+      const body = new Uint8Array([1, 2, 3, 4]).buffer
+      vi.mocked(net.fetch).mockResolvedValue(fakeNetworkResponse({ ok: true, body }))
+      reportAtHomeNetworkStatus.mockReturnValue(NEVER_RESOLVES)
+
+      const response = await imageProxy.handleImageRequest(CHAPTER_URL, false)
+
+      expect(response.status).toBe(200)
+      expect(reportAtHomeNetworkStatus).toHaveBeenCalledTimes(1)
+    })
+
+    it('returns the 502 without waiting for a report that never resolves', async () => {
+      vi.mocked(net.fetch).mockRejectedValue(new Error('net::ERR_CONNECTION_REFUSED'))
+      reportAtHomeNetworkStatus.mockReturnValue(NEVER_RESOLVES)
+
+      const response = await imageProxy.handleImageRequest(CHAPTER_URL, false)
+
+      expect(response.status).toBe(502)
+      expect(reportAtHomeNetworkStatus).toHaveBeenCalledTimes(1)
+    })
+
+    it('drops reports beyond the pending cap while still serving every image', async () => {
+      vi.mocked(net.fetch).mockImplementation(async () =>
+        fakeNetworkResponse({ ok: true, body: new Uint8Array([1, 2, 3, 4]).buffer })
+      )
+      reportAtHomeNetworkStatus.mockReturnValue(NEVER_RESOLVES)
+
+      const statuses: number[] = []
+      for (let page = 0; page < 105; page++) {
+        const response = await imageProxy.handleImageRequest(`${CHAPTER_URL}?page=${page}`, false)
+        statuses.push(response.status)
+      }
+
+      expect(statuses.every((status) => status === 200)).toBe(true)
+      expect(reportAtHomeNetworkStatus).toHaveBeenCalledTimes(100)
+    })
+
+    it('frees a pending slot once its report settles', async () => {
+      vi.mocked(net.fetch).mockImplementation(async () =>
+        fakeNetworkResponse({ ok: true, body: new Uint8Array([1, 2, 3, 4]).buffer })
+      )
+      reportAtHomeNetworkStatus.mockResolvedValue(undefined)
+
+      for (let page = 0; page < 150; page++) {
+        await imageProxy.handleImageRequest(`${CHAPTER_URL}?page=${page}`, false)
+        await Promise.resolve() // let the settled report release its slot
+        await Promise.resolve()
+      }
+
+      expect(reportAtHomeNetworkStatus).toHaveBeenCalledTimes(150)
     })
   })
 })

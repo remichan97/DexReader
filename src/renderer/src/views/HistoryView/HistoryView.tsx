@@ -1,60 +1,118 @@
 import type { JSX } from 'react'
-import { useState, useEffect } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { History24Regular } from '@fluentui/react-icons'
 import { EmptyState } from '@renderer/components/EmptyState'
 import { LoadingState } from '@renderer/components/LoadingState'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import { useProgressStore } from '@renderer/stores/progressStore'
-import { ReadingHistoryCard } from './components/ReadingHistoryCard'
+import { useHistoryStore } from '@renderer/stores/historyStore'
+import {
+  monthRange,
+  parseLocalDateString,
+  startOfMonth,
+  toLocalDateString
+} from '@renderer/utils/historyDate.util'
+import { HistoryScheduleHeader } from './components/HistoryScheduleHeader'
+import { HistoryEventCard } from './components/HistoryEventCard'
 import './HistoryView.css'
 
-// Type extracted from IPC response - includes metadata via JOINs
-type MangaProgressMetadata = NonNullable<
-  Awaited<ReturnType<typeof globalThis.progress.getAllProgress>>['data']
+type HistoryEventMetadata = NonNullable<
+  Awaited<ReturnType<typeof globalThis.readHistory.getEventsByDate>>['data']
 >[number]
+
+interface HistorySection {
+  readonly dateStr: string
+  readonly label: string
+  readonly events: HistoryEventMetadata[]
+}
+
+function groupEventsByDate(
+  events: HistoryEventMetadata[],
+  t: (key: string, options?: Record<string, unknown>) => string
+): HistorySection[] {
+  const todayStr = toLocalDateString(new Date())
+  const yesterday = new Date()
+  yesterday.setDate(yesterday.getDate() - 1)
+  const yesterdayStr = toLocalDateString(yesterday)
+
+  const sectionByDate = new Map<string, HistorySection>()
+
+  for (const event of events) {
+    const existing = sectionByDate.get(event.readDate)
+    if (existing) {
+      existing.events.push(event)
+      continue
+    }
+
+    const label =
+      event.readDate === todayStr
+        ? t('history:feed.today', { defaultValue: 'Today' })
+        : event.readDate === yesterdayStr
+          ? t('history:feed.yesterday', { defaultValue: 'Yesterday' })
+          : parseLocalDateString(event.readDate).toLocaleDateString()
+
+    sectionByDate.set(event.readDate, { dateStr: event.readDate, label, events: [event] })
+  }
+
+  return Array.from(sectionByDate.values())
+}
 
 export function HistoryView(): JSX.Element {
   const navigate = useNavigate()
   const { t } = useTranslation(['history', 'common'])
-  const loadAllProgress = useProgressStore((state) => state.loadAllProgress)
-  const loadStatistics = useProgressStore((state) => state.loadStatistics)
+
   const deleteProgress = useProgressStore((state) => state.deleteProgress)
-  const progressMetadataMap = useProgressStore((state) => state.progressMetadataMap)
+  const loadStatistics = useProgressStore((state) => state.loadStatistics)
   const statistics = useProgressStore((state) => state.statistics)
-  const loading = useProgressStore((state) => state.loading)
+
+  const recentEvents = useHistoryStore((state) => state.recentEvents)
+  const activeDates = useHistoryStore((state) => state.activeDates)
+  const selectedDate = useHistoryStore((state) => state.selectedDate)
+  const eventsForSelectedDate = useHistoryStore((state) => state.eventsForSelectedDate)
+  const historyLoading = useHistoryStore((state) => state.loading)
+  const loadRecentEvents = useHistoryStore((state) => state.loadRecentEvents)
+  const loadActiveDates = useHistoryStore((state) => state.loadActiveDates)
+  const refreshActiveDates = useHistoryStore((state) => state.refreshActiveDates)
+  const selectDate = useHistoryStore((state) => state.selectDate)
+  const clearSelectedDate = useHistoryStore((state) => state.clearSelectedDate)
 
   const [searchQuery, setSearchQuery] = useState('')
+  const [viewedMonth, setViewedMonth] = useState(() => startOfMonth(new Date()))
+  const contentRef = useRef<HTMLDivElement>(null)
 
-  // Load all progress on mount
   useEffect(() => {
-    // Always refresh data, but progressStore won't show loading if cache exists
-    loadAllProgress()
+    loadRecentEvents()
     loadStatistics()
-  }, [loadAllProgress, loadStatistics])
+  }, [loadRecentEvents, loadStatistics])
 
-  // Set document title
+  useEffect(() => {
+    void loadActiveDates(monthRange(viewedMonth))
+  }, [viewedMonth, loadActiveDates])
+
   useEffect(() => {
     document.title = t('history:documentTitle')
   }, [t])
 
-  // Convert progress metadata map to sorted array
-  const allProgress = Array.from(progressMetadataMap.values()).sort(
-    (a, b) => b.lastReadAt - a.lastReadAt
-  )
+  const isDateFiltered = selectedDate !== undefined
+  const baseEvents = isDateFiltered ? eventsForSelectedDate : recentEvents
 
-  // Filter by search query
-  const filteredProgress = searchQuery
-    ? allProgress.filter((p) => p.title.toLowerCase().includes(searchQuery.toLowerCase()))
-    : allProgress
+  const filteredEvents = searchQuery
+    ? baseEvents.filter((event) => event.title.toLowerCase().includes(searchQuery.toLowerCase()))
+    : baseEvents
 
-  const handleContinueReading = (progress: MangaProgressMetadata): void => {
-    // Start from beginning of last chapter (current page tracking handled by reader)
-    navigate(`/reader/${progress.mangaId}/${progress.lastChapterId}`, {
+  const sections = useMemo(() => groupEventsByDate(filteredEvents, t), [filteredEvents, t])
+
+  const handleContinueReading = (event: HistoryEventMetadata): void => {
+    if (!event.chapterId) {
+      return
+    }
+
+    navigate(`/reader/${event.mangaId}/${event.chapterId}`, {
       state: {
-        chapterNumber: progress.lastChapterNumber?.toString(),
-        chapterTitle: progress.lastChapterTitle,
-        mangaTitle: progress.title,
+        chapterNumber: event.chapterNumber,
+        chapterTitle: event.chapterTitle,
+        mangaTitle: event.title,
         startPage: 0
       }
     })
@@ -62,8 +120,20 @@ export function HistoryView(): JSX.Element {
 
   const handleRemove = async (mangaId: string): Promise<void> => {
     await deleteProgress(mangaId)
-    // Reload statistics after deletion
     loadStatistics()
+    void refreshActiveDates()
+
+    if (isDateFiltered && selectedDate) {
+      void selectDate(selectedDate)
+    } else {
+      void loadRecentEvents()
+    }
+  }
+
+  const handleToday = (): void => {
+    clearSelectedDate()
+    setViewedMonth(startOfMonth(new Date()))
+    contentRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   return (
@@ -73,42 +143,47 @@ export function HistoryView(): JSX.Element {
 
       {/* Statistics */}
       {statistics && (
-        <div className="history-view__stats">
-          <div className="stat-card flex flex-col items-center">
-            <span className="stat-card__value">{statistics.totalMangaRead}</span>
-            <span className="stat-card__label">{t('history:stats.mangaRead')}</span>
-          </div>
-          <div className="stat-card flex flex-col items-center">
-            <span className="stat-card__value">{statistics.totalChaptersRead}</span>
-            <span className="stat-card__label">{t('history:stats.chapters')}</span>
-          </div>
-          <div className="stat-card flex flex-col items-center">
-            <span className="stat-card__value">{statistics.totalPagesRead}</span>
-            <span className="stat-card__label">{t('history:stats.pages')}</span>
-          </div>
-          <div className="stat-card flex flex-col items-center">
-            <span className="stat-card__value">{statistics.totalEstimatedMinutesRead}</span>
-            <span className="stat-card__label">{t('history:stats.minutes')}</span>
-          </div>
+        <div className="history-view__stats-strip flex items-center gap-2">
+          <span>
+            <strong>{statistics.totalMangaRead}</strong> {t('history:stats.mangaRead')}
+          </span>
+          <span className="history-view__stats-divider" aria-hidden="true">
+            &middot;
+          </span>
+          <span>
+            <strong>{statistics.totalChaptersRead}</strong> {t('history:stats.chapters')}
+          </span>
+          <span className="history-view__stats-divider" aria-hidden="true">
+            &middot;
+          </span>
+          <span>
+            <strong>{statistics.totalPagesRead}</strong> {t('history:stats.pages')}
+          </span>
+          <span className="history-view__stats-divider" aria-hidden="true">
+            &middot;
+          </span>
+          <span>
+            <strong>{statistics.totalEstimatedMinutesRead}</strong> {t('history:stats.minutes')}
+          </span>
         </div>
       )}
 
-      {/* Search */}
-      <div className="history-view__search">
-        <input
-          type="search"
-          placeholder={t('history:searchPlaceholder')}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="history-view__search-input"
-        />
-      </div>
+      <HistoryScheduleHeader
+        viewedMonth={viewedMonth}
+        onViewedMonthChange={setViewedMonth}
+        activeDates={activeDates}
+        selectedDate={selectedDate}
+        onSelectDate={(date) => void selectDate(date)}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onToday={handleToday}
+      />
 
-      {/* History List */}
-      <div className="history-view__content">
-        {loading && <LoadingState message={t('history:loadingState.message')} />}
+      {/* Content */}
+      <div className="history-view__content" ref={contentRef}>
+        {historyLoading && <LoadingState message={t('history:loadingState.message')} />}
 
-        {!loading && filteredProgress.length === 0 && !searchQuery && (
+        {!historyLoading && filteredEvents.length === 0 && !searchQuery && (
           <EmptyState
             icon={<History24Regular />}
             title={t('history:emptyState.title')}
@@ -121,22 +196,27 @@ export function HistoryView(): JSX.Element {
           />
         )}
 
-        {!loading && filteredProgress.length === 0 && searchQuery && (
+        {!historyLoading && filteredEvents.length === 0 && searchQuery && (
           <EmptyState message={t('history:searchEmpty', { query: searchQuery })} variant="search" />
         )}
 
-        {!loading && filteredProgress.length > 0 && (
-          <div className="history-view__list flex flex-col gap-3">
-            {filteredProgress.map((progress) => (
-              <ReadingHistoryCard
-                key={progress.mangaId}
-                progress={progress}
-                onContinueReading={() => handleContinueReading(progress)}
-                onRemove={() => handleRemove(progress.mangaId)}
-              />
-            ))}
-          </div>
-        )}
+        {!historyLoading &&
+          filteredEvents.length > 0 &&
+          sections.map((section) => (
+            <div key={section.dateStr} className="history-view__section">
+              <h2 className="history-view__section-header">{section.label}</h2>
+              <div className="history-view__list flex flex-col gap-3">
+                {section.events.map((event) => (
+                  <HistoryEventCard
+                    key={event.id}
+                    event={event}
+                    onContinueReading={() => handleContinueReading(event)}
+                    onRemove={() => handleRemove(event.mangaId)}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
       </div>
     </div>
   )

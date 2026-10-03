@@ -1,25 +1,8 @@
 import { useCallback, useState } from 'react'
+import { writeSettingsSection } from '@renderer/utils/settingsPendingWrites'
 import type { AppSettings } from '../../../../../../preload/window.types'
-import type { SettingsDomain } from './settingsDomain.types'
 
-export interface AdvancedPayload {
-  update: {
-    autoCheck: boolean
-    autoDownload: boolean
-  }
-  logs: {
-    retentionInDays: number
-  }
-  system: {
-    useHardwareAcceleration: boolean
-  }
-}
-
-interface UseAdvancedSettingsDomainParams {
-  markSettingModified: (key: string) => void
-}
-
-export interface UseAdvancedSettingsDomainResult extends SettingsDomain<AdvancedPayload> {
+export interface UseAdvancedSettingsDomainResult {
   autoCheckForUpdates: boolean
   autoDownloadUpdates: boolean
   logRetentionDays: number
@@ -32,16 +15,13 @@ export interface UseAdvancedSettingsDomainResult extends SettingsDomain<Advanced
 }
 
 /**
- * Owns the "Advanced" section's three settings domains (update, logs, system).
- * They're combined into a single hook since they're presented together in the
- * UI and none needs an independently-visible dirty flag - only the combined
- * "is anything in Advanced dirty" signal is used.
+ * Owns the "Advanced" section's three settings domains (update, logs, system). Every
+ * field writes immediately via settings:update-section. autoCheckForUpdates and
+ * autoDownloadUpdates share the `update` section, so each of their handlers sends both
+ * fields together; logRetentionDays (`logs`) and useHardwareAcceleration (`system`) are
+ * each the sole field in their section.
  */
-export function useAdvancedSettingsDomain(
-  params: UseAdvancedSettingsDomainParams
-): UseAdvancedSettingsDomainResult {
-  const { markSettingModified } = params
-
+export function useAdvancedSettingsDomain(): UseAdvancedSettingsDomainResult {
   const [autoCheckForUpdates, setAutoCheckForUpdates] = useState<boolean>(true)
   const [autoDownloadUpdates, setAutoDownloadUpdates] = useState<boolean>(false)
   const [logRetentionDays, setLogRetentionDays] = useState<number>(7)
@@ -50,34 +30,28 @@ export function useAdvancedSettingsDomain(
   const handleAutoCheckChange = useCallback(
     (enabled: boolean): void => {
       setAutoCheckForUpdates(enabled)
-      markSettingModified('autoCheckForUpdates')
+      void writeSettingsSection('update', { autoCheck: enabled, autoDownload: autoDownloadUpdates })
     },
-    [markSettingModified]
+    [autoDownloadUpdates]
   )
 
   const handleAutoDownloadChange = useCallback(
     (enabled: boolean): void => {
       setAutoDownloadUpdates(enabled)
-      markSettingModified('autoDownloadUpdates')
+      void writeSettingsSection('update', { autoCheck: autoCheckForUpdates, autoDownload: enabled })
     },
-    [markSettingModified]
+    [autoCheckForUpdates]
   )
 
-  const handleLogRetentionDaysChange = useCallback(
-    (days: number): void => {
-      setLogRetentionDays(days)
-      markSettingModified('logRetentionDays')
-    },
-    [markSettingModified]
-  )
+  const handleLogRetentionDaysChange = useCallback((days: number): void => {
+    setLogRetentionDays(days)
+    void writeSettingsSection('logs', { retentionInDays: days })
+  }, [])
 
-  const handleHardwareAccelerationChange = useCallback(
-    (enabled: boolean): void => {
-      setUseHardwareAcceleration(enabled)
-      markSettingModified('useHardwareAcceleration')
-    },
-    [markSettingModified]
-  )
+  const handleHardwareAccelerationChange = useCallback((enabled: boolean): void => {
+    setUseHardwareAcceleration(enabled)
+    void writeSettingsSection('system', { useHardwareAcceleration: enabled })
+  }, [])
 
   const loadFromSettings = useCallback((settings: AppSettings): void => {
     if (settings.update) {
@@ -92,38 +66,6 @@ export function useAdvancedSettingsDomain(
     }
   }, [])
 
-  const isDirty = useCallback(
-    (original: AppSettings): boolean =>
-      autoCheckForUpdates !== original.update.autoCheck ||
-      autoDownloadUpdates !== original.update.autoDownload ||
-      logRetentionDays !== (original.logs?.retentionInDays ?? 7) ||
-      useHardwareAcceleration !== (original.system?.useHardwareAcceleration ?? true),
-    [autoCheckForUpdates, autoDownloadUpdates, logRetentionDays, useHardwareAcceleration]
-  )
-
-  const buildPayload = useCallback(
-    (): AdvancedPayload => ({
-      update: {
-        autoCheck: autoCheckForUpdates,
-        autoDownload: autoDownloadUpdates
-      },
-      logs: {
-        retentionInDays: logRetentionDays
-      },
-      system: {
-        useHardwareAcceleration
-      }
-    }),
-    [autoCheckForUpdates, autoDownloadUpdates, logRetentionDays, useHardwareAcceleration]
-  )
-
-  const reset = useCallback((original: AppSettings): void => {
-    setAutoCheckForUpdates(original.update.autoCheck ?? true)
-    setAutoDownloadUpdates(original.update.autoDownload ?? false)
-    setLogRetentionDays(original.logs?.retentionInDays ?? 7)
-    setUseHardwareAcceleration(original.system?.useHardwareAcceleration ?? true)
-  }, [])
-
   return {
     autoCheckForUpdates,
     autoDownloadUpdates,
@@ -133,9 +75,6 @@ export function useAdvancedSettingsDomain(
     handleAutoDownloadChange,
     handleLogRetentionDaysChange,
     handleHardwareAccelerationChange,
-    loadFromSettings,
-    isDirty,
-    buildPayload,
-    reset
+    loadFromSettings
   }
 }

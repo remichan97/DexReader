@@ -159,19 +159,11 @@
       "title": "Clear all custom reading settings?",
       "message": "You have custom settings for {{count}} manga. They'll all be reset to your global defaults. You can't undo this!"
     },
-    "unsavedChanges": {
-      "navigation": {
-        "title": "You have unsaved changes. Do you want to leave without saving?",
-        "message": "Your changes will be lost.",
-        "confirmButton": "Yes, Leave",
-        "cancelButton": "No"
-      },
-      "windowClose": {
-        "title": "You have unsaved changes. Do you want to exit DexReader without saving?",
-        "message": "Your changes will be lost.",
-        "confirmButton": "Yes, Discard Changes",
-        "cancelButton": "No"
-      }
+    "restartRequired": {
+      "title": "Restart required",
+      "message": "Some changes need a restart to take effect. Do you want to restart DexReader now?",
+      "confirmButton": "Yes, Restart Now",
+      "cancelButton": "Maybe Later"
     },
     "notFound": {
       "title": "Oops! Lost your way?",
@@ -281,14 +273,6 @@
       "readRightToLeft": "Read right-to-left"
     },
     "savedForMangaOnly": "Changes to reading mode here will only be applied to this manga"
-  },
-  "changeLanguage": {
-    "title": "Display Language Change",
-    "message": "Your language preference has been updated to {{language}}. To fully apply the language change across the app, a restart is required. Would you like to restart DexReader now?",
-    "buttons": {
-      "restart": "Yes, Restart Now",
-      "later": "Maybe Later"
-    }
   },
   "databaseRecovery": {
     "openFailure": {

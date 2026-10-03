@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [1.15.0] - 2026-10-03
+
+### Added
+
+- **Settings**: The Settings page now autosaves — every change writes to disk immediately instead of needing a Save button. A change that needs a restart to take effect (display language, hardware acceleration) shows an inline banner, and a one-time prompt if you navigate away while one is still pending
+- **History**: Replaced the manga-deduplicated "Continue Reading" list with a chronological, day-grouped reading feed (sticky date headers), plus a compact calendar you can open from the header to filter the feed down to a single day
+
+### Fixed
+
+- **Image Proxy**: Fixed a bug where downloaded chapter pages, in-memory cached chapter images, and disk-cached covers could be served with up to ~64KB of unrelated leftover data appended after the real image bytes, due to reading Node's shared buffer-pool allocation instead of just the buffer's own content
+- **Image Proxy**: Chapter images are no longer held up waiting on the MangaDex@Home network report, which could stall page loads behind its rate limit once a few pages had been preloaded
+- **Reader**: Fixed the reader reloading endlessly when a chapter was opened from History or Downloads
+- **Library**: Fixed reading progress not reappearing in the UI after a failed delete, even though it was never actually removed from the database
+- **Backup**: Fixed Mihon/Tachiyomi backup export always writing lowercase genre tags (e.g. "action" instead of "Action")
+- **Backup**: Fixed Mihon/Tachiyomi backup import cancellation not actually stopping a still-running import when a second import was started
+- **Menu**: The About dialog now credits MangaDex explicitly and states DexReader isn't affiliated with or endorsed by them, with a "Visit MangaDex" link
+- **API**: The User-Agent sent with MangaDex requests now reports the app's real running version instead of a frozen "1.0.0"
+- Fixed several notification/navigation listeners (app-update banner, Gatekeeper-guarded navigation, accent colour sync) that could register duplicate IPC listeners after repeated use in development builds
+
+### Changed
+
+- Internal: enforced an import boundary between the main and preload processes, and moved the shared IPC response contract into `src/shared`. No user-facing behaviour change.
+- Internal: added a substantial unit test suite across the main process, preload bridge, Zustand stores, and renderer hooks, with per-area coverage thresholds enforced in CI going forward. Several of the fixes above were caught by writing these tests, not reported separately.
+
+---
+
 ## [1.14.0] - 2026-09-08
 
 ### Added

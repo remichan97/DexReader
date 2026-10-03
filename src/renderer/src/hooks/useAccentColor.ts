@@ -122,6 +122,6 @@ export function useAccentColor(): void {
       }
     }
 
-    globalThis.api.onAccentColorChanged(handleAccentColorChange)
+    return globalThis.api.onAccentColorChanged(handleAccentColorChange)
   }, [isUsingSystemColor])
 }

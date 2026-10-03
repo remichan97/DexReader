@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { ImageQuality } from '@shared/enums/mangadex/image-quality.enum'
 import type { ImageUrlResponse, ChapterContract } from '../../../../../preload/window.types'
 import { useConnectivityStore } from '@renderer/stores/connectivityStore'
@@ -42,6 +42,9 @@ interface ChapterData {
   error: Error | null
 }
 
+/** Adjacent chapters are derived from the chapter list rather than stored */
+type ChapterState = Omit<ChapterData, 'previousChapter' | 'nextChapter'>
+
 interface UseChapterDataReturn extends ChapterData {
   loadChapterImages: (id: string) => Promise<void>
   setImageLoadingState: (pageIndex: number, state: 'loading' | 'loaded' | 'error') => void
@@ -59,7 +62,7 @@ export function useChapterData(
   locationKey: string,
   imageQuality: ImageQuality
 ): UseChapterDataReturn {
-  const [data, setData] = useState<ChapterData>({
+  const [data, setData] = useState<ChapterState>({
     chapterId: null,
     mangaId: null,
     chapterTitle: 'Loading chapter...',
@@ -70,8 +73,6 @@ export function useChapterData(
     imageLoadingStates: new Map(),
     chapters: locationState?.chapters || [],
     chaptersLoading: false,
-    previousChapter: null,
-    nextChapter: null,
     loading: true,
     error: null
   })
@@ -164,76 +165,21 @@ export function useChapterData(
     [imageQuality, mangaId]
   )
 
-  /**
-   * Load chapter list for navigation
-   */
-  const loadChapterList = useCallback(
-    async (mangaIdParam: string, currentChapterId: string): Promise<void> => {
-      if (!mangaIdParam) return
+  const hasChapters = data.chapters.length > 0
 
-      // If we already have chapters from navigation state, just determine adjacent chapters
-      if (data.chapters.length > 0) {
-        const currentIndex = data.chapters.findIndex((ch) => ch.id === currentChapterId)
-        const previousChapter = currentIndex > 0 ? data.chapters[currentIndex - 1] : null
-        const nextChapter =
-          currentIndex < data.chapters.length - 1 ? data.chapters[currentIndex + 1] : null
+  // Adjacent chapters are derived from the list, so a list update never re-triggers a load
+  const { previousChapter, nextChapter } = useMemo(() => {
+    const currentIndex = chapterId ? data.chapters.findIndex((ch) => ch.id === chapterId) : -1
 
-        setData((prev) => ({
-          ...prev,
-          previousChapter,
-          nextChapter
-        }))
-        return
-      }
+    if (currentIndex === -1) {
+      return { previousChapter: null, nextChapter: null }
+    }
 
-      // Fallback: Fetch chapters if not provided (shouldn't happen normally)
-      setData((prev) => ({ ...prev, chaptersLoading: true }))
-
-      try {
-        // Check if online before fetching chapter list
-        const isOnline = useConnectivityStore.getState().isOnline
-
-        if (!isOnline) {
-          setData((prev) => ({ ...prev, chaptersLoading: false }))
-          return
-        }
-
-        const chaptersResponse = await globalThis.mangadex.getMangaFeed(mangaIdParam, {
-          limit: 500,
-          offset: 0,
-          translatedLanguage: ['en'], // Fallback to English
-          order: { chapter: OrderDirection.Asc },
-          includes: [ChapterIncludes.SCANLATION_GROUP]
-        })
-
-        if (!chaptersResponse.success || !chaptersResponse.data) {
-          setData((prev) => ({ ...prev, chaptersLoading: false }))
-          return
-        }
-
-        const chapters = chaptersResponse.data.data
-
-        // Find current chapter index
-        const currentIndex = chapters.findIndex((ch) => ch.id === currentChapterId)
-
-        // Determine previous and next chapters
-        const previousChapter = currentIndex > 0 ? chapters[currentIndex - 1] : null
-        const nextChapter = currentIndex < chapters.length - 1 ? chapters[currentIndex + 1] : null
-
-        setData((prev) => ({
-          ...prev,
-          chapters,
-          chaptersLoading: false,
-          previousChapter,
-          nextChapter
-        }))
-      } catch (error) {
-        rendererLog.error('[useChapterData] Failed to load chapter list:', error)
-        setData((prev) => ({ ...prev, chaptersLoading: false }))
-      }
-    },
-    [data.chapters]
-  )
+    return {
+      previousChapter: currentIndex > 0 ? data.chapters[currentIndex - 1] : null,
+      nextChapter: currentIndex < data.chapters.length - 1 ? data.chapters[currentIndex + 1] : null
+    }
+  }, [data.chapters, chapterId])
 
   /**
    * Update image loading state for a specific page
@@ -282,17 +228,57 @@ export function useChapterData(
     }
   }, [chapterId, locationKey, locationState])
 
-  // Load chapter images and list when chapterId changes
+  // Load chapter images when the chapter changes
   useEffect(() => {
     if (chapterId && mangaId) {
-      loadChapterImages(chapterId).then(() => {
-        loadChapterList(mangaId, chapterId)
-      })
+      void loadChapterImages(chapterId)
     }
-  }, [chapterId, mangaId, loadChapterImages, loadChapterList])
+  }, [chapterId, mangaId, loadChapterImages])
+
+  // Fetch the chapter list when navigation state didn't supply one (e.g. from History or Downloads).
+  // Keyed on hasChapters rather than the list itself so an empty result cannot retrigger the fetch.
+  useEffect(() => {
+    if (!chapterId || !mangaId || hasChapters) return
+
+    let cancelled = false
+
+    const loadFallbackChapterList = async (): Promise<void> => {
+      setData((prev) => ({ ...prev, chaptersLoading: true }))
+
+      try {
+        // Check if online before fetching chapter list
+        if (!useConnectivityStore.getState().isOnline) return
+
+        const chaptersResponse = await globalThis.mangadex.getMangaFeed(mangaId, {
+          limit: 500,
+          offset: 0,
+          translatedLanguage: ['en'], // Fallback to English
+          order: { chapter: OrderDirection.Asc },
+          includes: [ChapterIncludes.SCANLATION_GROUP]
+        })
+
+        if (cancelled || !chaptersResponse.success || !chaptersResponse.data) return
+
+        const chapters = chaptersResponse.data.data
+        setData((prev) => ({ ...prev, chapters }))
+      } catch (error) {
+        rendererLog.error('[useChapterData] Failed to load chapter list:', error)
+      } finally {
+        setData((prev) => ({ ...prev, chaptersLoading: false }))
+      }
+    }
+
+    void loadFallbackChapterList()
+
+    return () => {
+      cancelled = true
+    }
+  }, [chapterId, mangaId, hasChapters])
 
   return {
     ...data,
+    previousChapter,
+    nextChapter,
     loadChapterImages,
     setImageLoadingState,
     setCurrentPage

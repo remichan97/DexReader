@@ -62,6 +62,21 @@ describe('MangaDexClient.reportAtHomeNetworkStatus', () => {
     })
   })
 
+  it('attaches a timeout signal so a stalled report endpoint cannot hang forever', async () => {
+    fetchSpy.mockResolvedValue(new Response(null, { status: 200 }))
+
+    await client.reportAtHomeNetworkStatus(
+      'https://node.mangadex.network/data/hash/page1.png',
+      true,
+      false,
+      123,
+      456
+    )
+
+    const [, init] = fetchSpy.mock.calls[0]
+    expect(init.signal).toBeInstanceOf(AbortSignal)
+  })
+
   it('does not throw when the report request itself rejects (e.g. connection failure)', async () => {
     fetchSpy.mockRejectedValue(new Error('net::ERR_CONNECTION_REFUSED'))
 

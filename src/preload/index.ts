@@ -16,6 +16,7 @@ import { DeleteChapterCommand } from '@shared/commands/services/delete-chapter.c
 import { CreateSearchPresetCommand } from '@shared/commands/services/create-search-preset.command'
 import type { ChapterDownloadsEvent } from '@shared/events/chapter-downloads.event'
 import { SnapshotTrigger } from '@shared/enums/services/snapshot-trigger.enum'
+import { GetActiveDatesCommand } from '@shared/commands/repositories/history/get-active-dates.command'
 
 // Export enums for renderer
 export { DownloadConfirmation } from '@shared/enums/settings/download-confirmation.enum'
@@ -255,9 +256,7 @@ const storage = {
   statsMangaTable: () => ipcRenderer.invoke('storage:get-stats'),
   clearMangaCache: (immediate: boolean) =>
     ipcRenderer.invoke('storage:clear-manga-cache', immediate),
-  optimiseMangaCache: () => ipcRenderer.invoke('storage:optimise-manga-cache'),
-  setCoverCacheLimit: (limitInMB: number) =>
-    ipcRenderer.invoke('storage:set-cover-cache-limit', limitInMB)
+  optimiseMangaCache: () => ipcRenderer.invoke('storage:optimise-manga-cache')
 }
 
 const collections = {
@@ -288,13 +287,14 @@ const settings = {
   load: () => ipcRenderer.invoke('settings:load'),
   getSettingByPath: (section: string, settingsPath?: string) =>
     ipcRenderer.invoke('settings:get', section, settingsPath),
-  saveAll: (settings: unknown) => ipcRenderer.invoke('settings:save-all', settings),
   openFile: () => ipcRenderer.invoke('settings:open-settings-file'),
   resetToDefaults: () => ipcRenderer.invoke('settings:reset-to-defaults'),
   clearAllData: () => ipcRenderer.invoke('settings:clear-all'),
   openSystemDateSettings: () => ipcRenderer.invoke('settings:open-system-date-settings'),
   openSystemProxySettings: () => ipcRenderer.invoke('settings:open-system-proxy-settings'),
   getMemoryTierInfo: () => ipcRenderer.invoke('settings:get-memory-tier-info'),
+  updateSection: (section: unknown, value: unknown) =>
+    ipcRenderer.invoke('settings:update-section', section, value),
   restart: () => ipcRenderer.invoke('app:restart')
 }
 
@@ -343,13 +343,15 @@ const appUpdate = {
   onUpdateAvailable: (
     callback: (info: { version: string; releaseDate?: string; releaseNotes?: string }) => void
   ) => {
-    ipcRenderer.on('app-update:update-available', (_, info) => callback(info))
-    return () => ipcRenderer.removeListener('app-update:update-available', () => {})
+    const listener = (_: unknown, info: { version: string }): void => callback(info)
+    ipcRenderer.on('app-update:update-available', listener)
+    return () => ipcRenderer.removeListener('app-update:update-available', listener)
   },
 
   onUpdateNotAvailable: (callback: (info: { version: string }) => void) => {
-    ipcRenderer.on('app-update:update-not-available', (_, info) => callback(info))
-    return () => ipcRenderer.removeListener('app-update:update-not-available', () => {})
+    const listener = (_: unknown, info: { version: string }): void => callback(info)
+    ipcRenderer.on('app-update:update-not-available', listener)
+    return () => ipcRenderer.removeListener('app-update:update-not-available', listener)
   },
   onUpdateDownloading: (callback: () => void) => {
     ipcRenderer.on('app-update:update-downloading', callback)
@@ -363,18 +365,25 @@ const appUpdate = {
       bytesPerSecond: number
     }) => void
   ) => {
-    ipcRenderer.on('app-update:update-download-progress', (_, progress) => callback(progress))
-    return () => ipcRenderer.removeListener('app-update:update-download-progress', () => {})
+    const listener = (
+      _: unknown,
+      progress: { percent: number; transferred: number; total: number; bytesPerSecond: number }
+    ): void => callback(progress)
+    ipcRenderer.on('app-update:update-download-progress', listener)
+    return () => ipcRenderer.removeListener('app-update:update-download-progress', listener)
   },
   onUpdateDownloaded: (
     callback: (info: { version: string; releaseDate?: string; releaseNotes?: string }) => void
   ) => {
-    ipcRenderer.on('app-update:update-downloaded', (_, info) => callback(info))
-    return () => ipcRenderer.removeListener('app-update:update-downloaded', () => {})
+    const listener = (_: unknown, info: { version: string }): void => callback(info)
+    ipcRenderer.on('app-update:update-downloaded', listener)
+    return () => ipcRenderer.removeListener('app-update:update-downloaded', listener)
   },
   onUpdateError: (callback: (error: { message: string; userMessage: string }) => void) => {
-    ipcRenderer.on('app-update:update-error', (_, error) => callback(error))
-    return () => ipcRenderer.removeListener('app-update:update-error', () => {})
+    const listener = (_: unknown, error: { message: string; userMessage: string }): void =>
+      callback(error)
+    ipcRenderer.on('app-update:update-error', listener)
+    return () => ipcRenderer.removeListener('app-update:update-error', listener)
   }
 }
 
@@ -414,6 +423,13 @@ const snapshots = {
   restoreSnapshot: (snapshotName: string) => ipcRenderer.invoke('snapshot:restore', snapshotName)
 }
 
+const readHistory = {
+  getActiveDates: (command: GetActiveDatesCommand) =>
+    ipcRenderer.invoke('history:get-active-dates', command),
+  getEventsByDate: (date: string) => ipcRenderer.invoke('history:get-events-by-date', date),
+  getRecentEvents: (limit: number) => ipcRenderer.invoke('history:get-recent-events', limit)
+}
+
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
@@ -437,6 +453,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('searchPresets', searchPresets)
     contextBridge.exposeInMainWorld('gatekeeper', gatekeeper)
     contextBridge.exposeInMainWorld('snapshots', snapshots)
+    contextBridge.exposeInMainWorld('readHistory', readHistory)
   } catch (error) {
     console.error(error)
   }
@@ -459,4 +476,5 @@ if (process.contextIsolated) {
   globalThis.searchPresets = searchPresets
   globalThis.gatekeeper = gatekeeper
   globalThis.snapshots = snapshots
+  globalThis.readHistory = readHistory
 }

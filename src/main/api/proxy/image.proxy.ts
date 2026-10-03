@@ -1,5 +1,4 @@
 import { net, protocol } from 'electron'
-import { ApiConfig } from '../constants/api-config.constant'
 import { diskCacheUtil } from '../utils/disk-cache.util'
 import { LRUMemoryCache } from '../utils/lru-memory-cache.util'
 import { memoryCacheUtil } from '../utils/memory-cache.util'
@@ -21,6 +20,9 @@ export class ImageProxy {
   private readonly MAX_COVER_CACHE = 20 * 1024 * 1024 // 20 MB
   private readonly CACHE_TTL = 15 * 60 * 1000 // 15 minutes
   private readonly CLEANUP_INTERVAL = 5 * 60 * 1000 // Run cleanup every 5 minutes
+  private readonly MAX_PENDING_REPORTS = 100 // Cap on in-flight @Home network reports
+
+  private pendingReports = 0
 
   private cleanupTimer?: NodeJS.Timeout
   private isInitialized = false
@@ -109,7 +111,13 @@ export class ImageProxy {
       } else {
         // Valid cache hit - LRU update is handled automatically by the cache
         const cachedBuffer = Buffer.from(cached.buffer)
-        return new Response(cachedBuffer.buffer, {
+        // Pass the Buffer itself (a Uint8Array, a valid BodyInit at runtime) rather
+        // than its underlying .buffer - small/medium buffers are allocated from
+        // Node's shared pool, so .buffer can be a much larger ArrayBuffer than the
+        // actual data, appending unrelated trailing bytes onto the response. The cast
+        // is only needed because TS's DOM lib doesn't structurally accept Node's
+        // Buffer<ArrayBufferLike> as a BodyInit.
+        return new Response(cachedBuffer as unknown as BodyInit, {
           headers: { 'Content-Type': this.getContentType(url), 'Cache-Control': 'no-store' }
         })
       }
@@ -127,7 +135,8 @@ export class ImageProxy {
           size: diskCachedBuffer.length,
           lastAccessed: now
         })
-        return new Response(diskCachedBuffer.buffer as ArrayBuffer, {
+        // Pass the Buffer itself, not .buffer - see the in-memory cache-hit branch above
+        return new Response(diskCachedBuffer as unknown as BodyInit, {
           headers: { 'Content-Type': this.getContentType(url), 'Cache-Control': 'no-store' }
         })
       }
@@ -149,7 +158,7 @@ export class ImageProxy {
    * Fetch an image from the network, cache it on success, and - for chapter images
    * fetched from an at-home node only - report the outcome to MangaDex@Home. Covers
    * (uploads.mangadex.org) aren't part of the @Home network, so they're never reported.
-   * Reporting never affects the Response returned here.
+   * Reporting runs in the background and never delays or affects the Response returned here.
    */
   private async fetchAndCacheImage(url: string, isCover: boolean): Promise<Response> {
     const startTime = Date.now()
@@ -157,12 +166,12 @@ export class ImageProxy {
     let response: Response
     try {
       response = await net.fetch(url, {
-        headers: { 'User-Agent': ApiConfig.REQUEST_USER_AGENT }
+        headers: { 'User-Agent': this.mangaDexClient.userAgent }
       })
     } catch (error) {
       mainLog.error('[ImageProxy] Failed to reach network for image:', url, error)
       if (!isCover) {
-        await this.reportNetworkStatus(url, false, false, Date.now() - startTime, 0)
+        this.reportNetworkStatus(url, false, false, Date.now() - startTime, 0)
       }
       return new Response('Failed to fetch image', { status: 502 })
     }
@@ -174,7 +183,7 @@ export class ImageProxy {
     const success = response.ok && body !== undefined
 
     if (!isCover) {
-      await this.reportNetworkStatus(url, success, isCached, durationMs, bytes)
+      this.reportNetworkStatus(url, success, isCached, durationMs, bytes)
     }
 
     if (!success || body === undefined) {
@@ -215,21 +224,33 @@ export class ImageProxy {
   }
 
   /**
-   * Report a network outcome to MangaDex@Home. Telemetry must never fail the image
-   * response it's describing, so a reporting failure is logged and swallowed here too.
+   * Report a network outcome to MangaDex@Home without making the caller wait for it.
+   * The report endpoint is rate limited (20/min) and can be slow or unreachable, so awaiting
+   * it would hold every image back behind telemetry. Failures are logged and swallowed, and
+   * the number of in-flight reports is capped so a slow endpoint can't build up an unbounded
+   * backlog during a long reading session - excess reports are dropped.
    */
-  private async reportNetworkStatus(
+  private reportNetworkStatus(
     url: string,
     success: boolean,
     isCached: boolean,
     durationMs: number,
     bytes: number
-  ): Promise<void> {
-    try {
-      await this.mangaDexClient.reportAtHomeNetworkStatus(url, success, isCached, durationMs, bytes)
-    } catch (error) {
-      mainLog.error('[ImageProxy] Failed to report network status:', url, error)
+  ): void {
+    if (this.pendingReports >= this.MAX_PENDING_REPORTS) {
+      mainLog.warn('[ImageProxy] Dropped network report, too many pending:', url)
+      return
     }
+
+    this.pendingReports++
+    this.mangaDexClient
+      .reportAtHomeNetworkStatus(url, success, isCached, durationMs, bytes)
+      .catch((error: unknown) => {
+        mainLog.error('[ImageProxy] Failed to report network status:', url, error)
+      })
+      .finally(() => {
+        this.pendingReports--
+      })
   }
 
   /**

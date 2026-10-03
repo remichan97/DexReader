@@ -1,3 +1,4 @@
+import { SystemSettings } from './../../../shared/types/settings/system-settings.type'
 import os from 'node:os'
 import { assertNonNullObject } from '@shared/utils/assert-non-null-object.util'
 import { ChapterCacheTier } from '../../../shared/enums/settings/chapter-cache-tier.enum'
@@ -57,6 +58,10 @@ export function validateSettings(newSettings: unknown): newSettings is AppSettin
 
   if (!isSearchSettings(settings.search)) {
     throw new TypeError('Invalid search settings')
+  }
+
+  if (!isSystemSettings(settings.system)) {
+    throw new TypeError('Invalid system settings')
   }
 
   return true
@@ -309,6 +314,18 @@ export function isSearchSettings(values: unknown): values is SearchSettings {
     typeof searchSettings.defaultPresetId !== 'number'
   ) {
     throw new TypeError('Refused to save search settings: defaultPresetId is not a number')
+  }
+
+  return true
+}
+
+export function isSystemSettings(values: unknown): values is SystemSettings {
+  assertNonNullObject<SystemSettings>(values, 'Refused to save system settings: not an object')
+
+  const systemSettings = values
+
+  if (typeof systemSettings.useHardwareAcceleration !== 'boolean') {
+    throw new TypeError('Refused to save system settings: useHardwareAcceleration is not a boolean')
   }
 
   return true

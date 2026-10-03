@@ -1,7 +1,7 @@
 # DexReader Active Context
 
-**Last Updated**: 6 September 2026
-**Version**: v1.13.1 (release prepared, not yet merged/tagged) — was v1.13.0
+**Last Updated**: 3 October 2026
+**Version**: v1.15.0 (release prepared on `feat/settings-autosave`, not yet merged/tagged) — was v1.14.0
 **Mode**: Active Development
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next. Keep all entries as short, concise as possible
@@ -10,18 +10,22 @@
 
 ## Current Status
 
-**v1.13.0 shipped** — the full-codebase refactor plan (shared DTO/contract layer, preload contract migration, MangaDex DTO mapping, main-process integrity fixes, renderer god-component decomposition, cleanup/polish) merged to `main` and released. No full manual click-through regression pass was run across the whole refactor, only spot-checks per phase — worth keeping an eye out for stray regressions.
+**v1.14.0 shipped** (8 September 2026) — Database Snapshot & Restore ("Restore Points") feature, settings-merge and localisation fixes, ~700 unused translation keys pruned, dead `readHistory` subsystem removed.
 
-**Release v1.13.1 prepared, not yet shipped**: react-router v6 → v7 migration (see Recent Changes below) on `fix/react-router-dom-vuln`, version bumped (`package.json`/`package-lock.json`), `CHANGELOG.md` updated. Awaiting: PR opened against `main`, merged, and the `chore: v1.13.1 release`-style tip commit landing on `main` so `ci.yaml`'s `create-release-tag` job fires. This release is a single-purpose security patch — keep the PR scoped to the router fix and its supporting test/docs commits, not bundled with unrelated feature work.
+**v1.15.0 prepared, not yet shipped**: on `feat/settings-autosave`. Bundles two feature branches of work plus a large test-coverage effort that accumulated on this branch:
 
-**Database Snapshot & Restore feature, functionally complete, not yet merged**: on `feat/database-snapshots`, rescoped mid-implementation (see `claude-plans/db-snapshot-restore-plan.md` for the full rationale) from an earlier "arbitrary file in/out" design to opaque, internally-managed checkpoints only — closes a path-traversal gap the original design had (`restoreSnapshot` accepted any filesystem path). Settings plumbing, the `database-snapshot.service.ts` engine (create/list/delete/restore, check-on-startup trigger, N-snapshot retention), IPC handlers, preload wiring, and the full Settings → Restore Points UI (enable toggle, interval/max-count spinners, snapshot list with auto/manual badges, Create Now / Restore / Delete with native confirm dialogs) are all in place. User has completed a manual testing pass. A unit test suite for the service's pure logic (`database-snapshot.service.test.ts`, 30 tests: filename parsing, retention-cap pruning, the startup due-check, and unsafe-filename rejection on delete/restore) was added 6 September 2026 — full main-process suite (76 tests) passes. Remaining before merge: a project-wide `typecheck`/`lint` pass and opening the PR against `main`.
+- Settings page converted to autosave (immediate-apply) — see Recent Changes
+- Read History feature: chronological day-grouped feed + calendar, replacing the old deduplicated "Continue Reading" list (unrelated to the `readHistory` subsystem removed in 1.14.0 — this is a new `read_history` table)
+- A substantial unit test suite added across main process, preload, Zustand stores, and renderer hooks (0 → 1412 tests), with per-area coverage thresholds now enforced in `vitest.config.ts`. 7 real bugs were found and fixed while writing it (see Recent Changes) — none were previously reported, all caught by the tests themselves.
+
+Version bumped (`package.json`/`package-lock.json` → 1.15.0), `CHANGELOG.md` updated, stale `docs/api-reference.md` entries fixed (removed buffered-save-era `setHasUnsavedChanges`/`clearReadingHistory` docs for APIs that no longer exist, documented the real `window.readHistory.*` surface), `CLAUDE.md`'s "no unit tests" claim corrected. Awaiting: PR opened against `main`, merged, and the `chore: v1.15.0 release`-style tip commit landing on `main` so `release.yaml`'s tag-triggered workflow fires.
 
 **Next Planned Work:**
 
-- Once v1.13.1 ships: confirm the Dependabot Security-tab alert for react-router auto-closes
-- Run `npm run typecheck` and `npm run lint` on `feat/database-snapshots`, then open its PR against `main`
-- Continue building out real unit test coverage beyond the now ~10 files that exist today — was explicitly deferred out of v1.13.0 as ongoing/opportunistic backlog, not a blocker
-- Plan next feature development cycle (candidate: the Settings page immediate-apply migration, planned but not started — see `claude-plans/settings-immediate-save-migration-plan.md`)
+- Open the PR for `feat/settings-autosave` against `main`, merge, tag `v1.15.0`
+- Settings immediate-apply migration and the Read History feature (`claude-plans/history-calendar-plan.md`) are both now DONE, shipped as part of this release
+- Renderer views/components remain intentionally without unit tests (see `tech-context.md` Testing section) — if coverage there is ever wanted, prefer E2E (Playwright against the Electron app) over unit tests, per the cost/benefit discussion that closed out this round's test-coverage effort
+- Plan next feature development cycle
 
 ---
 
@@ -40,34 +44,19 @@
 
 ## Recent Changes (Last 1-2 Weeks)
 
-### 5-6 September 2026 - Database Snapshot & Restore feature 🔄
+### 30 September – 3 October 2026 - Test-coverage effort + 7 bug fixes ✅
+
+- **Type**: Testing + bugfixes
+- **Summary**: Systematically filled unit-test gaps across the whole main process, the preload bridge, all 10 Zustand stores, the backup/restore services (DexReader + Mihon/Tachiyomi), the image/disk caching layer, and the renderer hooks directory — 0 to 1412 tests. Added vitest coverage reporting with per-area thresholds (`src/main`, `src/preload`, `src/shared`, `src/renderer/src/stores`); the renderer views/components tier was deliberately left out of both testing and the coverage gate (large surface, low value per file, better suited to E2E). Writing the tests surfaced 7 real, previously-unreported bugs, each fixed in its own commit before the accompanying test commit: (1) image proxy served responses built from `buffer.buffer` instead of the `Buffer` itself — small/medium buffers are allocated from Node's shared pool, so this appended up to ~64KB of garbage onto real image bytes; (2) `progressStore.deleteProgress` read its rollback value from the already-mutated map, making the optimistic-delete rollback a silent no-op; (3) Mihon/Tachiyomi backup export always lowercased genre tags due to a dead-code overwrite in a tag-name map; (4) Mihon backup import's cancellation was defeated by reading the abort signal through a mutable field after two `await`s, so a second import never actually stopped a stale first one; (5)-(7) three separate instances of the same missing-`useEffect`-cleanup bug (`appUpdate` listeners, `useGatekeeperGuard`'s menu-navigation listener, `useAccentColor`'s system-color-change listener), all double-registering under StrictMode's dev-mode double-invoke. Also removed `useNavigationListener.ts`, a dead hook with the same leak bug and zero callers.
+- **Status**: ✅ Complete, on `feat/settings-autosave`, shipping in v1.15.0
+
+### 15-19 September 2026 - Settings autosave + Read History feature ✅
 
 - **Type**: Feature
-- **Summary**: "Time machine" for `dexreader.db` — periodic snapshots taken while the app is running (check-on-startup trigger, since there's no background/tray process to schedule against), a manual "Create Now" action, and a restore flow that swaps the DB file and relaunches. Rescoped mid-implementation to close a security gap in the first pass: `restoreSnapshot` originally accepted an arbitrary filesystem path over IPC with no validation; the feature now only ever addresses a snapshot by filename drawn from `listSnapshots()`, resolved solely inside the managed `~/.dexreader/snapshots/` folder, with a `path.basename` equality check rejecting traversal/absolute-path input before it ever reaches the filesystem. Also fixed along the way: a dead branch in the original `createSnapshot` that silently wrote a directory path instead of a file path, and inconsistent filename shapes between auto/manual snapshots that broke naive positional parsing (now a single regex, `dexreader-(\d+)_(manual|auto)\.db`, handles both).
-- **Key Changes**: `database-snapshot.service.ts` (create/list/delete/restore/prune/due-check engine), `database-snapshots.handler.ts` + preload `window.snapshots.*`, new `snapshot` settings section (`isEnabled`, `intervalInHours` 1–6, `maxSnapshotsCount` 1–5), Settings → Restore Points UI, and a 30-test unit suite covering the service's filename parsing, retention pruning, startup due-check, and unsafe-filename rejection.
-- **Impact**: Recovery path for accidental data loss (bad import, "Clear All Data" misclick, silent corruption) that the existing DB crash-recovery fallback can't address, since that one only triggers on a hard _open_ failure.
-- **Status**: 🔄 Functionally complete + manually tested + unit tested on `feat/database-snapshots`, not yet merged — see Current Status above for what's left
+- **Summary**: Converted the Settings page from buffered save/discard to per-field autosave across all six domains, via a new `settings:update-section` IPC channel (discrete controls write immediately, continuous inputs like accent colour debounce). Removed the dead buffered-save shell (`UnsavedChangesContext`, `useNavigationBlocker`, `settings:save-all`'s renderer-facing wrapper, per-domain `isDirty` plumbing) and repurposed the old unsaved-changes banner into a `RestartRequiredBanner` for the two settings that still need a restart. Separately, redesigned the `read_history` table and rebuilt the History page around it: a chronological, day-grouped event feed (not deduplicated by manga, unlike the old list) with a popover calendar to filter by day. Also fixed the MangaDex@Home User-Agent (was a frozen `1.0.0` literal) and added a proper MangaDex attribution/non-affiliation disclaimer to the About dialog.
+- **Status**: ✅ Complete, on `feat/settings-autosave`, shipping in v1.15.0
 
-### 4 September 2026 - react-router v6 → v7 migration ✅
-
-- **Type**: Security fix
-- **Summary**: Resolved the Dependabot alert for CVE-2026-53669 / GHSA-wrjc-x8rr-h8h6 (backslash-based open-redirect in declarative-mode `useNavigate`/`<Link>`, no 6.x backport) by bumping `react-router-dom` from `^6.30.4` to `^7.18.3` and removing the stale `@types/react-router-dom` devDependency. Codebase audit beforehand confirmed no data-router APIs, nested splat routes, relative `navigate()` paths, or `React.lazy` routes were in use, so the migration was a straight version bump plus manual regression pass — no call-site changes needed. Added `src/renderer/src/router.test.tsx`, a Vitest smoke test asserting all 9 routes plus the 404 catch-all resolve to the expected view.
-- **Status**: 🔄 Complete, on `fix/react-router-dom-vuln`, shipping as v1.13.1, awaiting PR merge to `main`
-
-### 2 September 2026 - v1.13.0 release prepared ✅
-
-- **Type**: Release prep
-- **Summary**: Closed out the full-codebase refactor plan (Phases 7–8) and prepared the release: version bump to 1.13.0 (minor — the DB crash-recovery flow from Phase 5 is a genuine new capability, not just internal cleanup), `CHANGELOG.md` entry covering all user/security-facing changes since v1.12.1, stale `secureFs.ts`/`pathValidator.ts`/`index.d.ts`/`filesystemHandlers.ts` file-path references fixed in `docs/architecture/`, and CI/PR checks wired to actually run the unit test suite before build/tag creation.
-- **Status**: ✅ Shipped
-
-### 25 July – 2 September 2026 - Full-codebase refactor plan, Phases 2–8 ✅
-
-- **Type**: Refactor, shipping as part of v1.13.0
-- **Summary**: `src/shared/` package (contracts/DTOs/commands/enums shared between main and renderer); preload contract surface and MangaDex API entities migrated onto renderer-safe DTOs; main-process integrity fixes (transactional imports, typed settings getters, cache-age SQL bug, `chapter_downloads` uniqueness, DB-init crash recovery); renderer god-component decomposition (`SettingsView`, `MangaDetailView`, `App.tsx`, `MangaHeroSection`, `BrowseView`, `DownloadQueueService`, IPC handler file splits, narrow Zustand selectors); medium-priority cleanup sweep (CSP tightening, `assertNonNullObject<T>()`, re-enabled `no-non-null-assertion`, closed a `globalThis.*` typing gap that surfaced 112 latent type errors and 2 live bugs); low-priority polish (redundant DB indexes, computed-wait rate limiter, i18n'd dialog strings, scrubbed file paths from error messages, dead-code removal).
-- **Full detail**: `claude-plans/full-codebase-refactor-plan.md` (all 8 phases marked ✅ COMPLETE with commit lists)
-- **Status**: ✅ Complete, shipping in v1.13.0
-
-<!-- Older entries (Phase-by-phase breakdown, v1.12.1 release) pruned per the 2-3 week retention rule — see claude-plans/full-codebase-refactor-plan.md and CHANGELOG.md for full history. -->
+<!-- Older entries (v1.13.0/v1.13.1 release prep, DB Snapshot & Restore feature build-out, react-router v6→v7 migration, full-codebase refactor phases 2-8) pruned per the 2-3 week retention rule - all shipped in v1.13.0/v1.13.1/v1.14.0. See CHANGELOG.md for full history. -->
 
 <!-- Template for future entries:
 ### [Date] - [Title]

@@ -67,6 +67,8 @@ import { DownloadStatContract } from '@shared/contracts/services/dexreader/downl
 import { StorageDataContract } from '@shared/contracts/storage/storage-data.contract'
 import { SnapshotTrigger } from '@shared/enums/services/snapshot-trigger.enum'
 import { SnapshotItemContract } from '@shared/contracts/services/download-snapshots/snapshot-item.contract'
+import { HistoryEventMetadataContract } from '@shared/contracts/database/history/history-event-metadata.contract'
+import { GetActiveDatesCommand } from '@shared/commands/repositories/history/get-active-dates.command'
 
 // Re-export types for renderer use
 export type { IpcResponse } from './ipc.types'
@@ -270,13 +272,11 @@ interface Storage {
   statsMangaTable: () => Promise<IpcResponse<MangaCacheStatsContract>>
   clearMangaCache: (immediate: boolean) => Promise<IpcResponse<number>>
   optimiseMangaCache: () => Promise<IpcResponse<number>>
-  setCoverCacheLimit: (limitInMB: number) => Promise<IpcResponse<void>>
 }
 
 interface Settings {
   load: () => Promise<IpcResponse<AppSettings>>
   getSettingByPath: (section: string, settingsPath?: string) => Promise<IpcResponse<unknown>>
-  saveAll: (settings: AppSettings) => Promise<IpcResponse<boolean>>
   openFile: () => Promise<IpcResponse<boolean>>
   resetToDefaults: () => Promise<IpcResponse<boolean>>
   clearAllData: () => Promise<IpcResponse<boolean>>
@@ -284,6 +284,7 @@ interface Settings {
   openSystemProxySettings: () => Promise<IpcResponse<boolean>>
   getMemoryTierInfo: () => Promise<IpcResponse<MemoryTierContract>>
   restart: () => Promise<IpcResponse<void>>
+  updateSection: (section: unknown, value: unknown) => Promise<IpcResponse<void>>
 }
 
 interface DexReader {
@@ -376,6 +377,12 @@ interface Snapshots {
   restoreSnapshot: (snapshotName: string) => Promise<IpcResponse<void>>
 }
 
+interface ReadHistory {
+  getActiveDates: (command: GetActiveDatesCommand) => Promise<IpcResponse<string[]>>
+  getEventsByDate: (date: string) => Promise<IpcResponse<HistoryEventMetadataContract[]>>
+  getRecentEvents: (limit: number) => Promise<IpcResponse<HistoryEventMetadataContract[]>>
+}
+
 declare global {
   interface Window {
     electron: ElectronAPI
@@ -396,6 +403,7 @@ declare global {
     searchPresets: SearchPresets
     gatekeeper: Gatekeeper
     snapshots: Snapshots
+    readHistory: ReadHistory
   }
 
   // `Window` augmentation above only types `window.<api>` - DOM lib types `window` as
@@ -422,4 +430,5 @@ declare global {
   var searchPresets: SearchPresets
   var gatekeeper: Gatekeeper
   var snapshots: Snapshots
+  var readHistory: ReadHistory
 }

@@ -5,6 +5,8 @@ import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { secureFs } from './filesystem/secure-fs'
 import { getAppDataPath, getDownloadsPath } from './filesystem/path-validator'
 import { ImageProxy } from './api/proxy/image.proxy'
+import { MangaDexClient } from './api/mangadex-client'
+import { buildUserAgent } from './api/utils/user-agent.util'
 import { createWindow, getMainWindow } from './window'
 import { setupAppLifecycle } from './app-lifecycle'
 import { registerAllHandlers } from './ipc/registry'
@@ -18,8 +20,9 @@ import { mainLog } from './services/logging/main-logging.service'
 import i18next from './i18n/i18n.config'
 import { settingsManager } from './settings/settings-manager'
 import { databaseSnapshotService } from './services/database-snapshot.service'
+import { historyRepo } from './database/repositories/history.repo'
 
-const imageProxy = new ImageProxy()
+const imageProxy = new ImageProxy(new MangaDexClient(undefined, buildUserAgent()))
 const localImageProxy = new LocalImageProxy()
 const isHardwareAccelerationEnabled = settingsManager.getByPath('system', 'useHardwareAcceleration')
 
@@ -108,6 +111,18 @@ app.whenReady().then(async () => {
     return
   }
   mainLog.info('[Main] Database migrations complete')
+
+  mainLog.info('[Main] Migrating history from manga progress...')
+  try {
+    const migrated = historyRepo.migrateHistoryFromMangaProgress()
+    if (migrated) {
+      mainLog.info('[Main] History migration from manga progress completed successfully')
+    } else {
+      mainLog.info('[Main] No history records to migrate from manga progress')
+    }
+  } catch (error) {
+    mainLog.error('[Main] History migration from manga progress failed:', error)
+  }
 
   mainLog.info('[Main] Registering protocol handlers...')
   await imageProxy.registerProtocol()

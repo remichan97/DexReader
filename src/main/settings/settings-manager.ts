@@ -21,6 +21,7 @@ import Store from 'electron-store'
 import { SidebarSize } from '../../shared/enums/settings/sidebar-size.enum'
 import { MemoryTierContract } from '@shared/contracts/settings/memory-tier.contract'
 import { PathValue } from '@shared/types/settings/path-value.type'
+import { DownloadSettings } from '../../shared/types/settings/downloads-settings.type'
 
 class SettingsManager {
   private settingsStore!: Store<AppSettings>
@@ -104,6 +105,29 @@ class SettingsManager {
     mainLog.info(`[SettingsManager] Setting '${section}' updated successfully`)
   }
 
+  /**
+   * Validated entry point for the settings:update-section IPC channel. Like update(),
+   * but additionally re-validates the downloads path (system-directory blocklist,
+   * existence) when writing the `downloads` section - that section can arrive from a
+   * user-navigable native folder dialog, same as settings:save-all's untrusted input,
+   * so it needs the same protection even though this channel writes one section at a
+   * time rather than the whole settings object.
+   *
+   * @throws {Error} - If section is 'downloads' and the downloads path is a system
+   * directory or not accessible
+   */
+  async updateSection<T extends keyof AppSettings>(
+    section: T,
+    value: AppSettings[T]
+  ): Promise<void> {
+    const sanitizedValue =
+      section === 'downloads'
+        ? ((await this.sanitizeDownloadsSection(value as DownloadSettings)) as AppSettings[T])
+        : value
+
+    this.update(section, sanitizedValue)
+  }
+
   save(settings: AppSettings): void {
     this.settingsStore.store = settings
     mainLog.info('[SettingsManager] Settings saved successfully.')
@@ -111,24 +135,35 @@ class SettingsManager {
 
   /**
    * Validate, sanitize, and persist a complete settings object from an untrusted
-   * source (the settings:save-all IPC channel). Unlike save(), this re-validates
-   * the downloads path - including the system-directory blocklist - before anything
-   * is written, so a rejected path fails the whole call instead of being persisted
-   * as-is and only patched over afterwards.
+   * source. Unlike save(), this re-validates the downloads path - including the
+   * system-directory blocklist - before anything is written, so a rejected path fails
+   * the whole call instead of being persisted as-is and only patched over afterwards.
+   * No IPC channel currently calls this (the Settings page now autosaves one section
+   * at a time via updateSection() instead), but it remains as the validated
+   * whole-object write path and is covered by settings-manager.test.ts.
    *
    * @param newSettings - Complete settings object to validate and persist
    * @throws {Error} - If the downloads path is a system directory or not accessible
    */
   async saveAll(newSettings: AppSettings): Promise<void> {
     const settings = { ...newSettings }
+    settings.downloads = await this.sanitizeDownloadsSection(settings.downloads)
+    this.save(settings)
+  }
 
-    if (settings.downloads.downloadPath) {
-      const sanitizedPath = await this.validateDownloadsPath(settings.downloads.downloadPath)
-      settings.downloads = { ...settings.downloads, downloadPath: sanitizedPath }
-      updateDownloadsPath(sanitizedPath)
+  /**
+   * Re-validate a downloads section's downloadPath (if provided) before it's persisted -
+   * shared by saveAll() and updateSection() so both write paths get the same
+   * system-directory blocklist + existence check, not just the whole-object save.
+   */
+  private async sanitizeDownloadsSection(downloads: DownloadSettings): Promise<DownloadSettings> {
+    if (!downloads.downloadPath) {
+      return downloads
     }
 
-    this.save(settings)
+    const sanitizedPath = await this.validateDownloadsPath(downloads.downloadPath)
+    updateDownloadsPath(sanitizedPath)
+    return { ...downloads, downloadPath: sanitizedPath }
   }
 
   reset(): void {

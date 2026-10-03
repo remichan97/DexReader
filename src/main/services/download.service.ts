@@ -2,6 +2,7 @@ import { DeleteChapterCommand } from '@shared/commands/repositories/chapter-down
 import { ChapterDownloadsEvent } from '../../shared/events/chapter-downloads.event'
 import { ImageQuality } from '../api/enums'
 import { MangaDexClient } from '../api/mangadex-client'
+import { buildUserAgent } from '../api/utils/user-agent.util'
 import { MarkDownloadStateCommand } from '@shared/commands/repositories/chapter-downloads/mark-state.command'
 import { DownloadStatus } from '@shared/enums/repositories/download-status.enum'
 import { ChapterWithMetadataContract } from '@shared/contracts/database/manga/chapter-with-metadata.contract'
@@ -33,7 +34,7 @@ interface ChapterImageCache {
 }
 
 class DownloadService {
-  private readonly mangadexClient = new MangaDexClient()
+  private readonly mangadexClient = new MangaDexClient(undefined, buildUserAgent())
 
   // Cache chapter image URLs for 5 minutes to avoid re-fetching on retry attempts
   // Image URLs from MangaDex are valid for 15+ minutes

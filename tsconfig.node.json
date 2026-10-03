@@ -5,6 +5,7 @@
     "vitest.config.ts",
     "vitest/vitest.main.config.ts",
     "vitest/setup.main.ts",
+    "vitest/create-test-db.ts",
     "src/main/**/*",
     "src/preload/**/*",
     "src/locales/**/*",

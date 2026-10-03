@@ -6,7 +6,6 @@ import { createMenu } from './menu/index'
 import { setupThemeDetection } from './theme'
 import { is } from '@electron-toolkit/utils'
 import { mainLog } from './services/logging/main-logging.service'
-import i18next from './i18n/i18n.config'
 
 // ESM: Get __dirname equivalent
 const __filename = fileURLToPath(import.meta.url)
@@ -14,7 +13,6 @@ const __dirname = dirname(__filename)
 
 let mainWindow: BrowserWindow | undefined = undefined
 let isQuitting = false
-let hasUnsavedChanges = false
 
 const menuState = {
   isIncognito: false
@@ -76,37 +74,12 @@ export function createWindow(): void {
     return { action: 'deny' }
   })
 
-  // Handle window close - check for unsaved changes first
-  mainWindow.on('close', async (event) => {
+  // Handle window close - flush pending debounced saves before actually closing
+  mainWindow.on('close', (event) => {
     if (!isQuitting && mainWindow) {
       // Prevent immediate close
       event.preventDefault()
 
-      // If there are unsaved changes, ask user FIRST before starting close flow
-      if (hasUnsavedChanges) {
-        const { dialog } = await import('electron')
-        const result = await dialog.showMessageBox(mainWindow, {
-          type: 'warning',
-          buttons: [
-            i18next.t('dialogs:confirmations.unsavedChanges.windowClose.cancelButton'),
-            i18next.t('dialogs:confirmations.unsavedChanges.windowClose.confirmButton')
-          ],
-          defaultId: 0,
-          cancelId: 0,
-          message: i18next.t('dialogs:confirmations.unsavedChanges.windowClose.title'),
-          detail: i18next.t('dialogs:confirmations.unsavedChanges.windowClose.message'),
-          noLink: true
-        })
-
-        // If user cancels, don't close
-        if (result.response === 0) {
-          mainLog.info('[Window] User cancelled window close (unsaved changes)')
-          return
-        }
-        mainLog.info('[Window] User chose to discard changes and close')
-      }
-
-      // User confirmed or no unsaved changes - proceed with close
       // Request renderer to flush pending saves
       mainLog.debug('[Window] Requesting renderer to flush pending saves')
       mainWindow.webContents.send('flush-pending-saves')
@@ -168,8 +141,4 @@ export function createWindow(): void {
 
 export function getMainWindow(): BrowserWindow | undefined {
   return mainWindow
-}
-
-export function setHasUnsavedChanges(value: boolean): void {
-  hasUnsavedChanges = value
 }

@@ -9,6 +9,7 @@ import { AddToCollectionCommand } from '@shared/commands/repositories/collection
 import { RemoveFromCollectionCommand } from '@shared/commands/repositories/collections/remove-from-collection.command'
 import { SaveProgressCommand } from '@shared/commands/repositories/progress/save-progress.command'
 import { SaveChapterCommand } from '@shared/commands/repositories/progress/save-chapter.command'
+import { GetActiveDatesCommand } from '@shared/commands/repositories/history/get-active-dates.command'
 
 export function isQueuedDownloads(values: unknown): values is QueuedDownloads {
   assertNonNullObject<QueuedDownloads>(values, 'Invalid parameters for queued downloads')
@@ -234,6 +235,22 @@ export function isSaveChapterCommand(values: unknown): values is SaveChapterComm
 
   if (!(command.publishAt instanceof Date)) {
     throw new TypeError('Missing or invalid publishAt for saving chapter')
+  }
+
+  return true
+}
+
+export function isGetActiveDatesCommand(values: unknown): values is GetActiveDatesCommand {
+  assertNonNullObject<GetActiveDatesCommand>(values, 'Invalid parameters for getting active dates')
+
+  const command = values
+
+  if (typeof command.fromDate !== 'string') {
+    throw new TypeError('Missing or invalid fromDate for getting active dates')
+  }
+
+  if (typeof command.toDate !== 'string') {
+    throw new TypeError('Missing or invalid toDate for getting active dates')
   }
 
   return true

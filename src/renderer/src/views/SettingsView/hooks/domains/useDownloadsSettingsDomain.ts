@@ -1,21 +1,11 @@
 import { useCallback, useState } from 'react'
+import { writeSettingsSection } from '@renderer/utils/settingsPendingWrites'
 import type { AppSettings } from '../../../../../../preload/window.types'
-import type { SettingsDomain } from './settingsDomain.types'
 import { DownloadConfirmation } from '@shared/enums/settings/download-confirmation.enum'
 import { ImageQuality } from '@shared/enums/mangadex'
 
 export { DownloadConfirmation }
 export type DownloadQuality = ImageQuality
-
-export interface DownloadsPayload {
-  downloads: {
-    downloadPath?: string
-    shouldConfirmDownload: DownloadConfirmation
-    defaultQuality: DownloadQuality
-    maxConcurrentDownloads: number
-    maxDiskCacheSize: number
-  }
-}
 
 interface ToastOptions {
   variant: 'error' | 'success' | 'info'
@@ -24,11 +14,10 @@ interface ToastOptions {
 }
 
 interface UseDownloadsSettingsDomainParams {
-  markSettingModified: (key: string) => void
   showToast: (options: ToastOptions) => void
 }
 
-export interface UseDownloadsSettingsDomainResult extends SettingsDomain<DownloadsPayload> {
+export interface UseDownloadsSettingsDomainResult {
   downloadsPath: string
   isLoadingPath: boolean
   isChangingPath: boolean
@@ -50,11 +39,17 @@ export interface UseDownloadsSettingsDomainResult extends SettingsDomain<Downloa
  * Owns the "Downloads" settings domain. `downloadsPath` intentionally tracks the
  * actual filesystem downloads folder (from `fileSystem.getAllowedPaths()`), not
  * `settings.downloads.downloadPath`, which may be unset when the default is in use.
+ *
+ * All five fields share the `downloads` section, so every handler writes it whole
+ * (current values for the other four, the new value for the one that changed). The
+ * main process re-validates downloadPath (system-directory blocklist, existence) on
+ * every write through settings:update-section, not just on the old whole-object save -
+ * see settingsManager.updateSection().
  */
 export function useDownloadsSettingsDomain(
   params: UseDownloadsSettingsDomainParams
 ): UseDownloadsSettingsDomainResult {
-  const { markSettingModified, showToast } = params
+  const { showToast } = params
 
   const [downloadsPath, setDownloadsPath] = useState<string>('')
   const [isLoadingPath, setIsLoadingPath] = useState(true)
@@ -68,34 +63,61 @@ export function useDownloadsSettingsDomain(
 
   const handleDownloadConfirmationChange = useCallback(
     (confirmation: string): void => {
-      setDownloadConfirmation(confirmation as DownloadConfirmation)
-      markSettingModified('downloadConfirmation')
+      const newConfirmation = confirmation as DownloadConfirmation
+      setDownloadConfirmation(newConfirmation)
+      void writeSettingsSection('downloads', {
+        downloadPath: downloadsPath || undefined,
+        shouldConfirmDownload: newConfirmation,
+        defaultQuality,
+        maxConcurrentDownloads,
+        maxDiskCacheSize
+      })
     },
-    [markSettingModified]
+    [downloadsPath, defaultQuality, maxConcurrentDownloads, maxDiskCacheSize]
   )
 
   const handleDefaultQualityChange = useCallback(
     (quality: string): void => {
-      setDefaultQuality(quality as DownloadQuality)
-      markSettingModified('defaultQuality')
+      const newQuality = quality as DownloadQuality
+      setDefaultQuality(newQuality)
+      void writeSettingsSection('downloads', {
+        downloadPath: downloadsPath || undefined,
+        shouldConfirmDownload: downloadConfirmation,
+        defaultQuality: newQuality,
+        maxConcurrentDownloads,
+        maxDiskCacheSize
+      })
     },
-    [markSettingModified]
+    [downloadsPath, downloadConfirmation, maxConcurrentDownloads, maxDiskCacheSize]
   )
 
   const handleMaxConcurrentDownloadsChange = useCallback(
     (count: number): void => {
       setMaxConcurrentDownloads(count)
-      markSettingModified('maxConcurrentDownloads')
+      void writeSettingsSection('downloads', {
+        downloadPath: downloadsPath || undefined,
+        shouldConfirmDownload: downloadConfirmation,
+        defaultQuality,
+        maxConcurrentDownloads: count,
+        maxDiskCacheSize
+      })
     },
-    [markSettingModified]
+    [downloadsPath, downloadConfirmation, defaultQuality, maxDiskCacheSize]
   )
 
   const handleCoverCacheLimitChange = useCallback(
     (limitMB: number): void => {
-      setMaxDiskCacheSize(limitMB === 0 ? 0 : limitMB * 1024 * 1024)
-      markSettingModified('maxDiskCacheSize')
+      const newSize = limitMB === 0 ? 0 : limitMB * 1024 * 1024
+      setMaxDiskCacheSize(newSize)
+      void writeSettingsSection('downloads', {
+        downloadPath: downloadsPath || undefined,
+        shouldConfirmDownload: downloadConfirmation,
+        defaultQuality,
+        maxConcurrentDownloads,
+        maxDiskCacheSize: newSize
+      })
     },
-    [markSettingModified]
+    [downloadsPath, downloadConfirmation, defaultQuality, maxConcurrentDownloads]
   )
 
   const handleSelectDownloadsFolder = useCallback(async (): Promise<void> => {
@@ -109,7 +131,13 @@ export function useDownloadsSettingsDomain(
 
       if (!result.cancelled && result.filePath) {
         setDownloadsPath(result.filePath)
-        markSettingModified('downloadsPath')
+        await writeSettingsSection('downloads', {
+          downloadPath: result.filePath,
+          shouldConfirmDownload: downloadConfirmation,
+          defaultQuality,
+          maxConcurrentDownloads,
+          maxDiskCacheSize
+        })
       }
     } catch (error) {
       showToast({
@@ -120,7 +148,7 @@ export function useDownloadsSettingsDomain(
     } finally {
       setIsChangingPath(false)
     }
-  }, [markSettingModified, showToast])
+  }, [downloadConfirmation, defaultQuality, maxConcurrentDownloads, maxDiskCacheSize, showToast])
 
   const loadFromSettings = useCallback((settings: AppSettings): void => {
     if (settings.downloads.shouldConfirmDownload !== undefined) {
@@ -141,37 +169,6 @@ export function useDownloadsSettingsDomain(
     setIsLoadingPath(false)
   }, [])
 
-  const isDirty = useCallback(
-    (original: AppSettings): boolean =>
-      downloadConfirmation !== original.downloads.shouldConfirmDownload ||
-      defaultQuality !== original.downloads.defaultQuality ||
-      maxConcurrentDownloads !== original.downloads.maxConcurrentDownloads ||
-      maxDiskCacheSize !== original.downloads.maxDiskCacheSize ||
-      downloadsPath !== (original.downloads.downloadPath || ''),
-    [downloadConfirmation, defaultQuality, maxConcurrentDownloads, maxDiskCacheSize, downloadsPath]
-  )
-
-  const buildPayload = useCallback(
-    (): DownloadsPayload => ({
-      downloads: {
-        downloadPath: downloadsPath || undefined,
-        shouldConfirmDownload: downloadConfirmation,
-        defaultQuality,
-        maxConcurrentDownloads,
-        maxDiskCacheSize
-      }
-    }),
-    [downloadsPath, downloadConfirmation, defaultQuality, maxConcurrentDownloads, maxDiskCacheSize]
-  )
-
-  const reset = useCallback((original: AppSettings): void => {
-    setDownloadConfirmation(original.downloads.shouldConfirmDownload)
-    setDefaultQuality(original.downloads.defaultQuality)
-    setMaxConcurrentDownloads(original.downloads.maxConcurrentDownloads)
-    setMaxDiskCacheSize(original.downloads.maxDiskCacheSize)
-    setDownloadsPath(original.downloads.downloadPath || '')
-  }, [])
-
   return {
     downloadsPath,
     isLoadingPath,
@@ -187,9 +184,6 @@ export function useDownloadsSettingsDomain(
     handleMaxConcurrentDownloadsChange,
     handleCoverCacheLimitChange,
     loadFromSettings,
-    finishLoading,
-    isDirty,
-    buildPayload,
-    reset
+    finishLoading
   }
 }

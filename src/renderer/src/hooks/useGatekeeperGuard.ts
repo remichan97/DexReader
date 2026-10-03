@@ -36,7 +36,7 @@ export function useGatekeeperGuard(): UseGatekeeperGuardResult {
 
   // Override the menu's navigation listener with the guarded handler
   useEffect(() => {
-    globalThis.api.onNavigate(handleNavigate)
+    return globalThis.api.onNavigate(handleNavigate)
   }, [handleNavigate])
 
   // Check if Gatekeeper is enabled on mount

@@ -206,22 +206,6 @@ const theme = await window.api.getTheme()
 
 ### Dialogs
 
-#### `window.api.setHasUnsavedChanges(hasChanges: boolean)`
-
-Enables/disables quit confirmation dialog.
-
-**Parameters:**
-
-- `hasChanges` - If `true`, shows "Unsaved changes" dialog on quit
-
-```typescript
-// Enable quit confirmation
-await window.api.setHasUnsavedChanges(true)
-
-// Disable (normal quit)
-await window.api.setHasUnsavedChanges(false)
-```
-
 #### `window.api.showConfirmDialog(options)`
 
 Shows native confirmation dialog (OK/Cancel).
@@ -979,22 +963,28 @@ const result = await window.api.optimiseStorage()
 console.log(`Reclaimed ${result.freedSpace / 1024 / 1024} MB`)
 ```
 
-#### `window.api.setCoverCacheLimit(limit: number)`
+#### `window.settings.updateSection(section: string, value: object)`
 
-Sets cover image cache size limit.
+Updates a single settings section immediately, replacing it entirely (not a merge). This
+is the write path the Settings page uses for autosave - every control writes here the
+instant it changes, instead of a batched whole-object save.
 
 **Parameters:**
 
-- `limit` - Limit in MB (10-500, or 0 for unlimited)
+- `section` - Top-level settings section name (e.g. `'downloads'`, `'reader'`, `'appearance'`)
+- `value` - The section's complete new value, including fields that didn't change
 
-**Throws:** `RangeError` if limit is outside valid range
+**Throws:** `TypeError` if the section is unknown or `value` fails that section's validator
 
 ```typescript
-// Set 200 MB limit
-await window.api.setCoverCacheLimit(200)
-
-// Set unlimited
-await window.api.setCoverCacheLimit(0)
+// Cover cache limit lives under the `downloads` section - include the other fields
+// unchanged, since this replaces the whole section
+await window.settings.updateSection('downloads', {
+  shouldConfirmDownload: 'batch-only',
+  defaultQuality: 'high',
+  maxConcurrentDownloads: 3,
+  maxDiskCacheSize: 200 * 1024 * 1024 // 200 MB, in bytes
+})
 ```
 
 ---
@@ -1480,57 +1470,50 @@ await window.api.removeMangaFromCollection([{ collectionId: 5, mangaId: 'xyz789.
 
 ### Reading History
 
-#### `window.api.getReadingHistory()`
+Backs the History page's chronological, day-grouped event feed and its calendar filter. Each
+read event is a row in the `read_history` table (one per chapter-read, not deduplicated by
+manga), separate from `progress`'s per-manga/per-chapter last-read state.
 
-Gets full reading history.
+#### `window.readHistory.getActiveDates(command)`
 
-**Returns:** `Promise<Array<HistoryEntry>>`
-
-```typescript
-const history = await window.api.getReadingHistory()
-history.forEach((h) => console.log(`${h.mangaTitle} - ${h.lastRead}`))
-```
-
-#### `window.api.getRecentlyRead(limit: number)`
-
-Gets recently read manga.
-
-**Returns:** `Promise<Array<HistoryEntry>>`
-
-```typescript
-const recent = await window.api.getRecentlyRead(10)
-```
-
-#### `window.api.recordRead(command)`
-
-Records chapter read event.
+Gets the set of calendar dates with at least one read event, for highlighting in the calendar.
 
 **Parameters:**
 
 ```typescript
 {
-  mangaId: string
-  chapterId: string
-  lastPage: number
+  fromDate: string // YYYY-MM-DD
+  toDate: string // YYYY-MM-DD
 }
 ```
 
+**Returns:** `Promise<IpcResponse<string[]>>` - matching dates, `YYYY-MM-DD`
+
 ```typescript
-await window.api.recordRead({
-  mangaId: 'xyz789...',
-  chapterId: 'abc123...',
-  lastPage: 15
+const result = await window.readHistory.getActiveDates({
+  fromDate: '2026-09-01',
+  toDate: '2026-09-30'
 })
 ```
 
-#### `window.api.clearReadingHistory()`
+#### `window.readHistory.getEventsByDate(date: string)`
 
-**DESTRUCTIVE:** Deletes all reading history.
+Gets every read event for a single calendar day, for the calendar's day-filtered feed.
 
-**Note:** Reading progress (last read chapter/page) is preserved.
+**Returns:** `Promise<IpcResponse<HistoryEventMetadataContract[]>>`
 
 ```typescript
-await window.api.clearReadingHistory()
+const result = await window.readHistory.getEventsByDate('2026-09-15')
+```
+
+#### `window.readHistory.getRecentEvents(limit: number)`
+
+Gets the most recent read events across all manga, for the feed's default (unfiltered) view.
+
+**Returns:** `Promise<IpcResponse<HistoryEventMetadataContract[]>>`
+
+```typescript
+const result = await window.readHistory.getRecentEvents(50)
 ```
 
 ---
@@ -1835,7 +1818,7 @@ Thrown when numeric parameters are outside valid ranges.
 
 ```typescript
 try {
-  await window.api.setCoverCacheLimit(5000) // Too large
+  await window.searchPresets.create({ ...preset, resultPerPage: 23 }) // Not a multiple of 5
 } catch (error) {
   if (error instanceof RangeError) {
     console.error('Value out of range:', error.message)
@@ -1849,7 +1832,7 @@ Error messages are descriptive and user-friendly:
 
 - `"Invalid file path"` - Path validation failed
 - `"Selected file isn't a valid Tachiyomi/Mihon backup file"` - File extension check failed
-- `"Cover cache limit must be between 10 MB and 500 MB"` - Range validation failed
+- `"resultPerPage must be between 20 and 100, with increments of 5"` - Range validation failed
 - `"At least one mangaId is required for batch deleting manga downloads"` - Empty array
 
 ---
@@ -1914,7 +1897,6 @@ MangaDex uses v4 UUIDs for all IDs:
 Operations that delete data are clearly documented as **DESTRUCTIVE** or **Warning**:
 
 - `clearAllData()` - Deletes entire database
-- `clearReadingHistory()` - Deletes all history
 - `deleteDirectory(path, true)` - Recursive delete
 - `resetToDefaults()` - Resets settings
 

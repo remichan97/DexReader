@@ -45,5 +45,21 @@ export default defineConfig(
       ]
     }
   },
+  {
+    files: ['src/main/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/preload/**', '**/preload'],
+              message: 'Do not import from src/preload. Move shared code to src/shared instead.'
+            }
+          ]
+        }
+      ]
+    }
+  },
   eslintConfigPrettier
 )

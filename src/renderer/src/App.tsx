@@ -18,11 +18,10 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 import { ProgressRing } from './components/ProgressRing'
 import { GatekeeperUnlockScreen } from './views/GatekeeperUnlockScreen'
 import { GatekeeperReauthModal } from './components/GatekeeperReauthModal'
-import { UnsavedChangesProvider } from './contexts/UnsavedChangesProvider'
 import { SecureNavigationProvider } from './contexts/SecureNavigationContext'
-import { useUnsavedChanges } from './hooks/useUnsavedChanges'
 import { rendererLog } from './services/logging.service'
 import { useTranslation } from './hooks/useTranslation'
+import { flushPendingSettingsWrites } from './utils/settingsPendingWrites'
 
 function AppContent(): React.JSX.Element {
   const location = useLocation()
@@ -77,24 +76,12 @@ function AppContent(): React.JSX.Element {
     }
   }, [startPolling, stopPolling])
 
-  const { hasUnsavedChanges } = useUnsavedChanges()
-
-  // Notify main process about unsaved changes state
-  useEffect(() => {
-    globalThis.electron?.ipcRenderer
-      .invoke('set-has-unsaved-changes', hasUnsavedChanges)
-      .catch(() => {
-        // Silently ignore errors
-        return undefined
-      })
-  }, [hasUnsavedChanges])
-
   // Flush pending progress saves before app closes
   useEffect(() => {
     const handleFlushRequest = async (): Promise<void> => {
       setIsClosing(true)
       // Allow pending save operations to complete
-      await flushPendingSaves()
+      await Promise.all([flushPendingSaves(), flushPendingSettingsWrites()])
       // Signal main process that flush is complete
       globalThis.electron?.ipcRenderer.send('flush-complete')
     }
@@ -210,9 +197,7 @@ function App(): React.JSX.Element {
       }}
     >
       <HashRouter>
-        <UnsavedChangesProvider>
-          <AppContent />
-        </UnsavedChangesProvider>
+        <AppContent />
         <ToastContainer toasts={toasts} onDismiss={dismissToast} position="bottom-right" />
       </HashRouter>
     </ErrorBoundary>

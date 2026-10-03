@@ -1,26 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useAppStore, useSidebarStore } from '@renderer/stores'
 import type { ThemeMode } from '@renderer/stores/types'
+import { queueSettingsWrite, writeSettingsSection } from '@renderer/utils/settingsPendingWrites'
 import type { AppSettings } from '../../../../../../preload/window.types'
-import type { SettingsDomain } from './settingsDomain.types'
 
 export type StartupPage = 'library' | 'browse' | 'downloads'
 export type SidebarSize = 'full' | 'compact' | 'auto-hide'
 
-export interface AppearancePayload {
-  appearance: {
-    theme: ThemeMode
-    accentColor?: string
-    startupPage: StartupPage
-    sidebarSize: SidebarSize
-  }
-}
-
-interface UseAppearanceSettingsDomainParams {
-  markSettingModified: (key: string) => void
-}
-
-export interface UseAppearanceSettingsDomainResult extends SettingsDomain<AppearancePayload> {
+export interface UseAppearanceSettingsDomainResult {
   themeMode: ThemeMode
   accentColor: string
   isUsingSystemColor: boolean
@@ -62,14 +49,14 @@ function applyAccentColorToDocument(color: string): void {
 }
 
 /**
- * Owns the "Appearance" settings domain (theme, accent colour, startup page, sidebar size).
- * Theme lives in the shared app store since it's read outside SettingsView too; everything
- * else here is local to the settings form until saved.
+ * Owns the "Appearance" settings domain (theme, accent colour, startup page, sidebar
+ * size). Theme lives in the shared app store since it's read outside SettingsView too.
+ * All four fields share the `appearance` section, so every handler writes it whole
+ * (current values for the others, the new value for the one that changed). accentColor
+ * is debounced (queueSettingsWrite) since it's a continuous input; everything else
+ * writes immediately (writeSettingsSection).
  */
-export function useAppearanceSettingsDomain(
-  params: UseAppearanceSettingsDomainParams
-): UseAppearanceSettingsDomainResult {
-  const { markSettingModified } = params
+export function useAppearanceSettingsDomain(): UseAppearanceSettingsDomainResult {
   const themeMode = useAppStore((state) => state.themeMode)
   const setThemeMode = useAppStore((state) => state.setThemeMode)
   const setSidebarDisplayMode = useSidebarStore((state) => state.setDisplayMode)
@@ -103,42 +90,73 @@ export function useAppearanceSettingsDomain(
     setAccentColor(systemAccentColor)
     setIsUsingSystemColor(true)
     applyAccentColorToDocument(systemAccentColor)
-    markSettingModified('accentColor')
-  }, [systemAccentColor, markSettingModified])
+    void writeSettingsSection('appearance', {
+      theme: themeMode,
+      accentColor: undefined,
+      startupPage,
+      sidebarSize
+    })
+  }, [systemAccentColor, themeMode, startupPage, sidebarSize])
 
+  // Autosaved (debounced) rather than buffered - see settingsPendingWrites.ts. Every
+  // value reaching here is already a valid 6-digit hex (gated upstream by the native
+  // colour input and the hex text field's own regex check), but the isValid callback
+  // mirrors the backend's validator as a defence-in-depth safety net.
   const handleAccentColorChange = useCallback(
     (color: string): void => {
       setAccentColor(color)
       setIsUsingSystemColor(false)
       applyAccentColorToDocument(color)
-      markSettingModified('accentColor')
+
+      queueSettingsWrite(
+        'appearance.accentColor',
+        'appearance',
+        { theme: themeMode, accentColor: color, startupPage, sidebarSize },
+        () => /^#([0-9A-F]{3}){1,2}$/i.test(color)
+      )
     },
-    [markSettingModified]
+    [themeMode, startupPage, sidebarSize]
   )
 
   const handleThemeModeChange = useCallback(
     (mode: string): void => {
-      setThemeMode(mode as ThemeMode)
-      markSettingModified('themeMode')
+      const newTheme = mode as ThemeMode
+      setThemeMode(newTheme)
+      void writeSettingsSection('appearance', {
+        theme: newTheme,
+        accentColor: isUsingSystemColor ? undefined : accentColor,
+        startupPage,
+        sidebarSize
+      })
     },
-    [setThemeMode, markSettingModified]
+    [setThemeMode, isUsingSystemColor, accentColor, startupPage, sidebarSize]
   )
 
   const handleStartupPageChange = useCallback(
     (page: StartupPage): void => {
       setStartupPage(page)
-      markSettingModified('startupPage')
+      void writeSettingsSection('appearance', {
+        theme: themeMode,
+        accentColor: isUsingSystemColor ? undefined : accentColor,
+        startupPage: page,
+        sidebarSize
+      })
     },
-    [markSettingModified]
+    [themeMode, isUsingSystemColor, accentColor, sidebarSize]
   )
 
   const handleSidebarSizeChange = useCallback(
     (size: SidebarSize): void => {
       setSidebarSize(size)
       setSidebarDisplayMode(size)
-      markSettingModified('sidebarSize')
+      void writeSettingsSection('appearance', {
+        theme: themeMode,
+        accentColor: isUsingSystemColor ? undefined : accentColor,
+        startupPage,
+        sidebarSize: size
+      })
     },
-    [setSidebarDisplayMode, markSettingModified]
+    [setSidebarDisplayMode, themeMode, isUsingSystemColor, accentColor, startupPage]
   )
 
   const loadFromSettings = useCallback(
@@ -167,46 +185,6 @@ export function useAppearanceSettingsDomain(
     [setThemeMode, setSidebarDisplayMode, applyFallbackAccent]
   )
 
-  const isDirty = useCallback(
-    (original: AppSettings): boolean =>
-      themeMode !== original.appearance.theme ||
-      startupPage !== original.appearance.startupPage ||
-      sidebarSize !== original.appearance.sidebarSize ||
-      (isUsingSystemColor
-        ? original.appearance.accentColor !== undefined
-        : original.appearance.accentColor !== accentColor),
-    [themeMode, startupPage, sidebarSize, isUsingSystemColor, accentColor]
-  )
-
-  const buildPayload = useCallback(
-    (): AppearancePayload => ({
-      appearance: {
-        theme: themeMode,
-        accentColor: isUsingSystemColor ? undefined : accentColor,
-        startupPage,
-        sidebarSize
-      }
-    }),
-    [themeMode, isUsingSystemColor, accentColor, startupPage, sidebarSize]
-  )
-
-  const reset = useCallback(
-    (original: AppSettings): void => {
-      setThemeMode(original.appearance.theme)
-      setStartupPage(original.appearance.startupPage)
-      setSidebarSize(original.appearance.sidebarSize)
-      setSidebarDisplayMode(original.appearance.sidebarSize)
-      if (original.appearance.accentColor) {
-        setAccentColor(original.appearance.accentColor)
-        setIsUsingSystemColor(false)
-        applyAccentColorToDocument(original.appearance.accentColor)
-      } else {
-        applyFallbackAccent(systemAccentColor)
-      }
-    },
-    [setThemeMode, setSidebarDisplayMode, systemAccentColor, applyFallbackAccent]
-  )
-
   return {
     themeMode,
     accentColor,
@@ -220,9 +198,6 @@ export function useAppearanceSettingsDomain(
     handleStartupPageChange,
     handleSidebarSizeChange,
     loadFromSettings,
-    applyFallbackAccent,
-    isDirty,
-    buildPayload,
-    reset
+    applyFallbackAccent
   }
 }

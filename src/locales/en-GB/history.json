@@ -20,5 +20,13 @@
   "card": {
     "lastRead": "Last read",
     "removeAriaLabel": "Remove from history"
+  },
+  "calendar": {
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month"
+  },
+  "feed": {
+    "today": "Today",
+    "yesterday": "Yesterday"
   }
 }
