@@ -16,6 +16,10 @@ export default defineProject({
     environment: 'node',
     globals: true,
     setupFiles: ['./vitest/setup.main.ts'],
-    include: ['src/main/**/*.{test,spec}.ts', 'src/preload/**/*.{test,spec}.ts']
+    include: [
+      'src/main/**/*.{test,spec}.ts',
+      'src/preload/**/*.{test,spec}.ts',
+      'src/shared/**/*.{test,spec}.ts'
+    ]
   }
 })
