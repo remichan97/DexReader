@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { IpcError } from './ipc.error'
 import { serializeError } from './error-serializer'
 
@@ -42,7 +43,11 @@ describe('serializeError', () => {
     })
 
     it('scrubs a filesystem path embedded in the message down to its basename, using details.path', () => {
-      const fullPath = 'C:\\Users\\alice\\AppData\\Roaming\\DexReader\\downloads'
+      // Built with path.join rather than a hardcoded Windows-style literal so the
+      // separator matches whatever platform this actually runs on (native path.basename
+      // can't parse a foreign platform's separator - e.g. a Linux CI runner doesn't
+      // treat '\\' as a path separator the way Windows does).
+      const fullPath = path.join('Users', 'alice', 'AppData', 'Roaming', 'DexReader', 'downloads')
       const error = new IpcError('FS_ERROR', `Cannot access ${fullPath}`, { path: fullPath })
 
       expect(serializeError(error).message).toBe('Cannot access downloads')
@@ -65,7 +70,7 @@ describe('serializeError', () => {
     })
 
     it("scrubs a Node fs error's embedded path down to its basename, using the error's own .path", () => {
-      const fullPath = 'C:\\Users\\alice\\secrets.db'
+      const fullPath = path.join('Users', 'alice', 'secrets.db')
       const error = Object.assign(new Error(`ENOENT: no such file, open '${fullPath}'`), {
         path: fullPath
       })
