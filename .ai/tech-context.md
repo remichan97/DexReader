@@ -1,7 +1,7 @@
 # DexReader Technical Context
 
-**Last Updated**: 12 June 2026
-**Project Version**: 1.9.1
+**Last Updated**: 3 October 2026
+**Project Version**: 1.15.0
 **Type**: Desktop Application (Electron)
 
 ---
@@ -10,11 +10,11 @@
 
 ### Core Runtime
 
-| Technology   | Version | Purpose                         |
-| ------------ | ------- | ------------------------------- |
-| **Electron** | 41.1.1  | Desktop application framework   |
-| **Node.js**  | v22.x   | Runtime (bundled with Electron) |
-| **Chromium** | ~134.x  | Embedded browser (via Electron) |
+| Technology   | Version                                                                              | Purpose                       |
+| ------------ | ------------------------------------------------------------------------------------ | ----------------------------- |
+| **Electron** | 43.7.5                                                                               | Desktop application framework |
+| **Node.js**  | bundled with Electron 43 (see Electron's release notes for the exact pinned version) | Runtime                       |
+| **Chromium** | bundled with Electron 43                                                             | Embedded browser              |
 
 ### Frontend Framework
 
@@ -28,10 +28,9 @@
 
 | Technology           | Version | Purpose                              |
 | -------------------- | ------- | ------------------------------------ |
-| **Vite**             | 7.3.2   | Frontend build tool & dev server     |
+| **Vite**             | 7.3.5   | Frontend build tool & dev server     |
 | **electron-vite**    | 5.0.0   | Electron-specific Vite wrapper       |
-| **electron-builder** | 26.8.1  | Application packaging & distribution |
-| **npm**              | 11.3.0  | Package manager                      |
+| **electron-builder** | 26.15.3 | Application packaging & distribution |
 
 ### Code Quality
 
@@ -50,7 +49,16 @@
 | **@testing-library/react** | 16.3.2  | Renderer hook/component testing (`renderHook`, `render`)                                                       |
 | **happy-dom**              | 20.10.6 | DOM environment for the renderer test project                                                                  |
 
-Tests are colocated with the source they cover (`foo.ts` next to `foo.test.ts`). The renderer views/components tier is intentionally left without unit tests or a coverage gate — see `CLAUDE.md`'s Developement Commands section.
+Tests are colocated with the source they cover (`foo.ts` next to `foo.test.ts`). As of the v1.15.0 test-coverage effort, the suite has ~1412 tests across the main process, preload bridge, all 10 Zustand stores, and renderer hooks. Coverage thresholds (`vitest.config.ts`):
+
+| Area                         | Statements | Branches | Functions | Lines |
+| ---------------------------- | ---------- | -------- | --------- | ----- |
+| `src/main/**`                | 70%        | 70%      | 65%       | 70%   |
+| `src/preload/**`             | 95%        | 95%      | 95%       | 95%   |
+| `src/shared/**`              | 90%        | 90%      | 90%       | 90%   |
+| `src/renderer/src/stores/**` | 75%        | 65%      | 90%       | 75%   |
+
+The renderer views/components tier is intentionally left without unit tests or a coverage gate — see `CLAUDE.md`'s Developement Commands section (better suited to E2E testing).
 
 ---
 
@@ -64,43 +72,44 @@ Tests are colocated with the source they cover (`foo.ts` next to `foo.test.ts`).
 
 **Database**:
 
-- `better-sqlite3@12.8.0` - Native SQLite3 bindings
-- `drizzle-orm@0.45.2` - Type-safe ORM for SQLite
-- `drizzle-kit@0.31.10` - Database migrations toolkit (dev dependency)
+- `node:sqlite` - Node.js built-in SQLite bindings (no native/compiled deps — `better-sqlite3` was removed in v1.11.0 specifically to drop the C++ toolchain requirement)
+- `drizzle-orm@1.0.0-beta.22` - Type-safe ORM for SQLite
+- `drizzle-kit@1.0.0-beta.22` - Database migrations toolkit (dev dependency)
 
 **UI Components**:
 
 - `@fluentui/react-icons@2.0.315` - Microsoft Fluent UI icon library
-- `react-router-dom@7.18.3` - Client-side routing
+- `react-router-dom@7.18.3` - Client-side routing (migrated from v6 in September 2026)
 
 **Internationalisation**:
 
 - `i18next@26.0.10` - i18n framework
 - `react-i18next@17.0.7` - React bindings for i18next
 - `i18next-fs-backend@2.6.5` - Filesystem backend for translations
+- Locales: `en-GB` (default), `en-US`, `vi-VN` (`src/locales/`)
 
 **Binary Serialization**:
 
-- `protobufjs@8.2.0` - Protocol Buffers for backup functionality
+- `protobufjs@8.6.6` - Protocol Buffers for backup functionality
 - `pako@2.1.0` - gzip compression for backups
 
 **Security & Logging**:
 
-- `bcrypt@6.0.0` - Password hashing for app lock
+- `bcrypt-ts@8.0.1` - Password hashing for Gatekeeper (app lock) — pure-TS, no native build step (not `bcrypt`)
 - `electron-log@5.4.3` - Application logging
 
 **Electron Utilities**:
 
 - `@electron-toolkit/preload@3.0.2` - Preload script helpers
 - `@electron-toolkit/utils@4.0.0` - Common Electron utilities
-- `electron-updater@6.3.9` - Auto-update functionality
+- `electron-updater@6.8.9` - Auto-update functionality
 - `electron-store@11.0.2` - Settings persistence with encryption support
 
 ---
 
 ## MangaDex API Integration
 
-This application integrate with MangaDex API to provide content to the user. Detailed pattern can be found in `system-pattern.md`
+This application integrates with the MangaDex API to provide content to the user. Detailed patterns can be found in `system-pattern.md`.
 
 ---
 
@@ -108,8 +117,8 @@ This application integrate with MangaDex API to provide content to the user. Det
 
 ### Required Software
 
-- **Node.js**: v22.21.1 (or compatible with v22.x)
-- **npm**: v11.3.0 (or compatible)
+- **Node.js**: whatever version matches Electron 43's bundled runtime (project itself has no `engines` pin in `package.json` — check Electron's release notes rather than assuming a specific minor)
+- **npm**: current LTS-compatible version
 - **Git**: For version control
 - **VS Code**: Recommended IDE with ESLint and Prettier extensions
 
@@ -118,17 +127,17 @@ This application integrate with MangaDex API to provide content to the user. Det
 ```bash
 # Development
 npm run dev                    # Start dev server with HMR
-npm run start                  # Preview production build
 
 # Quality Checks
 npm run typecheck              # Type validation (node + web)
 npm run lint                   # Run ESLint
 npm run format                 # Format with Prettier
 npm run test                   # Run the Vitest suite once (main + renderer)
+npm run test:watch             # Vitest in watch mode
 npm run test:coverage          # Vitest with coverage; enforces per-area thresholds
 
 # Building
-npm run build                  # Build for production
+npm run build                  # typecheck + electron-vite build (production)
 npm run build:win              # Windows installer (NSIS)
 npm run build:mac              # macOS DMG
 npm run build:linux            # Linux packages (AppImage, deb)
@@ -150,7 +159,7 @@ npm run build:linux            # Linux packages (AppImage, deb)
 
 - `package.json` includes `"type": "module"`
 - Source code uses ES imports exclusively
-- Uses `import.meta.url` pattern for path resolution (no `__dirname`)
+- Uses `import.meta.url` pattern for path resolution (no `__dirname` at the top level; main-process files that need it derive it via `fileURLToPath(import.meta.url)`)
 - electron-vite configured for ESM output
 
 ---
@@ -176,7 +185,7 @@ npm run build:linux            # Linux packages (AppImage, deb)
 - React Refresh compatibility (HMR)
 - Prettier integration (no conflicting rules)
 
-**Prettier Configuration** (.prettierrc.yaml):
+**Prettier Configuration** (`.prettierrc.yaml`):
 
 ```yaml
 singleQuote: true # 'string' not "string"
@@ -191,19 +200,24 @@ trailingComma: none # No trailing commas
 
 ### Content Security Policy
 
-**Policy** (src/renderer/index.html):
+**Policy** (`src/renderer/index.html`):
+
+```
+default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: mangadex: local-manga:;
+```
 
 - `default-src 'self'` - Only load resources from same origin
 - `script-src 'self'` - No inline scripts, only bundled code
-- `style-src 'self' 'unsafe-inline'` - Allow inline styles (React CSS-in-JS)
-- `img-src 'self' data: https:` - Local images, data URIs, and HTTPS images (MangaDex CDN)
+- `style-src 'self'` - No inline styles permitted
+- `img-src 'self' data: mangadex: local-manga:` - Local images, data URIs, and the app's own `mangadex://`/`local-manga://` proxy protocols only — **no plain `https:`**, which is why raw MangaDex CDN URLs can never be used directly in the renderer
 
-### Context Isolation
+### Context Isolation & Sandbox
 
-**Enabled by default** (Electron 41):
+(`src/main/window.ts`)
 
-- Sandbox disabled to allow Node.js in preload scripts
-- Context isolation prevents renderer from accessing Node.js directly
+- `sandbox: true` — the renderer runs sandboxed
+- `contextIsolation: true` — renderer cannot access Node.js or Electron internals directly
+- `devTools: is.dev` — DevTools disabled in production builds, available in dev
 - All APIs exposed via `contextBridge` in preload scripts
 
 ---
@@ -211,29 +225,19 @@ trailingComma: none # No trailing commas
 ## IPC Communication Architecture
 
 **Documentation**: `docs/architecture/ipc-messaging.md`
-**Implementation**: 37 IPC channels across 6 categories
+**Implementation**: 21 handler files in `src/main/ipc/handlers/`, registered centrally in `src/main/ipc/registry.ts`, totalling over 100 channels (every request/response channel goes through `wrapIpcHandler`; `menu:update-menu-state` is the one plain `ipcMain.on` fire-and-forget event).
 
-### Channel Categories
+### Handler Files (by domain)
 
-| Category       | Channels | Description                                 |
-| -------------- | -------- | ------------------------------------------- |
-| **Filesystem** | 16       | File/directory operations with validation   |
-| **Theme**      | 4        | System theme and accent colour detection    |
-| **Menu**       | 14       | Application menu actions and state updates  |
-| **Dialogue**   | 2        | Native confirmations and multi-choice       |
-| **Navigation** | 1        | Route navigation events from menu           |
-| **MangaDex**   | 6        | API calls (search, manga, chapters, images) |
-| **Database**   | ~30      | Library, downloads, progress, statistics    |
-| **Settings**   | ~8       | App settings persistence                    |
+`app-settings`, `app-update`, `collections`, `database-snapshots`, `dexreader`, `dialogs`, `download`, `download-queue`, `file-systems`, `gatekeeper`, `history`, `library`, `logger`, `mangadex`, `menu`, `mihon`, `progress-tracking`, `reader-settings`, `search-presets`, `shell`, `storage`, `theme`.
 
 ### Error Handling Pattern
 
 All IPC handlers use `wrapIpcHandler` for consistent error handling:
 
 - Automatic error serialization for IPC transport
-- Custom error classes: `IpcError`, `FileSystemError`, `ValidationError`, `ThemeError`
-- Runtime validation for all IPC arguments
-- Type-safe responses via `IpcResponse<T>` wrapper
+- Runtime validation for all IPC arguments (see `src/main/settings/validators/`)
+- Type-safe responses via `IpcResponse<T>` wrapper (`src/preload/ipc.types.ts`)
 
 ---
 
@@ -243,22 +247,21 @@ All IPC handlers use `wrapIpcHandler` for consistent error handling:
 
 ### Core Security
 
-**Path Validator** (`src/main/filesystem/pathValidator.ts`):
+**Path Validator** (`src/main/filesystem/path-validator.ts`):
 
 - Validates all filesystem paths against 2 allowed directories: AppData + Downloads
 - Prevents path traversal and symlink exploits
 - Canonical path resolution for security
 
-**Secure Filesystem** (`src/main/filesystem/secureFs.ts`):
+**Secure Filesystem** (`src/main/filesystem/secure-fs.ts`):
 
 - Wraps Node.js `fs/promises` with automatic path validation
-- 12 operations: read, write, append, copy, rename, mkdir, delete, stat, readDir, etc.
 - Parent directories automatically created on write operations
 
 **Settings Manager** (`src/main/settings/settings-manager.ts`):
 
-- Persists app-wide settings to `AppData/settings.json` (electron-store v11)
-- Schema includes: theme, accent colour, downloads path, proxy settings, hardware acceleration, etc.
+- Persists app-wide settings to `AppData/settings.json` (electron-store v11, encrypted)
+- Schema domains live in `src/shared/types/settings/*` (app, appearance, downloads, language, logs, manga overrides, reader, reader performance, search, snapshot, system, update)
 - Loads on app startup with graceful fallback to defaults if corrupted
 
 ---
@@ -267,11 +270,18 @@ All IPC handlers use `wrapIpcHandler` for consistent error handling:
 
 **Library**: Zustand 5.0.9 (~1.4kb, minimal boilerplate, TypeScript-first)
 
-**Current Stores** (`src/renderer/src/stores/`):
+**Current Stores** (`src/renderer/src/stores/`) — 10 stores:
 
-1. **appStore.ts** - Theme, UI state, fullscreen
-2. **toastStore.ts** - Global notifications (ephemeral)
-3. **libraryStore.ts** - Bookmarks and collections
+1. **appStore** - Theme, UI state, fullscreen
+2. **collectionsStore** - User-created library collections
+3. **connectivityStore** - Online/offline state
+4. **historyStore** - Read History feed state
+5. **libraryStore** - Bookmarks/favourites
+6. **progressStore** - Reading progress (optimistic updates, pending-save flushing)
+7. **searchPresetsStore** - Saved search/filter presets
+8. **searchStore** - Browse/search query state
+9. **sidebarStore** - Sidebar/navigation UI state
+10. **toastStore** - Global notifications (ephemeral)
 
 > Note: a `userPreferencesStore.ts` existed pre-`electron-store` handoff and was removed as dead code on 2 September 2026 (zero real consumers) — all reader/download/UI/notification preferences now live in `src/shared/types/settings/*`, persisted via `electron-store`.
 
@@ -299,21 +309,15 @@ All IPC handlers use `wrapIpcHandler` for consistent error handling:
 - Inline error UI with retry button
 - Casual, user-friendly error display
 
-**Global Error Handler** (`src/renderer/src/utils/errorHandler.ts`):
+**Logging** (`src/main/services/logging/`, `src/renderer/src/services/logging.service.ts`):
 
-- Catches `window.onerror` and `window.onunhandledrejection`
-- Automatic toast notifications and error logging
-- Initialized in `main.tsx` on app startup
-
-**Error Message Catalog** (`src/renderer/src/utils/errorMessages.ts`):
-
-- ~20 error patterns with user-friendly messages
-- Converts technical errors to conversational language
+- `mainLog` (main process) / `rendererLog` (renderer) wrap `electron-log`
+- Automatic toast notifications and error logging on uncaught errors
 
 **Connectivity Store** (`src/renderer/src/stores/connectivityStore.ts`):
 
 - States: `online | offline-user | offline-no-internet`
-- Automatic connectivity monitoring
+- Automatic connectivity monitoring (polling, started/stopped in `App.tsx`)
 - Drives `<OfflineStatusBar />` component
 
 ---
@@ -322,19 +326,18 @@ All IPC handlers use `wrapIpcHandler` for consistent error handling:
 
 **Purpose**: Binary serialization for library backups with compression
 
-### Schemas
+### Schemas (`src/main/services/protobuf/schemas/`)
 
-1. **DexReader Native** (`dexreader.proto`, Proto3)
+1. **DexReader Native** — services in `src/main/services/dexreader/` (`dexreader-export.service.ts`, `dexreader-import.service.ts`)
    - File extension: `.dexreader`
    - Includes: library data, collections, progress, reader settings
    - Excludes: reading statistics (recalculated on import), app settings (separate backup)
-   - Encoding: Protobuf (binary) + gzip compression
+   - Encoding: Protobuf (binary) + gzip (`pako`) compression
 
-2. **Mihon/Tachiyomi Compatibility** (`mihon.proto`, Proto2)
-   - File extensions: `.tachibk`, `.proto.gz`
+2. **Mihon/Tachiyomi Compatibility** — services in `src/main/services/mihon/` (`mihon-backup.service.ts`, `mihon-export.service.ts`)
    - Import: Decode Mihon backups, filter MangaDex manga, import to library
    - Export: Export library to Mihon format with tag conversion
-   - MangaDex source ID: `'2499283573021220255'`
+   - MangaDex source ID: `2499283573021220255` (matched as a `BigInt` against each backed-up manga's `source` field)
 
 ---
 
@@ -364,16 +367,16 @@ All IPC handlers use `wrapIpcHandler` for consistent error handling:
 **Primary Sources**:
 
 - **API Reference**: `docs/api-reference.md` - Complete IPC channel listing
-- **Architecture**: `docs/architecture/` - System design documents
+- **Architecture**: `docs/architecture/` - System design documents (IPC messaging, database, error handling, filesystem security, MangaDex API, menu structure, navigation flow, state management, layout specs)
 - **Component Library**: `docs/components/` - UI component guides
 - **Design System**: `docs/design/` - Visual design principles and wireframes
-- **Instructions**: `.github/instructions/` - Coding standards by file pattern
 
-**Memory Bank**: `.github/memory-bank/`
+**Memory Bank**: `.ai/`
 
 - `active-context.md` - Current project state (last 2-3 weeks)
 - `project-brief.md` - High-level overview and goals
 - `system-pattern.md` - Architectural patterns and conventions
+- `architecture-overview.md` - Component map and data flow
 - `tech-context.md` (this file) - Technology stack overview
 
 ---

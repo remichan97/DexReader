@@ -1,7 +1,7 @@
 # DexReader Active Context
 
 **Last Updated**: 3 October 2026
-**Version**: v1.15.0 (release prepared on `feat/settings-autosave`, not yet merged/tagged) — was v1.14.0
+**Version**: v1.15.0
 **Mode**: Active Development
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next. Keep all entries as short, concise as possible
@@ -12,19 +12,14 @@
 
 **v1.14.0 shipped** (8 September 2026) — Database Snapshot & Restore ("Restore Points") feature, settings-merge and localisation fixes, ~700 unused translation keys pruned, dead `readHistory` subsystem removed.
 
-**v1.15.0 prepared, not yet shipped**: on `feat/settings-autosave`. Bundles two feature branches of work plus a large test-coverage effort that accumulated on this branch:
+**v1.15.0 shipped** (3 October 2026) - Bundles two feature branches of work plus a large test-coverage effort that accumulated on this branch:
 
 - Settings page converted to autosave (immediate-apply) — see Recent Changes
 - Read History feature: chronological day-grouped feed + calendar, replacing the old deduplicated "Continue Reading" list (unrelated to the `readHistory` subsystem removed in 1.14.0 — this is a new `read_history` table)
 - A substantial unit test suite added across main process, preload, Zustand stores, and renderer hooks (0 → 1412 tests), with per-area coverage thresholds now enforced in `vitest.config.ts`. 7 real bugs were found and fixed while writing it (see Recent Changes) — none were previously reported, all caught by the tests themselves.
 
-Version bumped (`package.json`/`package-lock.json` → 1.15.0), `CHANGELOG.md` updated, stale `docs/api-reference.md` entries fixed (removed buffered-save-era `setHasUnsavedChanges`/`clearReadingHistory` docs for APIs that no longer exist, documented the real `window.readHistory.*` surface), `CLAUDE.md`'s "no unit tests" claim corrected. Awaiting: PR opened against `main`, merged, and the `chore: v1.15.0 release`-style tip commit landing on `main` so `release.yaml`'s tag-triggered workflow fires.
-
 **Next Planned Work:**
 
-- Open the PR for `feat/settings-autosave` against `main`, merge, tag `v1.15.0`
-- Settings immediate-apply migration and the Read History feature (`claude-plans/history-calendar-plan.md`) are both now DONE, shipped as part of this release
-- Renderer views/components remain intentionally without unit tests (see `tech-context.md` Testing section) — if coverage there is ever wanted, prefer E2E (Playwright against the Electron app) over unit tests, per the cost/benefit discussion that closed out this round's test-coverage effort
 - Plan next feature development cycle
 
 ---
@@ -43,6 +38,18 @@ Version bumped (`package.json`/`package-lock.json` → 1.15.0), `CHANGELOG.md` u
 ---
 
 ## Recent Changes (Last 1-2 Weeks)
+
+### 3 October 2026 - Memory bank content audit & refresh ✅
+
+- **Type**: Chore / docs
+- **Summary**: `tech-context.md` and `architecture-overview.md` were both frozen at 12 June 2026 (v1.9.1) and had drifted badly out of sync with the codebase — fully rewritten against the current source tree (v1.15.0). Fixed, among others: CSP claim (`style-src 'self' 'unsafe-inline'`, `img-src ... https:`) was wrong — actual policy has no `unsafe-inline` and no `https:` in `img-src` at all (`src/renderer/index.html`); sandbox claim ("disabled") was backwards — `src/main/window.ts` sets `sandbox: true`; dependency list referenced `better-sqlite3`/`bcrypt`, which don't exist anymore (`node:sqlite` / `bcrypt-ts`); stores list was missing 6 of the 10 real Zustand stores; database schema section listed tables (`library`, `manga_metadata`, `cover_cache`) that don't exist — real tables are `manga`, `chapter`, `chapterDownloads`, etc.; IPC section claimed "37 channels/6 categories" vs. the real ~108 channels across 21 handler files; filesystem filenames were camelCase (`secureFs.ts`, `pathValidator.ts`) instead of the actual kebab-case (`secure-fs.ts`, `path-validator.ts`). Also fixed two smaller errors in `system-pattern.md` (`connection.ts` → `db-connection.ts`; `autoHideMenuBar: true` → the actual `false`) and a matching inconsistency in `CLAUDE.md` itself (its prose used the old camelCase/`connection.ts` names while its own Key File Locations table already had the right ones).
+- **Status**: ✅ Complete
+
+### 3 October 2026 - Memory bank relocated to `.ai/` ✅
+
+- **Type**: Chore
+- **Summary**: Moved the memory bank from `.github/memory-bank/` to `.ai/` (via `git mv`, history preserved) since this documentation system is no longer GitHub Copilot-specific. Updated every tracked reference to the old path: `CLAUDE.md`, `CHANGELOG.md`, `docs/api-reference.md`, the three `.claude/skills/*` skill files, and the memory bank's own internal cross-links. Also fixed two pre-existing stale references found along the way: `docs/architecture/filesystem-security.md` had a broken relative path to the memory bank (wrong number of `../`, predates this move) and `.claude/skills/memory-update/SKILL.md` referred to a non-existent `system-patterns.md` (should be singular, matching the real filename).
+- **Status**: ✅ Complete
 
 ### 30 September – 3 October 2026 - Test-coverage effort + 7 bug fixes ✅
 
@@ -75,5 +82,5 @@ Version bumped (`package.json`/`package-lock.json` → 1.15.0), `CHANGELOG.md` u
 - **Wiki**: DexReader.wiki folder (user-facing documentation)
 - **API Reference**: `docs/api-reference.md`
 - **Architecture**: `docs/architecture/`
-- **Coding Standards**: `.github/memory-bank/system-pattern.md`
-- **Technology Stack**: `.github/memory-bank/tech-context.md`
+- **Coding Standards**: `.ai/system-pattern.md`
+- **Technology Stack**: `.ai/tech-context.md`

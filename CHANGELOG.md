@@ -555,7 +555,7 @@ This v1.0.0 release establishes a stable foundation for:
 - Performance optimizations
 - Future feature development based on user needs
 
-For complete development history, architectural decisions, and implementation details, see `.github/memory-bank/historical/`.
+For complete development history, architectural decisions, and implementation details, see `.ai/historical/`.
 
 ---
 

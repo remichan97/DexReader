@@ -1,6 +1,6 @@
 # DexReader System Pattern
 
-**Last Updated**: 6 September 2026
+**Last Updated**: 3 October 2026
 **Version**: 1.0.0 (v1.0 Release Baseline)
 **Architecture**: Electron Multi-Process Desktop Application
 **Status**: Active - This document defines architectural patterns, design principles, and technical decisions
@@ -126,7 +126,7 @@
 
 **Main Areas**:
 
-- `.github/memory-bank/` - Project documentation & patterns
+- `.ai/` - Project documentation & patterns
 - `build/` - Build resources (icons, entitlements)
 - `resources/` - Application resources (bundled)
 - `src/main/` - Main process (Node.js)
@@ -165,7 +165,7 @@
 
 ### `PRAGMA foreign_keys` is set once, globally, at connection init
 
-**Location**: `connection.ts` sets `PRAGMA foreign_keys = ON` when the `DatabaseSync` connection is created — not per-transaction.
+**Location**: `db-connection.ts` sets `PRAGMA foreign_keys = ON` when the `DatabaseSync` connection is created — not per-transaction.
 
 **Gotcha**: SQLite silently ignores `PRAGMA foreign_keys = OFF/ON` issued _inside_ a transaction — the pragma can only take effect between transactions. Toggling it mid-`db.transaction()` block does nothing (found and fixed 2 September 2026 in `cleanup.repo.ts`'s `clearAllData()`, which had toggled it around a bulk delete under the mistaken assumption it would suspend FK checks for that delete).
 
@@ -237,7 +237,7 @@
 ### Main Window Pattern
 
 **Anti-Flicker Pattern**: Create window with `show: false`, then show on `ready-to-show` event
-**Clean Interface**: `autoHideMenuBar: true` for streamlined UI
+**Menu Bar**: `autoHideMenuBar: false` — native menu bar stays visible
 
 ### Platform-Specific Behaviors
 

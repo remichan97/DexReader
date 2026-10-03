@@ -777,8 +777,8 @@ describe('isPathAllowed', () => {
 
 ### Related Documentation
 
-- [System Pattern](../memory-bank/system-pattern.md) - Development guidelines
-- [Tech Context](../memory-bank/tech-context.md) - Technology stack
+- [System Pattern](../../.ai/system-pattern.md) - Development guidelines
+- [Tech Context](../../.ai/tech-context.md) - Technology stack
 - [State Management](./state-management.md) - Zustand stores
 
 ### External Resources

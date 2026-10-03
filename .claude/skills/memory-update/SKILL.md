@@ -15,7 +15,7 @@ When updating the memory bank, follow these steps:
 2. **Gather Information**: Collect all relevant information about recent changes, decisions, and known issues. This may include reviewing recent commits, pull requests, and discussions.
 3. **Update Memory Bank Files**: Make necessary updates to the core memory bank files:
    - `active-context.md`: Reflect the latest state of the project, including recent tasks, goals, blockers, and upcoming work. Only keep the most recent 2-3 weeks worth of context.
-   - `system-patterns.md`: Add any new architectural patterns, design principles, or technical decisions that have been made.
+   - `system-pattern.md`: Add any new architectural patterns, design principles, or technical decisions that have been made.
    - `tech-context.md`: Include any new technologies, frameworks, or libraries used in the project.
    - `architecture-overview.md`: Update the architectural overview to reflect any changes in the system's structure or data flow.
 4. **Review**: After updating, review all memory bank files to ensure accuracy and completeness.

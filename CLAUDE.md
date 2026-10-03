@@ -67,7 +67,7 @@ Renderer (React/Zustand) → Preload (contextBridge) → Main (Node.js/SQLite/Ma
 
 ### Filesystem Security
 
-All filesystem operations must go through `src/main/filesystem/secureFs.ts`. Direct `fs` calls are not permitted — paths are validated against two allowed roots (AppData + Downloads) via `src/main/filesystem/pathValidator.ts` to prevent traversal attacks.
+All filesystem operations must go through `src/main/filesystem/secure-fs.ts`. Direct `fs` calls are not permitted — paths are validated against two allowed roots (AppData + Downloads) via `src/main/filesystem/path-validator.ts` to prevent traversal attacks.
 
 ### Image Proxy
 
@@ -82,7 +82,7 @@ Never use plain HTTPS image URLs in the renderer.
 
 SQLite via Node.js built-in `node:sqlite` + Drizzle ORM 1.0.
 
-- Connection: `src/main/database/connection.ts`
+- Connection: `src/main/database/db-connection.ts`
 - Schemas: `src/main/database/schemas/`
 - Repositories (CRUD): `src/main/database/repositories/`
 - Migrations: `src/main/database/migrations/`
@@ -119,7 +119,7 @@ Zustand 5 stores in `src/renderer/src/stores/`. Stores are ephemeral (rehydrated
 **Main process** (`src/main/**`):
 
 - Log with `mainLog` at appropriate levels (info/warning/error)
-- Never bypass `secureFs` for filesystem operations
+- Never bypass `secure-fs` for filesystem operations
 - Never import from `src/preload` (ESLint-enforced, mirrors the existing preload/renderer → main restriction) — put anything both sides need in `src/shared` instead
 
 **Renderer** (`src/renderer/**`):
@@ -153,7 +153,7 @@ Zustand 5 stores in `src/renderer/src/stores/`. Stores are ephemeral (rehydrated
 
 ## Memory Bank
 
-The `.github/memory-bank/` directory contains living documentation that should be read for deeper context:
+The `.ai/` directory contains living documentation that should be read for deeper context:
 
 - `active-context.md` — current sprint state, recent changes, known issues (read this first each session)
 - `system-pattern.md` — architectural patterns and coding conventions in detail

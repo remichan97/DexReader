@@ -7,12 +7,12 @@ description: Implement a task, feature, or bug fix for the project from an exist
 
 Help the user implement a task, feature, or bug fix by carrying out an existing plan end-to-end.
 
-1. **Initialisation**: Read the memory bank files (`.github/memory-bank/`), starting with `active-context.md`, to understand the current state of the project.
+1. **Initialisation**: Read the memory bank files (`.ai/`), starting with `active-context.md`, to understand the current state of the project.
 2. **Locate the plan**: Find the relevant plan file in `claude-plans/` (created by the `plan` skill). If no plan exists for the requested work, tell the user to run `/plan` first instead of improvising one.
 3. **Implementation**: Work through the plan's steps in order, following the coding standards in `CLAUDE.md` (TypeScript standards, process-specific rules, IPC/filesystem/database conventions). Run `npm run typecheck` and `npm run lint` as you go, not just at the end.
 4. **Review**: Before wrapping up, check the implementation against the plan's requirements and confirm the quality gates pass.
 5. **Clean up the plan file**: Once implementation is complete and reviewed, delete the plan file from `claude-plans/` to avoid stale plans accumulating.
-6. **Update active context**: Add an entry to `## Recent Changes` in `.github/memory-bank/active-context.md` following the existing template (date, type, summary, key changes, impact, status). Update `## Current Status` / `## Known Issues` if the change affects them.
+6. **Update active context**: Add an entry to `## Recent Changes` in `.ai/active-context.md` following the existing template (date, type, summary, key changes, impact, status). Update `## Current Status` / `## Known Issues` if the change affects them.
 
 If anything in the plan is unclear, ambiguous, or contradicted by the current codebase, stop and ask the user before proceeding rather than guessing.
 
