@@ -1,6 +1,7 @@
 import { ReadingMode } from '@shared/enums/settings/reading-mode.enum'
 import { MangaOverrideContract } from '@shared/contracts/database/manga/manga-override.contract'
 import { DexreaderExportCommand } from '@shared/commands/services/dexreader-export.command'
+import { version as appVersion } from '../../../../package.json'
 
 vi.mock('../../database/repositories/manga.repo', () => ({
   mangaRepo: { getAllManga: vi.fn(), getLibraryMangaForExport: vi.fn() }
@@ -189,7 +190,7 @@ describe('DexReaderExportService', () => {
     expect(createMock).toHaveBeenCalledWith(
       expect.objectContaining({
         schemaVersion: 1,
-        appVersion: '1.14.0',
+        appVersion,
         exportedAt: new Date('2026-03-01T12:00:00.000Z').getTime()
       })
     )

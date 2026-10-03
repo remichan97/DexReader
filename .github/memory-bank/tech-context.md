@@ -41,6 +41,17 @@
 | **Prettier**            | 3.6.2   | Code formatting               |
 | **TypeScript Compiler** | 5.9.2   | Type checking                 |
 
+### Testing
+
+| Technology                 | Version | Purpose                                                                                                        |
+| -------------------------- | ------- | -------------------------------------------------------------------------------------------------------------- |
+| **Vitest**                 | 4.1.11  | Test runner, workspace split into `main` (Node env) and `renderer` (happy-dom env) projects                    |
+| **@vitest/coverage-v8**    | 4.1.10  | Coverage provider; per-area thresholds gate `src/main`, `src/preload`, `src/shared`, `src/renderer/src/stores` |
+| **@testing-library/react** | 16.3.2  | Renderer hook/component testing (`renderHook`, `render`)                                                       |
+| **happy-dom**              | 20.10.6 | DOM environment for the renderer test project                                                                  |
+
+Tests are colocated with the source they cover (`foo.ts` next to `foo.test.ts`). The renderer views/components tier is intentionally left without unit tests or a coverage gate — see `CLAUDE.md`'s Developement Commands section.
+
 ---
 
 ## Key Dependencies
@@ -113,6 +124,8 @@ npm run start                  # Preview production build
 npm run typecheck              # Type validation (node + web)
 npm run lint                   # Run ESLint
 npm run format                 # Format with Prettier
+npm run test                   # Run the Vitest suite once (main + renderer)
+npm run test:coverage          # Vitest with coverage; enforces per-area thresholds
 
 # Building
 npm run build                  # Build for production

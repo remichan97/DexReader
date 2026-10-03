@@ -11,17 +11,20 @@ DexReader is a cross-platform Electron desktop app for reading manga from MangaD
 ## Developement Commands
 
 ```bash
-npm run dev           # Start dev server with HMR (renderer hot-reloads; main/preload require Electron restart)
-npm run typecheck     # Run both node and web TypeScript checks (required before committing)
-npm run lint          # ESLint
-npm run format        # Prettier
-npm run build         # typecheck + electron-vite build (production)
-npm run build:win     # Windows NSIS installer
-npm run build:mac     # macOS DMG
-npm run build:linux   # Linux AppImage + deb
+npm run dev            # Start dev server with HMR (renderer hot-reloads; main/preload require Electron restart)
+npm run typecheck      # Run both node and web TypeScript checks (required before committing)
+npm run lint           # ESLint
+npm run format         # Prettier
+npm run test           # Run the Vitest suite once (main + renderer projects)
+npm run test:watch     # Vitest in watch mode
+npm run test:coverage  # Vitest with coverage; enforces the per-area thresholds in vitest.config.ts
+npm run build          # typecheck + electron-vite build (production)
+npm run build:win      # Windows NSIS installer
+npm run build:mac      # macOS DMG
+npm run build:linux    # Linux AppImage + deb
 ```
 
-There are no unit tests. Quality gates are `npm run typecheck` and `npm run lint`.
+Quality gates are `npm run typecheck`, `npm run lint`, and `npm run test` (all three run in CI on every PR). Unit tests are colocated with the code they cover (`foo.ts` + `foo.test.ts`), using Vitest across two projects: `main` (Node env, covers `src/main` + `src/preload` + `src/shared`) and `renderer` (happy-dom env, covers `src/renderer`). Coverage is gated per-area in `vitest.config.ts` for the directories with an established suite (`src/main`, `src/preload`, `src/shared`, `src/renderer/src/stores`) — the renderer views/components tier is intentionally left ungated, as it's better suited to integration/E2E testing than unit tests.
 
 **Prettier config** (`.prettierrc.yaml`): single quotes, no semicolons, 100-char line width, no trailing commas.
 
@@ -117,6 +120,7 @@ Zustand 5 stores in `src/renderer/src/stores/`. Stores are ephemeral (rehydrated
 
 - Log with `mainLog` at appropriate levels (info/warning/error)
 - Never bypass `secureFs` for filesystem operations
+- Never import from `src/preload` (ESLint-enforced, mirrors the existing preload/renderer → main restriction) — put anything both sides need in `src/shared` instead
 
 **Renderer** (`src/renderer/**`):
 
