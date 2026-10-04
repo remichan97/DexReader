@@ -125,6 +125,9 @@ interface API {
   getTheme: () => Promise<IpcResponse<'light' | 'dark'>>
   getSystemAccentColor: () => Promise<IpcResponse<string>>
 
+  // Security API
+  getCspNonce: () => Promise<IpcResponse<string>>
+
   // Navigation API
   onNavigate: (callback: (route: string) => void) => () => void
 

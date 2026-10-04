@@ -37,6 +37,9 @@ const api = {
   getTheme: () => ipcRenderer.invoke('get-theme'),
   getSystemAccentColor: () => ipcRenderer.invoke('theme:get-system-accent-color'),
 
+  // Security API
+  getCspNonce: () => ipcRenderer.invoke('security:get-csp-nonce'),
+
   // Navigation API
   onNavigate: (callback: (route: string) => void) => {
     const listener = (_: unknown, route: string): void => callback(route)

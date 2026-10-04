@@ -1,5 +1,7 @@
 import { HashRouter, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { FluentProvider } from '@fluentui/react-components'
+import { dexReaderDarkTheme, dexReaderLightTheme } from './theme/fluentTheme'
 import { AppShell } from './layouts/AppShell'
 import { AppRoutes } from './router'
 import { useAccentColor } from './hooks/useAccentColor'
@@ -12,7 +14,7 @@ import { useStartupLanguage } from './hooks/useStartupLanguage'
 import { useStartupRoute } from './hooks/useStartupRoute'
 import { useUpdateBanner } from './hooks/useUpdateBanner'
 import { ToastContainer } from './components/Toast'
-import { useToastStore, useProgressStore, useLibraryStore } from './stores'
+import { useToastStore, useProgressStore, useLibraryStore, useAppStore } from './stores'
 import { useConnectivityStore } from './stores/connectivityStore'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { ProgressRing } from './components/ProgressRing'
@@ -187,20 +189,26 @@ function App(): React.JSX.Element {
   // Global toast state
   const toasts = useToastStore((state) => state.toasts)
   const dismissToast = useToastStore((state) => state.dismiss)
+  const theme = useAppStore((state) => state.theme)
 
   return (
-    <ErrorBoundary
-      level="app"
-      onError={(error, errorInfo) => {
-        // Log to structured logger (goes to renderer.log file)
-        rendererLog.error('[App] Critical error:', error, errorInfo)
-      }}
+    <FluentProvider
+      theme={theme === 'dark' ? dexReaderDarkTheme : dexReaderLightTheme}
+      style={{ minHeight: '100vh' }}
     >
-      <HashRouter>
-        <AppContent />
-        <ToastContainer toasts={toasts} onDismiss={dismissToast} position="bottom-right" />
-      </HashRouter>
-    </ErrorBoundary>
+      <ErrorBoundary
+        level="app"
+        onError={(error, errorInfo) => {
+          // Log to structured logger (goes to renderer.log file)
+          rendererLog.error('[App] Critical error:', error, errorInfo)
+        }}
+      >
+        <HashRouter>
+          <AppContent />
+          <ToastContainer toasts={toasts} onDismiss={dismissToast} position="bottom-right" />
+        </HashRouter>
+      </ErrorBoundary>
+    </FluentProvider>
   )
 }
 
