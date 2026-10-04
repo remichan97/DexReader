@@ -1,59 +1,6 @@
 import { rendererLog } from '@renderer/services/logging.service'
-import { useAppStore } from '@renderer/stores'
+import { applyAccentColor } from '@renderer/utils/accentColor'
 import { useEffect, useState } from 'react'
-
-/**
- * Calculate relative luminance of a color (WCAG formula)
- * Used to determine if text should be light or dark on the color
- */
-function getRelativeLuminance(r: number, g: number, b: number): number {
-  const rsRGB = r / 255
-  const gsRGB = g / 255
-  const bsRGB = b / 255
-
-  const rLinear = rsRGB <= 0.03928 ? rsRGB / 12.92 : Math.pow((rsRGB + 0.055) / 1.055, 2.4)
-  const gLinear = gsRGB <= 0.03928 ? gsRGB / 12.92 : Math.pow((gsRGB + 0.055) / 1.055, 2.4)
-  const bLinear = bsRGB <= 0.03928 ? bsRGB / 12.92 : Math.pow((bsRGB + 0.055) / 1.055, 2.4)
-
-  return 0.2126 * rLinear + 0.7152 * gLinear + 0.0722 * bLinear
-}
-
-/**
- * Apply accent color to CSS variables, and mirror it into appStore so the Fluent theme
- * (built from this value in src/renderer/src/theme/fluentTheme.ts) stays in sync.
- */
-function applyAccentColor(color: string): void {
-  const root = document.documentElement
-  root.style.setProperty('--win-accent', color)
-  useAppStore.getState().setAccentColor(color)
-
-  // Calculate hover and active states (slightly darker)
-  const rgb = Number.parseInt(color.slice(1), 16)
-  const r = (rgb >> 16) & 255
-  const g = (rgb >> 8) & 255
-  const b = rgb & 255
-
-  // Darker for hover (-10%)
-  const hoverR = Math.max(0, Math.floor(r * 0.9))
-  const hoverG = Math.max(0, Math.floor(g * 0.9))
-  const hoverB = Math.max(0, Math.floor(b * 0.9))
-  const hoverColor = `#${((hoverR << 16) | (hoverG << 8) | hoverB).toString(16).padStart(6, '0')}`
-
-  // Even darker for active (-20%)
-  const activeR = Math.max(0, Math.floor(r * 0.8))
-  const activeG = Math.max(0, Math.floor(g * 0.8))
-  const activeB = Math.max(0, Math.floor(b * 0.8))
-  const activeColor = `#${((activeR << 16) | (activeG << 8) | activeB).toString(16).padStart(6, '0')}`
-
-  root.style.setProperty('--win-accent-hover', hoverColor)
-  root.style.setProperty('--win-accent-active', activeColor)
-
-  // Calculate appropriate text color based on accent color luminance
-  // For good contrast: use white text on dark backgrounds, black text on light backgrounds
-  const luminance = getRelativeLuminance(r, g, b)
-  const textOnAccent = luminance > 0.5 ? '#000000' : '#ffffff'
-  root.style.setProperty('--win-text-on-accent', textOnAccent)
-}
 
 /**
  * Hook to load and apply accent color on app startup
