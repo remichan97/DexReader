@@ -1,5 +1,6 @@
 import { renderHook, waitFor } from '@testing-library/react'
 import { useAccentColor } from './useAccentColor'
+import { useAppStore } from '@renderer/stores'
 
 vi.mock('@renderer/services/logging.service', () => ({
   rendererLog: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() }
@@ -37,6 +38,12 @@ it('applies the system accent color when there is no settings file', async () =>
   renderHook(() => useAccentColor())
 
   await waitFor(() => expect(accentVar('--win-accent')).toBe('#336699'))
+})
+
+it('mirrors the applied accent color into appStore', async () => {
+  renderHook(() => useAccentColor())
+
+  await waitFor(() => expect(useAppStore.getState().accentColor).toBe('#336699'))
 })
 
 it('applies a custom accent color from settings.json when present', async () => {

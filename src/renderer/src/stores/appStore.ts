@@ -18,6 +18,11 @@ interface AppState {
   systemTheme: Theme // From Electron main process
   themeMode: ThemeMode // User preference: 'system' | 'light' | 'dark'
 
+  // Accent colour currently applied (system-detected or user override) - mirrors the
+  // --win-accent CSS variable useAccentColor.ts maintains, so the Fluent theme (built
+  // from this value, see src/renderer/src/theme/fluentTheme.ts) stays in sync with it.
+  accentColor: string
+
   // UI state (non-persisted)
   isFullscreen: boolean
 
@@ -25,6 +30,7 @@ interface AppState {
   setTheme: (theme: Theme) => void
   setSystemTheme: (theme: Theme) => void
   setThemeMode: (mode: ThemeMode) => void
+  setAccentColor: (accentColor: string) => void
   setFullscreen: (fullscreen: boolean) => void
 }
 
@@ -42,6 +48,7 @@ export const useAppStore = create<AppState>()((set) => ({
   theme: 'light',
   systemTheme: 'light',
   themeMode: 'system',
+  accentColor: '#0078d4',
   isFullscreen: false,
 
   // Actions
@@ -65,6 +72,8 @@ export const useAppStore = create<AppState>()((set) => ({
       // Recalculate theme based on new mode
       theme: calculateTheme(themeMode, state.systemTheme)
     })),
+
+  setAccentColor: (accentColor) => set({ accentColor }),
 
   setFullscreen: (isFullscreen) => set({ isFullscreen })
 }))

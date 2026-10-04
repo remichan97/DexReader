@@ -48,7 +48,7 @@ export function Switch({
   const switchLabel =
     label || description ? (
       <div>
-        {label && <div>{label}</div>}
+        {label && <div style={{ fontWeight: tokens.fontWeightSemibold }}>{label}</div>}
         {description && (
           <div
             style={{
@@ -71,6 +71,10 @@ export function Switch({
       disabled={disabled}
       className={className}
       aria-label={ariaLabel || label}
+      // Fluent's Switch root is inline-flex (shrink-to-fit), so the indicator sits right
+      // after the label text instead of pinned to the row's far edge - stretch it full
+      // width and push label/indicator to opposite ends, matching the old layout.
+      style={{ width: '100%', justifyContent: 'space-between' }}
     />
   )
 }

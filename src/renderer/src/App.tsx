@@ -1,7 +1,7 @@
 import { HashRouter, useLocation } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { FluentProvider } from '@fluentui/react-components'
-import { dexReaderDarkTheme, dexReaderLightTheme } from './theme/fluentTheme'
+import { createDexReaderThemes } from './theme/fluentTheme'
 import { AppShell } from './layouts/AppShell'
 import { AppRoutes } from './router'
 import { useAccentColor } from './hooks/useAccentColor'
@@ -190,12 +190,15 @@ function App(): React.JSX.Element {
   const toasts = useToastStore((state) => state.toasts)
   const dismissToast = useToastStore((state) => state.dismiss)
   const theme = useAppStore((state) => state.theme)
+  const accentColor = useAppStore((state) => state.accentColor)
+
+  const fluentTheme = useMemo(() => {
+    const themes = createDexReaderThemes(accentColor)
+    return theme === 'dark' ? themes.dark : themes.light
+  }, [theme, accentColor])
 
   return (
-    <FluentProvider
-      theme={theme === 'dark' ? dexReaderDarkTheme : dexReaderLightTheme}
-      style={{ minHeight: '100vh' }}
-    >
+    <FluentProvider theme={fluentTheme} style={{ minHeight: '100vh' }}>
       <ErrorBoundary
         level="app"
         onError={(error, errorInfo) => {

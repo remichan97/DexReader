@@ -71,38 +71,48 @@ const SHADES: ReadonlyArray<keyof BrandVariants> = [
   10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160
 ]
 
-// Fluent's BrandVariants convention: shade 10 is darkest, shade 160 is lightest.
-// An even lightness ramp through the input colour's own hue/saturation, with the
-// input itself landing closest to shade 80 (Fluent's typical "primary" stop).
-const LIGHTNESS_BY_SHADE: Record<keyof BrandVariants, number> = {
-  10: 0.08,
-  20: 0.14,
-  30: 0.2,
-  40: 0.26,
-  50: 0.32,
-  60: 0.38,
-  70: 0.44,
-  80: 0.5,
-  90: 0.56,
-  100: 0.62,
-  110: 0.68,
-  120: 0.74,
-  130: 0.8,
-  140: 0.86,
-  150: 0.92,
-  160: 0.96
+// Fluent's BrandVariants convention: shade 10 is darkest, shade 160 is lightest, and
+// shade 80 is the one createLightTheme/createDarkTheme treat as "the brand colour"
+// itself (colorBrandBackground/colorCompoundBrandBackground both resolve to brand[80]
+// in the light theme - see @fluentui/tokens/lib/alias/lightColor.js). Deltas below are
+// relative to shade 80 so the *exact* input colour is preserved there, with the other
+// shades stepping evenly lighter/darker from it - rather than every shade (including 80)
+// being forced to an absolute lightness that ignores the input's own lightness, which
+// washed out visibly different accent colours into a similar-looking shade 80.
+const LIGHTNESS_DELTA_BY_SHADE: Record<keyof BrandVariants, number> = {
+  10: -0.42,
+  20: -0.36,
+  30: -0.3,
+  40: -0.24,
+  50: -0.18,
+  60: -0.12,
+  70: -0.06,
+  80: 0,
+  90: 0.06,
+  100: 0.12,
+  110: 0.18,
+  120: 0.24,
+  130: 0.3,
+  140: 0.36,
+  150: 0.42,
+  160: 0.46
+}
+
+function clamp01(value: number): number {
+  return Math.min(1, Math.max(0, value))
 }
 
 /**
- * Derives a 16-stop Fluent BrandVariants ramp from a single brand colour by
- * stepping that colour's hue/saturation through an even lightness scale.
- * Good enough for Phase 0 theming parity; exact per-component contrast gets
- * tuned as each primitive is migrated (see claude-plans/fluent2-ui-migration-plan.md).
+ * Derives a 16-stop Fluent BrandVariants ramp from a single brand colour by stepping
+ * that colour's hue/saturation/lightness through an even relative scale, anchored so
+ * shade 80 is the exact input colour. Good enough for Phase 0/Tier 1 theming parity;
+ * exact per-component contrast gets tuned as each primitive is migrated (see
+ * claude-plans/fluent2-ui-migration-plan.md).
  */
 export function generateBrandRamp(baseHex: string): BrandVariants {
-  const { h, s } = hexToHsl(baseHex)
+  const { h, s, l } = hexToHsl(baseHex)
   const entries = SHADES.map(
-    (shade) => [shade, hslToHex({ h, s, l: LIGHTNESS_BY_SHADE[shade] })] as const
+    (shade) => [shade, hslToHex({ h, s, l: clamp01(l + LIGHTNESS_DELTA_BY_SHADE[shade]) })] as const
   )
   // Cast is exhaustive by construction: SHADES enumerates every key of BrandVariants.
   return Object.fromEntries(entries) as BrandVariants

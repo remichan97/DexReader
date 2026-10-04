@@ -1,4 +1,5 @@
 import { rendererLog } from '@renderer/services/logging.service'
+import { useAppStore } from '@renderer/stores'
 import { useEffect, useState } from 'react'
 
 /**
@@ -18,11 +19,13 @@ function getRelativeLuminance(r: number, g: number, b: number): number {
 }
 
 /**
- * Apply accent color to CSS variables
+ * Apply accent color to CSS variables, and mirror it into appStore so the Fluent theme
+ * (built from this value in src/renderer/src/theme/fluentTheme.ts) stays in sync.
  */
 function applyAccentColor(color: string): void {
   const root = document.documentElement
   root.style.setProperty('--win-accent', color)
+  useAppStore.getState().setAccentColor(color)
 
   // Calculate hover and active states (slightly darker)
   const rgb = Number.parseInt(color.slice(1), 16)
