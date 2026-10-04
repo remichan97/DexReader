@@ -1,5 +1,5 @@
 import type { JSX, ReactNode } from 'react'
-import './InfoBar.css'
+import { MessageBar, MessageBarBody, MessageBarActions } from '@fluentui/react-components'
 
 export interface InfoBarProps {
   /**
@@ -61,11 +61,9 @@ export function InfoBar({
   if (!visible) return null
 
   return (
-    <div className={`info-bar ${className}`}>
-      <div className="info-bar__content flex items-center justify-between">
-        <span className="info-bar__text">{text}</span>
-        {actions && <div className="info-bar__actions flex gap-2 items-center">{actions}</div>}
-      </div>
-    </div>
+    <MessageBar intent="info" className={className}>
+      <MessageBarBody>{text}</MessageBarBody>
+      {actions && <MessageBarActions>{actions}</MessageBarActions>}
+    </MessageBar>
   )
 }

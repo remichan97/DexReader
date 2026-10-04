@@ -1,5 +1,5 @@
+import { Badge as FluentBadge } from '@fluentui/react-components'
 import { BaseComponentProps } from '@renderer/types/components'
-import './Badge.css'
 
 export type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'info'
 export type BadgeSize = 'small' | 'medium'
@@ -25,7 +25,7 @@ export interface BadgeProps extends BaseComponentProps {
   /**
    * Optional icon
    */
-  icon?: React.ReactNode
+  icon?: React.ReactElement
 
   /**
    * Show as dot instead of full badge
@@ -45,6 +45,14 @@ export interface BadgeProps extends BaseComponentProps {
  * <Badge variant="error" dot />
  * ```
  */
+const VARIANT_TO_COLOR = {
+  default: 'subtle',
+  success: 'success',
+  warning: 'warning',
+  error: 'danger',
+  info: 'brand'
+} as const
+
 export function Badge({
   variant = 'default',
   size = 'medium',
@@ -54,25 +62,30 @@ export function Badge({
   className = '',
   'aria-label': ariaLabel
 }: Readonly<BadgeProps>): React.JSX.Element {
-  const badgeClasses = [
-    'badge',
-    `badge--${variant}`,
-    `badge--${size}`,
-    dot && 'badge--dot',
-    !dot && (icon || children) && 'inline-flex items-center gap-1',
-    className
-  ]
-    .filter(Boolean)
-    .join(' ')
+  const color = VARIANT_TO_COLOR[variant]
 
   if (dot) {
-    return <span className={badgeClasses} aria-label={ariaLabel || 'Status indicator'} />
+    return (
+      <FluentBadge
+        shape="circular"
+        size="tiny"
+        color={color}
+        className={className}
+        aria-label={ariaLabel || 'Status indicator'}
+      />
+    )
   }
 
   return (
-    <span className={badgeClasses} aria-label={ariaLabel}>
-      {icon && <span className="badge__icon">{icon}</span>}
-      <span className="badge__content">{children}</span>
-    </span>
+    <FluentBadge
+      shape="rounded"
+      size={size}
+      color={color}
+      icon={icon}
+      className={className}
+      aria-label={ariaLabel}
+    >
+      {children}
+    </FluentBadge>
   )
 }

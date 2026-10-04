@@ -1,6 +1,5 @@
-import { useId } from 'react'
+import { Switch as FluentSwitch, tokens } from '@fluentui/react-components'
 import { BaseComponentProps, DisableableProps } from '@renderer/types/components'
-import './Switch.css'
 
 export interface SwitchProps extends BaseComponentProps, DisableableProps {
   /**
@@ -46,62 +45,32 @@ export function Switch({
   className = '',
   'aria-label': ariaLabel
 }: Readonly<SwitchProps>): React.JSX.Element {
-  const id = useId()
-
-  const handleClick = (): void => {
-    if (!disabled) {
-      onChange(!checked)
-    }
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent): void => {
-    if (disabled) return
-
-    if (e.key === ' ' || e.key === 'Enter') {
-      e.preventDefault()
-      onChange(!checked)
-    }
-  }
-
-  const switchClasses = [
-    'switch',
-    checked && 'switch--checked',
-    disabled && 'switch--disabled',
-    className
-  ]
-    .filter(Boolean)
-    .join(' ')
-
-  return (
-    <div className={switchClasses}>
-      <div className="switch__control flex items-center gap-3">
-        {(label || description) && (
-          <div className="switch__content">
-            {label && (
-              <label htmlFor={id} className="switch__label">
-                {label}
-              </label>
-            )}
-            {description && <p className="switch__description">{description}</p>}
+  const switchLabel =
+    label || description ? (
+      <div>
+        {label && <div>{label}</div>}
+        {description && (
+          <div
+            style={{
+              fontSize: tokens.fontSizeBase200,
+              color: tokens.colorNeutralForeground3
+            }}
+          >
+            {description}
           </div>
         )}
-
-        <button
-          type="button"
-          role="switch"
-          id={id}
-          className="switch__button"
-          aria-checked={checked}
-          aria-label={ariaLabel || label}
-          disabled={disabled}
-          onClick={handleClick}
-          onKeyDown={handleKeyDown}
-        >
-          <span className="switch__track">
-            <span className="switch__knob" />
-          </span>
-        </button>
       </div>
-    </div>
+    ) : undefined
+
+  return (
+    <FluentSwitch
+      checked={checked}
+      onChange={(_ev, data) => onChange(data.checked)}
+      label={switchLabel}
+      labelPosition="before"
+      disabled={disabled}
+      className={className}
+      aria-label={ariaLabel || label}
+    />
   )
 }

@@ -1,5 +1,5 @@
+import { Checkbox as FluentCheckbox } from '@fluentui/react-components'
 import { BaseComponentProps, DisableableProps } from '@renderer/types/components'
-import './Checkbox.css'
 
 export interface CheckboxProps extends BaseComponentProps, DisableableProps {
   /**
@@ -57,77 +57,16 @@ export function Checkbox({
   className = '',
   'aria-label': ariaLabel
 }: Readonly<CheckboxProps>): React.JSX.Element {
-  const handleChange = (): void => {
-    if (!disabled) {
-      onChange(!checked)
-    }
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent): void => {
-    if (e.key === ' ' || e.key === 'Enter') {
-      e.preventDefault()
-      handleChange()
-    }
-  }
-
-  const checkboxClasses = [
-    'checkbox inline-flex items-center gap-2',
-    checked && 'checkbox--checked',
-    indeterminate && 'checkbox--indeterminate',
-    disabled && 'checkbox--disabled',
-    className
-  ]
-    .filter(Boolean)
-    .join(' ')
-
   return (
-    <label className={checkboxClasses}>
-      <input
-        type="checkbox"
-        className="checkbox__input"
-        checked={checked}
-        onChange={handleChange}
-        disabled={disabled}
-        name={name}
-        value={value}
-        aria-label={ariaLabel || label}
-        aria-checked={indeterminate ? 'mixed' : checked}
-      />
-      <div
-        className="checkbox__box flex items-center justify-center"
-        role="presentation"
-        tabIndex={disabled ? undefined : 0}
-        onKeyDown={handleKeyDown}
-      >
-        {indeterminate ? (
-          <svg
-            className="checkbox__icon checkbox__icon--indeterminate"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M4 8H12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-        ) : (
-          checked && (
-            <svg
-              className="checkbox__icon checkbox__icon--check"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M3 8L6.5 11.5L13 5"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          )
-        )}
-      </div>
-      {label && <span className="checkbox__label flex items-center gap-1-5">{label}</span>}
-    </label>
+    <FluentCheckbox
+      checked={indeterminate ? 'mixed' : checked}
+      onChange={(_ev, data) => onChange(data.checked === true)}
+      label={label}
+      disabled={disabled}
+      name={name}
+      value={value}
+      className={className}
+      aria-label={ariaLabel || label}
+    />
   )
 }

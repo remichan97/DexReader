@@ -1,5 +1,5 @@
+import { Radio as FluentRadio, tokens } from '@fluentui/react-components'
 import { BaseComponentProps, DisableableProps } from '@renderer/types/components'
-import './Radio.css'
 
 export interface RadioProps extends BaseComponentProps, DisableableProps {
   /**
@@ -53,64 +53,39 @@ export interface RadioProps extends BaseComponentProps, DisableableProps {
  */
 export function Radio({
   value,
-  checked,
-  onChange,
   label,
   description,
-  name,
   disabled = false,
   className = '',
   'aria-label': ariaLabel
 }: Readonly<RadioProps>): React.JSX.Element {
-  const handleChange = (): void => {
-    if (!disabled && onChange) {
-      onChange(value)
-    }
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent): void => {
-    if ((e.key === ' ' || e.key === 'Enter') && !disabled) {
-      e.preventDefault()
-      handleChange()
-    }
-  }
-
-  const radioClasses = [
-    'radio inline-flex gap-2',
-    description ? 'items-start' : 'items-center',
-    checked && 'radio--checked',
-    disabled && 'radio--disabled',
-    className
-  ]
-    .filter(Boolean)
-    .join(' ')
+  // checked/onChange/name are no longer used here: inside Fluent's RadioGroup, each Radio
+  // reads its checked state and name from the ambient RadioGroupProvider context (set by
+  // RadioGroup.tsx), not from its own props - kept on RadioProps for API compatibility.
+  const radioLabel =
+    label || description ? (
+      <div>
+        {label && <div>{label}</div>}
+        {description && (
+          <div
+            style={{
+              fontSize: tokens.fontSizeBase200,
+              color: tokens.colorNeutralForeground3
+            }}
+          >
+            {description}
+          </div>
+        )}
+      </div>
+    ) : undefined
 
   return (
-    <label className={radioClasses}>
-      <input
-        type="radio"
-        className="radio__input"
-        value={value}
-        checked={checked}
-        onChange={handleChange}
-        disabled={disabled}
-        name={name}
-        aria-label={ariaLabel || label}
-      />
-      <span
-        className="radio__circle flex items-center justify-center"
-        tabIndex={disabled ? undefined : 0}
-        onKeyDown={handleKeyDown}
-        aria-hidden="true"
-      >
-        {checked && <span className="radio__dot" />}
-      </span>
-      {(label || description) && (
-        <div className="radio__content">
-          {label && <span className="radio__label">{label}</span>}
-          {description && <span className="radio__description">{description}</span>}
-        </div>
-      )}
-    </label>
+    <FluentRadio
+      value={value}
+      label={radioLabel}
+      disabled={disabled}
+      className={className}
+      aria-label={ariaLabel || label}
+    />
   )
 }
