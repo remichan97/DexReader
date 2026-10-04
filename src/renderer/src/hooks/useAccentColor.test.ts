@@ -8,12 +8,15 @@ vi.mock('@renderer/services/logging.service', () => ({
 
 const getSystemAccentColor = vi.fn()
 const onAccentColorChanged = vi.fn()
-const getAllowedPaths = vi.fn()
-const readFile = vi.fn()
+const load = vi.fn()
 const removeAccentListener = vi.fn()
 
 function accentVar(name: string): string {
   return document.documentElement.style.getPropertyValue(name)
+}
+
+function settingsWithAccent(accentColor?: string): { appearance: { accentColor?: string } } {
+  return { appearance: { accentColor } }
 }
 
 beforeEach(() => {
@@ -23,18 +26,14 @@ beforeEach(() => {
     getSystemAccentColor,
     onAccentColorChanged
   } as unknown as typeof globalThis.api
-  globalThis.fileSystem = {
-    getAllowedPaths,
-    readFile
-  } as unknown as typeof globalThis.fileSystem
+  globalThis.settings = { load } as unknown as typeof globalThis.settings
 
   getSystemAccentColor.mockResolvedValue({ success: true, data: '#336699' })
-  getAllowedPaths.mockResolvedValue({ success: true, data: { appData: '/appdata' } })
-  readFile.mockResolvedValue({ success: false })
+  load.mockResolvedValue({ success: true, data: settingsWithAccent(undefined) })
   onAccentColorChanged.mockReturnValue(removeAccentListener)
 })
 
-it('applies the system accent color when there is no settings file', async () => {
+it('applies the system accent color when settings has no custom accentColor', async () => {
   renderHook(() => useAccentColor())
 
   await waitFor(() => expect(accentVar('--win-accent')).toBe('#336699'))
@@ -46,19 +45,16 @@ it('mirrors the applied accent color into appStore', async () => {
   await waitFor(() => expect(useAppStore.getState().accentColor).toBe('#336699'))
 })
 
-it('applies a custom accent color from settings.json when present', async () => {
-  readFile.mockResolvedValue({
-    success: true,
-    data: JSON.stringify({ accentColor: '#ff0000' })
-  })
+it('applies the custom accentColor from settings.appearance when present', async () => {
+  load.mockResolvedValue({ success: true, data: settingsWithAccent('#ff0000') })
 
   renderHook(() => useAccentColor())
 
   await waitFor(() => expect(accentVar('--win-accent')).toBe('#ff0000'))
 })
 
-it('falls back to the system color when settings.json has no accentColor', async () => {
-  readFile.mockResolvedValue({ success: true, data: JSON.stringify({}) })
+it('falls back to the system color when loading settings fails', async () => {
+  load.mockResolvedValue({ success: false })
 
   renderHook(() => useAccentColor())
 
@@ -67,14 +63,6 @@ it('falls back to the system color when settings.json has no accentColor', async
 
 it('falls back to the default color when fetching the system accent color fails', async () => {
   getSystemAccentColor.mockResolvedValue({ success: false })
-
-  renderHook(() => useAccentColor())
-
-  await waitFor(() => expect(accentVar('--win-accent')).toBe('#0078d4'))
-})
-
-it('falls back to the hardcoded default color when getAllowedPaths fails (not even the already-fetched system color)', async () => {
-  getAllowedPaths.mockResolvedValue({ success: false })
 
   renderHook(() => useAccentColor())
 
@@ -116,7 +104,7 @@ describe('system accent color change listener', () => {
   })
 
   it('ignores a system color change once the user has a custom color', async () => {
-    readFile.mockResolvedValue({ success: true, data: JSON.stringify({ accentColor: '#ff0000' }) })
+    load.mockResolvedValue({ success: true, data: settingsWithAccent('#ff0000') })
     renderHook(() => useAccentColor())
     await waitFor(() => expect(accentVar('--win-accent')).toBe('#ff0000'))
     await waitFor(() => expect(onAccentColorChanged).toHaveBeenCalled())

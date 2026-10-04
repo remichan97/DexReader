@@ -13,43 +13,21 @@ export function useAccentColor(): void {
   useEffect(() => {
     async function loadAccentColor(): Promise<void> {
       try {
-        // Get system accent color first
         const systemAccentResult = await globalThis.api.getSystemAccentColor()
-        if (!systemAccentResult.success) {
+        if (!systemAccentResult.success || !systemAccentResult.data) {
           throw new Error('Failed to get system accent color')
         }
-        const systemAccent = systemAccentResult.data as string
+        const systemAccent = systemAccentResult.data
 
-        // Try to load custom color from settings
-        const pathsResult = await globalThis.fileSystem.getAllowedPaths()
-        if (!pathsResult.success || !pathsResult.data) {
-          throw new Error('Failed to get allowed paths')
-        }
-        const paths = pathsResult.data
+        const settingsResult = await globalThis.settings.load()
+        const customAccent = settingsResult.success
+          ? settingsResult.data?.appearance.accentColor
+          : undefined
 
-        try {
-          const settingsResult = await globalThis.fileSystem.readFile(
-            paths.appData + '/settings.json',
-            'utf-8'
-          )
-          if (settingsResult.success && settingsResult.data) {
-            const parsed = JSON.parse(settingsResult.data as string)
-            if (parsed.accentColor) {
-              // User has custom color
-              setIsUsingSystemColor(false)
-              applyAccentColor(parsed.accentColor)
-            } else {
-              // Use system color
-              setIsUsingSystemColor(true)
-              applyAccentColor(systemAccent)
-            }
-          } else {
-            // No settings file or can't read it - use system color
-            setIsUsingSystemColor(true)
-            applyAccentColor(systemAccent)
-          }
-        } catch {
-          // No settings file or can't read it - use system color
+        if (customAccent) {
+          setIsUsingSystemColor(false)
+          applyAccentColor(customAccent)
+        } else {
           setIsUsingSystemColor(true)
           applyAccentColor(systemAccent)
         }
