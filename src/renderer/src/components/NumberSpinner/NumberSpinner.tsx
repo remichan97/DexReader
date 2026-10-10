@@ -1,7 +1,12 @@
-import { useEffect, useId, useState } from 'react'
-import { ChevronUp16Regular, ChevronDown16Regular } from '@fluentui/react-icons'
+import {
+  Field,
+  SpinButton,
+  makeStyles,
+  tokens,
+  type SpinButtonChangeEvent,
+  type SpinButtonOnChangeData
+} from '@fluentui/react-components'
 import { BaseComponentProps, DisableableProps } from '@renderer/types/components'
-import './NumberSpinner.css'
 
 function clamp(value: number, min?: number, max?: number): number {
   let clamped = value
@@ -63,10 +68,19 @@ export interface NumberSpinnerProps extends BaseComponentProps, DisableableProps
   error?: string
 }
 
+const useStyles = makeStyles({
+  description: {
+    margin: 0,
+    fontSize: tokens.fontSizeBase200,
+    color: tokens.colorNeutralForeground3
+  }
+})
+
 /**
- * Numeric stepper input following Windows 11 Fluent Design's NumberBox pattern.
- * Clamps to [min, max] before ever calling onChange, so callers never receive
- * an out-of-range value and don't need to re-validate before submitting it.
+ * Numeric stepper input, built on Fluent 2's `Field` + `SpinButton`
+ * (@fluentui/react-components). Clamps to [min, max] before ever calling
+ * onChange, so callers never receive an out-of-range value and don't need to
+ * re-validate before submitting it.
  *
  * @example
  * ```tsx
@@ -92,139 +106,55 @@ export function NumberSpinner({
   helperText,
   error,
   disabled = false,
-  className = '',
+  className,
   'aria-label': ariaLabel
 }: Readonly<NumberSpinnerProps>): React.JSX.Element {
-  const [draft, setDraft] = useState(String(value))
-  const inputId = useId()
-  const helperId = useId()
+  const styles = useStyles()
+  const hasError = Boolean(error)
 
-  // Keep the draft in sync when the value changes from outside (e.g. settings reset)
-  useEffect(() => {
-    setDraft(String(value))
-  }, [value])
+  const handleChange = (_event: SpinButtonChangeEvent, data: SpinButtonOnChangeData): void => {
+    // SpinButton clamps for the stepper buttons/arrow keys itself (data.value is already a
+    // valid number there), but a direct-text-edit commit (blur/Enter) only parses the typed
+    // text into data.displayValue, leaving data.value undefined and unclamped - same two-path
+    // split the original's commit()/commitDraft() handled explicitly.
+    const nextValue =
+      typeof data.value === 'number'
+        ? data.value
+        : data.displayValue !== undefined
+          ? Number.parseInt(data.displayValue, 10)
+          : NaN
 
-  const canDecrement = !disabled && (min === undefined || value > min)
-  const canIncrement = !disabled && (max === undefined || value < max)
+    if (Number.isNaN(nextValue)) return
 
-  const commit = (nextValue: number): void => {
     const clamped = clamp(nextValue, min, max)
-    setDraft(String(clamped))
     if (clamped !== value) {
       onChange(clamped)
     }
   }
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    const nextDraft = event.target.value
-    if (/^-?\d*$/.test(nextDraft)) {
-      setDraft(nextDraft)
-    }
-  }
-
-  const commitDraft = (): void => {
-    const parsed = Number.parseInt(draft, 10)
-    if (Number.isNaN(parsed)) {
-      setDraft(String(value))
-      return
-    }
-    commit(parsed)
-  }
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>): void => {
-    if (disabled) return
-
-    if (event.key === 'ArrowUp') {
-      event.preventDefault()
-      commit(value + step)
-    } else if (event.key === 'ArrowDown') {
-      event.preventDefault()
-      commit(value - step)
-    } else if (event.key === 'Enter') {
-      event.preventDefault()
-      commitDraft()
-    }
-  }
-
-  const hasError = Boolean(error)
-
-  const wrapperClasses = [
-    'number-spinner flex flex-col gap-1',
-    hasError && 'number-spinner--error',
-    disabled && 'number-spinner--disabled',
-    className
-  ]
-    .filter(Boolean)
-    .join(' ')
-
-  const describedBy = [hasError ? helperId : '', !hasError && helperText ? helperId : '']
-    .filter(Boolean)
-    .join(' ')
-
   return (
-    <div className={wrapperClasses}>
-      {label && (
-        <label htmlFor={inputId} className="number-spinner__label">
-          {label}
-        </label>
-      )}
-      {description && <p className="number-spinner__description">{description}</p>}
-
-      <div className="number-spinner__field flex items-center">
-        <input
-          id={inputId}
-          className="number-spinner__input"
-          type="text"
-          inputMode="numeric"
-          role="spinbutton"
-          value={draft}
-          onChange={handleInputChange}
-          onBlur={commitDraft}
-          onKeyDown={handleKeyDown}
+    <Field
+      className={className}
+      label={label}
+      validationState={hasError ? 'error' : 'none'}
+      validationMessage={hasError ? error : undefined}
+      hint={!hasError ? helperText : undefined}
+    >
+      <>
+        {description && <p className={styles.description}>{description}</p>}
+        <SpinButton
+          value={value}
+          displayValue={suffix ? `${value} ${suffix}` : undefined}
+          onChange={handleChange}
+          min={min}
+          max={max}
+          step={step}
           disabled={disabled}
-          aria-label={ariaLabel || label}
-          aria-valuenow={value}
-          aria-valuemin={min}
-          aria-valuemax={max}
-          aria-invalid={hasError}
-          aria-describedby={describedBy || undefined}
+          aria-label={ariaLabel}
+          incrementButton={{ 'aria-label': `Increase${label ? ` ${label}` : ''}` }}
+          decrementButton={{ 'aria-label': `Decrease${label ? ` ${label}` : ''}` }}
         />
-
-        {suffix && <span className="number-spinner__suffix">{suffix}</span>}
-
-        <div className="number-spinner__steppers flex flex-col">
-          <button
-            type="button"
-            className="number-spinner__stepper"
-            onClick={() => commit(value + step)}
-            disabled={!canIncrement}
-            tabIndex={-1}
-            aria-label={`Increase${label ? ` ${label}` : ''}`}
-          >
-            <ChevronUp16Regular />
-          </button>
-          <button
-            type="button"
-            className="number-spinner__stepper"
-            onClick={() => commit(value - step)}
-            disabled={!canDecrement}
-            tabIndex={-1}
-            aria-label={`Decrease${label ? ` ${label}` : ''}`}
-          >
-            <ChevronDown16Regular />
-          </button>
-        </div>
-      </div>
-
-      {(error || helperText) && (
-        <span
-          id={helperId}
-          className={hasError ? 'number-spinner__error' : 'number-spinner__helper'}
-          role={hasError ? 'alert' : undefined}
-        >
-          {error || helperText}
-        </span>
-      )}
-    </div>
+      </>
+    </Field>
   )
 }
