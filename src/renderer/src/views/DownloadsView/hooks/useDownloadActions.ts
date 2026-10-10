@@ -1,4 +1,4 @@
-import { useToast } from '@renderer/components/Toast'
+import { useToastStore } from '@renderer/stores'
 import { rendererLog } from '@renderer/services/logging.service'
 import type { Download } from '@renderer/types/download.types'
 import i18next from 'i18next'
@@ -24,7 +24,7 @@ export function useDownloadActions({
   activeCount,
   onRefresh
 }: UseDownloadActionsParams): UseDownloadActionsReturn {
-  const { show: showToast } = useToast()
+  const showToast = useToastStore((state) => state.show)
 
   const handleCancel = async (chapterId: string): Promise<void> => {
     const response = await globalThis.downloads.removeFromQueue(chapterId)

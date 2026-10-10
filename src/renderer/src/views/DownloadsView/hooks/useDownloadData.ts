@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useToast } from '@renderer/components/Toast'
+import { useToastStore } from '@renderer/stores'
 import { Download, mapChapterDownloadToFrontend } from '@renderer/types/download.types'
 import type { ChapterProgressEvent, QueueProgressEvent } from '../types'
 import { rendererLog } from '@renderer/services/logging.service'
@@ -20,7 +20,7 @@ export interface UseDownloadDataReturn {
 let hasLoadedDownloads = false
 
 export function useDownloadData(): UseDownloadDataReturn {
-  const { show: showToast } = useToast()
+  const showToast = useToastStore((state) => state.show)
 
   // State
   const [downloads, setDownloads] = useState<Download[]>([])
