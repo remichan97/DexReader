@@ -220,6 +220,39 @@
   height: 24px;
 }
 
+/* Add-to-Collection Button (shares the favourite button's overlay) */
+.manga-card__collection-button {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  color: var(--win-accent);
+  cursor: pointer;
+  transition: var(--transition-all-fast);
+  outline: none;
+}
+
+.manga-card__collection-button:hover {
+  background: #ffffff;
+  transform: scale(1.1);
+}
+
+.manga-card__collection-button:active {
+  transform: scale(0.95);
+}
+
+.manga-card__collection-button:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.manga-card__collection-icon {
+  width: 24px;
+  height: 24px;
+}
+
 /* Progress Bar */
 .manga-card__progress-bar {
   position: absolute;
