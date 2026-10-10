@@ -1,106 +1,55 @@
 import type { JSX } from 'react'
-import { Edit20Regular, Delete20Regular } from '@fluentui/react-icons'
+import { Menu, MenuTrigger, MenuPopover, MenuList, MenuItem } from '@fluentui/react-components'
+import { Edit20Regular, Delete20Regular, MoreHorizontal20Regular } from '@fluentui/react-icons'
+import { Button } from '@renderer/components/Button'
 import { useTranslation } from '@renderer/hooks/useTranslation'
-import '@renderer/components/ContextMenu/ContextMenu.css'
 
 interface CollectionContextMenuProps {
-  readonly position: {
-    readonly top: number
-    readonly left: number
-  }
+  readonly collectionName: string
   readonly onEdit: () => void
   readonly onDelete: () => void
-  readonly onClose: () => void
 }
 
 /**
- * Context menu for collection tabs
+ * Overflow menu for a collection tab (Edit/Delete), triggered by a visible "more" button
+ * rather than right-click. Each non-default collection tab renders its own instance of this
+ * as a sibling of the Tab itself, not nested inside it - Tab renders as a real <button>, and
+ * a button can't contain another interactive button.
  *
- * Uses the same structure and styles as the reusable ContextMenu component,
- * but with manual positioning to work with Tab components.
+ * Replaces the hand-rolled right-click ContextMenu (manual position tracking, a fixed
+ * backdrop to catch outside clicks). Deliberately a click-triggered button rather than
+ * hover-reveal icons directly on the tab: Delete is destructive, and hover-reveal lowers the
+ * activation energy for an accidental click in a way a deliberate click on a dedicated
+ * trigger doesn't - see claude-plans/fluent2-ui-migration-plan.md, Phase 4.
  */
 export function CollectionContextMenu({
-  position,
+  collectionName,
   onEdit,
-  onDelete,
-  onClose
+  onDelete
 }: CollectionContextMenuProps): JSX.Element {
   const { t } = useTranslation(['common'])
 
-  const menuItems = [
-    {
-      id: 'edit',
-      label: t('common:action.editCollection'),
-      icon: <Edit20Regular />,
-      onClick: () => {
-        onEdit()
-        onClose()
-      }
-    },
-    {
-      id: 'separator-1',
-      type: 'separator' as const
-    },
-    {
-      id: 'delete',
-      label: t('common:action.deleteCollection'),
-      icon: <Delete20Regular />,
-      onClick: () => {
-        onDelete()
-        onClose()
-      }
-    }
-  ]
-
-  const handleBackdropClick = (): void => {
-    onClose()
-  }
-
   return (
-    <>
-      {/* Backdrop to close menu */}
-      <div
-        style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 9998
-        }}
-        onClick={handleBackdropClick}
-        onContextMenu={(e) => {
-          e.preventDefault()
-          onClose()
-        }}
-      />
-      {/* Menu */}
-      <div
-        className="context-menu__dropdown"
-        style={{
-          position: 'fixed',
-          top: `${position.top}px`,
-          left: `${position.left}px`,
-          zIndex: 9999
-        }}
-      >
-        <div className="context-menu__list flex flex-col">
-          {menuItems.map((item) => {
-            if (item.type === 'separator') {
-              return <div key={item.id} className="context-menu__separator" />
-            }
-
-            return (
-              <button
-                key={item.id}
-                type="button"
-                className="context-menu__item flex items-center gap-2"
-                onClick={item.onClick}
-              >
-                {item.icon && <span className="context-menu__item-icon">{item.icon}</span>}
-                <span className="context-menu__item-label">{item.label}</span>
-              </button>
-            )
-          })}
-        </div>
-      </div>
-    </>
+    <Menu>
+      <MenuTrigger disableButtonEnhancement>
+        <Button
+          variant="ghost"
+          size="small"
+          icon={<MoreHorizontal20Regular />}
+          aria-label={t('common:action.collectionOptions', { name: collectionName })}
+          onClick={(event) => event.stopPropagation()}
+        />
+      </MenuTrigger>
+      <MenuPopover>
+        <MenuList>
+          <MenuItem icon={<Edit20Regular />} onClick={onEdit}>
+            {t('common:action.editCollection')}
+          </MenuItem>
+          <MenuItem icon={<Delete20Regular />} onClick={onDelete}>
+            {t('common:action.deleteCollection')}
+          </MenuItem>
+        </MenuList>
+      </MenuPopover>
+    </Menu>
   )
 }

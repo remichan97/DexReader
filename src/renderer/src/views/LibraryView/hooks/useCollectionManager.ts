@@ -12,8 +12,6 @@ interface UseCollectionManagerReturn {
   // State
   editingCollection: Collection | null
   isSubmittingEdit: boolean
-  contextMenuCollection: { id: number; name: string } | null
-  contextMenuPosition: { top: number; left: number } | null
   collectionMangaMap: Record<number, string[]>
   selectedMangaForCollection: string | null
   pickerDialogOpen: boolean
@@ -21,8 +19,6 @@ interface UseCollectionManagerReturn {
 
   // Setters
   setEditingCollection: (collection: Collection | null) => void
-  setContextMenuCollection: (collection: { id: number; name: string } | null) => void
-  setContextMenuPosition: (position: { top: number; left: number } | null) => void
   setSelectedMangaForCollection: (mangaId: string | null) => void
   setPickerDialogOpen: (open: boolean) => void
   setCreateDialogOpen: (open: boolean) => void
@@ -41,14 +37,6 @@ interface UseCollectionManagerReturn {
 export function useCollectionManager(): UseCollectionManagerReturn {
   const [editingCollection, setEditingCollection] = useState<Collection | null>(null)
   const [isSubmittingEdit, setIsSubmittingEdit] = useState(false)
-  const [contextMenuCollection, setContextMenuCollection] = useState<{
-    id: number
-    name: string
-  } | null>(null)
-  const [contextMenuPosition, setContextMenuPosition] = useState<{
-    top: number
-    left: number
-  } | null>(null)
   const [collectionMangaMap, setCollectionMangaMap] = useState<Record<number, string[]>>({})
   const [selectedMangaForCollection, setSelectedMangaForCollection] = useState<string | null>(null)
   const [pickerDialogOpen, setPickerDialogOpen] = useState(false)
@@ -194,8 +182,6 @@ export function useCollectionManager(): UseCollectionManagerReturn {
     // State
     editingCollection,
     isSubmittingEdit,
-    contextMenuCollection,
-    contextMenuPosition,
     collectionMangaMap,
     selectedMangaForCollection,
     pickerDialogOpen,
@@ -203,8 +189,6 @@ export function useCollectionManager(): UseCollectionManagerReturn {
 
     // Setters
     setEditingCollection,
-    setContextMenuCollection,
-    setContextMenuPosition,
     setSelectedMangaForCollection,
     setPickerDialogOpen,
     setCreateDialogOpen,

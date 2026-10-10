@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import { useState, useEffect, useMemo } from 'react'
+import { Fragment, useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { MangaWithMetadataContract } from '../../../../preload/window.types'
 import { Tabs, TabList, Tab, TabPanel } from '@renderer/components/Tabs'
@@ -70,15 +70,11 @@ export function LibraryView(): JSX.Element {
   const {
     editingCollection,
     isSubmittingEdit,
-    contextMenuCollection,
-    contextMenuPosition,
     collectionMangaMap,
     selectedMangaForCollection,
     pickerDialogOpen,
     createDialogOpen,
     setEditingCollection,
-    setContextMenuCollection,
-    setContextMenuPosition,
     setSelectedMangaForCollection,
     setPickerDialogOpen,
     setCreateDialogOpen,
@@ -390,41 +386,23 @@ export function LibraryView(): JSX.Element {
                   </Badge>
                 </Tab>
                 {collections.map((collection) => (
-                  <Tab
-                    key={collection.id}
-                    value={String(collection.id)}
-                    onContextMenu={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      setContextMenuCollection(collection)
-                      setContextMenuPosition({ top: e.clientY, left: e.clientX })
-                    }}
-                  >
-                    {collection.name}{' '}
-                    <Badge variant="default" size="small">
-                      {collectionMangaMap[collection.id]?.length || 0}
-                    </Badge>
-                  </Tab>
+                  // Tab and its overflow menu are siblings, not nested - Tab renders as a
+                  // real <button>, which can't contain another interactive button.
+                  <Fragment key={collection.id}>
+                    <Tab value={String(collection.id)}>
+                      {collection.name}{' '}
+                      <Badge variant="default" size="small">
+                        {collectionMangaMap[collection.id]?.length || 0}
+                      </Badge>
+                    </Tab>
+                    <CollectionContextMenu
+                      collectionName={collection.name}
+                      onEdit={() => handleEditCollection(collection)}
+                      onDelete={() => void handleDeleteCollection(collection.id, collection.name)}
+                    />
+                  </Fragment>
                 ))}
               </TabList>
-
-              {/* Context Menu Portal */}
-              {contextMenuCollection && contextMenuPosition && (
-                <CollectionContextMenu
-                  position={contextMenuPosition}
-                  onEdit={() => handleEditCollection(contextMenuCollection)}
-                  onDelete={() =>
-                    void handleDeleteCollection(
-                      contextMenuCollection.id,
-                      contextMenuCollection.name
-                    )
-                  }
-                  onClose={() => {
-                    setContextMenuCollection(null)
-                    setContextMenuPosition(null)
-                  }}
-                />
-              )}
 
               <TabPanel value="all">
                 {filteredManga.length === 0 ? (
@@ -446,6 +424,7 @@ export function LibraryView(): JSX.Element {
                     onClick={handleMangaClick}
                     onAddToCollection={handleAddToCollection}
                     onAddToLibrary={handleAddToLibrary}
+                    hasCollections={hasCollections}
                   />
                 )}
               </TabPanel>
@@ -476,6 +455,7 @@ export function LibraryView(): JSX.Element {
                         onClick={handleMangaClick}
                         onAddToCollection={handleAddToCollection}
                         onAddToLibrary={handleAddToLibrary}
+                        hasCollections={hasCollections}
                       />
                     )}
                   </TabPanel>
@@ -504,6 +484,7 @@ export function LibraryView(): JSX.Element {
                   onClick={handleMangaClick}
                   onAddToCollection={handleAddToCollection}
                   onAddToLibrary={handleAddToLibrary}
+                  hasCollections={hasCollections}
                 />
               )}
             </>

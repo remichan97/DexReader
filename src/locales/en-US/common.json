@@ -35,7 +35,8 @@
     "removeFromLibrary": "Remove from Library",
     "addToLibrary": "Add to Library",
     "editCollection": "Edit Collection",
-    "deleteCollection": "Delete Collection"
+    "deleteCollection": "Delete Collection",
+    "collectionOptions": "\"{{name}}\" options"
   },
   "state": {
     "loading": "Loading",
