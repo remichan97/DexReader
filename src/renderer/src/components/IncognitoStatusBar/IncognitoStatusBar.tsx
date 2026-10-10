@@ -1,8 +1,8 @@
 import type { JSX } from 'react'
+import { MessageBar, MessageBarBody } from '@fluentui/react-components'
 import { EyeOff24Regular } from '@fluentui/react-icons'
 import { useProgressStore } from '@renderer/stores/progressStore'
 import { useTranslation } from '@renderer/hooks/useTranslation'
-import './IncognitoStatusBar.css'
 
 /**
  * IncognitoStatusBar Component
@@ -12,10 +12,7 @@ import './IncognitoStatusBar.css'
  *
  * Features:
  * - Visible when autoSaveEnabled is false (incognito mode)
- * - Slide-down animation on mount
- * - Silent disappearance on unmount (no exit animation or message)
  * - Stacks with OfflineStatusBar if both active
- * - Matches Windows 11 dark theme aesthetic
  *
  * UX Pattern: Like OfflineStatusBar - persistent notification (no auto-dismiss, no close button)
  */
@@ -29,11 +26,8 @@ export function IncognitoStatusBar(): JSX.Element | null {
   }
 
   return (
-    <output className="incognito-status-bar flex items-center justify-between" aria-live="polite">
-      <div className="incognito-status-bar__content flex items-center gap-3">
-        <EyeOff24Regular className="incognito-status-bar__icon" />
-        <span className="incognito-status-bar__text">{t('statusBar.incognitoActive')}</span>
-      </div>
-    </output>
+    <MessageBar intent="warning" icon={<EyeOff24Regular />}>
+      <MessageBarBody>{t('statusBar.incognitoActive')}</MessageBarBody>
+    </MessageBar>
   )
 }
