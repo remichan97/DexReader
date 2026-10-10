@@ -125,7 +125,6 @@ export function DownloadConfirmationDialog({
       title={title}
       footer={footer}
       size="small"
-      closeOnOverlayClick={false}
       aria-label={title}
     >
       <div className="download-dialog flex flex-col gap-5">
