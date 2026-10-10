@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import { Fragment, useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { MangaWithMetadataContract } from '../../../../preload/window.types'
 import { Tabs, TabList, Tab, TabPanel } from '@renderer/components/Tabs'
@@ -387,8 +387,11 @@ export function LibraryView(): JSX.Element {
                 </Tab>
                 {collections.map((collection) => (
                   // Tab and its overflow menu are siblings, not nested - Tab renders as a
-                  // real <button>, which can't contain another interactive button.
-                  <Fragment key={collection.id}>
+                  // real <button>, which can't contain another interactive button. Grouped
+                  // in a wrapper (rather than a bare Fragment) so the menu button can reveal
+                  // on hover/focus of the pair - see .library-view__collection-tab in
+                  // LibraryView.css.
+                  <div key={collection.id} className="library-view__collection-tab">
                     <Tab value={String(collection.id)}>
                       {collection.name}{' '}
                       <Badge variant="default" size="small">
@@ -400,7 +403,7 @@ export function LibraryView(): JSX.Element {
                       onEdit={() => handleEditCollection(collection)}
                       onDelete={() => void handleDeleteCollection(collection.id, collection.name)}
                     />
-                  </Fragment>
+                  </div>
                 ))}
               </TabList>
 

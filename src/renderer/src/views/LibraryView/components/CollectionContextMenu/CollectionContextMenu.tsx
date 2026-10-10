@@ -1,4 +1,4 @@
-import type { JSX } from 'react'
+import { useState, type JSX } from 'react'
 import { Menu, MenuTrigger, MenuPopover, MenuList, MenuItem } from '@fluentui/react-components'
 import { Edit20Regular, Delete20Regular, MoreHorizontal20Regular } from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
@@ -28,13 +28,20 @@ export function CollectionContextMenu({
   onDelete
 }: CollectionContextMenuProps): JSX.Element {
   const { t } = useTranslation(['common'])
+  const [open, setOpen] = useState(false)
 
   return (
-    <Menu>
+    <Menu open={open} onOpenChange={(_event, data) => setOpen(data.open)}>
       <MenuTrigger disableButtonEnhancement>
         <Button
           variant="ghost"
           size="small"
+          className="library-view__collection-tab-menu"
+          // MenuPopover renders through a portal, so it falls outside the hover-group's
+          // DOM subtree - :hover/:focus-within on the group can't detect "menu is open"
+          // once focus moves into it. Forcing opacity here keeps the trigger visible for
+          // as long as its own menu is open, regardless of where the pointer/focus is.
+          style={open ? { opacity: 1 } : undefined}
           icon={<MoreHorizontal20Regular />}
           aria-label={t('common:action.collectionOptions', { name: collectionName })}
           onClick={(event) => event.stopPropagation()}

@@ -106,3 +106,20 @@
   background: var(--win-accent-subtle, rgba(0, 120, 212, 0.08));
   color: var(--win-accent);
 }
+
+/* Collection tab + its overflow menu button, grouped so the menu button can reveal on
+   hover/focus of the pair rather than sitting always-visible next to every tab. */
+.library-view__collection-tab {
+  display: inline-flex;
+  align-items: center;
+}
+
+.library-view__collection-tab-menu {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.library-view__collection-tab:hover .library-view__collection-tab-menu,
+.library-view__collection-tab:focus-within .library-view__collection-tab-menu {
+  opacity: 1;
+}
