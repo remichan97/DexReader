@@ -1,15 +1,13 @@
+import { createContext, useContext, useState, useMemo, useCallback } from 'react'
 import {
-  createContext,
-  useContext,
-  useState,
-  useId,
-  useRef,
-  useEffect,
-  useMemo,
-  useCallback
-} from 'react'
+  Tab as FluentTab,
+  TabList as FluentTabList,
+  makeStyles,
+  tokens,
+  type SelectTabData,
+  type SelectTabEvent
+} from '@fluentui/react-components'
 import { BaseComponentProps } from '@renderer/types/components'
-import './Tabs.css'
 
 interface TabsContextValue {
   activeValue: string
@@ -49,7 +47,11 @@ export interface TabsProps extends BaseComponentProps {
 }
 
 /**
- * Tabs container component
+ * Tabs container component, built on Fluent 2's `Tab`/`TabList`
+ * (@fluentui/react-components). Fluent has no `TabPanel` equivalent, so that
+ * piece - and the controlled/uncontrolled selection state driving it - stays
+ * a thin wrapper around Fluent's own selection model
+ * (`TabList`'s `selectedValue`/`onTabSelect`).
  *
  * @example
  * ```tsx
@@ -68,7 +70,7 @@ export function Tabs({
   value: controlledValue,
   onChange,
   children,
-  className = ''
+  className
 }: Readonly<TabsProps>): React.JSX.Element {
   const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue || '')
 
@@ -93,7 +95,7 @@ export function Tabs({
 
   return (
     <TabsContext.Provider value={contextValue}>
-      <div className={`tabs ${className}`}>{children}</div>
+      <div className={className}>{children}</div>
     </TabsContext.Provider>
   )
 }
@@ -105,32 +107,17 @@ export interface TabListProps extends BaseComponentProps {
 /**
  * Container for Tab components
  */
-export function TabList({ children, className = '' }: Readonly<TabListProps>): React.JSX.Element {
-  const { activeValue } = useTabsContext()
-  const listRef = useRef<HTMLDivElement>(null)
-  const indicatorRef = useRef<HTMLDivElement>(null)
+export function TabList({ children, className }: Readonly<TabListProps>): React.JSX.Element {
+  const { activeValue, setActiveValue } = useTabsContext()
 
-  useEffect(() => {
-    const updateIndicator = (): void => {
-      if (!listRef.current || !indicatorRef.current) return
-
-      const activeTab = listRef.current.querySelector('.tab--active') as HTMLElement
-      if (activeTab) {
-        indicatorRef.current.style.left = `${activeTab.offsetLeft}px`
-        indicatorRef.current.style.width = `${activeTab.offsetWidth}px`
-      }
-    }
-
-    updateIndicator()
-    window.addEventListener('resize', updateIndicator)
-    return () => window.removeEventListener('resize', updateIndicator)
-  }, [activeValue])
+  const handleTabSelect = (_event: SelectTabEvent, data: SelectTabData): void => {
+    setActiveValue(data.value as string)
+  }
 
   return (
-    <div ref={listRef} className={`tab-list flex items-center ${className}`} role="tablist">
+    <FluentTabList className={className} selectedValue={activeValue} onTabSelect={handleTabSelect}>
       {children}
-      <div ref={indicatorRef} className="tab-list__indicator" />
-    </div>
+    </FluentTabList>
   )
 }
 
@@ -163,78 +150,22 @@ export function Tab({
   value,
   disabled = false,
   children,
-  className = '',
+  className,
   onContextMenu,
   'aria-label': ariaLabel
 }: Readonly<TabProps>): React.JSX.Element {
-  const { activeValue, setActiveValue } = useTabsContext()
-  const id = useId()
-  const isActive = activeValue === value
-
-  const handleClick = (): void => {
-    if (!disabled) {
-      setActiveValue(value)
-    }
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent): void => {
-    if (disabled) return
-
-    const tabList = e.currentTarget.parentElement
-    if (!tabList) return
-
-    const tabs = Array.from(tabList.querySelectorAll('.tab:not(.tab--disabled)'))
-    const currentIndex = tabs.indexOf(e.currentTarget)
-
-    let nextIndex: number
-
-    switch (e.key) {
-      case 'ArrowLeft':
-        e.preventDefault()
-        nextIndex = currentIndex > 0 ? currentIndex - 1 : tabs.length - 1
-        break
-      case 'ArrowRight':
-        e.preventDefault()
-        nextIndex = currentIndex < tabs.length - 1 ? currentIndex + 1 : 0
-        break
-      case 'Home':
-        e.preventDefault()
-        nextIndex = 0
-        break
-      case 'End':
-        e.preventDefault()
-        nextIndex = tabs.length - 1
-        break
-      default:
-        return
-    }
-
-    const nextTab = tabs[nextIndex] as HTMLElement
-    nextTab?.click()
-    nextTab?.focus()
-  }
-
-  const tabClasses = ['tab', isActive && 'tab--active', disabled && 'tab--disabled', className]
-    .filter(Boolean)
-    .join(' ')
-
   return (
-    <button
-      id={id}
-      type="button"
-      role="tab"
-      className={tabClasses}
-      aria-selected={isActive}
-      aria-controls={`panel-${value}`}
-      aria-label={ariaLabel}
-      tabIndex={isActive ? 0 : -1}
+    <FluentTab
+      id={`tab-${value}`}
+      value={value}
       disabled={disabled}
-      onClick={handleClick}
-      onKeyDown={handleKeyDown}
+      className={className}
+      aria-label={ariaLabel}
+      aria-controls={`panel-${value}`}
       onContextMenu={onContextMenu}
     >
       {children}
-    </button>
+    </FluentTab>
   )
 }
 
@@ -250,15 +181,23 @@ export interface TabPanelProps extends BaseComponentProps {
   children: React.ReactNode
 }
 
+const usePanelStyles = makeStyles({
+  root: {
+    paddingTop: tokens.spacingVerticalL,
+    paddingBottom: tokens.spacingVerticalL
+  }
+})
+
 /**
  * Tab panel content container
  */
 export function TabPanel({
   value,
   children,
-  className = ''
+  className
 }: Readonly<TabPanelProps>): React.JSX.Element | null {
   const { activeValue } = useTabsContext()
+  const styles = usePanelStyles()
   const isActive = activeValue === value
 
   if (!isActive) return null
@@ -267,8 +206,8 @@ export function TabPanel({
     <div
       id={`panel-${value}`}
       role="tabpanel"
-      aria-labelledby={value}
-      className={`tab-panel ${className}`}
+      aria-labelledby={`tab-${value}`}
+      className={className ? `${styles.root} ${className}` : styles.root}
     >
       {children}
     </div>
