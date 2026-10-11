@@ -4,6 +4,7 @@ import {
   CounterBadge,
   SearchBox,
   makeStyles,
+  mergeClasses,
   type InputOnChangeData,
   type SearchBoxChangeEvent
 } from '@fluentui/react-components'
@@ -17,7 +18,15 @@ const useStyles = makeStyles({
   // (or flex slot) it's placed in.
   searchBox: {
     width: '100%',
-    maxWidth: 'none'
+    maxWidth: 'none',
+    // Fluent moves the right padding from the root (focused) to the input (unfocused), which
+    // slides the trailing buttons 8px every time the box gains or loses focus. Pin it.
+    paddingRight: '4px'
+  },
+  // The dismiss span is 24px tall but leaves its 20px icon top-aligned, 2px above the
+  // centred button icons next to it.
+  dismiss: {
+    alignItems: 'center'
   },
   // SearchBox collapses its contentAfter slot to 0x0 until the box is focused (it expects
   // transient content). The filter/toggle buttons here must always be visible, so undo that.
@@ -187,7 +196,7 @@ export function SearchBar({
   return (
     <SearchBox
       ref={inputRef}
-      className={className ? `${styles.searchBox} ${className}` : styles.searchBox}
+      className={mergeClasses(styles.searchBox, className)}
       placeholder={placeholder || t('form.placeholder.search')}
       value={internalValue}
       onChange={handleChange}
@@ -196,7 +205,11 @@ export function SearchBar({
       autoComplete="off"
       // Only offer the clear button when there's something to clear. (With contentAfter
       // present Fluent always renders it, and its default aria-label is untranslated.)
-      dismiss={internalValue && !disabled ? { 'aria-label': t('aria.clearSearch') } : null}
+      dismiss={
+        internalValue && !disabled
+          ? { 'aria-label': t('aria.clearSearch'), className: styles.dismiss }
+          : null
+      }
       contentAfter={
         actions || onFilterClick
           ? {
