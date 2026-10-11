@@ -119,15 +119,17 @@ export function TagPicker({
   }
 
   // Only controlled when keepOpenOnSelect is set; otherwise Fluent manages open state itself.
-  // The close request that follows a pick is a click that lands inside an option, which is
-  // what tells it apart from Escape / outside clicks / blur.
+  // Picking an option asks Fluent to close the list either via a click that lands inside an
+  // option or via Enter on the highlighted one. Both are ignored here, which is what tells a
+  // pick apart from Escape / outside clicks / blur (those still close it).
   const handleOpenChange = (
     event: SyntheticEvent | Event,
     data: TagPickerOnOpenChangeData
   ): void => {
     const target = event.target
     const isOptionClick = target instanceof Element && target.closest(OPTION_SELECTOR) !== null
-    if (keepOpenOnSelect && !data.open && isOptionClick) return
+    const isEnterKey = 'key' in event && event.key === 'Enter'
+    if (keepOpenOnSelect && !data.open && (isOptionClick || isEnterKey)) return
     setOpen(data.open)
   }
 
