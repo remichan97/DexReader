@@ -84,7 +84,8 @@ export function BrowseView(): JSX.Element {
     filters.publicationStatus.length +
     filters.publicationDemographic.length +
     filters.includedTags.length +
-    filters.excludedTags.length
+    filters.excludedTags.length +
+    filters.availableTranslatedLanguage.length
 
   // Sticky filter info bar: shown once filterCount > 0, but only once the search bar
   // (and its own filter-count badge) has scrolled out of view, so there's never a

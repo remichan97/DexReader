@@ -71,7 +71,8 @@ export const DEFAULT_FILTERS: SearchFilters = {
   includedTags: [],
   excludedTags: [],
   includedTagsMode: IncludedTagsMode.AND,
-  availableTranslatedLanguage: ['en'],
+  // Empty means "no override": search falls back to the Settings-based language list
+  availableTranslatedLanguage: [],
   sortBy: OrderOptions.Relevance,
   sortDirection: OrderDirection.Desc
 }
@@ -95,6 +96,16 @@ interface SearchState {
   loadMore: () => Promise<void>
   retryLoadMore: () => Promise<void>
   reset: () => void
+}
+
+/**
+ * Languages to search in: the filter modal's explicit selection when there is one,
+ * otherwise the Settings-based list (content language preferences).
+ */
+function resolveSearchLanguages(filters: SearchFilters, settingsLanguages: string[]): string[] {
+  return filters.availableTranslatedLanguage.length > 0
+    ? filters.availableTranslatedLanguage
+    : settingsLanguages
 }
 
 const MAX_RESULTS_LIMIT = 10000
@@ -203,7 +214,7 @@ export const useSearchStore = create<SearchState>((set, get) => ({
         includes: [MangaIncludes.CoverArt, MangaIncludes.Author, MangaIncludes.Artist],
         limit: state.limit,
         offset: 0,
-        availableTranslatedLanguage: languageFilter // Use settings-based filter
+        availableTranslatedLanguage: resolveSearchLanguages(state.filters, languageFilter)
       }
 
       // Only add title if there's an actual search query
@@ -301,7 +312,7 @@ export const useSearchStore = create<SearchState>((set, get) => ({
         includes: [MangaIncludes.CoverArt, MangaIncludes.Author, MangaIncludes.Artist],
         limit: state.limit,
         offset: nextOffset,
-        availableTranslatedLanguage: languageFilter // Use settings-based filter
+        availableTranslatedLanguage: resolveSearchLanguages(state.filters, languageFilter)
       }
 
       // Only add title if there's an actual search query
