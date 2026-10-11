@@ -39,6 +39,9 @@
    toggle, Today action - replaces the old always-open calendar panel */
 .history-schedule-header {
   padding: var(--space-2) var(--space-4);
+  /* Fixed to the taller of its two states (the 32px SearchBox vs the 29px date label row):
+     2 x padding + 32px + 1px border-bottom, so opening/closing the search doesn't resize it. */
+  min-height: calc(var(--space-2) * 2 + 32px + 1px);
   background: var(--win-bg-card);
   border-bottom: 1px solid var(--win-border-default);
 }
