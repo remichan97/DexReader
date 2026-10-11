@@ -155,7 +155,8 @@ export function Sidebar({ onNavigate }: SidebarProps = {}): JSX.Element {
     }
 
     updateIndicator()
-  }, [location.pathname])
+    // displayMode changes the item heights (72px full, 60px compact), which moves the active item
+  }, [location.pathname, displayMode])
 
   return (
     <nav
