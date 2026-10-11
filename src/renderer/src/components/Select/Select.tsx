@@ -1,12 +1,23 @@
-import type { JSX } from 'react'
+import { useRef, useState, type JSX } from 'react'
 import {
   Field,
   Dropdown,
   Option,
+  makeStyles,
+  type DropdownProps,
   type OptionOnSelectData,
   type SelectionEvents
 } from '@fluentui/react-components'
 import { BaseComponentProps, DisableableProps } from '@renderer/types/components'
+
+const useStyles = makeStyles({
+  // Fluent's Dropdown defaults to min-width: 250px, which stops a Select shrinking to its
+  // content inside a flex row (toolbars, headers) and squeezes its siblings. Block-level
+  // containers (settings, modals) still stretch it to fill the row via the Field.
+  dropdown: {
+    minWidth: 0
+  }
+})
 
 export interface SelectOption {
   value: string
@@ -84,6 +95,9 @@ export function Select({
   className,
   'aria-label': ariaLabel
 }: Readonly<SelectProps>): JSX.Element {
+  const styles = useStyles()
+  const dropdownRef = useRef<HTMLButtonElement>(null)
+  const [listboxMinWidth, setListboxMinWidth] = useState<number | undefined>(undefined)
   const selectedOption = options.find((option) => option.value === value)
 
   const handleOptionSelect = (_event: SelectionEvents, data: OptionOnSelectData): void => {
@@ -92,9 +106,22 @@ export function Select({
     }
   }
 
+  // The popup sizes to its longest option (`matchTargetSize` is off, so a narrow toolbar
+  // trigger doesn't wrap long labels) but never ends up narrower than the trigger itself.
+  const handleOpenChange: NonNullable<DropdownProps['onOpenChange']> = (_event, data) => {
+    if (data.open) {
+      setListboxMinWidth(dropdownRef.current?.getBoundingClientRect().width)
+    }
+  }
+
   return (
     <Field className={className} label={label} hint={helperText}>
       <Dropdown
+        className={styles.dropdown}
+        ref={dropdownRef}
+        positioning={{ matchTargetSize: undefined }}
+        listbox={{ style: { minWidth: listboxMinWidth } }}
+        onOpenChange={handleOpenChange}
         value={selectedOption?.label}
         selectedOptions={selectedOption ? [selectedOption.value] : []}
         onOptionSelect={handleOptionSelect}
