@@ -1,5 +1,6 @@
 import type { JSX } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { InteractionTag, InteractionTagPrimary } from '@fluentui/react-components'
 import { useSecureNavigation } from '@renderer/hooks/useSecureNavigation'
 import {
   BookOpenRegular,
@@ -157,18 +158,17 @@ export default function MangaHeroSection({
         {tags.length > 0 && (
           <div className="manga-detail-view__tags-row flex flex-wrap gap-2">
             {tags.map((tag) => (
-              <Button
-                key={tag.id}
-                variant="ghost"
-                className="tag tag--theme inline-flex"
-                onClick={() => handleTagClick(tag.id)}
-                aria-label={t('mangaDetail:hero.filterByTag', {
-                  name: tag.name,
-                  defaultValue: `Filter by ${tag.name}`
-                })}
-              >
-                {tag.name}
-              </Button>
+              <InteractionTag key={tag.id} shape="rounded" size="small">
+                <InteractionTagPrimary
+                  onClick={() => handleTagClick(tag.id)}
+                  aria-label={t('mangaDetail:hero.filterByTag', {
+                    name: tag.name,
+                    defaultValue: `Filter by ${tag.name}`
+                  })}
+                >
+                  {tag.name}
+                </InteractionTagPrimary>
+              </InteractionTag>
             ))}
           </div>
         )}
