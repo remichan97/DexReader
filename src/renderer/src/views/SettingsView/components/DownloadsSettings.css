@@ -58,3 +58,26 @@
   border-top: 1px solid var(--win-border-default);
   padding-top: var(--space-5);
 }
+
+/* Concurrent downloads: label + helper on the left, compact spinner on the far right */
+
+.downloads-settings__spinner-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.downloads-settings__spinner-label {
+  font-weight: var(--win-font-weight-semibold);
+}
+
+.downloads-settings__spinner-helper {
+  font-size: 12px;
+  color: var(--win-text-secondary);
+}
+
+.downloads-settings__spinner-row .downloads-settings__spinner {
+  flex: 0 0 auto;
+  width: 112px;
+}

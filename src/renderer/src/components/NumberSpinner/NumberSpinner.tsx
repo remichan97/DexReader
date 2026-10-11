@@ -111,6 +111,9 @@ export function NumberSpinner({
 }: Readonly<NumberSpinnerProps>): React.JSX.Element {
   const styles = useStyles()
   const hasError = Boolean(error)
+  // Names the step buttons; falls back to aria-label for spinners whose visible label is
+  // rendered elsewhere (e.g. a settings row with the label on the left)
+  const accessibleName = label ?? ariaLabel
 
   const handleChange = (_event: SpinButtonChangeEvent, data: SpinButtonOnChangeData): void => {
     // SpinButton clamps for the stepper buttons/arrow keys itself (data.value is already a
@@ -151,8 +154,12 @@ export function NumberSpinner({
           step={step}
           disabled={disabled}
           aria-label={ariaLabel}
-          incrementButton={{ 'aria-label': `Increase${label ? ` ${label}` : ''}` }}
-          decrementButton={{ 'aria-label': `Decrease${label ? ` ${label}` : ''}` }}
+          incrementButton={{
+            'aria-label': `Increase${accessibleName ? ` ${accessibleName}` : ''}`
+          }}
+          decrementButton={{
+            'aria-label': `Decrease${accessibleName ? ` ${accessibleName}` : ''}`
+          }}
         />
       </>
     </Field>

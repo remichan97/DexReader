@@ -130,14 +130,24 @@ export function DownloadsSettings({
         <h4 className="downloads-settings__heading">{t('downloads.concurrentSection')}</h4>
         <p className="downloads-settings__description">{t('downloads.concurrentDescription')}</p>
 
-        <div>
+        {/* Label and helper on the left, the compact spinner pinned right - same row shape as
+            a Switch, rather than a full-width field */}
+        <div className="downloads-settings__spinner-row">
+          <div className="downloads-settings__spinner-text">
+            <div className="downloads-settings__spinner-label">
+              {t('downloads.concurrentLabel')}
+            </div>
+            <div className="downloads-settings__spinner-helper">
+              {t('downloads.concurrentHelper')}
+            </div>
+          </div>
           <NumberSpinner
+            className="downloads-settings__spinner"
             value={maxConcurrentDownloads}
             onChange={onMaxConcurrentDownloadsChange}
             min={1}
             max={5}
-            label={t('downloads.concurrentLabel')}
-            helperText={t('downloads.concurrentHelper')}
+            aria-label={t('downloads.concurrentLabel')}
           />
         </div>
       </div>
