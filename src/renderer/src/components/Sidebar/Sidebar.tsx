@@ -200,7 +200,13 @@ export function Sidebar({ onNavigate }: SidebarProps = {}): JSX.Element {
         // Wrap in Tooltip for compact mode (labels hidden, shown on hover)
         if (displayMode === 'compact') {
           return (
-            <Tooltip key={item.id} content={label} position="right" delay={300}>
+            <Tooltip
+              key={item.id}
+              content={label}
+              position="right"
+              delay={300}
+              relationship="label"
+            >
               {itemContent}
             </Tooltip>
           )
