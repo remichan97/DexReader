@@ -234,7 +234,6 @@ export function BrowseView(): JSX.Element {
           <>
             <Button
               variant="secondary"
-              size="small"
               onClick={handleClearFilters}
               title={t('browse:filter.tooltips.reset')}
             >
@@ -242,7 +241,6 @@ export function BrowseView(): JSX.Element {
             </Button>
             <Button
               variant="secondary"
-              size="small"
               onClick={() => setShowSaveDialog(true)}
               title={t('browse:filter.tooltips.savePreset')}
             >
@@ -250,7 +248,6 @@ export function BrowseView(): JSX.Element {
             </Button>
             <Button
               variant="primary"
-              size="small"
               onClick={handleApplyFilters}
               title={t('browse:filter.tooltips.apply')}
             >

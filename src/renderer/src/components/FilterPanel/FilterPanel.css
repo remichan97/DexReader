@@ -1,18 +1,16 @@
 /**
  * Filter Panel Styles
- * Horizontal filter bar spanning full width
+ *
+ * Rendered as the body of the Browse filter Modal, which already provides the surface,
+ * padding and scrolling - so the panel itself adds no card chrome of its own.
  */
 
 .filter-panel {
   width: 100%;
-  background: var(--win-bg-default);
-  border: 1px solid var(--win-border-default);
-  border-radius: var(--radius-md);
-  overflow: visible;
 }
 
 .filter-panel__quick {
-  padding: 16px;
+  padding: 0;
 }
 
 .filter-panel__group {
@@ -35,9 +33,9 @@
 
 /* Advanced Filters Toggle */
 .filter-panel__advanced-toggle {
+  margin-top: 16px;
+  padding-top: 8px;
   border-top: 1px solid var(--win-border-default);
-  padding: 8px 16px;
-  background: var(--win-bg-subtle);
 }
 
 .filter-panel__toggle-btn {
@@ -55,15 +53,9 @@
   color: var(--win-accent);
 }
 
-/* Advanced Filters Section */
+/* Advanced Filters Section - flows with the modal body, which does the scrolling */
 .filter-panel__advanced {
-  border-top: 1px solid var(--win-border-default);
-  padding: 20px;
-  padding-bottom: 60px; /* Extra padding for sticky footer */
-  background: var(--win-bg-default);
-  max-height: 65vh;
-  overflow-y: auto;
-  overflow-x: hidden;
+  padding-top: 16px;
 }
 
 /* Tag Mode Selection */
