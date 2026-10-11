@@ -9,10 +9,11 @@
  */
 
 import type { JSX } from 'react'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Select } from '@renderer/components/Select'
 import { Checkbox } from '@renderer/components/Checkbox'
 import { PresetSelector } from '@renderer/components/PresetSelector'
+import { TagPicker, type TagPickerTagOption } from '@renderer/components/TagPicker'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import {
   ContentRating,
@@ -50,7 +51,14 @@ export function FilterPanel({
   const { t } = useTranslation('browse')
   const [isExpanded, setIsExpanded] = useState(false)
   const { presets } = useSearchPresetsStore()
-  const tagGroups = getAllTagsGrouped()
+
+  const flatTagOptions = useMemo<TagPickerTagOption[]>(
+    () =>
+      Object.entries(getAllTagsGrouped()).flatMap(([groupName, tags]) =>
+        tags.map((tag) => ({ id: tag.id, name: tag.name, group: groupName }))
+      ),
+    []
+  )
 
   const handleContentRatingChange = (rating: ContentRating, checked: boolean): void => {
     const newRatings = checked
@@ -75,20 +83,6 @@ export function FilterPanel({
 
   const handleSortDirectionChange = (value: string): void => {
     onChange({ sortDirection: value as OrderDirection })
-  }
-
-  const handleTagInclude = (tagId: string, checked: boolean): void => {
-    const newTags = checked
-      ? [...filters.includedTags, tagId]
-      : filters.includedTags.filter((id) => id !== tagId)
-    onChange({ includedTags: newTags })
-  }
-
-  const handleTagExclude = (tagId: string, checked: boolean): void => {
-    const newTags = checked
-      ? [...filters.excludedTags, tagId]
-      : filters.excludedTags.filter((id) => id !== tagId)
-    onChange({ excludedTags: newTags })
   }
 
   const handleTagModeChange = (value: string): void => {
@@ -269,59 +263,31 @@ export function FilterPanel({
             />
           </div>
 
-          {/* Tag Groups */}
-          {Object.entries(tagGroups).map(([groupName, tags]) => (
-            <div key={groupName} className="filter-panel__tag-group">
-              <h4 className="filter-panel__tag-group-title">{groupName}</h4>
-              <div className="filter-panel__tag-grid">
-                {tags.map((tag) => {
-                  const isIncluded = filters.includedTags.includes(tag.id)
-                  const isExcluded = filters.excludedTags.includes(tag.id)
+          {/* Include Tags */}
+          <div className="filter-panel__tag-group">
+            <h4 className="filter-panel__tag-group-title">{t('filter.tags.includeLabel')}</h4>
+            <TagPicker
+              options={flatTagOptions}
+              selectedIds={filters.includedTags}
+              disabledIds={filters.excludedTags}
+              onChange={(ids) => onChange({ includedTags: ids })}
+              placeholder={t('filter.tags.includePlaceholder')}
+              aria-label={t('filter.tags.includeLabel')}
+            />
+          </div>
 
-                  return (
-                    <div
-                      key={tag.id}
-                      className="filter-panel__tag-item flex items-center justify-between"
-                    >
-                      <span className="filter-panel__tag-name">{tag.name}</span>
-                      <div className="filter-panel__tag-controls flex">
-                        <button
-                          type="button"
-                          className={`filter-panel__tag-btn include ${isIncluded ? 'active' : ''} flex items-center justify-center`}
-                          onClick={() => {
-                            // Remove from excluded if present
-                            if (isExcluded) {
-                              handleTagExclude(tag.id, false)
-                            }
-                            handleTagInclude(tag.id, !isIncluded)
-                          }}
-                          title={t('filter.tooltips.includeTag')}
-                          aria-label={t('filter.tooltips.includeTag')}
-                        >
-                          +
-                        </button>
-                        <button
-                          type="button"
-                          className={`filter-panel__tag-btn exclude ${isExcluded ? 'active' : ''} flex items-center justify-center`}
-                          onClick={() => {
-                            // Remove from included if present
-                            if (isIncluded) {
-                              handleTagInclude(tag.id, false)
-                            }
-                            handleTagExclude(tag.id, !isExcluded)
-                          }}
-                          title={t('filter.tooltips.excludeTag')}
-                          aria-label={t('filter.tooltips.excludeTag')}
-                        >
-                          −
-                        </button>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          ))}
+          {/* Exclude Tags */}
+          <div className="filter-panel__tag-group">
+            <h4 className="filter-panel__tag-group-title">{t('filter.tags.excludeLabel')}</h4>
+            <TagPicker
+              options={flatTagOptions}
+              selectedIds={filters.excludedTags}
+              disabledIds={filters.includedTags}
+              onChange={(ids) => onChange({ excludedTags: ids })}
+              placeholder={t('filter.tags.excludePlaceholder')}
+              aria-label={t('filter.tags.excludeLabel')}
+            />
+          </div>
 
           {/* Language Filter Section */}
           <div className="filter-panel__tag-group">

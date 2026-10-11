@@ -95,12 +95,16 @@
     "matchAllTags": "Match ALL tags (AND)",
     "matchAnyTag": "Match ANY tag (OR)",
     "languages": "Languages",
+    "tags": {
+      "includeLabel": "Include Tags",
+      "excludeLabel": "Exclude Tags",
+      "includePlaceholder": "Search tags to include...",
+      "excludePlaceholder": "Search tags to exclude..."
+    },
     "tooltips": {
       "reset": "Restore the filters to default",
       "apply": "Apply the selected filters",
-      "savePreset": "Save the current filter settings as a preset",
-      "includeTag": "Include this tag",
-      "excludeTag": "Exclude this tag"
+      "savePreset": "Save the current filter settings as a preset"
     }
   }
 }

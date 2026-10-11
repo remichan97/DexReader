@@ -98,9 +98,7 @@
     "tooltips": {
       "reset": "Khôi phục bộ lọc về mặc định",
       "apply": "Áp dụng các bộ lọc đã chọn",
-      "savePreset": "Lưu cài đặt bộ lọc hiện tại thành mẫu tìm kiếm mới",
-      "includeTag": "Bao gồm thẻ này",
-      "excludeTag": "Loại trừ thẻ này"
+      "savePreset": "Lưu cài đặt bộ lọc hiện tại thành mẫu tìm kiếm mới"
     }
   }
 }
