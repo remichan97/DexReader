@@ -9,6 +9,7 @@ import { MangaCard } from '@renderer/components/MangaCard'
 import { SkeletonGrid } from '@renderer/components/Skeleton'
 import { Button } from '@renderer/components/Button'
 import { InfoBar } from '@renderer/components/InfoBar'
+import { Modal } from '@renderer/components/Modal'
 import { SavePresetDialog } from '@renderer/components/SavePresetDialog'
 import { useSearchStore, useToastStore, useConnectivityStore } from '@renderer/stores'
 import { DEFAULT_FILTERS } from '@renderer/stores/searchStore'
@@ -58,9 +59,8 @@ export function BrowseView(): JSX.Element {
     handleDeletePreset
   } = useSearchPresets(t, showToast)
 
-  // Hide filters by default - users reveal when needed
-  const [showFilters, setShowFilters] = useState(false)
-  const { filterPanelRef, showFilterBar } = useStickyFilterBar(showFilters)
+  // Filter Panel lives in a dedicated Modal rather than an inline toggled block
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
 
   // Calculate active filter count (excluding default content ratings)
   const filterCount =
@@ -69,6 +69,11 @@ export function BrowseView(): JSX.Element {
     filters.publicationDemographic.length +
     filters.includedTags.length +
     filters.excludedTags.length
+
+  // Sticky filter info bar: shown once filterCount > 0, but only once the search bar
+  // (and its own filter-count badge) has scrolled out of view, so there's never a
+  // moment with two filter indicators on screen at once.
+  const { searchBarRef, showFilterBar } = useStickyFilterBar(filterCount > 0)
 
   // Ref for infinite scroll sentinel
   const sentinelRef = useInfiniteScroll(loading, hasMore, loadMore)
@@ -114,7 +119,7 @@ export function BrowseView(): JSX.Element {
   }
 
   const handleFilterClick = (): void => {
-    setShowFilters(!showFilters)
+    setIsFilterModalOpen(true)
   }
 
   const handleFilterChange = (newFilters: Partial<typeof filters>): void => {
@@ -123,6 +128,7 @@ export function BrowseView(): JSX.Element {
 
   const handleApplyFilters = (): void => {
     search()
+    setIsFilterModalOpen(false)
   }
 
   const handleClearFilters = (): void => {
@@ -133,10 +139,6 @@ export function BrowseView(): JSX.Element {
 
   const handleRetry = (): void => {
     search()
-  }
-
-  const handleScrollToFilters = (): void => {
-    filterPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   const handleResetFilters = (): void => {
@@ -182,7 +184,7 @@ export function BrowseView(): JSX.Element {
       </div>
 
       {/* Search Bar */}
-      <div className="mb-4">
+      <div ref={searchBarRef} className="mb-4">
         <SearchBar
           value={query}
           onChange={handleSearch}
@@ -192,39 +194,40 @@ export function BrowseView(): JSX.Element {
         />
       </div>
 
-      {/* Filter Panel */}
-      {showFilters && (
-        <div ref={filterPanelRef} className="mb-6">
-          <FilterPanel
-            filters={filters}
-            limit={limit}
-            onChange={handleFilterChange}
-            onLimitChange={setLimit}
-            onApply={handleApplyFilters}
-            onClear={handleClearFilters}
-            onSavePreset={() => setShowSaveDialog(true)}
-            currentPresetId={appliedPresetId}
-            onPresetSelect={handlePresetSelect}
-            onPresetDelete={handleDeletePreset}
-          />
-        </div>
-      )}
+      {/* Filter Panel - lives in a dedicated Modal rather than an inline toggled block */}
+      <Modal
+        open={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        title={t('browse:filter.modalTitle')}
+        size="large"
+      >
+        <FilterPanel
+          filters={filters}
+          limit={limit}
+          onChange={handleFilterChange}
+          onLimitChange={setLimit}
+          onApply={handleApplyFilters}
+          onClear={handleClearFilters}
+          onSavePreset={() => setShowSaveDialog(true)}
+          currentPresetId={appliedPresetId}
+          onPresetSelect={handlePresetSelect}
+          onPresetDelete={handleDeletePreset}
+        />
+      </Modal>
 
-      {/* Sticky Filter Info Bar - Shows when filters are out of view */}
+      {/* Sticky Filter Info Bar - persists as a "browsing filtered results" indicator
+          whenever filters are active, surfacing once the search bar (and its own filter
+          badge) scrolls out of view, independent of whether the Filter modal is open. */}
       <InfoBar
-        visible={showFilterBar && showFilters && results.length > 0}
-        text={
-          filterCount > 0
-            ? t('browse:filterInfo.activeFilters', {
-                count: filterCount,
-                s: filterCount > 1 ? 's' : ''
-              })
-            : t('browse:filterInfo.browsingAll')
-        }
+        visible={showFilterBar && filterCount > 0 && results.length > 0}
+        text={t('browse:filterInfo.activeFilters', {
+          count: filterCount,
+          s: filterCount > 1 ? 's' : ''
+        })}
         actions={
           <>
-            <Button variant="ghost" size="small" onClick={handleScrollToFilters}>
-              {t('browse:filterInfo.scrollToFilters')}
+            <Button variant="ghost" size="small" onClick={() => setIsFilterModalOpen(true)}>
+              {t('browse:filterInfo.editFilters')}
             </Button>
             <Button variant="secondary" size="small" onClick={handleResetFilters}>
               {t('browse:filterInfo.resetToDefault')}

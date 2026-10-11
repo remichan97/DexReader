@@ -23,8 +23,7 @@
   },
   "filterInfo": {
     "activeFilters": "{{count}} filter{{s}} active",
-    "browsingAll": "Browsing all manga",
-    "scrollToFilters": "Scroll to Filters",
+    "editFilters": "Edit Filters",
     "resetToDefault": "Reset to Default"
   },
   "toasts": {
@@ -48,6 +47,7 @@
     "previewCurrentFilters": "Preview: Current Filters"
   },
   "filter": {
+    "modalTitle": "Filters",
     "contentRating": "Content Rating",
     "contentRatings": {
       "safe": "Safe",

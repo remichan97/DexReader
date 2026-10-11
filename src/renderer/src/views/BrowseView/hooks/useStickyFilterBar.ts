@@ -1,28 +1,29 @@
 import { useEffect, useRef, useState, type RefObject } from 'react'
 
 export interface UseStickyFilterBarResult {
-  filterPanelRef: RefObject<HTMLDivElement | null>
+  searchBarRef: RefObject<HTMLDivElement | null>
   showFilterBar: boolean
 }
 
 /**
- * Shows a sticky info bar summarising the active filters once the filter
- * panel itself has scrolled out of view (and only while filters are shown).
+ * Tracks whether the search bar has scrolled out of view, so a sticky info bar
+ * summarising the active filters can surface further down the page without
+ * duplicating the filter count badge the search bar already shows near the top.
  */
-export function useStickyFilterBar(showFilters: boolean): UseStickyFilterBarResult {
+export function useStickyFilterBar(enabled: boolean): UseStickyFilterBarResult {
   const [showFilterBar, setShowFilterBar] = useState(false)
-  const filterPanelRef = useRef<HTMLDivElement>(null)
+  const searchBarRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const filterPanel = filterPanelRef.current
-    if (!filterPanel || !showFilters) {
+    const searchBar = searchBarRef.current
+    if (!searchBar || !enabled) {
       setShowFilterBar(false)
       return
     }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        // Show info bar when filter panel is not visible
+        // Show info bar once the search bar (and its own filter badge) scrolls out of view
         setShowFilterBar(!entry.isIntersecting)
       },
       {
@@ -32,12 +33,12 @@ export function useStickyFilterBar(showFilters: boolean): UseStickyFilterBarResu
       }
     )
 
-    observer.observe(filterPanel)
+    observer.observe(searchBar)
 
     return () => {
       observer.disconnect()
     }
-  }, [showFilters])
+  }, [enabled])
 
-  return { filterPanelRef, showFilterBar }
+  return { searchBarRef, showFilterBar }
 }

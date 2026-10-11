@@ -23,8 +23,7 @@
   },
   "filterInfo": {
     "activeFilters": "{{count}} bộ lọc đang hoạt động",
-    "browsingAll": "Khám phá tất cả manga",
-    "scrollToFilters": "Cuộn đến Bộ lọc",
+    "editFilters": "Chỉnh sửa Bộ lọc",
     "resetToDefault": "Đặt lại về Mặc định"
   },
   "toasts": {
@@ -48,6 +47,7 @@
     "previewCurrentFilters": "Xem trước: Bộ lọc hiện tại"
   },
   "filter": {
+    "modalTitle": "Bộ lọc",
     "contentRating": "Phân loại nội dung",
     "contentRatings": {
       "safe": "An toàn",
