@@ -7,6 +7,7 @@ import {
   MenuGroupHeader,
   MenuItemRadio,
   MenuButton,
+  makeStyles,
   type MenuCheckedValueChangeData,
   type MenuCheckedValueChangeEvent
 } from '@fluentui/react-components'
@@ -14,6 +15,19 @@ import type { SettingsSection } from './SettingsHeader'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 
 const CHECKED_VALUES_NAME = 'section'
+
+const useStyles = makeStyles({
+  // Spans the header like the original dropdown did: label at the start, chevron pushed to
+  // the end (MenuButton is inline-flex and shrink-to-fit by default)
+  trigger: {
+    width: '100%',
+    justifyContent: 'space-between'
+  },
+  // MenuPopover caps itself at 300px, which would clamp the width matched to the trigger
+  popover: {
+    maxWidth: 'none'
+  }
+})
 
 interface SettingsSectionMenuProps {
   readonly currentSection: string
@@ -38,6 +52,7 @@ export function SettingsSectionMenu({
   onSectionSelect
 }: Readonly<SettingsSectionMenuProps>): JSX.Element {
   const { t } = useTranslation(['settings'])
+  const styles = useStyles()
 
   const handleCheckedValueChange = (
     _event: MenuCheckedValueChangeEvent,
@@ -50,6 +65,8 @@ export function SettingsSectionMenu({
 
   return (
     <Menu
+      // Same width as the trigger, so the list reads as the trigger opening downwards
+      positioning={{ matchTargetSize: 'width' }}
       checkedValues={{ [CHECKED_VALUES_NAME]: [currentSection] }}
       onCheckedValueChange={handleCheckedValueChange}
     >
@@ -57,13 +74,14 @@ export function SettingsSectionMenu({
         {/* Not appearance="outline": its expanded state thickens the border 1px -> 3px, which
             grows the trigger by 4px and shifts the sticky header's content down while open. */}
         <MenuButton
+          className={styles.trigger}
           appearance="secondary"
           aria-label={t('settings:jumpToSection', { defaultValue: 'Jump to section' })}
         >
           {currentSectionLabel || t('settings:jumpTo', { defaultValue: 'Jump to...' })}
         </MenuButton>
       </MenuTrigger>
-      <MenuPopover>
+      <MenuPopover className={styles.popover}>
         <MenuList>
           <MenuGroupHeader>{t('settings:jumpTo', { defaultValue: 'Jump to...' })}</MenuGroupHeader>
           {sections.map((section) => (
