@@ -31,31 +31,28 @@
   min-height: 32px;
 }
 
-/* Advanced Filters Toggle */
-.filter-panel__advanced-toggle {
+/* Advanced Filters accordion - divider above, so it reads as a separate section */
+.filter-panel__advanced-accordion {
   margin-top: 16px;
   padding-top: 8px;
   border-top: 1px solid var(--win-border-default);
 }
 
-.filter-panel__toggle-btn {
-  background: none;
-  border: none;
-  color: var(--win-text-primary);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  padding: 4px 0;
-  transition: color 0.15s ease;
+/* Fluent insets the header and panel by 12px each side; inside the modal that leaves them
+   misaligned with the controls above. The doubled selectors beat Fluent's injected classes. */
+.filter-panel .filter-panel__advanced-accordion .fui-AccordionHeader__button {
+  padding-left: 0;
+  padding-right: 0;
 }
 
-.filter-panel__toggle-btn:hover {
-  color: var(--win-accent);
+.filter-panel .filter-panel__advanced-accordion .fui-AccordionPanel {
+  margin-left: 0;
+  margin-right: 0;
 }
 
-/* Advanced Filters Section - flows with the modal body, which does the scrolling */
+/* Advanced Filters content - flows with the modal body, which does the scrolling */
 .filter-panel__advanced {
-  padding-top: 16px;
+  padding-top: 8px;
 }
 
 /* Tag Mode Selection */

@@ -9,7 +9,13 @@
  */
 
 import type { JSX } from 'react'
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
+import {
+  Accordion,
+  AccordionHeader,
+  AccordionItem,
+  AccordionPanel
+} from '@fluentui/react-components'
 import { Select } from '@renderer/components/Select'
 import { Checkbox } from '@renderer/components/Checkbox'
 import { PresetSelector } from '@renderer/components/PresetSelector'
@@ -49,7 +55,6 @@ export function FilterPanel({
   onPresetDelete
 }: FilterPanelProps): JSX.Element {
   const { t } = useTranslation('browse')
-  const [isExpanded, setIsExpanded] = useState(false)
   const { presets } = useSearchPresetsStore()
 
   const flatTagOptions = useMemo<TagPickerTagOption[]>(
@@ -232,86 +237,77 @@ export function FilterPanel({
         </div>
       </div>
 
-      {/* Advanced Filters Toggle */}
-      <div className="filter-panel__advanced-toggle">
-        <button
-          className="filter-panel__toggle-btn flex items-center gap-2"
-          onClick={() => setIsExpanded(!isExpanded)}
-          type="button"
-          aria-label={
-            isExpanded ? t('filter.hideAdvancedFilters') : t('filter.showAdvancedFilters')
-          }
-          aria-expanded={isExpanded}
-        >
-          {isExpanded ? '▼' : '▶'} {t('filter.advancedFilters')}
-        </button>
-      </div>
+      {/* Advanced Filters - a single collapsible accordion item (closed by default; clicking
+          its header again closes it) */}
+      <Accordion collapsible className="filter-panel__advanced-accordion">
+        <AccordionItem value="advanced">
+          <AccordionHeader>{t('filter.advancedFilters')}</AccordionHeader>
+          <AccordionPanel>
+            <div className="filter-panel__advanced">
+              {/* Tag Mode Selection */}
+              <div className="filter-panel__tag-mode flex items-center gap-3">
+                <span className="filter-panel__label">{t('filter.includeTagsMode')}</span>
+                <Select
+                  value={filters.includedTagsMode}
+                  onChange={handleTagModeChange}
+                  options={[
+                    { value: IncludedTagsMode.AND, label: t('filter.matchAllTags') },
+                    { value: IncludedTagsMode.OR, label: t('filter.matchAnyTag') }
+                  ]}
+                />
+              </div>
 
-      {/* Advanced Filters Section */}
-      {isExpanded && (
-        <div className="filter-panel__advanced">
-          {/* Tag Mode Selection */}
-          <div className="filter-panel__tag-mode flex items-center gap-3">
-            <span className="filter-panel__label">{t('filter.includeTagsMode')}</span>
-            <Select
-              value={filters.includedTagsMode}
-              onChange={handleTagModeChange}
-              options={[
-                { value: IncludedTagsMode.AND, label: t('filter.matchAllTags') },
-                { value: IncludedTagsMode.OR, label: t('filter.matchAnyTag') }
-              ]}
-            />
-          </div>
+              {/* Include Tags */}
+              <div className="filter-panel__tag-group">
+                <h4 className="filter-panel__tag-group-title">{t('filter.tags.includeLabel')}</h4>
+                <TagPicker
+                  options={flatTagOptions}
+                  selectedIds={filters.includedTags}
+                  disabledIds={filters.excludedTags}
+                  onChange={(ids) => onChange({ includedTags: ids })}
+                  placeholder={t('filter.tags.includePlaceholder')}
+                  aria-label={t('filter.tags.includeLabel')}
+                />
+              </div>
 
-          {/* Include Tags */}
-          <div className="filter-panel__tag-group">
-            <h4 className="filter-panel__tag-group-title">{t('filter.tags.includeLabel')}</h4>
-            <TagPicker
-              options={flatTagOptions}
-              selectedIds={filters.includedTags}
-              disabledIds={filters.excludedTags}
-              onChange={(ids) => onChange({ includedTags: ids })}
-              placeholder={t('filter.tags.includePlaceholder')}
-              aria-label={t('filter.tags.includeLabel')}
-            />
-          </div>
+              {/* Exclude Tags */}
+              <div className="filter-panel__tag-group">
+                <h4 className="filter-panel__tag-group-title">{t('filter.tags.excludeLabel')}</h4>
+                <TagPicker
+                  options={flatTagOptions}
+                  selectedIds={filters.excludedTags}
+                  disabledIds={filters.includedTags}
+                  onChange={(ids) => onChange({ excludedTags: ids })}
+                  placeholder={t('filter.tags.excludePlaceholder')}
+                  aria-label={t('filter.tags.excludeLabel')}
+                />
+              </div>
 
-          {/* Exclude Tags */}
-          <div className="filter-panel__tag-group">
-            <h4 className="filter-panel__tag-group-title">{t('filter.tags.excludeLabel')}</h4>
-            <TagPicker
-              options={flatTagOptions}
-              selectedIds={filters.excludedTags}
-              disabledIds={filters.includedTags}
-              onChange={(ids) => onChange({ excludedTags: ids })}
-              placeholder={t('filter.tags.excludePlaceholder')}
-              aria-label={t('filter.tags.excludeLabel')}
-            />
-          </div>
-
-          {/* Language Filter Section */}
-          <div className="filter-panel__tag-group">
-            <h4 className="filter-panel__tag-group-title">{t('filter.languages')}</h4>
-            <div className="filter-panel__tag-list">
-              {LanguageList.map((language) => {
-                const isSelected = filters.availableTranslatedLanguage.includes(language.code)
-                return (
-                  <div
-                    key={language.code}
-                    className="filter-panel__language-item flex items-center"
-                  >
-                    <Checkbox
-                      label={language.name}
-                      checked={isSelected}
-                      onChange={(checked) => handleLanguageChange(language.code, checked)}
-                    />
-                  </div>
-                )
-              })}
+              {/* Language Filter Section */}
+              <div className="filter-panel__tag-group">
+                <h4 className="filter-panel__tag-group-title">{t('filter.languages')}</h4>
+                <div className="filter-panel__tag-list">
+                  {LanguageList.map((language) => {
+                    const isSelected = filters.availableTranslatedLanguage.includes(language.code)
+                    return (
+                      <div
+                        key={language.code}
+                        className="filter-panel__language-item flex items-center"
+                      >
+                        <Checkbox
+                          label={language.name}
+                          checked={isSelected}
+                          onChange={(checked) => handleLanguageChange(language.code, checked)}
+                        />
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </AccordionPanel>
+        </AccordionItem>
+      </Accordion>
     </div>
   )
 }

@@ -89,8 +89,6 @@
     },
     "perPage": "Per Page",
     "advancedFilters": "Advanced Filters (Tags & Languages)",
-    "hideAdvancedFilters": "Hide advanced filters",
-    "showAdvancedFilters": "Show advanced filters",
     "includeTagsMode": "Include Tags Mode:",
     "matchAllTags": "Match ALL tags (AND)",
     "matchAnyTag": "Match ANY tag (OR)",

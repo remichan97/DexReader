@@ -89,8 +89,6 @@
     },
     "perPage": "Số lượng mỗi trang",
     "advancedFilters": "Bộ lọc nâng cao (Thẻ & Ngôn ngữ)",
-    "hideAdvancedFilters": "Ẩn bộ lọc nâng cao",
-    "showAdvancedFilters": "Hiển thị bộ lọc nâng cao",
     "includeTagsMode": "Chế độ thẻ bao gồm:",
     "matchAllTags": "Khớp TẤT CẢ thẻ (AND)",
     "matchAnyTag": "Khớp BẤT KỲ thẻ nào (OR)",
