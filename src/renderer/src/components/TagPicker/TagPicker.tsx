@@ -1,4 +1,4 @@
-import { useState, type ComponentType, type JSX, type SyntheticEvent } from 'react'
+import { Fragment, useState, type ComponentType, type JSX, type SyntheticEvent } from 'react'
 import {
   TagPicker as FluentTagPicker,
   TagPickerControl,
@@ -11,6 +11,7 @@ import {
   makeStyles,
   mergeClasses,
   tokens,
+  type TagPickerOnOpenChangeData,
   type TagPickerOnOptionSelectData,
   type TagPickerOptionProps
 } from '@fluentui/react-components'
@@ -41,10 +42,14 @@ const DisableableTagPickerOption = TagPickerOption as ComponentType<
   TagPickerOptionProps & { disabled?: boolean }
 >
 
+const UNGROUPED = ''
+const OPTION_SELECTOR = '.fui-TagPickerOption'
+
 export interface TagPickerTagOption {
   readonly id: string
   readonly name: string
-  readonly group: string
+  /** Heading to list this option under; options without one are listed ungrouped */
+  readonly group?: string
 }
 
 export interface TagPickerProps {
@@ -70,6 +75,14 @@ export interface TagPickerProps {
    */
   readonly onChange: (ids: string[]) => void
 
+  /**
+   * Keep the suggestion list open after picking an option, so several can be picked in a row.
+   * Fluent's TagPicker closes it after every pick (its `onOptionClick` calls `setOpen(false)`);
+   * this overrides that. Escape, clicking outside and tabbing away still close it.
+   * @default false
+   */
+  readonly keepOpenOnSelect?: boolean
+
   readonly placeholder?: string
   readonly 'aria-label'?: string
 }
@@ -86,12 +99,14 @@ export function TagPicker({
   selectedIds,
   disabledIds = [],
   onChange,
+  keepOpenOnSelect = false,
   placeholder,
   'aria-label': ariaLabel
 }: TagPickerProps): JSX.Element {
   const { t } = useTranslation('common')
   const styles = useStyles()
   const [query, setQuery] = useState('')
+  const [open, setOpen] = useState(false)
 
   const optionById = new Map(options.map((option) => [option.id, option]))
 
@@ -103,17 +118,39 @@ export function TagPicker({
     setQuery('')
   }
 
+  // Only controlled when keepOpenOnSelect is set; otherwise Fluent manages open state itself.
+  // The close request that follows a pick is a click that lands inside an option, which is
+  // what tells it apart from Escape / outside clicks / blur.
+  const handleOpenChange = (
+    event: SyntheticEvent | Event,
+    data: TagPickerOnOpenChangeData
+  ): void => {
+    const target = event.target
+    const isOptionClick = target instanceof Element && target.closest(OPTION_SELECTOR) !== null
+    if (keepOpenOnSelect && !data.open && isOptionClick) return
+    setOpen(data.open)
+  }
+
   const normalizedQuery = query.trim().toLowerCase()
   const groupedMatches = new Map<string, TagPickerTagOption[]>()
   for (const option of options) {
+    // Picked options live on as chips; leaving them in the list with no selected state would
+    // make it impossible to tell what's already chosen, especially with keepOpenOnSelect.
+    if (selectedIds.includes(option.id)) continue
     if (normalizedQuery !== '' && !option.name.toLowerCase().includes(normalizedQuery)) continue
-    const bucket = groupedMatches.get(option.group) ?? []
+    const groupName = option.group ?? UNGROUPED
+    const bucket = groupedMatches.get(groupName) ?? []
     bucket.push(option)
-    groupedMatches.set(option.group, bucket)
+    groupedMatches.set(groupName, bucket)
   }
 
   return (
-    <FluentTagPicker selectedOptions={[...selectedIds]} onOptionSelect={handleOptionSelect}>
+    <FluentTagPicker
+      selectedOptions={[...selectedIds]}
+      onOptionSelect={handleOptionSelect}
+      open={keepOpenOnSelect ? open : undefined}
+      onOpenChange={handleOpenChange}
+    >
       <TagPickerControl>
         <TagPickerGroup aria-label={ariaLabel}>
           {selectedIds.map((id) => {
@@ -136,23 +173,28 @@ export function TagPicker({
       <TagPickerList>
         {groupedMatches.size === 0
           ? t('message.info.noOptionsFound')
-          : [...groupedMatches.entries()].map(([groupName, tags]) => (
-              <TagPickerOptionGroup key={groupName} label={groupName}>
-                {tags.map((tag) => {
-                  const disabled = disabledIds.includes(tag.id)
-                  return (
-                    <DisableableTagPickerOption
-                      key={tag.id}
-                      value={tag.id}
-                      disabled={disabled}
-                      className={mergeClasses(disabled && styles.disabledOption)}
-                    >
-                      {tag.name}
-                    </DisableableTagPickerOption>
-                  )
-                })}
-              </TagPickerOptionGroup>
-            ))}
+          : [...groupedMatches.entries()].map(([groupName, tags]) => {
+              const renderedOptions = tags.map((tag) => {
+                const disabled = disabledIds.includes(tag.id)
+                return (
+                  <DisableableTagPickerOption
+                    key={tag.id}
+                    value={tag.id}
+                    disabled={disabled}
+                    className={mergeClasses(disabled && styles.disabledOption)}
+                  >
+                    {tag.name}
+                  </DisableableTagPickerOption>
+                )
+              })
+              return groupName === UNGROUPED ? (
+                <Fragment key={UNGROUPED}>{renderedOptions}</Fragment>
+              ) : (
+                <TagPickerOptionGroup key={groupName} label={groupName}>
+                  {renderedOptions}
+                </TagPickerOptionGroup>
+              )
+            })}
       </TagPickerList>
     </FluentTagPicker>
   )

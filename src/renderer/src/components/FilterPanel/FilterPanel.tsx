@@ -65,6 +65,12 @@ export function FilterPanel({
     []
   )
 
+  // Module-level data, so this never changes between renders
+  const languageOptions = useMemo<TagPickerTagOption[]>(
+    () => LanguageList.map((language) => ({ id: language.code, name: language.name })),
+    []
+  )
+
   const handleContentRatingChange = (rating: ContentRating, checked: boolean): void => {
     const newRatings = checked
       ? [...filters.contentRating, rating]
@@ -92,13 +98,6 @@ export function FilterPanel({
 
   const handleTagModeChange = (value: string): void => {
     onChange({ includedTagsMode: value as IncludedTagsMode })
-  }
-
-  const handleLanguageChange = (languageCode: string, checked: boolean): void => {
-    const newLanguages = checked
-      ? [...filters.availableTranslatedLanguage, languageCode]
-      : filters.availableTranslatedLanguage.filter((code) => code !== languageCode)
-    onChange({ availableTranslatedLanguage: newLanguages })
   }
 
   return (
@@ -286,23 +285,14 @@ export function FilterPanel({
               {/* Language Filter Section */}
               <div className="filter-panel__tag-group">
                 <h4 className="filter-panel__tag-group-title">{t('filter.languages')}</h4>
-                <div className="filter-panel__tag-list">
-                  {LanguageList.map((language) => {
-                    const isSelected = filters.availableTranslatedLanguage.includes(language.code)
-                    return (
-                      <div
-                        key={language.code}
-                        className="filter-panel__language-item flex items-center"
-                      >
-                        <Checkbox
-                          label={language.name}
-                          checked={isSelected}
-                          onChange={(checked) => handleLanguageChange(language.code, checked)}
-                        />
-                      </div>
-                    )
-                  })}
-                </div>
+                <TagPicker
+                  options={languageOptions}
+                  selectedIds={filters.availableTranslatedLanguage}
+                  onChange={(ids) => onChange({ availableTranslatedLanguage: ids })}
+                  keepOpenOnSelect
+                  placeholder={t('filter.languagesPlaceholder')}
+                  aria-label={t('filter.languages')}
+                />
               </div>
             </div>
           </AccordionPanel>

@@ -93,6 +93,7 @@
     "matchAllTags": "Match ALL tags (AND)",
     "matchAnyTag": "Match ANY tag (OR)",
     "languages": "Languages",
+    "languagesPlaceholder": "Any language (uses your Settings)",
     "tags": {
       "includeLabel": "Include Tags",
       "excludeLabel": "Exclude Tags",
