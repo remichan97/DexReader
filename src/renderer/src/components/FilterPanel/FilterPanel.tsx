@@ -264,6 +264,7 @@ export function FilterPanel({
                   selectedIds={filters.includedTags}
                   disabledIds={filters.excludedTags}
                   onChange={(ids) => onChange({ includedTags: ids })}
+                  keepOpenOnSelect
                   placeholder={t('filter.tags.includePlaceholder')}
                   aria-label={t('filter.tags.includeLabel')}
                 />
@@ -277,6 +278,7 @@ export function FilterPanel({
                   selectedIds={filters.excludedTags}
                   disabledIds={filters.includedTags}
                   onChange={(ids) => onChange({ excludedTags: ids })}
+                  keepOpenOnSelect
                   placeholder={t('filter.tags.excludePlaceholder')}
                   aria-label={t('filter.tags.excludeLabel')}
                 />
