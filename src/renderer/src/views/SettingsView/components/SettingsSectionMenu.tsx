@@ -23,8 +23,13 @@ const useStyles = makeStyles({
     width: '100%',
     justifyContent: 'space-between'
   },
-  // MenuPopover caps itself at 300px, which would clamp the width matched to the trigger
+  // MenuPopover caps itself at 300px, and each menu item at 290px, which would clamp the
+  // width matched to the trigger (the popup would widen but the highlight and click area of
+  // every row would stop short at 290px)
   popover: {
+    maxWidth: 'none'
+  },
+  item: {
     maxWidth: 'none'
   }
 })
@@ -85,7 +90,12 @@ export function SettingsSectionMenu({
         <MenuList>
           <MenuGroupHeader>{t('settings:jumpTo', { defaultValue: 'Jump to...' })}</MenuGroupHeader>
           {sections.map((section) => (
-            <MenuItemRadio key={section.id} name={CHECKED_VALUES_NAME} value={section.id}>
+            <MenuItemRadio
+              key={section.id}
+              className={styles.item}
+              name={CHECKED_VALUES_NAME}
+              value={section.id}
+            >
               {section.label}
             </MenuItemRadio>
           ))}
