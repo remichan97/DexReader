@@ -6,7 +6,9 @@
 }
 
 .reader-settings-modal__double-page-options {
-  background: var(--win-bg-subtle);
+  /* Fluent tokens, not --win-*: this renders in a portal inside the reader's own
+     FluentProvider, so only Fluent's variables follow a forced-dark reader. */
+  background: var(--colorNeutralBackground3);
   border-radius: var(--radius-md);
 }
 
@@ -26,5 +28,5 @@
 
 .reader-settings-modal__info {
   font-size: 12px;
-  border-top: 1px solid var(--win-border-default);
+  border-top: 1px solid var(--colorNeutralStroke2);
 }
