@@ -32,6 +32,12 @@ import { useTranslation } from '@renderer/hooks/useTranslation'
 // `color: tokens.colorNeutralForegroundDisabled; cursor: default` - matched here for visual
 // consistency with the rest of the app's disabled options (e.g. Select).
 const useStyles = makeStyles({
+  // Fluent caps the list at 80vh, which with a long option list (~76 tags) is too tall to fit
+  // below or above the control at any window size, so it ends up beside it. A bounded height
+  // lets it open under (or over) the control and scroll inside itself.
+  list: {
+    maxHeight: '280px'
+  },
   disabledOption: {
     color: tokens.colorNeutralForegroundDisabled,
     cursor: 'default'
@@ -172,7 +178,7 @@ export function TagPicker({
           aria-label={ariaLabel}
         />
       </TagPickerControl>
-      <TagPickerList>
+      <TagPickerList className={styles.list}>
         {groupedMatches.size === 0
           ? t('message.info.noOptionsFound')
           : [...groupedMatches.entries()].map(([groupName, tags]) => {
