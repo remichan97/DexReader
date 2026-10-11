@@ -45,9 +45,8 @@ export function MangaStorageList({
 
   const currentSortValue = `${sortBy}-${sortDirection}`
 
-  const handleSortChange = (value: string | string[]): void => {
-    const sortValue = typeof value === 'string' ? value : value[0]
-    const [newSortBy, newDirection] = sortValue.split('-') as ['title' | 'storage', 'asc' | 'desc']
+  const handleSortChange = (value: string): void => {
+    const [newSortBy, newDirection] = value.split('-') as ['title' | 'storage', 'asc' | 'desc']
     onSortChange(newSortBy, newDirection)
   }
 

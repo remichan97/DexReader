@@ -29,13 +29,11 @@ export function ReaderSettingsModal({
     { value: 'vertical', label: t('dialogs:readerSettings.mode.options.vertical') }
   ]
 
-  const handleReadingModeChange = (mode: string | string[]): void => {
-    const selectedMode = Array.isArray(mode) ? mode[0] : mode
-
+  const handleReadingModeChange = (mode: string): void => {
     // Only include doublePageMode when mode is 'double'
-    if (selectedMode === 'double') {
+    if (mode === 'double') {
       onSettingsChange({
-        readingMode: selectedMode as MangaReadingSettings['readingMode'],
+        readingMode: mode as MangaReadingSettings['readingMode'],
         doublePageMode: settings.doublePageMode ?? {
           skipCoverPages: true,
           readRightToLeft: true
@@ -43,7 +41,7 @@ export function ReaderSettingsModal({
       })
     } else {
       onSettingsChange({
-        readingMode: selectedMode as MangaReadingSettings['readingMode']
+        readingMode: mode as MangaReadingSettings['readingMode']
       })
     }
   }

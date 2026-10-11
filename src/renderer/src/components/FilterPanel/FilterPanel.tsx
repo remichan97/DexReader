@@ -59,26 +59,22 @@ export function FilterPanel({
     onChange({ contentRating: newRatings })
   }
 
-  const handleStatusChange = (value: string | string[]): void => {
-    const val = Array.isArray(value) ? value[0] : value
-    const statuses = val === 'all' ? [] : [val as PublicationStatus]
+  const handleStatusChange = (value: string): void => {
+    const statuses = value === 'all' ? [] : [value as PublicationStatus]
     onChange({ publicationStatus: statuses })
   }
 
-  const handleDemographicChange = (value: string | string[]): void => {
-    const val = Array.isArray(value) ? value[0] : value
-    const demographics = val === 'all' ? [] : [val as PublicationDemographic]
+  const handleDemographicChange = (value: string): void => {
+    const demographics = value === 'all' ? [] : [value as PublicationDemographic]
     onChange({ publicationDemographic: demographics })
   }
 
-  const handleSortChange = (value: string | string[]): void => {
-    const val = Array.isArray(value) ? value[0] : value
-    onChange({ sortBy: val as OrderOptions })
+  const handleSortChange = (value: string): void => {
+    onChange({ sortBy: value as OrderOptions })
   }
 
-  const handleSortDirectionChange = (value: string | string[]): void => {
-    const val = Array.isArray(value) ? value[0] : value
-    onChange({ sortDirection: val as OrderDirection })
+  const handleSortDirectionChange = (value: string): void => {
+    onChange({ sortDirection: value as OrderDirection })
   }
 
   const handleTagInclude = (tagId: string, checked: boolean): void => {
@@ -95,9 +91,8 @@ export function FilterPanel({
     onChange({ excludedTags: newTags })
   }
 
-  const handleTagModeChange = (value: string | string[]): void => {
-    const val = Array.isArray(value) ? value[0] : value
-    onChange({ includedTagsMode: val as IncludedTagsMode })
+  const handleTagModeChange = (value: string): void => {
+    onChange({ includedTagsMode: value as IncludedTagsMode })
   }
 
   const handleLanguageChange = (languageCode: string, checked: boolean): void => {
@@ -219,7 +214,7 @@ export function FilterPanel({
           <span className="filter-panel__label">{t('filter.perPage')}</span>
           <Select
             value={limit.toString()}
-            onChange={(val) => onLimitChange(Number(Array.isArray(val) ? val[0] : val))}
+            onChange={(val) => onLimitChange(Number(val))}
             options={[
               { value: '20', label: '20' },
               { value: '25', label: '25' },

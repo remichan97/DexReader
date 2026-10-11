@@ -125,13 +125,12 @@ export function PriorityList({
   }
 
   // Add new item to list
-  const handleAdd = (value: string | string[]): void => {
+  const handleAdd = (value: string): void => {
     if (disabled) return
-    const valueToAdd = Array.isArray(value) ? value[0] : value
-    if (!valueToAdd || items.includes(valueToAdd)) return
+    if (!value || items.includes(value)) return
     if (items.length >= maxItems) return
 
-    onChange([...items, valueToAdd])
+    onChange([...items, value])
     setSelectedToAdd('')
   }
 
