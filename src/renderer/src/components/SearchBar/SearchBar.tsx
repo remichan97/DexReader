@@ -36,13 +36,18 @@ const useStyles = makeStyles({
     overflow: 'visible',
     paddingLeft: '4px'
   },
-  filterButton: {
-    position: 'relative'
+  // The badge sits beside the button, not inside it: as button content it would make Fluent
+  // treat this as a labelled button, stretching it (24px -> 64px) and pinning the badge to the
+  // far corner, away from the icon. Anchoring both to this wrapper keeps the button icon-only.
+  filterAnchor: {
+    position: 'relative',
+    display: 'inline-flex'
   },
   filterBadge: {
     position: 'absolute',
-    top: '-2px',
-    right: '-2px'
+    top: '-4px',
+    right: '-4px',
+    pointerEvents: 'none'
   }
 })
 
@@ -218,24 +223,25 @@ export function SearchBar({
                 <>
                   {actions}
                   {onFilterClick && (
-                    <Button
-                      appearance="transparent"
-                      size="small"
-                      className={styles.filterButton}
-                      icon={<Filter20Regular />}
-                      onClick={onFilterClick}
-                      disabled={disabled}
-                      aria-label={filterLabel}
-                    >
+                    <span className={styles.filterAnchor}>
+                      <Button
+                        appearance="transparent"
+                        size="small"
+                        icon={<Filter20Regular />}
+                        onClick={onFilterClick}
+                        disabled={disabled}
+                        aria-label={filterLabel}
+                      />
                       {filterCount > 0 && (
                         <CounterBadge
                           className={styles.filterBadge}
                           count={filterCount}
                           size="small"
                           color="brand"
+                          aria-hidden="true"
                         />
                       )}
-                    </Button>
+                    </span>
                   )}
                 </>
               )
