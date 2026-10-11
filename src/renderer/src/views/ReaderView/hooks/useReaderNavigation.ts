@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { forwardOrigin } from '@renderer/utils/navigationOrigin'
 import type { ReadingMode } from '@renderer/components/ReadingModeSelector'
 import type { ChapterContract } from '../../../../../preload/window.types'
 
@@ -16,6 +17,8 @@ interface UseReaderNavigationProps {
   pagePairs: Array<[number] | [number, number]>
   previousChapter: ChapterEntity | null
   nextChapter: ChapterEntity | null
+  /** Route that opened the manga's detail page; handed back when leaving the reader */
+  origin?: string
 }
 
 interface UseReaderNavigationReturn {
@@ -51,7 +54,8 @@ export function useReaderNavigation(
     currentPairIndex,
     pagePairs,
     previousChapter,
-    nextChapter
+    nextChapter,
+    origin
   } = props
 
   /**
@@ -225,11 +229,11 @@ export function useReaderNavigation(
    */
   const handleBackClick = useCallback((): void => {
     if (mangaId) {
-      navigate(`/browse/${mangaId}`)
+      navigate(`/browse/${mangaId}`, { state: forwardOrigin(origin) })
     } else {
       navigate(-1)
     }
-  }, [navigate, mangaId])
+  }, [navigate, mangaId, origin])
 
   /**
    * Navigate to a specific chapter from the chapter list

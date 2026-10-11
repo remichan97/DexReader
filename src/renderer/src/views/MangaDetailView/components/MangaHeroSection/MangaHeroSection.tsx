@@ -2,6 +2,7 @@ import type { JSX } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { InteractionTag, InteractionTagPrimary } from '@fluentui/react-components'
 import { useSecureNavigation } from '@renderer/hooks/useSecureNavigation'
+import { forwardOrigin } from '@renderer/utils/navigationOrigin'
 import {
   BookOpenRegular,
   PlayCircle24Regular,
@@ -38,6 +39,8 @@ type ChapterEntity = ChapterContract
 interface MangaHeroSectionProps {
   readonly manga: MangaEntity
   readonly chapters: ChapterEntity[]
+  /** Route that opened the detail page; forwarded to the reader so it can return there */
+  readonly origin?: string
   readonly progress: NonNullable<
     Awaited<ReturnType<Window['progress']['getProgress']>>['data']
   > | null
@@ -49,7 +52,8 @@ interface MangaHeroSectionProps {
 export default function MangaHeroSection({
   manga,
   chapters,
-  progress
+  progress,
+  origin
 }: MangaHeroSectionProps): JSX.Element {
   const navigate = useNavigate()
   const { secureNavigate } = useSecureNavigation()
@@ -106,7 +110,8 @@ export default function MangaHeroSection({
             mangaTitle: getMangaTitle(manga),
             chapters: chapters,
             startPage, // Start at last read page
-            coverUrl // Pass cover URL for progress tracking
+            coverUrl, // Pass cover URL for progress tracking
+            ...forwardOrigin(origin)
           }
         })
         return
@@ -121,7 +126,8 @@ export default function MangaHeroSection({
         chapterTitle: firstChapter.title,
         mangaTitle: getMangaTitle(manga),
         chapters: chapters,
-        coverUrl // Pass cover URL for progress tracking // Pass full chapter list for navigation
+        coverUrl, // Pass cover URL for progress tracking // Pass full chapter list for navigation
+        ...forwardOrigin(origin)
       }
     })
   }

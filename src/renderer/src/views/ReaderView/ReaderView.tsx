@@ -2,6 +2,7 @@ import React, { type JSX, useState, useEffect, useCallback, useMemo, useRef } fr
 import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { FluentProvider } from '@fluentui/react-components'
 import { createDexReaderThemes } from '@renderer/theme/fluentTheme'
+import { getOrigin } from '@renderer/utils/navigationOrigin'
 import { ImageQuality } from '@shared/enums/mangadex/image-quality.enum'
 import type { MangaReadingSettings } from '../../../../preload/window.types'
 import { Button } from '@renderer/components/Button'
@@ -75,6 +76,10 @@ export function ReaderView(): JSX.Element {
     startPage?: number // Page to start at (from Continue Reading)
   } | null
 
+  // Where the manga's detail page was opened from. Captured once on mount: chapter-to-chapter
+  // navigation replaces location.state, but this component (and so this value) persists.
+  const [origin] = useState(() => getOrigin(location.state))
+
   const [state, setState] = useState<ReaderState>({
     currentPage: locationState?.startPage ?? 0, // Start from saved progress if available
     showChapterList: false,
@@ -132,7 +137,8 @@ export function ReaderView(): JSX.Element {
       currentPairIndex,
       pagePairs,
       previousChapter: chapterData.previousChapter,
-      nextChapter: chapterData.nextChapter
+      nextChapter: chapterData.nextChapter,
+      origin
     },
     (pageIndex) => {
       chapterData.setImageLoadingState(pageIndex, 'loading')

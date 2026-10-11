@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { originFrom } from '@renderer/utils/navigationOrigin'
 import { History24Regular } from '@fluentui/react-icons'
 import { EmptyState } from '@renderer/components/EmptyState'
 import { LoadingState } from '@renderer/components/LoadingState'
@@ -60,6 +61,7 @@ function groupEventsByDate(
 
 export function HistoryView(): JSX.Element {
   const navigate = useNavigate()
+  const location = useLocation()
   const { t } = useTranslation(['history', 'common'])
 
   const deleteProgress = useProgressStore((state) => state.deleteProgress)
@@ -113,7 +115,8 @@ export function HistoryView(): JSX.Element {
         chapterNumber: event.chapterNumber,
         chapterTitle: event.chapterTitle,
         mangaTitle: event.title,
-        startPage: 0
+        startPage: 0,
+        ...originFrom(location)
       }
     })
   }

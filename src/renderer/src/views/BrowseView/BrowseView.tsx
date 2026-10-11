@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { originFrom } from '@renderer/utils/navigationOrigin'
 import { Warning48Regular, CloudOff48Regular, Search48Regular } from '@fluentui/react-icons'
 import { SearchBar } from '@renderer/components/SearchBar'
 import { EmptyState } from '@renderer/components/EmptyState'
@@ -24,6 +25,7 @@ import { useSearchPresets } from './hooks/useSearchPresets'
 export function BrowseView(): JSX.Element {
   const { t } = useTranslation(['browse', 'common'])
   const navigate = useNavigate()
+  const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
   const [showErrorDetails, setShowErrorDetails] = useState<boolean>(false)
   const query = useSearchStore((state) => state.query)
@@ -129,7 +131,7 @@ export function BrowseView(): JSX.Element {
   }
 
   const handleMangaClick = (id: string): void => {
-    navigate(`/browse/${id}`)
+    navigate(`/browse/${id}`, { state: originFrom(location) })
   }
 
   // Re-seeds the draft from the currently committed state every time the modal opens, so

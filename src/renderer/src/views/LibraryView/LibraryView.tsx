@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { useState, useEffect, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { originFrom } from '@renderer/utils/navigationOrigin'
 import type { MangaWithMetadataContract } from '../../../../preload/window.types'
 import { Tabs, TabList, Tab, TabPanel } from '@renderer/components/Tabs'
 import { SearchBar } from '@renderer/components/SearchBar'
@@ -41,6 +42,7 @@ import { useTranslation } from '@renderer/hooks/useTranslation'
 export function LibraryView(): JSX.Element {
   const { t } = useTranslation(['library', 'common'])
   const navigate = useNavigate()
+  const location = useLocation()
   const [searchQuery, setSearchQuery] = useState('')
   const [showSearchHelp, setShowSearchHelp] = useState(false)
 
@@ -147,7 +149,7 @@ export function LibraryView(): JSX.Element {
   }
 
   const handleMangaClick = (id: string): void => {
-    navigate(`/browse/${id}`)
+    navigate(`/browse/${id}`, { state: originFrom(location) })
   }
 
   const handleRemoveFromLibrary = async (id: string): Promise<void> => {

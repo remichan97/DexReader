@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { originFrom } from '@renderer/utils/navigationOrigin'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import { EmptyState } from '@renderer/components/EmptyState'
 import { LoadingState } from '@renderer/components/LoadingState'
@@ -16,6 +17,7 @@ import './DownloadsView.css'
 
 export function DownloadsView(): JSX.Element {
   const navigate = useNavigate()
+  const location = useLocation()
   const { t } = useTranslation(['downloads', 'common'])
 
   // Search/Filter/Sort state (kept in parent for control)
@@ -51,11 +53,11 @@ export function DownloadsView(): JSX.Element {
   // Navigation handlers
   const handleNavigateToManga = (mangaId: string, e: React.MouseEvent): void => {
     e.stopPropagation()
-    navigate(`/browse/${mangaId}`)
+    navigate(`/browse/${mangaId}`, { state: originFrom(location) })
   }
 
   const handleNavigateToReader = (mangaId: string, chapterId: string): void => {
-    navigate(`/reader/${mangaId}/${chapterId}`)
+    navigate(`/reader/${mangaId}/${chapterId}`, { state: originFrom(location) })
   }
 
   // Render loading state
