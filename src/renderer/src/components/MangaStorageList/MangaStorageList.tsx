@@ -86,8 +86,14 @@ export function MangaStorageList({
                     }
                   }}
                 >
-                  {/* Checkbox */}
-                  <div className="pt-3">
+                  {/* Checkbox. Its events stop here: the checkbox toggles via its own onChange,
+                      so letting the click/keypress bubble to the row's handler too would toggle
+                      the item a second time and cancel it out. */}
+                  <div
+                    className="pt-3"
+                    onClick={(event) => event.stopPropagation()}
+                    onKeyDown={(event) => event.stopPropagation()}
+                  >
                     <Checkbox
                       checked={isSelected}
                       onChange={() => onToggleSelect(item.mangaId)}
