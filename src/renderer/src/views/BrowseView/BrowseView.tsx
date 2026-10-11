@@ -194,21 +194,49 @@ export function BrowseView(): JSX.Element {
         />
       </div>
 
-      {/* Filter Panel - lives in a dedicated Modal rather than an inline toggled block */}
+      {/* Filter Panel - lives in a dedicated Modal rather than an inline toggled block.
+          Actions live in the Modal's own footer (DialogActions, outside the scrollable
+          content) rather than inside FilterPanel, so they stay pinned at the bottom per
+          Fluent's dialog guidance instead of scrolling away with the filter controls. */}
       <Modal
         open={isFilterModalOpen}
         onClose={() => setIsFilterModalOpen(false)}
         title={t('browse:filter.modalTitle')}
         size="large"
+        footer={
+          <>
+            <Button
+              variant="secondary"
+              size="small"
+              onClick={handleClearFilters}
+              title={t('browse:filter.tooltips.reset')}
+            >
+              {t('browse:clearFiltersButton')}
+            </Button>
+            <Button
+              variant="secondary"
+              size="small"
+              onClick={() => setShowSaveDialog(true)}
+              title={t('browse:filter.tooltips.savePreset')}
+            >
+              {t('browse:savePresetButton')}
+            </Button>
+            <Button
+              variant="primary"
+              size="small"
+              onClick={handleApplyFilters}
+              title={t('browse:filter.tooltips.apply')}
+            >
+              {t('browse:applyFiltersButton')}
+            </Button>
+          </>
+        }
       >
         <FilterPanel
           filters={filters}
           limit={limit}
           onChange={handleFilterChange}
           onLimitChange={setLimit}
-          onApply={handleApplyFilters}
-          onClear={handleClearFilters}
-          onSavePreset={() => setShowSaveDialog(true)}
           currentPresetId={appliedPresetId}
           onPresetSelect={handlePresetSelect}
           onPresetDelete={handleDeletePreset}

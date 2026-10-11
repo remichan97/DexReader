@@ -1,15 +1,17 @@
 /**
  * Filter Panel Component
  *
- * Horizontal filter bar for manga search with content rating, status,
- * demographic, and sort options. Spans full width like SearchBar.
+ * Filter controls for manga search: content rating, status, demographic,
+ * and sort options. Rendered inside a Modal (see BrowseView) - its own
+ * Apply/Clear/Save Preset actions live in the Modal's footer rather than
+ * in this component, so they stay pinned below the scrollable content
+ * instead of scrolling away with it.
  */
 
 import type { JSX } from 'react'
 import { useState } from 'react'
 import { Select } from '@renderer/components/Select'
 import { Checkbox } from '@renderer/components/Checkbox'
-import { Button } from '@renderer/components/Button'
 import { PresetSelector } from '@renderer/components/PresetSelector'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import {
@@ -31,9 +33,6 @@ interface FilterPanelProps {
   readonly limit: number
   readonly onChange: (filters: Partial<SearchFilters>) => void
   readonly onLimitChange: (limit: number) => void
-  readonly onApply: () => void
-  readonly onClear: () => void
-  readonly onSavePreset?: () => void
   readonly currentPresetId?: number | null
   readonly onPresetSelect?: (presetId: number | null) => void
   readonly onPresetDelete?: (id: number, name: string) => void
@@ -44,9 +43,6 @@ export function FilterPanel({
   limit,
   onChange,
   onLimitChange,
-  onApply,
-  onClear,
-  onSavePreset,
   currentPresetId,
   onPresetSelect,
   onPresetDelete
@@ -245,28 +241,6 @@ export function FilterPanel({
             ]}
           />
         </div>
-
-        {/* Action Buttons - Only show in quick filters when advanced is collapsed */}
-        {!isExpanded && (
-          <div className="filter-panel__actions flex gap-2">
-            <Button
-              variant="secondary"
-              size="small"
-              onClick={onClear}
-              title={t('filter.tooltips.reset')}
-            >
-              {t('clearFiltersButton')}
-            </Button>
-            <Button
-              variant="primary"
-              size="small"
-              onClick={onApply}
-              title={t('filter.tooltips.apply')}
-            >
-              {t('applyFiltersButton')}
-            </Button>
-          </div>
-        )}
       </div>
 
       {/* Advanced Filters Toggle */}
@@ -375,38 +349,6 @@ export function FilterPanel({
               })}
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Sticky Footer with Action Buttons - Only when advanced filters are expanded */}
-      {isExpanded && (
-        <div className="filter-panel__sticky-footer flex gap-2 justify-end">
-          <Button
-            variant="secondary"
-            size="small"
-            onClick={onClear}
-            title={t('filter.tooltips.reset')}
-          >
-            {t('clearFiltersButton')}
-          </Button>
-          {onSavePreset && (
-            <Button
-              variant="secondary"
-              size="small"
-              onClick={onSavePreset}
-              title={t('filter.tooltips.savePreset')}
-            >
-              {t('savePresetButton')}
-            </Button>
-          )}
-          <Button
-            variant="primary"
-            size="small"
-            onClick={onApply}
-            title={t('filter.tooltips.apply')}
-          >
-            {t('applyFiltersButton')}
-          </Button>
         </div>
       )}
     </div>
