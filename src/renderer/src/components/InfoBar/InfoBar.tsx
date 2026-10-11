@@ -1,5 +1,11 @@
 import type { JSX, ReactNode } from 'react'
-import { MessageBar, MessageBarBody, MessageBarActions } from '@fluentui/react-components'
+import {
+  MessageBar,
+  MessageBarBody,
+  MessageBarActions,
+  makeStyles,
+  mergeClasses
+} from '@fluentui/react-components'
 
 export interface InfoBarProps {
   /**
@@ -28,6 +34,18 @@ export interface InfoBarProps {
    */
   readonly className?: string
 }
+
+// Fluent's MessageBar has no sticky/positioning concept of its own - this restores the
+// original hand-rolled `.info-bar` class's `position: sticky; top: 0` (dropped when InfoBar
+// swapped to MessageBar in Tier 1, since the new markup no longer applies that class), which
+// every call site actually relies on to stay visible while the page scrolls past it.
+const useStyles = makeStyles({
+  sticky: {
+    position: 'sticky',
+    top: 0,
+    zIndex: 10
+  }
+})
 
 /**
  * InfoBar Component
@@ -58,10 +76,12 @@ export function InfoBar({
   visible = true,
   className = ''
 }: InfoBarProps): JSX.Element | null {
+  const styles = useStyles()
+
   if (!visible) return null
 
   return (
-    <MessageBar intent="info" className={className}>
+    <MessageBar intent="info" className={mergeClasses(styles.sticky, className)}>
       <MessageBarBody>{text}</MessageBarBody>
       {actions && <MessageBarActions>{actions}</MessageBarActions>}
     </MessageBar>
