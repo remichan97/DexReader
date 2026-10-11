@@ -54,8 +54,10 @@ export function SettingsSectionMenu({
       onCheckedValueChange={handleCheckedValueChange}
     >
       <MenuTrigger disableButtonEnhancement>
+        {/* Not appearance="outline": its expanded state thickens the border 1px -> 3px, which
+            grows the trigger by 4px and shifts the sticky header's content down while open. */}
         <MenuButton
-          appearance="outline"
+          appearance="secondary"
           aria-label={t('settings:jumpToSection', { defaultValue: 'Jump to section' })}
         >
           {currentSectionLabel || t('settings:jumpTo', { defaultValue: 'Jump to...' })}
