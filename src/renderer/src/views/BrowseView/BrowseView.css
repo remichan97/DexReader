@@ -8,8 +8,16 @@
 }
 
 .browse-error__icon {
+  font-size: 96px;
   color: var(--win-text-secondary);
   opacity: 0.6;
+}
+
+/* The icon's own width/height attributes ignore font-size - size the SVG itself */
+.browse-error__icon svg {
+  width: 1em;
+  height: 1em;
+  display: block;
 }
 
 .browse-error__title {

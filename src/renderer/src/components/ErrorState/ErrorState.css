@@ -13,11 +13,17 @@
 
 /* Icon */
 .error-state__icon {
-  font-size: 48px;
+  font-size: 96px;
   color: var(--win-error);
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* The icon's own width/height attributes ignore font-size - size the SVG itself */
+.error-state__icon svg {
+  width: 1em;
+  height: 1em;
 }
 
 .error-state--offline .error-state__icon {
