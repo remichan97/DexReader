@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { useState, useEffect, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { Button as FluentButton, ToggleButton } from '@fluentui/react-components'
 import { originFrom } from '@renderer/utils/navigationOrigin'
 import type { MangaWithMetadataContract } from '../../../../preload/window.types'
 import { Tabs, TabList, Tab, TabPanel } from '@renderer/components/Tabs'
@@ -240,48 +241,44 @@ export function LibraryView(): JSX.Element {
               value={searchQuery}
               onChange={handleSearch}
               placeholder={t('library:searchPlaceholder')}
-            />
-            <div className="library-view__search-actions">
-              {/* Download Toggle Button */}
-              <button
-                type="button"
-                className={`library-view__search-button ${
-                  includeDownloaded ? 'library-view__search-button--active' : ''
-                }`}
-                onClick={() => setIncludeDownloaded(!includeDownloaded)}
-                aria-label={
-                  includeDownloaded
-                    ? t('library:downloadToggle.hideDownloaded')
-                    : t('library:downloadToggle.includeDownloaded')
-                }
-                aria-pressed={includeDownloaded}
-                title={
-                  includeDownloaded && downloadedCount > 0
-                    ? t('library:downloadToggle.showing', {
-                        count: downloadedCount,
-                        s: downloadedCount === 1 ? '' : 's'
-                      })
-                    : t('library:downloadToggle.includeDownloaded')
-                }
-              >
-                <span className="library-view__search-button-icon">
-                  {includeDownloaded ? <ArrowDownload20Filled /> : <ArrowDownload20Regular />}
-                </span>
-              </button>
+              actions={
+                <>
+                  {/* Download Toggle Button */}
+                  <ToggleButton
+                    appearance="transparent"
+                    size="small"
+                    checked={includeDownloaded}
+                    onClick={() => setIncludeDownloaded(!includeDownloaded)}
+                    icon={
+                      includeDownloaded ? <ArrowDownload20Filled /> : <ArrowDownload20Regular />
+                    }
+                    aria-label={
+                      includeDownloaded
+                        ? t('library:downloadToggle.hideDownloaded')
+                        : t('library:downloadToggle.includeDownloaded')
+                    }
+                    title={
+                      includeDownloaded && downloadedCount > 0
+                        ? t('library:downloadToggle.showing', {
+                            count: downloadedCount,
+                            s: downloadedCount === 1 ? '' : 's'
+                          })
+                        : t('library:downloadToggle.includeDownloaded')
+                    }
+                  />
 
-              {/* Search Help Button */}
-              <button
-                type="button"
-                className="library-view__search-button"
-                onClick={() => setShowSearchHelp(!showSearchHelp)}
-                aria-label={t('library:searchHelpButton')}
-                title={t('library:searchHelpButton')}
-              >
-                <span className="library-view__search-button-icon">
-                  <Info20Regular />
-                </span>
-              </button>
-            </div>
+                  {/* Search Help Button */}
+                  <FluentButton
+                    appearance="transparent"
+                    size="small"
+                    onClick={() => setShowSearchHelp(!showSearchHelp)}
+                    icon={<Info20Regular />}
+                    aria-label={t('library:searchHelpButton')}
+                    title={t('library:searchHelpButton')}
+                  />
+                </>
+              }
+            />
           </div>
         </div>
 

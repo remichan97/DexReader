@@ -63,26 +63,10 @@
   flex: 1;
 }
 
-.history-schedule-header__search-input {
+.history-schedule-header .history-schedule-header__search-input {
   flex: 1;
   min-width: 0;
-  padding: 8px 12px;
-  background: var(--win-bg-subtle);
-  border: 1px solid var(--win-border-default);
-  border-radius: var(--radius-sm);
-  color: var(--win-text-primary);
-  font-size: var(--font-size-body);
-  outline: none;
-  transition: all 0.2s;
-}
-
-.history-schedule-header__search-input:focus {
-  border-color: var(--win-accent);
-  box-shadow: 0 0 0 1px var(--win-accent);
-}
-
-.history-schedule-header__search-input::placeholder {
-  color: var(--win-text-tertiary);
+  max-width: none; /* Fluent's SearchBox caps its root width; the doubled selector beats its injected class */
 }
 
 /* Calendar (rendered inside a Popover, floats over the feed). Every

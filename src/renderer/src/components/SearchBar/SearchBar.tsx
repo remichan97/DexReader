@@ -1,8 +1,41 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, type ReactNode } from 'react'
+import {
+  Button,
+  CounterBadge,
+  SearchBox,
+  makeStyles,
+  type InputOnChangeData,
+  type SearchBoxChangeEvent
+} from '@fluentui/react-components'
+import { Filter20Regular } from '@fluentui/react-icons'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import { BaseComponentProps } from '@renderer/types/components'
 import { useDebounce } from '@renderer/hooks/useDebounce'
-import './SearchBar.css'
+
+const useStyles = makeStyles({
+  // Fluent's SearchBox caps its root at 468px; our views want it to fill whatever row
+  // (or flex slot) it's placed in.
+  searchBox: {
+    width: '100%',
+    maxWidth: 'none'
+  },
+  // SearchBox collapses its contentAfter slot to 0x0 until the box is focused (it expects
+  // transient content). The filter/toggle buttons here must always be visible, so undo that.
+  contentAfter: {
+    width: 'auto',
+    height: 'auto',
+    overflow: 'visible',
+    paddingLeft: '4px'
+  },
+  filterButton: {
+    position: 'relative'
+  },
+  filterBadge: {
+    position: 'absolute',
+    top: '-2px',
+    right: '-2px'
+  }
+})
 
 export interface SearchBarProps extends BaseComponentProps {
   /**
@@ -41,17 +74,21 @@ export interface SearchBarProps extends BaseComponentProps {
    * Disabled state
    */
   disabled?: boolean
+
+  /**
+   * Extra controls rendered inside the search box, after the clear button
+   * (e.g. toggle buttons). The filter button, when shown, comes last.
+   */
+  actions?: ReactNode
 }
 
 /**
- * SearchBar component with debouncing and filter support.
- *
- * Styled to match the Input component exactly (32px height, 2px bottom border).
- * Features clean focus behavior with bottom border emphasis only - no outer glow.
- * Includes keyboard shortcuts (Ctrl+F to focus, Escape to clear).
- *
- * **Focus Behavior**: Identical to Input component - 2px accent bottom border
- * with :not(:focus-within) on hover to prevent border conflicts.
+ * SearchBar component with debouncing and filter support, built on Fluent 2's `SearchBox`
+ * (@fluentui/react-components). The search icon, clear (dismiss) button, focus underline,
+ * and disabled styling all come from Fluent - the hand-rolled icon, clear button and
+ * border/focus CSS are gone. What stays here is DexReader behaviour: debounced `onChange`,
+ * immediate propagation of a clear, Ctrl+F to focus, Escape to clear, and the filter button
+ * with its active-filter count.
  *
  * @example
  * ```tsx
@@ -80,10 +117,12 @@ export function SearchBar({
   placeholder,
   debounceMs = 300,
   disabled = false,
-  className = '',
+  actions,
+  className,
   'aria-label': ariaLabel
 }: SearchBarProps): React.JSX.Element {
   const { t } = useTranslation()
+  const styles = useStyles()
   const [internalValue, setInternalValue] = useState(value)
   const debouncedValue = useDebounce(internalValue, debounceMs)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -109,8 +148,13 @@ export function SearchBar({
     inputRef.current?.focus()
   }, [onChange])
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    setInternalValue(event.target.value)
+  const handleChange = (_event: SearchBoxChangeEvent, data: InputOnChangeData): void => {
+    setInternalValue(data.value)
+    // Fluent's dismiss button reports a clear as an empty value; propagate it immediately
+    // (as handleClear does) rather than waiting out the debounce.
+    if (data.value === '') {
+      onChange('')
+    }
   }
 
   // Keyboard shortcuts
@@ -135,112 +179,56 @@ export function SearchBar({
     }
   }, [handleClear])
 
-  const handleFilterClick = (): void => {
-    onFilterClick?.()
-  }
-
-  const classNames = [
-    'search-bar flex flex-col gap-2',
-    disabled && 'search-bar--disabled',
-    className
-  ]
-    .filter(Boolean)
-    .join(' ')
+  const filterLabel =
+    filterCount > 0
+      ? `${t('aria.filters')} (${t('aria.filtersActive', { count: filterCount })})`
+      : t('aria.filters')
 
   return (
-    <div className={classNames}>
-      <div className="search-bar__container flex items-center">
-        {/* Search Icon */}
-        <span className="search-bar__icon flex items-center justify-center" aria-hidden="true">
-          <svg
-            className="search-bar__icon-svg"
-            viewBox="0 0 20 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM19 19l-4.35-4.35"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </span>
-
-        {/* Search Input */}
-        <input
-          ref={inputRef}
-          type="search"
-          className="search-bar__input"
-          placeholder={placeholder || t('form.placeholder.search')}
-          value={internalValue}
-          onChange={handleChange}
-          disabled={disabled}
-          aria-label={ariaLabel || t('action.search')}
-          autoComplete="off"
-        />
-
-        {/* Clear Button */}
-        {internalValue && !disabled && (
-          <button
-            type="button"
-            className="search-bar__clear flex items-center justify-center"
-            onClick={handleClear}
-            aria-label={t('aria.clearSearch')}
-            tabIndex={-1}
-          >
-            <svg
-              className="search-bar__clear-icon"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M12 4L4 12M4 4L12 12"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
-          </button>
-        )}
-
-        {/* Filter Button */}
-        {onFilterClick && (
-          <button
-            type="button"
-            className="search-bar__filter flex items-center justify-center"
-            onClick={handleFilterClick}
-            disabled={disabled}
-            aria-label={
-              filterCount > 0
-                ? `${t('aria.filters')} (${t('aria.filtersActive', { count: filterCount })})`
-                : t('aria.filters')
+    <SearchBox
+      ref={inputRef}
+      className={className ? `${styles.searchBox} ${className}` : styles.searchBox}
+      placeholder={placeholder || t('form.placeholder.search')}
+      value={internalValue}
+      onChange={handleChange}
+      disabled={disabled}
+      aria-label={ariaLabel || t('action.search')}
+      autoComplete="off"
+      // Only offer the clear button when there's something to clear. (With contentAfter
+      // present Fluent always renders it, and its default aria-label is untranslated.)
+      dismiss={internalValue && !disabled ? { 'aria-label': t('aria.clearSearch') } : null}
+      contentAfter={
+        actions || onFilterClick
+          ? {
+              className: styles.contentAfter,
+              children: (
+                <>
+                  {actions}
+                  {onFilterClick && (
+                    <Button
+                      appearance="transparent"
+                      size="small"
+                      className={styles.filterButton}
+                      icon={<Filter20Regular />}
+                      onClick={onFilterClick}
+                      disabled={disabled}
+                      aria-label={filterLabel}
+                    >
+                      {filterCount > 0 && (
+                        <CounterBadge
+                          className={styles.filterBadge}
+                          count={filterCount}
+                          size="small"
+                          color="brand"
+                        />
+                      )}
+                    </Button>
+                  )}
+                </>
+              )
             }
-          >
-            <svg
-              className="search-bar__filter-icon"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M2 4h16M5 10h10M8 16h4"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            {filterCount > 0 && (
-              <span className="search-bar__filter-badge flex items-center justify-center">
-                {filterCount}
-              </span>
-            )}
-          </button>
-        )}
-      </div>
-    </div>
+          : undefined
+      }
+    />
   )
 }
