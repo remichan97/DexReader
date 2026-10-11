@@ -98,7 +98,7 @@ interface SearchState {
 }
 
 const MAX_RESULTS_LIMIT = 10000
-const DEFAULT_LIMIT = 20
+export const DEFAULT_LIMIT = 20
 
 /**
  * Get search language filter based on content language settings

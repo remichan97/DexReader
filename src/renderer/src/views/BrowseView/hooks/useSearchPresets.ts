@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useSearchStore, useSearchPresetsStore } from '@renderer/stores'
-import { type SearchFilters } from '@renderer/stores/searchStore'
+import { useSearchPresetsStore } from '@renderer/stores'
+import { DEFAULT_FILTERS, DEFAULT_LIMIT, type SearchFilters } from '@renderer/stores/searchStore'
 import { rendererLog } from '@renderer/services/logging.service'
 import type { SearchPresetQuery } from '@shared/contracts/settings/search-preset.contract'
 
@@ -12,6 +12,21 @@ interface ToastOptions {
   message: string
   variant: 'info' | 'success' | 'error'
   duration: number
+}
+
+/**
+ * The Filter modal's in-progress edit state (query/filters/limit), distinct from the
+ * committed state in useSearchStore. Presets load into and save from this draft rather
+ * than the committed store directly, so picking a preset (or Save Preset) only affects
+ * what's shown in the modal until Apply Filters commits it - see BrowseView.
+ */
+export interface SearchDraft {
+  query: string
+  filters: SearchFilters
+  limit: number
+  setQuery: (query: string) => void
+  setFilters: (filters: SearchFilters) => void
+  setLimit: (limit: number) => void
 }
 
 export interface UseSearchPresetsResult {
@@ -57,21 +72,14 @@ function convertToBackendFilters(frontendFilters: SearchFilters, limit: number):
 }
 
 /**
- * Owns saved search presets: loading them on mount, applying one to the
- * current search (query/filters/limit), and saving/deleting presets.
+ * Owns saved search presets: loading them on mount, loading one into the Filter
+ * modal's draft, and saving/deleting presets from that same draft.
  */
 export function useSearchPresets(
   t: TFunction,
-  showToast: (options: ToastOptions) => void
+  showToast: (options: ToastOptions) => void,
+  draft: SearchDraft
 ): UseSearchPresetsResult {
-  const query = useSearchStore((state) => state.query)
-  const setQuery = useSearchStore((state) => state.setQuery)
-  const filters = useSearchStore((state) => state.filters)
-  const setFilters = useSearchStore((state) => state.setFilters)
-  const limit = useSearchStore((state) => state.limit)
-  const setLimit = useSearchStore((state) => state.setLimit)
-  const search = useSearchStore((state) => state.search)
-
   const presets = useSearchPresetsStore((state) => state.presets)
   const loadPresets = useSearchPresetsStore((state) => state.loadPresets)
   const createPreset = useSearchPresetsStore((state) => state.createPreset)
@@ -87,9 +95,14 @@ export function useSearchPresets(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Loads a preset's (or the default) filters into the draft only - it does not search.
+  // The Filter modal commits via its own Apply button, same as any other in-panel edit;
+  // searching immediately here would commit a change the user hasn't confirmed yet.
   const handlePresetSelect = (presetId: number | null): void => {
     if (presetId === null) {
-      // Clear preset
+      // "No Preset" - revert the draft to the default filters, same as Clear Filters
+      draft.setFilters(DEFAULT_FILTERS)
+      draft.setLimit(DEFAULT_LIMIT)
       setAppliedPresetId(null)
       return
     }
@@ -97,17 +110,14 @@ export function useSearchPresets(
     const preset = presets.find((p) => p.id === presetId)
     if (!preset) return
 
-    // Apply preset to search state - convert backend format to frontend format
-    setQuery(preset.searchQuery || '')
-    setFilters(convertToFrontendFilters(preset.filters))
-    setLimit(preset.resultsPerPage)
+    // Load preset into the draft - convert backend format to frontend format
+    draft.setQuery(preset.searchQuery || '')
+    draft.setFilters(convertToFrontendFilters(preset.filters))
+    draft.setLimit(preset.resultsPerPage)
 
     // Mark as applied and update last used
     setAppliedPresetId(preset.id)
     updateLastUsedAt(preset.id)
-
-    // Trigger search
-    search()
 
     showToast({
       title: t('browse:toasts.presetLoaded'),
@@ -119,12 +129,12 @@ export function useSearchPresets(
 
   const handleSavePreset = async (name: string, setAsDefault: boolean): Promise<void> => {
     try {
-      const backendFilters = convertToBackendFilters(filters, limit)
+      const backendFilters = convertToBackendFilters(draft.filters, draft.limit)
       const preset = await createPreset({
         name,
-        searchQuery: query,
+        searchQuery: draft.query,
         filters: backendFilters,
-        resultsPerPage: limit,
+        resultsPerPage: draft.limit,
         setAsDefault
       })
 

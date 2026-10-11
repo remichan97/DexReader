@@ -12,7 +12,7 @@ import { InfoBar } from '@renderer/components/InfoBar'
 import { Modal } from '@renderer/components/Modal'
 import { SavePresetDialog } from '@renderer/components/SavePresetDialog'
 import { useSearchStore, useToastStore, useConnectivityStore } from '@renderer/stores'
-import { DEFAULT_FILTERS } from '@renderer/stores/searchStore'
+import { DEFAULT_FILTERS, DEFAULT_LIMIT } from '@renderer/stores/searchStore'
 import { getMangaTitle, mapPublicationStatus } from '@renderer/utils/mangaHelpers'
 import './BrowseView.css'
 import { useTranslation } from '@renderer/hooks/useTranslation'
@@ -47,7 +47,17 @@ export function BrowseView(): JSX.Element {
   // Favourite toggling (with metadata caching + shared unfavourite flow)
   const { isFavourite, handleFavouriteToggle } = useFavouriteToggle(results, t, showToast)
 
-  // Saved search presets
+  // Filter Panel lives in a dedicated Modal rather than an inline toggled block. Everything
+  // inside it - manual edits, picking a preset, Clear Filters - edits this draft, not the
+  // committed query/filters/limit above. Nothing outside the modal (the search bar's filter
+  // badge, the sticky InfoBar, the actual search results) reacts until Apply Filters commits
+  // the draft - see handleApplyFilters and openFilterModal below.
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
+  const [draftFilters, setDraftFilters] = useState(filters)
+  const [draftLimit, setDraftLimit] = useState(limit)
+  const [draftQuery, setDraftQuery] = useState(query)
+
+  // Saved search presets - load into and save from the draft above, not the committed state
   const {
     presets,
     appliedPresetId,
@@ -57,10 +67,14 @@ export function BrowseView(): JSX.Element {
     handlePresetSelect,
     handleSavePreset,
     handleDeletePreset
-  } = useSearchPresets(t, showToast)
-
-  // Filter Panel lives in a dedicated Modal rather than an inline toggled block
-  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
+  } = useSearchPresets(t, showToast, {
+    query: draftQuery,
+    filters: draftFilters,
+    limit: draftLimit,
+    setQuery: setDraftQuery,
+    setFilters: setDraftFilters,
+    setLimit: setDraftLimit
+  })
 
   // Calculate active filter count (excluding default content ratings)
   const filterCount =
@@ -118,23 +132,34 @@ export function BrowseView(): JSX.Element {
     navigate(`/browse/${id}`)
   }
 
-  const handleFilterClick = (): void => {
+  // Re-seeds the draft from the currently committed state every time the modal opens, so
+  // a previous open-then-discard (closed without Apply) never leaks into the next session.
+  const openFilterModal = (): void => {
+    setDraftFilters(filters)
+    setDraftLimit(limit)
+    setDraftQuery(query)
     setIsFilterModalOpen(true)
   }
 
   const handleFilterChange = (newFilters: Partial<typeof filters>): void => {
-    setFilters(newFilters)
+    setDraftFilters((prev) => ({ ...prev, ...newFilters }))
   }
 
   const handleApplyFilters = (): void => {
+    setFilters(draftFilters)
+    setLimit(draftLimit)
+    setQuery(draftQuery)
     search()
     setIsFilterModalOpen(false)
   }
 
+  // Resets the draft to the default filters only - mirrors "No Preset" in the preset
+  // selector and, like it, doesn't search: the modal stays open showing the reset state
+  // until Apply Filters commits it.
   const handleClearFilters = (): void => {
-    setFilters(DEFAULT_FILTERS)
+    setDraftFilters(DEFAULT_FILTERS)
+    setDraftLimit(DEFAULT_LIMIT)
     setAppliedPresetId(null) // Clear preset selection
-    search()
   }
 
   const handleRetry = (): void => {
@@ -188,7 +213,7 @@ export function BrowseView(): JSX.Element {
         <SearchBar
           value={query}
           onChange={handleSearch}
-          onFilterClick={handleFilterClick}
+          onFilterClick={openFilterModal}
           filterCount={filterCount}
           placeholder={t('browse:searchPlaceholder')}
         />
@@ -233,10 +258,10 @@ export function BrowseView(): JSX.Element {
         }
       >
         <FilterPanel
-          filters={filters}
-          limit={limit}
+          filters={draftFilters}
+          limit={draftLimit}
           onChange={handleFilterChange}
-          onLimitChange={setLimit}
+          onLimitChange={setDraftLimit}
           currentPresetId={appliedPresetId}
           onPresetSelect={handlePresetSelect}
           onPresetDelete={handleDeletePreset}
@@ -254,7 +279,7 @@ export function BrowseView(): JSX.Element {
         })}
         actions={
           <>
-            <Button variant="ghost" size="small" onClick={() => setIsFilterModalOpen(true)}>
+            <Button variant="ghost" size="small" onClick={openFilterModal}>
               {t('browse:filterInfo.editFilters')}
             </Button>
             <Button variant="secondary" size="small" onClick={handleResetFilters}>
@@ -367,9 +392,9 @@ export function BrowseView(): JSX.Element {
           appliedPresetId ? presets.find((p) => p.id === appliedPresetId)?.name || '' : ''
         }
         currentSearchState={{
-          searchQuery: query,
-          filters,
-          resultsPerPage: limit
+          searchQuery: draftQuery,
+          filters: draftFilters,
+          resultsPerPage: draftLimit
         }}
         onSave={handleSavePreset}
       />
