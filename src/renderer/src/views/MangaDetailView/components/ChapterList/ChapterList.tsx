@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { forwardOrigin } from '@renderer/utils/navigationOrigin'
+import { getResumePage } from '@renderer/utils/readingProgress'
 import { useSecureNavigation } from '@renderer/hooks/useSecureNavigation'
 import { Button } from '@renderer/components/Button'
 import { EmptyState } from '@renderer/components/EmptyState'
@@ -213,6 +214,7 @@ export default function ChapterList({
                       mangaTitle: manga ? getMangaTitle(manga) : 'Manga',
                       chapters: chapters, // Pass full chapter list for navigation
                       coverUrl: manga ? (manga.coverUrlLarge ?? manga.coverUrl) : undefined,
+                      startPage: getResumePage(chapterProg), // Reopen where it was left off
                       ...forwardOrigin(origin)
                     }
                   })
