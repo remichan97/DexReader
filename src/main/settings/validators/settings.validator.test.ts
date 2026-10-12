@@ -386,6 +386,68 @@ describe('isLanguageSettings', () => {
       TypeError
     )
   })
+
+  it('rejects a contentLanguage that is not an array, whether or not sync is on', () => {
+    expect(() =>
+      isLanguageSettings({ ...validLanguage, syncContentLanguage: true, contentLanguage: 'en' })
+    ).toThrow(TypeError)
+    expect(() =>
+      isLanguageSettings({ ...validLanguage, syncContentLanguage: false, contentLanguage: 'en' })
+    ).toThrow(TypeError)
+  })
+
+  it('still validates the format of a stored contentLanguage while sync is on', () => {
+    // The list isn't used while synced, but it comes back the moment sync is turned off
+    expect(() =>
+      isLanguageSettings({
+        ...validLanguage,
+        syncContentLanguage: true,
+        contentLanguage: ['klingon']
+      })
+    ).toThrow(TypeError)
+  })
+
+  describe('when syncContentLanguage is false', () => {
+    const unsynced = { ...validLanguage, syncContentLanguage: false }
+
+    it('accepts a non-empty list of unique content languages', () => {
+      expect(
+        isLanguageSettings({
+          ...unsynced,
+          contentLanguage: [ContentLanguage.Vietnamese, ContentLanguage.English]
+        })
+      ).toBe(true)
+    })
+
+    it('rejects a missing contentLanguage - the state left by removing the last language', () => {
+      expect(() => isLanguageSettings(unsynced)).toThrow(TypeError)
+    })
+
+    it('rejects an empty contentLanguage', () => {
+      expect(() => isLanguageSettings({ ...unsynced, contentLanguage: [] })).toThrow(TypeError)
+    })
+
+    it('rejects duplicate content languages', () => {
+      expect(() =>
+        isLanguageSettings({
+          ...unsynced,
+          contentLanguage: [ContentLanguage.English, ContentLanguage.English]
+        })
+      ).toThrow(TypeError)
+    })
+  })
+
+  describe('when syncContentLanguage is true', () => {
+    it('does not require a contentLanguage', () => {
+      expect(isLanguageSettings({ ...validLanguage, syncContentLanguage: true })).toBe(true)
+    })
+
+    it('accepts an empty contentLanguage', () => {
+      expect(
+        isLanguageSettings({ ...validLanguage, syncContentLanguage: true, contentLanguage: [] })
+      ).toBe(true)
+    })
+  })
 })
 
 describe('isSnapshotSettings', () => {
