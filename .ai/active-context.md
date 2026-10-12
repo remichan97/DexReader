@@ -1,7 +1,7 @@
 # DexReader Active Context
 
-**Last Updated**: 3 October 2026
-**Version**: v1.15.0
+**Last Updated**: 12 October 2026
+**Version**: v1.16.0
 **Mode**: Active Development
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next. Keep all entries as short, concise as possible
@@ -10,13 +10,9 @@
 
 ## Current Status
 
-**v1.14.0 shipped** (8 September 2026) — Database Snapshot & Restore ("Restore Points") feature, settings-merge and localisation fixes, ~700 unused translation keys pruned, dead `readHistory` subsystem removed.
+**v1.16.0 shipped** (12 October 2026) — The renderer's shared components moved from hand-rolled to **Fluent 2** (`@fluentui/react-components`), one component at a time behind stable public props, plus the UX work that fell out of it: Browse filters in a dialog with draft/Apply semantics and searchable tag/language pickers (the Languages filter now actually applies to search), language flags (`LanguageBadge`), Back returning to the originating view, chapter resume from the chapter list/History/Downloads, and a content-language guard (settings version 8). Details: `CHANGELOG.md`.
 
-**v1.15.0 shipped** (3 October 2026) - Bundles two feature branches of work plus a large test-coverage effort that accumulated on this branch:
-
-- Settings page converted to autosave (immediate-apply) — see Recent Changes
-- Read History feature: chronological day-grouped feed + calendar, replacing the old deduplicated "Continue Reading" list (unrelated to the `readHistory` subsystem removed in 1.14.0 — this is a new `read_history` table)
-- A substantial unit test suite added across main process, preload, Zustand stores, and renderer hooks (0 → 1412 tests), with per-area coverage thresholds now enforced in `vitest.config.ts`. 7 real bugs were found and fixed while writing it (see Recent Changes) — none were previously reported, all caught by the tests themselves.
+Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + the unit-test suite; v1.14.0 (8 September) Restore Points.
 
 **Next Planned Work:**
 
@@ -25,6 +21,40 @@
 ---
 
 ## Known Issues
+
+### Settings file at the current version that fails validation throws instead of resetting
+
+- **Severity**: Low
+- **Affects**: All
+- **Status**: Not fixed (pre-existing)
+- **Detail**: `migrateSettings` has a "revert to defaults" branch for an invalid current-version file, but `validateSettings` throws a `TypeError` instead of returning `false`, so the branch can't run and `settingsManager.load()` throws. Only reachable by hand-editing or corrupting `settings.json`.
+
+### History/Downloads resume: Downloads path untested in the running app
+
+- **Severity**: Low
+- **Affects**: All
+- **Status**: Needs a manual check
+- **Detail**: `loadResumePage` is unit-tested and History's Continue was verified live, but the Downloads view was empty in the test session so opening a chapter from it wasn't exercised.
+
+### Resume behaviour differs by entry point
+
+- **Severity**: Low
+- **Detail**: The hero's Continue button opens the last-read page even for a finished chapter; the chapter list, History and Downloads restart a finished chapter from page 1. History events don't store a page, so History looks the page up from chapter progress.
+
+### Documentation debt after the Fluent migration
+
+- **Severity**: Low
+- **Detail**: `docs/components/ui-component-library.md`, `Select`, `SearchBar` and the two new components are current. `ui-polish-refinements.md`, `loading-feedback-states.md`, `utility-classes.md` and the remaining per-component READMEs still describe the hand-rolled implementations (CSS classes, hand-rolled keyboard/positioning code).
+
+### Large renderer chunks
+
+- **Severity**: Low
+- **Detail**: `npm run build` warns about `ui-vendor` (~1.17 MB) and `index` (~1.0 MB) chunks after adding Fluent. No code-splitting yet.
+
+### Dev server can miss file changes (Windows)
+
+- **Severity**: Low (dev only)
+- **Detail**: Vite's watcher occasionally kept serving a stale module (after `sed -i` on a file, and after adding a new export), which shows as `does not provide an export named …` and a blank window. `touch`-ing the files and reloading fixes it.
 
 <!-- Template for future issues:
 ### [Issue Title]
@@ -39,31 +69,25 @@
 
 ## Recent Changes (Last 1-2 Weeks)
 
-### 3 October 2026 - Memory bank content audit & refresh ✅
+### 12 October 2026 - v1.16.0 release prep ✅
 
-- **Type**: Chore / docs
-- **Summary**: `tech-context.md` and `architecture-overview.md` were both frozen at 12 June 2026 (v1.9.1) and had drifted badly out of sync with the codebase — fully rewritten against the current source tree (v1.15.0). Fixed, among others: CSP claim (`style-src 'self' 'unsafe-inline'`, `img-src ... https:`) was wrong — actual policy has no `unsafe-inline` and no `https:` in `img-src` at all (`src/renderer/index.html`); sandbox claim ("disabled") was backwards — `src/main/window.ts` sets `sandbox: true`; dependency list referenced `better-sqlite3`/`bcrypt`, which don't exist anymore (`node:sqlite` / `bcrypt-ts`); stores list was missing 6 of the 10 real Zustand stores; database schema section listed tables (`library`, `manga_metadata`, `cover_cache`) that don't exist — real tables are `manga`, `chapter`, `chapterDownloads`, etc.; IPC section claimed "37 channels/6 categories" vs. the real ~108 channels across 21 handler files; filesystem filenames were camelCase (`secureFs.ts`, `pathValidator.ts`) instead of the actual kebab-case (`secure-fs.ts`, `path-validator.ts`). Also fixed two smaller errors in `system-pattern.md` (`connection.ts` → `db-connection.ts`; `autoHideMenuBar: true` → the actual `false`) and a matching inconsistency in `CLAUDE.md` itself (its prose used the old camelCase/`connection.ts` names while its own Key File Locations table already had the right ones).
+- **Type**: Release
+- **Summary**: Bumped to 1.16.0 (minor: new features, backward compatible for user data; the Fluent migration was treated as a component switch, not a major UI overhaul). Changelog written from the net change since v1.15.0, leaving out regressions that were introduced and fixed inside the branch. Updated `README.md`, `docs/README.md`, the component library doc, `Select`/`SearchBar` READMEs (new `TagPicker`/`LanguageBadge` READMEs), `CLAUDE.md`, `tech-context.md` and `system-pattern.md`. Gates: typecheck, lint, 1486 tests with coverage thresholds, production build.
+- **Status**: ✅ Complete, awaiting merge and tag
+
+### 7 – 12 October 2026 - Fluent 2 migration + follow-ups ✅
+
+- **Type**: Refactor + features + bugfixes (63 commits on `feat/fluent-migration`)
+- **Summary**: Migrated tier by tier (foundation + theme → Button/Input/Toast/NumberSpinner/banners → Tabs/Modal → Tooltip/Popover/Select/SearchBar/Accordion/Menu), verifying each in the running app with real input. Decisions worth remembering: wrappers keep public props and drop only props with zero call sites; `ContextMenu` was decommissioned (card hover overlay + tab kebab button); Fluent popups carry size caps that must be overridden per layout (see `system-pattern.md`); the reader nests its own `FluentProvider`; flags are bundled SVGs because Windows can't draw emoji flags. Found and fixed along the way: the Browse Languages filter never reached search, the content-language list could be emptied (validator + settings v8 migration + `PriorityList` `minItems`), chapter reopen ignored saved progress, Back always went to Browse, and the Not Found dialog opened once per `t` change.
+- **Status**: ✅ Complete, shipping in v1.16.0
+
+### 30 September – 3 October 2026 - Test-coverage effort, memory bank refresh ✅
+
+- **Type**: Testing + docs
+- **Summary**: 0 → 1412 tests with per-area coverage thresholds (7 real bugs found and fixed while writing them); memory bank moved to `.ai/` and rewritten against the real source tree. Shipped in v1.15.0.
 - **Status**: ✅ Complete
 
-### 3 October 2026 - Memory bank relocated to `.ai/` ✅
-
-- **Type**: Chore
-- **Summary**: Moved the memory bank from `.github/memory-bank/` to `.ai/` (via `git mv`, history preserved) since this documentation system is no longer GitHub Copilot-specific. Updated every tracked reference to the old path: `CLAUDE.md`, `CHANGELOG.md`, `docs/api-reference.md`, the three `.claude/skills/*` skill files, and the memory bank's own internal cross-links. Also fixed two pre-existing stale references found along the way: `docs/architecture/filesystem-security.md` had a broken relative path to the memory bank (wrong number of `../`, predates this move) and `.claude/skills/memory-update/SKILL.md` referred to a non-existent `system-patterns.md` (should be singular, matching the real filename).
-- **Status**: ✅ Complete
-
-### 30 September – 3 October 2026 - Test-coverage effort + 7 bug fixes ✅
-
-- **Type**: Testing + bugfixes
-- **Summary**: Systematically filled unit-test gaps across the whole main process, the preload bridge, all 10 Zustand stores, the backup/restore services (DexReader + Mihon/Tachiyomi), the image/disk caching layer, and the renderer hooks directory — 0 to 1412 tests. Added vitest coverage reporting with per-area thresholds (`src/main`, `src/preload`, `src/shared`, `src/renderer/src/stores`); the renderer views/components tier was deliberately left out of both testing and the coverage gate (large surface, low value per file, better suited to E2E). Writing the tests surfaced 7 real, previously-unreported bugs, each fixed in its own commit before the accompanying test commit: (1) image proxy served responses built from `buffer.buffer` instead of the `Buffer` itself — small/medium buffers are allocated from Node's shared pool, so this appended up to ~64KB of garbage onto real image bytes; (2) `progressStore.deleteProgress` read its rollback value from the already-mutated map, making the optimistic-delete rollback a silent no-op; (3) Mihon/Tachiyomi backup export always lowercased genre tags due to a dead-code overwrite in a tag-name map; (4) Mihon backup import's cancellation was defeated by reading the abort signal through a mutable field after two `await`s, so a second import never actually stopped a stale first one; (5)-(7) three separate instances of the same missing-`useEffect`-cleanup bug (`appUpdate` listeners, `useGatekeeperGuard`'s menu-navigation listener, `useAccentColor`'s system-color-change listener), all double-registering under StrictMode's dev-mode double-invoke. Also removed `useNavigationListener.ts`, a dead hook with the same leak bug and zero callers.
-- **Status**: ✅ Complete, on `feat/settings-autosave`, shipping in v1.15.0
-
-### 15-19 September 2026 - Settings autosave + Read History feature ✅
-
-- **Type**: Feature
-- **Summary**: Converted the Settings page from buffered save/discard to per-field autosave across all six domains, via a new `settings:update-section` IPC channel (discrete controls write immediately, continuous inputs like accent colour debounce). Removed the dead buffered-save shell (`UnsavedChangesContext`, `useNavigationBlocker`, `settings:save-all`'s renderer-facing wrapper, per-domain `isDirty` plumbing) and repurposed the old unsaved-changes banner into a `RestartRequiredBanner` for the two settings that still need a restart. Separately, redesigned the `read_history` table and rebuilt the History page around it: a chronological, day-grouped event feed (not deduplicated by manga, unlike the old list) with a popover calendar to filter by day. Also fixed the MangaDex@Home User-Agent (was a frozen `1.0.0` literal) and added a proper MangaDex attribution/non-affiliation disclaimer to the About dialog.
-- **Status**: ✅ Complete, on `feat/settings-autosave`, shipping in v1.15.0
-
-<!-- Older entries (v1.13.0/v1.13.1 release prep, DB Snapshot & Restore feature build-out, react-router v6→v7 migration, full-codebase refactor phases 2-8) pruned per the 2-3 week retention rule - all shipped in v1.13.0/v1.13.1/v1.14.0. See CHANGELOG.md for full history. -->
+<!-- Older entries (settings autosave + Read History, v1.13.x/v1.14.0 work, react-router v7, refactor phases) pruned per the 2-3 week retention rule - all shipped. See CHANGELOG.md for full history. -->
 
 <!-- Template for future entries:
 ### [Date] - [Title]
