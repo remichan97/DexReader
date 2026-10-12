@@ -2,6 +2,7 @@ import type { JSX } from 'react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { originFrom } from '@renderer/utils/navigationOrigin'
+import { loadResumePage } from '@renderer/utils/readingProgress'
 import { History24Regular } from '@fluentui/react-icons'
 import { EmptyState } from '@renderer/components/EmptyState'
 import { LoadingState } from '@renderer/components/LoadingState'
@@ -110,14 +111,19 @@ export function HistoryView(): JSX.Element {
       return
     }
 
-    navigate(`/reader/${event.mangaId}/${event.chapterId}`, {
-      state: {
-        chapterNumber: event.chapterNumber,
-        chapterTitle: event.chapterTitle,
-        mangaTitle: event.title,
-        startPage: 0,
-        ...originFrom(location)
-      }
+    const { mangaId, chapterId } = event
+
+    // Resume where the chapter was left off rather than from page 1
+    void loadResumePage(mangaId, chapterId).then((startPage) => {
+      navigate(`/reader/${mangaId}/${chapterId}`, {
+        state: {
+          chapterNumber: event.chapterNumber,
+          chapterTitle: event.chapterTitle,
+          mangaTitle: event.title,
+          startPage,
+          ...originFrom(location)
+        }
+      })
     })
   }
 

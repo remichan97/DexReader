@@ -2,6 +2,7 @@ import type { JSX } from 'react'
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { originFrom } from '@renderer/utils/navigationOrigin'
+import { loadResumePage } from '@renderer/utils/readingProgress'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import { EmptyState } from '@renderer/components/EmptyState'
 import { LoadingState } from '@renderer/components/LoadingState'
@@ -57,7 +58,10 @@ export function DownloadsView(): JSX.Element {
   }
 
   const handleNavigateToReader = (mangaId: string, chapterId: string): void => {
-    navigate(`/reader/${mangaId}/${chapterId}`, { state: originFrom(location) })
+    // Resume where the chapter was left off rather than from page 1
+    void loadResumePage(mangaId, chapterId).then((startPage) => {
+      navigate(`/reader/${mangaId}/${chapterId}`, { state: { startPage, ...originFrom(location) } })
+    })
   }
 
   // Render loading state
