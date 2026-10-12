@@ -1,7 +1,7 @@
 import { useState, memo } from 'react'
 import { FolderAdd24Regular } from '@fluentui/react-icons'
 import { MangaStatus, BaseComponentProps } from '@renderer/types/components'
-import { getLanguageName } from '@renderer/constants/language-list.constant'
+import { LanguageBadge } from '@renderer/components/LanguageBadge'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import './MangaCard.css'
 
@@ -367,14 +367,10 @@ export const MangaCard = memo(function MangaCard({
               </span>
             )}
             {languages && languages.length > 0 && (
-              <span
-                className="manga-card__languages inline-flex items-center"
-                title={languages.map((code) => getLanguageName(code)).join(', ')}
-              >
-                {languages
-                  .slice(0, 3)
-                  .map((code) => code.toUpperCase())
-                  .join(', ')}
+              <span className="manga-card__languages inline-flex items-center gap-2">
+                {languages.slice(0, 3).map((code) => (
+                  <LanguageBadge key={code} code={code} />
+                ))}
                 {languages.length > 3 ? ` +${languages.length - 3}` : ''}
               </span>
             )}

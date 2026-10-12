@@ -332,7 +332,8 @@
 }
 
 .alt-title-language {
-  min-width: 48px;
+  /* Wide enough for flag + the longest code (JA-RO, ES-LA, PT-BR, ZH-HK), so titles line up */
+  min-width: 80px;
   padding: 4px 8px;
   background: var(--win-subtle-fill-secondary);
   color: var(--win-text-secondary);

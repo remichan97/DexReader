@@ -1,7 +1,7 @@
 import type { JSX } from 'react'
 import { useState } from 'react'
 import { Button } from '@renderer/components/Button'
-import { getLanguageName, getLanguageCode } from '@renderer/utils/languageHelpers'
+import { LanguageBadge } from '@renderer/components/LanguageBadge'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import type { MangaContract } from '../../../../../preload/window.types'
 
@@ -53,12 +53,8 @@ export default function AlternativeTitlesSection({
             key={`${item.languageCode}-${item.title}`}
             className="alt-title-item flex items-center gap-2"
           >
-            <span
-              className="alt-title-language"
-              title={getLanguageName(item.languageCode)}
-              aria-label={getLanguageName(item.languageCode)}
-            >
-              {getLanguageCode(item.languageCode)}
+            <span className="alt-title-language">
+              <LanguageBadge code={item.languageCode} />
             </span>
             <span className="alt-title-text">{item.title}</span>
           </div>

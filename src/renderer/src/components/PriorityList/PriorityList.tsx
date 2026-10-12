@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { BaseComponentProps, DisableableProps } from '@renderer/types/components'
 import { Select, SelectOption } from '@renderer/components/Select'
 import { Button } from '@renderer/components/Button'
@@ -10,6 +10,8 @@ export interface PriorityListItem {
   value: string
   label: string
   disabled?: boolean
+  /** Decorative content shown before the label, in the list and the add menu (e.g. a flag) */
+  icon?: ReactNode
 }
 
 export interface PriorityListProps extends BaseComponentProps, DisableableProps {
@@ -93,12 +95,16 @@ export function PriorityList({
     return availableItems.find((item) => item.value === value)?.label || value
   }
 
+  const getItemIcon = (value: string): ReactNode =>
+    availableItems.find((item) => item.value === value)?.icon
+
   // Get available options (exclude already selected items)
   const availableOptions: SelectOption[] = availableItems
     .filter((item) => !items.includes(item.value) && !item.disabled)
     .map((item) => ({
       value: item.value,
-      label: item.label
+      label: item.label,
+      icon: item.icon
     }))
 
   // Move item up in priority
@@ -158,7 +164,10 @@ export function PriorityList({
                 className="priority-list__item"
                 aria-label={`${getItemLabel(itemValue)}, position ${index + 1} of ${items.length}`}
               >
-                <span className="priority-list__item-label">{getItemLabel(itemValue)}</span>
+                <span className="priority-list__item-label flex items-center gap-2">
+                  {getItemIcon(itemValue)}
+                  {getItemLabel(itemValue)}
+                </span>
 
                 <div className="priority-list__item-controls">
                   <Button

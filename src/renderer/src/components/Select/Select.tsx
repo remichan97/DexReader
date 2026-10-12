@@ -1,4 +1,4 @@
-import { useRef, useState, type JSX } from 'react'
+import { useRef, useState, type JSX, type ReactNode } from 'react'
 import {
   Field,
   Dropdown,
@@ -23,6 +23,8 @@ export interface SelectOption {
   value: string
   label: string
   disabled?: boolean
+  /** Decorative content shown before the label in the option list (e.g. a flag) */
+  icon?: ReactNode
 }
 
 export interface SelectProps extends BaseComponentProps, DisableableProps {
@@ -130,7 +132,13 @@ export function Select({
         aria-label={ariaLabel}
       >
         {options.map((option) => (
-          <Option key={option.value} value={option.value} disabled={option.disabled}>
+          <Option
+            key={option.value}
+            value={option.value}
+            text={option.label}
+            disabled={option.disabled}
+          >
+            {option.icon}
             {option.label}
           </Option>
         ))}

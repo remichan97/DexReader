@@ -1,4 +1,11 @@
-import { Fragment, useState, type ComponentType, type JSX, type SyntheticEvent } from 'react'
+import {
+  Fragment,
+  useState,
+  type ComponentType,
+  type JSX,
+  type ReactElement,
+  type SyntheticEvent
+} from 'react'
 import {
   TagPicker as FluentTagPicker,
   TagPickerControl,
@@ -56,6 +63,8 @@ export interface TagPickerTagOption {
   readonly name: string
   /** Heading to list this option under; options without one are listed ungrouped */
   readonly group?: string
+  /** Decorative content shown before the name in the list and on the chip (e.g. a flag) */
+  readonly icon?: ReactElement
 }
 
 export interface TagPickerProps {
@@ -165,7 +174,7 @@ export function TagPicker({
             const option = optionById.get(id)
             if (!option) return null
             return (
-              <Tag key={id} value={id} shape="rounded" dismissible>
+              <Tag key={id} value={id} shape="rounded" dismissible media={option.icon}>
                 {option.name}
               </Tag>
             )
@@ -189,6 +198,7 @@ export function TagPicker({
                     key={tag.id}
                     value={tag.id}
                     disabled={disabled}
+                    media={tag.icon}
                     className={mergeClasses(disabled && styles.disabledOption)}
                   >
                     {tag.name}

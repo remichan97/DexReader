@@ -20,6 +20,7 @@ import { Select } from '@renderer/components/Select'
 import { Checkbox } from '@renderer/components/Checkbox'
 import { PresetSelector } from '@renderer/components/PresetSelector'
 import { TagPicker, type TagPickerTagOption } from '@renderer/components/TagPicker'
+import { LanguageFlag } from '@renderer/components/LanguageBadge'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import {
   ContentRating,
@@ -67,7 +68,12 @@ export function FilterPanel({
 
   // Module-level data, so this never changes between renders
   const languageOptions = useMemo<TagPickerTagOption[]>(
-    () => LanguageList.map((language) => ({ id: language.code, name: language.name })),
+    () =>
+      LanguageList.map((language) => ({
+        id: language.code,
+        name: language.name,
+        icon: <LanguageFlag code={language.code} />
+      })),
     []
   )
 
