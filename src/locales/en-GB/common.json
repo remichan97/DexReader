@@ -223,6 +223,7 @@
     "add": "Add item",
     "empty": "No items selected",
     "maxReached": "Maximum {{max}} items allowed",
+    "minReached": "At least {{min}} required",
     "moveUpAriaLabel": "Move {{item}} up in priority",
     "moveDownAriaLabel": "Move {{item}} down in priority",
     "removeAriaLabel": "Remove {{item}} from list"

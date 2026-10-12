@@ -85,6 +85,7 @@ export function LanguageSettings({
               availableItems={contentLanguageOptions}
               onChange={onContentLanguagesChange}
               maxItems={5}
+              minItems={1}
               label={t('appearance.contentLanguages')}
               helperText={t('appearance.contentLanguagesDescription')}
               addButtonLabel={t('appearance.addLanguage')}

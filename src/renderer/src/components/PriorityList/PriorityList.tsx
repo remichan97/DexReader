@@ -37,6 +37,14 @@ export interface PriorityListProps extends BaseComponentProps, DisableableProps 
   maxItems?: number
 
   /**
+   * Minimum number of items the list must keep. Once it is down to this many, its items can't
+   * be removed (and with a single item there is nothing to reorder either), until another is
+   * added - for lists where an empty selection isn't a valid state.
+   * @default 0
+   */
+  minItems?: number
+
+  /**
    * Label text
    */
   label?: string
@@ -80,6 +88,7 @@ export function PriorityList({
   availableItems,
   onChange,
   maxItems = 5,
+  minItems = 0,
   disabled = false,
   label,
   helperText,
@@ -123,9 +132,11 @@ export function PriorityList({
     onChange(newItems)
   }
 
+  const minItemsReached = items.length <= minItems
+
   // Remove item from list
   const removeItem = (index: number): void => {
-    if (disabled) return
+    if (disabled || minItemsReached) return
     const newItems = items.filter((_, i) => i !== index)
     onChange(newItems)
   }
@@ -201,12 +212,19 @@ export function PriorityList({
                     size="small"
                     icon={<Dismiss20Regular />}
                     onClick={() => removeItem(index)}
-                    disabled={disabled}
+                    disabled={disabled || minItemsReached}
                     aria-label={t('priorityList.removeAriaLabel', {
                       item: getItemLabel(itemValue),
                       defaultValue: `Remove ${getItemLabel(itemValue)} from list`
                     })}
-                    title={t('priorityList.remove', { defaultValue: 'Remove' })}
+                    title={
+                      minItemsReached && minItems > 0
+                        ? t('priorityList.minReached', {
+                            min: minItems,
+                            defaultValue: `At least ${minItems} required`
+                          })
+                        : t('priorityList.remove', { defaultValue: 'Remove' })
+                    }
                   />
                 </div>
               </li>
