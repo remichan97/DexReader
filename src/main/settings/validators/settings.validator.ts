@@ -346,6 +346,7 @@ export function isLanguageSettings(values: unknown): values is LanguageSettings 
     throw new TypeError('Refused to save language settings: syncContentLanguage is not a boolean')
   }
 
+  // Must be a valid ContentLanguage value and at most 5 items
   if (
     languageSettings.contentLanguage !== undefined &&
     (!Array.isArray(languageSettings.contentLanguage) ||
@@ -357,6 +358,27 @@ export function isLanguageSettings(values: unknown): values is LanguageSettings 
     throw new TypeError(
       'Refused to save language settings: contentLanguage must be an array of valid ContentLanguage values with at most 5 items if provided'
     )
+  }
+
+  // If syncContentLanguage is false, checks contentLanguage array for validity
+  if (!languageSettings.syncContentLanguage) {
+    // Must be a non-empty array
+    if (
+      !Array.isArray(languageSettings.contentLanguage) ||
+      languageSettings.contentLanguage.length === 0
+    ) {
+      throw new TypeError(
+        'Refused to save language settings: contentLanguage must have at least one item if syncContentLanguage is false'
+      )
+    }
+
+    // Must not contain duplicate content languages
+    const uniqueLanguages = new Set(languageSettings.contentLanguage)
+    if (uniqueLanguages.size !== languageSettings.contentLanguage.length) {
+      throw new TypeError(
+        'Refused to save language settings: contentLanguage contains duplicate values'
+      )
+    }
   }
 
   return true

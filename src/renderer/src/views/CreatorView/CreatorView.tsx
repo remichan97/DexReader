@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useLocation, useParams, useNavigate } from 'react-router-dom'
+import { originFrom } from '@renderer/utils/navigationOrigin'
 import { Warning48Regular, ArrowLeft24Regular } from '@fluentui/react-icons'
 import { EmptyState } from '@renderer/components/EmptyState'
 import { MangaCard } from '@renderer/components/MangaCard'
@@ -21,6 +22,7 @@ type MangaEntity = MangaContract
 export function CreatorView(): JSX.Element {
   const { t } = useTranslation(['creator', 'common', 'browse'])
   const navigate = useNavigate()
+  const location = useLocation()
   const { creatorId, creatorType } = useParams<{
     creatorId: string
     creatorType: 'author' | 'artist'
@@ -186,7 +188,7 @@ export function CreatorView(): JSX.Element {
 
   // Handle manga card click
   const handleMangaClick = (mangaId: string): void => {
-    navigate(`/browse/${mangaId}`)
+    navigate(`/browse/${mangaId}`, { state: originFrom(location) })
   }
 
   const handleBackClick = (): void => {

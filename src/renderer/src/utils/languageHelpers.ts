@@ -13,8 +13,10 @@ const LANGUAGE_NAMES: Record<string, string> = {
   'ja-ro': 'Japanese (Romanized)',
   ko: 'Korean',
   vi: 'Vietnamese',
+  'ko-ro': 'Korean (Romanized)',
   zh: 'Chinese (Simplified)',
   'zh-hk': 'Chinese (Traditional)',
+  'zh-ro': 'Chinese (Romanized)',
 
   // European languages
   es: 'Spanish',

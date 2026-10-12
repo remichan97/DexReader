@@ -150,13 +150,6 @@
   margin-top: var(--space-2);
 }
 
-.manga-detail-view__tags-row .tag {
-  font-size: 12px;
-  padding: 4px 10px;
-  height: auto;
-  min-height: auto;
-}
-
 /* Progress Badge */
 .manga-detail-view__progress-badge {
   position: absolute;
@@ -339,7 +332,8 @@
 }
 
 .alt-title-language {
-  min-width: 48px;
+  /* Wide enough for flag + the longest code (JA-RO, ES-LA, PT-BR, ZH-HK), so titles line up */
+  min-width: 80px;
   padding: 4px 8px;
   background: var(--win-subtle-fill-secondary);
   color: var(--win-text-secondary);
@@ -370,52 +364,6 @@
 
 .alt-titles-toggle:hover {
   color: var(--win-accent);
-}
-
-.tag {
-  /* Removed display: inline-flex - using utility class */
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  border: none;
-  transition: var(--transition-all-fast);
-  height: auto;
-  min-height: auto;
-}
-
-.tag .button__content {
-  padding: 0;
-}
-
-.tag--theme {
-  background: rgba(16, 124, 16, 0.1);
-  color: #107c10;
-}
-
-.tag--genre {
-  background: rgba(0, 120, 212, 0.1);
-  color: #0078d4;
-}
-
-.tag--format {
-  background: rgba(255, 140, 0, 0.1);
-  color: #ff8c00;
-}
-
-.tag--content {
-  background: rgba(232, 17, 35, 0.1);
-  color: #e81123;
-}
-
-.tag:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
-}
-
-.tag:active {
-  transform: translateY(0);
 }
 
 /* Chapter List */

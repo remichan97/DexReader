@@ -1,56 +1,6 @@
 import { rendererLog } from '@renderer/services/logging.service'
+import { applyAccentColor } from '@renderer/utils/accentColor'
 import { useEffect, useState } from 'react'
-
-/**
- * Calculate relative luminance of a color (WCAG formula)
- * Used to determine if text should be light or dark on the color
- */
-function getRelativeLuminance(r: number, g: number, b: number): number {
-  const rsRGB = r / 255
-  const gsRGB = g / 255
-  const bsRGB = b / 255
-
-  const rLinear = rsRGB <= 0.03928 ? rsRGB / 12.92 : Math.pow((rsRGB + 0.055) / 1.055, 2.4)
-  const gLinear = gsRGB <= 0.03928 ? gsRGB / 12.92 : Math.pow((gsRGB + 0.055) / 1.055, 2.4)
-  const bLinear = bsRGB <= 0.03928 ? bsRGB / 12.92 : Math.pow((bsRGB + 0.055) / 1.055, 2.4)
-
-  return 0.2126 * rLinear + 0.7152 * gLinear + 0.0722 * bLinear
-}
-
-/**
- * Apply accent color to CSS variables
- */
-function applyAccentColor(color: string): void {
-  const root = document.documentElement
-  root.style.setProperty('--win-accent', color)
-
-  // Calculate hover and active states (slightly darker)
-  const rgb = Number.parseInt(color.slice(1), 16)
-  const r = (rgb >> 16) & 255
-  const g = (rgb >> 8) & 255
-  const b = rgb & 255
-
-  // Darker for hover (-10%)
-  const hoverR = Math.max(0, Math.floor(r * 0.9))
-  const hoverG = Math.max(0, Math.floor(g * 0.9))
-  const hoverB = Math.max(0, Math.floor(b * 0.9))
-  const hoverColor = `#${((hoverR << 16) | (hoverG << 8) | hoverB).toString(16).padStart(6, '0')}`
-
-  // Even darker for active (-20%)
-  const activeR = Math.max(0, Math.floor(r * 0.8))
-  const activeG = Math.max(0, Math.floor(g * 0.8))
-  const activeB = Math.max(0, Math.floor(b * 0.8))
-  const activeColor = `#${((activeR << 16) | (activeG << 8) | activeB).toString(16).padStart(6, '0')}`
-
-  root.style.setProperty('--win-accent-hover', hoverColor)
-  root.style.setProperty('--win-accent-active', activeColor)
-
-  // Calculate appropriate text color based on accent color luminance
-  // For good contrast: use white text on dark backgrounds, black text on light backgrounds
-  const luminance = getRelativeLuminance(r, g, b)
-  const textOnAccent = luminance > 0.5 ? '#000000' : '#ffffff'
-  root.style.setProperty('--win-text-on-accent', textOnAccent)
-}
 
 /**
  * Hook to load and apply accent color on app startup
@@ -63,43 +13,21 @@ export function useAccentColor(): void {
   useEffect(() => {
     async function loadAccentColor(): Promise<void> {
       try {
-        // Get system accent color first
         const systemAccentResult = await globalThis.api.getSystemAccentColor()
-        if (!systemAccentResult.success) {
+        if (!systemAccentResult.success || !systemAccentResult.data) {
           throw new Error('Failed to get system accent color')
         }
-        const systemAccent = systemAccentResult.data as string
+        const systemAccent = systemAccentResult.data
 
-        // Try to load custom color from settings
-        const pathsResult = await globalThis.fileSystem.getAllowedPaths()
-        if (!pathsResult.success || !pathsResult.data) {
-          throw new Error('Failed to get allowed paths')
-        }
-        const paths = pathsResult.data
+        const settingsResult = await globalThis.settings.load()
+        const customAccent = settingsResult.success
+          ? settingsResult.data?.appearance.accentColor
+          : undefined
 
-        try {
-          const settingsResult = await globalThis.fileSystem.readFile(
-            paths.appData + '/settings.json',
-            'utf-8'
-          )
-          if (settingsResult.success && settingsResult.data) {
-            const parsed = JSON.parse(settingsResult.data as string)
-            if (parsed.accentColor) {
-              // User has custom color
-              setIsUsingSystemColor(false)
-              applyAccentColor(parsed.accentColor)
-            } else {
-              // Use system color
-              setIsUsingSystemColor(true)
-              applyAccentColor(systemAccent)
-            }
-          } else {
-            // No settings file or can't read it - use system color
-            setIsUsingSystemColor(true)
-            applyAccentColor(systemAccent)
-          }
-        } catch {
-          // No settings file or can't read it - use system color
+        if (customAccent) {
+          setIsUsingSystemColor(false)
+          applyAccentColor(customAccent)
+        } else {
           setIsUsingSystemColor(true)
           applyAccentColor(systemAccent)
         }

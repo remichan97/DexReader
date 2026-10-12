@@ -1,6 +1,7 @@
 import { useState, memo } from 'react'
+import { FolderAdd24Regular } from '@fluentui/react-icons'
 import { MangaStatus, BaseComponentProps } from '@renderer/types/components'
-import { getLanguageName } from '@renderer/constants/language-list.constant'
+import { LanguageBadge } from '@renderer/components/LanguageBadge'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import './MangaCard.css'
 
@@ -83,6 +84,19 @@ export interface MangaCardProps extends BaseComponentProps {
    * Favourite toggle handler
    */
   onFavourite?: (id: string) => void
+
+  /**
+   * Add-to-collection handler. Only shown (alongside the favourite button, in the same
+   * hover overlay) when the manga is already favourited and `hasCollections` is true -
+   * there's nothing to add it to otherwise.
+   */
+  onAddToCollection?: (id: string) => void
+
+  /**
+   * Whether the user has at least one collection to add this manga to
+   * @default false
+   */
+  hasCollections?: boolean
 }
 
 /**
@@ -122,6 +136,8 @@ export const MangaCard = memo(function MangaCard({
   hasDownloads = false,
   onClick,
   onFavourite,
+  onAddToCollection,
+  hasCollections = false,
   className = '',
   'aria-label': ariaLabel
 }: Readonly<MangaCardProps>): React.JSX.Element {
@@ -148,6 +164,11 @@ export const MangaCard = memo(function MangaCard({
   const handleFavouriteClick = (event: React.MouseEvent): void => {
     event.stopPropagation()
     onFavourite?.(id)
+  }
+
+  const handleAddToCollectionClick = (event: React.MouseEvent): void => {
+    event.stopPropagation()
+    onAddToCollection?.(id)
   }
 
   const handleImageLoad = (): void => {
@@ -274,9 +295,11 @@ export const MangaCard = memo(function MangaCard({
           </div>
         )}
 
-        {/* Hover overlay with favourite button */}
+        {/* Hover overlay: favourite toggle, plus add-to-collection when applicable - kept in
+            the same overlay rather than a separate corner target, since the user's pointer is
+            already over the card when they'd reach for either action. */}
         {onFavourite && (
-          <div className="manga-card__overlay flex items-center justify-center">
+          <div className="manga-card__overlay flex items-center justify-center gap-3">
             <button
               className="manga-card__favorite-button flex items-center justify-center"
               onClick={handleFavouriteClick}
@@ -300,6 +323,17 @@ export const MangaCard = memo(function MangaCard({
                 />
               </svg>
             </button>
+
+            {onAddToCollection && isFavourite && hasCollections && (
+              <button
+                className="manga-card__collection-button flex items-center justify-center"
+                onClick={handleAddToCollectionClick}
+                aria-label={t('common:action.addToCollection')}
+                type="button"
+              >
+                <FolderAdd24Regular className="manga-card__collection-icon" />
+              </button>
+            )}
           </div>
         )}
 
@@ -333,14 +367,10 @@ export const MangaCard = memo(function MangaCard({
               </span>
             )}
             {languages && languages.length > 0 && (
-              <span
-                className="manga-card__languages inline-flex items-center"
-                title={languages.map((code) => getLanguageName(code)).join(', ')}
-              >
-                {languages
-                  .slice(0, 3)
-                  .map((code) => code.toUpperCase())
-                  .join(', ')}
+              <span className="manga-card__languages inline-flex items-center gap-2">
+                {languages.slice(0, 3).map((code) => (
+                  <LanguageBadge key={code} code={code} />
+                ))}
                 {languages.length > 3 ? ` +${languages.length - 3}` : ''}
               </span>
             )}

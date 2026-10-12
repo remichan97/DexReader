@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [1.16.0] - 2026-10-12
+
+### Added
+
+- **UI**: DexReader's interface is now built on Fluent 2 (Microsoft's official `@fluentui/react-components`) instead of hand-rolled components. Buttons, inputs, switches, checkboxes, radios, dialogs, tabs, tooltips, popovers, dropdowns, toasts, banners, spinners and progress bars all use it, with a custom theme that follows your accent colour and light/dark mode. Look and feel stays familiar, but focus, keyboard navigation and popup positioning are now consistent everywhere
+- **Browse**: Filters now open in their own dialog, with Clear Filters, Save Preset and Apply Filters pinned at the bottom. Tags are chosen with two searchable pickers (Include and Exclude, with a tag already in one disabled in the other) instead of a wall of buttons, languages with a third, and "Advanced Filters" is a collapsible section. Lists stay open while you pick several items, by click or by arrow keys and Enter
+- **Languages**: Language codes are now shown with a flag (EN, ES-LA, JA-RO and so on) in alternative titles, manga and download cards, reading history, the chapter language dropdown, the Preferred Content Language settings and the language filter. Flags are bundled with the app, so they look the same on every system (emoji flags don't draw on Windows). Variants of one language, such as Japanese and Japanese (Romanized), share a flag and keep their code or name beside it
+- **Library**: Add to Collection is a button on the manga card's hover overlay, and collection tabs have a "more" button (shown on hover or focus) for Edit and Delete, replacing the right-click menus
+- **Settings**: The "Jump to section" menu is a proper menu with the current section checked, spanning the header like before
+
+### Changed
+
+- **Browse**: Filters are applied only when you press Apply Filters. Choosing a search preset, "No Preset" or Clear Filters now just updates the dialog, so the results, the active-filter badge and the toasts no longer react before you apply
+- **Browse**: The Languages filter now actually filters search results. It used to be saved with presets but ignored by search, which always used your Settings languages. The default is now "Any language (uses your Settings)", and selected languages count towards the filter badge. **Search presets saved with the old default of English only will now search English only**; open the preset, clear the language and re-save it to use your Settings languages again
+- **Browse**: Picked options are hidden from the tag and language lists, since they show as chips
+- **Settings**: The Preferred Content Language list must keep at least one language while "sync content language" is off. Its remove button is disabled, with a hint, when only one is left, and duplicates are no longer accepted. Settings from earlier versions that were left empty are repaired to English on first launch
+- **Settings**: The Concurrent Downloads spinner now sits at the right of its row, like a switch, instead of stretching across the page
+- **Downloads**: The download confirmation dialog can now be dismissed by clicking outside it, like the other dialogs
+- **UI**: Empty-state and error icons are larger (96px), and manga detail tags are proper clickable chips
+- **Settings format**: Settings now carry version 8. **If you downgrade to an earlier DexReader version, it will treat these settings as coming from the future and reset them to defaults.** Avoid downgrading; if you must, note down your settings first
+- Internal: added `@fluentui/react-components` and `country-flag-icons` dependencies. Fluent's runtime styles carry the app's CSP nonce, so the Content Security Policy is unchanged. Component public props stayed the same wherever possible; a few options that nothing used (multi-select, searchable and error on `Select`) were removed
+- Internal: Sidebar, Tooltip, Popover, Select, Modal, Tabs, Toast, banners and others no longer carry their own positioning, focus, click-outside and keyboard handling, which Fluent now provides
+
+### Fixed
+
+- **Detail**: The Back button on a manga's page returns to the view that opened it (Library, Downloads, a creator page or Browse) instead of always going to Browse, including after reading a chapter and coming back
+- **Reader**: Opening a chapter from the chapter list, History's Continue button or the Downloads view now resumes at the page you left off on instead of the first page. A chapter you finished still starts from the beginning
+- **Settings**: Removing the last content language no longer saves an invalid setting; the main process now rejects it, and existing bad data is repaired by the settings migration
+- **Sidebar**: The current-page indicator now follows the active item when you switch the sidebar between full, compact and auto-hide
+- **Navigation**: A brief scrollbar flash during the page fly-in transition no longer shifts the layout
+- **Router**: The "page not found" dialog appears once instead of once per language load, so it only needs dismissing once
+- **UI**: Your saved custom accent colour is applied at startup. Previously the system accent colour was shown until you opened Settings, because startup tried to read the encrypted settings file directly
+- **Downloads**: Toasts for cancelling, retrying, removing and clearing downloads and chapter downloads now actually appear
+
+---
+
 ## [1.15.0] - 2026-10-03
 
 ### Added

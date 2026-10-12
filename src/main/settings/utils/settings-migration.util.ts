@@ -1,9 +1,10 @@
 import { mainLog } from '../../services/logging/main-logging.service'
 import { AppSettings } from '../../../shared/types/settings/app-settings.type'
 import { validateSettings } from '../validators/settings.validator'
+import { ContentLanguage } from '@shared/enums/settings/content-language.enum'
 
 // Each time we change the settings structure in a way that guarantees a full migration, increment this version number. This is used to determine if a migration is needed, and to apply the correct migration functions if there are breaking changes.
-export const CURRENT_SETTINGS_VERSION = 7
+export const CURRENT_SETTINGS_VERSION = 8
 
 // Define a type for migration function, which takes settings object, and migrate it to the next version. Use when there are breaking changes.
 type MigrationFunction = (settings: Partial<AppSettings>) => AppSettings
@@ -18,7 +19,25 @@ type MigrationFunction = (settings: Partial<AppSettings>) => AppSettings
  * Convention: [targetVersion]: (settings) => ...migration logic
  */
 const breakingChangesMigrations: Record<number, MigrationFunction> = {
-  // Empty for now - add breaking change migrations as needed
+  // Add breaking change migrations as needed
+  8: (settings: Partial<AppSettings>) => {
+    // If syncContentLanguage is false, and the contentLanguage is empty or not provided, fill it with ['en'] as the safe default
+    if (settings.language && !settings.language.syncContentLanguage) {
+      if (
+        !Array.isArray(settings.language.contentLanguage) ||
+        settings.language.contentLanguage.length === 0
+      ) {
+        settings.language.contentLanguage = [ContentLanguage.English]
+      }
+    }
+
+    // In some rare cases, contentLanguage might malformed (duplicate values, or more than 5 items), dedupe, and trim to 5 items if necessary
+    if (settings.language && Array.isArray(settings.language.contentLanguage)) {
+      const uniqueLanguages = Array.from(new Set(settings.language.contentLanguage))
+      settings.language.contentLanguage = uniqueLanguages.slice(0, 5)
+    }
+    return settings as AppSettings
+  }
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {

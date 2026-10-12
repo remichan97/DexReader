@@ -4,6 +4,7 @@ import { Switch } from '@renderer/components/Switch'
 import { PriorityList, type PriorityListItem } from '@renderer/components/PriorityList'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import { LanguageList } from '@renderer/constants/language-list.constant'
+import { LanguageFlag } from '@renderer/components/LanguageBadge'
 
 interface LanguageSettingsProps {
   readonly displayLanguage: 'en-GB' | 'en-US' | 'vi-VN'
@@ -33,7 +34,8 @@ export function LanguageSettings({
   // Convert LanguageList to PriorityListItem format
   const contentLanguageOptions: PriorityListItem[] = LanguageList.map((lang) => ({
     value: lang.code,
-    label: `${lang.flag} ${lang.name}`
+    label: lang.name,
+    icon: <LanguageFlag code={lang.code} />
   }))
 
   return (
@@ -83,6 +85,7 @@ export function LanguageSettings({
               availableItems={contentLanguageOptions}
               onChange={onContentLanguagesChange}
               maxItems={5}
+              minItems={1}
               label={t('appearance.contentLanguages')}
               helperText={t('appearance.contentLanguagesDescription')}
               addButtonLabel={t('appearance.addLanguage')}

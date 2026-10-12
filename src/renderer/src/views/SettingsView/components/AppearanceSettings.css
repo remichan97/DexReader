@@ -25,6 +25,18 @@
   font-family: monospace;
 }
 
+/* The width above lands on Input's Field wrapper, but Fluent's Input root has its own
+   min-width and sizes to the <input>'s intrinsic width, so it overflows the Field and
+   overlaps the adjacent "Use System" button. Let it shrink to the Field instead. */
+.appearance-settings__hex-input .fui-Input {
+  width: 100%;
+  min-width: 0;
+}
+
+.appearance-settings__hex-input .fui-Input input {
+  min-width: 0;
+}
+
 .appearance-settings__helper-text {
   font-size: 13px;
 }

@@ -23,7 +23,7 @@ interface ReaderSettingsSectionProps {
   imageQuality: 'data' | 'data-saver'
   onImageQualityChange: (quality: string) => void
   globalReaderSettings: MangaReadingSettings
-  onReadingModeChange: (mode: string | string[]) => void
+  onReadingModeChange: (mode: string) => void
   onDoublePageSettingChange: (key: 'skipCoverPages' | 'readRightToLeft', value: boolean) => void
   perMangaOverrides: PerMangaOverride[]
   onResetMangaOverride: (mangaId: string) => void

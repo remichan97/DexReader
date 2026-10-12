@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { originFrom } from '@renderer/utils/navigationOrigin'
 import { Warning48Regular, CloudOff48Regular, Search48Regular } from '@fluentui/react-icons'
 import { SearchBar } from '@renderer/components/SearchBar'
 import { EmptyState } from '@renderer/components/EmptyState'
@@ -9,9 +10,10 @@ import { MangaCard } from '@renderer/components/MangaCard'
 import { SkeletonGrid } from '@renderer/components/Skeleton'
 import { Button } from '@renderer/components/Button'
 import { InfoBar } from '@renderer/components/InfoBar'
+import { Modal } from '@renderer/components/Modal'
 import { SavePresetDialog } from '@renderer/components/SavePresetDialog'
 import { useSearchStore, useToastStore, useConnectivityStore } from '@renderer/stores'
-import { DEFAULT_FILTERS } from '@renderer/stores/searchStore'
+import { DEFAULT_FILTERS, DEFAULT_LIMIT } from '@renderer/stores/searchStore'
 import { getMangaTitle, mapPublicationStatus } from '@renderer/utils/mangaHelpers'
 import './BrowseView.css'
 import { useTranslation } from '@renderer/hooks/useTranslation'
@@ -23,6 +25,7 @@ import { useSearchPresets } from './hooks/useSearchPresets'
 export function BrowseView(): JSX.Element {
   const { t } = useTranslation(['browse', 'common'])
   const navigate = useNavigate()
+  const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
   const [showErrorDetails, setShowErrorDetails] = useState<boolean>(false)
   const query = useSearchStore((state) => state.query)
@@ -46,7 +49,17 @@ export function BrowseView(): JSX.Element {
   // Favourite toggling (with metadata caching + shared unfavourite flow)
   const { isFavourite, handleFavouriteToggle } = useFavouriteToggle(results, t, showToast)
 
-  // Saved search presets
+  // Filter Panel lives in a dedicated Modal rather than an inline toggled block. Everything
+  // inside it - manual edits, picking a preset, Clear Filters - edits this draft, not the
+  // committed query/filters/limit above. Nothing outside the modal (the search bar's filter
+  // badge, the sticky InfoBar, the actual search results) reacts until Apply Filters commits
+  // the draft - see handleApplyFilters and openFilterModal below.
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
+  const [draftFilters, setDraftFilters] = useState(filters)
+  const [draftLimit, setDraftLimit] = useState(limit)
+  const [draftQuery, setDraftQuery] = useState(query)
+
+  // Saved search presets - load into and save from the draft above, not the committed state
   const {
     presets,
     appliedPresetId,
@@ -56,11 +69,14 @@ export function BrowseView(): JSX.Element {
     handlePresetSelect,
     handleSavePreset,
     handleDeletePreset
-  } = useSearchPresets(t, showToast)
-
-  // Hide filters by default - users reveal when needed
-  const [showFilters, setShowFilters] = useState(false)
-  const { filterPanelRef, showFilterBar } = useStickyFilterBar(showFilters)
+  } = useSearchPresets(t, showToast, {
+    query: draftQuery,
+    filters: draftFilters,
+    limit: draftLimit,
+    setQuery: setDraftQuery,
+    setFilters: setDraftFilters,
+    setLimit: setDraftLimit
+  })
 
   // Calculate active filter count (excluding default content ratings)
   const filterCount =
@@ -68,7 +84,13 @@ export function BrowseView(): JSX.Element {
     filters.publicationStatus.length +
     filters.publicationDemographic.length +
     filters.includedTags.length +
-    filters.excludedTags.length
+    filters.excludedTags.length +
+    filters.availableTranslatedLanguage.length
+
+  // Sticky filter info bar: shown once filterCount > 0, but only once the search bar
+  // (and its own filter-count badge) has scrolled out of view, so there's never a
+  // moment with two filter indicators on screen at once.
+  const { searchBarRef, showFilterBar } = useStickyFilterBar(filterCount > 0)
 
   // Ref for infinite scroll sentinel
   const sentinelRef = useInfiniteScroll(loading, hasMore, loadMore)
@@ -110,33 +132,41 @@ export function BrowseView(): JSX.Element {
   }
 
   const handleMangaClick = (id: string): void => {
-    navigate(`/browse/${id}`)
+    navigate(`/browse/${id}`, { state: originFrom(location) })
   }
 
-  const handleFilterClick = (): void => {
-    setShowFilters(!showFilters)
+  // Re-seeds the draft from the currently committed state every time the modal opens, so
+  // a previous open-then-discard (closed without Apply) never leaks into the next session.
+  const openFilterModal = (): void => {
+    setDraftFilters(filters)
+    setDraftLimit(limit)
+    setDraftQuery(query)
+    setIsFilterModalOpen(true)
   }
 
   const handleFilterChange = (newFilters: Partial<typeof filters>): void => {
-    setFilters(newFilters)
+    setDraftFilters((prev) => ({ ...prev, ...newFilters }))
   }
 
   const handleApplyFilters = (): void => {
+    setFilters(draftFilters)
+    setLimit(draftLimit)
+    setQuery(draftQuery)
     search()
+    setIsFilterModalOpen(false)
   }
 
+  // Resets the draft to the default filters only - mirrors "No Preset" in the preset
+  // selector and, like it, doesn't search: the modal stays open showing the reset state
+  // until Apply Filters commits it.
   const handleClearFilters = (): void => {
-    setFilters(DEFAULT_FILTERS)
+    setDraftFilters(DEFAULT_FILTERS)
+    setDraftLimit(DEFAULT_LIMIT)
     setAppliedPresetId(null) // Clear preset selection
-    search()
   }
 
   const handleRetry = (): void => {
     search()
-  }
-
-  const handleScrollToFilters = (): void => {
-    filterPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   const handleResetFilters = (): void => {
@@ -182,49 +212,75 @@ export function BrowseView(): JSX.Element {
       </div>
 
       {/* Search Bar */}
-      <div className="mb-4">
+      <div ref={searchBarRef} className="mb-4">
         <SearchBar
           value={query}
           onChange={handleSearch}
-          onFilterClick={handleFilterClick}
+          onFilterClick={openFilterModal}
           filterCount={filterCount}
           placeholder={t('browse:searchPlaceholder')}
         />
       </div>
 
-      {/* Filter Panel */}
-      {showFilters && (
-        <div ref={filterPanelRef} className="mb-6">
-          <FilterPanel
-            filters={filters}
-            limit={limit}
-            onChange={handleFilterChange}
-            onLimitChange={setLimit}
-            onApply={handleApplyFilters}
-            onClear={handleClearFilters}
-            onSavePreset={() => setShowSaveDialog(true)}
-            currentPresetId={appliedPresetId}
-            onPresetSelect={handlePresetSelect}
-            onPresetDelete={handleDeletePreset}
-          />
-        </div>
-      )}
-
-      {/* Sticky Filter Info Bar - Shows when filters are out of view */}
-      <InfoBar
-        visible={showFilterBar && showFilters && results.length > 0}
-        text={
-          filterCount > 0
-            ? t('browse:filterInfo.activeFilters', {
-                count: filterCount,
-                s: filterCount > 1 ? 's' : ''
-              })
-            : t('browse:filterInfo.browsingAll')
+      {/* Filter Panel - lives in a dedicated Modal rather than an inline toggled block.
+          Actions live in the Modal's own footer (DialogActions, outside the scrollable
+          content) rather than inside FilterPanel, so they stay pinned at the bottom per
+          Fluent's dialog guidance instead of scrolling away with the filter controls. */}
+      <Modal
+        open={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        title={t('browse:filter.modalTitle')}
+        size="large"
+        footer={
+          <>
+            <Button
+              variant="secondary"
+              onClick={handleClearFilters}
+              title={t('browse:filter.tooltips.reset')}
+            >
+              {t('browse:clearFiltersButton')}
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => setShowSaveDialog(true)}
+              title={t('browse:filter.tooltips.savePreset')}
+            >
+              {t('browse:savePresetButton')}
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleApplyFilters}
+              title={t('browse:filter.tooltips.apply')}
+            >
+              {t('browse:applyFiltersButton')}
+            </Button>
+          </>
         }
+      >
+        <FilterPanel
+          filters={draftFilters}
+          limit={draftLimit}
+          onChange={handleFilterChange}
+          onLimitChange={setDraftLimit}
+          currentPresetId={appliedPresetId}
+          onPresetSelect={handlePresetSelect}
+          onPresetDelete={handleDeletePreset}
+        />
+      </Modal>
+
+      {/* Sticky Filter Info Bar - persists as a "browsing filtered results" indicator
+          whenever filters are active, surfacing once the search bar (and its own filter
+          badge) scrolls out of view, independent of whether the Filter modal is open. */}
+      <InfoBar
+        visible={showFilterBar && filterCount > 0 && results.length > 0}
+        text={t('browse:filterInfo.activeFilters', {
+          count: filterCount,
+          s: filterCount > 1 ? 's' : ''
+        })}
         actions={
           <>
-            <Button variant="ghost" size="small" onClick={handleScrollToFilters}>
-              {t('browse:filterInfo.scrollToFilters')}
+            <Button variant="ghost" size="small" onClick={openFilterModal}>
+              {t('browse:filterInfo.editFilters')}
             </Button>
             <Button variant="secondary" size="small" onClick={handleResetFilters}>
               {t('browse:filterInfo.resetToDefault')}
@@ -336,9 +392,9 @@ export function BrowseView(): JSX.Element {
           appliedPresetId ? presets.find((p) => p.id === appliedPresetId)?.name || '' : ''
         }
         currentSearchState={{
-          searchQuery: query,
-          filters,
-          resultsPerPage: limit
+          searchQuery: draftQuery,
+          filters: draftFilters,
+          resultsPerPage: draftLimit
         }}
         onSave={handleSavePreset}
       />

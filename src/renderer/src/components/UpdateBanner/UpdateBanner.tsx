@@ -11,10 +11,15 @@
  */
 
 import type { JSX } from 'react'
+import {
+  MessageBar,
+  MessageBarBody,
+  MessageBarTitle,
+  MessageBarActions
+} from '@fluentui/react-components'
 import { Button } from '../Button'
 import { Sparkle24Regular } from '@fluentui/react-icons'
 import { useTranslation } from '@renderer/hooks/useTranslation'
-import './UpdateBanner.css'
 
 interface UpdateBannerProps {
   readonly version: string
@@ -30,21 +35,20 @@ export function UpdateBanner({
   const { t } = useTranslation('common')
 
   return (
-    <div className="update-banner" role="alert" aria-live="polite">
-      <div className="update-banner__content">
-        <Sparkle24Regular className="update-banner__icon" aria-hidden="true" />
-        <span className="update-banner__text">
-          <strong>{t('updateBanner.welcome', { version })}</strong>
-        </span>
-      </div>
-      <div className="update-banner__actions">
+    // Sparkle icon passed explicitly - MessageBar's success intent would otherwise default to
+    // a generic checkmark, losing the "something new to celebrate" framing the original had.
+    <MessageBar intent="success" icon={<Sparkle24Regular />}>
+      <MessageBarBody>
+        <MessageBarTitle>{t('updateBanner.welcome', { version })}</MessageBarTitle>
+      </MessageBarBody>
+      <MessageBarActions>
         <Button variant="primary" size="small" onClick={onViewReleaseNotes}>
           {t('button.viewReleaseNotes')}
         </Button>
         <Button variant="ghost" size="small" onClick={onDismiss}>
           {t('button.letsGo')}
         </Button>
-      </div>
-    </div>
+      </MessageBarActions>
+    </MessageBar>
   )
 }

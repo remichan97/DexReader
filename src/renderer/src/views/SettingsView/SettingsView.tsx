@@ -248,7 +248,16 @@ export function SettingsView(): JSX.Element {
   const handleSectionSelect = (sectionId: string): void => {
     const element = document.getElementById(sectionId)
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      // Called from SettingsSectionMenu, whose Fluent Menu trigger synchronously regains
+      // focus as the menu closes (standard accessibility behaviour: focus returns to the
+      // trigger on dismiss). The trigger sits in a `position: sticky` header, and the
+      // browser's default focus-scroll-into-view doesn't account for sticky positioning
+      // correctly - it scrolls to where the header would sit in normal flow (the very top),
+      // racing with and winning over the scroll below. Deferring to the next frame runs
+      // this after that synchronous focus-restore, so it's the last word.
+      requestAnimationFrame(() => {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
 
       // Trigger highlight animation
       setHighlightedSection(sectionId)

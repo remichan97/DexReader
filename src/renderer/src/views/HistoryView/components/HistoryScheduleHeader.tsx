@@ -1,5 +1,6 @@
 import type { JSX } from 'react'
 import { useState } from 'react'
+import { SearchBox } from '@fluentui/react-components'
 import { Dismiss24Regular, Search24Regular } from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
 import { Popover } from '@renderer/components/Popover'
@@ -50,12 +51,12 @@ export function HistoryScheduleHeader({
   if (isSearchVisible) {
     return (
       <div className="history-schedule-header flex items-center gap-2">
-        <input
-          type="search"
+        <SearchBox
           autoFocus
           placeholder={t('history:searchPlaceholder')}
+          aria-label={t('history:searchPlaceholder')}
           value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
+          onChange={(_event, data) => onSearchChange(data.value)}
           className="history-schedule-header__search-input"
         />
         <Button

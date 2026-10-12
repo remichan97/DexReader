@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useToast } from '@renderer/components/Toast'
+import { useToastStore } from '@renderer/stores'
 import { useConnectivityStore } from '@renderer/stores/connectivityStore'
 import type { DownloadStatus } from '@renderer/components/DownloadStatusBadge'
 import { rendererLog } from '@renderer/services/logging.service'
@@ -47,7 +47,7 @@ export function useChapterDownloads({
   mangaId,
   selectedLanguage
 }: UseChapterDownloadsParams): UseChapterDownloadsResult {
-  const { show: showToast } = useToast()
+  const showToast = useToastStore((state) => state.show)
   const isOnline = useConnectivityStore((state) => state.isOnline)
 
   // Download dialog state

@@ -23,8 +23,7 @@
   },
   "filterInfo": {
     "activeFilters": "{{count}} bộ lọc đang hoạt động",
-    "browsingAll": "Khám phá tất cả manga",
-    "scrollToFilters": "Cuộn đến Bộ lọc",
+    "editFilters": "Chỉnh sửa Bộ lọc",
     "resetToDefault": "Đặt lại về Mặc định"
   },
   "toasts": {
@@ -48,6 +47,7 @@
     "previewCurrentFilters": "Xem trước: Bộ lọc hiện tại"
   },
   "filter": {
+    "modalTitle": "Bộ lọc",
     "contentRating": "Phân loại nội dung",
     "contentRatings": {
       "safe": "An toàn",
@@ -89,8 +89,6 @@
     },
     "perPage": "Số lượng mỗi trang",
     "advancedFilters": "Bộ lọc nâng cao (Thẻ & Ngôn ngữ)",
-    "hideAdvancedFilters": "Ẩn bộ lọc nâng cao",
-    "showAdvancedFilters": "Hiển thị bộ lọc nâng cao",
     "includeTagsMode": "Chế độ thẻ bao gồm:",
     "matchAllTags": "Khớp TẤT CẢ thẻ (AND)",
     "matchAnyTag": "Khớp BẤT KỲ thẻ nào (OR)",
@@ -98,9 +96,7 @@
     "tooltips": {
       "reset": "Khôi phục bộ lọc về mặc định",
       "apply": "Áp dụng các bộ lọc đã chọn",
-      "savePreset": "Lưu cài đặt bộ lọc hiện tại thành mẫu tìm kiếm mới",
-      "includeTag": "Bao gồm thẻ này",
-      "excludeTag": "Loại trừ thẻ này"
+      "savePreset": "Lưu cài đặt bộ lọc hiện tại thành mẫu tìm kiếm mới"
     }
   }
 }

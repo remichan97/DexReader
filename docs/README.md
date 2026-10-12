@@ -52,26 +52,16 @@ System architecture, navigation patterns, and layout specifications.
 
 ## Component Library Status
 
-**P1-T03 Progress**: 18/20 steps complete (90%)
+**Since v1.16.0** the shared components in `src/renderer/src/components/` are thin wrappers over **Fluent 2** (`@fluentui/react-components`), not hand-rolled controls. Each keeps its own public props, so views import `Button`, `Input`, `Modal`, `Select` and so on exactly as before, while Fluent supplies the rendering, focus handling, keyboard navigation and popup positioning. See the "Built on Fluent 2" section of `components/ui-component-library.md`.
 
-✅ **All 17 Core Components Implemented**:
+- Form Controls: Button, Input, SearchBar, Checkbox, Switch, Radio, Select, TagPicker, NumberSpinner
+- Feedback: Toast, ProgressBar, ProgressRing, Badge, Skeleton, InfoBar and the status banners
+- Navigation: Sidebar, Tabs
+- Layout: MangaCard, List / ListItem, LanguageBadge
+- Overlays: Modal, Tooltip, Popover
+- Utilities: ViewTransition
 
-- Form Controls: Button, Input, SearchBar, Checkbox, Switch, Dropdown (6)
-- Feedback: Toast, ProgressBar, ProgressRing, Badge, Skeleton (5)
-- Navigation: Sidebar, Tabs (2)
-- Layout: MangaCard (1)
-- Overlays: Modal, Tooltip, Popover (3)
-- Utilities: ViewTransition (1)
-
-✅ **Polish Applied**: All components polished to Windows 11 Fluent Design standards
-
-- Official Fluent UI icons with Regular/Filled variants
-- Spring-animated indicators (sidebar, tabs)
-- Clean focus behavior (no outer glow)
-- Consistent textbox styling (32px, 2px border)
-- Key-based ViewTransition (no flash)
-
-📝 **Remaining**: Documentation consolidation (Step 19), Integration & testing (Step 20)
+Components that nothing in Fluent matches (Sidebar, MangaCard, ViewTransition, LanguageBadge) are still DexReader's own, built with Fluent's styling tokens (`makeStyles`) where they need styling.
 
 ---
 
@@ -90,17 +80,19 @@ All documents in this folder are **implementation-ready specifications** and **l
 
 ## Quick Reference
 
-**Tech Stack**: React 19.1.1 + TypeScript 5.9.2 + Electron 38.1.2
-**Routing**: React Router v6.28.0
+**Tech Stack**: React 19 + TypeScript 5.9 + Electron 43
+**Routing**: React Router v7
+**UI**: Fluent 2 (`@fluentui/react-components` 9.x) with a custom theme
 **Icons**: @fluentui/react-icons 2.0 (Official Microsoft Fluent UI)
-**State Management**: Zustand v5.0.3 + SQLite (via Drizzle ORM)
+**Flags**: country-flag-icons (bundled SVGs, per-flag imports)
+**State Management**: Zustand v5 + SQLite (via Drizzle ORM)
 **Database**: SQLite + Drizzle ORM (9 tables, WAL mode, CQRS pattern)
 **Design System**: Windows 11 (Mica, Acrylic, Segoe UI Variable)
 **Animations**: Spring easing `cubic-bezier(0.34, 1.56, 0.64, 1)` for indicators
 **Reading Modes**: Single page, Double page (R-L), Vertical scroll
 **Navigation**: Native menu bar + Fixed sidebar with Fluent icons (240px)
 **Responsive**: 5/3/2 column grids across breakpoints
-**Components**: 17 production-ready, fully polished to Windows 11 standards
+**Components**: Fluent 2 wrappers plus a few DexReader-specific ones (see Component Library Status)
 
 ---
 
@@ -117,7 +109,7 @@ All documents in this folder are **implementation-ready specifications** and **l
 
 1. Read **`ui-component-library.md`** for design patterns and guidelines
 2. Review **`ui-polish-refinements.md`** to understand polish decisions
-3. Follow established patterns (BEM CSS, TypeScript interfaces, spring animations)
+3. Follow established patterns (wrap a Fluent 2 component and keep the public props stable, `makeStyles` for new styling, TypeScript interfaces)
 4. Ensure Windows 11 Fluent Design consistency
 
 All specifications follow Windows 11 design language and include comprehensive accessibility support.

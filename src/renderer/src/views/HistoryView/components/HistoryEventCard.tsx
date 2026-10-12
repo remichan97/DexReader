@@ -2,7 +2,7 @@ import type { JSX } from 'react'
 import { History24Regular, PlayCircle24Regular, Delete24Regular } from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
 import { useTranslation } from '@renderer/hooks/useTranslation'
-import { getLanguageName } from '@renderer/constants/language-list.constant'
+import { LanguageBadge } from '@renderer/components/LanguageBadge'
 
 type HistoryEventMetadata = NonNullable<
   Awaited<ReturnType<typeof globalThis.readHistory.getEventsByDate>>['data']
@@ -48,7 +48,7 @@ export function HistoryEventCard({
           {event.chapterTitle && `: ${event.chapterTitle}`}
           {event.language && (
             <span className="reading-history-card__language inline-flex items-center">
-              {getLanguageName(event.language)}
+              <LanguageBadge code={event.language} label="name" />
             </span>
           )}
         </p>

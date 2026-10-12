@@ -18,6 +18,16 @@
 import { useState, useEffect } from 'react'
 import type { JSX } from 'react'
 import {
+  MessageBar,
+  MessageBarBody,
+  MessageBarTitle,
+  MessageBarActions,
+  makeStyles,
+  shorthands,
+  tokens,
+  type MessageBarIntent
+} from '@fluentui/react-components'
+import {
   Dismiss24Regular,
   ArrowDownload24Regular,
   ArrowSync24Regular,
@@ -27,8 +37,9 @@ import {
 import { useConnectivityStore } from '@renderer/stores/connectivityStore'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import { Button } from '@renderer/components/Button'
+import { ProgressRing } from '@renderer/components/ProgressRing'
+import { ProgressBar } from '@renderer/components/ProgressBar'
 import { rendererLog } from '@renderer/services/logging.service'
-import './UpdateNotification.css'
 
 type UpdateState =
   | 'idle'
@@ -49,11 +60,47 @@ interface UpdateInfo {
   errorMessage?: string
 }
 
+const INTENT_BY_STATE: Record<Exclude<UpdateState, 'idle'>, MessageBarIntent> = {
+  checking: 'info',
+  available: 'info',
+  downloading: 'info',
+  downloaded: 'success',
+  'not-available': 'success',
+  error: 'error'
+}
+
+const useStyles = makeStyles({
+  progress: {
+    minWidth: '300px'
+  },
+  dismissButton: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '24px',
+    height: '24px',
+    ...shorthands.padding(0),
+    ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke2),
+    ...shorthands.borderRadius(tokens.borderRadiusSmall),
+    backgroundColor: 'transparent',
+    color: tokens.colorNeutralForeground3,
+    cursor: 'pointer',
+    ':hover': {
+      backgroundColor: tokens.colorSubtleBackgroundHover,
+      color: tokens.colorNeutralForeground1
+    },
+    ':active': {
+      backgroundColor: tokens.colorSubtleBackgroundPressed
+    }
+  }
+})
+
 export function UpdateNotification(): JSX.Element | null {
   const [state, setState] = useState<UpdateState>('idle')
   const [info, setInfo] = useState<UpdateInfo>({})
   const [hidden, setHidden] = useState(false) // User can hide during download
   const { t } = useTranslation('common')
+  const styles = useStyles()
 
   // Access offline mode state
   const isOnline = useConnectivityStore((state) => state.isOnline)
@@ -177,131 +224,113 @@ export function UpdateNotification(): JSX.Element | null {
     setState('idle')
   }
 
-  // Render based on state
+  const icon = {
+    checking: <ProgressRing size="small" aria-label={t('updateNotification.checking.ariaLabel')} />,
+    available: <ArrowDownload24Regular />,
+    downloading: (
+      <ProgressRing size="small" aria-label={t('updateNotification.downloading.ariaLabel')} />
+    ),
+    downloaded: <ArrowSync24Regular />,
+    'not-available': <CheckmarkCircle24Regular />,
+    error: <ErrorCircle24Regular />
+  }[state]
+
   return (
-    <div
-      className={`update-notification flex items-center justify-between update-notification--${state}`}
-      role="alert"
-      aria-live="polite"
-    >
-      {/* Checking state - simple inline */}
-      {state === 'checking' && (
-        <div className="update-notification__content flex items-center gap-3">
-          <div className="spinner" aria-label={t('updateNotification.checking.ariaLabel')} />
-          <span className="update-notification__text">
-            {t('updateNotification.checking.message')}
-          </span>
-        </div>
-      )}
+    <MessageBar intent={INTENT_BY_STATE[state]} icon={icon}>
+      <MessageBarBody>
+        {state === 'checking' && t('updateNotification.checking.message')}
 
-      {/* Available state - icon + text + actions */}
+        {state === 'available' && (
+          <>
+            <MessageBarTitle>{t('updateNotification.available.title')}</MessageBarTitle> —{' '}
+            {t('updateNotification.available.description', { version: info.version })}
+          </>
+        )}
+
+        {state === 'downloading' && (
+          <>
+            <MessageBarTitle>{t('updateNotification.downloading.title')}</MessageBarTitle>
+            <ProgressBar
+              className={styles.progress}
+              value={info.percent ?? 0}
+              showLabel
+              speed={t('updateNotification.downloading.progressDetails', {
+                transferred: formatBytes(info.transferred ?? 0, t),
+                total: formatBytes(info.total ?? 0, t),
+                speed: formatSpeed(info.bytesPerSecond ?? 0, t)
+              })}
+              aria-label={t('updateNotification.downloading.progressAriaLabel')}
+            />
+          </>
+        )}
+
+        {state === 'downloaded' && (
+          <>
+            <MessageBarTitle>{t('updateNotification.downloaded.title')}</MessageBarTitle> —{' '}
+            {t('updateNotification.downloaded.description', { version: info.version })}
+          </>
+        )}
+
+        {state === 'not-available' &&
+          t('updateNotification.notAvailable.message', { version: info.version })}
+
+        {state === 'error' && (
+          <>
+            <MessageBarTitle>{t('updateNotification.error.title')}</MessageBarTitle> —{' '}
+            {info.errorMessage}
+          </>
+        )}
+      </MessageBarBody>
+
       {state === 'available' && (
-        <>
-          <div className="update-notification__content flex items-center gap-3">
-            <ArrowDownload24Regular className="update-notification__icon" />
-            <span className="update-notification__text">
-              <strong>{t('updateNotification.available.title')}</strong> —{' '}
-              {t('updateNotification.available.description', { version: info.version })}
-            </span>
-          </div>
-          <div className="update-notification__actions">
-            <Button variant="primary" size="small" onClick={handleDownload}>
-              {t('updateNotification.available.downloadButton')}
-            </Button>
-            <Button variant="ghost" size="small" onClick={handleLater}>
-              {t('updateNotification.available.laterButton')}
-            </Button>
-          </div>
-        </>
+        <MessageBarActions>
+          <Button variant="primary" size="small" onClick={handleDownload}>
+            {t('updateNotification.available.downloadButton')}
+          </Button>
+          <Button variant="ghost" size="small" onClick={handleLater}>
+            {t('updateNotification.available.laterButton')}
+          </Button>
+        </MessageBarActions>
       )}
 
-      {/* Downloading state - spinner + progress + hide button */}
       {state === 'downloading' && (
-        <>
-          <div className="update-notification__content flex items-center gap-3">
-            <div className="spinner" aria-label={t('updateNotification.downloading.ariaLabel')} />
-            <div className="update-notification__progress">
-              <strong>{t('updateNotification.downloading.title')}</strong>
-              <progress
-                className="update-notification__progress-bar"
-                value={info.percent ?? 0}
-                max={100}
-                aria-label={t('updateNotification.downloading.progressAriaLabel')}
-              >
-                {info.percent ?? 0}%
-              </progress>
-              <span className="progress-text">
-                {t('updateNotification.downloading.progressDetails', {
-                  transferred: formatBytes(info.transferred ?? 0, t),
-                  total: formatBytes(info.total ?? 0, t),
-                  speed: formatSpeed(info.bytesPerSecond ?? 0, t)
-                })}
-              </span>
-            </div>
-          </div>
-          <div className="update-notification__actions">
-            <Button variant="ghost" size="small" onClick={handleHide}>
-              {t('updateNotification.downloading.hideButton')}
-            </Button>
-          </div>
-        </>
+        <MessageBarActions>
+          <Button variant="ghost" size="small" onClick={handleHide}>
+            {t('updateNotification.downloading.hideButton')}
+          </Button>
+        </MessageBarActions>
       )}
 
-      {/* Downloaded state - icon + text + actions */}
       {state === 'downloaded' && (
-        <>
-          <div className="update-notification__content flex items-center gap-3">
-            <ArrowSync24Regular className="update-notification__icon" />
-            <span className="update-notification__text">
-              <strong>{t('updateNotification.downloaded.title')}</strong> —{' '}
-              {t('updateNotification.downloaded.description', { version: info.version })}
-            </span>
-          </div>
-          <div className="update-notification__actions">
-            <Button variant="primary" size="small" onClick={handleInstall}>
-              {t('updateNotification.downloaded.restartButton')}
-            </Button>
-            <Button variant="ghost" size="small" onClick={handleLater}>
-              {t('updateNotification.downloaded.laterButton')}
-            </Button>
-          </div>
-        </>
+        <MessageBarActions>
+          <Button variant="primary" size="small" onClick={handleInstall}>
+            {t('updateNotification.downloaded.restartButton')}
+          </Button>
+          <Button variant="ghost" size="small" onClick={handleLater}>
+            {t('updateNotification.downloaded.laterButton')}
+          </Button>
+        </MessageBarActions>
       )}
 
-      {/* Not available state - simple inline */}
-      {state === 'not-available' && (
-        <div className="update-notification__content flex items-center gap-3">
-          <CheckmarkCircle24Regular className="update-notification__icon" />
-          <span className="update-notification__text">
-            {t('updateNotification.notAvailable.message', { version: info.version })}
-          </span>
-        </div>
-      )}
-
-      {/* Error state - icon + text + actions */}
       {state === 'error' && (
-        <>
-          <div className="update-notification__content flex items-center gap-3">
-            <ErrorCircle24Regular className="update-notification__icon" />
-            <span className="update-notification__text">
-              <strong>{t('updateNotification.error.title')}</strong> — {info.errorMessage}
-            </span>
-          </div>
-          <div className="update-notification__actions">
-            <Button variant="ghost" size="small" onClick={handleRetry}>
-              {t('updateNotification.error.retryButton')}
-            </Button>
+        <MessageBarActions
+          containerAction={
             <button
-              className="update-notification__dismiss"
+              type="button"
+              className={styles.dismissButton}
               onClick={handleDismiss}
               aria-label={t('updateNotification.error.dismissAriaLabel')}
             >
               <Dismiss24Regular />
             </button>
-          </div>
-        </>
+          }
+        >
+          <Button variant="ghost" size="small" onClick={handleRetry}>
+            {t('updateNotification.error.retryButton')}
+          </Button>
+        </MessageBarActions>
       )}
-    </div>
+    </MessageBar>
   )
 }
 

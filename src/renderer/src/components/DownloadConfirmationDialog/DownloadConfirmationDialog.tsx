@@ -90,9 +90,8 @@ export function DownloadConfirmationDialog({
     { value: 'data-saver', label: t('common:quality.dataSaver') }
   ]
 
-  const handleQualityChange = (value: string | string[]): void => {
-    const quality = Array.isArray(value) ? value[0] : value
-    setSelectedQuality(quality as 'data' | 'data-saver')
+  const handleQualityChange = (value: string): void => {
+    setSelectedQuality(value as 'data' | 'data-saver')
   }
 
   const handleConfirm = (): void => {
@@ -125,7 +124,6 @@ export function DownloadConfirmationDialog({
       title={title}
       footer={footer}
       size="small"
-      closeOnOverlayClick={false}
       aria-label={title}
     >
       <div className="download-dialog flex flex-col gap-5">

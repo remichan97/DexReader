@@ -35,7 +35,8 @@
     "removeFromLibrary": "Remove from Library",
     "addToLibrary": "Add to Library",
     "editCollection": "Edit Collection",
-    "deleteCollection": "Delete Collection"
+    "deleteCollection": "Delete Collection",
+    "collectionOptions": "\"{{name}}\" options"
   },
   "state": {
     "loading": "Loading",
@@ -222,6 +223,7 @@
     "add": "Add item",
     "empty": "No items selected",
     "maxReached": "Maximum {{max}} items allowed",
+    "minReached": "At least {{min}} required",
     "moveUpAriaLabel": "Move {{item}} up in priority",
     "moveDownAriaLabel": "Move {{item}} down in priority",
     "removeAriaLabel": "Remove {{item}} from list"

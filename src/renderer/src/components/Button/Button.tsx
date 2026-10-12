@@ -1,5 +1,12 @@
 import { ButtonHTMLAttributes } from 'react'
 import {
+  Button as FluentButton,
+  makeStyles,
+  mergeClasses,
+  shorthands,
+  type ButtonProps as FluentButtonProps
+} from '@fluentui/react-components'
+import {
   ButtonVariant,
   ComponentSize,
   BaseComponentProps,
@@ -8,7 +15,6 @@ import {
 } from '@renderer/types/components'
 import { ProgressRing } from '../ProgressRing'
 import { useTranslation } from '@renderer/hooks/useTranslation'
-import './Button.css'
 
 export interface ButtonProps
   extends
@@ -31,7 +37,7 @@ export interface ButtonProps
   /**
    * Icon to display before button text
    */
-  icon?: React.ReactNode
+  icon?: React.ReactElement
 
   /**
    * Button content (optional for icon-only buttons)
@@ -45,8 +51,50 @@ export interface ButtonProps
   type?: 'button' | 'submit' | 'reset'
 }
 
+// Fluent's Button has no built-in "danger"/"warning" appearance (those are MessageBar/Badge
+// intents, not Button ones), so they're layered on top of appearance="primary" with the same
+// --win-error/--win-warning tokens the hand-rolled variants used, rather than introducing new
+// Fluent status-palette tokens that could shift the colour. Pseudo-selector shape mirrors
+// Fluent's own primary appearance (see @fluentui/react-button's useButtonStyles.styles.raw.js)
+// so active/focus precedence behaves the same as every other appearance.
+const useVariantStyles = makeStyles({
+  danger: {
+    backgroundColor: 'var(--win-error)',
+    ...shorthands.borderColor('var(--win-error)'),
+    ':hover': {
+      backgroundColor: 'var(--win-error-hover)',
+      ...shorthands.borderColor('var(--win-error-hover)')
+    },
+    ':hover:active': {
+      backgroundColor: 'var(--win-error-active)',
+      ...shorthands.borderColor('var(--win-error-active)')
+    }
+  },
+  warning: {
+    backgroundColor: 'var(--win-warning)',
+    ...shorthands.borderColor('var(--win-warning)'),
+    ':hover': {
+      backgroundColor: 'var(--win-warning-hover)',
+      ...shorthands.borderColor('var(--win-warning-hover)')
+    },
+    ':hover:active': {
+      backgroundColor: 'var(--win-warning-hover)',
+      ...shorthands.borderColor('var(--win-warning-hover)')
+    }
+  }
+})
+
+const APPEARANCE_BY_VARIANT: Record<ButtonVariant, FluentButtonProps['appearance']> = {
+  primary: 'primary',
+  accent: 'primary',
+  secondary: 'secondary',
+  ghost: 'subtle',
+  danger: 'primary',
+  warning: 'primary'
+}
+
 /**
- * Button component following Windows 11 design principles
+ * Button component, built on Fluent 2's `Button` (@fluentui/react-components).
  *
  * @example
  * ```tsx
@@ -67,27 +115,13 @@ export function Button({
   icon,
   children,
   type = 'button',
-  className = '',
+  className,
   onClick,
   'aria-label': ariaLabel,
   ...rest
 }: Readonly<ButtonProps>): React.JSX.Element {
   const { t } = useTranslation('common')
-
-  const classNames = [
-    'button',
-    'flex',
-    'items-center',
-    'justify-center',
-    'gap-2',
-    `button--${variant}`,
-    `button--${size}`,
-    disabled && 'button--disabled',
-    loading && 'button--loading',
-    className
-  ]
-    .filter(Boolean)
-    .join(' ')
+  const variantStyles = useVariantStyles()
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>): void => {
     if (disabled || loading) {
@@ -98,26 +132,22 @@ export function Button({
   }
 
   return (
-    <button
+    <FluentButton
       type={type}
-      className={classNames}
+      appearance={APPEARANCE_BY_VARIANT[variant]}
+      size={size}
+      className={mergeClasses(
+        (variant === 'danger' || variant === 'warning') && variantStyles[variant],
+        className
+      )}
       disabled={disabled || loading}
       onClick={handleClick}
       aria-label={ariaLabel}
       aria-busy={loading}
+      icon={loading ? <ProgressRing size="small" aria-label={t('state.loading')} /> : icon}
       {...rest}
     >
-      {loading && (
-        <span className="button__spinner" aria-hidden="true">
-          <ProgressRing size="small" aria-label={t('state.loading')} />
-        </span>
-      )}
-      {!loading && icon && (
-        <span className="button__icon" aria-hidden="true">
-          {icon}
-        </span>
-      )}
-      {children && <span className="button__content">{children}</span>}
-    </button>
+      {children}
+    </FluentButton>
   )
 }

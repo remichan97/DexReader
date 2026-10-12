@@ -1,13 +1,24 @@
-import { useState, InputHTMLAttributes, useId } from 'react'
+import { useState, InputHTMLAttributes } from 'react'
+import {
+  Field,
+  Input as FluentInput,
+  makeStyles,
+  shorthands,
+  tokens,
+  type InputOnChangeData
+} from '@fluentui/react-components'
+import { Dismiss16Regular, Eye16Regular, EyeOff16Regular } from '@fluentui/react-icons'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import { InputType, BaseComponentProps, DisableableProps } from '@renderer/types/components'
-import './Input.css'
 
 export interface InputProps
   extends
     BaseComponentProps,
     DisableableProps,
-    Omit<InputHTMLAttributes<HTMLInputElement>, 'className' | 'type' | 'onChange'> {
+    Omit<
+      InputHTMLAttributes<HTMLInputElement>,
+      'className' | 'type' | 'onChange' | 'children' | 'size' | 'defaultValue'
+    > {
   /**
    * Input type
    * @default 'text'
@@ -57,18 +68,52 @@ export interface InputProps
   /**
    * Icon to display at start of input
    */
-  icon?: React.ReactNode
+  icon?: React.ReactElement
 }
 
+const useStyles = makeStyles({
+  icon: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: tokens.colorNeutralForeground3
+  },
+  actionButton: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '20px',
+    height: '20px',
+    ...shorthands.padding(0),
+    ...shorthands.border('none'),
+    ...shorthands.borderRadius(tokens.borderRadiusSmall),
+    backgroundColor: 'transparent',
+    color: tokens.colorNeutralForeground3,
+    cursor: 'pointer',
+    ':hover': {
+      backgroundColor: tokens.colorSubtleBackgroundHover,
+      color: tokens.colorNeutralForeground1
+    },
+    ':active': {
+      backgroundColor: tokens.colorSubtleBackgroundPressed
+    }
+  },
+  footerRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: tokens.spacingHorizontalS,
+    width: '100%'
+  },
+  counter: {
+    whiteSpace: 'nowrap',
+    color: tokens.colorNeutralForeground3,
+    marginLeft: 'auto'
+  }
+})
+
 /**
- * Input component following Windows 11 Fluent Design principles.
- *
- * Features a clean bottom border emphasis on focus with no outer glow,
- * matching Windows 11 native input styling. Supports various input types
- * including password visibility toggle and search with clear button.
- *
- * **Focus Behavior**: Simple 2px accent bottom border with 200ms transition.
- * No scale effects or Material Design patterns - pure Fluent Design.
+ * Input component, built on Fluent 2's `Field` + `Input` (@fluentui/react-components).
  *
  * @example
  * ```tsx
@@ -112,39 +157,24 @@ export function Input({
   maxLength,
   showCounter = false,
   icon,
-  className = '',
+  className,
   'aria-label': ariaLabel,
   ...rest
 }: InputProps): React.JSX.Element {
   const { t } = useTranslation('common')
+  const styles = useStyles()
   const [showPassword, setShowPassword] = useState(false)
-  const inputId = useId()
-  const errorId = useId()
-  const helperId = useId()
 
   const hasError = Boolean(error)
   const currentLength = value.length
   const hasMaxLength = maxLength !== undefined
+  const hasCounter = showCounter && hasMaxLength
 
-  const classNames = [
-    'input-wrapper flex flex-col gap-2',
-    hasError && 'input-wrapper--error',
-    disabled && 'input-wrapper--disabled',
-    className
-  ]
-    .filter(Boolean)
-    .join(' ')
-
-  const inputClassNames = [
-    'input',
-    icon && 'input--with-icon',
-    (type === 'search' || type === 'password') && 'input--with-action'
-  ]
-    .filter(Boolean)
-    .join(' ')
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    onChange(event.target.value)
+  const handleChange = (
+    _event: React.ChangeEvent<HTMLInputElement>,
+    data: InputOnChangeData
+  ): void => {
+    onChange(data.value)
   }
 
   const handleClear = (): void => {
@@ -152,130 +182,74 @@ export function Input({
   }
 
   const togglePasswordVisibility = (): void => {
-    setShowPassword(!showPassword)
+    setShowPassword((previous) => !previous)
   }
 
   const inputType = type === 'password' && showPassword ? 'text' : type
 
-  const describedBy = [hasError ? errorId : '', helperText ? helperId : '']
-    .filter(Boolean)
-    .join(' ')
+  // Error and helper text share the same footer row as the character counter (when shown),
+  // so both go through Field's validationMessage/hint slots rather than a separate element -
+  // Field only renders one or the other based on validationState, matching the original's
+  // "error takes priority over helper text" behaviour.
+  const counterNode = hasCounter && (
+    <span className={styles.counter} aria-live="polite">
+      {currentLength}/{maxLength}
+    </span>
+  )
+
+  const footer = (text?: string): React.ReactElement | undefined =>
+    text || counterNode ? (
+      <span className={styles.footerRow}>
+        <span>{text}</span>
+        {counterNode}
+      </span>
+    ) : undefined
 
   return (
-    <div className={classNames}>
-      {label && (
-        <label htmlFor={inputId} className="input-label">
-          {label}
-        </label>
-      )}
-
-      <div className="input-container flex items-center">
-        {icon && (
-          <span className="input-icon flex items-center justify-center" aria-hidden="true">
-            {icon}
-          </span>
-        )}
-
-        <input
-          id={inputId}
-          type={inputType}
-          className={inputClassNames}
-          placeholder={placeholder}
-          value={value}
-          onChange={handleChange}
-          disabled={disabled}
-          maxLength={maxLength}
-          aria-label={ariaLabel || label}
-          aria-invalid={hasError}
-          aria-describedby={describedBy || undefined}
-          {...rest}
-        />
-
-        {type === 'search' && value && !disabled && (
-          <button
-            type="button"
-            className="input-action input-action--clear flex items-center justify-center"
-            onClick={handleClear}
-            aria-label={t('aria.clearSearch')}
-            tabIndex={-1}
-          >
-            <svg
-              className="input-action-icon"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M12 4L4 12M4 4L12 12"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
-          </button>
-        )}
-
-        {type === 'password' && !disabled && (
-          <button
-            type="button"
-            className="input-action input-action--toggle flex items-center justify-center"
-            onClick={togglePasswordVisibility}
-            aria-label={showPassword ? t('aria.hidePassword') : t('aria.showPassword')}
-            tabIndex={-1}
-          >
-            <svg
-              className="input-action-icon"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              {showPassword ? (
-                // Eye icon (visible)
-                <>
-                  <path
-                    d="M8 3C4.5 3 1.5 6 1.5 8s3 5 6.5 5 6.5-3 6.5-5-3-5-6.5-5z"
-                    stroke="currentColor"
-                    strokeWidth="1.2"
-                    fill="none"
-                  />
-                  <circle cx="8" cy="8" r="2" stroke="currentColor" strokeWidth="1.2" fill="none" />
-                </>
-              ) : (
-                // Eye-off icon (hidden)
-                <>
-                  <path
-                    d="M2 2L14 14M9.5 9.5C9.11 9.89 8.58 10.13 8 10.13c-1.1 0-2-.9-2-2 0-.58.24-1.11.63-1.5M6.5 4.5C7 4.3 7.5 4.2 8 4.2c3.5 0 5.8 3.8 5.8 3.8s-.7 1.4-1.8 2.5M3.2 7.5c.3-.5.7-1 1.1-1.4"
-                    stroke="currentColor"
-                    strokeWidth="1.2"
-                    strokeLinecap="round"
-                    fill="none"
-                  />
-                </>
-              )}
-            </svg>
-          </button>
-        )}
-      </div>
-
-      {(error || helperText || (showCounter && hasMaxLength)) && (
-        <div className="input-footer flex justify-between items-start gap-2">
-          {hasError && (
-            <span id={errorId} className="input-error" role="alert">
-              {error}
-            </span>
-          )}
-          {!hasError && helperText && (
-            <span id={helperId} className="input-helper">
-              {helperText}
-            </span>
-          )}
-          {showCounter && hasMaxLength && (
-            <span className="input-counter" aria-live="polite">
-              {currentLength}/{maxLength}
-            </span>
-          )}
-        </div>
-      )}
-    </div>
+    <Field
+      className={className}
+      label={label}
+      validationState={hasError ? 'error' : 'none'}
+      validationMessage={hasError ? footer(error) : undefined}
+      hint={!hasError ? footer(helperText) : undefined}
+    >
+      <FluentInput
+        type={inputType}
+        placeholder={placeholder}
+        value={value}
+        onChange={handleChange}
+        disabled={disabled}
+        maxLength={maxLength}
+        aria-label={ariaLabel}
+        contentBefore={icon && <span className={styles.icon}>{icon}</span>}
+        contentAfter={
+          <>
+            {type === 'search' && value && !disabled && (
+              <button
+                type="button"
+                className={styles.actionButton}
+                onClick={handleClear}
+                aria-label={t('aria.clearSearch')}
+                tabIndex={-1}
+              >
+                <Dismiss16Regular />
+              </button>
+            )}
+            {type === 'password' && !disabled && (
+              <button
+                type="button"
+                className={styles.actionButton}
+                onClick={togglePasswordVisibility}
+                aria-label={showPassword ? t('aria.hidePassword') : t('aria.showPassword')}
+                tabIndex={-1}
+              >
+                {showPassword ? <Eye16Regular /> : <EyeOff16Regular />}
+              </button>
+            )}
+          </>
+        }
+        {...rest}
+      />
+    </Field>
   )
 }

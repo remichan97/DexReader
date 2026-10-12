@@ -72,10 +72,8 @@ export function CacheManagementSettings({
   }, [showToast, t])
 
   // Handle cover cache limit change (local only, no auto-apply)
-  const handleCoverLimitChange = (value: string | string[]): void => {
-    const limitMB =
-      typeof value === 'string' ? Number.parseInt(value, 10) : Number.parseInt(value[0], 10)
-    onCoverCacheLimitChange(limitMB)
+  const handleCoverLimitChange = (value: string): void => {
+    onCoverCacheLimitChange(Number.parseInt(value, 10))
   }
 
   // Handle clear all covers

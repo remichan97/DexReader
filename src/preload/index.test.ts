@@ -68,6 +68,7 @@ const INVOKE_CASES: InvokeCase[] = [
     [],
     () => globalThis.api.getSystemAccentColor
   ],
+  ['api.getCspNonce', 'security:get-csp-nonce', [], () => globalThis.api.getCspNonce],
   [
     'api.showConfirmDialog',
     'show-confirm-dialog',

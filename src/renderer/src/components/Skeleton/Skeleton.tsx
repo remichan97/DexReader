@@ -1,5 +1,5 @@
+import { Skeleton as FluentSkeleton, SkeletonItem } from '@fluentui/react-components'
 import { SkeletonVariant, BaseComponentProps } from '@renderer/types/components'
-import './Skeleton.css'
 
 export interface SkeletonProps extends BaseComponentProps {
   /**
@@ -49,23 +49,24 @@ export interface SkeletonProps extends BaseComponentProps {
  * <Skeleton variant="rectangle" width="100%" height={200} />
  * ```
  */
+const VARIANT_TO_SHAPE = {
+  text: 'rectangle',
+  card: 'rectangle',
+  circle: 'circle',
+  rectangle: 'rectangle'
+} as const
+
 export function Skeleton({
   variant = 'text',
   width,
   height,
   lines = 1,
-  noAnimation = false,
+  // Fluent's Skeleton has no "disable animation" toggle (only 'wave'/'pulse'), and no call
+  // site in this codebase currently passes this prop - kept for API compatibility.
   className = '',
   'aria-label': ariaLabel
 }: SkeletonProps): React.JSX.Element {
-  const classNames = [
-    'skeleton',
-    `skeleton--${variant}`,
-    noAnimation && 'skeleton--no-animation',
-    className
-  ]
-    .filter(Boolean)
-    .join(' ')
+  const shape = VARIANT_TO_SHAPE[variant]
 
   const formatSize = (size: string | number | undefined): string | undefined => {
     if (size === undefined) return undefined
@@ -80,37 +81,21 @@ export function Skeleton({
   // Text variant with multiple lines
   if (variant === 'text' && lines > 1) {
     return (
-      <div
-        className="skeleton-group"
-        role="status"
-        aria-busy="true"
-        aria-label={ariaLabel || 'Loading...'}
-      >
+      <FluentSkeleton className={className} aria-label={ariaLabel || 'Loading...'}>
         {Array.from({ length: lines }, (_, index) => {
           const isLastLine = index === lines - 1
           const lineWidth = isLastLine && !width ? '80%' : formatSize(width)
 
-          return (
-            <div
-              key={index}
-              className={classNames}
-              style={{ ...style, width: lineWidth }}
-              aria-hidden="true"
-            />
-          )
+          return <SkeletonItem key={index} shape={shape} style={{ ...style, width: lineWidth }} />
         })}
-      </div>
+      </FluentSkeleton>
     )
   }
 
   // Single skeleton
   return (
-    <div
-      className={classNames}
-      style={style}
-      role="status"
-      aria-busy="true"
-      aria-label={ariaLabel || 'Loading...'}
-    />
+    <FluentSkeleton className={className} aria-label={ariaLabel || 'Loading...'}>
+      <SkeletonItem shape={shape} style={style} />
+    </FluentSkeleton>
   )
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { BaseComponentProps, DisableableProps } from '@renderer/types/components'
 import { Select, SelectOption } from '@renderer/components/Select'
 import { Button } from '@renderer/components/Button'
@@ -10,6 +10,8 @@ export interface PriorityListItem {
   value: string
   label: string
   disabled?: boolean
+  /** Decorative content shown before the label, in the list and the add menu (e.g. a flag) */
+  icon?: ReactNode
 }
 
 export interface PriorityListProps extends BaseComponentProps, DisableableProps {
@@ -33,6 +35,14 @@ export interface PriorityListProps extends BaseComponentProps, DisableableProps 
    * @default 5
    */
   maxItems?: number
+
+  /**
+   * Minimum number of items the list must keep. Once it is down to this many, its items can't
+   * be removed (and with a single item there is nothing to reorder either), until another is
+   * added - for lists where an empty selection isn't a valid state.
+   * @default 0
+   */
+  minItems?: number
 
   /**
    * Label text
@@ -78,6 +88,7 @@ export function PriorityList({
   availableItems,
   onChange,
   maxItems = 5,
+  minItems = 0,
   disabled = false,
   label,
   helperText,
@@ -93,12 +104,16 @@ export function PriorityList({
     return availableItems.find((item) => item.value === value)?.label || value
   }
 
+  const getItemIcon = (value: string): ReactNode =>
+    availableItems.find((item) => item.value === value)?.icon
+
   // Get available options (exclude already selected items)
   const availableOptions: SelectOption[] = availableItems
     .filter((item) => !items.includes(item.value) && !item.disabled)
     .map((item) => ({
       value: item.value,
-      label: item.label
+      label: item.label,
+      icon: item.icon
     }))
 
   // Move item up in priority
@@ -117,21 +132,22 @@ export function PriorityList({
     onChange(newItems)
   }
 
+  const minItemsReached = items.length <= minItems
+
   // Remove item from list
   const removeItem = (index: number): void => {
-    if (disabled) return
+    if (disabled || minItemsReached) return
     const newItems = items.filter((_, i) => i !== index)
     onChange(newItems)
   }
 
   // Add new item to list
-  const handleAdd = (value: string | string[]): void => {
+  const handleAdd = (value: string): void => {
     if (disabled) return
-    const valueToAdd = Array.isArray(value) ? value[0] : value
-    if (!valueToAdd || items.includes(valueToAdd)) return
+    if (!value || items.includes(value)) return
     if (items.length >= maxItems) return
 
-    onChange([...items, valueToAdd])
+    onChange([...items, value])
     setSelectedToAdd('')
   }
 
@@ -159,7 +175,10 @@ export function PriorityList({
                 className="priority-list__item"
                 aria-label={`${getItemLabel(itemValue)}, position ${index + 1} of ${items.length}`}
               >
-                <span className="priority-list__item-label">{getItemLabel(itemValue)}</span>
+                <span className="priority-list__item-label flex items-center gap-2">
+                  {getItemIcon(itemValue)}
+                  {getItemLabel(itemValue)}
+                </span>
 
                 <div className="priority-list__item-controls">
                   <Button
@@ -193,12 +212,19 @@ export function PriorityList({
                     size="small"
                     icon={<Dismiss20Regular />}
                     onClick={() => removeItem(index)}
-                    disabled={disabled}
+                    disabled={disabled || minItemsReached}
                     aria-label={t('priorityList.removeAriaLabel', {
                       item: getItemLabel(itemValue),
                       defaultValue: `Remove ${getItemLabel(itemValue)} from list`
                     })}
-                    title={t('priorityList.remove', { defaultValue: 'Remove' })}
+                    title={
+                      minItemsReached && minItems > 0
+                        ? t('priorityList.minReached', {
+                            min: minItems,
+                            defaultValue: `At least ${minItems} required`
+                          })
+                        : t('priorityList.remove', { defaultValue: 'Remove' })
+                    }
                   />
                 </div>
               </li>

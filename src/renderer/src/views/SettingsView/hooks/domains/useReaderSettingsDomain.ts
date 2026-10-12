@@ -34,7 +34,7 @@ export interface UseReaderSettingsDomainResult {
   chapterCacheTier: CacheTier
   customCacheSize: number
   sanityMaxCacheMB: number
-  handleReadingModeChange: (mode: string | string[]) => void
+  handleReadingModeChange: (mode: string) => void
   handleDoublePageSettingChange: (key: 'skipCoverPages' | 'readRightToLeft', value: boolean) => void
   handleForceDarkModeChange: (enabled: boolean) => void
   handleImageQualityChange: (quality: string) => void
@@ -103,11 +103,10 @@ export function useReaderSettingsDomain(
   }, [])
 
   const handleReadingModeChange = useCallback(
-    (mode: string | string[]): void => {
-      const selectedMode = Array.isArray(mode) ? mode[0] : mode
+    (mode: string): void => {
       const newGlobalSettings: MangaReadingSettings = {
         ...globalReaderSettings,
-        readingMode: selectedMode as MangaReadingSettings['readingMode']
+        readingMode: mode as MangaReadingSettings['readingMode']
       }
       setGlobalReaderSettings(newGlobalSettings)
       void writeSettingsSection('reader', {

@@ -2,6 +2,7 @@ import type { JSX } from 'react'
 import { ProgressBar } from '@renderer/components/ProgressBar'
 import { Badge } from '@renderer/components/Badge'
 import { Button } from '@renderer/components/Button'
+import { LanguageBadge } from '@renderer/components/LanguageBadge'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import { Download, formatStorageSize } from '@renderer/types/download.types'
 
@@ -56,7 +57,8 @@ export function DownloadCard({
           </h4>
           {download.chapterTitle && <p className="download-card__title">{download.chapterTitle}</p>}
           <p className="download-card__meta">
-            {download.language?.toUpperCase()} · {download.totalPages} {t('common:general.pages')} ·{' '}
+            {download.language && <LanguageBadge code={download.language} />} ·{' '}
+            {download.totalPages} {t('common:general.pages')} ·{' '}
             {formatStorageSize(download.storageSize)}
           </p>
         </div>

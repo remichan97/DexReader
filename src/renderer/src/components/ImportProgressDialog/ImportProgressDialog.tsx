@@ -61,8 +61,6 @@ export function ImportProgressDialog({
   cancellable = true
 }: Readonly<ImportProgressDialogProps>): React.JSX.Element {
   const { t } = useTranslation(['dialogs', 'common'])
-  // Calculate progress percentage (0-100)
-  const progress = total > 0 ? Math.round((current / total) * 100) : 0
   const isIndeterminate = total === 0 || current === 0
 
   return (
@@ -86,7 +84,7 @@ export function ImportProgressDialog({
     >
       <div className="import-progress-dialog flex flex-col items-center gap-6">
         <div className="import-progress-dialog__ring flex justify-center items-center">
-          <ProgressRing value={isIndeterminate ? undefined : progress} size="large" />
+          <ProgressRing size="large" aria-label={t('common:state.loading')} />
         </div>
 
         <div className="import-progress-dialog__status flex flex-col items-center gap-2">

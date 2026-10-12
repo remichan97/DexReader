@@ -1,9 +1,9 @@
 import type { JSX } from 'react'
+import { MessageBar, MessageBarBody, MessageBarActions } from '@fluentui/react-components'
 import { WifiOff24Regular, CloudOff24Regular } from '@fluentui/react-icons'
 import { useConnectivityStore } from '@renderer/stores/connectivityStore'
 import { Button } from '@renderer/components/Button'
 import { useTranslation } from '@renderer/hooks/useTranslation'
-import './OfflineStatusBar.css'
 
 export function OfflineStatusBar(): JSX.Element | null {
   const status = useConnectivityStore((state) => state.status)
@@ -18,35 +18,24 @@ export function OfflineStatusBar(): JSX.Element | null {
   const isUserInitiated = status === 'offline-user'
 
   return (
-    <div
-      className="offline-status-bar flex items-center justify-between"
-      data-type={isUserInitiated ? 'user' : 'system'}
-      role="alert"
-      aria-live="polite"
+    <MessageBar
+      intent="warning"
+      icon={isUserInitiated ? <CloudOff24Regular /> : <WifiOff24Regular />}
     >
-      <div className="offline-status-bar__content flex items-center gap-3">
+      <MessageBarBody>
         {isUserInitiated ? (
-          <CloudOff24Regular className="offline-status-bar__icon" />
+          <>
+            <strong>{t('message.info.youreOffline')}</strong> —{' '}
+            {t('message.info.onlyDownloadedContent')}
+          </>
         ) : (
-          <WifiOff24Regular className="offline-status-bar__icon" />
+          <>
+            <strong>{t('message.info.noInternet')}</strong> —{' '}
+            {t('message.info.downloadedContentAvailable')}
+          </>
         )}
-
-        <span className="offline-status-bar__text">
-          {isUserInitiated ? (
-            <>
-              <strong>{t('message.info.youreOffline')}</strong> —{' '}
-              {t('message.info.onlyDownloadedContent')}
-            </>
-          ) : (
-            <>
-              <strong>{t('message.info.noInternet')}</strong> —{' '}
-              {t('message.info.downloadedContentAvailable')}
-            </>
-          )}
-        </span>
-      </div>
-
-      <div className="offline-status-bar__actions">
+      </MessageBarBody>
+      <MessageBarActions>
         {isUserInitiated ? (
           <Button variant="ghost" size="small" onClick={setOnline}>
             {t('button.goOnline')}
@@ -56,7 +45,7 @@ export function OfflineStatusBar(): JSX.Element | null {
             {t('button.retry')}
           </Button>
         )}
-      </div>
-    </div>
+      </MessageBarActions>
+    </MessageBar>
   )
 }

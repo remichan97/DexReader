@@ -73,4 +73,12 @@ describe('appStore', () => {
       expect(useAppStore.getState().isFullscreen).toBe(true)
     })
   })
+
+  describe('setAccentColor', () => {
+    it('updates accentColor independently of theme state', () => {
+      useAppStore.getState().setAccentColor('#125dab')
+
+      expect(useAppStore.getState().accentColor).toBe('#125dab')
+    })
+  })
 })

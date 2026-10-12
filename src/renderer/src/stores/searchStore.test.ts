@@ -115,6 +115,31 @@ describe('searchStore', () => {
       })
     })
 
+    it('searches in the Settings-based languages when no languages are selected', async () => {
+      load.mockResolvedValue({
+        success: true,
+        data: { language: { syncContentLanguage: true, displayLanguage: 'vi-VN' } }
+      })
+      searchManga.mockResolvedValue({ success: true, data: { data: [], total: 0 } })
+
+      await useSearchStore.getState().search()
+
+      expect(searchManga.mock.calls[0][0].availableTranslatedLanguage).toEqual(['vi', 'en'])
+    })
+
+    it('searches in the languages chosen in the filters, overriding Settings', async () => {
+      load.mockResolvedValue({
+        success: true,
+        data: { language: { syncContentLanguage: true, displayLanguage: 'vi-VN' } }
+      })
+      searchManga.mockResolvedValue({ success: true, data: { data: [], total: 0 } })
+      useSearchStore.getState().setFilters({ availableTranslatedLanguage: ['ja', 'ko'] })
+
+      await useSearchStore.getState().search()
+
+      expect(searchManga.mock.calls[0][0].availableTranslatedLanguage).toEqual(['ja', 'ko'])
+    })
+
     it('sets an error when the IPC call reports failure', async () => {
       searchManga.mockResolvedValue({ success: false, error: { message: 'rate limited' } })
 
@@ -192,6 +217,22 @@ describe('searchStore', () => {
         mangaResult('manga-2')
       ])
       expect(useSearchStore.getState().offset).toBe(20)
+    })
+
+    it('keeps using the chosen languages when loading more', async () => {
+      useSearchStore.setState({
+        results: [mangaResult('manga-1')],
+        offset: 0,
+        limit: 20,
+        total: 40,
+        hasMore: true
+      } as never)
+      useSearchStore.getState().setFilters({ availableTranslatedLanguage: ['fr'] })
+      searchManga.mockResolvedValue({ success: true, data: { data: [], total: 40 } })
+
+      await useSearchStore.getState().loadMore()
+
+      expect(searchManga.mock.calls[0][0].availableTranslatedLanguage).toEqual(['fr'])
     })
 
     it('keeps hasMore true and records loadMoreError on failure, so the user can retry', async () => {

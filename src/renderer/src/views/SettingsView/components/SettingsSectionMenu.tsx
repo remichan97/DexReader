@@ -1,127 +1,106 @@
 import type { JSX } from 'react'
-import { useRef, useEffect, useState } from 'react'
-import { ChevronDown16Regular } from '@fluentui/react-icons'
+import {
+  Menu,
+  MenuTrigger,
+  MenuPopover,
+  MenuList,
+  MenuGroupHeader,
+  MenuItemRadio,
+  MenuButton,
+  makeStyles,
+  type MenuCheckedValueChangeData,
+  type MenuCheckedValueChangeEvent
+} from '@fluentui/react-components'
 import type { SettingsSection } from './SettingsHeader'
 import { useTranslation } from '@renderer/hooks/useTranslation'
-import './SettingsSectionMenu.css'
+
+const CHECKED_VALUES_NAME = 'section'
+
+const useStyles = makeStyles({
+  // Spans the header like the original dropdown did: label at the start, chevron pushed to
+  // the end (MenuButton is inline-flex and shrink-to-fit by default)
+  trigger: {
+    width: '100%',
+    justifyContent: 'space-between'
+  },
+  // MenuPopover caps itself at 300px, and each menu item at 290px, which would clamp the
+  // width matched to the trigger (the popup would widen but the highlight and click area of
+  // every row would stop short at 290px)
+  popover: {
+    maxWidth: 'none'
+  },
+  item: {
+    maxWidth: 'none'
+  }
+})
 
 interface SettingsSectionMenuProps {
-  currentSection: string
-  currentSectionLabel?: string
-  sections: SettingsSection[]
-  isOpen: boolean
-  onOpenChange: (open: boolean) => void
-  onSectionSelect: (sectionId: string) => void
+  readonly currentSection: string
+  readonly currentSectionLabel?: string
+  readonly sections: readonly SettingsSection[]
+  readonly onSectionSelect: (sectionId: string) => void
 }
 
 /**
- * Dropdown menu for quick section navigation in Settings
+ * Dropdown menu for quick section navigation in Settings, built on Fluent 2's
+ * `Menu`/`MenuButton`/`MenuItemRadio` (@fluentui/react-components). Portal rendering,
+ * positioning, click-outside/Escape dismissal, and arrow-key navigation all come from
+ * Fluent's Menu - the hand-rolled versions of all of these (manual focused-index tracking,
+ * a document mousedown listener, a window keydown listener) are gone. The current section
+ * is modelled as a `MenuItemRadio` selection rather than a custom "active" indicator, since
+ * that's exactly what this is: picking one of several sections.
  */
 export function SettingsSectionMenu({
   currentSection,
   currentSectionLabel,
   sections,
-  isOpen,
-  onOpenChange,
   onSectionSelect
 }: Readonly<SettingsSectionMenuProps>): JSX.Element {
   const { t } = useTranslation(['settings'])
-  const menuRef = useRef<HTMLDivElement>(null)
-  const [focusedIndex, setFocusedIndex] = useState(0)
+  const styles = useStyles()
 
-  // Close on click outside
-  useEffect(() => {
-    if (!isOpen) return
-
-    const handleClickOutside = (event: MouseEvent): void => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        onOpenChange(false)
-      }
+  const handleCheckedValueChange = (
+    _event: MenuCheckedValueChangeEvent,
+    data: MenuCheckedValueChangeData
+  ): void => {
+    if (data.name === CHECKED_VALUES_NAME && data.checkedItems[0]) {
+      onSectionSelect(data.checkedItems[0])
     }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [isOpen, onOpenChange])
-
-  // Keyboard navigation
-  useEffect(() => {
-    if (!isOpen) return
-
-    const handleKeyDown = (e: KeyboardEvent): void => {
-      switch (e.key) {
-        case 'Escape':
-          e.preventDefault()
-          onOpenChange(false)
-          break
-        case 'ArrowDown':
-          e.preventDefault()
-          setFocusedIndex((prev) => Math.min(prev + 1, sections.length - 1))
-          break
-        case 'ArrowUp':
-          e.preventDefault()
-          setFocusedIndex((prev) => Math.max(prev - 1, 0))
-          break
-        case 'Enter':
-          e.preventDefault()
-          onSectionSelect(sections[focusedIndex].id)
-          break
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen, focusedIndex, sections, onSectionSelect, onOpenChange])
-
-  // Reset focused index when opening
-  useEffect(() => {
-    if (isOpen) {
-      const currentIndex = sections.findIndex((s) => s.id === currentSection)
-      setFocusedIndex(currentIndex >= 0 ? currentIndex : 0)
-    }
-  }, [isOpen, currentSection, sections])
+  }
 
   return (
-    <div className="settings-section-menu" ref={menuRef}>
-      <button
-        className="settings-section-menu__trigger"
-        onClick={() => onOpenChange(!isOpen)}
-        aria-expanded={isOpen}
-        aria-haspopup="menu"
-        aria-label={t('settings:jumpToSection', { defaultValue: 'Jump to section' })}
-      >
-        <span className={currentSectionLabel ? 'settings-section-menu__trigger-label--active' : ''}>
+    <Menu
+      // Same width as the trigger, so the list reads as the trigger opening downwards
+      positioning={{ matchTargetSize: 'width' }}
+      checkedValues={{ [CHECKED_VALUES_NAME]: [currentSection] }}
+      onCheckedValueChange={handleCheckedValueChange}
+    >
+      <MenuTrigger disableButtonEnhancement>
+        {/* Not appearance="outline": its expanded state thickens the border 1px -> 3px, which
+            grows the trigger by 4px and shifts the sticky header's content down while open. */}
+        <MenuButton
+          className={styles.trigger}
+          appearance="secondary"
+          aria-label={t('settings:jumpToSection', { defaultValue: 'Jump to section' })}
+        >
           {currentSectionLabel || t('settings:jumpTo', { defaultValue: 'Jump to...' })}
-        </span>
-        <ChevronDown16Regular
-          className={`settings-section-menu__icon ${isOpen ? 'settings-section-menu__icon--open' : ''}`}
-        />
-      </button>
-
-      {isOpen && (
-        <div className="settings-section-menu__dropdown" role="menu">
-          <div className="settings-section-menu__header">
-            {t('settings:jumpTo', { defaultValue: 'Jump to...' })}
-          </div>
-          {sections.map((section, index) => (
-            <button
+        </MenuButton>
+      </MenuTrigger>
+      <MenuPopover className={styles.popover}>
+        <MenuList>
+          <MenuGroupHeader>{t('settings:jumpTo', { defaultValue: 'Jump to...' })}</MenuGroupHeader>
+          {sections.map((section) => (
+            <MenuItemRadio
               key={section.id}
-              className={`settings-section-menu__item ${
-                section.id === currentSection ? 'settings-section-menu__item--active' : ''
-              } ${index === focusedIndex ? 'settings-section-menu__item--focused' : ''}`}
-              onClick={() => onSectionSelect(section.id)}
-              role="menuitem"
-              aria-current={section.id === currentSection ? 'true' : undefined}
+              className={styles.item}
+              name={CHECKED_VALUES_NAME}
+              value={section.id}
             >
-              {section.id === currentSection && (
-                <span className="settings-section-menu__indicator" aria-hidden="true">
-                  ●
-                </span>
-              )}
-              <span>{section.label}</span>
-            </button>
+              {section.label}
+            </MenuItemRadio>
           ))}
-        </div>
-      )}
-    </div>
+        </MenuList>
+      </MenuPopover>
+    </Menu>
   )
 }

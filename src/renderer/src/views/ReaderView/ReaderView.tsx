@@ -1,5 +1,8 @@
-import React, { type JSX, useState, useEffect, useCallback, useRef } from 'react'
+import React, { type JSX, useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useParams, useLocation, useNavigate } from 'react-router-dom'
+import { FluentProvider } from '@fluentui/react-components'
+import { createDexReaderThemes } from '@renderer/theme/fluentTheme'
+import { getOrigin } from '@renderer/utils/navigationOrigin'
 import { ImageQuality } from '@shared/enums/mangadex/image-quality.enum'
 import type { MangaReadingSettings } from '../../../../preload/window.types'
 import { Button } from '@renderer/components/Button'
@@ -60,6 +63,7 @@ export function ReaderView(): JSX.Element {
 
   // Get system theme
   const theme = useAppStore((state) => state.theme)
+  const accentColor = useAppStore((state) => state.accentColor)
 
   // Get chapter data from navigation state if available
   const locationState = location.state as {
@@ -71,6 +75,10 @@ export function ReaderView(): JSX.Element {
     startAtLastPage?: boolean // Flag to start at last page (when navigating from previous chapter)
     startPage?: number // Page to start at (from Continue Reading)
   } | null
+
+  // Where the manga's detail page was opened from. Captured once on mount: chapter-to-chapter
+  // navigation replaces location.state, but this component (and so this value) persists.
+  const [origin] = useState(() => getOrigin(location.state))
 
   const [state, setState] = useState<ReaderState>({
     currentPage: locationState?.startPage ?? 0, // Start from saved progress if available
@@ -129,7 +137,8 @@ export function ReaderView(): JSX.Element {
       currentPairIndex,
       pagePairs,
       previousChapter: chapterData.previousChapter,
-      nextChapter: chapterData.nextChapter
+      nextChapter: chapterData.nextChapter,
+      origin
     },
     (pageIndex) => {
       chapterData.setImageLoadingState(pageIndex, 'loading')
@@ -360,223 +369,236 @@ export function ReaderView(): JSX.Element {
   // Compute reader theme: use dark if EITHER forceDarkMode is on OR system theme is dark
   const readerTheme = state.forceReaderDarkMode || theme === 'dark' ? 'dark' : 'light'
 
+  // The data-theme CSS variables above only restyle our own CSS. Fluent components (Button,
+  // Popover, Tooltip, Menu, ...) read their colours from the nearest FluentProvider, so the
+  // reader needs its own - otherwise forcing dark mode over a light app leaves them light
+  // on a dark header. Portalled surfaces (popovers, flyouts) inherit it too.
+  const readerFluentTheme = useMemo(() => {
+    const themes = createDexReaderThemes(accentColor)
+    return readerTheme === 'dark' ? themes.dark : themes.light
+  }, [readerTheme, accentColor])
+
   return (
-    <main className="reader-view flex flex-col" data-theme={readerTheme}>
-      {chapterData.loading && (
-        <div className="reader-view__loading flex flex-col items-center justify-center">
-          <LoadingState message={t('reader:loadingState.message')} />
-        </div>
-      )}
+    <FluentProvider theme={readerFluentTheme}>
+      <main className="reader-view flex flex-col" data-theme={readerTheme}>
+        {chapterData.loading && (
+          <div className="reader-view__loading flex flex-col items-center justify-center">
+            <LoadingState message={t('reader:loadingState.message')} />
+          </div>
+        )}
 
-      {chapterData.error && (
-        <div className="reader-view__error flex flex-col items-center justify-center">
-          {(() => {
-            const isOfflineError =
-              chapterData.error.message.toLowerCase().includes('offline') ||
-              chapterData.error.message.toLowerCase().includes('downloaded')
+        {chapterData.error && (
+          <div className="reader-view__error flex flex-col items-center justify-center">
+            {(() => {
+              const isOfflineError =
+                chapterData.error.message.toLowerCase().includes('offline') ||
+                chapterData.error.message.toLowerCase().includes('downloaded')
 
-            return isOfflineError ? (
-              <ErrorState
-                variant="offline"
-                title={t('common:message.info.youreOffline')}
-                message={t('reader:errorState.offline.message')}
-                secondaryAction={{
-                  label: t('reader:errorState.goToLibraryButton'),
-                  onClick: () => navigate('/library')
+              return isOfflineError ? (
+                <ErrorState
+                  variant="offline"
+                  title={t('common:message.info.youreOffline')}
+                  message={t('reader:errorState.offline.message')}
+                  secondaryAction={{
+                    label: t('reader:errorState.goToLibraryButton'),
+                    onClick: () => navigate('/library')
+                  }}
+                />
+              ) : (
+                <ErrorState
+                  title={t('reader:errorState.generic.title')}
+                  message={t('reader:errorState.generic.message')}
+                  error={chapterData.error}
+                  onRetry={() => chapterId && chapterData.loadChapterImages(chapterId)}
+                  retrying={chapterData.loading}
+                  secondaryAction={{
+                    label: t('reader:errorState.goBackButton'),
+                    onClick: handleBackClick
+                  }}
+                  showTechnicalDetails={true}
+                />
+              )
+            })()}
+          </div>
+        )}
+
+        {!chapterData.loading && !chapterData.error && chapterData.images.length > 0 && (
+          <>
+            <ReaderHeader
+              chapterTitle={chapterData.chapterTitle}
+              currentPage={state.currentPage}
+              totalPages={chapterData.totalPages}
+              onBackClick={handleBackClick}
+              onToggleChapterList={toggleChapterList}
+              showChapterList={state.showChapterList}
+              isIncognito={!autoSaveEnabled}
+              readingMode={readingMode}
+              currentPagePair={
+                readingMode === 'double' && pagePairs.length > 0
+                  ? pagePairs[currentPairIndex]
+                  : undefined
+              }
+              readRightToLeft={doublePageSettings.readRightToLeft}
+              settingsPopover={
+                <ReaderSettingsModal
+                  isOpen={showSettingsModal}
+                  onOpen={toggleSettingsModal}
+                  onClose={toggleSettingsModal}
+                  settings={{
+                    readingMode: readingMode as MangaReadingSettings['readingMode'],
+                    doublePageMode: {
+                      skipCoverPages: doublePageSettings.skipCoverPages,
+                      readRightToLeft: doublePageSettings.readRightToLeft
+                    }
+                  }}
+                  onSettingsChange={handleReaderSettingsChange}
+                >
+                  <Button
+                    variant="ghost"
+                    size="small"
+                    icon={<Settings20Regular />}
+                    aria-label={t('reader:header.settingsLabel')}
+                    title={t('reader:header.settingsLabel')}
+                  >
+                    {t('reader:header.settingsButton')}
+                  </Button>
+                </ReaderSettingsModal>
+              }
+              zoomControlsPopover={
+                <ZoomControlsModal
+                  isOpen={zoom.showZoomControls}
+                  onOpen={zoom.toggleZoomControls}
+                  onClose={zoom.toggleZoomControls}
+                  fitMode={zoom.fitMode}
+                  zoomLevel={zoom.zoomLevel}
+                  onFitWidth={() => zoom.setFitMode('width')}
+                  onFitHeight={() => zoom.setFitMode('height')}
+                  onActualSize={() => zoom.setFitMode('actual')}
+                  onZoomIn={zoom.zoomIn}
+                  onZoomOut={zoom.zoomOut}
+                  onReset={zoom.resetZoom}
+                >
+                  <Button
+                    variant="ghost"
+                    size="small"
+                    aria-label={t('reader:header.zoomLabel')}
+                    title={t('reader:header.zoomLabel')}
+                  >
+                    {t('reader:header.zoomPercentage', {
+                      percent: Math.round(zoom.zoomLevel * 100)
+                    })}
+                  </Button>
+                </ZoomControlsModal>
+              }
+              streamSource={streamSource}
+            />
+
+            {/* Render based on reading mode */}
+            {readingMode === 'vertical' ? (
+              <VerticalScrollDisplay
+                images={chapterData.images}
+                imageStates={chapterData.imageLoadingStates}
+                currentPage={state.currentPage}
+                onPageChange={(newPage) => {
+                  setState((prev) => ({ ...prev, currentPage: newPage }))
                 }}
+                onImageLoad={(pageIndex) => {
+                  chapterData.setImageLoadingState(pageIndex, 'loaded')
+                }}
+                onImageError={(pageIndex) => {
+                  chapterData.setImageLoadingState(pageIndex, 'error')
+                }}
+              />
+            ) : readingMode === 'double' && pagePairs.length > 0 ? (
+              <DoublePageDisplay
+                images={chapterData.images}
+                pagePair={pagePairs[currentPairIndex]}
+                imageStates={chapterData.imageLoadingStates}
+                fitMode={zoom.fitMode}
+                onImageLoad={(pageIndex) => {
+                  chapterData.setImageLoadingState(pageIndex, 'loaded')
+                }}
+                onImageError={(pageIndex) => {
+                  chapterData.setImageLoadingState(pageIndex, 'error')
+                }}
+                onClick={handleImageClick}
+                zoomLevel={zoom.zoomLevel}
+                panX={zoom.panX}
+                panY={zoom.panY}
+                isDragging={zoom.isDragging}
+                onMouseDown={zoom.onMouseDown}
+                onMouseMove={zoom.onMouseMove}
+                onMouseUp={zoom.onMouseUp}
+                onWheel={zoom.handleWheel}
+                transformOriginX={zoom.transformOriginX}
+                transformOriginY={zoom.transformOriginY}
+                onNavigateLeft={goToPreviousPage}
+                onNavigateRight={goToNextPage}
+                readRightToLeft={doublePageSettings.readRightToLeft}
               />
             ) : (
-              <ErrorState
-                title={t('reader:errorState.generic.title')}
-                message={t('reader:errorState.generic.message')}
-                error={chapterData.error}
-                onRetry={() => chapterId && chapterData.loadChapterImages(chapterId)}
-                retrying={chapterData.loading}
-                secondaryAction={{
-                  label: t('reader:errorState.goBackButton'),
-                  onClick: handleBackClick
-                }}
-                showTechnicalDetails={true}
-              />
-            )
-          })()}
-        </div>
-      )}
-
-      {!chapterData.loading && !chapterData.error && chapterData.images.length > 0 && (
-        <>
-          <ReaderHeader
-            chapterTitle={chapterData.chapterTitle}
-            currentPage={state.currentPage}
-            totalPages={chapterData.totalPages}
-            onBackClick={handleBackClick}
-            onToggleChapterList={toggleChapterList}
-            showChapterList={state.showChapterList}
-            isIncognito={!autoSaveEnabled}
-            readingMode={readingMode}
-            currentPagePair={
-              readingMode === 'double' && pagePairs.length > 0
-                ? pagePairs[currentPairIndex]
-                : undefined
-            }
-            readRightToLeft={doublePageSettings.readRightToLeft}
-            settingsPopover={
-              <ReaderSettingsModal
-                isOpen={showSettingsModal}
-                onOpen={toggleSettingsModal}
-                onClose={toggleSettingsModal}
-                settings={{
-                  readingMode: readingMode as MangaReadingSettings['readingMode'],
-                  doublePageMode: {
-                    skipCoverPages: doublePageSettings.skipCoverPages,
-                    readRightToLeft: doublePageSettings.readRightToLeft
-                  }
-                }}
-                onSettingsChange={handleReaderSettingsChange}
-              >
-                <Button
-                  variant="ghost"
-                  size="small"
-                  icon={<Settings20Regular />}
-                  aria-label={t('reader:header.settingsLabel')}
-                  title={t('reader:header.settingsLabel')}
-                >
-                  {t('reader:header.settingsButton')}
-                </Button>
-              </ReaderSettingsModal>
-            }
-            zoomControlsPopover={
-              <ZoomControlsModal
-                isOpen={zoom.showZoomControls}
-                onOpen={zoom.toggleZoomControls}
-                onClose={zoom.toggleZoomControls}
+              <PageDisplay
+                imageUrl={chapterData.images[state.currentPage]?.url || ''}
+                pageNumber={state.currentPage}
+                totalPages={chapterData.totalPages}
                 fitMode={zoom.fitMode}
+                isLoading={chapterData.imageLoadingStates.get(state.currentPage) === 'loading'}
+                hasError={chapterData.imageLoadingStates.get(state.currentPage) === 'error'}
+                onImageLoad={() => {
+                  chapterData.setImageLoadingState(state.currentPage, 'loaded')
+                }}
+                onImageError={() => {
+                  chapterData.setImageLoadingState(state.currentPage, 'error')
+                }}
+                onClick={handleImageClick}
                 zoomLevel={zoom.zoomLevel}
-                onFitWidth={() => zoom.setFitMode('width')}
-                onFitHeight={() => zoom.setFitMode('height')}
-                onActualSize={() => zoom.setFitMode('actual')}
-                onZoomIn={zoom.zoomIn}
-                onZoomOut={zoom.zoomOut}
-                onReset={zoom.resetZoom}
-              >
-                <Button
-                  variant="ghost"
-                  size="small"
-                  aria-label={t('reader:header.zoomLabel')}
-                  title={t('reader:header.zoomLabel')}
-                >
-                  {t('reader:header.zoomPercentage', { percent: Math.round(zoom.zoomLevel * 100) })}
-                </Button>
-              </ZoomControlsModal>
-            }
-            streamSource={streamSource}
-          />
+                panX={zoom.panX}
+                panY={zoom.panY}
+                isDragging={zoom.isDragging}
+                onMouseDown={zoom.onMouseDown}
+                onMouseMove={zoom.onMouseMove}
+                onMouseUp={zoom.onMouseUp}
+                onWheel={zoom.handleWheel}
+                transformOriginX={zoom.transformOriginX}
+                transformOriginY={zoom.transformOriginY}
+                onNavigateLeft={goToPreviousPage}
+                onNavigateRight={goToNextPage}
+              />
+            )}
 
-          {/* Render based on reading mode */}
-          {readingMode === 'vertical' ? (
-            <VerticalScrollDisplay
-              images={chapterData.images}
-              imageStates={chapterData.imageLoadingStates}
-              currentPage={state.currentPage}
-              onPageChange={(newPage) => {
-                setState((prev) => ({ ...prev, currentPage: newPage }))
-              }}
-              onImageLoad={(pageIndex) => {
-                chapterData.setImageLoadingState(pageIndex, 'loaded')
-              }}
-              onImageError={(pageIndex) => {
-                chapterData.setImageLoadingState(pageIndex, 'error')
-              }}
-            />
-          ) : readingMode === 'double' && pagePairs.length > 0 ? (
-            <DoublePageDisplay
-              images={chapterData.images}
-              pagePair={pagePairs[currentPairIndex]}
-              imageStates={chapterData.imageLoadingStates}
-              fitMode={zoom.fitMode}
-              onImageLoad={(pageIndex) => {
-                chapterData.setImageLoadingState(pageIndex, 'loaded')
-              }}
-              onImageError={(pageIndex) => {
-                chapterData.setImageLoadingState(pageIndex, 'error')
-              }}
-              onClick={handleImageClick}
-              zoomLevel={zoom.zoomLevel}
-              panX={zoom.panX}
-              panY={zoom.panY}
-              isDragging={zoom.isDragging}
-              onMouseDown={zoom.onMouseDown}
-              onMouseMove={zoom.onMouseMove}
-              onMouseUp={zoom.onMouseUp}
-              onWheel={zoom.handleWheel}
-              transformOriginX={zoom.transformOriginX}
-              transformOriginY={zoom.transformOriginY}
-              onNavigateLeft={goToPreviousPage}
-              onNavigateRight={goToNextPage}
-              readRightToLeft={doublePageSettings.readRightToLeft}
-            />
-          ) : (
-            <PageDisplay
-              imageUrl={chapterData.images[state.currentPage]?.url || ''}
-              pageNumber={state.currentPage}
-              totalPages={chapterData.totalPages}
-              fitMode={zoom.fitMode}
-              isLoading={chapterData.imageLoadingStates.get(state.currentPage) === 'loading'}
-              hasError={chapterData.imageLoadingStates.get(state.currentPage) === 'error'}
-              onImageLoad={() => {
-                chapterData.setImageLoadingState(state.currentPage, 'loaded')
-              }}
-              onImageError={() => {
-                chapterData.setImageLoadingState(state.currentPage, 'error')
-              }}
-              onClick={handleImageClick}
-              zoomLevel={zoom.zoomLevel}
-              panX={zoom.panX}
-              panY={zoom.panY}
-              isDragging={zoom.isDragging}
-              onMouseDown={zoom.onMouseDown}
-              onMouseMove={zoom.onMouseMove}
-              onMouseUp={zoom.onMouseUp}
-              onWheel={zoom.handleWheel}
-              transformOriginX={zoom.transformOriginX}
-              transformOriginY={zoom.transformOriginY}
-              onNavigateLeft={goToPreviousPage}
-              onNavigateRight={goToNextPage}
-            />
-          )}
+            {/* Zoom indicator overlay (shown during Ctrl+Wheel zoom) */}
+            {state.zoomIndicatorVisible && (
+              <div className="zoom-indicator">
+                <span className="zoom-indicator__percentage">
+                  {Math.round(zoom.zoomLevel * 100)}%
+                </span>
+              </div>
+            )}
 
-          {/* Zoom indicator overlay (shown during Ctrl+Wheel zoom) */}
-          {state.zoomIndicatorVisible && (
-            <div className="zoom-indicator">
-              <span className="zoom-indicator__percentage">
-                {Math.round(zoom.zoomLevel * 100)}%
-              </span>
-            </div>
-          )}
+            {/* Show end of chapter overlay on last page */}
+            {state.currentPage === chapterData.totalPages - 1 && (
+              <EndOfChapterOverlay
+                chapterTitle={chapterData.chapterTitle}
+                chapterNumber={chapterData.chapterNumber}
+                previousChapter={chapterData.previousChapter}
+                nextChapter={chapterData.nextChapter}
+                onPreviousChapter={goToPreviousChapter}
+                onNextChapter={goToNextChapter}
+                onBackToDetail={handleBackClick}
+              />
+            )}
 
-          {/* Show end of chapter overlay on last page */}
-          {state.currentPage === chapterData.totalPages - 1 && (
-            <EndOfChapterOverlay
-              chapterTitle={chapterData.chapterTitle}
-              chapterNumber={chapterData.chapterNumber}
-              previousChapter={chapterData.previousChapter}
-              nextChapter={chapterData.nextChapter}
-              onPreviousChapter={goToPreviousChapter}
-              onNextChapter={goToNextChapter}
-              onBackToDetail={handleBackClick}
+            {/* Chapter list sidebar */}
+            <ChapterListSidebar
+              chapters={chapterData.chapters}
+              currentChapterId={chapterData.chapterId || ''}
+              isOpen={state.showChapterList}
+              onClose={toggleChapterList}
+              onChapterClick={handleChapterClick}
             />
-          )}
-
-          {/* Chapter list sidebar */}
-          <ChapterListSidebar
-            chapters={chapterData.chapters}
-            currentChapterId={chapterData.chapterId || ''}
-            isOpen={state.showChapterList}
-            onClose={toggleChapterList}
-            onChapterClick={handleChapterClick}
-          />
-        </>
-      )}
-    </main>
+          </>
+        )}
+      </main>
+    </FluentProvider>
   )
 }

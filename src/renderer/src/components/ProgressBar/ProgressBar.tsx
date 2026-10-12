@@ -1,3 +1,4 @@
+import { ProgressBar as FluentProgressBar } from '@fluentui/react-components'
 import { ProgressVariant, ComponentSize, BaseComponentProps } from '@renderer/types/components'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import './ProgressBar.css'
@@ -77,7 +78,8 @@ export function ProgressBar({
   label,
   speed,
   eta,
-  animated = true,
+  // Fluent's ProgressBar has no "disable animation" toggle, and no call site in this
+  // codebase currently passes this prop - kept for API compatibility.
   className = '',
   'aria-label': ariaLabel
 }: Readonly<ProgressBarProps>): React.JSX.Element {
@@ -92,28 +94,9 @@ export function ProgressBar({
       effectiveVariant = 'success'
     }
   }
+  const color = effectiveVariant === 'default' ? 'brand' : effectiveVariant
 
-  const classNames = [
-    'progress-bar',
-    `progress-bar--${size}`,
-    isIndeterminate && 'progress-bar--indeterminate',
-    animated && 'progress-bar--animated',
-    className
-  ]
-    .filter(Boolean)
-    .join(' ')
-
-  const trackClassNames = ['progress-bar__track', `progress-bar__track--${effectiveVariant}`].join(
-    ' '
-  )
-
-  const fillClassNames = [
-    'progress-bar__fill',
-    `progress-bar__fill--${effectiveVariant}`,
-    isIndeterminate && 'progress-bar__fill--indeterminate'
-  ]
-    .filter(Boolean)
-    .join(' ')
+  const classNames = ['progress-bar', `progress-bar--${size}`, className].filter(Boolean).join(' ')
 
   const displayLabel = label || (showLabel && !isIndeterminate ? `${clampedValue}%` : undefined)
   const hasMetadata = speed || eta
@@ -133,28 +116,15 @@ export function ProgressBar({
         </div>
       )}
 
-      <div
-        className={trackClassNames}
-        role="progressbar"
+      <FluentProgressBar
+        value={isIndeterminate ? undefined : clampedValue / 100}
+        color={color}
+        thickness={size === 'small' ? 'medium' : 'large'}
         aria-label={ariaLabel || t('common:progress.defaultLabel')}
-        aria-valuenow={isIndeterminate ? undefined : clampedValue}
-        aria-valuemin={0}
-        aria-valuemax={100}
         aria-valuetext={
           isIndeterminate ? t('common:progress.loading') : displayLabel || `${clampedValue}%`
         }
-      >
-        <div
-          className={fillClassNames}
-          style={
-            isIndeterminate
-              ? undefined
-              : {
-                  width: `${clampedValue}%`
-                }
-          }
-        />
-      </div>
+      />
     </div>
   )
 }

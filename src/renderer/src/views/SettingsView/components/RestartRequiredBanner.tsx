@@ -1,8 +1,15 @@
 import type { JSX } from 'react'
 import { useState } from 'react'
+import {
+  MessageBar,
+  MessageBarBody,
+  MessageBarActions,
+  makeStyles,
+  shorthands,
+  tokens
+} from '@fluentui/react-components'
 import { Button } from '@renderer/components/Button'
 import { useTranslation } from '@renderer/hooks/useTranslation'
-import './RestartRequiredBanner.css'
 
 interface RestartRequiredBannerProps {
   readonly settingKeys: string[]
@@ -12,6 +19,41 @@ interface RestartRequiredBannerProps {
   readonly onRestartNow: () => Promise<void>
   readonly onDismiss: () => void
 }
+
+const useStyles = makeStyles({
+  // MessageBar is a normal block element by design - it has no notion of floating itself at the
+  // viewport edge, so the fixed-to-bottom positioning stays a thin wrapper around it rather than
+  // something MessageBar itself could express.
+  wrapper: {
+    position: 'fixed',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 100
+  },
+  list: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    ...shorthands.gap(tokens.spacingHorizontalS),
+    marginTop: tokens.spacingVerticalS,
+    marginBottom: 0,
+    ...shorthands.padding(0),
+    listStyleType: 'none'
+  },
+  listButton: {
+    ...shorthands.padding('4px', '10px'),
+    backgroundColor: tokens.colorSubtleBackground,
+    ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke2),
+    ...shorthands.borderRadius(tokens.borderRadiusCircular),
+    color: 'inherit',
+    fontSize: tokens.fontSizeBase200,
+    cursor: 'pointer',
+    ':hover': {
+      backgroundColor: tokens.colorSubtleBackgroundHover,
+      textDecorationLine: 'underline'
+    }
+  }
+})
 
 export function RestartRequiredBanner({
   settingKeys,
@@ -23,6 +65,7 @@ export function RestartRequiredBanner({
 }: RestartRequiredBannerProps): JSX.Element {
   const { t } = useTranslation(['settings', 'common'])
   const [isRestarting, setIsRestarting] = useState(false)
+  const styles = useStyles()
 
   const handleRestart = async (): Promise<void> => {
     setIsRestarting(true)
@@ -34,19 +77,18 @@ export function RestartRequiredBanner({
   }
 
   return (
-    <div className="restart-required-banner">
-      <div className="restart-required-banner__content">
-        <div className="restart-required-banner__info">
-          <span className="restart-required-banner__text">
-            {t('settings:restartRequiredBanner.message', {
-              defaultValue: 'Some changes need a restart to take effect'
-            })}
-          </span>
-          <ul className="restart-required-banner__list">
+    <div className={styles.wrapper}>
+      <MessageBar intent="warning" layout="multiline">
+        <MessageBarBody>
+          {t('settings:restartRequiredBanner.message', {
+            defaultValue: 'Some changes need a restart to take effect'
+          })}
+          <ul className={styles.list}>
             {settingKeys.map((key) => (
               <li key={key}>
                 <button
-                  className="restart-required-banner__list-btn"
+                  type="button"
+                  className={styles.listButton}
                   onClick={() => onScrollToSection(getSettingSection(key))}
                 >
                   {getSettingLabel(key)}
@@ -54,16 +96,16 @@ export function RestartRequiredBanner({
               </li>
             ))}
           </ul>
-        </div>
-        <div className="restart-required-banner__actions">
+        </MessageBarBody>
+        <MessageBarActions>
           <Button variant="secondary" size="small" onClick={onDismiss} disabled={isRestarting}>
             {t('settings:restartRequiredBanner.dismissButton', { defaultValue: 'Maybe Later' })}
           </Button>
           <Button variant="primary" size="small" onClick={handleRestart} loading={isRestarting}>
             {t('settings:restartRequiredBanner.restartButton', { defaultValue: 'Restart Now' })}
           </Button>
-        </div>
-      </div>
+        </MessageBarActions>
+      </MessageBar>
     </div>
   )
 }

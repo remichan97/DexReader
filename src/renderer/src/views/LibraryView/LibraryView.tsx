@@ -1,6 +1,8 @@
 import type { JSX } from 'react'
 import { useState, useEffect, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { Button as FluentButton, ToggleButton } from '@fluentui/react-components'
+import { originFrom } from '@renderer/utils/navigationOrigin'
 import type { MangaWithMetadataContract } from '../../../../preload/window.types'
 import { Tabs, TabList, Tab, TabPanel } from '@renderer/components/Tabs'
 import { SearchBar } from '@renderer/components/SearchBar'
@@ -41,6 +43,7 @@ import { useTranslation } from '@renderer/hooks/useTranslation'
 export function LibraryView(): JSX.Element {
   const { t } = useTranslation(['library', 'common'])
   const navigate = useNavigate()
+  const location = useLocation()
   const [searchQuery, setSearchQuery] = useState('')
   const [showSearchHelp, setShowSearchHelp] = useState(false)
 
@@ -70,15 +73,11 @@ export function LibraryView(): JSX.Element {
   const {
     editingCollection,
     isSubmittingEdit,
-    contextMenuCollection,
-    contextMenuPosition,
     collectionMangaMap,
     selectedMangaForCollection,
     pickerDialogOpen,
     createDialogOpen,
     setEditingCollection,
-    setContextMenuCollection,
-    setContextMenuPosition,
     setSelectedMangaForCollection,
     setPickerDialogOpen,
     setCreateDialogOpen,
@@ -151,7 +150,7 @@ export function LibraryView(): JSX.Element {
   }
 
   const handleMangaClick = (id: string): void => {
-    navigate(`/browse/${id}`)
+    navigate(`/browse/${id}`, { state: originFrom(location) })
   }
 
   const handleRemoveFromLibrary = async (id: string): Promise<void> => {
@@ -242,48 +241,44 @@ export function LibraryView(): JSX.Element {
               value={searchQuery}
               onChange={handleSearch}
               placeholder={t('library:searchPlaceholder')}
-            />
-            <div className="library-view__search-actions">
-              {/* Download Toggle Button */}
-              <button
-                type="button"
-                className={`library-view__search-button ${
-                  includeDownloaded ? 'library-view__search-button--active' : ''
-                }`}
-                onClick={() => setIncludeDownloaded(!includeDownloaded)}
-                aria-label={
-                  includeDownloaded
-                    ? t('library:downloadToggle.hideDownloaded')
-                    : t('library:downloadToggle.includeDownloaded')
-                }
-                aria-pressed={includeDownloaded}
-                title={
-                  includeDownloaded && downloadedCount > 0
-                    ? t('library:downloadToggle.showing', {
-                        count: downloadedCount,
-                        s: downloadedCount === 1 ? '' : 's'
-                      })
-                    : t('library:downloadToggle.includeDownloaded')
-                }
-              >
-                <span className="library-view__search-button-icon">
-                  {includeDownloaded ? <ArrowDownload20Filled /> : <ArrowDownload20Regular />}
-                </span>
-              </button>
+              actions={
+                <>
+                  {/* Download Toggle Button */}
+                  <ToggleButton
+                    appearance="transparent"
+                    size="small"
+                    checked={includeDownloaded}
+                    onClick={() => setIncludeDownloaded(!includeDownloaded)}
+                    icon={
+                      includeDownloaded ? <ArrowDownload20Filled /> : <ArrowDownload20Regular />
+                    }
+                    aria-label={
+                      includeDownloaded
+                        ? t('library:downloadToggle.hideDownloaded')
+                        : t('library:downloadToggle.includeDownloaded')
+                    }
+                    title={
+                      includeDownloaded && downloadedCount > 0
+                        ? t('library:downloadToggle.showing', {
+                            count: downloadedCount,
+                            s: downloadedCount === 1 ? '' : 's'
+                          })
+                        : t('library:downloadToggle.includeDownloaded')
+                    }
+                  />
 
-              {/* Search Help Button */}
-              <button
-                type="button"
-                className="library-view__search-button"
-                onClick={() => setShowSearchHelp(!showSearchHelp)}
-                aria-label={t('library:searchHelpButton')}
-                title={t('library:searchHelpButton')}
-              >
-                <span className="library-view__search-button-icon">
-                  <Info20Regular />
-                </span>
-              </button>
-            </div>
+                  {/* Search Help Button */}
+                  <FluentButton
+                    appearance="transparent"
+                    size="small"
+                    onClick={() => setShowSearchHelp(!showSearchHelp)}
+                    icon={<Info20Regular />}
+                    aria-label={t('library:searchHelpButton')}
+                    title={t('library:searchHelpButton')}
+                  />
+                </>
+              }
+            />
           </div>
         </div>
 
@@ -390,41 +385,26 @@ export function LibraryView(): JSX.Element {
                   </Badge>
                 </Tab>
                 {collections.map((collection) => (
-                  <Tab
-                    key={collection.id}
-                    value={String(collection.id)}
-                    onContextMenu={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      setContextMenuCollection(collection)
-                      setContextMenuPosition({ top: e.clientY, left: e.clientX })
-                    }}
-                  >
-                    {collection.name}{' '}
-                    <Badge variant="default" size="small">
-                      {collectionMangaMap[collection.id]?.length || 0}
-                    </Badge>
-                  </Tab>
+                  // Tab and its overflow menu are siblings, not nested - Tab renders as a
+                  // real <button>, which can't contain another interactive button. Grouped
+                  // in a wrapper (rather than a bare Fragment) so the menu button can reveal
+                  // on hover/focus of the pair - see .library-view__collection-tab in
+                  // LibraryView.css.
+                  <div key={collection.id} className="library-view__collection-tab">
+                    <Tab value={String(collection.id)}>
+                      {collection.name}{' '}
+                      <Badge variant="default" size="small">
+                        {collectionMangaMap[collection.id]?.length || 0}
+                      </Badge>
+                    </Tab>
+                    <CollectionContextMenu
+                      collectionName={collection.name}
+                      onEdit={() => handleEditCollection(collection)}
+                      onDelete={() => void handleDeleteCollection(collection.id, collection.name)}
+                    />
+                  </div>
                 ))}
               </TabList>
-
-              {/* Context Menu Portal */}
-              {contextMenuCollection && contextMenuPosition && (
-                <CollectionContextMenu
-                  position={contextMenuPosition}
-                  onEdit={() => handleEditCollection(contextMenuCollection)}
-                  onDelete={() =>
-                    void handleDeleteCollection(
-                      contextMenuCollection.id,
-                      contextMenuCollection.name
-                    )
-                  }
-                  onClose={() => {
-                    setContextMenuCollection(null)
-                    setContextMenuPosition(null)
-                  }}
-                />
-              )}
 
               <TabPanel value="all">
                 {filteredManga.length === 0 ? (
@@ -446,6 +426,7 @@ export function LibraryView(): JSX.Element {
                     onClick={handleMangaClick}
                     onAddToCollection={handleAddToCollection}
                     onAddToLibrary={handleAddToLibrary}
+                    hasCollections={hasCollections}
                   />
                 )}
               </TabPanel>
@@ -476,6 +457,7 @@ export function LibraryView(): JSX.Element {
                         onClick={handleMangaClick}
                         onAddToCollection={handleAddToCollection}
                         onAddToLibrary={handleAddToLibrary}
+                        hasCollections={hasCollections}
                       />
                     )}
                   </TabPanel>
@@ -504,6 +486,7 @@ export function LibraryView(): JSX.Element {
                   onClick={handleMangaClick}
                   onAddToCollection={handleAddToCollection}
                   onAddToLibrary={handleAddToLibrary}
+                  hasCollections={hasCollections}
                 />
               )}
             </>

@@ -49,7 +49,7 @@
 | **@testing-library/react** | 16.3.2  | Renderer hook/component testing (`renderHook`, `render`)                                                       |
 | **happy-dom**              | 20.10.6 | DOM environment for the renderer test project                                                                  |
 
-Tests are colocated with the source they cover (`foo.ts` next to `foo.test.ts`). As of the v1.15.0 test-coverage effort, the suite has ~1412 tests across the main process, preload bridge, all 10 Zustand stores, and renderer hooks. Coverage thresholds (`vitest.config.ts`):
+Tests are colocated with the source they cover (`foo.ts` next to `foo.test.ts`). As of the v1.15.0 test-coverage effort, the suite grew to ~1412 tests across the main process, preload bridge, all 10 Zustand stores, and renderer hooks; it is ~1486 as of v1.16.0 (adds the settings validator/migration, a few renderer components and utils). Coverage thresholds (`vitest.config.ts`):
 
 | Area                         | Statements | Branches | Functions | Lines |
 | ---------------------------- | ---------- | -------- | --------- | ----- |
@@ -78,7 +78,9 @@ The renderer views/components tier is intentionally left without unit tests or a
 
 **UI Components**:
 
-- `@fluentui/react-icons@2.0.315` - Microsoft Fluent UI icon library
+- `@fluentui/react-components@9.74.9` - Fluent 2 component library; the shared components in `src/renderer/src/components` are thin wrappers over it (since v1.16.0). Styled with Griffel's `makeStyles`/`tokens`; runtime style tags carry the CSP nonce via `RendererProvider`, so no `unsafe-inline`
+- `@fluentui/react-icons@2.0.316` - Microsoft Fluent UI icon library
+- `country-flag-icons@1.6.20` - Country flag SVGs, imported per flag (`utils/languageFlags.ts`) so only the mapped ones are bundled; emoji flags don't render on Windows
 - `react-router-dom@7.18.3` - Client-side routing (migrated from v6 in September 2026)
 
 **Internationalisation**:

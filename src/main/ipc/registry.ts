@@ -23,6 +23,7 @@ import { registerGatekeeperHandlers } from './handlers/gatekeeper.handler'
 import { registerShellHandlers } from './handlers/shell.handler'
 import { registerMenuStateHandler } from './handlers/menu.handler'
 import { registerDatabaseSnapshotHandlers } from './handlers/database-snapshots.handler'
+import { registerSecurityHandlers } from './handlers/security.handler'
 
 /**
  * Register all IPC handlers
@@ -51,6 +52,7 @@ export function registerAllHandlers(imageProxy?: ImageProxy): void {
   registerHistoryHandler()
   registerShellHandlers()
   registerMenuStateHandler()
+  registerSecurityHandlers()
 
   // File system handlers need window for dialogs
   // Get window reference when handlers are actually called

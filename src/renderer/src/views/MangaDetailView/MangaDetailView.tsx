@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
+import { getOrigin } from '@renderer/utils/navigationOrigin'
 import { ArrowLeftRegular, Warning48Regular, CloudOff48Regular } from '@fluentui/react-icons'
 import { Button } from '@renderer/components/Button'
 import { Skeleton } from '@renderer/components/Skeleton'
@@ -31,6 +32,8 @@ export function MangaDetailView(): JSX.Element {
   const { mangaId } = useParams<{ mangaId: string }>()
   const navigate = useNavigate()
   const location = useLocation()
+  // Route that opened this page (Browse, Library, Downloads, ...); Back returns there
+  const origin = getOrigin(location.state)
   const { t } = useTranslation(['mangaDetail', 'common'])
   const isOnline = useConnectivityStore((state) => state.isOnline)
 
@@ -65,7 +68,7 @@ export function MangaDetailView(): JSX.Element {
   }, [data.manga, data.loading, mangaId, t]) // Include mangaId to force update on navigation
 
   const handleBackClick = (): void => {
-    navigate('/browse')
+    navigate(origin ?? '/browse')
   }
 
   // Render loading state
@@ -198,7 +201,12 @@ export function MangaDetailView(): JSX.Element {
       )}
 
       {/* Hero section - Cover + Metadata */}
-      <MangaHeroSection manga={data.manga} chapters={data.chapters} progress={progress} />
+      <MangaHeroSection
+        manga={data.manga}
+        chapters={data.chapters}
+        progress={progress}
+        origin={origin}
+      />
 
       {/* Description section */}
       <DescriptionSection manga={data.manga} />
@@ -212,6 +220,7 @@ export function MangaDetailView(): JSX.Element {
       {/* Chapter list */}
       <ChapterList
         mangaId={mangaId}
+        origin={origin}
         manga={data.manga}
         chapters={data.chapters}
         selectedLanguage={data.selectedLanguage}

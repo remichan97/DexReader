@@ -38,12 +38,11 @@ export function PresetSelector({
     }))
   ]
 
-  const handleChange = (value: string | string[]): void => {
-    const val = Array.isArray(value) ? value[0] : value
-    if (val === '') {
+  const handleChange = (value: string): void => {
+    if (value === '') {
       onSelect(null)
     } else {
-      onSelect(Number(val))
+      onSelect(Number(value))
     }
   }
 

@@ -155,7 +155,8 @@ export function Sidebar({ onNavigate }: SidebarProps = {}): JSX.Element {
     }
 
     updateIndicator()
-  }, [location.pathname])
+    // displayMode changes the item heights (72px full, 60px compact), which moves the active item
+  }, [location.pathname, displayMode])
 
   return (
     <nav
@@ -200,7 +201,13 @@ export function Sidebar({ onNavigate }: SidebarProps = {}): JSX.Element {
         // Wrap in Tooltip for compact mode (labels hidden, shown on hover)
         if (displayMode === 'compact') {
           return (
-            <Tooltip key={item.id} content={label} position="right" delay={300}>
+            <Tooltip
+              key={item.id}
+              content={label}
+              position="right"
+              delay={300}
+              relationship="label"
+            >
               {itemContent}
             </Tooltip>
           )

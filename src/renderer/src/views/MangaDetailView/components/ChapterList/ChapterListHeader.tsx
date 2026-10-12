@@ -3,6 +3,7 @@ import { Button } from '@renderer/components/Button'
 import { Select } from '@renderer/components/Select'
 import { ArrowDownload20Regular } from '@fluentui/react-icons'
 import { getLanguageName } from '@renderer/constants/language-list.constant'
+import { LanguageFlag } from '@renderer/components/LanguageBadge'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 
 interface ChapterListHeaderProps {
@@ -80,7 +81,8 @@ export function ChapterListHeader({
             onChange={(val) => onLanguageChange(val as string)}
             options={availableLanguages.map((lang) => ({
               value: lang,
-              label: `${getLanguageName(lang)} (${lang.toUpperCase()})`
+              label: `${getLanguageName(lang)} (${lang.toUpperCase()})`,
+              icon: <LanguageFlag code={lang} />
             }))}
             aria-label={t('mangaDetail:chapters.selectLanguage', {
               defaultValue: 'Select chapter language'

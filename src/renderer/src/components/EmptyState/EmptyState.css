@@ -11,11 +11,18 @@
 
 /* Icon */
 .empty-state__icon {
-  font-size: 48px;
+  font-size: 96px;
   color: var(--win-text-tertiary);
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Fluent icons carry fixed width/height attributes (24 or 48 depending on the variant a view
+   passes), which ignore font-size - size the SVG itself so every state's icon matches. */
+.empty-state__icon svg {
+  width: 1em;
+  height: 1em;
 }
 
 .empty-state--default .empty-state__icon {

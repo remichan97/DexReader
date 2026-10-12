@@ -1,5 +1,4 @@
 import type { JSX } from 'react'
-import { useState } from 'react'
 import { SettingsSectionMenu } from './SettingsSectionMenu'
 import './SettingsHeader.css'
 
@@ -23,14 +22,7 @@ export function SettingsHeader({
   sections,
   onSectionSelect
 }: Readonly<SettingsHeaderProps>): JSX.Element {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-
   const currentSectionLabel = sections.find((s) => s.id === currentSection)?.label
-
-  const handleSectionSelect = (id: string): void => {
-    onSectionSelect(id)
-    setIsMenuOpen(false)
-  }
 
   return (
     <header className="settings-header">
@@ -38,9 +30,7 @@ export function SettingsHeader({
         currentSection={currentSection}
         currentSectionLabel={currentSectionLabel}
         sections={sections}
-        isOpen={isMenuOpen}
-        onOpenChange={setIsMenuOpen}
-        onSectionSelect={handleSectionSelect}
+        onSectionSelect={onSectionSelect}
       />
     </header>
   )

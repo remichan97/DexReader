@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import './FilterChip.css'
+import { Tag } from '@fluentui/react-components'
 
 export interface FilterChipProps {
   /** Filter label (e.g., "Status", "Tag") */
@@ -26,9 +26,8 @@ export interface FilterChipProps {
  */
 export function FilterChip({ label, value, className = '' }: FilterChipProps): JSX.Element {
   return (
-    <div className={`filter-chip ${className}`}>
-      <span className="filter-chip__label">{label}:</span>
-      <span className="filter-chip__value">{value}</span>
-    </div>
+    <Tag appearance="outline" shape="rounded" disabled className={className}>
+      {label}: {value}
+    </Tag>
   )
 }

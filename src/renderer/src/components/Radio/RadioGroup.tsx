@@ -1,6 +1,5 @@
-import React from 'react'
+import { RadioGroup as FluentRadioGroup } from '@fluentui/react-components'
 import { BaseComponentProps } from '@renderer/types/components'
-import type { RadioProps } from './Radio'
 
 export interface RadioGroupProps extends BaseComponentProps {
   /**
@@ -58,26 +57,18 @@ export function RadioGroup({
   orientation = 'vertical',
   className = ''
 }: Readonly<RadioGroupProps>): React.JSX.Element {
-  const groupClasses = ['radio-group', `radio-group--${orientation}`, className]
-    .filter(Boolean)
-    .join(' ')
-
   return (
-    <div className={groupClasses} role="radiogroup" aria-label={label}>
+    <div className={className}>
       {label && <div className="radio-group__label">{label}</div>}
-      <div className="radio-group__options">
-        {React.Children.map(children, (child) => {
-          if (React.isValidElement<RadioProps>(child)) {
-            // Clone Radio children with automatic props
-            return React.cloneElement(child, {
-              name,
-              checked: child.props.value === value,
-              onChange
-            } as Partial<RadioProps>)
-          }
-          return child
-        })}
-      </div>
+      <FluentRadioGroup
+        name={name}
+        value={value}
+        onChange={(_ev, data) => onChange(data.value)}
+        layout={orientation === 'horizontal' ? 'horizontal' : 'vertical'}
+        aria-label={label}
+      >
+        {children}
+      </FluentRadioGroup>
     </div>
   )
 }
