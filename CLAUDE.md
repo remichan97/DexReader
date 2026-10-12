@@ -54,7 +54,7 @@ Three-process Electron model. All cross-process communication goes through a sin
 Renderer (React/Zustand) → Preload (contextBridge) → Main (Node.js/SQLite/MangaDex API)
 ```
 
-- **Renderer**: `src/renderer/src/` — React 19, React Router v6, Zustand 5 stores, `window.api.*` calls only
+- **Renderer**: `src/renderer/src/` — React 19, React Router v7, Fluent 2 (`@fluentui/react-components`), Zustand 5 stores, `window.api.*` calls only
 - **Preload**: `src/preload/` — exposes typed `window.api.*` surface via `contextBridge`; all channels return `IpcResponse<T>` (defined in `src/preload/ipc.types.ts`)
 - **Main**: `src/main/` — IPC handlers, SQLite database, MangaDex API client, filesystem security, settings
 - **Shared**: `src/shared/` — a fourth source root, importable from both main and renderer: enums, contracts/DTOs, command types, and utilities that must stay identical on both sides of the IPC boundary
@@ -127,6 +127,7 @@ Zustand 5 stores in `src/renderer/src/stores/`. Stores are ephemeral (rehydrated
 - Log with `rendererLog`
 - Shared interfaces/types/utils go in `src/renderer/src/interfaces`, `types`, or `utils` — not colocated in components unless self-contained
 - All destructive actions (delete, reset) must trigger a native Electron dialog via IPC before proceeding
+- Shared UI components (`src/renderer/src/components`) are thin wrappers over Fluent 2: keep a wrapper's public props stable, style with `makeStyles`/`tokens`, and check visual changes in the running app. Show languages with `LanguageBadge`/`LanguageFlag` (bundled flags), not emoji
 
 **Preload** (`src/preload/**`):
 

@@ -83,17 +83,17 @@ npm run build:linux
 
 ## Tech Stack
 
-- **Framework**: [Electron](https://www.electronjs.org/) 41.9.0
+- **Framework**: [Electron](https://www.electronjs.org/) 43.7.5
 - **Frontend**: [React](https://react.dev/) 19 + TypeScript 5.9.2
 - **Build Tool**: [electron-vite](https://electron-vite.org/)
 - **Database**: [Drizzle ORM](https://orm.drizzle.team/) + SQLite
 - **State Management**: [Zustand](https://zustand-demo.pmnd.rs/)
-- **Styling**: CSS Modules with Windows 11 design tokens
+- **UI**: [Fluent 2](https://react.fluentui.dev/) (`@fluentui/react-components`) with a custom DexReader theme that follows the accent colour and light/dark mode, plus Windows 11 design tokens for layout CSS
 - **API**: [MangaDex API](https://api.mangadex.org/docs/)
 
 ## Project Status
 
-**Current Version**: 1.12.0 (June 29, 2026) 🚀
+**Current Version**: 1.16.0 (October 12, 2026) 🚀
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed release notes and development history.
 

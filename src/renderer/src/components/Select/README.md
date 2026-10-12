@@ -1,16 +1,17 @@
 # Select Component
 
-A customizable dropdown select component with keyboard navigation and optional search, following Windows 11 Fluent Design principles.
+A single-value select built on Fluent 2's `Field` + `Dropdown` (`@fluentui/react-components`).
 
 ## Features
 
-- **Keyboard Navigation**: Arrow keys, Enter, Escape, Home, End
-- **Search/Filter**: Optional search functionality
-- **Multi-Select**: Support for selecting multiple options
-- **Click Outside**: Auto-close when clicking outside
+- **Keyboard Navigation**: Arrow keys, Home/End, type-to-find, Enter, Escape — all from Fluent
+- **Positioning**: Opens below, flips above near the bottom edge; dismisses on outside click or Escape
 - **Disabled Options**: Individual option disabling
-- **Accessibility**: Full ARIA support and keyboard navigation
-- **Windows 11 Design**: Native styling with smooth animations
+- **Option icons**: Optional decorative `icon` per option (shown in the list, e.g. a flag)
+- **Sizing**: Shrinks to its content inside toolbars and headers, fills its container elsewhere. The popup is as wide as its longest option, never narrower than the trigger
+- **Accessibility**: Full ARIA support from Fluent
+
+Fluent's `Dropdown` has a built-in `min-width` of 250px; `Select` removes it so it can sit in a flex row without squeezing its neighbours.
 
 ## Usage
 
@@ -24,8 +25,7 @@ function MyComponent() {
   const options: SelectOption[] = [
     { value: 'us', label: 'United States' },
     { value: 'uk', label: 'United Kingdom' },
-    { value: 'ca', label: 'Canada' },
-    { value: 'au', label: 'Australia' }
+    { value: 'ca', label: 'Canada' }
   ]
 
   return (
@@ -42,21 +42,17 @@ function MyComponent() {
 
 ## Props
 
-| Prop           | Type                 | Default              | Description                   |
-| -------------- | -------------------- | -------------------- | ----------------------------- |
-| `value`        | `string \| string[]` | -                    | Current selected value(s)     |
-| `onChange`     | `(value) => void`    | -                    | Change handler                |
-| `options`      | `SelectOption[]`     | -                    | Available options             |
-| `label`        | `string`             | -                    | Label text                    |
-| `placeholder`  | `string`             | `'Select an option'` | Placeholder when no selection |
-| `helperText`   | `string`             | -                    | Helper text below the select  |
-| `error`        | `string`             | -                    | Error message                 |
-| `multiple`     | `boolean`            | `false`              | Enable multi-select mode      |
-| `searchable`   | `boolean`            | `false`              | Enable search/filter          |
-| `emptyMessage` | `string`             | `'No options found'` | Empty state message           |
-| `disabled`     | `boolean`            | `false`              | Disabled state                |
-| `className`    | `string`             | `''`                 | Additional CSS class          |
-| `aria-label`   | `string`             | -                    | Accessibility label           |
+| Prop          | Type                      | Default | Description                   |
+| ------------- | ------------------------- | ------- | ----------------------------- |
+| `value`       | `string`                  | -       | Current selected value        |
+| `onChange`    | `(value: string) => void` | -       | Change handler                |
+| `options`     | `SelectOption[]`          | -       | Available options             |
+| `label`       | `string`                  | -       | Label text                    |
+| `placeholder` | `string`                  | -       | Placeholder when no selection |
+| `helperText`  | `string`                  | -       | Helper text below the select  |
+| `disabled`    | `boolean`                 | `false` | Disabled state                |
+| `className`   | `string`                  | -       | Class applied to the `Field`  |
+| `aria-label`  | `string`                  | -       | Accessibility label           |
 
 ### SelectOption Interface
 
@@ -65,118 +61,42 @@ interface SelectOption {
   value: string
   label: string
   disabled?: boolean
+  icon?: ReactNode // decorative, shown before the label in the option list
 }
 ```
 
+## Not supported
+
+`multiple`, `searchable`, `error` and `emptyMessage` existed on the hand-rolled version and were removed in v1.16.0 because nothing used them. If a real need appears:
+
+- **Several values**: Fluent's `Dropdown` has a `multiselect` prop (the list stays open while you tick items)
+- **Searching**: use Fluent's `Combobox`, or `TagPicker` (see `components/TagPicker`) when picks should show as chips
+
 ## Examples
 
-### Basic Select
+### With a flag per option
 
 ```tsx
 <Select
-  label="Fruit"
-  value={fruit}
-  onChange={setFruit}
+  value={language}
+  onChange={setLanguage}
+  options={languages.map((code) => ({
+    value: code,
+    label: getLanguageName(code),
+    icon: <LanguageFlag code={code} />
+  }))}
+/>
+```
+
+### Disabled option
+
+```tsx
+<Select
+  value={plan}
+  onChange={setPlan}
   options={[
-    { value: 'apple', label: 'Apple' },
-    { value: 'banana', label: 'Banana' },
-    { value: 'orange', label: 'Orange' }
+    { value: 'free', label: 'Free' },
+    { value: 'pro', label: 'Pro (coming soon)', disabled: true }
   ]}
 />
 ```
-
-### Searchable Select
-
-```tsx
-<Select
-  label="Country"
-  value={country}
-  onChange={setCountry}
-  options={countries}
-  searchable
-  placeholder="Search countries..."
-/>
-```
-
-### Multi-Select
-
-```tsx
-<Select
-  label="Languages"
-  value={languages}
-  onChange={setLanguages}
-  options={[
-    { value: 'js', label: 'JavaScript' },
-    { value: 'ts', label: 'TypeScript' },
-    { value: 'py', label: 'Python' },
-    { value: 'go', label: 'Go' }
-  ]}
-  multiple
-  placeholder="Select languages"
-/>
-```
-
-### With Disabled Options
-
-```tsx
-<Select
-  label="Status"
-  value={status}
-  onChange={setStatus}
-  options={[
-    { value: 'active', label: 'Active' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'archived', label: 'Archived', disabled: true }
-  ]}
-/>
-```
-
-### With Helper Text and Error
-
-```tsx
-<Select
-  label="Priority"
-  value={priority}
-  onChange={setPriority}
-  options={priorities}
-  helperText="Select the task priority level"
-  error={!priority ? 'Priority is required' : undefined}
-/>
-```
-
-## Accessibility
-
-- Uses `role="listbox"` and `role="option"`
-- Keyboard navigation with Arrow keys
-- Enter/Space to select
-- Escape to close
-- Home/End to jump to first/last option
-- Proper ARIA labels and states
-- Focus management
-- Screen reader announcements
-
-## Keyboard Shortcuts
-
-- **Enter / Space**: Open dropdown or select focused option
-- **Escape**: Close dropdown
-- **Arrow Down**: Open dropdown or move focus down
-- **Arrow Up**: Move focus up
-- **Home**: Jump to first option
-- **End**: Jump to last option
-- **Type to Search**: When searchable is enabled
-
-## Styling
-
-The component uses CSS custom properties from the design tokens:
-
-- `--win-bg-input`: Input background
-- `--win-border-default`: Border color
-- `--win-accent`: Accent color for focus and selection
-- `--radius-sm`: Border radius
-
-## Performance Notes
-
-- Click outside detection with cleanup
-- Smooth animations with CSS transforms
-- Virtual scrolling not needed for typical lists
-- Respects `prefers-reduced-motion` for accessibility

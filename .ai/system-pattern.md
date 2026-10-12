@@ -219,6 +219,15 @@
 
 ## Styling Architecture
 
+### UI Components: Fluent 2 wrappers (since v1.16.0)
+
+- The shared components in `src/renderer/src/components` wrap `@fluentui/react-components` and keep their own small public props, so views never import Fluent directly for things a wrapper covers. Change a wrapper's internals, not its call sites
+- The app is wrapped in `FluentProvider` with `createDexReaderThemes(accentColor)` (`src/renderer/src/theme/fluentTheme.ts`); the reader nests its own provider so a forced dark reader themes Fluent popups too
+- New styling: Griffel `makeStyles` + Fluent `tokens`. When overriding a Fluent class from plain CSS, raise specificity (Fluent's runtime-injected class otherwise wins on order)
+- Fluent ships its own size caps on popups (Dropdown min-width 250px, MenuPopover 300px, MenuItem 290px, SearchBox 468px, TagPicker list 80vh) that need overriding where a layout depends on the width
+- Always verify visual changes in the running app. Fluent components have behaviours the types don't show (e.g. `SearchBox` hides its trailing slot until focused, `TagPicker` closes after every pick, `MenuButton appearance="outline"` thickens its border when open and shifts layout)
+- Language labels: use `LanguageBadge` / `LanguageFlag` (bundled SVG flags beside the code or name), never emoji flags
+
 ### CSS Structure
 
 - `assets/base.css` - Design tokens, resets, typography

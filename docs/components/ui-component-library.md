@@ -1,16 +1,17 @@
 # UI Component Library
 
-**Version**: 1.0.0
-**Last Updated**: 1 December 2025
-**Design System**: Windows 11 Fluent Design
+**Version**: 1.16.0
+**Last Updated**: 12 October 2026
+**Design System**: Fluent 2 (`@fluentui/react-components`) with a custom DexReader theme and Windows 11 design tokens
 
-> **Overview**: DexReader's UI component library provides 17 production-ready components following Windows 11 Fluent Design principles. All components are built with TypeScript, include comprehensive accessibility features, and support Windows 11 design tokens.
+> **Overview**: DexReader's UI component library is a set of TypeScript components that wrap Fluent 2 (and, for a few, are DexReader's own). Each keeps a small, stable public prop API, so views are not coupled to Fluent directly. Fluent provides the rendering, focus handling, keyboard navigation and popup positioning; the wrappers add DexReader behaviour and defaults. See [Built on Fluent 2](#built-on-fluent-2).
 
 ---
 
 ## Table of Contents
 
 - [Getting Started](#getting-started)
+- [Built on Fluent 2](#built-on-fluent-2)
 - [Design Principles](#design-principles)
 - [Component Catalog](#component-catalog)
   - [Form Controls](#form-controls)
@@ -35,7 +36,7 @@ All components follow a consistent structure:
 ```
 ComponentName/
 ├── ComponentName.tsx      # React component with TypeScript
-├── ComponentName.css      # BEM-style CSS with design tokens
+├── ComponentName.css      # Optional: layout CSS with design tokens (Fluent-based components mostly use makeStyles instead)
 ├── index.ts              # Barrel export
 └── README.md             # Component documentation
 ```
@@ -84,6 +85,19 @@ All components use CSS custom properties from `tokens.css`:
 --transition-normal: 0.2s;
 --transition-slow: 0.3s;
 ```
+
+---
+
+## Built on Fluent 2
+
+Since v1.16.0 the shared components are thin wrappers over Fluent 2 rather than hand-rolled controls.
+
+- **Theme**: `App.tsx` wraps the app in a `FluentProvider` whose theme comes from `createDexReaderThemes(accentColor)` (`src/renderer/src/theme/fluentTheme.ts`). It regenerates Fluent's brand ramp from the current accent colour and pins the neutral colours to DexReader's Windows 11 palette, for light and dark. The reader nests its own `FluentProvider` so a forced dark reader still themes Fluent components and their portalled popups.
+- **Public props stay stable**: a wrapper maps its existing props onto the Fluent component (for example `Button`'s `variant` onto Fluent's `appearance`), so call sites don't change when the internals do. Options that nothing used were dropped (for example `Select` no longer has multi-select or search modes); add them back by using Fluent's own `multiselect` or `Combobox` if a real use appears.
+- **Styling**: new styling uses Griffel's `makeStyles` and Fluent's `tokens`. Griffel's runtime style tags carry the app's CSP nonce (`RendererProvider`), so the Content Security Policy is unchanged and needs no `unsafe-inline`.
+- **What Fluent now provides**: portal rendering, click-outside and Escape dismissal, focus trapping and restoration, arrow-key navigation and edge-aware positioning for `Modal`, `Tooltip`, `Popover`, `Select`, menus and the pickers. The wrappers no longer implement these themselves.
+- **Fluent quirks to know about**: its popups and some controls ship their own size caps (`Dropdown` min-width 250px, `MenuPopover` max-width 300px, `MenuItem` max-width 290px, `SearchBox` max-width 468px, the `TagPicker` list max-height 80vh) which wrappers override where a layout needs it. `TagPicker` closes its list after every pick unless `keepOpenOnSelect` is set. `SearchBox` collapses its trailing slot until focused, which `SearchBar` overrides.
+- **Icons and flags**: icons come from `@fluentui/react-icons`; country flags from `country-flag-icons`, imported per flag and bundled.
 
 ---
 
@@ -166,12 +180,17 @@ All components follow Microsoft's Fluent Design System:
 #### SearchBar
 
 **Purpose**: Dedicated search input with icon
-**Styling**: Matches Input component (32px height, 2px border)
-**Features**: Search icon, clear button, debounced callback
-**Focus**: Bottom border accent (no glow)
+**Built on**: Fluent `SearchBox` (icon, clear button and focus underline come from Fluent)
+**Features**: Debounced `onChange` (a clear is reported immediately), Ctrl+F to focus, Escape to clear, optional filter button with an active-filter count, and an `actions` slot for extra buttons shown inside the box
 
 ```tsx
-<SearchBar placeholder="Search manga..." onSearch={(query) => console.log(query)} debounce={300} />
+<SearchBar
+  value={query}
+  onChange={setQuery}
+  placeholder="Search manga..."
+  onFilterClick={openFilters}
+  filterCount={3}
+/>
 ```
 
 [Full Documentation](./SearchBar/README.md)
@@ -213,18 +232,36 @@ All components follow Microsoft's Fluent Design System:
 
 ---
 
-#### Dropdown (Select)
+#### Select
 
-**Purpose**: Single or multi-select from options
-**Modes**: 3 (basic, searchable, multi-select)
-**Features**: Keyboard navigation, filtering, disabled options
-**Keyboard**: Arrow keys, Enter, Escape, Home/End
+**Purpose**: Choose one value from a list
+**Built on**: Fluent `Field` + `Dropdown`
+**Features**: Keyboard navigation, disabled options, optional `icon` per option (shown in the list), shrinks to its content in toolbars and fills its container elsewhere; the popup is sized to its longest option, never narrower than the trigger
+**Props**: `value`, `onChange(value: string)`, `options`, `label`, `placeholder`, `helperText`, `disabled`
 
 ```tsx
-<Dropdown label="Language" options={languages} value={selected} onChange={setSelected} searchable />
+<Select label="Sort by" options={sortOptions} value={sort} onChange={setSort} />
 ```
 
-[Full Documentation](./Dropdown/README.md)
+[Full Documentation](./Select/README.md)
+
+---
+
+#### TagPicker
+
+**Purpose**: Searchable multi-select that shows its picks as removable chips
+**Built on**: Fluent `TagPicker`
+**Features**: Typing filters the list, optional option groups, `disabledIds` to cross-exclude from a paired picker (the Browse Include and Exclude tags), optional `icon` per option, picked options hidden from the list, and `keepOpenOnSelect` to keep the list open for picking several in a row by click or arrow keys and Enter. The list is capped at 280px so it opens below (or above) the control
+
+```tsx
+<TagPicker
+  options={options}
+  selectedIds={selected}
+  onChange={setSelected}
+  keepOpenOnSelect
+  placeholder="Search tags..."
+/>
+```
 
 ---
 
@@ -424,6 +461,19 @@ showToast({
 
 ---
 
+#### LanguageBadge
+
+**Purpose**: Show a language as a flag plus its code or full name
+**Components**: `LanguageBadge` (flag + label) and `LanguageFlag` (flag only, for use inside other controls, decorative and `aria-hidden`)
+**Features**: Bundled SVG flags (not emoji, which Windows does not draw) mapped per MangaDex language code in `utils/languageFlags.ts`; the flag is never shown without text, because variants share a flag (`ja` / `ja-ro`, `ko` / `ko-ro`, `zh` / `zh-ro`); languages with no sensible flag get a neutral globe icon
+
+```tsx
+<LanguageBadge code="es-la" />              {/* flag + ES-LA */}
+<LanguageBadge code="pt-br" label="name" /> {/* flag + Portuguese (Brazil) */}
+```
+
+---
+
 #### MangaCard
 
 **Purpose**: Display manga with cover, title, and metadata
@@ -449,6 +499,7 @@ showToast({
 
 #### Modal
 
+**Built on**: Fluent `Dialog` (actions in the `footer` prop render in a pinned `DialogActions`)
 **Purpose**: Full-screen overlay dialogs
 **Sizes**: 3 (small 400px, medium 600px, large 800px)
 **Features**: Focus trap, body scroll lock, Escape to close
@@ -538,6 +589,8 @@ Using `key={location.pathname}` triggers React's unmount/remount cycle, allowing
 ---
 
 ## Design Patterns
+
+> **Note**: The portal, click-outside, focus-management and keyboard-navigation patterns below describe how overlays used to be hand-rolled. Fluent 2 now provides all of them for `Modal`, `Tooltip`, `Popover`, `Select` and the menus, so only reach for these when building a genuinely custom overlay.
 
 ### Portal Rendering
 
@@ -818,7 +871,9 @@ When creating new components, ensure:
   "react": "^19.0.0",
   "react-dom": "^19.0.0",
   "react-router-dom": "^7.18.3",
-  "@fluentui/react-icons": "^2.0.0"
+  "@fluentui/react-components": "^9.74.9",
+  "@fluentui/react-icons": "^2.0.0",
+  "country-flag-icons": "^1.6.20"
 }
 ```
 

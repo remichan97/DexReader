@@ -16,7 +16,7 @@ DexReader follows semantic versioning (MAJOR.MINOR.PATCH) and uses an automated 
 
 Follow [Semantic Versioning 2.0.0](https://semver.org/):
 
-- **MAJOR** (1.0.0 → 2.0.0): Breaking changes, major UI overhaul
+- **MAJOR** (1.0.0 → 2.0.0): Breaking changes - data or behaviour that a normal update can't carry over, such as a format users would have to reinstall or re-import to migrate. A visual redesign or a settings-format bump that migrates itself on first launch is not a major change
 - **MINOR** (1.0.0 → 1.1.0): New features, backward compatible
 - **PATCH** (1.0.0 → 1.0.1): Bug fixes, backward compatible
 
