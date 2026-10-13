@@ -152,7 +152,7 @@ All components follow Microsoft's Fluent Design System:
 </Button>
 ```
 
-[Full Documentation](./Button/README.md)
+[Full Documentation](../../src/renderer/src/components/Button/README.md)
 
 ---
 
@@ -173,7 +173,7 @@ All components follow Microsoft's Fluent Design System:
 />
 ```
 
-[Full Documentation](./Input/README.md)
+[Full Documentation](../../src/renderer/src/components/Input/README.md)
 
 ---
 
@@ -193,7 +193,7 @@ All components follow Microsoft's Fluent Design System:
 />
 ```
 
-[Full Documentation](./SearchBar/README.md)
+[Full Documentation](../../src/renderer/src/components/SearchBar/README.md)
 
 ---
 
@@ -208,7 +208,7 @@ All components follow Microsoft's Fluent Design System:
 <Checkbox label="Remember me" checked={isChecked} onChange={setIsChecked} />
 ```
 
-[Full Documentation](./Checkbox/README.md)
+[Full Documentation](../../src/renderer/src/components/Checkbox/README.md)
 
 ---
 
@@ -228,7 +228,7 @@ All components follow Microsoft's Fluent Design System:
 />
 ```
 
-[Full Documentation](./Switch/README.md)
+[Full Documentation](../../src/renderer/src/components/Switch/README.md)
 
 ---
 
@@ -243,7 +243,7 @@ All components follow Microsoft's Fluent Design System:
 <Select label="Sort by" options={sortOptions} value={sort} onChange={setSort} />
 ```
 
-[Full Documentation](./Select/README.md)
+[Full Documentation](../../src/renderer/src/components/Select/README.md)
 
 ---
 
@@ -285,7 +285,7 @@ showToast({
 })
 ```
 
-[Full Documentation](./Toast/README.md)
+[Full Documentation](../../src/renderer/src/components/Toast/README.md)
 
 ---
 
@@ -306,7 +306,7 @@ showToast({
 />
 ```
 
-[Full Documentation](./ProgressBar/README.md)
+[Full Documentation](../../src/renderer/src/components/ProgressBar/README.md)
 
 ---
 
@@ -321,7 +321,7 @@ showToast({
 <ProgressRing size="medium" indeterminate />
 ```
 
-[Full Documentation](./ProgressRing/README.md)
+[Full Documentation](../../src/renderer/src/components/ProgressRing/README.md)
 
 ---
 
@@ -337,7 +337,7 @@ showToast({
 <Badge variant="error" dot />
 ```
 
-[Full Documentation](./Badge/README.md)
+[Full Documentation](../../src/renderer/src/components/Badge/README.md)
 
 ---
 
@@ -352,7 +352,7 @@ showToast({
 <SkeletonGrid count={6} columns={3} />
 ```
 
-[Full Documentation](./Skeleton/README.md)
+[Full Documentation](../../src/renderer/src/components/Skeleton/README.md)
 
 ---
 
@@ -387,7 +387,7 @@ showToast({
 - ArrowDownload24Regular/Filled
 - Settings24Regular/Filled
 
-[Full Documentation](./Sidebar/README.md)
+[Full Documentation](../../src/renderer/src/components/Sidebar/README.md)
 
 ---
 
@@ -409,7 +409,7 @@ showToast({
 </Tabs>
 ```
 
-[Full Documentation](./Tabs/README.md)
+[Full Documentation](../../src/renderer/src/components/Tabs/README.md)
 
 ---
 
@@ -436,7 +436,7 @@ showToast({
 </List>
 ```
 
-[Full Documentation](./ListItem/README.md)
+[Full Documentation](../../src/renderer/src/components/ListItem/README.md)
 
 ---
 
@@ -457,7 +457,7 @@ showToast({
 />
 ```
 
-[Full Documentation](./NumberSpinner/README.md)
+[Full Documentation](../../src/renderer/src/components/NumberSpinner/README.md)
 
 ---
 
@@ -491,7 +491,7 @@ showToast({
 />
 ```
 
-[Full Documentation](./MangaCard/README.md)
+[Full Documentation](../../src/renderer/src/components/MangaCard/README.md)
 
 ---
 
@@ -511,7 +511,7 @@ showToast({
 </Modal>
 ```
 
-[Full Documentation](./Modal/README.md)
+[Full Documentation](../../src/renderer/src/components/Modal/README.md)
 
 ---
 
@@ -528,7 +528,7 @@ showToast({
 </Tooltip>
 ```
 
-[Full Documentation](./Tooltip/README.md)
+[Full Documentation](../../src/renderer/src/components/Tooltip/README.md)
 
 ---
 
@@ -554,7 +554,7 @@ showToast({
 </Popover>
 ```
 
-[Full Documentation](./Popover/README.md)
+[Full Documentation](../../src/renderer/src/components/Popover/README.md)
 
 ---
 
@@ -584,7 +584,7 @@ function App() {
 **Why Key-Based?**
 Using `key={location.pathname}` triggers React's unmount/remount cycle, allowing CSS animations to play naturally without double-rendering flash.
 
-[Full Documentation](./ViewTransition/README.md)
+[Full Documentation](../../src/renderer/src/components/ViewTransition/README.md)
 
 ---
 

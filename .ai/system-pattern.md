@@ -201,7 +201,7 @@
 
 ## IPC Communication Pattern
 
-**Documentation**: [ipc-messaging.md](../../docs/architecture/ipc-messaging.md)
+**Documentation**: [ipc-messaging.md](../docs/architecture/ipc-messaging.md)
 
 ### Channel Naming Convention
 

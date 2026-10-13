@@ -34,17 +34,17 @@ System architecture, navigation patterns, and layout specifications.
 ### 📚 API & Integration
 
 - **[api-reference.md](./api-reference.md)** - 📡 **Complete IPC API reference** with 90+ handlers across 14 categories, type definitions, error handling patterns, and usage examples
-  library and UI patterns.
 
-- **ui-component-library.md** - 📚 **Complete component catalog** with 17 production-ready components, usage examples, design patterns, TypeScript types
-- **ui-polish-refinements.md** - ✨ **Polish documentation** covering 9 refinements applied after user testing (focus behavior, animations, icons)
-- **loading-feedback-states.md** - Complete loading/error/empty state system (skeleton screens, progress rings/bars, spinners, error handling)
-- **utility-classes.md** - CSS utility class system for consistent styling patternsns)
-- **component-hierarchy.md** - React component tree with 20+ components, TypeScript interfaces, file structure, communication patterns
-- **component-specifications.md** - Detailed specs for AppShell, Sidebar, ViewContainer, and reusable components (MangaCard, SearchBar, Toast) with BEM CSS
-- **loading-feedback-states.md** - Complete loading/error/empty state system (skeleton screens, progress rings/bars, spinners, error handling)
+### 🎨 `/components`
 
-### � Maintainer Documentation
+UI component documentation. Per-component READMEs live beside the code in `src/renderer/src/components/<Name>/README.md`.
+
+- **ui-component-library.md** - 📚 **Component catalog** covering the shared components, usage examples, design patterns, TypeScript types
+- **ui-polish-refinements.md** - ✨ **Polish documentation** covering refinements applied after user testing (focus behaviour, animations, icons)
+- **loading-feedback-states.md** - Loading/error/empty state system (skeleton screens, progress rings/bars, spinners, error handling)
+- **utility-classes.md** - CSS utility class system for consistent styling patterns
+
+### 🔧 Maintainer Documentation
 
 - **RELEASE_PROCESS.md** - 🚀 **Release workflow and versioning** - Semantic versioning, normal releases, hotfix procedure, yank + fix strategy, pre-releases
 
