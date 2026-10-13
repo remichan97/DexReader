@@ -26,14 +26,6 @@
   text-overflow: ellipsis;
 }
 
-.import-progress-dialog__message {
-  font-size: 13px;
-  color: var(--text-tertiary);
-  text-align: center;
-  max-width: 350px;
-  line-height: 1.5;
-}
-
 .import-progress-dialog__footer {
   width: 100%;
 }

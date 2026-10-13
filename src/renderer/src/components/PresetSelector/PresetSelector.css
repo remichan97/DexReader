@@ -2,13 +2,6 @@
  * PresetSelector Styles
  */
 
-.preset-selector {
-  position: relative;
-  display: flex;
-  align-items: flex-end;
-  gap: var(--space-2);
-}
-
 .preset-selector__delete {
   padding: var(--space-2);
   background: var(--win-bg-elevated);

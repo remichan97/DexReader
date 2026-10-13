@@ -1,7 +1,3 @@
-.gatekeeper-reauth-modal {
-  max-width: 450px;
-}
-
 .gatekeeper-reauth-form {
   display: flex;
   flex-direction: column;

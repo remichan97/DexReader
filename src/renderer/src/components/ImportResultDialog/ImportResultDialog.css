@@ -6,26 +6,6 @@
 .import-result-dialog__icon {
 }
 
-.import-result-dialog__icon--success {
-  color: var(--success-color, #107c10);
-}
-
-.import-result-dialog__icon--warning {
-  color: var(--warning-color, #f7630c);
-}
-
-.import-result-dialog__icon--error {
-  color: var(--error-color, #d13438);
-}
-
-.import-result-dialog__message {
-  font-size: 14px;
-  color: var(--text-primary);
-  text-align: center;
-  max-width: 400px;
-  line-height: 1.5;
-}
-
 .import-result-dialog__stats {
   width: 100%;
 }
@@ -110,13 +90,4 @@
   font-weight: 500;
   color: var(--text-primary);
   margin-bottom: 4px;
-}
-
-.import-result-dialog__error-reason {
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-
-.import-result-dialog__footer {
-  width: 100%;
 }
