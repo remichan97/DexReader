@@ -611,53 +611,7 @@ const win = new BrowserWindow({
 
 ## Component-Specific Tokens
 
-> **Note (v1.16.0)**: The progress bar, progress ring and toast tokens below are still defined in `tokens.css` but are no longer read by anything. Those components are now Fluent 2 wrappers that take their sizes, thickness and colours from the Fluent theme (the toast sizes are `makeStyles` constants in `Toast.tsx`). The sidebar tokens are likewise unreferenced; `Sidebar` carries its own dimensions in `Sidebar.css` (80px wide). They are kept here as the original design values, and are candidates for removal from `tokens.css`.
-
-### Progress Bar
-
-```css
-:root {
-  --progress-height: 6px;
-  --progress-height-compact: 4px;
-  --progress-bg: var(--win-bg-elevated);
-  --progress-fill: var(--win-accent);
-  --progress-radius: 2px;
-}
-```
-
-### Progress Ring
-
-```css
-:root {
-  --ring-size-sm: 24px;
-  --ring-size-md: 48px;
-  --ring-size-lg: 64px;
-  --ring-thickness: 3px;
-  --ring-color: var(--win-accent);
-}
-```
-
-### Toast/Snackbar
-
-```css
-:root {
-  --toast-min-width: 320px;
-  --toast-max-width: 480px;
-  --toast-padding: var(--space-3) var(--space-4);
-  --toast-radius: var(--radius-md);
-}
-```
-
-### Sidebar
-
-```css
-:root {
-  --sidebar-width-expanded: 240px;
-  --sidebar-width-collapsed: 48px;
-  --sidebar-item-height: 48px;
-  --sidebar-transition: var(--duration-normal);
-}
-```
+> **Removed in v1.16.0**: `tokens.css` no longer defines the progress bar, progress ring, toast or sidebar tokens that used to be listed here (`--progress-*`, `--ring-*`, `--toast-*`, `--sidebar-*`). Progress, spinner and toast components are Fluent 2 wrappers that take their sizes and colours from the Fluent theme (the toast sizes are `makeStyles` constants in `Toast.tsx`), and `Sidebar` carries its own dimensions in `Sidebar.css` (80px wide). The original design values were: progress bar 6px (4px compact), progress ring 24/48/64px with a 3px stroke, toast 320-480px wide with an 8px radius, and sidebar 240px expanded / 48px collapsed.
 
 ---
 
