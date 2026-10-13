@@ -427,6 +427,12 @@ const win = new BrowserWindow({
   --ease-out: cubic-bezier(0, 0, 0.2, 1); /* Elements entering */
   --ease-in: cubic-bezier(0.4, 0, 1, 1); /* Elements exiting */
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1); /* Smooth transitions */
+  --ease-spring: cubic-bezier(
+    0.34,
+    1.56,
+    0.64,
+    1
+  ); /* Overshoot for moving indicators and entrances */
 }
 ```
 

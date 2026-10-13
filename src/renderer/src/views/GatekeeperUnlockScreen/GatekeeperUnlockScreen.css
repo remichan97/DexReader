@@ -43,7 +43,7 @@
   background: var(--win-bg-card);
   border: 1px solid var(--win-border-default);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-2xl);
+  box-shadow: var(--shadow-xl);
   animation: gatekeeper-scale-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 

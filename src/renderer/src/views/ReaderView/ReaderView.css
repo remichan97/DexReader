@@ -253,7 +253,7 @@
   height: 100%;
   cursor: pointer;
   outline: none;
-  transition: opacity 0.15s var(--spring-easing);
+  transition: opacity 0.15s var(--ease-spring);
   position: relative;
 }
 
@@ -333,7 +333,7 @@
   max-width: 100%;
   height: auto;
   border-radius: 4px;
-  box-shadow: var(--shadow-elevation-1);
+  box-shadow: var(--shadow-sm);
   user-select: none;
   -webkit-user-drag: none;
   /* GPU acceleration for smooth transforms */
@@ -341,7 +341,7 @@
   transform: translateZ(0);
   backface-visibility: hidden;
   -webkit-font-smoothing: subpixel-antialiased;
-  animation: fadeIn 0.2s var(--spring-easing);
+  animation: fadeIn 0.2s var(--ease-spring);
 }
 
 /* Fit modes */
@@ -427,7 +427,7 @@
   background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.95) 20%);
   padding: 80px 24px 32px;
   min-height: 300px;
-  animation: slideUp 0.3s var(--spring-easing);
+  animation: slideUp 0.3s var(--ease-spring);
   z-index: 100;
 }
 
@@ -566,7 +566,7 @@
   height: 100vh;
   background: #f3f3f3; /* Solid light background */
   border-left: 1px solid var(--color-border-subtle);
-  box-shadow: var(--elevation-shadow-8);
+  box-shadow: var(--shadow-lg);
   z-index: 201;
   transition: right 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
