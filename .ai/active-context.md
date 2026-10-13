@@ -41,10 +41,10 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 - **Severity**: Low
 - **Detail**: The hero's Continue button opens the last-read page even for a finished chapter; the chapter list, History and Downloads restart a finished chapter from page 1. History events don't store a page, so History looks the page up from chapter progress.
 
-### Fluent migration clean-up: remaining CSS and layout docs
+### Layout docs and global form styles still describe pre-Fluent assumptions
 
 - **Severity**: Low
-- **Detail**: Docs are brought up to date (orphaned CSS removed, READMEs and the feedback/polish/token docs rewritten). Still open: dead rules inside still-imported stylesheets (`Toast.css`, `CreateCollectionDialog.css`, `ReaderView.css` and others), unreferenced tokens in `tokens.css` (`--ring-*`, `--toast-*`, `--progress-*`, `--sidebar-*`), undefined `var(--…)` names in live CSS (`ErrorBoundary.css` app-level background is the visible one), undefined utility classes in TSX (`text-sm`, `grid-cols-2`, `bg-error-subtle` and similar), and `docs/architecture/layout-specification.md` / `docs/design/responsive-behavior-guide.md` still describe a 240px sidebar (it is 80px).
+- **Detail**: `docs/architecture/layout-specification.md` and `docs/design/responsive-behavior-guide.md` still describe a 240px sidebar (it is 80px, with full/compact/auto-hide modes). `main.css` still has global `input, textarea, select` and `button` styles that also reach Fluent's inner elements; they appear harmless but are worth reviewing. About 90 of `utilities.css`'s utility classes are unused (kept as a documented library), and a few general tokens (`--z-*`, `--gap-*`, `--focus-outline-*`, acrylic) are unreferenced.
 
 ### Large renderer chunks
 
@@ -78,8 +78,8 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 ### 13 October 2026 - Post-migration orphan clean-up ✅
 
 - **Type**: Docs + chore
-- **Summary**: Audited for leftovers after the Fluent migration. Removed 21 unimported stylesheets plus the unused electron-vite `base.css` and its two SVGs; pointed all `base.css` references at `tokens.css`; fixed broken doc links and the docs index; rewrote the stale component READMEs, `loading-feedback-states.md`, the polish history and the token doc. `utility-classes.md` was checked against `utilities.css` and matched. CSS dead-rule and undefined-variable fixes are the next step.
-- **Status**: ✅ Complete (docs); CSS follow-ups open
+- **Summary**: Audited for leftovers after the Fluent migration. Removed 21 unimported stylesheets plus the unused electron-vite `base.css` and its SVGs; removed ~130 dead selectors, 22 empty rules and unused keyframes from still-imported stylesheets; removed unused component tokens (`--progress-*`, `--ring-*`, `--toast-*`, `--sidebar-*`). Fixed ~140 `var(--…)` references to tokens that were never defined (the Gatekeeper unlock overlay was transparent; the failed-download badge, app-level error fallback, settings header and reader focus ring had no styling), mapped the undefined typography names to `--win-font-size-*`, added `--ease-spring` so the reader fade-in and end-of-chapter slide-up now run, mapped missing shadows, added the utility classes TSX already used (`grid`, `grid-cols-2`, `pt-3`, `h-screen`, `bg-error-tint`, `border-error`) and styled the MangaCard cover-error state. Rewrote the stale READMEs, `loading-feedback-states.md`, the polish history and the token doc; `utility-classes.md` is checked against `utilities.css` (190/190).
+- **Status**: ✅ Complete; visual changes need a click-through (see CHANGELOG-worthy list in the commits)
 
 ### 7 – 12 October 2026 - Fluent 2 migration + follow-ups ✅
 
