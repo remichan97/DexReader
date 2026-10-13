@@ -21,9 +21,6 @@
   line-height: 1.5;
 }
 
-.download-dialog__section {
-}
-
 .download-dialog__label {
   font-size: 13px;
   font-weight: 500;
@@ -91,9 +88,6 @@
   color: var(--win-text-secondary);
   margin: 0;
   line-height: 1.5;
-}
-
-.download-dialog__footer {
 }
 
 /* Responsive adjustments for narrow screens */

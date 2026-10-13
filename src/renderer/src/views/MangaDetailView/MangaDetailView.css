@@ -62,10 +62,6 @@
   object-fit: cover;
 }
 
-.manga-detail-view__info {
-  /* Layout handled by flex utility classes */
-}
-
 .manga-detail-view__title {
   font-size: 28px;
   font-weight: 700;
@@ -281,19 +277,11 @@
   color: var(--win-text-primary);
 }
 
-.external-links-list {
-  /* Layout handled by flex utility classes */
-}
-
 /* Alternative Titles Section */
 .manga-detail-view__alt-titles {
   padding: var(--space-4);
   background: var(--win-bg-card);
   margin-top: 1px;
-}
-
-.alt-titles-list {
-  /* Layout handled by flex utility classes */
 }
 
 .alt-title-item {
@@ -348,9 +336,6 @@
   margin-bottom: var(--space-3);
   padding-bottom: var(--space-3);
   border-bottom: 1px solid var(--win-border-default);
-}
-
-.chapter-controls {
 }
 
 .chapter-list-items {

@@ -26,11 +26,6 @@
   }
 }
 
-/* Dark theme uses default background */
-[data-theme='dark'] .gatekeeper-unlock-screen {
-  /* Uses var(--win-bg-base) from root */
-}
-
 /* Unlock Container (Card) */
 .gatekeeper-unlock-container {
   display: flex;

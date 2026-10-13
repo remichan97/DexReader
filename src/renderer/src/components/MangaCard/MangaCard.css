@@ -302,8 +302,6 @@
 }
 
 /* Metadata */
-.manga-card__metadata {
-}
 
 .manga-card__author {
   font-family: var(--win-font-family);

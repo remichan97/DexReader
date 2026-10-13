@@ -169,10 +169,6 @@
   z-index: 1;
 }
 
-/* History List */
-.history-view__list {
-}
-
 /* Reading History Card */
 .reading-history-card {
   padding: var(--space-3);

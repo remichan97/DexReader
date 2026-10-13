@@ -3,9 +3,6 @@
  * Following Windows 11 Fluent Design principles
  */
 
-.dexreader-export-dialog {
-}
-
 .dexreader-export-dialog .export-path-info {
   padding: var(--space-3);
   background: var(--win-bg-subtle);
@@ -50,9 +47,6 @@
   color: var(--win-text-secondary);
   font-size: var(--win-font-size-caption);
   line-height: 1.5;
-}
-
-.dexreader-export-dialog .export-options {
 }
 
 .dexreader-export-dialog .option-section {
