@@ -151,21 +151,6 @@
 }
 
 /* Progress Badge */
-.manga-detail-view__progress-badge {
-  position: absolute;
-  bottom: 8px;
-  left: 8px;
-  right: 8px;
-  /* Removed display: flex, align-items, gap - using utility classes */
-  padding: 6px 10px;
-  background: rgba(0, 120, 212, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 4px;
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
 
 .manga-detail-view__cover {
   position: relative;
@@ -274,10 +259,6 @@
   min-height: auto;
 }
 
-.description-toggle .button__content {
-  padding: 0;
-}
-
 .description-toggle:hover {
   background: var(--win-accent-subtle);
 }
@@ -301,17 +282,6 @@
 }
 
 .external-links-list {
-  /* Layout handled by flex utility classes */
-}
-
-/* Tags Section */
-.manga-detail-view__tags {
-  padding: var(--space-4);
-  background: var(--win-bg-card);
-  margin-top: 1px;
-}
-
-.tags-container {
   /* Layout handled by flex utility classes */
 }
 
@@ -390,23 +360,6 @@
   overflow: hidden;
 }
 
-.chapter-list-empty {
-  padding: var(--space-6) var(--space-4);
-  text-align: center;
-  color: var(--win-text-tertiary);
-  background: var(--win-bg-card);
-  /* Removed display: flex, flex-direction, align-items, gap - using utility classes */
-}
-
-.chapter-list-empty p {
-  margin: 0;
-}
-
-.chapter-list-empty-hint {
-  font-size: var(--win-font-size-caption);
-  color: var(--win-text-tertiary);
-}
-
 .chapter-list-loading {
   gap: 1px;
   background: var(--win-border-default);
@@ -475,11 +428,6 @@
   width: 100%;
   height: auto;
   min-height: auto;
-}
-
-.chapter-item .button__content {
-  width: 100%;
-  padding: 0;
 }
 
 .chapter-item__content {

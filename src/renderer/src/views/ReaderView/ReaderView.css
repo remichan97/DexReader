@@ -36,12 +36,6 @@
   min-height: 100vh;
 }
 
-.reader-view__loading-text {
-  margin-top: 16px;
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-body);
-}
-
 /* Error state */
 .reader-view__error {
   padding: 48px 24px;
@@ -122,9 +116,6 @@
   border-radius: 4px;
   overflow-x: auto;
 }
-
-/* ==================== */
-/* Reader Header        */
 /* ==================== */
 
 .reader-header {
@@ -169,20 +160,6 @@
   color: var(--color-text-secondary);
 }
 
-.reader-header__current-page {
-  color: var(--color-text-primary);
-  font-weight: var(--win-font-weight-semibold);
-}
-
-.reader-header__separator {
-  color: var(--color-text-tertiary);
-  margin: 0 2px;
-}
-
-.reader-header__total-pages {
-  color: var(--color-text-secondary);
-}
-
 /* Incognito indicator badge */
 .reader-header__incognito-badge {
   padding: 4px 10px;
@@ -199,46 +176,6 @@
   border-color: rgba(255, 255, 255, 0.12);
   color: var(--color-text-secondary);
 }
-
-/* ==================== */
-/* Zoom Controls        */
-/* ==================== */
-
-.zoom-controls {
-  padding: 4px 8px;
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 6px;
-  border: 1px solid var(--color-border-subtle);
-}
-
-.zoom-controls__fit-modes {
-  /* Removed display: flex and gap, using utility classes */
-}
-
-.zoom-controls__zoom-buttons {
-  /* Removed display: flex, align-items: center, gap: 8px - using utility classes */
-}
-
-.zoom-controls__level {
-  font-size: var(--font-size-caption);
-  color: var(--color-text-secondary);
-  min-width: 48px;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Dark mode overrides */
-.reader-view[data-theme='dark'] .zoom-controls {
-  background-color: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.12);
-}
-
-.reader-view[data-theme='dark'] .zoom-controls__level {
-  color: #b3b3b3;
-}
-
-/* ==================== */
-/* Zoom Indicator       */
 /* ==================== */
 
 .zoom-indicator {
@@ -273,9 +210,6 @@
     transform: translate(-50%, -50%) scale(1);
   }
 }
-
-/* ==================== */
-/* Page Container       */
 /* ==================== */
 
 .reader-page-container {
@@ -312,9 +246,6 @@
   font-size: var(--font-size-caption);
   color: var(--color-text-tertiary);
 }
-
-/* ==================== */
-/* Page Display         */
 /* ==================== */
 
 .reader-page {
@@ -433,9 +364,6 @@
   max-width: 100%;
   max-height: calc(100vh - 56px - 48px);
 }
-
-/* ==================== */
-/* Responsive Design    */
 /* ==================== */
 
 @media (max-width: 768px) {
@@ -479,9 +407,6 @@
     padding: 12px;
   }
 }
-
-/* ==================== */
-/* Animations           */
 /* ==================== */
 
 @keyframes fadeIn {
@@ -492,9 +417,6 @@
     opacity: 1;
   }
 }
-
-/* ==================== */
-/* End of Chapter       */
 /* ==================== */
 
 .end-of-chapter-overlay {
@@ -613,10 +535,6 @@
   background-color: rgba(255, 255, 255, 0.16);
 }
 
-/* ==================== */
-/* Chapter List Sidebar */
-/* ==================== */
-
 /* Overlay backdrop */
 .chapter-list-overlay {
   position: fixed;
@@ -677,13 +595,6 @@
   flex: 1 1 auto;
   overflow-y: auto;
   padding: 8px;
-}
-
-.chapter-list-sidebar__empty {
-  padding: 32px 16px;
-  text-align: center;
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-body);
 }
 
 /* Chapter list */
@@ -782,9 +693,6 @@
 .reader-view[data-theme='dark'] .chapter-list-sidebar__header button:active {
   background-color: rgba(255, 255, 255, 0.16);
 }
-
-/* ==================== */
-/* Vertical Scroll Mode */
 /* ==================== */
 
 .vertical-scroll-container {
@@ -811,11 +719,6 @@
   height: auto;
   object-fit: contain;
   display: block;
-}
-
-.vertical-scroll-page__loading {
-  min-height: 400px;
-  width: 100%;
 }
 
 .vertical-scroll-page__error {
@@ -846,9 +749,6 @@
     padding: 0 8px;
   }
 }
-
-/* ==================== */
-/* Accessibility        */
 /* ==================== */
 
 @media (prefers-reduced-motion: reduce) {
@@ -859,9 +759,6 @@
     transition: none;
   }
 }
-
-/* ==================== */
-/* Double Page Mode     */
 /* ==================== */
 
 .double-page-container {

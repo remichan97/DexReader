@@ -6,15 +6,6 @@
   background: var(--win-bg-base);
 }
 
-.history-view__title {
-  font-size: var(--font-size-title);
-  font-weight: var(--win-font-weight-semibold);
-  color: var(--win-text-primary);
-  margin: 0;
-  padding: var(--space-4);
-  padding-bottom: var(--space-3);
-}
-
 /* Statistics - a single slim strip, not full cards, so it doesn't compete
    with the schedule feed for vertical space */
 .history-view__stats-strip {
@@ -178,35 +169,6 @@
   z-index: 1;
 }
 
-/* Loading */
-.history-view__loading {
-  padding: var(--space-6);
-  color: var(--win-text-secondary);
-}
-
-/* Empty State */
-.history-view__empty {
-  padding: var(--space-6);
-  text-align: center;
-}
-
-.history-view__empty svg {
-  font-size: 48px;
-  color: var(--win-text-tertiary);
-}
-
-.history-view__empty h2 {
-  font-size: var(--win-font-size-subtitle);
-  font-weight: var(--win-font-weight-semibold);
-  color: var(--win-text-primary);
-  margin: 0;
-}
-
-.history-view__empty p {
-  color: var(--win-text-secondary);
-  margin: 0;
-}
-
 /* History List */
 .history-view__list {
 }
@@ -278,12 +240,6 @@
   font-weight: var(--font-weight-medium);
   border-radius: var(--radius-sm);
   white-space: nowrap;
-}
-
-.reading-history-card__meta {
-  font-size: var(--font-size-caption);
-  color: var(--win-text-tertiary);
-  margin: 0;
 }
 
 .reading-history-card__actions {
