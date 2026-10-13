@@ -1,6 +1,6 @@
 # MangaCard Component
 
-A card component for displaying manga covers in grid or list layouts following Windows 11 Fluent Design principles.
+A card for displaying manga covers in grid or list layouts. This is one of DexReader's own components (not a Fluent wrapper); it is styled by `MangaCard.css` and uses `LanguageBadge` for language flags.
 
 ## Usage
 
@@ -26,9 +26,9 @@ import { MangaCard } from '@renderer/components/MangaCard'
   status="completed"
   chaptersRead={700}
   totalChapters={700}
-  isFavorite={true}
+  isFavourite={true}
   onClick={handleMangaClick}
-  onFavorite={handleFavoriteToggle}
+  onFavourite={handleFavouriteToggle}
 />
 
 // List view
@@ -44,21 +44,27 @@ import { MangaCard } from '@renderer/components/MangaCard'
 
 ## Props
 
-| Prop            | Type                                   | Default      | Description              |
-| --------------- | -------------------------------------- | ------------ | ------------------------ |
-| `id`            | `string`                               | **required** | Unique manga identifier  |
-| `coverUrl`      | `string`                               | **required** | Cover image URL          |
-| `title`         | `string`                               | **required** | Manga title              |
-| `author`        | `string`                               | `undefined`  | Manga author             |
-| `status`        | `'ongoing' \| 'completed' \| 'hiatus'` | `undefined`  | Publication status       |
-| `chaptersRead`  | `number`                               | `undefined`  | Number of chapters read  |
-| `totalChapters` | `number`                               | `undefined`  | Total number of chapters |
-| `variant`       | `'grid' \| 'list'`                     | `'grid'`     | Display layout variant   |
-| `isFavorite`    | `boolean`                              | `false`      | Is manga favorited       |
-| `onClick`       | `(id: string) => void`                 | `undefined`  | Card click handler       |
-| `onFavorite`    | `(id: string) => void`                 | `undefined`  | Favorite button handler  |
-| `className`     | `string`                               | `''`         | Additional CSS class     |
-| `aria-label`    | `string`                               | `undefined`  | Accessible label         |
+| Prop                 | Type                   | Default      | Description                                                            |
+| -------------------- | ---------------------- | ------------ | ---------------------------------------------------------------------- | ---------------------- | ----------- | ------------------ |
+| `id`                 | `string`               | **required** | Unique manga identifier                                                |
+| `coverUrl`           | `string`               | **required** | Cover image URL (use the `mangadex://` or `local-manga://` protocols)  |
+| `title`              | `string`               | **required** | Manga title                                                            |
+| `author`             | `string`               | `undefined`  | Manga author                                                           |
+| `status`             | `'ongoing'             | 'completed'  | 'hiatus'                                                               | 'cancelled'`           | `undefined` | Publication status |
+| `languages`          | `string[]`             | `undefined`  | Available languages; the first three show as flags, then `+N`          |
+| `chaptersRead`       | `number`               | `undefined`  | Number of chapters read                                                |
+| `totalChapters`      | `number`               | `undefined`  | Total number of chapters                                               |
+| `variant`            | `'grid'                | 'list'`      | `'grid'`                                                               | Display layout variant |
+| `isFavourite`        | `boolean`              | `false`      | Is manga favourited                                                    |
+| `showFavouriteBadge` | `boolean`              | `true`       | Show the heart badge on a favourited cover                             |
+| `showDownloadBadge`  | `boolean`              | `false`      | Show a download badge on non-favourited downloaded titles (top right)  |
+| `hasDownloads`       | `boolean`              | `false`      | Show the "available offline" indicator (bottom left)                   |
+| `hasCollections`     | `boolean`              | `false`      | The user has at least one collection to add this manga to              |
+| `onClick`            | `(id: string) => void` | `undefined`  | Card click handler                                                     |
+| `onFavourite`        | `(id: string) => void` | `undefined`  | Favourite button handler; the hover overlay only appears when provided |
+| `onAddToCollection`  | `(id: string) => void` | `undefined`  | Add-to-collection handler (needs `isFavourite` and `hasCollections`)   |
+| `className`          | `string`               | `''`         | Additional CSS class                                                   |
+| `aria-label`         | `string`               | `undefined`  | Accessible label (defaults to title, author, status and progress)      |
 
 ## Variants
 
@@ -90,40 +96,39 @@ import { MangaCard } from '@renderer/components/MangaCard'
 
 ### Hover Effects
 
-- Card lifts 2px with shadow on hover
+- Card lifts 2px with a shadow on hover
 - Cover image scales to 105%
-- Overlay appears with favorite button
-- Smooth transitions (150ms)
+- The hover overlay fades in (see below)
 
 ### Progress Tracking
 
-When `chaptersRead` and `totalChapters` are provided:
+When `chaptersRead` and `totalChapters` are provided (and the total is above zero):
 
-- **Grid view**: Horizontal bar at bottom of cover (4px height)
-- **List view**: Vertical bar on right side of cover (4px width)
-- Shows completion percentage
-- Text below: "X / Y chapters"
-- Accessible with `role="progressbar"`
+- A native `<progress>` bar is drawn along the bottom of the cover (4px high) with a translated `aria-label`
+- Text below the title: "X / Y chapters"
 
-### Favorite Button
+### Hover Overlay (Favourite and Add to Collection)
 
-When `onFavorite` is provided:
+The hover overlay replaces the old context menu. When `onFavourite` is provided:
 
-- Appears in center of hover overlay
-- Heart icon (filled when favorited)
-- White circular background
-- Click stops propagation (doesn't trigger card click)
-- Keyboard accessible
+- A centred overlay with a favourite (heart) button appears when the card is hovered
+- When `onAddToCollection` is provided, the manga is favourited and `hasCollections` is true, an add-to-collection button appears beside the heart
+- Both buttons stop click propagation, so they don't trigger the card's `onClick`
+- Both are real `<button>`s with translated `aria-label`s
 
 ### Status Badge
 
-When `status` is provided:
+When `status` is provided, a small pill with a translated label and a colour per status (ongoing, completed, hiatus, cancelled), adjusted for light and dark themes.
 
-- Small pill badge with color coding:
-  - **Ongoing**: Green
-  - **Completed**: Blue
-  - **Hiatus**: Yellow/Orange
-- Adjusts for light/dark theme
+### Language Flags
+
+When `languages` is provided, up to three `LanguageBadge`s (bundled flags) are shown, followed by `+N` for the rest.
+
+### Cover Indicators
+
+- **Favourite badge**: heart in the corner of a favourited cover (hide with `showFavouriteBadge={false}`)
+- **Download badge**: shown for downloaded titles that aren't favourited (`showDownloadBadge`)
+- **Offline overlay**: shown when any chapters are downloaded (`hasDownloads`)
 
 ### Metadata Display
 
@@ -163,14 +168,12 @@ Fallback icon displayed if image fails
 
 ## Accessibility
 
-- Uses semantic `<article>` element
-- Role="button" for interactivity
-- Keyboard navigation (Enter/Space to click)
-- Focus-visible outline
-- Alt text for cover images
-- ARIA labels for buttons
-- Progress bar with proper ARIA attributes
-- Title tooltip on hover
+- The card is a focusable `<div role="button" tabIndex={0}>`; Enter and Space activate it
+- Default `aria-label` combines title, author, status and chapters read (override with `aria-label`)
+- Cover images have translated alt text; a fallback "cover unavailable" state shows if the image fails
+- The progress bar has a translated `aria-label`
+- Decorative badges are `aria-hidden`
+- Focus-visible outline for keyboard navigation
 
 ## Design Principles
 
@@ -179,7 +182,7 @@ Fallback icon displayed if image fails
 - 2:3 aspect ratio for manga covers (standard)
 - Smooth animations (transform, opacity)
 - Accessible color contrast (WCAG AA)
-- Touch-friendly targets (48px favorite button)
+- Touch-friendly targets (48px favourite button)
 
 ## Examples
 
@@ -236,19 +239,19 @@ Fallback icon displayed if image fails
   status="completed"
   chaptersRead={139}
   totalChapters={139}
-  isFavorite={true}
+  isFavourite={true}
   onClick={handleMangaClick}
-  onFavorite={handleFavoriteToggle}
+  onFavourite={handleFavouriteToggle}
 />
 ```
 
-### Favorite Management
+### Favourite Management
 
 ```tsx
-const [favorites, setFavorites] = useState<Set<string>>(new Set())
+const [favourites, setFavourites] = useState<Set<string>>(new Set())
 
-const handleFavoriteToggle = (id: string) => {
-  setFavorites((prev) => {
+const handleFavouriteToggle = (id: string) => {
+  setFavourites((prev) => {
     const next = new Set(prev)
     if (next.has(id)) {
       next.delete(id)
@@ -263,8 +266,8 @@ const handleFavoriteToggle = (id: string) => {
   id={manga.id}
   coverUrl={manga.coverUrl}
   title={manga.title}
-  isFavorite={favorites.has(manga.id)}
-  onFavorite={handleFavoriteToggle}
+  isFavourite={favourites.has(manga.id)}
+  onFavourite={handleFavouriteToggle}
   onClick={handleMangaClick}
 />
 ```

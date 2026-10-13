@@ -1,6 +1,6 @@
 # Badge Component
 
-Status indicator and label component following Windows 11 Fluent Design principles.
+Status indicator and label component. A thin wrapper over the Fluent 2 `Badge` that maps DexReader's variants onto Fluent colours.
 
 ## Usage
 
@@ -22,15 +22,15 @@ function MangaStatus() {
 
 ## Props
 
-| Prop         | Type                                                       | Default     | Description                       |
-| ------------ | ---------------------------------------------------------- | ----------- | --------------------------------- |
-| `variant`    | `'default' \| 'success' \| 'warning' \| 'error' \| 'info'` | `'default'` | Visual style variant              |
-| `size`       | `'small' \| 'medium'`                                      | `'medium'`  | Badge size                        |
-| `children`   | `React.ReactNode`                                          | Required    | Badge content                     |
-| `icon`       | `React.ReactNode`                                          | `undefined` | Optional icon                     |
-| `dot`        | `boolean`                                                  | `false`     | Show as dot instead of full badge |
-| `className`  | `string`                                                   | `''`        | Additional CSS class              |
-| `aria-label` | `string`                                                   | `undefined` | ARIA label                        |
+| Prop         | Type                                                       | Default     | Description                                     |
+| ------------ | ---------------------------------------------------------- | ----------- | ----------------------------------------------- |
+| `variant`    | `'default' \| 'success' \| 'warning' \| 'error' \| 'info'` | `'default'` | Visual style variant                            |
+| `size`       | `'small' \| 'medium'`                                      | `'medium'`  | Badge size                                      |
+| `children`   | `React.ReactNode`                                          | `undefined` | Badge content (omit with `dot`)                 |
+| `icon`       | `React.ReactElement`                                       | `undefined` | Optional icon                                   |
+| `dot`        | `boolean`                                                  | `false`     | Show as dot instead of full badge               |
+| `className`  | `string`                                                   | `''`        | Additional CSS class                            |
+| `aria-label` | `string`                                                   | `undefined` | ARIA label (dots default to "Status indicator") |
 
 ## Variants
 
@@ -115,11 +115,10 @@ Useful for notification indicators or status dots.
 
 ## Styling
 
-Follows Windows 11 Fluent Design:
+Rendered by Fluent 2's `Badge` with the app theme applied:
 
-- Pill shape (rounded corners)
-- Semantic colors with subtle backgrounds
-- Small: 11px font, compact padding
-- Medium: 12px font, comfortable padding
-- Dot variant: 6px (small) or 8px (medium) circle
-- High contrast support
+- Rounded-rectangle shape, `filled` style
+- Variants map to Fluent colours: `default` → subtle, `success` → success, `warning` → warning, `error` → danger, `info` → brand
+- Sizes: `small` and `medium` map to Fluent's `small` and `medium`
+- Dot variant: a tiny circular Fluent badge (the `size` prop is ignored)
+- There is no stylesheet; use `className` for layout tweaks
