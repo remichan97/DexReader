@@ -44,27 +44,27 @@ import { MangaCard } from '@renderer/components/MangaCard'
 
 ## Props
 
-| Prop                 | Type                   | Default      | Description                                                            |
-| -------------------- | ---------------------- | ------------ | ---------------------------------------------------------------------- | ---------------------- | ----------- | ------------------ |
-| `id`                 | `string`               | **required** | Unique manga identifier                                                |
-| `coverUrl`           | `string`               | **required** | Cover image URL (use the `mangadex://` or `local-manga://` protocols)  |
-| `title`              | `string`               | **required** | Manga title                                                            |
-| `author`             | `string`               | `undefined`  | Manga author                                                           |
-| `status`             | `'ongoing'             | 'completed'  | 'hiatus'                                                               | 'cancelled'`           | `undefined` | Publication status |
-| `languages`          | `string[]`             | `undefined`  | Available languages; the first three show as flags, then `+N`          |
-| `chaptersRead`       | `number`               | `undefined`  | Number of chapters read                                                |
-| `totalChapters`      | `number`               | `undefined`  | Total number of chapters                                               |
-| `variant`            | `'grid'                | 'list'`      | `'grid'`                                                               | Display layout variant |
-| `isFavourite`        | `boolean`              | `false`      | Is manga favourited                                                    |
-| `showFavouriteBadge` | `boolean`              | `true`       | Show the heart badge on a favourited cover                             |
-| `showDownloadBadge`  | `boolean`              | `false`      | Show a download badge on non-favourited downloaded titles (top right)  |
-| `hasDownloads`       | `boolean`              | `false`      | Show the "available offline" indicator (bottom left)                   |
-| `hasCollections`     | `boolean`              | `false`      | The user has at least one collection to add this manga to              |
-| `onClick`            | `(id: string) => void` | `undefined`  | Card click handler                                                     |
-| `onFavourite`        | `(id: string) => void` | `undefined`  | Favourite button handler; the hover overlay only appears when provided |
-| `onAddToCollection`  | `(id: string) => void` | `undefined`  | Add-to-collection handler (needs `isFavourite` and `hasCollections`)   |
-| `className`          | `string`               | `''`         | Additional CSS class                                                   |
-| `aria-label`         | `string`               | `undefined`  | Accessible label (defaults to title, author, status and progress)      |
+| Prop                 | Type                                                  | Default      | Description                                                            |
+| -------------------- | ----------------------------------------------------- | ------------ | ---------------------------------------------------------------------- |
+| `id`                 | `string`                                              | **required** | Unique manga identifier                                                |
+| `coverUrl`           | `string`                                              | **required** | Cover image URL (use the `mangadex://` or `local-manga://` protocols)  |
+| `title`              | `string`                                              | **required** | Manga title                                                            |
+| `author`             | `string`                                              | `undefined`  | Manga author                                                           |
+| `status`             | `'ongoing' \| 'completed' \| 'hiatus' \| 'cancelled'` | `undefined`  | Publication status                                                     |
+| `languages`          | `string[]`                                            | `undefined`  | Available languages; the first three show as flags, then `+N`          |
+| `chaptersRead`       | `number`                                              | `undefined`  | Number of chapters read                                                |
+| `totalChapters`      | `number`                                              | `undefined`  | Total number of chapters                                               |
+| `variant`            | `'grid' \| 'list'`                                    | `'grid'`     | Display layout variant                                                 |
+| `isFavourite`        | `boolean`                                             | `false`      | Is manga favourited                                                    |
+| `showFavouriteBadge` | `boolean`                                             | `true`       | Show the heart badge on a favourited cover                             |
+| `showDownloadBadge`  | `boolean`                                             | `false`      | Show a download badge on non-favourited downloaded titles (top right)  |
+| `hasDownloads`       | `boolean`                                             | `false`      | Show the "available offline" indicator (bottom left)                   |
+| `hasCollections`     | `boolean`                                             | `false`      | The user has at least one collection to add this manga to              |
+| `onClick`            | `(id: string) => void`                                | `undefined`  | Card click handler                                                     |
+| `onFavourite`        | `(id: string) => void`                                | `undefined`  | Favourite button handler; the hover overlay only appears when provided |
+| `onAddToCollection`  | `(id: string) => void`                                | `undefined`  | Add-to-collection handler (needs `isFavourite` and `hasCollections`)   |
+| `className`          | `string`                                              | `''`         | Additional CSS class                                                   |
+| `aria-label`         | `string`                                              | `undefined`  | Accessible label (defaults to title, author, status and progress)      |
 
 ## Variants
 
