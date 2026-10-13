@@ -537,7 +537,7 @@ All utility classes are built on design tokens defined in `tokens.css`:
 
 ### Semantic Colors (theme-aware)
 
-- `--win-error`: Error states (#f85149 dark, #A80000 light)
+- `--win-error`: Error states (#f85149 dark, #d13438 light)
 - `--win-success`: Success states (#3fb950 dark, #0f7b0f light)
 - `--win-warning`: Warning states (#ff8c42 dark, #f7630c light)
 - `--win-accent`: Accent/primary actions (#60cdff dark, #0078d4 light)
