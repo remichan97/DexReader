@@ -13,12 +13,12 @@
 .import-progress-dialog__progress {
   font-size: 18px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--win-text-primary);
 }
 
 .import-progress-dialog__current-title {
   font-size: 14px;
-  color: var(--text-secondary);
+  color: var(--win-text-secondary);
   text-align: center;
   max-width: 350px;
   white-space: nowrap;

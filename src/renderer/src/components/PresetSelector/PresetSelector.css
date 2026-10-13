@@ -20,7 +20,7 @@
 
 .preset-selector__delete:hover {
   background: var(--win-bg-hover);
-  color: var(--win-text-danger);
+  color: var(--win-text-error);
   border-color: var(--win-border-hover);
 }
 
@@ -29,6 +29,6 @@
 }
 
 .preset-selector__delete:focus-visible {
-  outline: 2px solid var(--win-accent-default);
+  outline: 2px solid var(--win-accent);
   outline-offset: 2px;
 }

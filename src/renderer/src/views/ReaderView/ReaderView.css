@@ -163,12 +163,12 @@
 /* Incognito indicator badge */
 .reader-header__incognito-badge {
   padding: 4px 10px;
-  background-color: var(--fill-subtle-secondary);
+  background-color: var(--win-bg-hover);
   border-radius: 4px;
   font-size: 12px;
   font-weight: 500;
-  color: var(--text-secondary);
-  border: 1px solid var(--stroke-surface-flyout);
+  color: var(--win-text-secondary);
+  border: 1px solid var(--win-border-default);
 }
 
 .reader-view[data-theme='dark'] .reader-header__incognito-badge {
@@ -322,7 +322,7 @@
 }
 
 .reader-page:focus-visible {
-  outline: 2px solid var(--color-accent-primary);
+  outline: 2px solid var(--win-accent);
   outline-offset: 4px;
   border-radius: 8px;
 }

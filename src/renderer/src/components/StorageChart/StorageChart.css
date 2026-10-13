@@ -3,7 +3,7 @@
 .storage-chart {
   border: 1px solid var(--win-border-default);
   border-radius: 6px;
-  background-color: var(--win-surface-default);
+  background-color: var(--win-bg-card);
 }
 
 .storage-chart__title {
@@ -16,7 +16,7 @@
   /* Removed display: flex - using utility class */
   border-radius: 4px;
   overflow: hidden;
-  background-color: var(--win-surface-tertiary);
+  background-color: var(--win-bg-subtle);
 }
 
 .storage-chart__bar--large {

@@ -4,7 +4,7 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: var(--win-bg-default);
+  background: var(--win-bg-base);
   backdrop-filter: blur(30px);
   border-bottom: 1px solid var(--win-border-default);
   padding: var(--space-4) var(--space-6);

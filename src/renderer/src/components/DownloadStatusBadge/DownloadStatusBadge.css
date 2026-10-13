@@ -26,7 +26,7 @@
 
 .download-badge--not-downloaded:hover,
 .download-badge--failed:hover {
-  background: var(--win-bg-tertiary);
+  background: var(--win-bg-hover);
   border-color: var(--win-border-default);
 }
 
@@ -45,14 +45,14 @@
 .download-badge--not-downloaded:hover {
   color: var(--win-accent);
   background: var(--win-accent-subtle);
-  border-color: var(--win-accent-tertiary);
+  border-color: color-mix(in srgb, var(--win-accent) 40%, transparent);
 }
 
 /* Downloading */
 .download-badge--downloading {
   color: var(--win-accent);
   background: var(--win-accent-subtle);
-  border-color: var(--win-accent-tertiary);
+  border-color: color-mix(in srgb, var(--win-accent) 40%, transparent);
   font-weight: 600;
 }
 
@@ -73,7 +73,7 @@
 .download-badge--queued {
   color: var(--win-accent);
   background: var(--win-accent-subtle);
-  border-color: var(--win-accent-tertiary);
+  border-color: color-mix(in srgb, var(--win-accent) 40%, transparent);
   font-weight: 600;
 }
 
@@ -81,21 +81,21 @@
 .download-badge--downloaded {
   color: var(--win-success);
   background: var(--win-success-tint);
-  border-color: var(--win-success-tertiary);
+  border-color: color-mix(in srgb, var(--win-success) 40%, transparent);
   font-weight: 600;
 }
 
 /* Failed */
 .download-badge--failed {
-  color: var(--win-danger);
-  background: var(--win-danger-subtle);
-  border-color: var(--win-danger-tertiary);
+  color: var(--win-error);
+  background: var(--win-error-tint);
+  border-color: color-mix(in srgb, var(--win-error) 40%, transparent);
   font-weight: 600;
 }
 
 .download-badge--failed:hover {
-  background: var(--win-danger-subtle);
-  border-color: var(--win-danger);
+  background: var(--win-error-tint);
+  border-color: var(--win-error);
 }
 
 /* Disabled state */

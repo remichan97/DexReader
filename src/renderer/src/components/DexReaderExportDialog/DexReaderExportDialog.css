@@ -59,7 +59,7 @@
   padding: var(--space-3);
   border: 1px solid var(--win-border-default);
   border-radius: var(--radius-sm);
-  background: var(--win-bg-default);
+  background: var(--win-bg-subtle);
   transition: var(--transition-all-fast);
 }
 

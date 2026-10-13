@@ -42,7 +42,7 @@
   padding: var(--space-3);
   background: var(--win-bg-subtle);
   border-radius: var(--radius-sm);
-  border-left: 3px solid var(--win-accent-default);
+  border-left: 3px solid var(--win-accent);
 }
 
 .security-settings__help-text {

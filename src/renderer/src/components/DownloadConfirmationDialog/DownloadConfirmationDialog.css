@@ -63,7 +63,7 @@
 }
 
 .download-dialog__settings-link:hover {
-  color: var(--win-accent-secondary);
+  color: var(--win-accent-hover);
   text-decoration: underline;
 }
 
@@ -75,7 +75,7 @@
 
 .download-dialog__batch-info {
   padding: 12px;
-  background: var(--win-bg-layer);
+  background: var(--win-bg-subtle);
   border-radius: var(--radius-md);
   border: 1px solid var(--win-border-default);
 }

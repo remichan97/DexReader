@@ -6,14 +6,14 @@
   gap: 16px;
   padding: 32px;
   text-align: center;
-  background: var(--surface-secondary);
-  border: 1px solid var(--stroke-surface-tertiary);
-  border-radius: var(--corner-radius-medium);
+  background: var(--win-bg-subtle);
+  border: 1px solid var(--win-border-default);
+  border-radius: var(--radius-md);
   min-height: 200px;
 }
 
 .error-recovery__icon {
-  color: var(--text-caution);
+  color: var(--win-warning);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -23,13 +23,13 @@
   margin: 0;
   font-size: 18px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--win-text-primary);
 }
 
 .error-recovery__message {
   margin: 0;
   font-size: 14px;
-  color: var(--text-secondary);
+  color: var(--win-text-secondary);
   max-width: 400px;
   line-height: 1.5;
 }
@@ -37,6 +37,6 @@
 .error-recovery__extra {
   margin-top: 8px;
   font-size: 13px;
-  color: var(--text-tertiary);
+  color: var(--win-text-tertiary);
   max-width: 400px;
 }
