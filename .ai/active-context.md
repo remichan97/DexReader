@@ -1,6 +1,6 @@
 # DexReader Active Context
 
-**Last Updated**: 12 October 2026
+**Last Updated**: 13 October 2026
 **Version**: v1.16.0
 **Mode**: Active Development
 
@@ -41,10 +41,10 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 - **Severity**: Low
 - **Detail**: The hero's Continue button opens the last-read page even for a finished chapter; the chapter list, History and Downloads restart a finished chapter from page 1. History events don't store a page, so History looks the page up from chapter progress.
 
-### Documentation debt after the Fluent migration
+### Fluent migration clean-up: remaining CSS and layout docs
 
 - **Severity**: Low
-- **Detail**: `docs/components/ui-component-library.md`, `Select`, `SearchBar` and the two new components are current. `ui-polish-refinements.md`, `loading-feedback-states.md`, `utility-classes.md` and the remaining per-component READMEs still describe the hand-rolled implementations (CSS classes, hand-rolled keyboard/positioning code).
+- **Detail**: Docs are brought up to date (orphaned CSS removed, READMEs and the feedback/polish/token docs rewritten). Still open: dead rules inside still-imported stylesheets (`Toast.css`, `CreateCollectionDialog.css`, `ReaderView.css` and others), unreferenced tokens in `tokens.css` (`--ring-*`, `--toast-*`, `--progress-*`, `--sidebar-*`), undefined `var(--…)` names in live CSS (`ErrorBoundary.css` app-level background is the visible one), undefined utility classes in TSX (`text-sm`, `grid-cols-2`, `bg-error-subtle` and similar), and `docs/architecture/layout-specification.md` / `docs/design/responsive-behavior-guide.md` still describe a 240px sidebar (it is 80px).
 
 ### Large renderer chunks
 
@@ -74,6 +74,12 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 - **Type**: Release
 - **Summary**: Bumped to 1.16.0 (minor: new features, backward compatible for user data; the Fluent migration was treated as a component switch, not a major UI overhaul). Changelog written from the net change since v1.15.0, leaving out regressions that were introduced and fixed inside the branch. Updated `README.md`, `docs/README.md`, the component library doc, `Select`/`SearchBar` READMEs (new `TagPicker`/`LanguageBadge` READMEs), `CLAUDE.md`, `tech-context.md` and `system-pattern.md`. Gates: typecheck, lint, 1486 tests with coverage thresholds, production build.
 - **Status**: ✅ Complete, awaiting merge and tag
+
+### 13 October 2026 - Post-migration orphan clean-up ✅
+
+- **Type**: Docs + chore
+- **Summary**: Audited for leftovers after the Fluent migration. Removed 21 unimported stylesheets plus the unused electron-vite `base.css` and its two SVGs; pointed all `base.css` references at `tokens.css`; fixed broken doc links and the docs index; rewrote the stale component READMEs, `loading-feedback-states.md`, the polish history and the token doc. `utility-classes.md` was checked against `utilities.css` and matched. CSS dead-rule and undefined-variable fixes are the next step.
+- **Status**: ✅ Complete (docs); CSS follow-ups open
 
 ### 7 – 12 October 2026 - Fluent 2 migration + follow-ups ✅
 
