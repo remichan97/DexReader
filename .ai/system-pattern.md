@@ -193,7 +193,7 @@
 
 - **Components**: PascalCase (`App.tsx`, `Versions.tsx`)
 - **Utilities**: camelCase
-- **Assets**: kebab-case (`base.css`, `main.css`)
+- **Assets**: kebab-case (`tokens.css`, `main.css`)
 
 > **Note**: For code formatting (Prettier) and linting (ESLint) configuration, see `tech-context.md`
 
@@ -230,8 +230,9 @@
 
 ### CSS Structure
 
-- `assets/base.css` - Design tokens, resets, typography
-- `assets/main.css` - Layout, component styles
+- `assets/tokens.css` - Design tokens (`--win-*` custom properties, light and dark themes)
+- `assets/utilities.css` - Utility classes (spacing, flex, text, colour)
+- `assets/main.css` - Global element styles (links, code, native form controls) and a few helpers
 
 ### Responsive Breakpoints
 

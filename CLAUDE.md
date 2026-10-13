@@ -147,7 +147,7 @@ Zustand 5 stores in `src/renderer/src/stores/`. Stores are ephemeral (rehydrated
 | Image proxy protocols           | `src/main/api/proxy/`                             |
 | Zustand stores                  | `src/renderer/src/stores/`                        |
 | Routing                         | `src/renderer/src/router.tsx`                     |
-| CSS design tokens               | `src/renderer/src/assets/base.css`                |
+| CSS design tokens               | `src/renderer/src/assets/tokens.css`              |
 | Translations                    | `src/locales/`                                    |
 | IPC types (preload)             | `src/preload/ipc.types.ts`                        |
 | Shared enums/contracts/commands | `src/shared/`                                     |

@@ -421,7 +421,7 @@ TypeScript compilation → electron-vite optimisation → electron-builder packa
 - **Add database functionality**: `src/main/database/repositories/` + schemas + migrations
 - **Add a setting**: `src/shared/types/settings/` + `src/main/settings/settings-manager.ts`
 - **Modify MangaDex API calls**: `src/main/api/mangadex-client.ts`
-- **Change UI theme**: `src/renderer/src/assets/base.css` (custom properties)
+- **Change UI theme**: `src/renderer/src/assets/tokens.css` (custom properties)
 - **Add IPC channel**: `src/main/ipc/handlers/` + `registry.ts` + `src/preload/index.ts`
 - **Change menu**: `src/main/menu/`
 - **Modify security**: `src/main/filesystem/path-validator.ts`
