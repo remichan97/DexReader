@@ -594,17 +594,9 @@ Using `key={location.pathname}` triggers React's unmount/remount cycle, allowing
 
 ### Portal Rendering
 
-Components that need to escape their parent's stacking context use portal rendering:
+Overlays that need to escape their parent's stacking context render into a portal. Fluent 2 does this for `Modal`, `Tooltip`, `Popover`, `Select` and the toasts, so none of them needs a hand-written `createPortal`. A genuinely custom overlay would use React's `createPortal(element, document.body)`.
 
-```tsx
-import { createPortal } from 'react-dom'
-
-function Tooltip() {
-  return createPortal(<div className="tooltip">{content}</div>, document.body)
-}
-```
-
-**Components using portals**: Tooltip, Popover, Modal
+**Components rendered in a portal (by Fluent)**: Tooltip, Popover, Modal, Select
 
 ---
 
@@ -618,7 +610,7 @@ transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 
 The value `1.56 > 1.0` creates overshoot, then settles back.
 
-**Components using spring easing**: Sidebar indicator, Tabs indicator
+**Components using spring easing**: Sidebar indicator (the Tabs indicator is now Fluent's own)
 
 ---
 
@@ -626,22 +618,9 @@ The value `1.56 > 1.0` creates overshoot, then settles back.
 
 All interactive components follow Windows 11 focus patterns:
 
-1. **No outer glow**: Remove browser default with `box-shadow: none !important`
-2. **Bottom border emphasis**: 2px accent color on focus
-3. **Smooth transition**: 200ms cubic-bezier easing
-
-```css
-.input:focus {
-  outline: none;
-  box-shadow: none !important;
-  border-bottom-color: var(--win-accent);
-  transition: border-bottom-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-```
-
-**Components with focus states**: Input, SearchBar, Button, Checkbox, Switch, Dropdown
-
----
+- **Fluent-backed components** (`Button`, `Input`, `Checkbox`, `Select`, `Tabs`, `Modal` and so on) get their focus indicators, focus trapping and focus restoration from Fluent 2. Don't re-implement these in a wrapper.
+- **DexReader's own components** (`Sidebar`, `MangaCard`) provide a visible `:focus-visible` outline (in the focus or accent colour) and make sure interactive elements are keyboard reachable.
+- Avoid global `input:focus` / `box-shadow` overrides: global element selectors in `main.css` also reach the inputs inside Fluent components.
 
 ### Icon Variant Pattern
 
@@ -847,7 +826,7 @@ export interface InputProps extends BaseComponentProps {
 When creating new components, ensure:
 
 - [ ] TypeScript interface with JSDoc comments
-- [ ] BEM CSS naming convention
+- [ ] Styling: wrap a Fluent 2 component and use `makeStyles` with Fluent tokens (or `--win-*` tokens), or BEM-named CSS for fully custom components
 - [ ] Design tokens (no hardcoded colors/spacing)
 - [ ] Keyboard navigation support
 - [ ] ARIA attributes
@@ -994,7 +973,7 @@ import * as Components from '@/components'
 - [ ] Accessible (keyboard + screen reader tested)
 - [ ] Responsive on all screen sizes
 - [ ] Design tokens used (no magic values)
-- [ ] BEM CSS naming followed
+- [ ] Styling follows the Fluent wrapper pattern (`makeStyles`), or BEM naming for custom CSS
 - [ ] README complete with examples
 - [ ] JSDoc comments on all props
 
