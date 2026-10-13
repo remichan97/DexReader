@@ -12,7 +12,7 @@
   padding: var(--space-2) var(--space-4);
   background: var(--win-bg-card);
   border-bottom: 1px solid var(--win-border-default);
-  font-size: var(--font-size-caption);
+  font-size: var(--win-font-size-caption);
   color: var(--win-text-secondary);
   flex-wrap: wrap;
 }
@@ -43,7 +43,7 @@
   border: 1px solid var(--win-border-default);
   border-radius: var(--radius-sm);
   color: var(--win-text-primary);
-  font-size: var(--font-size-body);
+  font-size: var(--win-font-size-body);
   font-weight: var(--win-font-weight-semibold);
   cursor: pointer;
   transition: var(--transition-bg);
@@ -80,7 +80,7 @@
 }
 
 .history-calendar__month-label {
-  font-size: var(--font-size-body);
+  font-size: var(--win-font-size-body);
   font-weight: var(--win-font-weight-semibold);
   color: var(--win-text-primary);
 }
@@ -93,7 +93,7 @@
 
 .history-calendar__weekday {
   text-align: center;
-  font-size: var(--font-size-caption);
+  font-size: var(--win-font-size-caption);
   color: var(--win-text-tertiary);
   text-transform: uppercase;
 }
@@ -113,7 +113,7 @@
   border: none;
   background: transparent;
   border-radius: var(--radius-sm);
-  font-size: var(--font-size-body);
+  font-size: var(--win-font-size-body);
   color: var(--win-text-disabled);
   cursor: default;
   transition: var(--transition-bg);
@@ -162,7 +162,7 @@
   margin: 0 calc(-1 * var(--space-4)) var(--space-3);
   padding: var(--space-2) var(--space-4);
   background: var(--win-bg-base);
-  font-size: var(--font-size-body);
+  font-size: var(--win-font-size-body);
   font-weight: var(--win-font-weight-semibold);
   color: var(--win-text-secondary);
   border-bottom: 1px solid var(--win-border-default);
@@ -227,7 +227,7 @@
 }
 
 .reading-history-card__progress {
-  font-size: var(--font-size-body);
+  font-size: var(--win-font-size-body);
   color: var(--win-text-secondary);
   margin: 0 0 var(--space-1) 0;
 }
@@ -236,8 +236,8 @@
   padding: 2px 8px;
   background: var(--win-accent-subtle);
   color: var(--win-accent);
-  font-size: var(--font-size-caption);
-  font-weight: var(--font-weight-medium);
+  font-size: var(--win-font-size-caption);
+  font-weight: 500;
   border-radius: var(--radius-sm);
   white-space: nowrap;
 }

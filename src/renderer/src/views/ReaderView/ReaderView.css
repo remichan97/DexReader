@@ -69,14 +69,14 @@
 }
 
 .reader-view__error .error-recovery__title {
-  font-size: var(--font-size-title);
+  font-size: var(--win-font-size-title);
   font-weight: var(--win-font-weight-semibold);
   color: var(--color-text-primary);
   margin: 0 0 12px 0;
 }
 
 .reader-view__error .error-recovery__message {
-  font-size: var(--font-size-body);
+  font-size: var(--win-font-size-body);
   color: var(--color-text-secondary);
   margin: 0 0 24px 0;
   line-height: 1.5;
@@ -92,7 +92,7 @@
   background-color: var(--color-bg-tertiary);
   border-radius: 8px;
   text-align: left;
-  font-size: var(--font-size-caption);
+  font-size: var(--win-font-size-caption);
   color: var(--color-text-secondary);
   max-width: 100%;
   overflow-x: auto;
@@ -155,8 +155,8 @@
 }
 
 .reader-header__page-counter {
-  font-size: var(--font-size-body);
-  font-weight: var(--font-weight-medium);
+  font-size: var(--win-font-size-body);
+  font-weight: 500;
   color: var(--color-text-secondary);
 }
 
@@ -226,7 +226,7 @@
 
 .reader-page-loading__text {
   margin-top: 16px;
-  font-size: var(--font-size-body);
+  font-size: var(--win-font-size-body);
   color: var(--color-text-secondary);
 }
 
@@ -239,11 +239,11 @@
 
 .reader-page-error p {
   margin: 8px 0;
-  font-size: var(--font-size-body);
+  font-size: var(--win-font-size-body);
 }
 
 .reader-page-error__hint {
-  font-size: var(--font-size-caption);
+  font-size: var(--win-font-size-caption);
   color: var(--color-text-tertiary);
 }
 /* ==================== */
@@ -373,12 +373,12 @@
   }
 
   .reader-header__title {
-    font-size: var(--font-size-body);
+    font-size: var(--win-font-size-body);
     padding: 0 12px;
   }
 
   .reader-header__page-counter {
-    font-size: var(--font-size-caption);
+    font-size: var(--win-font-size-caption);
     min-width: 80px;
   }
 
@@ -449,14 +449,14 @@
 }
 
 .end-of-chapter-overlay__title {
-  font-size: var(--font-size-title);
+  font-size: var(--win-font-size-title);
   font-weight: var(--win-font-weight-semibold);
   color: var(--color-text-primary);
   margin: 0 0 8px 0;
 }
 
 .end-of-chapter-overlay__subtitle {
-  font-size: var(--font-size-body);
+  font-size: var(--win-font-size-body);
   color: var(--color-text-secondary);
   margin: 0 0 32px 0;
 }
@@ -471,9 +471,9 @@
 }
 
 .end-of-chapter-overlay__chapter-info {
-  font-size: var(--font-size-caption);
+  font-size: var(--win-font-size-caption);
   opacity: 0.8;
-  font-weight: var(--font-weight-regular);
+  font-weight: var(--win-font-weight-regular);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -482,7 +482,7 @@
 
 .end-of-chapter-overlay__no-chapters {
   color: var(--color-text-secondary);
-  font-size: var(--font-size-body);
+  font-size: var(--win-font-size-body);
   margin: 16px 0;
 }
 
@@ -641,14 +641,14 @@
 }
 
 .chapter-list-sidebar__item-number {
-  font-size: var(--font-size-body);
+  font-size: var(--win-font-size-body);
   font-weight: var(--win-font-weight-semibold);
   color: var(--color-text-primary);
   margin-bottom: 4px;
 }
 
 .chapter-list-sidebar__item-title {
-  font-size: var(--font-size-caption);
+  font-size: var(--win-font-size-caption);
   color: var(--color-text-secondary);
   margin-bottom: 4px;
   overflow: hidden;
@@ -657,7 +657,7 @@
 }
 
 .chapter-list-sidebar__item-meta {
-  font-size: var(--font-size-caption);
+  font-size: var(--win-font-size-caption);
   color: var(--color-text-tertiary);
 }
 
@@ -734,7 +734,7 @@
 
 .vertical-scroll-page__error p {
   margin: 0;
-  font-size: var(--font-size-body);
+  font-size: var(--win-font-size-body);
 }
 
 /* Dark mode for vertical scroll */

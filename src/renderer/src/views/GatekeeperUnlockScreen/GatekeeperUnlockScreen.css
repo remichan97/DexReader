@@ -77,8 +77,8 @@
 /* Title */
 .gatekeeper-unlock-title {
   margin: 0;
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-semibold);
+  font-size: var(--win-font-size-header);
+  font-weight: var(--win-font-weight-semibold);
   color: var(--win-text-primary);
   text-align: center;
 }
@@ -86,7 +86,7 @@
 /* Description */
 .gatekeeper-unlock-description {
   margin: 0;
-  font-size: var(--font-size-base);
+  font-size: var(--win-font-size-body);
   color: var(--win-text-secondary);
   text-align: center;
 }
@@ -112,7 +112,7 @@
 /* Help Text (appears after 3 failed attempts) */
 .gatekeeper-unlock-help {
   margin: var(--space-2) 0 0 0;
-  font-size: var(--font-size-sm);
+  font-size: var(--win-font-size-caption);
   color: var(--win-text-secondary);
   text-align: center;
   line-height: 1.5;
@@ -170,7 +170,7 @@
   }
 
   .gatekeeper-unlock-title {
-    font-size: var(--font-size-xl);
+    font-size: var(--win-font-size-title);
   }
 }
 
