@@ -6,6 +6,7 @@
     "vitest/vitest.main.config.ts",
     "vitest/setup.main.ts",
     "vitest/create-test-db.ts",
+    ".github/scripts/*.ts",
     "src/main/**/*",
     "src/preload/**/*",
     "src/locales/**/*",
@@ -13,6 +14,7 @@
   ],
   "compilerOptions": {
     "composite": true,
+    "allowImportingTsExtensions": true,
     "types": ["electron-vite/node", "vitest/globals"],
     "baseUrl": ".",
     "paths": {

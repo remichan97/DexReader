@@ -15,3 +15,6 @@ claude-plans/
 benchmark-results/
 # Test coverage reports
 coverage/
+# PR check artefacts (written by .github/scripts/test-report.ts)
+test-results.json
+test-report.md
