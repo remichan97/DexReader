@@ -290,7 +290,6 @@ export function LibraryView(): JSX.Element {
           onClick={() => setCreateDialogOpen(true)}
           aria-label={t('library:createCollectionButton')}
           title={t('library:createCollectionButton')}
-          className="h-9"
         >
           {t('library:createCollectionButton')}
         </Button>
@@ -298,50 +297,42 @@ export function LibraryView(): JSX.Element {
 
       {/* Search Help */}
       {showSearchHelp && (
-        <div className="mb-4 p-4 bg-subtle border border-default rounded-lg">
+        <div className="mb-4 p-4 bg-subtle border rounded-lg">
           <h3 className="font-semibold mb-2">{t('library:searchSyntax.title')}</h3>
-          <div className="grid grid-cols-2 gap-2 text-sm">
+          <div className="grid grid-cols-2 gap-2 text-caption">
             <div>
-              <code className="px-1 py-0.5 bg-layer rounded">status:ongoing</code> -{' '}
-              {t('library:searchSyntax.examples.status')}
+              <code>status:ongoing</code> - {t('library:searchSyntax.examples.status')}
             </div>
             <div>
-              <code className="px-1 py-0.5 bg-layer rounded">tag:romance</code> -{' '}
-              {t('library:searchSyntax.examples.tag')}
+              <code>tag:romance</code> - {t('library:searchSyntax.examples.tag')}
             </div>
             <div>
-              <code className="px-1 py-0.5 bg-layer rounded">downloaded:yes</code> -{' '}
-              {t('library:searchSyntax.examples.downloaded')}
+              <code>downloaded:yes</code> - {t('library:searchSyntax.examples.downloaded')}
             </div>
             <div>
-              <code className="px-1 py-0.5 bg-layer rounded">author:Oda</code> -{' '}
-              {t('library:searchSyntax.examples.author')}
+              <code>author:Oda</code> - {t('library:searchSyntax.examples.author')}
             </div>
             <div>
-              <code className="px-1 py-0.5 bg-layer rounded">artist:Inoue</code> -{' '}
-              {t('library:searchSyntax.examples.artist')}
+              <code>artist:Inoue</code> - {t('library:searchSyntax.examples.artist')}
             </div>
             <div>
-              <code className="px-1 py-0.5 bg-layer rounded">year:2024</code> -{' '}
-              {t('library:searchSyntax.examples.year')}
+              <code>year:2024</code> - {t('library:searchSyntax.examples.year')}
             </div>
             <div>
-              <code className="px-1 py-0.5 bg-layer rounded">year:&gt;2020</code> -{' '}
-              {t('library:searchSyntax.examples.yearGreater')}
+              <code>year:&gt;2020</code> - {t('library:searchSyntax.examples.yearGreater')}
             </div>
             <div>
-              <code className="px-1 py-0.5 bg-layer rounded">year:&lt;2019</code> -{' '}
-              {t('library:searchSyntax.examples.yearLess')}
+              <code>year:&lt;2019</code> - {t('library:searchSyntax.examples.yearLess')}
             </div>
           </div>
-          <p className="text-sm text-secondary mt-2">{t('library:searchSyntax.combine')}</p>
+          <p className="text-caption text-secondary mt-2">{t('library:searchSyntax.combine')}</p>
         </div>
       )}
 
       {/* Active Filters */}
       {activeFilters.length > 0 && (
         <div className="mb-4 flex gap-2 items-center flex-wrap">
-          <span className="text-sm text-secondary">{t('library:activeFilters')}</span>
+          <span className="text-caption text-secondary">{t('library:activeFilters')}</span>
           {activeFilters.map((filter) => (
             <FilterChip key={filter.key} label={filter.label} value={filter.value} />
           ))}

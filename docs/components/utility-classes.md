@@ -54,6 +54,13 @@ Utility classes follow a predictable naming pattern:
 .inline-flex     /* display: inline-flex */
 ```
 
+#### Grid
+
+```css
+.grid            /* display: grid */
+.grid-cols-2     /* grid-template-columns: repeat(2, minmax(0, 1fr)) */
+```
+
 #### Direction
 
 ```css
@@ -186,7 +193,7 @@ Map to spacing tokens (4px, 8px, 12px, 16px, 20px, 24px, 32px, 40px, 48px):
 #### Individual Sides
 
 ```css
-.pt-0, .pt-2, .pt-4, .pt-6  /* padding-top */
+.pt-0, .pt-2, .pt-3, .pt-4, .pt-6  /* padding-top */
 .pr-0, .pr-2, .pr-4, .pr-6  /* padding-right */
 .pb-0, .pb-2, .pb-4, .pb-6  /* padding-bottom */
 .pl-0, .pl-2, .pl-4, .pl-6  /* padding-left */
@@ -326,6 +333,7 @@ Map to spacing tokens (4px, 8px, 12px, 16px, 20px, 24px, 32px, 40px, 48px):
 
 ```css
 .h-full          /* height: 100% */
+.h-screen        /* height: 100vh */
 .h-auto          /* height: auto */
 ```
 
@@ -379,6 +387,7 @@ Theme-aware background colors:
 .bg-card         /* background-color: var(--win-bg-card) */
 .bg-elevated     /* background-color: var(--win-bg-elevated) */
 .bg-subtle       /* background-color: var(--win-bg-subtle) */
+.bg-error-tint   /* background-color: var(--win-error-tint) */
 .bg-hover        /* background-color: var(--win-bg-hover) */
 ```
 
@@ -408,6 +417,7 @@ Theme-aware background colors:
 ```css
 .border          /* border: 1px solid var(--win-border-default) */
 .border-0        /* border: 0 */
+.border-error    /* border-color: var(--win-error) (use with .border) */
 ```
 
 **Usage Example**:

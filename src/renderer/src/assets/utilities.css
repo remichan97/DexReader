@@ -21,6 +21,14 @@
   display: inline-flex;
 }
 
+.grid {
+  display: grid;
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 /* Flex Direction */
 .flex-row {
   flex-direction: row;
@@ -306,6 +314,10 @@
 
 .pt-2 {
   padding-top: var(--space-2);
+}
+
+.pt-3 {
+  padding-top: var(--space-3);
 }
 
 .pt-4 {
@@ -644,6 +656,10 @@
   height: 100%;
 }
 
+.h-screen {
+  height: 100vh;
+}
+
 .h-auto {
   height: auto;
 }
@@ -733,6 +749,10 @@
   background-color: var(--win-bg-subtle);
 }
 
+.bg-error-tint {
+  background-color: var(--win-error-tint);
+}
+
 .bg-hover {
   background-color: var(--win-bg-hover);
 }
@@ -769,6 +789,10 @@
 
 .border-0 {
   border: 0;
+}
+
+.border-error {
+  border-color: var(--win-error);
 }
 
 /* ========== OPACITY UTILITIES ========== */
