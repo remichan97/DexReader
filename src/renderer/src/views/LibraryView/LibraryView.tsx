@@ -299,7 +299,7 @@ export function LibraryView(): JSX.Element {
       {showSearchHelp && (
         <div className="mb-4 p-4 bg-subtle border rounded-lg">
           <h3 className="font-semibold mb-2">{t('library:searchSyntax.title')}</h3>
-          <div className="grid grid-cols-2 gap-2 text-caption">
+          <div className="grid grid-cols-2 gap-2 text-body">
             <div>
               <code>status:ongoing</code> - {t('library:searchSyntax.examples.status')}
             </div>
@@ -325,14 +325,14 @@ export function LibraryView(): JSX.Element {
               <code>year:&lt;2019</code> - {t('library:searchSyntax.examples.yearLess')}
             </div>
           </div>
-          <p className="text-caption text-secondary mt-2">{t('library:searchSyntax.combine')}</p>
+          <p className="text-body text-secondary mt-2">{t('library:searchSyntax.combine')}</p>
         </div>
       )}
 
       {/* Active Filters */}
       {activeFilters.length > 0 && (
         <div className="mb-4 flex gap-2 items-center flex-wrap">
-          <span className="text-caption text-secondary">{t('library:activeFilters')}</span>
+          <span className="text-body text-secondary">{t('library:activeFilters')}</span>
           {activeFilters.map((filter) => (
             <FilterChip key={filter.key} label={filter.label} value={filter.value} />
           ))}

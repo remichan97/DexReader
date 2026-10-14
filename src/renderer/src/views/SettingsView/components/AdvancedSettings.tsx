@@ -99,7 +99,7 @@ export function AdvancedSettings({
             >
               {t('advanced.checkNowButton')}
             </Button>
-            <span className="text-caption text-secondary">
+            <span className="text-body text-secondary">
               {t('advanced.currentVersion', { version: appVersion })}
             </span>
           </div>
@@ -124,10 +124,10 @@ export function AdvancedSettings({
 
           {/* Network Proxy Settings */}
           <div className="flex flex-col gap-2">
-            <h3 className="text-caption font-semibold text-primary">
+            <h3 className="text-body font-semibold text-primary">
               {t('advanced.networkProxy.label')}
             </h3>
-            <p className="text-caption text-secondary mb-2">
+            <p className="text-body text-secondary mb-2">
               {t('advanced.networkProxy.description')}
             </p>
             <Button
