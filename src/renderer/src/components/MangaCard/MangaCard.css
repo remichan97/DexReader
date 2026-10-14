@@ -183,7 +183,7 @@
 }
 
 [data-theme='dark'] .manga-card__download-overlay-icon {
-  color: var(--color-text-primary);
+  color: var(--win-text-primary);
 }
 
 /* Favorite Button */

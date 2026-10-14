@@ -21,7 +21,7 @@
 .manga-detail-view__sticky-title {
   font-size: var(--win-font-size-subtitle);
   font-weight: var(--win-font-weight-semibold);
-  color: var(--color-text-primary);
+  color: var(--win-text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
