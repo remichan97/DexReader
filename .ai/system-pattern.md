@@ -236,9 +236,11 @@
 
 ### Responsive Breakpoints
 
-- 720px: Font size adjustments
-- 620px: Hide version display
-- 350px: Hide secondary UI elements
+- Grids are fluid (`repeat(auto-fill, minmax(180px, 1fr))`), so there are no column breakpoints
+- 768px: stack toolbars and tighten padding (Downloads, Manga Detail, Creator, reader, toasts)
+- 480px: smaller Creator grid, reader header and Gatekeeper card
+- The sidebar width is a user setting (full 80px, compact 60px, auto-hide), not a breakpoint
+- See `docs/design/responsive-behavior-guide.md`
 
 ---
 

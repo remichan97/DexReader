@@ -14,14 +14,14 @@ This folder contains all design and architectural documentation for DexReader.
 Visual design and design system specifications.
 
 - **windows11-design-tokens.md** - Complete design token system with light/dark themes, colors, typography, spacing, effects
-- **responsive-behavior-guide.md** - Breakpoint specifications and adaptive behaviors (3 breakpoints: >720px, 620-720px, <620px)
+- **responsive-behavior-guide.md** - How layouts adapt to window size: fluid grids, the user-selected sidebar mode and the component-local media queries (mainly 768px and 480px)
 
 ### 🏗️ `/architecture`
 
 System architecture, navigation patterns, and layout specifications.
 
-- **navigation-flow.md** - Complete navigation graph with 9 routes, keyboard shortcuts, back behavior, state persistence
-- **layout-specification.md** - Application shell structure, view layouts, sidebar specs, spacing system, z-index hierarchy
+- **navigation-flow.md** - Routes, ways to navigate, origin-aware Back, what state survives navigation, invalid-route handling
+- **layout-specification.md** - Application shell, sidebar display modes, per-view layouts, content widths, layering and scrolling
 - **reader-layout-specification.md** - 3 reading modes (single/double/vertical) with controls, interactions, preloading strategy
 - **menu-bar-structure.md** - Native Electron menu bar with 5 menus, 30+ items, keyboard accelerators, implementation code
 - **database-architecture.md** - 🗄️ **SQLite database design** with Drizzle ORM, 9 tables, CQRS pattern, migration strategy
@@ -91,7 +91,7 @@ All documents in this folder are **implementation-ready specifications** and **l
 **Animations**: Spring easing `cubic-bezier(0.34, 1.56, 0.64, 1)` for indicators
 **Reading Modes**: Single page, Double page (R-L), Vertical scroll
 **Navigation**: Native menu bar + Fixed icon sidebar with Fluent icons (80px; full, compact and auto-hide display modes)
-**Responsive**: 5/3/2 column grids across breakpoints
+**Responsive**: Fluid `auto-fill` grids (180px minimum card); component-local media queries at 768px and 480px
 **Components**: Fluent 2 wrappers plus a few DexReader-specific ones (see Component Library Status)
 
 ---
