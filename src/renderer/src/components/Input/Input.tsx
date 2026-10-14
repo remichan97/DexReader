@@ -98,17 +98,14 @@ const useStyles = makeStyles({
       backgroundColor: tokens.colorSubtleBackgroundPressed
     }
   },
-  footerRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: tokens.spacingHorizontalS,
-    width: '100%'
-  },
+  // Field lays its message out as inline text with the status icon in a left gutter (negative
+  // margin), so the counter floats right instead of wrapping the text in a block-level row,
+  // which pushed the icon onto a line of its own.
   counter: {
+    float: 'right',
     whiteSpace: 'nowrap',
     color: tokens.colorNeutralForeground3,
-    marginLeft: 'auto'
+    marginLeft: tokens.spacingHorizontalS
   }
 })
 
@@ -187,10 +184,11 @@ export function Input({
 
   const inputType = type === 'password' && showPassword ? 'text' : type
 
-  // Error and helper text share the same footer row as the character counter (when shown),
+  // Error and helper text share the same footer line as the character counter (when shown),
   // so both go through Field's validationMessage/hint slots rather than a separate element -
   // Field only renders one or the other based on validationState, matching the original's
-  // "error takes priority over helper text" behaviour.
+  // "error takes priority over helper text" behaviour. The counter comes first in the DOM so
+  // that, floated right, it sits on the same line as the text.
   const counterNode = hasCounter && (
     <span className={styles.counter} aria-live="polite">
       {currentLength}/{maxLength}
@@ -199,10 +197,10 @@ export function Input({
 
   const footer = (text?: string): React.ReactElement | undefined =>
     text || counterNode ? (
-      <span className={styles.footerRow}>
-        <span>{text}</span>
+      <>
         {counterNode}
-      </span>
+        {text}
+      </>
     ) : undefined
 
   return (
