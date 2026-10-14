@@ -1,650 +1,321 @@
 # DexReader Layout Specification
 
 **Created**: 24 November 2025
-**Part of**: P1-T01 - Design Main Application Layout
-**Status**: Complete
+**Updated**: 14 October 2026 (rewritten to describe the implemented layout, as of v1.16.0)
 
 ---
 
 ## Overview
 
-This document specifies the structural layout of DexReader, defining persistent UI elements, view containers, and layout patterns for all primary views.
+This document describes the structural layout of DexReader: the application shell, the sidebar, the main content area and how each view uses it. The first version of this document was a design-phase wireframe (a 240px sidebar, a "Tools" menu, a Library collections sidebar, a 5-column grid); the app that shipped differs in several places, so this version reflects the code. For breakpoints and window-resize behaviour see [`design/responsive-behavior-guide.md`](../design/responsive-behavior-guide.md). The reader has its own document: [`reader-layout-specification.md`](./reader-layout-specification.md).
 
 ---
 
-## Application Shell Structure
+## Application Shell
 
-### Persistent Elements
+### Structure
 
-Every view in DexReader (except fullscreen Reader) shares these persistent elements:
+Every view except the Reader is rendered inside `AppShell` (`src/renderer/src/layouts/AppShell.tsx`):
 
 ```ui
-┌─────────────────────────────────────────────────────────────┐
-│ Native Menu Bar (File, View, Library, Tools, Help)          │
-├──────────┬──────────────────────────────────────────────────┤
-│          │                                                   │
-│ Sidebar  │          Main Content Area                       │
-│ (collap) │          (view-specific)                         │
-│          │                                                   │
-└──────────┴──────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│ Native menu bar (File, View, Library, Help)                  │  ← Electron, OS-drawn
+├──────────────────────────────────────────────────────────────┤
+│ Update notification / update banner (when relevant)          │
+│ Offline status bar (when offline)                            │  ← AppShell, full width
+│ Incognito status bar (when incognito)                        │
+├────────┬─────────────────────────────────────────────────────┤
+│        │                                                     │
+│Sidebar │  <main id="main-content">                           │
+│ 80px   │  Active view (scrolls vertically)                   │
+│        │                                                     │
+└────────┴─────────────────────────────────────────────────────┘
 ```
+
+`AppShell` is a full-height column (`.app-shell`, `height: 100vh`, `overflow: hidden`). The status bars are stacked above a row (`.app-shell__body`) that holds the sidebar and the main content. Only one scroll container exists: `.app-shell__content` (`overflow-y: auto`, `overflow-x: hidden`, `--win-bg-base` background).
+
+The Reader route (`/reader/:mangaId/:chapterId`) is rendered **outside** `AppShell` (see `App.tsx`), so it has no sidebar, no status bars and uses the full window.
 
 ### Layout Zones
 
-**Zone 1: Native Menu Bar**
+**Native menu bar**
 
-- **Height**: System-defined (Windows 11: ~25px)
-- **Content**: Menu bar (File, View, Library, Tools, Help)
-- **Behavior**: Always visible, native OS rendering, handles window dragging
-- **Electron Implementation**: `Menu.setApplicationMenu()`
-- **Note**: No custom title bar - native menu bar provides drag functionality
+- Menus: **File, View, Library, Help** (built in `src/main/menu/`; there is no Tools menu)
+- Drawn by the OS; there is no custom title bar. See [`menu-bar-structure.md`](./menu-bar-structure.md)
+- `autoHideMenuBar` is `false`, so it is always visible
 
-**Zone 2: Navigation Sidebar**
+**Status bars (top of the shell)**
 
-- **Width**: 240px (fixed)
-- **Content**: Navigation items with Fluent icons (no hamburger menu)
-- **Icons**: @fluentui/react-icons (Regular for inactive, Filled for active)
-- **Animation**: Spring-animated blue indicator bar (400ms, overshoot easing)
-- **Behavior**: Always visible, persists across views
-- **Active State**: 3px blue left border, filled icon, bold text
+- `UpdateNotification` and `UpdateBanner`: app update progress and the "new version" banner
+- `OfflineStatusBar`: shown for `offline-user` and `offline-no-internet` connectivity states
+- `IncognitoStatusBar`: shown while incognito mode is on
+- All are Fluent 2 `MessageBar`-based banners; they render nothing when not applicable, so the sidebar and content simply move up
 
-**Zone 3: Main Content Area**
+**Navigation sidebar** - see [Sidebar](#sidebar)
 
-- **Dimensions**: Fills remaining space (dynamic)
-- **Content**: View-specific content (Browse, Library, Reader, Downloads, Settings)
-- **Behavior**: Scrollable, contains view-specific layouts
+**Main content area**
+
+- Fills the remaining space and scrolls vertically
+- Each view supplies its own padding and maximum width (see the table below)
+- A "Skip to main content" link (`.skip-link`, targets `#main-content`) is the first focusable element
 
 ---
 
-## Layout Dimensions
+## Window
 
-### Default Window Size
+- **Initial size**: 900 × 670 px
+- **Minimum size**: none is set in `createWindow()`, so the OS limits apply. The earlier 400 × 300 minimum was never implemented; the layout is designed for roughly 700px and wider and has no sidebar-collapse breakpoint
+- **Resizable / maximisable**: yes
 
-**Initial Window**:
-
-- Width: 900px
-- Height: 670px
-- Minimum: 400px × 300px
-- Resizable: Yes
-- Maximizable: Yes
-
-### Layout Calculations
-
-**With Expanded Sidebar**:
+### Layout calculation
 
 ```ui
-Main Content Width = Window Width - Sidebar Width
-                   = 900px - 240px
-                   = 660px
+Main content width = window width - sidebar width
+                   = 900px - 80px     (full sidebar)
+                   = 820px
+
+Grid columns at 820px, 24px padding each side, 180px minimum card, 16px gap:
+  floor((772 + 16) / (180 + 16)) = 4 columns
 ```
 
-**With Collapsed Sidebar**:
+---
+
+## Sidebar
+
+`src/renderer/src/components/Sidebar/` - a DexReader component (not a Fluent wrapper).
+
+### Items
+
+| Order | Item      | Route        | Icon (Regular inactive / Filled active) |
+| ----- | --------- | ------------ | --------------------------------------- |
+| 1     | Browse    | `/browse`    | Search                                  |
+| 2     | Library   | `/library`   | Library                                 |
+| 3     | History   | `/history`   | History                                 |
+| 4     | Downloads | `/downloads` | Arrow download                          |
+| 5     | Settings  | `/settings`  | Settings                                |
+
+An item is active when the path equals its route or starts with `route + '/'`, so `/browse/:mangaId` keeps Browse active.
+
+### Display modes
+
+The user chooses the mode in Settings → Appearance (`appearance.sidebarSize`: `full`, `compact` or `auto-hide`). It is applied through `useSidebarStore`.
+
+| Mode        | Width                          | Item height | Labels                        | Behaviour                                                                          |
+| ----------- | ------------------------------ | ----------- | ----------------------------- | ---------------------------------------------------------------------------------- |
+| `full`      | 80px                           | 72px        | Shown under the icon          | Default. The active item hides its label and shows the filled icon                 |
+| `compact`   | 60px                           | 60px        | Hidden (tooltip on hover)     | Icons only                                                                         |
+| `auto-hide` | 8px strip, 80px on hover/focus | 72px        | Fade in with the expanded bar | Collapses to a thin strip with an accent hint; expands on hover or `:focus-within` |
+
+The width is fixed per mode; the sidebar does **not** collapse automatically when the window is resized.
+
+### Properties
+
+- **Background**: `--win-bg-card`, with a 1px right border (`--win-border-default`); no acrylic
+- **Active indicator**: a 3px accent bar at the left edge that slides between items (0.4s, spring easing `cubic-bezier(0.34, 1.56, 0.64, 1)`); it is repositioned when the route or display mode changes
+- **Active item**: `--win-accent-subtle` background and accent text/icon
+- **Hover / pressed**: `--win-bg-hover` / `--win-bg-active`, with a small scale-down on press
+- **Tooltips**: each item shows a right-hand Fluent tooltip (300ms delay, `relationship="label"`)
+- **Landmark**: `<nav>` labelled "Main navigation"; items are `role="button"` and respond to Enter and Space
+
+---
+
+## Routes and Views
+
+| Route                              | View              | In AppShell | Notes                                         |
+| ---------------------------------- | ----------------- | ----------- | --------------------------------------------- |
+| `/`                                | -                 | -           | Redirects to the configured startup route     |
+| `/browse`                          | `BrowseView`      | Yes         | Search, filters (dialog), infinite grid       |
+| `/browse/:mangaId`                 | `MangaDetailView` | Yes         | Keeps Browse highlighted in the sidebar       |
+| `/creator/:creatorType/:creatorId` | `CreatorView`     | Yes         | Works by an author or artist                  |
+| `/library`                         | `LibraryView`     | Yes         | Search plus collection tabs                   |
+| `/history`                         | `HistoryView`     | Yes         | Chronological reading history with a calendar |
+| `/downloads`                       | `DownloadsView`   | Yes         | Downloads grouped by manga                    |
+| `/settings`                        | `SettingsView`    | Yes         | One scrolling page of sections                |
+| `/reader/:mangaId/:chapterId`      | `ReaderView`      | **No**      | Full-window reader                            |
+| `*`                                | `NotFoundView`    | Yes         |                                               |
+
+Every route is wrapped in an `ErrorBoundary level="page"`, and `AppRoutes` wraps the routes in `ViewTransition`, keyed by pathname (and by a single `reader` key for reader routes), so views remount with a short fade/slide on navigation.
+
+Every view includes a visually hidden `<h1>` (`.sr-only`) for screen readers, and views that load results announce them through an `aria-live` status region.
+
+---
+
+## View Layouts
+
+All views use the 4px spacing scale (`--space-*`). Typical view padding is `--space-6` (24px).
+
+### Browse (`/browse`)
 
 ```ui
-Main Content Width = Window Width - Sidebar Width
-                   = 900px - 48px
-                   = 852px
+┌──────────────────────────────────────────────┐
+│ SearchBar (with filter button)               │
+│ Active-filter InfoBar (sticky once the       │
+│   search bar has scrolled out of view)       │
+│ ┌────┐ ┌────┐ ┌────┐ ┌────┐                  │
+│ │card│ │card│ │card│ │card│   MangaCard grid │
+│ └────┘ └────┘ └────┘ └────┘                  │
+│ … infinite scroll sentinel / load-more state │
+└──────────────────────────────────────────────┘
 ```
 
-### Breakpoints
+- Padding: 24px
+- The search bar scrolls with the page. Once it leaves the viewport (`useStickyFilterBar`, an `IntersectionObserver`), the active-filter `InfoBar` appears and sticks to the top (the bar is `position: sticky`), so applied filters stay visible and editable
+- Filters open in a **Modal** containing `FilterPanel` (draft values with an Apply button), not an inline panel; an `InfoBar` summarises applied filters with Edit and Reset actions
+- Grid: `repeat(auto-fill, minmax(180px, 1fr))`, 16px gap
+- Loading: `SkeletonGrid` (20 cards); more results load automatically through an `IntersectionObserver` sentinel (`useInfiniteScroll`); there is a retry state when loading more fails
+- Empty and error states use `EmptyState` and a retryable error block
 
-| Breakpoint | Window Width  | Layout Behavior                                |
-| ---------- | ------------- | ---------------------------------------------- |
-| **Small**  | < 620px       | 2-column grid, icon-only sidebar or bottom nav |
-| **Medium** | 620px - 720px | 3-column grid, compact UI                      |
-| **Large**  | > 720px       | 5-column grid, full UI (default)               |
+### Library (`/library`)
 
----
+- Padding: 24px
+- A row with the `SearchBar` (supports `status:`, `tag:`, `author:`, `year:` style queries, with an expandable syntax-help box) and a "create collection" button
+- Active-filter chips beneath the search row
+- **Collections are tabs** (`Tabs`): "All" plus one tab per collection, each with a count badge and a hover menu (`CollectionContextMenu`) for edit and delete. This replaces the originally planned 200px collections sidebar
+- Grid: same `auto-fill` / 180px / 16px grid as Browse; loading shows `LoadingState variant="skeleton"`; empty states are per context (empty library, empty collection, no search results)
 
-## View-Specific Layouts
+### History (`/history`)
 
-### Browse View Layout
+- A flex column: a **stats strip** (manga, chapters, pages and estimated minutes read), a **schedule header** (date label, calendar popover and search), then the content
+- Content is grouped into dated sections; each section has a sticky date header and a list of `HistoryEventCard`s (12px gap)
+- A calendar (7-column grid, shown in a `Popover` so it floats over the feed) lets the user jump to a day, and the search field toggles open from the same header; the content area scrolls to the top when the date changes
+- Loading and empty states use `LoadingState` / `EmptyState`
 
-```ui
-┌─────────────────────────────────────────────────────────────┐
-│ Title Bar + Menu Bar                                         │
-├──────────┬───────────────────────────────────────────────────┤
-│          │ ┌─────────────────────────────────────────────┐  │
-│          │ │ Search Bar (full width, 48px height)       │  │
-│          │ └─────────────────────────────────────────────┘  │
-│          │                                                   │
-│ Sidebar  │ ┌─────────────────────────────────────────────┐  │
-│ (240px)  │ │ Filters Panel (collapsible, 80px height)   │  │
-│          │ └─────────────────────────────────────────────┘  │
-│          │                                                   │
-│          │ ┌─────────────────────────────────────────────┐  │
-│          │ │                                             │  │
-│          │ │ Manga Grid (5 columns, auto rows)          │  │
-│          │ │ - Card width: ~120px                        │  │
-│          │ │ - Card height: ~200px (cover + text)       │  │
-│          │ │ - Gap: 16px horizontal, 24px vertical      │  │
-│          │ │                                             │  │
-│          │ │ (Scrollable, infinite scroll)               │  │
-│          │ │                                             │  │
-│          │ └─────────────────────────────────────────────┘  │
-└──────────┴───────────────────────────────────────────────────┘
-```
+### Downloads (`/downloads`)
 
-**Layout Properties**:
+- Padding 24px, centred, `max-width: 1200px`
+- A controls row (search, filter and sort selects), a stats row (badges and bulk actions), then **groups per manga**
+- Each group is a collapsible card (chevron, manga title link, counts) containing `DownloadCard`s with the chapter, size/queue info and a `ProgressBar`; failed items show their error inline
+- Loading: `LoadingState`; error: `ErrorState` with retry; empty: `EmptyState`
 
-- **Search Bar**: Sticky at top (position: sticky)
-- **Filters**: Collapsible accordion (closed by default after first use)
-- **Grid**: CSS Grid with auto-fill
-- **Scroll**: Main content area scrolls, sidebar fixed
+### Settings (`/settings`)
 
----
+- **One scrolling page**, not a sidebar of panels. A sticky `SettingsHeader` (`z-index: 100`) holds a section menu: a Fluent `Menu` that jumps to a section and highlights the one in view (`useScrollSpy`); deep links use search params
+- Content is centred with `max-width: 800px` and 24px side padding
+- Sections are stacked with a top border and 24px vertical padding: Appearance, Language, Reader, Downloads, Performance (with Cache management), Storage, Restore points, Security, Advanced (with Logging and the Danger zone)
+- Settings autosave; some changes show a restart-required banner
 
-### Library View Layout
+### Manga Detail (`/browse/:mangaId`)
 
-```ui
-┌─────────────────────────────────────────────────────────────┐
-│ Title Bar + Menu Bar                                         │
-├──────────┬────────┬──────────────────────────────────────────┤
-│          │        │ ┌────────────────────────────────────┐  │
-│          │        │ │ Toolbar (Sort, Filter, View Mode) │  │
-│          │Collect │ └────────────────────────────────────┘  │
-│ Sidebar  │ ions   │                                          │
-│ (240px)  │Sidebar │ ┌────────────────────────────────────┐  │
-│          │(200px) │ │                                    │  │
-│          │        │ │ Manga Grid (5 columns)             │  │
-│          │        │ │ or                                 │  │
-│          │        │ │ Manga List (1 column, large items) │  │
-│          │        │ │                                    │  │
-│          │        │ │ (Scrollable)                       │  │
-│          │        │ │                                    │  │
-│          │        │ └────────────────────────────────────┘  │
-└──────────┴────────┴──────────────────────────────────────────┘
-```
+- A column with a **sticky back bar** (`z-index: 10`) that also shows the manga title once the hero scrolls out of view (`useStickyTitle`)
+- Hero: cover (200px column) beside the title, creators, status/demographic/rating metadata, actions and tags; stacks on narrow widths
+- Below: description, alternative titles, external links, then the chapter list with its controls
 
-**Layout Properties**:
+### Creator (`/creator/...`)
 
-- **Collections Sidebar**: 200px width, nested within main sidebar area
-- **Grid Mode**: Same as Browse view (5 columns)
-- **List Mode**: Single column, each item ~80px height
-- **Toolbar**: Sticky at top of content area
+- Header with a back button and the creator name, then a `MangaCard` grid
+- Grid: `minmax(160px, 1fr)`, reducing to 140px (≤768px) and 120px (≤480px)
+
+### Reader (`/reader/...`)
+
+Rendered full window without the shell. See [`reader-layout-specification.md`](./reader-layout-specification.md) for the header, page areas, reading modes and chapter sidebar.
 
 ---
 
-### Reader View Layout (Fullscreen)
+## Sizing and Spacing
 
-```ui
-┌─────────────────────────────────────────────────────────────┐
-│ Top Bar (auto-hide, Acrylic blur, 64px height)              │
-│ ← Back | Manga Title - Chapter Name | Ch. Dropdown | Menu   │
-├──────────────────────────────────────────────────────────────┤
-│                                                               │
-│                                                               │
-│                    Manga Page(s)                             │
-│                    (centered)                                │
-│                                                               │
-│                                                               │
-├──────────────────────────────────────────────────────────────┤
-│ Bottom Bar (auto-hide, Acrylic blur, 64px height)           │
-│ [◀ Prev]   Page 12/24   [Settings] [Zoom]   [Next ▶]       │
-└──────────────────────────────────────────────────────────────┘
-```
+### Spacing
 
-**Layout Properties**:
+Tokens are defined in `src/renderer/src/assets/tokens.css`:
 
-- **Background**: Pure black (#000000) for maximum contrast
-- **Bars**: Semi-transparent with Acrylic blur
-- **Page Area**: Fills entire space between bars
-- **Auto-hide**: Bars fade out after 3 seconds of inactivity
-- **Reveal**: Mouse movement or touch brings bars back
+| Token       | Value | Typical use                         |
+| ----------- | ----- | ----------------------------------- |
+| `--space-1` | 4px   | Icon-to-text gaps                   |
+| `--space-2` | 8px   | Small gaps, compact padding         |
+| `--space-3` | 12px  | Component internal spacing          |
+| `--space-4` | 16px  | Grid gap, section gaps              |
+| `--space-6` | 24px  | View padding, major section spacing |
+| `--space-8` | 32px  | Large separations                   |
 
-**Reading Modes**:
+Layouts mostly use the utility classes (`p-6`, `mb-4`, `gap-3`, `flex`) documented in [`utility-classes.md`](../components/utility-classes.md).
 
-1. **Single Page Mode**:
-   - One page centered
-   - Fit-to-height or fit-to-width based on user preference
-   - Black letterboxing on sides/top/bottom
+### Content widths
 
-2. **Double Page Mode**:
-   - Two pages side-by-side
-   - Right-to-left layout (right page is "previous")
-   - Both pages fit within viewport height
+- Settings content: `max-width: 800px`, centred
+- Downloads: `max-width: 1200px`, centred
+- Browse, Library and Creator fill the available width
+- Error blocks: `max-width: 500-600px`
 
-3. **Vertical Scroll Mode**:
-   - Pages stacked vertically
-   - Full-width pages
-   - Continuous scrolling (webtoon style)
-   - Bars remain visible, no auto-hide
+### Cover aspect ratio
+
+Covers use a 2:3 `aspect-ratio` with `object-fit: cover`, so cards reserve their space before the image loads.
 
 ---
 
-### Settings View Layout
+## Layering (z-index)
 
-```ui
-┌─────────────────────────────────────────────────────────────┐
-│ Title Bar + Menu Bar                                         │
-├──────────┬───────────────────────────────────────────────────┤
-│          │ ┌──────────────────────────────────────────────┐ │
-│          │ │ Settings Header                              │ │
-│ Sidebar  │ └──────────────────────────────────────────────┘ │
-│ (240px)  │                                                   │
-│          │ ┌──────────────────────────────────────────────┐ │
-│ Settings │ │ General Settings Panel                       │ │
-│ Sections:│ │ - Theme dropdown                             │ │
-│          │ │ - Language dropdown                          │ │
-│ General  │ │ - Update check toggle                        │ │
-│ Reading  │ └──────────────────────────────────────────────┘ │
-│ Download │                                                   │
-│ Storage  │ ┌──────────────────────────────────────────────┐ │
-│ About    │ │ Reading Preferences Panel                    │ │
-│          │ │ - Reading mode radio buttons                 │ │
-│          │ │ - Direction radio buttons                    │ │
-│          │ │ - Image fit radio buttons                    │ │
-│          │ └──────────────────────────────────────────────┘ │
-│          │                                                   │
-│          │ (Scrollable if panels exceed viewport)           │
-│          │                                                   │
-└──────────┴───────────────────────────────────────────────────┘
-```
+`tokens.css` defines a z-index scale (`--z-sidebar: 10`, `--z-dropdown: 100`, `--z-modal: 1000`, `--z-toast: 2000`), but most components use literal values, and Fluent manages the stacking of its own dialogs, popovers and menus. The layers in use:
 
-**Layout Properties**:
-
-- **Settings Sidebar**: Integrated with main sidebar (left side)
-- **Panels**: Stacked vertically with 24px gap
-- **Panel Width**: Fills available space (max 800px for readability)
-- **Panel Height**: Auto-sized to content
+| Layer                                                                        | z-index            |
+| ---------------------------------------------------------------------------- | ------------------ |
+| MangaCard badges and overlays, sidebar indicator, history sticky date header | 1                  |
+| Manga Detail sticky back bar, reader page navigation indicator               | 10                 |
+| Settings header, reader header, zoom indicator and end-of-chapter overlay    | 100                |
+| Reader chapter list overlay and sidebar                                      | 200-201            |
+| Toast container, app-level error fallback                                    | 9999               |
+| Gatekeeper unlock screen                                                     | 10000              |
+| Skip link (when focused)                                                     | `--z-toast` (2000) |
+| Native menu bar                                                              | OS-controlled      |
 
 ---
 
-### Downloads View Layout
-
-```ui
-┌─────────────────────────────────────────────────────────────┐
-│ Title Bar + Menu Bar                                         │
-├──────────┬───────────────────────────────────────────────────┤
-│          │ ┌────────────────────────────────────────────┐   │
-│          │ │ Downloads Header + Controls                │   │
-│ Sidebar  │ │ [Pause All] [Resume All] [Clear Completed] │   │
-│ (240px)  │ └────────────────────────────────────────────┘   │
-│          │                                                   │
-│          │ ┌────────────────────────────────────────────┐   │
-│          │ │ Active Downloads (list)                    │   │
-│          │ │                                            │   │
-│          │ │ ┌────────────────────────────────────────┐ │   │
-│          │ │ │ Manga X - Chapter 45                   │ │   │
-│          │ │ │ [██████████░░░░░░░░░░] 50% │ 2.5 MB/s  │ │   │
-│          │ │ │ 15.2 MB • 30s remaining                │ │   │
-│          │ │ └────────────────────────────────────────┘ │   │
-│          │ │                                            │   │
-│          │ │ ┌────────────────────────────────────────┐ │   │
-│          │ │ │ Manga Y - Chapter 12                   │ │   │
-│          │ │ │ [████████████░░░░░░░░] 65% │ 1.8 MB/s  │ │   │
-│          │ │ │ 8.4 MB • 15s remaining                 │ │   │
-│          │ │ └────────────────────────────────────────┘ │   │
-│          │ │                                            │   │
-│          │ │ (Scrollable list)                          │   │
-│          │ └────────────────────────────────────────────┘   │
-│          │                                                   │
-│          │ ┌────────────────────────────────────────────┐   │
-│          │ │ Completed Downloads (collapsed by default) │   │
-│          │ └────────────────────────────────────────────┘   │
-└──────────┴───────────────────────────────────────────────────┘
-```
-
-**Layout Properties**:
-
-- **Download Items**: Full-width cards, stacked vertically
-- **Item Height**: 80px each (compact), expands for errors
-- **Progress Bars**: Horizontal, 6px height, full width within card
-- **List Sections**: "Active", "Paused", "Completed" (collapsible)
-
----
-
-## Sidebar Specifications
-
-### Navigation Sidebar (All Views Except Reader)
-
-**Expanded State (240px)**:
-
-```ui
-┌────────────────┐
-│ [🔍] Browse    │  ← 48px height per item
-│                │
-│ [📚] Library   │
-│                │
-│ [⬇] Downloads │
-│                │
-│ [⚙] Settings  │
-│                │
-│                │
-│                │
-│   (Acrylic bg) │
-└────────────────┘
-```
-
-**Collapsed State (48px)**:
-
-```ui
-┌────┐
-│ 🔍 │  ← 48px × 48px per item
-│    │
-│ 📚 │
-│    │
-│ ⬇  │
-│    │
-│ ⚙  │
-│    │
-└────┘
-```
-
-**Properties**:
-
-- **Background**: Acrylic blur (Windows 11 effect)
-- **Item Height**: 48px (minimum touch target)
-- **Icon Size**: 20px
-- **Text**: 14px Segoe UI Variable
-- **Active State**: Accent color background (#0078d4 light, #60cdff dark)
-- **Hover State**: Subtle background tint (+5% opacity)
-- **Transition**: Width change animates over 200ms ease-in-out
-
----
-
-## Spacing System
-
-### Global Spacing Scale
-
-Based on 4px base unit:
-
-| Token         | Value | Usage                        |
-| ------------- | ----- | ---------------------------- |
-| `--space-xs`  | 4px   | Tight spacing (icon-to-text) |
-| `--space-sm`  | 8px   | Card padding, small gaps     |
-| `--space-md`  | 12px  | Component internal spacing   |
-| `--space-lg`  | 16px  | Section gaps, grid gaps      |
-| `--space-xl`  | 24px  | Major section separation     |
-| `--space-2xl` | 32px  | View-level margins           |
-
-### Applied Spacing
-
-**Browse/Library Grids**:
-
-- Card gap: 16px horizontal, 24px vertical
-- Container padding: 24px all sides
-- Section margin: 32px between major sections
-
-**Settings Panels**:
-
-- Panel padding: 16px
-- Panel gap: 24px
-- Input spacing: 12px between form fields
-
-**Reader Controls**:
-
-- Button padding: 12px horizontal, 8px vertical
-- Button gap: 8px
-- Bar padding: 16px horizontal
-
----
-
-## Z-Index Hierarchy
-
-Layering order from bottom to top:
-
-| Layer           | Z-Index | Elements                            |
-| --------------- | ------- | ----------------------------------- |
-| Base            | 0       | Main content, background            |
-| Sidebar         | 10      | Navigation sidebar (Acrylic)        |
-| Overlays        | 100     | Modals, dropdowns, tooltips         |
-| Reader Controls | 200     | Top/bottom bars in reader           |
-| Native UI       | System  | Title bar, menu bar (OS-controlled) |
-| Toast/Snackbar  | 1000    | Temporary notifications             |
-
----
-
-## Layout Constraints
-
-### Minimum Dimensions
-
-**Window Minimum**:
-
-- Min Width: 400px
-- Min Height: 300px
-- Rationale: Ensures UI remains usable on small screens
-
-**Content Minimum**:
-
-- Manga Card Min Width: 100px
-- Reader Page Min Width: 200px (zoomed out)
-
-### Maximum Dimensions
-
-**Content Maximum**:
-
-- Settings Panel Max Width: 800px (centered for readability)
-- Text Column Max Width: 600px (for descriptions)
-
-### Aspect Ratios
-
-**Manga Covers**:
-
-- Target Aspect Ratio: 2:3 (standard manga cover)
-- Fallback: 3:4 (if cover dimensions vary)
-- Object Fit: Cover (fills card, crops if needed)
-
----
-
-## Scrolling Behavior
-
-### View Scroll Containers
-
-**Browse/Library Views**:
-
-- **Scroll Container**: Main content area (excluding sidebar)
-- **Overflow**: Auto (shows scrollbar when needed)
-- **Scroll Behavior**: Smooth (`scroll-behavior: smooth`)
-
-**Settings View**:
-
-- **Scroll Container**: Settings panels area
-- **Scroll Snap**: Optional snap to panel tops
-
-**Reader View**:
-
-- **Single/Double Page**: No scroll (page navigation only)
-- **Vertical Scroll**: Natural scroll, smooth snapping to page tops
-
-### Scroll Position Preservation
-
-**On View Change**:
-
-- Browse → Library: Reset scroll to top
-- Library → Browse: Restore previous scroll position
-- Settings sections: Maintain scroll within Settings view
-
-**On Return from Reader**:
-
-- Restore scroll position to manga card that opened reader
-
----
-
-## Responsive Layout Behavior
-
-### Large Screens (>720px)
-
-**Browse/Library**:
-
-- 5-column grid (default)
-- Full sidebar with labels
-- All UI elements visible
-
-**Reader**:
-
-- Double page mode available
-- Large control buttons
-
-### Medium Screens (620px-720px)
-
-**Browse/Library**:
-
-- 3-column grid
-- Sidebar still expanded (can collapse for more space)
-- Filters slightly compressed
-
-**Reader**:
-
-- Single page mode recommended
-- Compact controls
-
-### Small Screens (<620px)
-
-**Browse/Library**:
-
-- 2-column grid
-- Icon-only sidebar or bottom navigation bar
-- Filters in drawer/modal
-
-**Reader**:
-
-- Single page mode only
-- Touch-optimized controls (larger tap targets)
-- Vertical scroll mode recommended for webtoons
+## Scrolling
+
+- **One scroll container** for the shell: `.app-shell__content`. Browse, Library, History, Downloads, Settings and Manga Detail all scroll inside it (History scrolls its own content element for the date jump)
+- **Sticky elements** are the Browse filter `InfoBar`, the Settings header, the Manga Detail back bar and the history date headers
+- **No scroll restoration.** Views remount on navigation, so returning to a view starts at the top; Library and History expose scroll-to-top controls
+- **Reader**: single and double page modes have no document scroll (navigation by page); vertical mode scrolls continuously
 
 ---
 
 ## Accessibility Layout Features
 
-### Skip Links
-
-Invisible links at top of page for keyboard users:
-
-```html
-<a href="#main-content" class="skip-link">Skip to main content</a>
-<a href="#sidebar-nav" class="skip-link">Skip to navigation</a>
-```
-
-**Behavior**:
-
-- Hidden by default
-- Becomes visible on focus (keyboard Tab)
-- Allows jumping directly to content
-
-### Landmark Regions
-
-Semantic HTML for screen readers:
-
-```html
-<header>
-  <!-- Title bar + menu bar -->
-  <nav>
-    <!-- Sidebar navigation -->
-    <main>
-      <!-- Main content area -->
-      <aside>
-        <!-- Collections sidebar in Library -->
-        <footer><!-- Status bar (if added) --></footer>
-      </aside>
-    </main>
-  </nav>
-</header>
-```
-
-### Focus Indicators
-
-**Visible Focus**:
-
-- 2px solid accent color outline
-- 2px offset from element
-- High contrast in both light/dark modes
+- **Skip link**: "Skip to main content" targets `#main-content`; it is hidden until focused. (The text is currently hard-coded in English; there is no separate "skip to navigation" link.)
+- **Landmarks**: `<nav aria-label="Main navigation">` for the sidebar, `<main id="main-content">` for the view, a `<header>` for the Settings header
+- **Headings**: each view has a visually hidden `<h1>`
+- **Live regions**: Browse and Library announce result changes through an `aria-live="polite"` status element; the toast container is `aria-live="polite"`
+- **Focus**: Fluent components provide their own focus indicators; DexReader's own components (sidebar items, manga cards) draw a 2px `:focus-visible` outline
 
 ---
 
-## Layout Implementation Notes
+## Implementation Notes
 
-### CSS Grid for Manga Grids
+### Manga grids
 
 ```css
-.manga-grid {
+.browse-view__manga-grid,
+.library__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 16px 24px;
-  padding: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-4);
 }
 ```
 
-**Benefits**:
+The column count is a function of the width, not a breakpoint, so the grid reflows continuously as the window is resized.
 
-- Automatically responsive
-- Even spacing
-- Fills available width
+### Shell
 
-### Flexbox for Sidebar
-
-```css
-.app-shell {
-  display: flex;
-  height: 100vh;
-}
-
-.sidebar {
-  flex: 0 0 240px; /* no grow, no shrink, 240px basis */
-  transition: flex-basis 200ms ease-in-out;
-}
-
-.sidebar.collapsed {
-  flex-basis: 48px;
-}
-
-.main-content {
-  flex: 1; /* grow to fill remaining space */
-  overflow-y: auto;
-}
+```tsx
+<div className="app-shell flex flex-col">
+  {/* skip link, update/offline/incognito bars */}
+  <div className="app-shell__body flex flex-1">
+    <Sidebar />
+    <main className="app-shell__content" id="main-content">
+      {children}
+    </main>
+  </div>
+</div>
 ```
 
----
+### Performance
 
-## Layout Performance Considerations
-
-### Virtualization
-
-**Not Needed Initially**:
-
-- Start with simple scroll (browsers handle ~1000 DOM nodes well)
-- Add virtualization later if performance issues arise
-
-**When to Add**:
-
-- Library exceeds 500+ manga
-- Browse results exceed 1000+ items
-- Scroll performance degrades
-
-**Recommended Library**: `react-window` or `@tanstack/react-virtual`
-
-### Layout Shift Prevention
-
-**Strategies**:
-
-- Reserve space for images with aspect-ratio CSS
-- Show skeleton screens during load
-- Avoid content jumping when images load
-
-```css
-.manga-card-cover {
-  aspect-ratio: 2/3;
-  object-fit: cover;
-}
-```
+- **No list virtualisation.** Browse loads pages on demand through an infinite-scroll sentinel and Library renders its collection directly; virtualisation (for example `@tanstack/react-virtual`) would be the next step if very large libraries become slow
+- **Layout shift**: skeleton placeholders (`SkeletonGrid`) and the 2:3 cover ratio keep the grid stable while images load
 
 ---
 
 ## Summary
 
-DexReader's layout system provides:
-
-✅ **Consistent Shell**: Persistent sidebar + menu bar across views
-✅ **Flexible Content Area**: Adapts to view requirements
-✅ **Responsive Grid**: 5/3/2 columns based on window width
-✅ **Fullscreen Reader**: Distraction-free reading experience
-✅ **Accessible Structure**: Semantic HTML with skip links and landmarks
-✅ **Smooth Transitions**: Animated sidebar collapse, route changes
-✅ **Touch-Friendly**: Minimum 44px tap targets on all interactive elements
-
-**Review Status**: ✅ Ready for component hierarchy design (Step 2)
-
----
-
-_Layout specification created: 24 November 2025_
-_Part of P1-T01 deliverables_
+- **One shell, one scroll container**: status bars, an 80px-wide (configurable) sidebar and a scrolling main area; the Reader opts out
+- **Fluid grids** rather than fixed column counts
+- **Modal filters, tabbed collections, a single scrolling settings page**: the shapes that replaced the wireframe's inline panels and sidebars
+- **Semantic structure**: skip link, `nav`, `main`, hidden headings and live regions
