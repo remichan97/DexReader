@@ -87,7 +87,6 @@ The renderer views/components tier is intentionally left without unit tests or a
 
 - `i18next@26.0.10` - i18n framework
 - `react-i18next@17.0.7` - React bindings for i18next
-- `i18next-fs-backend@2.6.5` - Filesystem backend for translations
 - Locales: `en-GB` (default), `en-US`, `vi-VN` (`src/locales/`)
 
 **Binary Serialization**:
