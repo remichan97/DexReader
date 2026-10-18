@@ -55,13 +55,16 @@
   border: 1px solid var(--win-border-default);
   border-radius: 6px;
   cursor: pointer;
+  font-family: inherit;
   font-size: 13px;
+  font-weight: var(--win-font-weight-semibold);
   color: var(--win-text-primary);
   transition: all 0.15s ease;
 }
 
 .import-result-dialog__errors-toggle:hover {
   background: var(--win-bg-hover);
+  border-color: var(--win-border-hover);
 }
 
 .import-result-dialog__errors-list {

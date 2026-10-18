@@ -132,6 +132,7 @@
   padding: 0;
   font-size: inherit;
   font-family: inherit;
+  font-weight: var(--win-font-weight-semibold);
   color: var(--win-accent);
   text-decoration: underline;
   cursor: pointer;

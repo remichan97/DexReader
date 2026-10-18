@@ -232,7 +232,7 @@
 
 - `assets/tokens.css` - Design tokens (`--win-*` custom properties, light and dark themes)
 - `assets/utilities.css` - Utility classes (spacing, flex, text, colour)
-- `assets/main.css` - Global element styles (links, code, native form controls) and a few helpers
+- `assets/main.css` - Global element styles for links and inline code only. Style native form controls through their own class, never a global `button`/`input` selector
 
 ### Responsive Breakpoints
 

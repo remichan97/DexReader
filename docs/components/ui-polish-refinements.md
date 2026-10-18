@@ -54,7 +54,7 @@
 
 ### 3. Global Focus Glow Removal (Superseded)
 
-> **Superseded in v1.16.0**: Fluent's `Input` draws its own focus indicator (the accent bottom border). `main.css` still has a global `input:focus { outline: none }` rule, but the `box-shadow` / `!important` workaround below is gone.
+> **Superseded in v1.16.0**: Fluent's `Input` draws its own focus indicator (the accent bottom border). The global `input:focus { outline: none }` rule in `main.css` has since been removed too, along with the `box-shadow` / `!important` workaround below.
 
 **Issue**: Despite component CSS, textboxes still showed browser default blue outer glow on focus
 
@@ -424,7 +424,7 @@ The ~2KB difference for official Fluent icons was worth the authenticity gain.
 
 ### 5. Global Styles Can Interfere
 
-A global `input:focus` rule caused issues. Prefer component-scoped styles, and expect global element selectors in `main.css` to reach third-party components such as Fluent's inner `<input>` elements.
+A global `input:focus` rule caused issues. Prefer component-scoped styles: a global element selector also reaches third-party components such as Fluent's inner `<input>` elements. `main.css` no longer has any for form controls.
 
 ---
 

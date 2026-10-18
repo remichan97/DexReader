@@ -190,10 +190,6 @@ Notes:
   --space-10: 40px;
   --space-12: 48px;
 
-  /* Semantic Spacing */
-  --padding-input: var(--space-2) var(--space-3);
-  --padding-button: var(--space-2) var(--space-4);
-
   /* Border Radius */
   --radius-none: 0;
   --radius-xs: 2px;
@@ -234,7 +230,7 @@ The base styles in `tokens.css` apply the following to headings; everything else
 
 ### Spacing
 
-Spacing uses a 4px base unit (`--space-1` is 4px). Prefer the `--space-*` scale over literal pixel values. `--padding-input` and `--padding-button` are the only semantic spacing tokens.
+Spacing uses a 4px base unit (`--space-1` is 4px). Prefer the `--space-*` scale over literal pixel values.
 
 ### Motion
 
@@ -268,4 +264,4 @@ There is no Mica or acrylic material: the window uses an opaque `--win-bg-base` 
 
 ## History
 
-The post-migration clean-up (v1.16.x) removed tokens nothing referenced: the component tokens (`--progress-*`, `--ring-*`, `--toast-*`, `--sidebar-*`), the acrylic pair, the unused background, border, text and state variants (`--win-bg-overlay`, `--win-bg-input*`, `--win-border-active`, `--win-border-disabled`, `--win-text-placeholder`, `--win-accent-dark`, `--win-accent-active`, `--win-accent-disabled`, `--win-success-hover`, `--win-warning-tint`, `--win-info-tint`), the semantic spacing and margin tokens, the z-index scale other than `--z-toast`, and the touch-target, focus-outline, `--duration-instant`/`--duration-slow`, `--ease-in` and single-property transition tokens. The original design intent for the component tokens was: progress bar 6px (4px compact), progress ring 24/48/64px with a 3px stroke, toast 320-480px wide with an 8px radius, and sidebar 240px expanded / 48px collapsed (the sidebar is now 80px wide).
+The post-migration clean-up (v1.16.x) removed tokens nothing referenced: the component tokens (`--progress-*`, `--ring-*`, `--toast-*`, `--sidebar-*`), the acrylic pair, the unused background, border, text and state variants, `--padding-input` and `--padding-button` (`--win-bg-overlay`, `--win-bg-input*`, `--win-border-active`, `--win-border-disabled`, `--win-text-placeholder`, `--win-accent-dark`, `--win-accent-active`, `--win-accent-disabled`, `--win-success-hover`, `--win-warning-tint`, `--win-info-tint`), the semantic padding, gap and margin tokens, the z-index scale other than `--z-toast`, and the touch-target, focus-outline, `--duration-instant`/`--duration-slow`, `--ease-in` and single-property transition tokens. The original design intent for the component tokens was: progress bar 6px (4px compact), progress ring 24/48/64px with a 3px stroke, toast 320-480px wide with an 8px radius, and sidebar 240px expanded / 48px collapsed (the sidebar is now 80px wide).

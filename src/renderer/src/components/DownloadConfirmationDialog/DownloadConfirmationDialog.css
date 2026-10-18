@@ -49,7 +49,9 @@
 }
 
 .download-dialog__settings-link {
+  font-family: inherit;
   font-size: 12px;
+  font-weight: var(--win-font-weight-semibold);
   color: var(--win-accent);
   background: none;
   border: none;

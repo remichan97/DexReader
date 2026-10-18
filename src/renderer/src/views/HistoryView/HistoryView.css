@@ -43,6 +43,7 @@
   border: 1px solid var(--win-border-default);
   border-radius: var(--radius-sm);
   color: var(--win-text-primary);
+  font-family: inherit;
   font-size: var(--win-font-size-body);
   font-weight: var(--win-font-weight-semibold);
   cursor: pointer;
@@ -51,6 +52,7 @@
 
 .history-schedule-header__date-label:hover {
   background: var(--win-bg-hover);
+  border-color: var(--win-border-hover);
 }
 
 .history-schedule-header__spacer {
@@ -113,7 +115,9 @@
   border: none;
   background: transparent;
   border-radius: var(--radius-sm);
+  font-family: inherit;
   font-size: var(--win-font-size-body);
+  font-weight: var(--win-font-weight-semibold);
   color: var(--win-text-disabled);
   cursor: default;
   transition: var(--transition-bg);

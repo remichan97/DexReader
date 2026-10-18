@@ -90,6 +90,9 @@ const useStyles = makeStyles({
     backgroundColor: 'transparent',
     color: tokens.colorNeutralForeground3,
     cursor: 'pointer',
+    transitionProperty: 'background-color, border-color, color',
+    transitionDuration: tokens.durationFast,
+    transitionTimingFunction: tokens.curveDecelerateMid,
     ':hover': {
       backgroundColor: tokens.colorSubtleBackgroundHover,
       color: tokens.colorNeutralForeground1

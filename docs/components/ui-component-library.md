@@ -611,7 +611,7 @@ All interactive components follow Windows 11 focus patterns:
 
 - **Fluent-backed components** (`Button`, `Input`, `Checkbox`, `Select`, `Tabs`, `Modal` and so on) get their focus indicators, focus trapping and focus restoration from Fluent 2. Don't re-implement these in a wrapper.
 - **DexReader's own components** (`Sidebar`, `MangaCard`) provide a visible `:focus-visible` outline (in the focus or accent colour) and make sure interactive elements are keyboard reachable.
-- Avoid global `input:focus` / `box-shadow` overrides: global element selectors in `main.css` also reach the inputs inside Fluent components.
+- Don't add global element selectors (`button`, `input` and so on) to `main.css`: they also reach the elements inside Fluent components. Style a native control through its own class.
 
 ### Icon Variant Pattern
 

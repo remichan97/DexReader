@@ -98,8 +98,12 @@
   border-color: var(--win-error);
 }
 
-/* Disabled state */
+/* Disabled state: downloading, queued and downloaded badges are all disabled, and they render
+   muted rather than in their status colours. */
 .download-badge:disabled {
+  background: var(--win-bg-disabled);
+  color: var(--win-text-disabled);
+  border-color: var(--win-border-default);
   opacity: 0.6;
   cursor: not-allowed;
 }
