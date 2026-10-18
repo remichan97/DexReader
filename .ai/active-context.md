@@ -48,6 +48,18 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 - **Status**: Not fixed (documented in `docs/architecture/database-architecture.md`)
 - **Detail**: `read_history.manga_id` references `manga` with `ON DELETE CASCADE`, and `mangaRepo.cleanupMangaCache()` deletes any non-favourite, non-downloaded `manga` row not accessed for 90 days. It runs after every progress save, and Settings → Cache Management can run it immediately for all such rows. So the calendar history of those manga is removed with their cache row, and they drop out of the History list (inner join on `manga`), although `manga_progress`/`chapter_progress` stay. If history should outlive the cache, exempt manga that have `read_history` rows from the cleanup condition (or drop the cascade).
 
+### Cover disk-cache limit is probably not enforced
+
+- **Severity**: Low (unbounded disk growth)
+- **Affects**: All
+- **Status**: Not fixed (documented in `docs/architecture/mangadex-api.md`)
+- **Detail**: `DiskCacheUtil.enforceDiskCacheLimit` lists only the top level of `cache/covers`, whose entries are per-manga folders (`{mangaId}/{file}`). It sums those folders' own `stat().size` (0 on Windows) and tries to `deleteFile` them (`EPERM`, caught and logged), so the default 50 MB limit never trims anything. The unit test passes only because it mocks `readDir` with flat paths (`manga-old/cover.jpg`). `getDiskCacheSize` already recurses one level; eviction should do the same and delete files.
+
+### MangaDex rate limits are per client, not shared
+
+- **Severity**: Low
+- **Detail**: The IPC handlers, `DownloadService` and the `ImageProxy` each create their own `MangaDexClient`, and each client has its own `RateLimiter`, so UI requests and download requests don't share the 5 req/s budget. The 429 retry handling absorbs overruns. Sharing one limiter would remove the risk.
+
 ### Download status badges render muted, not in their status colours
 
 - **Severity**: Low (visual)
