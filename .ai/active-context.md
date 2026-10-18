@@ -29,10 +29,17 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 - **Status**: Not fixed (pre-existing)
 - **Detail**: `migrateSettings` has a "revert to defaults" branch for an invalid current-version file, but `validateSettings` throws a `TypeError` instead of returning `false`, so the branch can't run and `settingsManager.load()` throws. Only reachable by hand-editing or corrupting `settings.json`.
 
-### Menu-bar doc is out of date
+### Five Library menu items do nothing
 
 - **Severity**: Low
-- **Detail**: `docs/architecture/menu-bar-structure.md` still says 5 menus and 30+ items (with a Tools menu); the code builds four (File, View, Library, Help), so refresh it with the menu-bar work. Other `docs/architecture/*` files (state management, database and so on) were not audited for staleness.
+- **Affects**: All
+- **Status**: Not fixed (never wired; documented in `docs/architecture/menu-bar-structure.md`)
+- **Detail**: The Library menu sends `add-to-favorites`, `create-collection`, `manage-collections`, `download-chapter` and `download-manga`, but no renderer code subscribes to them (none ever has). Nothing sets `canAddToFavorites`, `canDownloadChapter` or `canDownloadManga`, so Add to Favourites and the two Download items are always disabled, and Create/Manage Collections are enabled but inert. `Ctrl+Shift+N` is also bound to both Go Incognito and Create Collection. Either wire the items to the existing UI actions or remove them from the menu, the preload listeners and `MenuState`.
+
+### Some architecture docs not audited for staleness
+
+- **Severity**: Low
+- **Detail**: `state-management.md`, `database-architecture.md`, `ipc-messaging.md`, `filesystem-security.md`, `mangadex-api.md` and `error-handling.md` (apart from the `ErrorState` fix) have not been checked against the code.
 
 ### Download status badges render muted, not in their status colours
 
@@ -71,7 +78,7 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 ### 18 October 2026 - Post-migration clean-up, second pass ✅
 
 - **Type**: Chore + docs
-- **Summary**: Removed the unused `ErrorRecovery` and `Versions.tsx` components, the dead `.error-recovery*` rules in `ReaderView.css` (`MangaDetailView`'s borrowed names became `manga-detail-error__*`), the unused `i18next-fs-backend` and `@types/bcrypt` packages, the props the Fluent wrappers ignored (`Radio` `checked`/`onChange`/`name`, `Skeleton` `noAnimation`, `ProgressBar` `animated`), 38 unreferenced design tokens (and the `--win-accent-active` computation), and `main.css`'s dead `button.primary`/`select`/`textarea` rules and duplicated utilities. `index.html` now has the real title. Then removed `main.css`'s global `button` and `input` rules: each raw button/input now carries its own font, weight and hover border (the five Griffel icon buttons got an explicit `transition`, the accent colour picker its padding and background), and the orphaned `--padding-input`/`--padding-button` tokens went with them. Finally pruned `utilities.css` to the 51 classes something uses (from 190; 847 → 261 lines, built CSS 133.0 → 126.6 kB) and rewrote `utility-classes.md` to match, with the rule that utility class names are never built dynamically so unused ones stay findable by plain search. Rewrote the design token doc from `tokens.css` and dropped the Mica/acrylic and hand-rolled overlay claims from the component docs. Replaced `claude-plans/` references (gitignored) and "hand-rolled" history in comments.
+- **Summary**: Removed the unused `ErrorRecovery` and `Versions.tsx` components, the dead `.error-recovery*` rules in `ReaderView.css` (`MangaDetailView`'s borrowed names became `manga-detail-error__*`), the unused `i18next-fs-backend` and `@types/bcrypt` packages, the props the Fluent wrappers ignored (`Radio` `checked`/`onChange`/`name`, `Skeleton` `noAnimation`, `ProgressBar` `animated`), 38 unreferenced design tokens (and the `--win-accent-active` computation), and `main.css`'s dead `button.primary`/`select`/`textarea` rules and duplicated utilities. `index.html` now has the real title. Then removed `main.css`'s global `button` and `input` rules: each raw button/input now carries its own font, weight and hover border (the five Griffel icon buttons got an explicit `transition`, the accent colour picker its padding and background), and the orphaned `--padding-input`/`--padding-button` tokens went with them. Finally pruned `utilities.css` to the 51 classes something uses (from 190; 847 → 261 lines, built CSS 133.0 → 126.6 kB) and rewrote `utility-classes.md` to match, with the rule that utility class names are never built dynamically so unused ones stay findable by plain search. Rewrote `menu-bar-structure.md` against the real menu code (four menus, the IPC event and menu-state flow, and the gaps above); it previously described a five-menu design with a Tools menu that was never built. Rewrote the design token doc from `tokens.css` and dropped the Mica/acrylic and hand-rolled overlay claims from the component docs. Replaced `claude-plans/` references (gitignored) and "hand-rolled" history in comments.
 - **Status**: ✅ Complete; typecheck, lint, 1486 tests and the production build pass
 
 ### 13 October 2026 - Post-migration orphan clean-up ✅
