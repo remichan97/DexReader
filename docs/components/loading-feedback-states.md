@@ -16,7 +16,7 @@ This document describes how DexReader tells the user that something is loading, 
 | Small or inline wait                   | `ProgressRing`                                       |
 | Known progress (downloads, imports)    | `ProgressBar`                                        |
 | Fatal render error                     | `ErrorBoundary` (`app`, `page` or `component`)       |
-| Failed fetch with a retry              | `ErrorState`, or `ErrorRecovery` inline              |
+| Failed fetch with a retry              | `ErrorState`                                         |
 | Offline or no internet                 | `OfflineStatusBar` (driven by `connectivityStore`)   |
 | Persistent in-page notice              | `InfoBar`                                            |
 | Transient result of an action          | `Toast` via `useToast`                               |
@@ -90,10 +90,6 @@ A full error panel with an icon, title, message and actions.
 | `showTechnicalDetails` | `boolean`                              | Adds a toggle that reveals the error's details                  |
 
 Used by Downloads and the Reader (chapter and page failures).
-
-### ErrorRecovery
-
-A compact inline "something went wrong, try again" block with a Retry button (`error`, `onRetry`, `isRetrying`, optional `children`). Use it inside a section that failed to load while the rest of the page is fine.
 
 ### Offline and Connectivity
 
@@ -212,6 +208,6 @@ Toasts are non-blocking feedback for API errors, success messages and progress. 
 ## Summary
 
 - Loading: `LoadingState` / `SkeletonGrid` for views, `ProgressRing` for small waits, `ProgressBar` for known progress
-- Errors: `ErrorBoundary` for crashes, `ErrorState` / `ErrorRecovery` for failed loads, `OfflineStatusBar` and `InfoBar` for persistent notices, toasts for transient results
+- Errors: `ErrorBoundary` for crashes, `ErrorState` for failed loads, `OfflineStatusBar` and `InfoBar` for persistent notices, toasts for transient results
 - Empty: `EmptyState` with an optional action
 - Decisions that must block go through native dialogs; everything else stays in the page

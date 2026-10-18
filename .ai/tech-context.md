@@ -306,9 +306,9 @@ All IPC handlers use `wrapIpcHandler` for consistent error handling:
 - React class component for catching component errors
 - Fallback UI with 3 levels: app/page/component
 
-**Error Recovery** (`src/renderer/src/components/ErrorRecovery/`):
+**Error State** (`src/renderer/src/components/ErrorState/`):
 
-- Inline error UI with retry button
+- Error panel with retry button and optional technical details
 - Casual, user-friendly error display
 
 **Logging** (`src/main/services/logging/`, `src/renderer/src/services/logging.service.ts`):

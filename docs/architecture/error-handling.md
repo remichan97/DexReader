@@ -58,9 +58,9 @@ src/renderer/src/
 │   │   ├── ErrorBoundary.tsx    # Core boundary component (class)
 │   │   ├── ErrorFallback.tsx    # Default fallback UI
 │   │   └── ErrorBoundary.css    # Three-level styles
-│   ├── ErrorRecovery/           # Inline error UI
-│   │   ├── ErrorRecovery.tsx    # Recovery component
-│   │   └── ErrorRecovery.css
+│   ├── ErrorState/              # Error panel with retry
+│   │   ├── ErrorState.tsx       # Error state component
+│   │   └── ErrorState.css
 │   ├── ErrorLogViewer/          # Dev/debug tool
 │   │   ├── ErrorLogViewer.tsx   # Error log display
 │   │   └── ErrorLogViewer.css
@@ -337,20 +337,26 @@ function MyComponent(): React.JSX.Element {
   }, [])
 
   if (isLoading) return <LoadingSpinner />
-  if (error) return <ErrorRecovery error={error} onRetry={retry} isRetrying={isLoading} />
+  if (error) {
+    return <ErrorState message={error.message} error={error} onRetry={retry} retrying={isLoading} />
+  }
 
   return <div>{/* Success UI */}</div>
 }
 ```
 
-### ErrorRecovery Component
+### ErrorState Component
 
-Inline error UI with retry button:
+Error panel with a retry button. See [loading-feedback-states.md](../components/loading-feedback-states.md#errorstate) for the full props:
 
 ```tsx
-<ErrorRecovery error={error} onRetry={handleRetry} isRetrying={isLoading}>
-  <p>Additional context or help text</p>
-</ErrorRecovery>
+<ErrorState
+  message="Couldn't load this section"
+  error={error}
+  onRetry={handleRetry}
+  retrying={isLoading}
+  showTechnicalDetails
+/>
 ```
 
 ---
@@ -547,7 +553,7 @@ const { execute, isLoading, error, retry } = useRetry(
 
 // In render
 if (error) {
-  return <ErrorRecovery error={error} onRetry={retry} isRetrying={isLoading} />
+  return <ErrorState message={error.message} error={error} onRetry={retry} retrying={isLoading} />
 }
 ```
 
@@ -672,7 +678,7 @@ async function handleDownload(): Promise<void> {
 | Component crashes during render | Error Boundary                           |
 | Async IPC call fails            | Try-catch + getUserFriendlyError + Toast |
 | User input validation fails     | Inline validation error UI               |
-| Network request fails           | Retry utility + ErrorRecovery component  |
+| Network request fails           | Retry utility + ErrorState component     |
 | Unknown/uncaught error          | Global error handler (automatic)         |
 
 ---

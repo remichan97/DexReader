@@ -191,7 +191,7 @@
 
 ### File Naming
 
-- **Components**: PascalCase (`App.tsx`, `Versions.tsx`)
+- **Components**: PascalCase (`App.tsx`, `MangaCard.tsx`)
 - **Utilities**: camelCase
 - **Assets**: kebab-case (`tokens.css`, `main.css`)
 
