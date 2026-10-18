@@ -1,6 +1,6 @@
 # DexReader Active Context
 
-**Last Updated**: 13 October 2026
+**Last Updated**: 18 October 2026
 **Version**: v1.16.0
 **Mode**: Active Development
 
@@ -29,10 +29,10 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 - **Status**: Not fixed (pre-existing)
 - **Detail**: `migrateSettings` has a "revert to defaults" branch for an invalid current-version file, but `validateSettings` throws a `TypeError` instead of returning `false`, so the branch can't run and `settingsManager.load()` throws. Only reachable by hand-editing or corrupting `settings.json`.
 
-### Menu-bar doc and global form styles still describe older assumptions
+### Menu-bar doc, global button/input styles and the unused utility classes
 
 - **Severity**: Low
-- **Detail**: `docs/architecture/menu-bar-structure.md` still says 5 menus and 30+ items; the code builds four (File, View, Library, Help) and `navigation-flow.md` now links to it for accelerators, so refresh it with the menu-bar work. `main.css` still has global `input, textarea, select` and `button` styles that also reach Fluent's inner elements; they appear harmless but are worth reviewing. About 90 of `utilities.css`'s utility classes are unused (kept as a documented library), and a few general tokens (`--z-*`, `--gap-*`, `--focus-outline-*`, acrylic) are unreferenced. Other `docs/architecture/*` files (state management, error handling, database and so on) were not audited for staleness.
+- **Detail**: `docs/architecture/menu-bar-structure.md` still says 5 menus and 30+ items (with a Tools menu); the code builds four (File, View, Library, Help), so refresh it with the menu-bar work. `main.css` still has global `button` and `input` rules that also reach Fluent's inner elements and ~20 raw `<button>`s (MangaCard, DownloadStatusBadge, HistoryCalendar, the reader page displays and others) may lean on them, so remove or scope them only after a visual click-through. 131 of `utilities.css`'s 191 utility classes are unused (kept as a documented library). Other `docs/architecture/*` files (state management, database and so on) were not audited for staleness.
 
 ### Large renderer chunks
 
@@ -62,6 +62,12 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 - **Type**: Release
 - **Summary**: Bumped to 1.16.0 (minor: new features, backward compatible for user data; the Fluent migration was treated as a component switch, not a major UI overhaul). Changelog written from the net change since v1.15.0, leaving out regressions that were introduced and fixed inside the branch. Updated `README.md`, `docs/README.md`, the component library doc, `Select`/`SearchBar` READMEs (new `TagPicker`/`LanguageBadge` READMEs), `CLAUDE.md`, `tech-context.md` and `system-pattern.md`. Gates: typecheck, lint, 1486 tests with coverage thresholds, production build.
 - **Status**: ✅ Complete, awaiting merge and tag
+
+### 18 October 2026 - Post-migration clean-up, second pass ✅
+
+- **Type**: Chore + docs
+- **Summary**: Removed the unused `ErrorRecovery` and `Versions.tsx` components, the dead `.error-recovery*` rules in `ReaderView.css` (`MangaDetailView`'s borrowed names became `manga-detail-error__*`), the unused `i18next-fs-backend` and `@types/bcrypt` packages, the props the Fluent wrappers ignored (`Radio` `checked`/`onChange`/`name`, `Skeleton` `noAnimation`, `ProgressBar` `animated`), 38 unreferenced design tokens (and the `--win-accent-active` computation), and `main.css`'s dead `button.primary`/`select`/`textarea` rules and duplicated utilities. `index.html` now has the real title. Rewrote the design token doc from `tokens.css` and dropped the Mica/acrylic and hand-rolled overlay claims from the component docs. Replaced `claude-plans/` references (gitignored) and "hand-rolled" history in comments.
+- **Status**: ✅ Complete; typecheck, lint, 1486 tests and the production build pass
 
 ### 13 October 2026 - Post-migration orphan clean-up ✅
 
