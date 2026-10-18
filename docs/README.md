@@ -24,7 +24,7 @@ System architecture, navigation patterns, and layout specifications.
 - **layout-specification.md** - Application shell, sidebar display modes, per-view layouts, content widths, layering and scrolling
 - **reader-layout-specification.md** - 3 reading modes (single/double/vertical) with controls, interactions, preloading strategy
 - **menu-bar-structure.md** - Native Electron menu bar (File, View, Library, Help): items, accelerators, the IPC events and menu state, and known gaps
-- **database-architecture.md** - 🗄️ **SQLite database design** with Drizzle ORM, 9 tables, CQRS pattern, migration strategy
+- **database-architecture.md** - SQLite (`node:sqlite`) + Drizzle: connection and startup, the 11 tables, repositories and shared commands/contracts, migrations, restore points, testing
 - **state-management.md** - The 10 Zustand stores: what each holds, where its data comes from, conventions, startup hydration, testing
 - **error-handling.md** - Error patterns, IPC error handling, user-facing messages
 - **filesystem-security.md** - Path validation, security restrictions, safe file operations
