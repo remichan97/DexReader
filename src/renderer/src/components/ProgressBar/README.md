@@ -63,7 +63,6 @@ import { ProgressBar } from '@renderer/components/ProgressBar'
 | `label`      | `string`                            | `undefined`           | Custom label text                                   |
 | `speed`      | `string`                            | `undefined`           | Download/upload speed                               |
 | `eta`        | `string`                            | `undefined`           | Estimated time remaining                            |
-| `animated`   | `boolean`                           | -                     | **Ignored.** Kept for API compatibility             |
 | `className`  | `string`                            | `''`                  | Class applied to the outer wrapper                  |
 | `aria-label` | `string`                            | translated "Progress" | Accessible label                                    |
 
@@ -264,7 +263,7 @@ function SyncIndicator({ syncing, progress }: { syncing: boolean; progress?: num
   return (
     <div className="sync-status">
       <span>{syncing ? 'Syncing...' : 'Synced'}</span>
-      {syncing && <ProgressBar value={progress} size="small" animated />}
+      {syncing && <ProgressBar value={progress} size="small" />}
     </div>
   )
 }

@@ -56,15 +56,14 @@ import { SkeletonGrid } from '@renderer/components/Skeleton'
 
 ## Skeleton Props
 
-| Prop          | Type                                          | Default        | Description                                  |
-| ------------- | --------------------------------------------- | -------------- | -------------------------------------------- |
-| `variant`     | `'text' \| 'card' \| 'circle' \| 'rectangle'` | `'text'`       | Skeleton shape                               |
-| `width`       | `string \| number`                            | varies         | Width (CSS value or pixels)                  |
-| `height`      | `string \| number`                            | varies         | Height (CSS value or pixels)                 |
-| `lines`       | `number`                                      | `1`            | Number of lines (text variant only)          |
-| `noAnimation` | `boolean`                                     | -              | **Ignored.** Kept for API compatibility      |
-| `className`   | `string`                                      | `''`           | Class applied to the Fluent skeleton wrapper |
-| `aria-label`  | `string`                                      | `'Loading...'` | Accessible label                             |
+| Prop         | Type                                          | Default        | Description                                  |
+| ------------ | --------------------------------------------- | -------------- | -------------------------------------------- |
+| `variant`    | `'text' \| 'card' \| 'circle' \| 'rectangle'` | `'text'`       | Skeleton shape                               |
+| `width`      | `string \| number`                            | varies         | Width (CSS value or pixels)                  |
+| `height`     | `string \| number`                            | varies         | Height (CSS value or pixels)                 |
+| `lines`      | `number`                                      | `1`            | Number of lines (text variant only)          |
+| `className`  | `string`                                      | `''`           | Class applied to the Fluent skeleton wrapper |
+| `aria-label` | `string`                                      | `'Loading...'` | Accessible label                             |
 
 ## SkeletonGrid Props
 

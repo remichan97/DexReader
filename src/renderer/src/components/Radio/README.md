@@ -58,19 +58,16 @@ function CacheSettings() {
 
 ### Radio Props
 
-| Prop          | Type                      | Default  | Description                                    |
-| ------------- | ------------------------- | -------- | ---------------------------------------------- |
-| `value`       | `string`                  | Required | The value of this radio option                 |
-| `label`       | `string`                  | -        | Label text                                     |
-| `description` | `string`                  | -        | Description text below label                   |
-| `disabled`    | `boolean`                 | `false`  | Whether the radio is disabled                  |
-| `className`   | `string`                  | `''`     | Additional CSS classes                         |
-| `aria-label`  | `string`                  | -        | Accessibility label (defaults to `label`)      |
-| `checked`     | `boolean`                 | -        | **Ignored.** Kept for API compatibility        |
-| `onChange`    | `(value: string) => void` | -        | **Ignored.** Use the `RadioGroup`'s `onChange` |
-| `name`        | `string`                  | -        | **Ignored.** Use the `RadioGroup`'s `name`     |
+| Prop          | Type      | Default  | Description                               |
+| ------------- | --------- | -------- | ----------------------------------------- |
+| `value`       | `string`  | Required | The value of this radio option            |
+| `label`       | `string`  | -        | Label text                                |
+| `description` | `string`  | -        | Description text below label              |
+| `disabled`    | `boolean` | `false`  | Whether the radio is disabled             |
+| `className`   | `string`  | `''`     | Additional CSS classes                    |
+| `aria-label`  | `string`  | -        | Accessibility label (defaults to `label`) |
 
-The selected state and `name` come from the enclosing `RadioGroup`; the three ignored props are accepted only so older call sites still type-check.
+The selected state, `onChange` and `name` come from the enclosing `RadioGroup`, not from the individual `Radio`.
 
 ### RadioGroup Props
 

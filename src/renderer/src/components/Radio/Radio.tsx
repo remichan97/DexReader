@@ -8,18 +8,6 @@ export interface RadioProps extends BaseComponentProps, DisableableProps {
   value: string
 
   /**
-   * Whether this radio is selected
-   * (auto-set by RadioGroup)
-   */
-  checked?: boolean
-
-  /**
-   * Change handler - receives the value when selected
-   * (auto-set by RadioGroup)
-   */
-  onChange?: (value: string) => void
-
-  /**
    * Label text
    */
   label?: string
@@ -28,11 +16,6 @@ export interface RadioProps extends BaseComponentProps, DisableableProps {
    * Description text below the label
    */
   description?: string
-
-  /**
-   * Name attribute for form grouping (auto-set by RadioGroup)
-   */
-  name?: string
 }
 
 /**
@@ -44,8 +27,6 @@ export interface RadioProps extends BaseComponentProps, DisableableProps {
  * ```tsx
  * <Radio
  *   value="normal"
- *   checked={tier === 'normal'}
- *   onChange={setTier}
  *   label="Normal (200 MB)"
  *   description="3-4 chapters, recommended"
  * />
@@ -59,9 +40,8 @@ export function Radio({
   className = '',
   'aria-label': ariaLabel
 }: Readonly<RadioProps>): React.JSX.Element {
-  // checked/onChange/name are no longer used here: inside Fluent's RadioGroup, each Radio
-  // reads its checked state and name from the ambient RadioGroupProvider context (set by
-  // RadioGroup.tsx), not from its own props - kept on RadioProps for API compatibility.
+  // Inside Fluent's RadioGroup, each Radio reads its checked state and name from the ambient
+  // RadioGroupProvider context (set by RadioGroup.tsx), so none of those are props here.
   const radioLabel =
     label || description ? (
       <div>
