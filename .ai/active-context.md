@@ -36,11 +36,6 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 - **Status**: Not fixed (never wired; documented in `docs/architecture/menu-bar-structure.md`)
 - **Detail**: The Library menu sends `add-to-favorites`, `create-collection`, `manage-collections`, `download-chapter` and `download-manga`, but no renderer code subscribes to them (none ever has). Nothing sets `canAddToFavorites`, `canDownloadChapter` or `canDownloadManga`, so Add to Favourites and the two Download items are always disabled, and Create/Manage Collections are enabled but inert. `Ctrl+Shift+N` is also bound to both Go Incognito and Create Collection. Either wire the items to the existing UI actions or remove them from the menu, the preload listeners and `MenuState`.
 
-### Some architecture docs not audited for staleness
-
-- **Severity**: Low
-- **Detail**: `state-management.md`, `database-architecture.md`, `ipc-messaging.md`, `filesystem-security.md`, `mangadex-api.md` and `error-handling.md` (apart from the `ErrorState` fix) have not been checked against the code.
-
 ### Cache cleanup also deletes read history
 
 - **Severity**: Low to Medium (data loss, needs a decision on intent)
@@ -59,6 +54,11 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 
 - **Severity**: Low
 - **Detail**: The IPC handlers, `DownloadService` and the `ImageProxy` each create their own `MangaDexClient`, and each client has its own `RateLimiter`, so UI requests and download requests don't share the 5 req/s budget. The 429 retry handling absorbs overruns. Sharing one limiter would remove the risk.
+
+### Smaller robustness gaps found while auditing the docs
+
+- **Severity**: Low
+- **Detail**: (1) The Downloads folder validator accepts a symlinked or junctioned folder, but `secureFs` then refuses every path under it, so downloads fail. (2) `isSystemDirectory` is a case-sensitive prefix check covering only `C:` on Windows. (3) `GlobalErrorHandler`'s toast text is hard-coded English, not translated. (4) The main process has no `uncaughtException`/`unhandledRejection` handler, so a throw outside an IPC handler isn't logged. (5) Six main-process files use `node:fs` directly; backup import/export is intentional (user-chosen paths) but nothing enforces the `secureFs` rule. Details are in `filesystem-security.md` and `error-handling.md`.
 
 ### Download status badges render muted, not in their status colours
 
@@ -93,6 +93,12 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 - **Type**: Release
 - **Summary**: Bumped to 1.16.0 (minor: new features, backward compatible for user data; the Fluent migration was treated as a component switch, not a major UI overhaul). Changelog written from the net change since v1.15.0, leaving out regressions that were introduced and fixed inside the branch. Updated `README.md`, `docs/README.md`, the component library doc, `Select`/`SearchBar` READMEs (new `TagPicker`/`LanguageBadge` READMEs), `CLAUDE.md`, `tech-context.md` and `system-pattern.md`. Gates: typecheck, lint, 1486 tests with coverage thresholds, production build.
 - **Status**: ✅ Complete, awaiting merge and tag
+
+### 18 October 2026 - Architecture docs audited against the code ✅
+
+- **Type**: Docs + small chores
+- **Summary**: Rewrote all six remaining architecture guides from the source: `state-management` (all 10 stores), `database-architecture` (`node:sqlite` + Drizzle 1.0, 11 tables, startup and recovery, repositories, migrations, restore points), `ipc-messaging` (116 channels, `IpcResponse`, error serialisation, push events, bridge), `filesystem-security` (real allowed roots, symlink rule, downloads-folder flow, intentional exceptions), `mangadex-api` (client, rate limiter, `mangadex://` proxy and caches, `local-manga://`) and `error-handling` (three layers as built). Removed the unused `errorMessages.ts` and the unread error buffer in `errorHandler.ts`, and corrected `CLAUDE.md` and the `.ai` docs: the preload types live in `window.types.ts` (there is no `index.d.ts`), handlers are in `src/main/ipc/handlers/`, `settings.json` is not encrypted, and there are more than two filesystem roots. New Known Issues: cache cleanup deletes read history, the cover disk-cache limit isn't enforced, MangaDex rate limits are per client, and the Library menu items with no listener.
+- **Status**: ✅ Complete; typecheck, lint, 1486 tests and the production build pass
 
 ### 18 October 2026 - Post-migration clean-up, second pass ✅
 
