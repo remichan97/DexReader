@@ -110,7 +110,6 @@ All components follow Microsoft's Fluent Design System:
 - **Subtle borders**: 1-2px borders with `--win-border-default`
 - **Bottom border emphasis**: 2px accent borders on focus for inputs
 - **Rounded corners**: 4-8px border radius
-- **Mica/Acrylic effects**: Backdrop blur for overlays
 - **Spring animations**: Overshoot easing for satisfying feedback
 
 ### 2. Consistent Behavior
@@ -503,7 +502,7 @@ showToast({
 **Purpose**: Full-screen overlay dialogs
 **Sizes**: 3 (small 400px, medium 600px, large 800px)
 **Features**: Focus trap, body scroll lock, Escape to close
-**Backdrop**: Acrylic blur effect
+**Backdrop**: Fluent's dialog backdrop
 
 ```tsx
 <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Confirm Action" size="medium">
@@ -590,15 +589,7 @@ Using `key={location.pathname}` triggers React's unmount/remount cycle, allowing
 
 ## Design Patterns
 
-> **Note**: The portal, click-outside, focus-management and keyboard-navigation patterns below describe how overlays used to be hand-rolled. Fluent 2 now provides all of them for `Modal`, `Tooltip`, `Popover`, `Select` and the menus, so only reach for these when building a genuinely custom overlay.
-
-### Portal Rendering
-
-Overlays that need to escape their parent's stacking context render into a portal. Fluent 2 does this for `Modal`, `Tooltip`, `Popover`, `Select` and the toasts, so none of them needs a hand-written `createPortal`. A genuinely custom overlay would use React's `createPortal(element, document.body)`.
-
-**Components rendered in a portal (by Fluent)**: Tooltip, Popover, Modal, Select
-
----
+> **Note**: Portals, click-outside and Escape dismissal, focus trapping and restoration, and arrow-key navigation come from Fluent 2 for `Modal`, `Tooltip`, `Popover`, `Select` and the menus. Don't re-implement them in a wrapper; a genuinely custom overlay would use React's `createPortal(element, document.body)` and handle its own dismissal and focus.
 
 ### Spring Animations
 
@@ -659,25 +650,6 @@ Many components support both patterns:
 ```
 
 **Components supporting both**: Switch, Checkbox, Tabs, Dropdown, Modal, Popover
-
----
-
-### Click-Outside Detection
-
-For dropdowns, modals, and popovers:
-
-```tsx
-useEffect(() => {
-  const handleClickOutside = (event: MouseEvent) => {
-    if (ref.current && !ref.current.contains(event.target as Node)) {
-      onClose()
-    }
-  }
-
-  document.addEventListener('mousedown', handleClickOutside)
-  return () => document.removeEventListener('mousedown', handleClickOutside)
-}, [onClose])
-```
 
 ---
 

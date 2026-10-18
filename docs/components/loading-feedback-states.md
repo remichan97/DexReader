@@ -154,14 +154,14 @@ Used by Library (empty library, no search results, no collection items), Browse,
 | Information Messages   | Native Message Box  | OS-native, standard Windows pattern        |
 | Import Library         | Native File Picker  | OS-native dialog, file system access       |
 | Export Library         | Native Save Dialog  | OS-native dialog, save location            |
-| API Errors             | Custom Toast        | Non-blocking, temporary, with retry action |
-| Network Status         | Custom Banner       | Persistent indicator, non-blocking         |
-| Success Messages       | Custom Toast        | Lightweight feedback, auto-dismiss         |
+| API Errors             | Toast               | Non-blocking, temporary, with retry action |
+| Network Status         | OfflineStatusBar    | Persistent indicator, non-blocking         |
+| Success Messages       | Toast               | Lightweight feedback, auto-dismiss         |
 | Settings               | Full View           | Complex form, not modal                    |
 | Image Zoom             | Reader Overlay      | Reader-specific, not blocking              |
 | Chapter List           | Slide-in Drawer     | Persistent during reading                  |
 
-**Design Principle**: Use native OS dialogs for blocking operations and system-level feedback. Use custom in-app overlays (the `Modal` component) only for app-specific content that a native dialog can't express, such as the keyboard-shortcuts reference or multi-field forms.
+**Design Principle**: Use native OS dialogs for blocking operations and system-level feedback. Use in-app overlays (the `Modal` component) only for app-specific content that a native dialog can't express, such as the keyboard-shortcuts reference or multi-field forms.
 
 ### Native Dialogs
 
@@ -195,11 +195,11 @@ File and folder pickers (`dialog.showOpenDialog` / `showSaveDialog`) are likewis
 - `question` - Question mark icon, for yes/no decisions
 - `none` - No icon, for custom scenarios
 
-### Custom Modal
+### In-App Modal
 
 The `Modal` component (a wrapper over the Fluent 2 `Dialog`) covers the remaining cases. See [`Modal/README.md`](../../src/renderer/src/components/Modal/README.md) for props, sizes and when not to use it.
 
-### Custom Toasts (Non-Blocking Notifications)
+### Toasts (Non-Blocking Notifications)
 
 Toasts are non-blocking feedback for API errors, success messages and progress. They are driven by the global `toastStore` through `useToast()` and rendered by one `ToastContainer` mounted in `App.tsx`. See [`Toast/README.md`](../../src/renderer/src/components/Toast/README.md).
 
