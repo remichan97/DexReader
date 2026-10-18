@@ -98,7 +98,7 @@ Routed in `src/renderer/src/router.tsx` (wrapped in `HashRouter` in `App.tsx`):
 - **Search/Filter**: `SearchBar`, `FilterPanel`, `FilterChip`, `PresetSelector`, `SavePresetDialog`
 - **Backup/Import**: `DexReaderExportDialog`, `DexReaderImportDialog`, `ImportProgressDialog`, `ImportResultDialog`
 - **Gatekeeper (app lock)**: `GatekeeperChangeModal`, `GatekeeperReauthModal`, `GatekeeperResetPrompt`, `GatekeeperSetupModal`
-- **Shared/Primitives**: `Button`, `Input`, `Checkbox`, `Radio`, `Switch`, `Select`, `NumberSpinner`, `Modal`, `Popover`, `Tabs`, `Tooltip`, `ContextMenu`, `ListItem`, `Badge`
+- **Shared/Primitives**: `Button`, `Input`, `Checkbox`, `Radio`, `Switch`, `Select`, `NumberSpinner`, `Modal`, `Popover`, `Tabs`, `Tooltip`, `ListItem`, `Badge`
 - **Feedback**: `Toast`, `InfoBar`, `EmptyState`, `ErrorState`, `LoadingState`, `Skeleton`, `ProgressBar`
 - **Error Handling**: `ErrorBoundary`, `ErrorState`, `OfflineStatusBar`
 - **Updates**: `UpdateBanner`, `UpdateNotification`

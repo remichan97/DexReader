@@ -61,9 +61,6 @@ src/renderer/src/
 │   ├── ErrorState/              # Error panel with retry
 │   │   ├── ErrorState.tsx       # Error state component
 │   │   └── ErrorState.css
-│   ├── ErrorLogViewer/          # Dev/debug tool
-│   │   ├── ErrorLogViewer.tsx   # Error log display
-│   │   └── ErrorLogViewer.css
 │   └── OfflineStatusBar/        # Connectivity status
 │       ├── OfflineStatusBar.tsx
 │       └── OfflineStatusBar.css
