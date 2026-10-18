@@ -1,7 +1,7 @@
 # DexReader Responsive Behaviour Guide
 
 **Created**: 24 November 2025
-**Updated**: 14 October 2026 (rewritten to describe the implemented behaviour, as of v1.16.0)
+**Updated**: 14 October 2026 (rewritten to describe the implemented behaviour, as of v1.16.1)
 
 ---
 

@@ -1,7 +1,7 @@
 # DexReader Active Context
 
 **Last Updated**: 18 October 2026
-**Version**: v1.16.0
+**Version**: v1.16.1
 **Mode**: Active Development
 
 > **Purpose**: This is your session dashboard. Read this FIRST when resuming work to understand what's happening NOW, what was decided recently, and what to work on next. Keep all entries as short, concise as possible
@@ -10,13 +10,17 @@
 
 ## Current Status
 
+**v1.16.1 prepared** (18 October 2026, patch; awaiting merge and the `v1.16.1` tag) — the Fluent migration clean-up: dead styles, components, tokens and dependencies removed, undefined-variable styling fixed, download badge colours restored, docs rewritten against the code.
+
 **v1.16.0 shipped** (12 October 2026) — The renderer's shared components moved from hand-rolled to **Fluent 2** (`@fluentui/react-components`), one component at a time behind stable public props, plus the UX work that fell out of it: Browse filters in a dialog with draft/Apply semantics and searchable tag/language pickers (the Languages filter now actually applies to search), language flags (`LanguageBadge`), Back returning to the originating view, chapter resume from the chapter list/History/Downloads, and a content-language guard (settings version 8). Details: `CHANGELOG.md`.
 
 Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + the unit-test suite; v1.14.0 (8 September) Restore Points.
 
 **Next Planned Work:**
 
-- Plan next feature development cycle
+- Manga Detail chapter list: default to newest first. Needs the feed loaded in full (it fetches one page of 100 today, so long series can't reach their other end) and the list kept ascending in state, because the reader's Previous/Next and "Start Reading" assume that order. Planned on its own branch (`fix(detail)`)
+- Menu bar integration (wire or remove the five Library menu items, see Known Issues)
+- Decide on the Known Issues below, starting with cache cleanup deleting read history
 
 ---
 
@@ -83,41 +87,17 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 
 ## Recent Changes (Last 1-2 Weeks)
 
-### 12 October 2026 - v1.16.0 release prep ✅
+### 18 October 2026 - v1.16.1 release prep ✅
 
-- **Type**: Release
-- **Summary**: Bumped to 1.16.0 (minor: new features, backward compatible for user data; the Fluent migration was treated as a component switch, not a major UI overhaul). Changelog written from the net change since v1.15.0, leaving out regressions that were introduced and fixed inside the branch. Updated `README.md`, `docs/README.md`, the component library doc, `Select`/`SearchBar` READMEs (new `TagPicker`/`LanguageBadge` READMEs), `CLAUDE.md`, `tech-context.md` and `system-pattern.md`. Gates: typecheck, lint, 1486 tests with coverage thresholds, production build.
-- **Status**: ✅ Complete, awaiting merge and tag
+- **Type**: Release (patch)
+- **Summary**: Version 1.16.1 prepared on `chore/fluent-migration-cleanup`: package version, `CHANGELOG.md`, README and the doc headers. Patch because the branch has no features and no data or settings change. The branch finished the Fluent 2 migration clean-up: removed the orphaned stylesheets, components, tokens, utility classes (190 → 51), props and dependencies it left behind; fixed ~140 references to CSS variables that were never defined (unlock screen background, reader animations and shadows, failed-download badge, settings header, typography sizes); styled the MangaCard cover-error state and the Input error icon; restored the chapter download badge status colours; removed the global `button`/`input` rules from `main.css` (each control now carries its own font, weight, hover border and transition). Rewrote the architecture, design and component docs against the code. Net visible side effects, listed in the changelog: no faint hover tint on borderless link-style buttons, and focus rings on checkboxes and the colour picker.
+- **Status**: ✅ Prepared; awaiting merge, then the `v1.16.1` tag. Gates: typecheck, lint, 1486 tests, production build
 
-### 18 October 2026 - Download badge status colours restored ✅
+### 7 – 12 October 2026 - Fluent 2 migration (v1.16.0) ✅
 
-- **Type**: Fix (visual)
-- **Summary**: `DownloadStatusBadge` renders downloading, queued and downloaded as disabled buttons, and a blanket `:disabled` rule painted them grey. They now keep their status colours (accent, accent, success green). The muted look applies only to an action that cannot be used, i.e. the not-downloaded and failed badges while offline.
-- **Status**: ✅ Complete; confirm by eye in the chapter list of a manga with downloaded chapters
-
-### 18 October 2026 - Architecture docs audited against the code ✅
-
-- **Type**: Docs + small chores
-- **Summary**: Rewrote all six remaining architecture guides from the source: `state-management` (all 10 stores), `database-architecture` (`node:sqlite` + Drizzle 1.0, 11 tables, startup and recovery, repositories, migrations, restore points), `ipc-messaging` (116 channels, `IpcResponse`, error serialisation, push events, bridge), `filesystem-security` (real allowed roots, symlink rule, downloads-folder flow, intentional exceptions), `mangadex-api` (client, rate limiter, `mangadex://` proxy and caches, `local-manga://`) and `error-handling` (three layers as built). Removed the unused `errorMessages.ts` and the unread error buffer in `errorHandler.ts`, and corrected `CLAUDE.md` and the `.ai` docs: the preload types live in `window.types.ts` (there is no `index.d.ts`), handlers are in `src/main/ipc/handlers/`, `settings.json` is not encrypted, and there are more than two filesystem roots. New Known Issues: cache cleanup deletes read history, the cover disk-cache limit isn't enforced, MangaDex rate limits are per client, and the Library menu items with no listener.
-- **Status**: ✅ Complete; typecheck, lint, 1486 tests and the production build pass
-
-### 18 October 2026 - Post-migration clean-up, second pass ✅
-
-- **Type**: Chore + docs
-- **Summary**: Removed the unused `ErrorRecovery` and `Versions.tsx` components, the dead `.error-recovery*` rules in `ReaderView.css` (`MangaDetailView`'s borrowed names became `manga-detail-error__*`), the unused `i18next-fs-backend` and `@types/bcrypt` packages, the props the Fluent wrappers ignored (`Radio` `checked`/`onChange`/`name`, `Skeleton` `noAnimation`, `ProgressBar` `animated`), 38 unreferenced design tokens (and the `--win-accent-active` computation), and `main.css`'s dead `button.primary`/`select`/`textarea` rules and duplicated utilities. `index.html` now has the real title. Then removed `main.css`'s global `button` and `input` rules: each raw button/input now carries its own font, weight and hover border (the five Griffel icon buttons got an explicit `transition`, the accent colour picker its padding and background), and the orphaned `--padding-input`/`--padding-button` tokens went with them. Finally pruned `utilities.css` to the 51 classes something uses (from 190; 847 → 261 lines, built CSS 133.0 → 126.6 kB) and rewrote `utility-classes.md` to match, with the rule that utility class names are never built dynamically so unused ones stay findable by plain search. Rewrote `menu-bar-structure.md` against the real menu code (four menus, the IPC event and menu-state flow, and the gaps above); it previously described a five-menu design with a Tools menu that was never built. Rewrote the design token doc from `tokens.css` and dropped the Mica/acrylic and hand-rolled overlay claims from the component docs. Replaced `claude-plans/` references (gitignored) and "hand-rolled" history in comments.
-- **Status**: ✅ Complete; typecheck, lint, 1486 tests and the production build pass
-
-### 13 October 2026 - Post-migration orphan clean-up ✅
-
-- **Type**: Docs + chore
-- **Summary**: Audited for leftovers after the Fluent migration. Removed 21 unimported stylesheets plus the unused electron-vite `base.css` and its SVGs; removed ~130 dead selectors, 22 empty rules and unused keyframes from still-imported stylesheets; removed unused component tokens (`--progress-*`, `--ring-*`, `--toast-*`, `--sidebar-*`). Fixed ~140 `var(--…)` references to tokens that were never defined (the Gatekeeper unlock overlay was transparent; the failed-download badge, app-level error fallback, settings header and reader focus ring had no styling), mapped the undefined typography names to `--win-font-size-*`, added `--ease-spring` so the reader fade-in and end-of-chapter slide-up now run, mapped missing shadows, added the utility classes TSX already used (`grid`, `grid-cols-2`, `pt-3`, `h-screen`, `bg-error-tint`, `border-error`) and styled the MangaCard cover-error state. Rewrote the stale READMEs, `loading-feedback-states.md`, the polish history, the token doc and the layout docs (`layout-specification.md`, `responsive-behavior-guide.md`, `navigation-flow.md`, `reader-layout-specification.md`: 80px user-selectable sidebar, fluid grids, origin-aware Back, single reader header); `utility-classes.md` is checked against `utilities.css` (190/190).
-- **Status**: ✅ Complete; visual changes need a click-through (see CHANGELOG-worthy list in the commits)
-
-### 7 – 12 October 2026 - Fluent 2 migration + follow-ups ✅
-
-- **Type**: Refactor + features + bugfixes (63 commits on `feat/fluent-migration`)
-- **Summary**: Migrated tier by tier (foundation + theme → Button/Input/Toast/NumberSpinner/banners → Tabs/Modal → Tooltip/Popover/Select/SearchBar/Accordion/Menu), verifying each in the running app with real input. Decisions worth remembering: wrappers keep public props and drop only props with zero call sites; `ContextMenu` was decommissioned (card hover overlay + tab kebab button); Fluent popups carry size caps that must be overridden per layout (see `system-pattern.md`); the reader nests its own `FluentProvider`; flags are bundled SVGs because Windows can't draw emoji flags. Found and fixed along the way: the Browse Languages filter never reached search, the content-language list could be emptied (validator + settings v8 migration + `PriorityList` `minItems`), chapter reopen ignored saved progress, Back always went to Browse, and the Not Found dialog opened once per `t` change.
-- **Status**: ✅ Complete, shipping in v1.16.0
+- **Type**: Refactor + features + bugfixes
+- **Summary**: Migrated tier by tier, verifying each in the running app with real input. Decisions worth remembering: wrappers keep public props and drop only props with zero call sites; `ContextMenu` was decommissioned (card hover overlay + tab kebab button); Fluent popups carry size caps that must be overridden per layout (see `system-pattern.md`); the reader nests its own `FluentProvider` (so `ReaderSettingsModal.css` deliberately uses Fluent's CSS variables); flags are bundled SVGs because Windows can't draw emoji flags.
+- **Status**: ✅ Shipped in v1.16.0
 
 ### 30 September – 3 October 2026 - Test-coverage effort, memory bank refresh ✅
 

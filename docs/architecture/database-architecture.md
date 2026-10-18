@@ -1,6 +1,6 @@
 # Database Architecture
 
-**Last updated**: October 2026 (v1.16.0)
+**Last updated**: October 2026 (v1.16.1)
 **Source**: `src/main/database/` (connection, schemas, repositories, mappers, migrations)
 
 ---

@@ -1,6 +1,6 @@
 # Native Menu Bar
 
-**Last updated**: October 2026 (v1.16.0)
+**Last updated**: October 2026 (v1.16.1)
 **Source**: `src/main/menu/` (one file per menu), `src/main/ipc/handlers/menu.handler.ts`
 
 ---

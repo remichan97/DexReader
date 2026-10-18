@@ -1,6 +1,6 @@
 # IPC Messaging
 
-**Last updated**: October 2026 (v1.16.0)
+**Last updated**: October 2026 (v1.16.1)
 **Source**: `src/main/ipc/` (handlers, wrapper, errors), `src/preload/` (bridge and types), `src/shared/contracts/ipc/`
 
 ---

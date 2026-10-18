@@ -1,6 +1,6 @@
 # Filesystem Security
 
-**Last updated**: October 2026 (v1.16.0)
+**Last updated**: October 2026 (v1.16.1)
 **Source**: `src/main/filesystem/path-validator.ts`, `src/main/filesystem/secure-fs.ts`, `src/main/settings/settings-manager.ts`
 
 ---

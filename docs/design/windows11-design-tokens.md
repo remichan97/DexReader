@@ -1,6 +1,6 @@
 # DexReader Design Tokens
 
-**Last updated**: October 2026 (v1.16.0)
+**Last updated**: October 2026 (v1.16.1)
 **Source of truth**: [`src/renderer/src/assets/tokens.css`](../../src/renderer/src/assets/tokens.css)
 
 ---

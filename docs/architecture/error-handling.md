@@ -1,6 +1,6 @@
 # Error Handling
 
-**Last updated**: October 2026 (v1.16.0)
+**Last updated**: October 2026 (v1.16.1)
 **Source**: `src/renderer/src/components/ErrorBoundary/`, `components/ErrorState/`, `components/OfflineStatusBar/`, `utils/errorHandler.ts`, `src/main/ipc/`
 
 ---

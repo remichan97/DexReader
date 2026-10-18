@@ -1,7 +1,7 @@
 # UI Component Library
 
-**Version**: 1.16.0
-**Last Updated**: 12 October 2026
+**Version**: 1.16.1
+**Last Updated**: 18 October 2026
 **Design System**: Fluent 2 (`@fluentui/react-components`) with a custom DexReader theme and Windows 11 design tokens
 
 > **Overview**: DexReader's UI component library is a set of TypeScript components that wrap Fluent 2 (and, for a few, are DexReader's own). Each keeps a small, stable public prop API, so views are not coupled to Fluent directly. Fluent provides the rendering, focus handling, keyboard navigation and popup positioning; the wrappers add DexReader behaviour and defaults. See [Built on Fluent 2](#built-on-fluent-2).
