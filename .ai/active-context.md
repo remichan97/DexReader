@@ -29,10 +29,15 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 - **Status**: Not fixed (pre-existing)
 - **Detail**: `migrateSettings` has a "revert to defaults" branch for an invalid current-version file, but `validateSettings` throws a `TypeError` instead of returning `false`, so the branch can't run and `settingsManager.load()` throws. Only reachable by hand-editing or corrupting `settings.json`.
 
-### Menu-bar doc, global button/input styles and the unused utility classes
+### Menu-bar doc and the unused utility classes
 
 - **Severity**: Low
-- **Detail**: `docs/architecture/menu-bar-structure.md` still says 5 menus and 30+ items (with a Tools menu); the code builds four (File, View, Library, Help), so refresh it with the menu-bar work. `main.css` still has global `button` and `input` rules that also reach Fluent's inner elements and ~20 raw `<button>`s (MangaCard, DownloadStatusBadge, HistoryCalendar, the reader page displays and others) may lean on them, so remove or scope them only after a visual click-through. 131 of `utilities.css`'s 191 utility classes are unused (kept as a documented library). Other `docs/architecture/*` files (state management, database and so on) were not audited for staleness.
+- **Detail**: `docs/architecture/menu-bar-structure.md` still says 5 menus and 30+ items (with a Tools menu); the code builds four (File, View, Library, Help), so refresh it with the menu-bar work. 131 of `utilities.css`'s 191 utility classes are unused (kept as a documented library). Other `docs/architecture/*` files (state management, database and so on) were not audited for staleness.
+
+### Download status badges render muted, not in their status colours
+
+- **Severity**: Low (visual)
+- **Detail**: `DownloadStatusBadge` sets `disabled` for the downloading, queued and downloaded states. The global `button:disabled` rule used to override their variant colours (accent, accent, success green) with the muted disabled look, and the stylesheet now states that look explicitly so nothing changed when the global rule went. If the coloured badges were the intent, drop the colour declarations from `.download-badge:disabled` (and revisit `.download-badge:disabled:hover`, which clears the background on hover).
 
 ### Large renderer chunks
 
@@ -66,7 +71,7 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 ### 18 October 2026 - Post-migration clean-up, second pass ✅
 
 - **Type**: Chore + docs
-- **Summary**: Removed the unused `ErrorRecovery` and `Versions.tsx` components, the dead `.error-recovery*` rules in `ReaderView.css` (`MangaDetailView`'s borrowed names became `manga-detail-error__*`), the unused `i18next-fs-backend` and `@types/bcrypt` packages, the props the Fluent wrappers ignored (`Radio` `checked`/`onChange`/`name`, `Skeleton` `noAnimation`, `ProgressBar` `animated`), 38 unreferenced design tokens (and the `--win-accent-active` computation), and `main.css`'s dead `button.primary`/`select`/`textarea` rules and duplicated utilities. `index.html` now has the real title. Rewrote the design token doc from `tokens.css` and dropped the Mica/acrylic and hand-rolled overlay claims from the component docs. Replaced `claude-plans/` references (gitignored) and "hand-rolled" history in comments.
+- **Summary**: Removed the unused `ErrorRecovery` and `Versions.tsx` components, the dead `.error-recovery*` rules in `ReaderView.css` (`MangaDetailView`'s borrowed names became `manga-detail-error__*`), the unused `i18next-fs-backend` and `@types/bcrypt` packages, the props the Fluent wrappers ignored (`Radio` `checked`/`onChange`/`name`, `Skeleton` `noAnimation`, `ProgressBar` `animated`), 38 unreferenced design tokens (and the `--win-accent-active` computation), and `main.css`'s dead `button.primary`/`select`/`textarea` rules and duplicated utilities. `index.html` now has the real title. Then removed `main.css`'s global `button` and `input` rules: each raw button/input now carries its own font, weight and hover border (the five Griffel icon buttons got an explicit `transition`, the accent colour picker its padding and background), and the orphaned `--padding-input`/`--padding-button` tokens went with them. Rewrote the design token doc from `tokens.css` and dropped the Mica/acrylic and hand-rolled overlay claims from the component docs. Replaced `claude-plans/` references (gitignored) and "hand-rolled" history in comments.
 - **Status**: ✅ Complete; typecheck, lint, 1486 tests and the production build pass
 
 ### 13 October 2026 - Post-migration orphan clean-up ✅
