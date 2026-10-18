@@ -29,18 +29,6 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 - **Status**: Not fixed (pre-existing)
 - **Detail**: `migrateSettings` has a "revert to defaults" branch for an invalid current-version file, but `validateSettings` throws a `TypeError` instead of returning `false`, so the branch can't run and `settingsManager.load()` throws. Only reachable by hand-editing or corrupting `settings.json`.
 
-### History/Downloads resume: Downloads path untested in the running app
-
-- **Severity**: Low
-- **Affects**: All
-- **Status**: Needs a manual check
-- **Detail**: `loadResumePage` is unit-tested and History's Continue was verified live, but the Downloads view was empty in the test session so opening a chapter from it wasn't exercised.
-
-### Resume behaviour differs by entry point
-
-- **Severity**: Low
-- **Detail**: The hero's Continue button opens the last-read page even for a finished chapter; the chapter list, History and Downloads restart a finished chapter from page 1. History events don't store a page, so History looks the page up from chapter progress.
-
 ### Menu-bar doc and global form styles still describe older assumptions
 
 - **Severity**: Low
