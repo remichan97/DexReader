@@ -109,7 +109,6 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
    * - Respects autoSaveEnabled flag (skips if false, i.e., incognito mode)
    * - Optimistic update: updates cache immediately
    * - Debounced: waits 1s before actually saving (coalesces rapid updates)
-   * - Retry logic: 3 attempts with exponential backoff
    * - Silent save: no success toast, only error toast on final failure
    */
   saveProgress: async (progressData) => {

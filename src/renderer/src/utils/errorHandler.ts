@@ -12,9 +12,6 @@ interface ErrorLogEntry {
 }
 
 class GlobalErrorHandler {
-  private errorLog: ErrorLogEntry[] = []
-  private readonly maxLogSize = 50
-
   initialize(): void {
     // Catch uncaught exceptions
     globalThis.onerror = (message, source, lineno, colno, error) => {
@@ -46,12 +43,6 @@ class GlobalErrorHandler {
     // Log to structured logger (goes to renderer.log file)
     rendererLog.error('[GlobalError]', entry)
 
-    // Add to log (circular buffer)
-    this.errorLog.push(entry)
-    if (this.errorLog.length > this.maxLogSize) {
-      this.errorLog.shift()
-    }
-
     // Show user-friendly toast
     const toast = useToastStore.getState()
     toast.show({
@@ -60,8 +51,6 @@ class GlobalErrorHandler {
       message: this.getUserFriendlyMessage(entry.message),
       duration: 5000
     })
-
-    // Future: Send to crash reporting service (Phase 6)
   }
 
   private getUserFriendlyMessage(technicalMessage: string): string {
@@ -86,15 +75,6 @@ class GlobalErrorHandler {
     }
     return "Well, that's weird. Try again or restart the app if it keeps happening."
   }
-
-  getErrorLog(): ErrorLogEntry[] {
-    return [...this.errorLog]
-  }
-
-  clearErrorLog(): void {
-    this.errorLog = []
-  }
 }
 
 export const globalErrorHandler = new GlobalErrorHandler()
-export type { ErrorLogEntry }
