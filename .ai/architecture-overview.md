@@ -218,7 +218,7 @@ SQLite (`node:sqlite`, built-in — no native deps) with Drizzle ORM for all per
 
 ##### 6. Settings Manager (`src/main/settings/settings-manager.ts`)
 
-- Uses `electron-store` for encrypted settings persistence at `AppData/settings.json`
+- Uses `electron-store` for settings persistence (`settings.json` in Electron's `userData` folder; plain JSON, not encrypted)
 - Schema domains in `src/shared/types/settings/*`; updated immediately per-section via `settings:update-section` (autosave, no buffered save/discard — converted from the old buffered model 15-19 September 2026)
 - `src/main/settings/validators/` - Runtime validation for IPC command payloads
 
@@ -307,7 +307,7 @@ SQLite (`node:sqlite`, built-in — no native deps) with Drizzle ORM for all per
 1. User changes a control in Settings View
 2. Renderer calls `window.settings.updateSection(section, value)` → `settings:update-section` — discrete controls write immediately, continuous inputs (e.g. accent colour) are debounced
 3. Main process: Settings Manager merges and writes to `electron-store`
-4. Data persisted to `AppData/settings.json` (encrypted)
+4. Data persisted to `settings.json` in Electron's `userData` folder (plain JSON)
 5. Settings that require a restart surface a `RestartRequiredBanner` instead of blocking navigation (the old buffered save/discard banner and `isDirty` plumbing were removed)
 
 ### 6. Theme Switching Flow

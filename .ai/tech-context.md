@@ -104,7 +104,7 @@ The renderer views/components tier is intentionally left without unit tests or a
 - `@electron-toolkit/preload@3.0.2` - Preload script helpers
 - `@electron-toolkit/utils@4.0.0` - Common Electron utilities
 - `electron-updater@6.8.9` - Auto-update functionality
-- `electron-store@11.0.2` - Settings persistence with encryption support
+- `electron-store@11.0.2` - Settings persistence (plain JSON; only the gatekeeper's own store is encrypted)
 
 ---
 
@@ -261,7 +261,7 @@ All IPC handlers use `wrapIpcHandler` for consistent error handling:
 
 **Settings Manager** (`src/main/settings/settings-manager.ts`):
 
-- Persists app-wide settings to `AppData/settings.json` (electron-store v11, encrypted)
+- Persists app-wide settings to `settings.json` in Electron's `userData` folder (electron-store v11, not encrypted)
 - Schema domains live in `src/shared/types/settings/*` (app, appearance, downloads, language, logs, manga overrides, reader, reader performance, search, snapshot, system, update)
 - Loads on app startup with graceful fallback to defaults if corrupted
 

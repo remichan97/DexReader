@@ -27,7 +27,7 @@ System architecture, navigation patterns, and layout specifications.
 - **database-architecture.md** - SQLite (`node:sqlite`) + Drizzle: connection and startup, the 11 tables, repositories and shared commands/contracts, migrations, restore points, testing
 - **state-management.md** - The 10 Zustand stores: what each holds, where its data comes from, conventions, startup hydration, testing
 - **error-handling.md** - Error patterns, IPC error handling, user-facing messages
-- **filesystem-security.md** - Path validation, security restrictions, safe file operations
+- **filesystem-security.md** - The allowed roots, how `validatePath` and `secureFs` work, the downloads-folder flow, and the known gaps in the sandbox
 - **ipc-messaging.md** - The `wrapIpcHandler` / `IpcResponse` contract, error serialisation, validation, the 116 channels and push events, the preload bridge, how to add a channel
 - **mangadex-api.md** - MangaDex API integration, rate limiting, error handling
 

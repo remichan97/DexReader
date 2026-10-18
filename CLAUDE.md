@@ -67,7 +67,7 @@ Renderer (React/Zustand) → Preload (contextBridge) → Main (Node.js/SQLite/Ma
 
 ### Filesystem Security
 
-All filesystem operations must go through `src/main/filesystem/secure-fs.ts`. Direct `fs` calls are not permitted — paths are validated against two allowed roots (AppData + Downloads) via `src/main/filesystem/path-validator.ts` to prevent traversal attacks.
+All filesystem operations must go through `src/main/filesystem/secure-fs.ts`. Direct `fs` calls are not permitted — paths are validated against the allowed roots (`~/.dexreader` app data, the downloads folder, the cover cache, snapshots and logs) via `src/main/filesystem/path-validator.ts`, which also rejects symlinks, to prevent traversal attacks. The only intended exception is reading or writing a backup file at a path the user picked in a native dialog. See `docs/architecture/filesystem-security.md`.
 
 ### Image Proxy
 
@@ -98,7 +98,7 @@ Zustand 5 stores in `src/renderer/src/stores/`. Stores are ephemeral (rehydrated
 
 ### Settings
 
-`src/main/settings/settings-manager.ts` — uses `electron-store` with encryption. Loaded on startup with defaults fallback.
+`src/main/settings/settings-manager.ts` — uses `electron-store` (plain JSON `settings.json` in Electron's `userData` folder, not encrypted). Loaded on startup with defaults fallback.
 
 ## TypeScript Standards
 
