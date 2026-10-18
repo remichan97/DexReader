@@ -47,9 +47,14 @@ const useStyles = makeStyles({
     ...shorthands.borderRadius(tokens.borderRadiusCircular),
     color: 'inherit',
     fontSize: tokens.fontSizeBase200,
+    fontWeight: tokens.fontWeightSemibold,
     cursor: 'pointer',
+    transitionProperty: 'background-color, border-color, color',
+    transitionDuration: tokens.durationFast,
+    transitionTimingFunction: tokens.curveDecelerateMid,
     ':hover': {
       backgroundColor: tokens.colorSubtleBackgroundHover,
+      ...shorthands.borderColor(tokens.colorNeutralStroke1Hover),
       textDecorationLine: 'underline'
     }
   }

@@ -4,26 +4,13 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: var(--win-bg-default);
+  background: var(--win-bg-base);
   backdrop-filter: blur(30px);
   border-bottom: 1px solid var(--win-border-default);
   padding: var(--space-4) var(--space-6);
   display: flex;
   align-items: center;
   gap: var(--space-4);
-}
-
-.settings-header__title {
-  font-size: var(--win-font-size-title);
-  font-weight: var(--win-font-weight-semibold);
-  margin: 0;
-  line-height: 1.2;
-  flex-shrink: 0;
-}
-
-/* Section menu stretches to fill remaining header space */
-.settings-header .settings-section-menu {
-  flex: 1;
 }
 
 /* Screen reader only */

@@ -105,9 +105,8 @@ function clamp01(value: number): number {
 /**
  * Derives a 16-stop Fluent BrandVariants ramp from a single brand colour by stepping
  * that colour's hue/saturation/lightness through an even relative scale, anchored so
- * shade 80 is the exact input colour. Good enough for Phase 0/Tier 1 theming parity;
- * exact per-component contrast gets tuned as each primitive is migrated (see
- * claude-plans/fluent2-ui-migration-plan.md).
+ * shade 80 is the exact input colour. This is an approximation of a hand-tuned Fluent ramp,
+ * so check contrast for each component when the accent colour changes.
  */
 export function generateBrandRamp(baseHex: string): BrandVariants {
   const { h, s, l } = hexToHsl(baseHex)

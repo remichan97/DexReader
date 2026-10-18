@@ -35,8 +35,7 @@ const NEUTRAL_OVERRIDES_DARK = {
  * full 16-stop brand ramp - rather than overriding a handful of individual brand tokens
  * by hand - keeps every brand-dependent token consistent: colorBrandBackground, the
  * separate colorCompoundBrandBackground/Stroke/Foreground family Checkbox/Radio/Switch/
- * ProgressBar actually read from, hover/pressed variants, etc. See
- * claude-plans/fluent2-ui-migration-plan.md, Phase 0 and Tier 1.
+ * ProgressBar actually read from, hover/pressed variants, etc.
  */
 export function createDexReaderThemes(accentColor: string): DexReaderThemes {
   const brandRamp = generateBrandRamp(accentColor)

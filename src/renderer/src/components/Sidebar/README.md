@@ -164,6 +164,7 @@ Items show Regular (outlined) icons with normal styling
 - **Keyboard Navigation**: Full Tab/Enter/Space support
 - **ARIA Current**: `aria-current="page"` on active item
 - **Screen Readers**: Each item has descriptive `aria-label`
+- **Tooltips**: Items show a right-hand tooltip (300ms delay) using `relationship="label"`, so the tooltip text is also the item's accessible name
 - **Icon Hiding**: Icons marked `aria-hidden="true"` (labels provide context)
 - **Focus Management**: Visible focus indicators
 

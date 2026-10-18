@@ -65,7 +65,7 @@
   background: var(--win-bg-elevated);
   border: 1px solid var(--win-border-default);
   border-radius: var(--radius-xs);
-  font-family: var(--font-mono);
+  font-family: var(--win-font-family-mono);
   font-size: 11px;
   font-weight: 600;
   color: var(--win-text-primary);

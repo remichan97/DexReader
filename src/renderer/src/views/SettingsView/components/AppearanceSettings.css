@@ -15,9 +15,15 @@
 .appearance-settings__color-picker {
   width: 60px;
   height: 40px;
+  padding: var(--space-2) var(--space-3);
   border: 1px solid var(--win-border-default);
   border-radius: var(--radius-sm);
+  background: var(--win-bg-card);
   cursor: pointer;
+}
+
+.appearance-settings__color-picker:hover {
+  border-color: var(--win-border-hover);
 }
 
 .appearance-settings__hex-input {

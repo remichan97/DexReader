@@ -10,7 +10,7 @@
 }
 
 .security-settings__description {
-  font-size: var(--font-size-base);
+  font-size: var(--win-font-size-body);
   color: var(--win-text-secondary);
   line-height: 1.5;
 }
@@ -42,12 +42,12 @@
   padding: var(--space-3);
   background: var(--win-bg-subtle);
   border-radius: var(--radius-sm);
-  border-left: 3px solid var(--win-accent-default);
+  border-left: 3px solid var(--win-accent);
 }
 
 .security-settings__help-text {
   margin: 0;
-  font-size: var(--font-size-sm);
+  font-size: var(--win-font-size-caption);
   color: var(--win-text-secondary);
   line-height: 1.6;
 }

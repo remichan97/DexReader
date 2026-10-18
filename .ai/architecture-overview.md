@@ -98,9 +98,9 @@ Routed in `src/renderer/src/router.tsx` (wrapped in `HashRouter` in `App.tsx`):
 - **Search/Filter**: `SearchBar`, `FilterPanel`, `FilterChip`, `PresetSelector`, `SavePresetDialog`
 - **Backup/Import**: `DexReaderExportDialog`, `DexReaderImportDialog`, `ImportProgressDialog`, `ImportResultDialog`
 - **Gatekeeper (app lock)**: `GatekeeperChangeModal`, `GatekeeperReauthModal`, `GatekeeperResetPrompt`, `GatekeeperSetupModal`
-- **Shared/Primitives**: `Button`, `Input`, `Checkbox`, `Radio`, `Switch`, `Select`, `NumberSpinner`, `Modal`, `Popover`, `Tabs`, `Tooltip`, `ContextMenu`, `ListItem`, `Badge`
+- **Shared/Primitives**: `Button`, `Input`, `Checkbox`, `Radio`, `Switch`, `Select`, `NumberSpinner`, `Modal`, `Popover`, `Tabs`, `Tooltip`, `ListItem`, `Badge`
 - **Feedback**: `Toast`, `InfoBar`, `EmptyState`, `ErrorState`, `LoadingState`, `Skeleton`, `ProgressBar`
-- **Error Handling**: `ErrorBoundary`, `ErrorRecovery`, `OfflineStatusBar`
+- **Error Handling**: `ErrorBoundary`, `ErrorState`, `OfflineStatusBar`
 - **Updates**: `UpdateBanner`, `UpdateNotification`
 - **Storage**: `StorageChart`, `DownloadStatusBadge`, `DownloadConfirmationDialog`
 - **Misc**: `KeyboardShortcutsDialog`, `KeyboardShortcutsHandler`, `IncognitoStatusBar`, `StreamSourceIndicator`, `CollectionPickerDialog`, `CreateCollectionDialog`
@@ -138,7 +138,7 @@ Routed in `src/renderer/src/router.tsx` (wrapped in `HashRouter` in `App.tsx`):
 
 **Location**: `src/preload/`
 
-The preload script is the **only bridge** between renderer and main process. It exposes a carefully curated API surface via `contextBridge`, split across several globals (`window.api`, `window.settings`, `window.readHistory`, etc. — see `src/preload/index.ts` / `index.d.ts`).
+The preload script is the **only bridge** between renderer and main process. It exposes a carefully curated API surface via `contextBridge`, split across several globals (`window.api`, `window.settings`, `window.readHistory`, etc. — see `src/preload/index.ts` / `window.types.ts`).
 
 #### What It Does
 
@@ -218,7 +218,7 @@ SQLite (`node:sqlite`, built-in — no native deps) with Drizzle ORM for all per
 
 ##### 6. Settings Manager (`src/main/settings/settings-manager.ts`)
 
-- Uses `electron-store` for encrypted settings persistence at `AppData/settings.json`
+- Uses `electron-store` for settings persistence (`settings.json` in Electron's `userData` folder; plain JSON, not encrypted)
 - Schema domains in `src/shared/types/settings/*`; updated immediately per-section via `settings:update-section` (autosave, no buffered save/discard — converted from the old buffered model 15-19 September 2026)
 - `src/main/settings/validators/` - Runtime validation for IPC command payloads
 
@@ -307,7 +307,7 @@ SQLite (`node:sqlite`, built-in — no native deps) with Drizzle ORM for all per
 1. User changes a control in Settings View
 2. Renderer calls `window.settings.updateSection(section, value)` → `settings:update-section` — discrete controls write immediately, continuous inputs (e.g. accent colour) are debounced
 3. Main process: Settings Manager merges and writes to `electron-store`
-4. Data persisted to `AppData/settings.json` (encrypted)
+4. Data persisted to `settings.json` in Electron's `userData` folder (plain JSON)
 5. Settings that require a restart surface a `RestartRequiredBanner` instead of blocking navigation (the old buffered save/discard banner and `isDirty` plumbing were removed)
 
 ### 6. Theme Switching Flow
@@ -355,7 +355,7 @@ See **Layer 3 → Database Layer** above for the current table list (`manga`, `c
 2. Add route in `src/renderer/src/router.tsx`
 3. Add navigation link (`Sidebar` or relevant layout)
 4. Create required IPC handlers in `src/main/ipc/handlers/`, register in `src/main/ipc/registry.ts`
-5. Expose via preload in `src/preload/index.ts` + `index.d.ts`
+5. Expose via preload in `src/preload/index.ts` + `window.types.ts`
 
 ### Adding a Database Table
 
@@ -421,7 +421,7 @@ TypeScript compilation → electron-vite optimisation → electron-builder packa
 - **Add database functionality**: `src/main/database/repositories/` + schemas + migrations
 - **Add a setting**: `src/shared/types/settings/` + `src/main/settings/settings-manager.ts`
 - **Modify MangaDex API calls**: `src/main/api/mangadex-client.ts`
-- **Change UI theme**: `src/renderer/src/assets/base.css` (custom properties)
+- **Change UI theme**: `src/renderer/src/assets/tokens.css` (custom properties)
 - **Add IPC channel**: `src/main/ipc/handlers/` + `registry.ts` + `src/preload/index.ts`
 - **Change menu**: `src/main/menu/`
 - **Modify security**: `src/main/filesystem/path-validator.ts`

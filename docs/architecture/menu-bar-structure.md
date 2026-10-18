@@ -1,691 +1,154 @@
-# DexReader Native Menu Bar Structure
+# Native Menu Bar
 
-**Created**: 24 November 2025
-**Part of**: P1-T01 - Design Main Application Layout
-**Status**: Complete
+**Last updated**: October 2026 (v1.16.1)
+**Source**: `src/main/menu/` (one file per menu), `src/main/ipc/handlers/menu.handler.ts`
 
 ---
 
 ## Overview
 
-This document specifies the complete native menu bar structure for DexReader. The menu bar follows Windows desktop application conventions, providing keyboard-accessible access to all application features.
+DexReader uses a native Electron application menu with four menus: **File**, **View**, **Library** and **Help**. The menu is built in the main process from `MenuItemConstructorOptions` templates, with labels translated through the main-process i18next instance (the `menu` namespace, `src/locales/<language>/menu.json`).
 
----
+Menu items do not call into the app directly. Most of them send an IPC event to the renderer, and the renderer reacts. The renderer in turn pushes small pieces of state back so the menu can change its labels and enabled state.
 
-## Complete Menu Structure
-
-### File Menu
-
-```ui
-File
-├─ Check for Updates...            Ctrl+U
-├─ ──────────────────────          (separator)
-├─ Settings...                     Ctrl+,
-├─ ──────────────────────          (separator)
-└─ Exit                             Alt+F4
+```
+Menu click (main)  ──send('channel')──►  preload listener  ──►  renderer hook/component
+Renderer store     ──update-menu-state──►  menu.handler.ts  ──►  menu rebuilt with new state
 ```
 
-**Items**:
-
-1. **Check for Updates...**
-   - Opens update checker dialog
-   - Accelerator: `Ctrl+U`
-   - Always enabled
-
-2. **Settings...**
-   - Navigate to Settings view
-   - Accelerator: `Ctrl+,`
-   - Always enabled
-
-3. **Exit**
-   - Close application
-   - Accelerator: `Alt+F4` (system default)
-   - Always enabled
+| File              | Builds                                                |
+| ----------------- | ----------------------------------------------------- |
+| `index.ts`        | `createMenu(state)` assembles the four menus in order |
+| `file.menu.ts`    | File menu                                             |
+| `view.menu.ts`    | View menu                                             |
+| `library.menu.ts` | Library menu, including the import/export dialogs     |
+| `help.menu.ts`    | Help menu                                             |
+| `menu-state.ts`   | The `MenuState` interface the renderer can push       |
 
 ---
 
-### View Menu
+## Menu structure
 
-```ui
-View
-├─ Browse Manga                     Ctrl+1
-├─ My Library                       Ctrl+2
-├─ Downloads                        Ctrl+3
-├─ ──────────────────────          (separator)
-├─ Toggle Fullscreen                F11
-├─ ──────────────────────          (separator)
-├─ Reload                           Ctrl+R
-└─ Toggle DevTools                  F12
-```
+Accelerators use `CmdOrCtrl`, so they are `Ctrl` on Windows and Linux and `Cmd` on macOS.
 
-**Items**:
+### File
 
-1. **Browse Manga**
-   - Navigate to Browse view
-   - Accelerator: `Ctrl+1`
-   - Always enabled
+| Item                           | Accelerator    | Action                                                             |
+| ------------------------------ | -------------- | ------------------------------------------------------------------ |
+| Check for Updates...           | `Ctrl+U`       | Runs a manual update check (`appUpdateService`)                    |
+| Settings...                    | `Ctrl+,`       | Sends `navigate` to `/settings`                                    |
+| Go Incognito / Leave Incognito | `Ctrl+Shift+N` | Sends `progress:toggle-incognito`. The label follows `isIncognito` |
+| Go Offline / Go Online         | `Ctrl+Shift+O` | Sends `connectivity:toggle-offline`. The label follows `isOffline` |
+| Exit                           | `Alt+F4`       | `role: 'quit'`                                                     |
 
-2. **My Library**
-   - Navigate to Library view
-   - Accelerator: `Ctrl+2`
-   - Always enabled
+### View
 
-3. **Downloads**
-   - Navigate to Downloads view
-   - Accelerator: `Ctrl+3`
-   - Always enabled
+| Item              | Accelerator | Action                                                                  |
+| ----------------- | ----------- | ----------------------------------------------------------------------- |
+| Browse Manga      | `Ctrl+1`    | Sends `navigate` to `/browse`                                           |
+| My Library        | `Ctrl+2`    | Sends `navigate` to `/library`                                          |
+| Downloads         | `Ctrl+3`    | Sends `navigate` to `/downloads`                                        |
+| Reading History   | `Ctrl+4`    | Sends `navigate` to `/history`                                          |
+| Toggle Fullscreen | `F11`       | `role: 'togglefullscreen'`                                              |
+| Reload            | `Ctrl+R`    | `role: 'reload'`                                                        |
+| Toggle DevTools   | `F12`       | `role: 'toggleDevTools'`. Only present when `NODE_ENV` is `development` |
 
-4. **Toggle Fullscreen**
-   - Accelerator: `Ctrl+B`
-   - Always enabled
-   - Checkmark shows current state (expanded/collapsed)
+### Library
 
-5. **Toggle Fullscreen**
-   - Enter/exit fullscreen mode
-   - Accelerator: `F11`
-   - Always enabled
-   - Electron role: `togglefullscreen`
+| Item                                            | Accelerator    | Action                                                                                               |
+| ----------------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------- |
+| Add to Favourites / Remove from Favourites      | `Ctrl+D`       | Sends `add-to-favorites`. Enabled by `canAddToFavorites`, label by `isFavorited`                     |
+| Create Collection...                            | `Ctrl+Shift+N` | Sends `create-collection`                                                                            |
+| Manage Collections...                           | `Ctrl+Shift+C` | Sends `manage-collections`                                                                           |
+| Download Chapter / Download _title_             | `Ctrl+Shift+D` | Sends `download-chapter`. Enabled by `canDownloadChapter`, label by `chapterTitle`                   |
+| Download Manga / Download '_title_'             | `Ctrl+Alt+D`   | Sends `download-manga`. Enabled by `canDownloadManga`, label by `mangaTitle`                         |
+| Import Library → From DexReader Backup...       | none           | Open dialog (`.dexreader`), then sends `import-library` with the path                                |
+| Import Library → From Mihon/Tachiyomi Backup... | none           | Open dialog (`.proto.gz`, `.tachibk`), then sends `import-tachiyomi`                                 |
+| Export Library → To DexReader Backup...         | `Ctrl+Shift+E` | Save dialog (default `dexreader-backup.dexreader`), then sends `export-library`                      |
+| Export Library → To Mihon/Tachiyomi Format...   | none           | Warns that some data is not exported, then a save dialog (`.tachibk`), then sends `export-tachiyomi` |
 
-6. **Reload**
-   - Reload current view (refresh)
-   - Accelerator: `Ctrl+R`
-   - Always enabled
-   - Electron role: `reload`
+The file dialogs are opened by the main process, and only the chosen path is sent to the renderer. The renderer does the import or export work (`useDexReaderImportExport`, `useMihonImportExport`).
 
-7. **Toggle DevTools**
-   - Open/close developer tools
-   - Accelerator: `F12`
-   - Always enabled (development only in production)
-   - Electron role: `toggleDevTools`
+### Help
 
----
-
-### Library Menu
-
-```ui
-Library
-├─ Add to Favorites                 Ctrl+D
-├─ Create Collection...             Ctrl+Shift+N
-├─ Manage Collections...            Ctrl+Shift+C
-├─ ──────────────────────          (separator)
-├─ Import Library                   ▶
-│  ├─ From DexReader Backup...
-│  └─ From Mihon/Tachiyomi Backup...
-└─ Export Library                   ▶
-   ├─ To DexReader Backup...        Ctrl+Shift+E
-   └─ To Mihon/Tachiyomi Format...
-```
-
-**Items**:
-
-1. **Add to Favorites**
-   - Add currently viewed manga to favorites
-   - Accelerator: `Ctrl+D`
-   - Enabled: When viewing manga detail
-   - Disabled: In Browse/Library/Settings/Downloads views
-
-2. **Create Collection...**
-   - Open create collection dialog
-   - Accelerator: `Ctrl+Shift+N`
-   - Always enabled
-
-3. **Manage Collections...**
-   - Open collection management view
-   - Accelerator: `Ctrl+Shift+C`
-   - Always enabled
-
-4. **Import Library** (submenu):
-   - **From DexReader Backup...**
-     - Opens file picker for `.dexreader` files
-     - No accelerator
-     - Always enabled
-
-   - **From Mihon/Tachiyomi Backup...**
-     - Opens file picker for `.proto.gz` or `.tachibk` files
-     - No accelerator
-     - Always enabled
-
-5. **Export Library** (submenu):
-   - **To DexReader Backup...**
-     - Opens save dialog for native backup
-     - Accelerator: `Ctrl+Shift+E`
-     - Always enabled
-
-   - **To Mihon/Tachiyomi Format...**
-     - Opens save dialog for Mihon/Tachiyomi-compatible file
-     - No accelerator
-     - Always enabled
+| Item                                      | Accelerator | Action                                                     |
+| ----------------------------------------- | ----------- | ---------------------------------------------------------- |
+| Documentation                             | `F1`        | Opens the project wiki in the browser                      |
+| Keyboard Shortcuts...                     | `Ctrl+/`    | Sends `show-shortcuts` (handled in `AppShell`)             |
+| Report an Issue → View Existing Issues... | none        | Opens the GitHub issues page                               |
+| Report an Issue → New Bug Report...       | none        | Opens the bug report template                              |
+| Report an Issue → Request a Feature...    | none        | Opens the feature request template                         |
+| Report an Issue → Other Feedback...       | none        | Opens the other-issues template                            |
+| Open Logs Folder                          | none        | Opens `<userData>/logs`                                    |
+| About DexReader...                        | none        | Message box with the version and a "Visit MangaDex" button |
 
 ---
 
-### Tools Menu
+## Menu state
 
-```ui
-Tools
-├─ Download Chapter                 Ctrl+Shift+D    [context-aware]
-├─ Download Manga                                   [context-aware]
-├─ ──────────────────────          (separator)
-├─ Clear Cache...
-└─ Clear Reading History...
-```
-
-**Items**:
-
-1. **Download Chapter**
-   - Download currently viewed chapter for offline reading
-   - Accelerator: `Ctrl+Shift+D`
-   - **Enabled**: When viewing manga detail or reader view with a specific chapter
-   - **Disabled**: In Browse/Library/Settings/Downloads views
-   - Context-aware: Shows current chapter title when available
-
-2. **Download Manga**
-   - Download all chapters of current manga
-   - No accelerator
-   - **Enabled**: When viewing manga detail
-   - **Disabled**: All other views
-   - Context-aware: Shows current manga title when available
-
-3. **Clear Cache...**
-   - Opens confirmation dialog to clear cover image cache
-   - No accelerator
-   - Always enabled
-   - Shows cache size in dialog
-
-4. **Clear Reading History...**
-   - Opens confirmation dialog to clear all reading progress
-   - No accelerator
-   - Always enabled
-   - Warning: Cannot be undone
-
----
-
-### Help Menu
-
-```ui
-Help
-├─ Documentation                    F1
-├─ Keyboard Shortcuts...            Ctrl+/
-├─ ──────────────────────          (separator)
-├─ Report Issue...
-└─ About DexReader...
-```
-
-**Items**:
-
-1. **Documentation**
-   - Opens documentation in system browser
-   - Accelerator: `F1`
-   - Always enabled
-   - Opens: `https://github.com/remichan97/DexReader/wiki`
-
-2. **Keyboard Shortcuts...**
-   - Opens in-app keyboard shortcut reference
-   - Accelerator: `Ctrl+/`
-   - Always enabled
-
-3. **Report Issue...**
-   - Opens GitHub issues page in system browser
-   - No accelerator
-   - Always enabled
-   - Opens: `https://github.com/remichan97/DexReader/issues/new`
-
-4. **About DexReader...**
-   - Opens native About dialog with version info
-   - No accelerator
-   - Always enabled
-   - Uses Electron `dialog.showMessageBox()` with app icon
-
----
-
-## Context-Aware Menu Behavior
-
-### Dynamic Enable/Disable
-
-**Download Chapter** (`Ctrl+Shift+D`):
+The renderer pushes partial state with `globalThis.api.updateMenuState({...})`, a one-way `ipcRenderer.send('update-menu-state', ...)`. `menu.handler.ts` merges it into the last known state and **rebuilds the whole menu** with `Menu.setApplicationMenu`.
 
 ```typescript
-// Enabled when:
-- In Reader view (current chapter available)
-- In Manga Detail view with chapter selected
-
-// Disabled when:
-- In Browse view
-- In Library view (no specific manga/chapter)
-- In Settings view
-- In Downloads view
+interface MenuState {
+  canAddToFavorites?: boolean
+  isFavorited?: boolean
+  canDownloadChapter?: boolean
+  chapterTitle?: string
+  canDownloadManga?: boolean
+  mangaTitle?: string
+  isIncognito?: boolean
+  isOffline?: boolean
+}
 ```
 
-**Download Manga**:
+What actually pushes state today:
 
-```typescript
-// Enabled when:
-- In Manga Detail view (manga ID available)
-- In Reader view (manga ID available)
+| Field         | Pushed by                                                    |
+| ------------- | ------------------------------------------------------------ |
+| `isIncognito` | `progressStore.toggleIncognito`                              |
+| `isOffline`   | `connectivityStore` whenever the connectivity status changes |
 
-// Disabled when:
-- In Browse view (browsing multiple manga)
-- In Library view (no specific manga selected)
-- In Settings view
-- In Downloads view
-```
+The `can*`, `isFavorited`, `chapterTitle` and `mangaTitle` fields are defined and consumed by the Library menu, but nothing in the renderer sets them (see below).
 
-**Add to Favorites** (`Ctrl+D`):
+### Which events the renderer handles
 
-```typescript
-// Enabled when:
-- In Manga Detail view
-- In Reader view
-
-// Disabled when:
-- In Browse view
-- In Library view
-- In Settings view
-- In Downloads view
-
-// Label changes to "Remove from Favorites" if already favorited
-```
-
-### Dynamic Labels
-
-```typescript
-// Example: Download Chapter shows chapter title
-"Download Chapter" → "Download Chapter 45: Chapter Name"
-
-// Example: Add to Favorites changes when already added
-"Add to Favorites" → "Remove from Favorites"
-
-// Example: Download Manga shows manga title
-"Download Manga" → "Download 'Manga Title'"
-```
+| Channel                                                                                             | Listener                                           |
+| --------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| `navigate`                                                                                          | `onNavigate` (`AppShell`, `App`, gatekeeper guard) |
+| `show-shortcuts`                                                                                    | `AppShell` (raw `ipcRenderer.on`)                  |
+| `progress:toggle-incognito`                                                                         | `useIncognitoListener`                             |
+| `connectivity:toggle-offline`                                                                       | `useConnectivityListener`                          |
+| `import-library`, `export-library`                                                                  | `useDexReaderImportExport`                         |
+| `import-tachiyomi`, `export-tachiyomi`                                                              | `useMihonImportExport`                             |
+| `add-to-favorites`, `create-collection`, `manage-collections`, `download-chapter`, `download-manga` | **none**                                           |
 
 ---
 
-## Electron Implementation
+## Known gaps
 
-### Menu Template
+These are properties of the current code, not design intent:
 
-```typescript
-// src/main/index.ts
-import { Menu, app } from 'electron'
+1. **Five Library items do nothing.** `add-to-favorites`, `create-collection`, `manage-collections`, `download-chapter` and `download-manga` are sent, and the preload exposes `onAddToFavorites`, `onCreateCollection` and so on, but no renderer code subscribes to them. No commit has ever added a subscriber. Favourites, collections and downloads are reached through the UI (card buttons, the collection tabs and dialogs, the download controls) instead.
+2. **Three of those items are permanently disabled.** Add to Favourites, Download Chapter and Download Manga default to `enabled: false`, and nothing sets `canAddToFavorites`, `canDownloadChapter` or `canDownloadManga`. Create Collection and Manage Collections are enabled but inert (see 1).
+3. **`Ctrl+Shift+N` is bound twice**: File → Go Incognito and Library → Create Collection. Because the second one does nothing, only Go Incognito has any effect.
+4. **No access keys.** Labels have no `&` mnemonics, so `Alt+F`, `Alt+V` and so on do not open the menus. The menus can still be used with the mouse and by their accelerators.
 
-const menuTemplate: MenuItemConstructorOptions[] = [
-  {
-    label: 'File',
-    submenu: [
-      {
-        label: 'Check for Updates...',
-        accelerator: 'CmdOrCtrl+U',
-        click: () => {
-          // Trigger update check
-        }
-      },
-      { type: 'separator' },
-      {
-        label: 'Settings...',
-        accelerator: 'CmdOrCtrl+,',
-        click: () => {
-          mainWindow.webContents.send('navigate', '/settings')
-        }
-      },
-      { type: 'separator' },
-      {
-        label: 'Exit',
-        accelerator: 'Alt+F4',
-        role: 'quit'
-      }
-    ]
-  },
-  {
-    label: 'View',
-    submenu: [
-      {
-        label: 'Browse Manga',
-        accelerator: 'CmdOrCtrl+1',
-        click: () => {
-          mainWindow.webContents.send('navigate', '/browse')
-        }
-      },
-      {
-        label: 'My Library',
-        accelerator: 'CmdOrCtrl+2',
-        click: () => {
-          mainWindow.webContents.send('navigate', '/library')
-        }
-      },
-      {
-        label: 'Downloads',
-        accelerator: 'CmdOrCtrl+3',
-        click: () => {
-          mainWindow.webContents.send('navigate', '/downloads')
-        }
-      },
-      { type: 'separator' },
-      {
-        label: 'Toggle Sidebar',
-        accelerator: 'CmdOrCtrl+B',
-        click: () => {
-          mainWindow.webContents.send('toggle-sidebar')
-        }
-      },
-      {
-        label: 'Toggle Fullscreen',
-        accelerator: 'F11',
-        role: 'togglefullscreen'
-      },
-      { type: 'separator' },
-      {
-        label: 'Reload',
-        accelerator: 'CmdOrCtrl+R',
-        role: 'reload'
-      },
-      {
-        label: 'Toggle DevTools',
-        accelerator: 'F12',
-        role: 'toggleDevTools'
-      }
-    ]
-  },
-  {
-    label: 'Library',
-    submenu: [
-      {
-        id: 'add-to-favorites',
-        label: 'Add to Favorites',
-        accelerator: 'CmdOrCtrl+D',
-        enabled: false, // Dynamically updated
-        click: () => {
-          mainWindow.webContents.send('add-to-favorites')
-        }
-      },
-      {
-        label: 'Create Collection...',
-        accelerator: 'CmdOrCtrl+Shift+N',
-        click: () => {
-          mainWindow.webContents.send('create-collection')
-        }
-      },
-      {
-        label: 'Manage Collections...',
-        accelerator: 'CmdOrCtrl+Shift+C',
-        click: () => {
-          mainWindow.webContents.send('manage-collections')
-        }
-      },
-      { type: 'separator' },
-      {
-        label: 'Import Library',
-        submenu: [
-          {
-            label: 'From DexReader Backup...',
-            click: async () => {
-              const result = await dialog.showOpenDialog(mainWindow, {
-                title: 'Import Library',
-                filters: [{ name: 'DexReader Backup', extensions: ['dexreader'] }],
-                properties: ['openFile']
-              })
-              if (!result.canceled) {
-                mainWindow.webContents.send('import-library', result.filePaths[0])
-              }
-            }
-          },
-          {
-            label: 'From Mihon/Tachiyomi Backup...',
-            click: async () => {
-              const result = await dialog.showOpenDialog(mainWindow, {
-                title: 'Import Mihon/Tachiyomi Backup',
-                filters: [{ name: 'Mihon/Tachiyomi Backup', extensions: ['proto.gz', 'tachibk'] }],
-                properties: ['openFile']
-              })
-              if (!result.canceled) {
-                mainWindow.webContents.send('import-tachiyomi', result.filePaths[0])
-              }
-            }
-          }
-        ]
-      },
-      {
-        label: 'Export Library',
-        submenu: [
-          {
-            label: 'To DexReader Backup...',
-            accelerator: 'CmdOrCtrl+Shift+E',
-            click: async () => {
-              const result = await dialog.showSaveDialog(mainWindow, {
-                title: 'Export Library',
-                defaultPath: 'dexreader-backup.dexreader',
-                filters: [{ name: 'DexReader Backup', extensions: ['dexreader'] }]
-              })
-              if (!result.canceled) {
-                mainWindow.webContents.send('export-library', result.filePath)
-              }
-            }
-          },
-          {
-            label: 'To Mihon/Tachiyomi Format...',
-            click: async () => {
-              const result = await dialog.showSaveDialog(mainWindow, {
-                title: 'Export to Mihon/Tachiyomi',
-                defaultPath: 'mihon-backup.proto.gz',
-                filters: [{ name: 'Mihon/Tachiyomi Backup', extensions: ['proto.gz'] }]
-              })
-              if (!result.canceled) {
-                mainWindow.webContents.send('export-tachiyomi', result.filePath)
-              }
-            }
-          }
-        ]
-      }
-    ]
-  },
-  {
-    label: 'Tools',
-    submenu: [
-      {
-        id: 'download-chapter',
-        label: 'Download Chapter',
-        accelerator: 'CmdOrCtrl+Shift+D',
-        enabled: false, // Dynamically updated
-        click: () => {
-          mainWindow.webContents.send('download-chapter')
-        }
-      },
-      {
-        id: 'download-manga',
-        label: 'Download Manga',
-        enabled: false, // Dynamically updated
-        click: () => {
-          mainWindow.webContents.send('download-manga')
-        }
-      },
-      { type: 'separator' },
-      {
-        label: 'Clear Cache...',
-        click: () => {
-          mainWindow.webContents.send('clear-cache')
-        }
-      },
-      {
-        label: 'Clear Reading History...',
-        click: () => {
-          mainWindow.webContents.send('clear-history')
-        }
-      }
-    ]
-  },
-  {
-    label: 'Help',
-    submenu: [
-      {
-        label: 'Documentation',
-        accelerator: 'F1',
-        click: () => {
-          shell.openExternal('https://github.com/remichan97/DexReader/wiki')
-        }
-      },
-      {
-        label: 'Keyboard Shortcuts...',
-        accelerator: 'CmdOrCtrl+/',
-        click: () => {
-          mainWindow.webContents.send('show-shortcuts')
-        }
-      },
-      { type: 'separator' },
-      {
-        label: 'Report Issue...',
-        click: () => {
-          shell.openExternal('https://github.com/remichan97/DexReader/issues/new')
-        }
-      },
-      {
-        label: 'About DexReader...',
-        click: () => {
-          dialog.showMessageBox(mainWindow, {
-            type: 'info',
-            title: 'About DexReader',
-            message: 'DexReader',
-            detail: `Version ${app.getVersion()}\n\nA desktop manga reader for MangaDex\n\nDeveloped by remichan97`,
-            buttons: ['OK'],
-            noLink: true
-          })
-        }
-      }
-    ]
-  }
-]
-
-const menu = Menu.buildFromTemplate(menuTemplate)
-Menu.setApplicationMenu(menu)
-```
-
-### Dynamic Menu Updates
-
-```typescript
-// Update menu item state from renderer
-ipcMain.on('update-menu-state', (event, state) => {
-  const menu = Menu.getApplicationMenu()
-  if (!menu) return
-
-  // Update "Add to Favorites"
-  const addToFavoritesItem = menu.getMenuItemById('add-to-favorites')
-  if (addToFavoritesItem) {
-    addToFavoritesItem.enabled = state.canAddToFavorites
-    addToFavoritesItem.label = state.isFavorited ? 'Remove from Favorites' : 'Add to Favorites'
-  }
-
-  // Update "Download Chapter"
-  const downloadChapterItem = menu.getMenuItemById('download-chapter')
-  if (downloadChapterItem) {
-    downloadChapterItem.enabled = state.canDownloadChapter
-    if (state.chapterTitle) {
-      downloadChapterItem.label = `Download ${state.chapterTitle}`
-    }
-  }
-
-  // Update "Download Manga"
-  const downloadMangaItem = menu.getMenuItemById('download-manga')
-  if (downloadMangaItem) {
-    downloadMangaItem.enabled = state.canDownloadManga
-    if (state.mangaTitle) {
-      downloadMangaItem.label = `Download '${state.mangaTitle}'`
-    }
-  }
-})
-```
+Decide whether to wire up or remove the five items before relying on the Library menu for those actions.
 
 ---
 
-## Keyboard Shortcuts Reference
+## Platform notes
 
-### Global Shortcuts
-
-| Shortcut | Action                | Menu Location               |
-| -------- | --------------------- | --------------------------- |
-| `Ctrl+1` | Navigate to Browse    | View → Browse Manga         |
-| `Ctrl+2` | Navigate to Library   | View → My Library           |
-| `Ctrl+3` | Navigate to Downloads | View → Downloads            |
-| `Ctrl+,` | Open Settings         | File → Settings...          |
-| `Ctrl+R` | Reload View           | View → Reload               |
-| `Ctrl+U` | Check for Updates     | File → Check for Updates... |
-| `F1`     | Open Documentation    | Help → Documentation        |
-| `F11`    | Toggle Fullscreen     | View → Toggle Fullscreen    |
-| `F12`    | Toggle DevTools       | View → Toggle DevTools      |
-| `Alt+F4` | Exit Application      | File → Exit                 |
-
-### Context-Aware Shortcuts
-
-| Shortcut       | Action                  | Menu Location                        | Context             |
-| -------------- | ----------------------- | ------------------------------------ | ------------------- |
-| `Ctrl+D`       | Add/Remove Favorites    | Library → Add to Favorites           | Manga Detail/Reader |
-| `Ctrl+Shift+D` | Download Chapter        | Tools → Download Chapter             | Manga Detail/Reader |
-| `Ctrl+Shift+N` | Create Collection       | Library → Create Collection...       | Any View            |
-| `Ctrl+Shift+C` | Manage Collections      | Library → Manage Collections...      | Any View            |
-| `Ctrl+Shift+E` | Export Library          | Library → Export Library → DexReader | Any View            |
-| `Ctrl+/`       | Show Keyboard Shortcuts | Help → Keyboard Shortcuts...         | Any View            |
+- **Windows**: the menu bar is the standard window menu. `Alt+F4` quits.
+- **Linux**: the same menu template is used.
+- **macOS**: DMG builds exist, but the template defines only these four menus, with no application menu (so no `Cmd+Q` or Hide entries from a standard app menu). Exit uses `role: 'quit'`, and the `CmdOrCtrl` accelerators map to `Cmd`.
 
 ---
 
-## Accessibility
+## Adding a menu item
 
-### Keyboard Navigation
-
-- **Alt Key**: Activates menu bar (underlines access keys)
-- **Alt+F**: Opens File menu
-- **Alt+V**: Opens View menu
-- **Alt+L**: Opens Library menu
-- **Alt+T**: Opens Tools menu
-- **Alt+H**: Opens Help menu
-- **Arrow Keys**: Navigate within menus
-- **Enter**: Activate selected menu item
-- **Escape**: Close menu
-
-### Screen Reader Support
-
-All menu items have:
-
-- Clear, descriptive labels
-- Accelerator hints announced
-- Enabled/disabled state announced
-- Submenu indicators announced
-
----
-
-## Platform-Specific Considerations
-
-### Windows
-
-- **Alt+F4**: System-wide quit shortcut (respected)
-- **F10**: Alternative menu activation key
-- **CmdOrCtrl**: Maps to `Ctrl` key
-
-### macOS (Future Support)
-
-- **Cmd+Q**: Quit application (instead of Alt+F4)
-- **Cmd+,**: Settings (already using CmdOrCtrl)
-- **Cmd+H**: Hide window (system default)
-- **CmdOrCtrl**: Maps to `Cmd` key
-
-### Linux
-
-- Similar to Windows behavior
-- **CmdOrCtrl**: Maps to `Ctrl` key
-
----
-
-## Summary
-
-DexReader's native menu bar provides:
-
-✅ **Complete Feature Access**: All features accessible via menu (no hidden functions)
-✅ **Keyboard Shortcuts**: Comprehensive accelerators for power users
-✅ **Context Awareness**: Menu items enable/disable based on current view
-✅ **Dynamic Labels**: Labels update to show current context (chapter title, etc.)
-✅ **Platform Native**: Follows Windows desktop app conventions
-✅ **Accessible**: Full keyboard navigation and screen reader support
-✅ **Discoverable**: Users can explore features via menu structure
-
-**Review Status**: ✅ Ready for implementation (P1-T02)
-
----
-
-_Menu bar structure created: 24 November 2025_
-_Part of P1-T01 deliverables_
+1. Add the label to the `menu` namespace in every locale (`src/locales/en-GB`, `en-US`, `vi-VN`).
+2. Add the item to the matching `*.menu.ts` file. Use `mainWindow.webContents.send('channel')` for an action the renderer performs, or a `role` for a standard Electron action.
+3. For a new channel, expose a listener in `src/preload/index.ts` and `src/preload/window.types.ts`, and subscribe to it in the renderer. An item with no subscriber appears to work but does nothing.
+4. If the item's label or enabled state depends on app state, add the field to `MenuState` (and the preload `updateMenuState` type), and push it from the store that owns that state.
+5. Check the accelerator against the existing ones above so it isn't bound twice.

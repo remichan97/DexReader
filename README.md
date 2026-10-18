@@ -93,7 +93,7 @@ npm run build:linux
 
 ## Project Status
 
-**Current Version**: 1.16.0 (October 12, 2026) 🚀
+**Current Version**: 1.16.1 (October 18, 2026) 🚀
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed release notes and development history.
 

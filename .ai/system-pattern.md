@@ -183,17 +183,15 @@
 
 **Trigger model is check-on-startup only**, run once at DB-init time (`src/main/index.ts`), not a live timer: compares the newest automatic snapshot's age against `settings.snapshot.intervalInHours` and only creates a new one if overdue. Chosen over a live `setInterval` (needless lifecycle management once a manual "Create Now" button exists) and over an exit-only hook (this codebase's `before-quit` handling is synchronous while `node:sqlite`'s `backup()` is async, and exit-only misses every ungraceful exit — exactly when a recent snapshot matters most).
 
-**Full design rationale**: `claude-plans/db-snapshot-restore-plan.md`.
-
 ---
 
 ## Code Conventions
 
 ### File Naming
 
-- **Components**: PascalCase (`App.tsx`, `Versions.tsx`)
+- **Components**: PascalCase (`App.tsx`, `MangaCard.tsx`)
 - **Utilities**: camelCase
-- **Assets**: kebab-case (`base.css`, `main.css`)
+- **Assets**: kebab-case (`tokens.css`, `main.css`)
 
 > **Note**: For code formatting (Prettier) and linting (ESLint) configuration, see `tech-context.md`
 
@@ -201,7 +199,7 @@
 
 ## IPC Communication Pattern
 
-**Documentation**: [ipc-messaging.md](../../docs/architecture/ipc-messaging.md)
+**Documentation**: [ipc-messaging.md](../docs/architecture/ipc-messaging.md)
 
 ### Channel Naming Convention
 
@@ -230,14 +228,17 @@
 
 ### CSS Structure
 
-- `assets/base.css` - Design tokens, resets, typography
-- `assets/main.css` - Layout, component styles
+- `assets/tokens.css` - Design tokens (`--win-*` custom properties, light and dark themes)
+- `assets/utilities.css` - Only the utility classes something uses (spacing, flex, text, colour); delete one when its last use goes
+- `assets/main.css` - Global element styles for links and inline code only. Style native form controls through their own class, never a global `button`/`input` selector
 
 ### Responsive Breakpoints
 
-- 720px: Font size adjustments
-- 620px: Hide version display
-- 350px: Hide secondary UI elements
+- Grids are fluid (`repeat(auto-fill, minmax(180px, 1fr))`), so there are no column breakpoints
+- 768px: stack toolbars and tighten padding (Downloads, Manga Detail, Creator, reader, toasts)
+- 480px: smaller Creator grid, reader header and Gatekeeper card
+- The sidebar width is a user setting (full 80px, compact 60px, auto-hide), not a breakpoint
+- See `docs/design/responsive-behavior-guide.md`
 
 ---
 

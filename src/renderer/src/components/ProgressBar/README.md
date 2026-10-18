@@ -1,6 +1,6 @@
 # ProgressBar Component
 
-A linear progress indicator with determinate and indeterminate states, following Windows 11 Fluent Design principles.
+A linear progress indicator with determinate and indeterminate states, plus an optional label, speed and ETA header. The bar itself is the Fluent 2 `ProgressBar`; the header above it is DexReader's own and is styled by `ProgressBar.css`.
 
 ## Usage
 
@@ -54,41 +54,36 @@ import { ProgressBar } from '@renderer/components/ProgressBar'
 
 ## Props
 
-| Prop         | Type                                | Default      | Description                                         |
-| ------------ | ----------------------------------- | ------------ | --------------------------------------------------- |
-| `value`      | `number`                            | `undefined`  | Progress value (0-100), undefined for indeterminate |
-| `variant`    | `'default' \| 'success' \| 'error'` | `'default'`  | Color variant                                       |
-| `size`       | `'small' \| 'medium' \| 'large'`    | `'medium'`   | Bar thickness                                       |
-| `showLabel`  | `boolean`                           | `false`      | Show percentage label                               |
-| `label`      | `string`                            | `undefined`  | Custom label text                                   |
-| `speed`      | `string`                            | `undefined`  | Download/upload speed                               |
-| `eta`        | `string`                            | `undefined`  | Estimated time remaining                            |
-| `animated`   | `boolean`                           | `true`       | Enable transitions                                  |
-| `className`  | `string`                            | `''`         | Additional CSS class                                |
-| `aria-label` | `string`                            | `'Progress'` | Accessible label                                    |
+| Prop         | Type                                | Default               | Description                                         |
+| ------------ | ----------------------------------- | --------------------- | --------------------------------------------------- |
+| `value`      | `number`                            | `undefined`           | Progress value (0-100), undefined for indeterminate |
+| `variant`    | `'default' \| 'success' \| 'error'` | `'default'`           | Colour variant                                      |
+| `size`       | `'small' \| 'medium' \| 'large'`    | `'medium'`            | Bar thickness                                       |
+| `showLabel`  | `boolean`                           | `false`               | Show percentage label                               |
+| `label`      | `string`                            | `undefined`           | Custom label text                                   |
+| `speed`      | `string`                            | `undefined`           | Download/upload speed                               |
+| `eta`        | `string`                            | `undefined`           | Estimated time remaining                            |
+| `className`  | `string`                            | `''`                  | Class applied to the outer wrapper                  |
+| `aria-label` | `string`                            | translated "Progress" | Accessible label                                    |
 
 ## Features
 
 ### Determinate Progress
 
-- Shows specific progress percentage (0-100)
-- Smooth animated transitions
-- Optional percentage label
-- Width scales with value
+- Shows specific progress percentage (0-100); values outside the range are clamped
+- Optional percentage label (`showLabel`) or custom `label`
+- Fill width scales with value
 
 ### Indeterminate Progress
 
 - No `value` prop = indeterminate
-- Continuous left-to-right animation
-- Moving gradient effect
-- 40% bar width sliding infinitely
+- Fluent animates the bar; no percentage label is shown
 - Use for unknown duration tasks
 
-### Auto Success Color
+### Auto Success Colour
 
-- Default variant turns green at 100%
-- Can be overridden with explicit variant
-- Smooth color transition
+- The `default` variant turns green (success) when the value reaches 100
+- Can be overridden with an explicit variant
 
 ### Metadata Display
 
@@ -99,15 +94,18 @@ import { ProgressBar } from '@renderer/components/ProgressBar'
 
 ### Size Variants
 
-- **Small**: 2px height, minimal space
-- **Medium**: 4px height, standard
-- **Large**: 6px height, prominent
+The `size` prop maps onto Fluent's bar thickness, which only has two steps:
 
-### Color Variants
+- **Small**: Fluent `medium` thickness, for inline use
+- **Medium** and **Large**: Fluent `large` thickness (these two currently look the same)
 
-- **Default**: Accent blue (`--win-accent`)
-- **Success**: Green (#107c10 light, #10c610 dark)
-- **Error**: Red (#d13438 light, #ff6b6b dark)
+### Colour Variants
+
+Mapped onto Fluent's bar colours:
+
+- **Default**: Brand/accent colour
+- **Success**: Success green
+- **Error**: Error red
 
 ## Examples
 
@@ -194,46 +192,13 @@ function BatchProcessor() {
 
 ## Accessibility
 
-- Uses `role="progressbar"` for screen readers
-- `aria-valuenow`, `aria-valuemin`, `aria-valuemax` for determinate
-- `aria-valuetext` for descriptive state
-- `aria-label` for context
-- Respects `prefers-reduced-motion`
-- High contrast mode support
+- Fluent renders `role="progressbar"` with `aria-valuenow`, `aria-valuemin` and `aria-valuemax` for determinate bars
+- `aria-valuetext` describes the state: the label or percentage, or a translated "loading" string when indeterminate
+- `aria-label` for context (a translated default is used when omitted)
 
-## Design Principles
+## Styling
 
-- Follows Windows 11 Fluent Design
-- Uses design tokens from `tokens.css`
-- Smooth cubic-bezier transitions
-- Rounded ends (full border-radius)
-- Subtle background track
-- Auto color state at 100%
-- Gradient animation for indeterminate
-
-## Indeterminate Animation
-
-The indeterminate state uses two animations:
-
-1. **Slide Animation**: 40% bar slides left-to-right infinitely (1.5s duration)
-2. **Gradient Animation**: Moving gradient within the bar (1s duration)
-
-Combined effect creates smooth, professional loading indicator.
-
-## Responsive Behavior
-
-- Full width by default
-- Scales with container
-- All sizes work on mobile
-- Touch-friendly on interactive wrappers
-
-## Performance
-
-- GPU-accelerated animations (transform, opacity)
-- Efficient CSS-only animations
-- No JavaScript animation loops
-- Minimal repaints
-- Smooth 60fps
+Styling comes from Fluent 2 and the app's Fluent theme. The only custom CSS (`ProgressBar.css`) is the wrapper width and the label / speed / ETA header above the bar.
 
 ## Best Practices
 
@@ -298,7 +263,7 @@ function SyncIndicator({ syncing, progress }: { syncing: boolean; progress?: num
   return (
     <div className="sync-status">
       <span>{syncing ? 'Syncing...' : 'Synced'}</span>
-      {syncing && <ProgressBar value={progress} size="small" animated />}
+      {syncing && <ProgressBar value={progress} size="small" />}
     </div>
   )
 }

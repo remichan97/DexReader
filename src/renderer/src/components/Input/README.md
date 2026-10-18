@@ -1,6 +1,6 @@
 # Input Component
 
-A text input component following Windows 11 Fluent Design principles with support for various types, validation states, and interactive features.
+A text input with a label, validation message, helper text and character counter. Built on the Fluent 2 `Field` and `Input`, with a string-based `onChange(value)` API and extras for the `search` and `password` types.
 
 ## Usage
 
@@ -63,23 +63,23 @@ import { Input } from '@renderer/components/Input'
 
 ## Props
 
-| Prop          | Type                                          | Default      | Description                         |
-| ------------- | --------------------------------------------- | ------------ | ----------------------------------- |
-| `type`        | `'text' \| 'password' \| 'email' \| 'search'` | `'text'`     | Input type                          |
-| `label`       | `string`                                      | `undefined`  | Label text (optional)               |
-| `placeholder` | `string`                                      | `undefined`  | Placeholder text                    |
-| `value`       | `string`                                      | **required** | Current input value                 |
-| `onChange`    | `(value: string) => void`                     | **required** | Change handler                      |
-| `error`       | `string`                                      | `undefined`  | Error message (shows error state)   |
-| `helperText`  | `string`                                      | `undefined`  | Helper text below input             |
-| `disabled`    | `boolean`                                     | `false`      | Disables input                      |
-| `maxLength`   | `number`                                      | `undefined`  | Maximum character length            |
-| `showCounter` | `boolean`                                     | `false`      | Show character counter              |
-| `icon`        | `React.ReactNode`                             | `undefined`  | Icon at start of input              |
-| `className`   | `string`                                      | `''`         | Additional CSS class                |
-| `aria-label`  | `string`                                      | `undefined`  | Accessible label for screen readers |
+| Prop          | Type                                          | Default      | Description                          |
+| ------------- | --------------------------------------------- | ------------ | ------------------------------------ |
+| `type`        | `'text' \| 'password' \| 'email' \| 'search'` | `'text'`     | Input type                           |
+| `label`       | `string`                                      | `undefined`  | Label text (optional)                |
+| `placeholder` | `string`                                      | `undefined`  | Placeholder text                     |
+| `value`       | `string`                                      | **required** | Current input value                  |
+| `onChange`    | `(value: string) => void`                     | **required** | Change handler                       |
+| `error`       | `string`                                      | `undefined`  | Error message (shows error state)    |
+| `helperText`  | `string`                                      | `undefined`  | Helper text below input              |
+| `disabled`    | `boolean`                                     | `false`      | Disables input                       |
+| `maxLength`   | `number`                                      | `undefined`  | Maximum character length             |
+| `showCounter` | `boolean`                                     | `false`      | Show character counter               |
+| `icon`        | `React.ReactElement`                          | `undefined`  | Icon at start of input               |
+| `className`   | `string`                                      | `undefined`  | Class applied to the `Field` wrapper |
+| `aria-label`  | `string`                                      | `undefined`  | Accessible label for screen readers  |
 
-All standard HTML input attributes are also supported (e.g., `name`, `id`, `required`, `autoComplete`, etc.).
+All other standard HTML input attributes (for example `name`, `id`, `required`, `autoComplete`) are passed through to the underlying Fluent `Input`.
 
 ## Input Types
 
@@ -105,37 +105,16 @@ Standard email input with browser validation
 
 ## States
 
-### Default
-
-Clean input with subtle border
-
-### Hover
-
-Border color changes on hover
-
-### Focus
-
-**Windows 11 Fluent Design Pattern**:
-
-- Clean 2px accent bottom border
-- **No outer glow** (browser defaults removed with `box-shadow: none !important`)
-- Simple 200ms `cubic-bezier(0.4, 0, 0.2, 1)` transition
-- Pure Fluent Design - no Material Design patterns
-
-**Polish Note**: Earlier versions had Material Design expanding lines and scale effects.
-Current version uses minimal transition matching Windows 11 native inputs
+Default, hover, focus and disabled styling come from Fluent 2 and the app theme (the standard Fluent input with an accent bottom border on focus).
 
 ### Error
 
-- Red border
-- Error message displayed below
-- Icon shows error state
+- The field is put into Fluent's `error` validation state
+- The `error` message is shown below the input, in place of any `helperText`
 
 ### Disabled
 
-- Greyed out appearance
-- Not interactive
-- Cursor shows "not-allowed"
+- Not interactive; the password toggle and search clear button are hidden
 
 ## Features
 
@@ -151,10 +130,9 @@ When `showCounter` is `true` and `maxLength` is set:
 
 When `error` prop is provided:
 
-- Input border turns red
-- Error message displays below
-- `aria-invalid` set to `true`
-- Role="alert" for screen readers
+- Fluent's `Field` switches to its error validation state
+- The error message displays below the input and takes priority over `helperText`
+- Fluent marks the input invalid and links it to the message
 
 ### Helper Text
 
@@ -171,7 +149,7 @@ For `type="password"`:
 - Eye icon button on the right
 - Toggles between masked/visible
 - Updates aria-label dynamically
-- Keyboard accessible
+- Mouse-only: the button is skipped by Tab (`tabIndex={-1}`)
 
 ### Clear Button
 
@@ -179,49 +157,26 @@ For `type="search"`:
 
 - X icon button appears when value is not empty
 - Clears input on click
-- Keyboard accessible (Tab to focus, Enter/Space to activate)
+- Mouse-only: the button is skipped by Tab (`tabIndex={-1}`); keyboard users clear the text by editing it
 
 ### Icon Support
 
 When `icon` prop is provided:
 
-- Displayed at the start of input
-- Input padding adjusted automatically
-- Icon is decorative (aria-hidden)
+- Displayed inside the input, before the text (Fluent's `contentBefore` slot)
+- Input padding is handled by Fluent
 
 ## Accessibility
 
-- Uses semantic `<input>` and `<label>` elements
-- Label associates with input via `htmlFor`/`id`
-- Error messages use `role="alert"` for screen readers
-- `aria-invalid` set when error present
-- `aria-describedby` links to error/helper text
-- Action buttons have proper `aria-label`
-- Focus-visible outline for keyboard navigation
+- Uses a semantic `<input>` with a `<label>` associated by Fluent's `Field`
+- Error messages are announced by Fluent's `Field`, and the input is marked invalid with the message linked via `aria-describedby`
+- The password toggle and search clear buttons have translated `aria-label`s but are skipped by Tab (`tabIndex={-1}`), so they are pointer-only
+- Fluent provides the focus indicator
 - Character counter has `aria-live="polite"`
 
-## Design Principles
+## Styling
 
-- **Windows 11 Fluent Design**: Clean bottom border emphasis, no outer glow
-- **Design Tokens**: All colors/spacing from `tokens.css`
-- **Smooth Transitions**: 200ms cubic-bezier for border color
-- **No Scale/Glow Effects**: Simple, non-distracting focus behavior
-- **Accessible Contrast**: WCAG AA compliant (4.5:1 minimum)
-- **Comfortable Touch Targets**: 32px height matches Windows 11 inputs
-
-### CSS Animation Details
-
-```css
-.input:focus {
-  outline: none;
-  box-shadow: none !important; /* Override browser defaults */
-  border-bottom-color: var(--win-accent);
-  transition: border-bottom-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-```
-
-The `!important` on `box-shadow` ensures no browser default focus glow appears,
-maintaining clean Windows 11 styling across all browsers and platforms
+Styling comes from Fluent 2 and the app's Fluent theme, so colours follow light/dark mode. The wrapper only adds small `makeStyles` rules for the inline icon, the action buttons (20px square) and the footer row that holds the message and counter. There is no stylesheet; use `className` for layout tweaks.
 
 ## Examples
 

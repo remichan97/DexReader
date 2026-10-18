@@ -43,14 +43,7 @@ export function applyAccentColor(color: string): void {
   const hoverB = Math.max(0, Math.floor(b * 0.9))
   const hoverColor = `#${((hoverR << 16) | (hoverG << 8) | hoverB).toString(16).padStart(6, '0')}`
 
-  // Even darker for active (-20%)
-  const activeR = Math.max(0, Math.floor(r * 0.8))
-  const activeG = Math.max(0, Math.floor(g * 0.8))
-  const activeB = Math.max(0, Math.floor(b * 0.8))
-  const activeColor = `#${((activeR << 16) | (activeG << 8) | activeB).toString(16).padStart(6, '0')}`
-
   root.style.setProperty('--win-accent-hover', hoverColor)
-  root.style.setProperty('--win-accent-active', activeColor)
 
   // Appropriate text color on top of the accent, based on its luminance: white text on
   // dark accents, black text on light ones.

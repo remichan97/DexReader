@@ -1,516 +1,191 @@
 # DexReader Navigation Flow
 
 **Created**: 24 November 2025
-**Part of**: P1-T01 - Design Main Application Layout
-**Status**: Complete
+**Updated**: 14 October 2026 (rewritten to describe the implemented navigation, as of v1.16.1)
 
 ---
 
 ## Overview
 
-This document defines how users navigate between different views in DexReader, including route transitions, back navigation behavior, and state preservation.
+This document describes how users move between views in DexReader: the routes, the ways of triggering navigation, how Back works, what state survives a navigation and what happens on invalid routes. The original version of this document was a design-phase plan; parts of it (deep links, a forward/back shortcut, a Tools menu, a multi-window mode, analytics) were never built and are no longer described. The layout of each view is covered in [`layout-specification.md`](./layout-specification.md).
 
 ---
 
-## Primary Navigation Routes
+## Routes
 
-### Route Hierarchy
+The renderer uses React Router's `HashRouter` (the app is loaded from a file, so URLs look like `#/browse`). Routes are declared in `src/renderer/src/router.tsx`:
+
+| Route                              | View              | Notes                                                         |
+| ---------------------------------- | ----------------- | ------------------------------------------------------------- |
+| `/`                                | -                 | Redirects to the startup route (see below)                    |
+| `/browse`                          | `BrowseView`      | Search and discovery. Accepts `?tag=<tagId>`                  |
+| `/browse/:mangaId`                 | `MangaDetailView` | Manga detail. Sidebar keeps Browse highlighted                |
+| `/creator/:creatorType/:creatorId` | `CreatorView`     | Works by an author or artist                                  |
+| `/library`                         | `LibraryView`     | Favourites and collections (collections are tabs, not routes) |
+| `/history`                         | `HistoryView`     | Chronological reading history                                 |
+| `/downloads`                       | `DownloadsView`   | Downloaded chapters grouped by manga                          |
+| `/settings`                        | `SettingsView`    | One scrolling page. Accepts `?section=<sectionId>`            |
+| `/reader/:mangaId/:chapterId`      | `ReaderView`      | Full window, no sidebar                                       |
+| `*`                                | `NotFoundView`    | Shows a native dialog, then redirects to Browse               |
+
+There are no `/library/:collection` or `/settings/:section` routes; the selected collection is tab state, and the settings section is the `section` query parameter.
+
+### Startup route
+
+The first route comes from Settings → Appearance → Startup page (`appearance.startupPage`): `browse` (default), `library` or `downloads`. It is read by `useStartupRoute`. The app does **not** restore the last viewed route. If the app lock (Gatekeeper) is enabled, the unlock screen is shown first.
+
+### Navigation graph
 
 ```ui
-/                       → Browse View (default)
-/browse                 → Browse View (explicit)
-/browse/:mangaId        → Manga Detail View
-/library                → Library View
-/library/:collection    → Filtered Library View (specific collection)
-/reader/:mangaId/:chapterId  → Reader View
-/downloads              → Downloads View
-/settings               → Settings View
-/settings/:section      → Settings View (specific section)
+                 ┌────────────┐
+ startup page ──▶│   Browse   │◀────────────────────────────┐
+                 └─────┬──────┘                             │
+                       │ card                               │ Back (default)
+   ┌───────────┬───────┼─────────┬────────────┐             │
+   ▼           ▼       ▼         ▼            ▼             │
+Library     History  Downloads  Creator ──▶ Manga Detail ───┘
+   │           │         │                    │  ▲
+   └──card─────┴─────────┴──────── card ──────┘  │ Back
+                                    │            │
+                                    ▼            │
+                             ┌────────────┐      │
+        chapter / Continue ─▶│   Reader   │──────┘
+                             └────────────┘
+
+Settings is reachable from anywhere (sidebar, File menu, Ctrl+,).
 ```
 
-### Navigation Graph
-
-```ui
-                    ┌──────────────┐
-                    │ Browse View  │ ← Default landing page
-                    └──────┬───────┘
-                           │
-            ┌──────────────┼──────────────┐
-            │              │              │
-            ▼              ▼              ▼
-    ┌──────────────┐  ┌─────────┐  ┌──────────────┐
-    │Manga Detail  │  │ Library │  │  Downloads   │
-    │     View     │  │  View   │  │     View     │
-    └──────┬───────┘  └────┬────┘  └──────────────┘
-           │               │
-           └───────┬───────┘
-                   │
-                   ▼
-            ┌──────────────┐
-            │ Reader View  │ ← Fullscreen
-            └──────────────┘
-
-         ┌──────────────┐
-         │Settings View │ ← Accessible from anywhere
-         └──────────────┘
-```
+Manga Detail can be entered from Browse, Library, History, Downloads and Creator, and the Reader from Manga Detail, History and Downloads (resuming from the saved page where there is one).
 
 ---
 
-## Navigation Mechanisms
+## Ways to Navigate
 
-### 1. Sidebar Navigation
+### Sidebar
 
-**Primary Views**:
+Browse, Library, History, Downloads and Settings (see the sidebar section of the layout specification). A click or Enter/Space navigates; the active item is the one whose route matches the current path or is its parent.
 
-- Browse (Ctrl+1)
-- Library (Ctrl+2)
-- Downloads (Ctrl+3)
-- Settings (Ctrl+,)
+### Menu bar and shortcuts
 
-**Behavior**:
+The native menu (File, View, Library, Help) sends a `navigate` message to the renderer for the View items, and the renderer also listens for the same navigation shortcuts in `useKeyboardShortcuts`. The full structure is in [`menu-bar-structure.md`](./menu-bar-structure.md); the navigation-related accelerators are:
 
-- Single click navigates to view
-- Active view highlighted with accent color background
-- State preserved when switching views (scroll position, filters, etc.)
+| Shortcut | Action                      | Handled by                       |
+| -------- | --------------------------- | -------------------------------- |
+| Ctrl+1   | Browse                      | Menu accelerator and key handler |
+| Ctrl+2   | Library                     | Menu accelerator and key handler |
+| Ctrl+3   | Downloads                   | Menu accelerator and key handler |
+| Ctrl+4   | Reading History             | Menu accelerator                 |
+| Ctrl+,   | Settings                    | Menu accelerator and key handler |
+| Ctrl+/   | Show the keyboard shortcuts | Key handler (opens the dialog)   |
+| F11      | Toggle fullscreen           | Menu accelerator                 |
+| Ctrl+R   | Reload                      | Menu accelerator                 |
 
-### 2. Menu Bar Navigation
+The in-app shortcuts dialog (`KeyboardShortcutsDialog`) lists every shortcut, including the library and reader ones, and is the user-facing source of truth. There is no Alt+Left / Alt+Right history shortcut.
 
-**Complete menu structure** (see navigation-specification.md for full details):
+### Secure navigation (Settings)
 
-- **File**: Settings, Exit
-- **View**: Browse (Ctrl+1), Library (Ctrl+2), Downloads (Ctrl+3), Toggle Sidebar (Ctrl+B)
-- **Library**: Add to Favorites, Create Collection, Import/Export
-- **Tools**: Download operations, Clear cache
-- **Help**: Documentation, About
+Navigating to `/settings` goes through `useSecureNavigate`. When the app lock is enabled and "require passphrase for settings" is on, the user is asked to re-authenticate first (`GatekeeperReauthModal`); otherwise navigation proceeds normally. The sidebar, the Ctrl+, shortcut and the menu all use this path.
 
-**Behavior**:
+### In-content links
 
-- Keyboard accessible (Alt+F, Alt+V, etc.)
-- Context-aware items enabled/disabled based on current view
-
-### 3. In-Content Navigation
-
-**Browse View**:
-
-- Click manga card → Manga Detail View
-- Search input → Updates Browse View (same route, query param)
-
-**Library View**:
-
-- Click collection → Filtered Library View
-- Click manga card → Manga Detail View
-
-**Manga Detail View**:
-
-- Click chapter → Reader View
-- "Add to Library" button → Adds to favorites, stays on detail
-- "Download" button → Opens Downloads view (or shows modal)
-
-**Reader View**:
-
-- Previous/Next buttons → Navigate chapters (same manga)
-- Back button (top-left) → Returns to previous view
-- Chapter dropdown → Jumps to different chapter (same manga)
+- **Browse**: a card opens Manga Detail; applying filters stays on the route. `?tag=<tagId>` (used by tag chips on the detail page) resets the filters, applies only that tag and runs the search
+- **Library**: a card opens Manga Detail; collection tabs switch in place
+- **History**: an event opens the Reader for that chapter (resuming at the stored page); the empty state links to Browse
+- **Downloads**: a chapter opens the Reader (offline, with the stored start page); a group's manga title opens Manga Detail. Both record the origin
+- **Manga Detail**: a chapter or the hero's Continue button opens the Reader; author and artist links open the Creator view; tag chips open Browse filtered by that tag
+- **Reader**: previous/next chapter, the chapter list and Back (see below)
 
 ---
 
-## State Management During Navigation
+## Back Navigation
 
-### Preserved State
+Back is **origin-aware** rather than browser-history based. `src/renderer/src/utils/navigationOrigin.ts` records where the user came from in React Router `location.state` (`{ from: '/library' }`):
 
-**Browse View**:
+1. A view that links to a manga's detail page attaches the origin (`originFrom(location)`)
+2. Manga Detail reads it with `getOrigin(location.state)`; **Back goes to the origin, or to `/browse` if there is none**
+3. Manga Detail forwards the origin to the Reader when opening a chapter
+4. The Reader's Back returns to `/browse/:mangaId` and hands the origin back, so Back from the detail page again lands on the original view
 
-- Search query
-- Active filters
-- Scroll position
-- Grid layout mode
+Example: Library → Manga Detail → Reader → Back → Manga Detail → Back → **Library** (not Browse).
 
-**Library View**:
+Other cases:
 
-- Selected collection
-- Sort order
-- View mode (grid/list)
-- Scroll position
-
-**Reader View**:
-
-- Current page within chapter
-- Zoom level
-- Reading mode (single/double/vertical)
-- Control bar visibility state
-
-**Settings View**:
-
-- Active settings section
-
-### Cleared State
-
-- Reader view state clears when exiting to Browse/Library
-- Search results clear when navigating away from Browse (unless bookmarked)
-- Temporary modal states (dialogs, overlays)
+- **Reader**: Back button or Escape. Escape closes the chapter list if it is open, otherwise acts as Back. With no manga ID the reader falls back to `navigate(-1)`
+- **Creator**: Back uses `navigate(-1)`
+- **Settings, Library, History, Downloads, Browse**: top-level views with no Back button; use the sidebar or menu
 
 ---
 
-## Back Navigation Behavior
+## State During Navigation
 
-### Browser-Style History
+Views are unmounted when you leave them (`ViewTransition` is keyed by pathname), so component state is lost; what survives lives in stores, the database or the settings file.
 
-DexReader maintains navigation history similar to web browsers:
+| Area     | Survives navigation                                                                     | Does not                                                 |
+| -------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| Browse   | Query, filters, results and pagination (they live in the in-memory `searchStore`)       | Scroll position; the filter dialog's unapplied draft     |
+| Library  | Favourites and collections (database); the "include downloaded" toggle (`localStorage`) | Selected collection tab (resets to All); scroll position |
+| History  | Reading events (database); the selected calendar date (in `historyStore`)               | Search text, viewed month and scroll position            |
+| Settings | Every setting (autosaved to `settings.json`)                                            | Scroll position; the section is re-read from `?section=` |
+| Reader   | Reading progress and per-chapter resume page (database); reader preferences (settings)  | Transient UI such as open overlays and the zoom level    |
 
-```ui
-User Flow Example:
-Browse → Manga Detail (A) → Reader (A, Ch.1) → [Back] → Manga Detail (A) → [Back] → Browse
-```
-
-**Implementation**:
-
-- React Router's `useNavigate()` with `navigate(-1)` for back
-- Electron's window back button (optional)
-- Keyboard shortcut: Alt+Left (back), Alt+Right (forward)
-
-### Context-Specific Back Behavior
-
-**From Reader View**:
-
-- Back button → Returns to the view that opened the reader
-  - If opened from Browse → Returns to Manga Detail
-  - If opened from Library → Returns to Library
-  - If opened from "Continue Reading" → Returns to Library
-
-**From Manga Detail**:
-
-- Back button → Returns to previous view (Browse or Library)
-
-**From Settings**:
-
-- Back navigation not applicable (use sidebar/menu to leave)
+There is **no scroll restoration** anywhere. Across app restarts the app restores settings, the library, history, progress and downloads, but not the last viewed route or any search.
 
 ---
 
 ## Deep Linking
 
-### URL Structure
+There are no external deep links: DexReader does not register a custom protocol, and there is no way to open it at a specific manga from outside. Hash URLs are used only internally. Two query parameters are meaningful:
 
-All views are URL-addressable for:
-
-- Bookmarking
-- Sharing (future)
-- Direct navigation
-
-**Examples**:
-
-```ui
-dexreader://browse
-dexreader://browse?q=one+piece&tags=action,adventure
-dexreader://browse/abc123-manga-id
-dexreader://library
-dexreader://library/favorites
-dexreader://reader/abc123-manga-id/xyz789-chapter-id
-dexreader://downloads
-dexreader://settings
-dexreader://settings/reading
-```
-
-### State Restoration from URL
-
-- Browse with search query → Executes search on load
-- Reader with chapter ID → Loads chapter, resumes from last page (if available)
-- Library with collection → Opens collection view
+- `/browse?tag=<tagId>`: apply a single tag filter and search
+- `/settings?section=<sectionId>`: scroll to a settings section on load. While the user scrolls, the settings page keeps the parameter in sync with the section in view (scroll spy)
 
 ---
 
-## Navigation Keyboard Shortcuts
+## Transitions and Loading
 
-### Global Shortcuts (Work from Any View)
-
-| Shortcut  | Action                |
-| --------- | --------------------- |
-| Ctrl+1    | Navigate to Browse    |
-| Ctrl+2    | Navigate to Library   |
-| Ctrl+3    | Navigate to Downloads |
-| Ctrl+,    | Navigate to Settings  |
-| Ctrl+B    | Toggle Sidebar        |
-| F11       | Toggle Fullscreen     |
-| Alt+Left  | Back in history       |
-| Alt+Right | Forward in history    |
-| Ctrl+R    | Reload current view   |
-
-### View-Specific Shortcuts
-
-**Reader View**:
-
-| Shortcut        | Action                              |
-| --------------- | ----------------------------------- |
-| Left Arrow / A  | Previous page/chapter               |
-| Right Arrow / D | Next page/chapter                   |
-| Space           | Next page                           |
-| Shift+Space     | Previous page                       |
-| Escape          | Exit reader (back to previous view) |
-| F               | Toggle fullscreen                   |
-| M               | Show chapter menu overlay           |
-
-**Browse/Library Views**:
-
-| Shortcut | Action                             |
-| -------- | ---------------------------------- |
-| Ctrl+F   | Focus search input                 |
-| Ctrl+D   | Add current manga to favorites     |
-| Enter    | Open selected manga (when focused) |
+- **Route change**: `ViewTransition` plays a 300ms fade-in with an 8px upward slide on the incoming view; reader routes share one key so moving between chapters does not replay it. `prefers-reduced-motion` disables it. The earlier plan for a directional reader slide and a 150ms fade was not implemented
+- **Local data views** (Library, History, Downloads, Settings) render as soon as their store data is available, with `LoadingState` while it loads
+- **Network views**: Browse shows a `SkeletonGrid`, Manga Detail shows skeleton placeholders, and the Reader shows a `ProgressRing`-based loading state while the chapter loads. See [`loading-feedback-states.md`](../components/loading-feedback-states.md)
+- **Window title**: `AppShell` sets the document title for the main views (for example "Library - DexReader"); Manga Detail and the Reader set their own
 
 ---
 
-## Navigation Transitions
+## Invalid Routes and Errors
 
-### Route Change Animations
-
-**Standard View Transitions**:
-
-- **Fade**: 150ms for view switches (Browse ↔ Library ↔ Downloads ↔ Settings)
-- **Slide**: Reader enters from right, exits to left (300ms)
-- **Instant**: No animation for same-view updates (filter changes, collection switches)
-
-### Loading States During Navigation
-
-**Immediate Navigation**:
-
-- Browse → Library: Instant (all local data)
-- Library → Settings: Instant (all local data)
-- Settings → Downloads: Instant (all local data)
-
-**Network-Dependent Navigation**:
-
-- Browse → Manga Detail: Show skeleton screen while loading details
-- Manga Detail → Reader: Show progress ring while loading chapter images
-- Browse with search: Show skeleton cards while API responds
+| Situation                                   | Behaviour                                                                                               |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Unknown route (`*`)                         | `NotFoundView` shows a blocking native dialog (once), then navigates to `/browse` whatever the answer   |
+| Manga cannot be loaded (network or offline) | Manga Detail shows an in-view error panel (with Back); the user is not navigated away                   |
+| Manga not found                             | Manga Detail shows a "Manga Not Found" panel with Back and a "Back to Browse" button                    |
+| Chapter fails to load                       | The Reader shows an `ErrorState` with retry                                                             |
+| Render error in a view                      | The route's `ErrorBoundary level="page"` shows a fallback inside the shell, so the sidebar stays usable |
+| Leaving the Reader early                    | Progress is saved as the user reads; there is no "unsaved" prompt                                       |
 
 ---
 
-## Navigation State Persistence
-
-### Session Persistence (In-Memory)
-
-**Preserved During App Session**:
-
-- Navigation history stack
-- View-specific scroll positions
-- Active filters and search queries
-- Temporary selections (multi-select, etc.)
-
-### Disk Persistence (Across App Restarts)
-
-**Saved to Database**:
-
-- Last viewed route (restore on app launch)
-- Reading progress (reader position, chapter)
-- User preferences (settings)
-- Library state (bookmarks, collections)
-
-**Not Saved**:
-
-- Browse view search queries
-- Temporary filter states
-- Download progress (resets on restart)
-
----
-
-## Edge Cases & Error Handling
-
-### Invalid Routes
-
-**Scenario**: User navigates to non-existent manga ID
-**Behavior**:
-
-- Show error page with "Manga not found"
-- Provide "Back to Browse" button
-- Log error for debugging
-
-**Example**:
+## Common Flows
 
 ```ui
-/browse/invalid-id-12345  → Error View
-                            "This manga could not be found."
-                            [Back to Browse]
-```
-
-### Network Errors During Navigation
-
-**Scenario**: Manga detail page fails to load
-**Behavior**:
-
-- Show error banner with retry button
-- Keep user on current view (don't navigate away)
-- Allow offline navigation if data cached
-
-### Reader Exit Without Saving
-
-**Scenario**: User exits reader before page loads
-**Behavior**:
-
-- Save last known page position
-- No warning dialog (auto-save)
-
----
-
-## Navigation Patterns by User Intent
-
-### Discovery Flow (New User)
-
-```ui
-Launch App → Browse View → Search/Filter → Manga Detail → Reader
-                                              ↓
-                                         [Add to Library]
-                                              ↓
-                                         Library View
-```
-
-### Reading Flow (Returning User)
-
-```ui
-Launch App → Library View → "Continue Reading" → Reader
-                 ↓
-            Collection View → Manga Detail → Reader
-```
-
-### Download Flow
-
-```ui
-Browse/Library → Manga Detail → [Download Button] → Downloads View
-                                                         ↓
-                                                    [Monitor Progress]
-                                                         ↓
-                                                    [Read Offline]
-                                                         ↓
-                                                    Offline Reader
-```
-
-### Settings Flow
-
-```ui
-Any View → Settings (Ctrl+,) → Adjust preferences → [Auto-save] → Back to original view
+Discovery:   Startup page → Browse → search/filter → Manga Detail → favourite ─▶ Library
+Reading:     Library / History / Downloads → Manga Detail or Reader (Continue) → Back to origin
+Offline:     Offline mode (File menu) → Library / Downloads → Reader using local chapters
+Settings:    Any view → Settings (Ctrl+,, may require passphrase) → autosave → sidebar to leave
 ```
 
 ---
 
-## Multi-Window Navigation (Future Consideration)
+## Accessibility
 
-**Current**: Single window application
-**Future**: Multiple reader windows for comparing chapters
-
-**Proposed Behavior**:
-
-- Ctrl+N: Open new window (Browse view)
-- Each window has independent navigation history
-- Shared state: Library, settings, downloads
-- Independent state: Reading progress per window
-
----
-
-## Navigation Accessibility
-
-### Screen Reader Announcements
-
-- Route changes announce new view name
-- Focus moves to main content on navigation
-- Skip links provided for keyboard users
-
-### Keyboard Focus Management
-
-**On Navigation**:
-
-1. Focus moves to first interactive element in new view
-2. Or, focus moves to main heading (H1)
-3. User can Tab through content naturally
-
-**Example**:
-
-```ui
-Browse → Library:
-  Focus moves to "Sort by" dropdown (first interactive element)
-
-Library → Reader:
-  Focus moves to "Previous Page" button
-```
-
----
-
-## Navigation Analytics (Future)
-
-**Metrics to Track** (when analytics added):
-
-- Most common navigation paths
-- Average time in each view
-- Back button usage frequency
-- Dead ends (routes user abandons)
-
-**Use Cases**:
-
-- Optimize default view based on usage
-- Identify confusing navigation patterns
-- Improve UX based on data
+- Every view has a visually hidden `<h1>`, and the shell provides a "Skip to main content" link and a labelled `<nav>`
+- Result updates in Browse and Library are announced through an `aria-live` region
+- The app does not move focus programmatically on route change; focus stays where the activation happened until the new view takes it
 
 ---
 
 ## Implementation Notes
 
-### React Router Configuration
-
-**Recommended Router Setup**:
-
-```typescript
-<BrowserRouter>
-  <Routes>
-    <Route path="/" element={<BrowseView />} />
-    <Route path="/browse" element={<BrowseView />} />
-    <Route path="/browse/:mangaId" element={<MangaDetailView />} />
-    <Route path="/library" element={<LibraryView />} />
-    <Route path="/library/:collection" element={<LibraryView />} />
-    <Route path="/reader/:mangaId/:chapterId" element={<ReaderView />} />
-    <Route path="/downloads" element={<DownloadsView />} />
-    <Route path="/settings" element={<SettingsView />} />
-    <Route path="/settings/:section" element={<SettingsView />} />
-    <Route path="*" element={<NotFoundView />} />
-  </Routes>
-</BrowserRouter>
-```
-
-### State Management for Navigation
-
-**Local Component State**:
-
-- View-specific UI state (scroll, filters)
-- Managed via `useState` or `useReducer`
-
-**Global Application State** (when state library added):
-
-- User library (bookmarks, collections)
-- Reading progress
-- Application settings
-- Download queue
-
-**URL State**:
-
-- Search queries (query params)
-- Selected collections (route params)
-- Current manga/chapter (route params)
-
----
-
-## Summary
-
-DexReader's navigation system provides:
-
-✅ **Clear Primary Navigation**: Sidebar + menu bar for all primary views
-✅ **Intuitive Back Behavior**: Browser-style history with context awareness
-✅ **Keyboard Accessible**: Comprehensive shortcuts for power users
-✅ **State Preservation**: Views remember their state across navigation
-✅ **Deep Linkable**: All views addressable via URL
-✅ **Error Resilient**: Graceful handling of invalid routes and network errors
-✅ **Accessible**: Screen reader friendly with proper focus management
-
-**Review Status**: ✅ Ready for routing implementation (Step 3)
-
----
-
-_Navigation flow created: 24 November 2025_
-_Part of P1-T01 deliverables_
+- **Router**: `HashRouter` in `App.tsx`; `AppRoutes` in `router.tsx` wraps the routes in `ViewTransition` and each in `ErrorBoundary level="page"`
+- **Shell**: the Reader route renders outside `AppShell`
+- **Origin helpers**: `utils/navigationOrigin.ts` (`originFrom`, `forwardOrigin`, `getOrigin`)
+- **Gatekeeper-aware navigation**: `useSecureNavigate` / `useSecureNavigation` and `SecureNavigationProvider`
+- **Shortcuts**: `hooks/useKeyboardShortcuts.ts` for the renderer, `src/main/menu/*.menu.ts` for menu accelerators

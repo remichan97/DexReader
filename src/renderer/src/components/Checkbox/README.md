@@ -1,15 +1,14 @@
 # Checkbox Component
 
-A customizable checkbox component with support for checked, unchecked, and indeterminate states, following Windows 11 Fluent Design principles.
+A checkbox with checked, unchecked and indeterminate states. A thin wrapper over the Fluent 2 `Checkbox` that keeps a simple `checked` / `onChange(checked)` API.
 
 ## Features
 
 - **Three States**: Checked, unchecked, and indeterminate
-- **Keyboard Support**: Space and Enter keys for toggling
-- **Smooth Animations**: Scale and fade animations for state changes
-- **Disabled State**: Visual feedback for disabled checkboxes
-- **Accessibility**: Full ARIA support and keyboard navigation
-- **Windows 11 Design**: Rounded style with accent color
+- **Keyboard Support**: Space toggles, via the native checkbox
+- **Disabled State**: Handled by Fluent
+- **Accessibility**: Native input semantics with a label-based `aria-label` fallback
+- **Fluent 2 Theming**: Follows the app theme (accent colour, light and dark)
 
 ## Usage
 
@@ -140,31 +139,16 @@ function CheckboxGroup() {
 
 ## Accessibility
 
-- Uses native `<input type="checkbox">` for form compatibility
-- ARIA attributes for screen readers
-- `aria-checked="mixed"` for indeterminate state
-- Keyboard navigation with Space and Enter
-- Proper focus indicators
-- Label association for click targets
+- Wraps Fluent 2's `Checkbox`, which renders a native `<input type="checkbox">`, so form submission and label association work natively
+- The indeterminate state is set through the input's `indeterminate` property, which assistive technology reports as "mixed"
+- `aria-label` falls back to `label` when not provided
+- Fluent provides the focus indicator and disabled handling
 
 ## Keyboard Shortcuts
 
-- **Space**: Toggle checkbox
-- **Enter**: Toggle checkbox
+- **Space**: Toggle checkbox (native checkbox behaviour; Enter does not toggle)
 - **Tab**: Navigate to next focusable element
 
 ## Styling
 
-The component uses CSS custom properties from the design tokens:
-
-- `--win-bg-input`: Checkbox background
-- `--win-border-default`: Border color
-- `--win-accent`: Accent color for checked state
-- `--radius-xs`: Border radius
-
-## Performance Notes
-
-- Smooth animations with CSS transforms
-- GPU-accelerated animations
-- Respects `prefers-reduced-motion` for accessibility
-- Minimal re-renders with React.memo compatibility
+Styling comes from Fluent 2 and the app's Fluent theme, so the checkbox picks up the accent colour and light/dark mode automatically. Use `className` for layout tweaks. The wrapper has no stylesheet of its own.

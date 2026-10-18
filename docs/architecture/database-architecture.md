@@ -1,739 +1,231 @@
 # Database Architecture
 
-**Framework**: Drizzle ORM v0.x + better-sqlite3
-**Migration Date**: 27-28 December 2025 (Guerilla Migration)
-**Last Updated**: 28 December 2025
-**Status**: ✅ Production-Ready
+**Last updated**: October 2026 (v1.16.1)
+**Source**: `src/main/database/` (connection, schemas, repositories, mappers, migrations)
 
 ---
 
 ## Overview
 
-DexReader uses **SQLite** with **Drizzle ORM** for persistent data storage in the main process. This architecture replaced the previous JSON-based filesystem storage during the "Guerilla Database Migration" (27-28 December 2025) to eliminate limitations (2MB cap, 1000 override limit) and enable advanced library features.
+DexReader keeps its persistent data in a single SQLite file, owned by the main process. It uses Node's built-in `node:sqlite` (`DatabaseSync`) with [Drizzle ORM](https://orm.drizzle.team/) 1.0 (`drizzle-orm/node-sqlite`). There is no native module to rebuild: the driver ships with the runtime.
 
-### Why SQLite + Drizzle?
+The `node:sqlite` API is **synchronous**, so every repository method is synchronous too. The renderer never touches the database. It calls an IPC handler, the handler calls a repository, and the result is returned as an `IpcResponse<T>`.
 
-- **Zero Configuration**: Embedded database, no server required
-- **Type Safety**: Drizzle provides full TypeScript inference
-- **Performance**: WAL mode, memory-mapped I/O, optimized indexes
-- **Migrations**: Type-safe schema evolution with SQL generation
-- **Reliability**: ACID transactions, foreign key constraints
-- **Portable**: Single file database, easy backup/restore
+```
+Renderer store ──► preload (window.api.*) ──► IPC handler ──► repository ──► Drizzle ──► SQLite
+```
+
+| Concern                           | Where                                               |
+| --------------------------------- | --------------------------------------------------- |
+| Connection, pragmas, backup       | `src/main/database/db-connection.ts`                |
+| Table definitions                 | `src/main/database/schemas/`                        |
+| Relations (for `with:` queries)   | `src/main/database/schemas/relationships.schema.ts` |
+| Data access                       | `src/main/database/repositories/*.repo.ts`          |
+| Row → contract mapping            | `src/main/database/mappers/`                        |
+| Commands (write inputs)           | `src/shared/commands/repositories/`                 |
+| Contracts (read outputs)          | `src/shared/contracts/database/`                    |
+| Migrations                        | `src/main/database/migrations/`                     |
+| Corruption and migration recovery | `src/main/database/db-recovery.ts`                  |
+| Restore points                    | `src/main/services/database-snapshot.service.ts`    |
 
 ---
 
-## Database Configuration
+## Connection
 
-### Connection Settings
+**Location**
 
-**Location**:
+- **Development**: `dexreader-dev.db` in the project root (easy to inspect and reset)
+- **Production**: `dexreader.db` in the app data directory (`getAppDataPath()`)
 
-- **Development**: `./dexreader-dev.db` (project root)
-- **Production**: `%APPDATA%/dexreader/dexreader.db`
+**Pragmas** set in `DatabaseConnection.init()`:
 
-**Optimizations**:
+| Pragma         | Value                | Why                               |
+| -------------- | -------------------- | --------------------------------- |
+| `journal_mode` | `WAL`                | Readers don't block the writer    |
+| `cache_size`   | `-65536` (64 MB)     | Fewer disk reads                  |
+| `mmap_size`    | `268435456` (256 MB) | Faster reads through the OS cache |
+| `foreign_keys` | `ON`                 | Enforce references and cascades   |
+| `synchronous`  | `NORMAL`             | Safe with WAL, faster commits     |
+| `temp_store`   | `MEMORY`             | Temporary tables stay in memory   |
 
-```typescript
-// src/main/database/connection.ts
-db.pragma('journal_mode = WAL') // Write-Ahead Logging
-db.pragma('cache_size = -64000') // 64MB cache
-db.pragma('mmap_size = 268435456') // 256MB memory-mapped I/O
-db.pragma('foreign_keys = ON') // Enforce FK constraints
-db.pragma('busy_timeout = 5000') // 5s lock timeout
-```
+`close()` runs `PRAGMA wal_checkpoint = TRUNCATE` before closing so the `-wal` file is folded back into the database. `backupDatabase(path)` copies the live database with SQLite's backup API (`node:sqlite`'s `backup`), which is how restore points are made.
 
-**Build Configuration**:
+### Startup sequence (`src/main/index.ts`)
 
-```typescript
-// electron.vite.config.ts
-asarUnpack: ['**/node_modules/better-sqlite3/**', '**/drizzle/**']
-```
-
-Migration files bundled via Vite plugin, automatically applied on startup.
+1. `databaseConnection.init()`. If opening fails (typically file corruption), `recoverFromDatabaseOpenFailure` offers to move the database and its `-wal` and `-shm` files aside as `*.corrupt-<timestamp>`, then start with a fresh one. Declining quits the app.
+2. `runMigrations()`. If a migration fails, `handleMigrationFailure` explains what happened and the app exits.
+3. `historyRepo.migrateHistoryFromMangaProgress()`, a one-time backfill of `read_history` from `manga_progress` that does nothing once `read_history` has rows. A failure here is logged and startup continues.
 
 ---
 
-## Schema Overview
+## Schema
 
-### Entity Relationship Diagram
+### Relationships
 
 ```
-┌─────────────────┐     ┌────────────────────────┐
-│      manga      │────<│ manga_reader_overrides │
-│  (cached info)  │     │   (per-manga settings) │
-└─────────────────┘     └────────────────────────┘
-        │
-        │ 1:1
-        ↓
-┌─────────────────┐     ┌──────────────────┐
-│ manga_progress  │────<│ chapter_progress │
-│ (last read)     │     │ (per-chapter)    │
-└─────────────────┘     └──────────────────┘
-        │ 1:1
-        ↓
-┌─────────────────┐
-│reading_statistics│
-│  (aggregates)   │
-└─────────────────┘
+manga ──< chapter ──< chapter_downloads >── manga
+  │         (cached)        (one row per downloaded chapter)
+  │
+  ├──< manga_reader_overrides      (per-manga reader settings, 1:1)
+  ├──< read_history                (one row per manga/chapter/day)
+  └──< collection_items >── collections
 
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────┐
-│   collections   │────<│ collection_items │>────│   chapter   │
-│  (bookmarks)    │     │   (many-to-many) │     │  (cached)   │
-└─────────────────┘     └──────────────────┘     └─────────────┘
+manga_progress ──< chapter_progress     (reading position)
+reading_statistics                      (single aggregate row)
+search_presets                          (saved Browse searches)
 ```
 
-### Table Summary
+`manga_progress` and `chapter_progress` are **not** linked to `manga`: progress is keyed by the MangaDex id alone, so it can exist without a cached manga row.
 
-| Table                    | Purpose                       | Records | Indexes | Triggers              |
-| ------------------------ | ----------------------------- | ------- | ------- | --------------------- |
-| `manga`                  | Cached manga metadata         | ~100s   | 1       | 1 (cleanup stale)     |
-| `manga_reader_overrides` | Per-manga reader settings     | ~10s    | 1       | -                     |
-| `manga_progress`         | Last read chapter per manga   | ~100s   | 1       | -                     |
-| `chapter_progress`       | Reading progress per chapter  | ~1000s  | 2       | 1 (update statistics) |
-| `reading_statistics`     | Aggregated reading stats      | ~100s   | 1       | 1 (cleanup orphans)   |
-| `collections`            | User-created bookmark folders | ~10s    | -       | -                     |
-| `collection_items`       | Manga in collections          | ~100s   | 3       | -                     |
-| `chapter`                | Cached chapter metadata       | ~1000s  | 2       | -                     |
+### Tables
+
+| Table                    | Key                                              | References                       | Purpose                                                    |
+| ------------------------ | ------------------------------------------------ | -------------------------------- | ---------------------------------------------------------- |
+| `manga`                  | `manga_id` (MangaDex UUID)                       | none                             | Cached metadata and the library (`is_favourite`)           |
+| `chapter`                | `chapter_id`                                     | `manga` (cascade)                | Cached chapter metadata                                    |
+| `chapter_downloads`      | `(chapter_id, manga_id)`, `chapter_id` unique    | `chapter`, `manga` (cascade)     | Download state, path, size, quality, errors                |
+| `manga_reader_overrides` | `manga_id`                                       | `manga` (cascade)                | Per-manga reader settings as JSON                          |
+| `manga_progress`         | `manga_id`                                       | none                             | Last chapter read and first/last read time per manga       |
+| `chapter_progress`       | `id`, unique `(manga_id, chapter_id)`            | `manga_progress` (cascade)       | Page and completion per chapter                            |
+| `read_history`           | `id`, unique `(manga_id, chapter_id, read_date)` | `manga` (cascade)                | One row per chapter read per day, for the History calendar |
+| `reading_statistics`     | `id` = 1 (CHECK)                                 | none                             | Aggregate totals, recalculated from `chapter_progress`     |
+| `collections`            | `id`, unique `name`                              | none                             | User-created collections                                   |
+| `collection_items`       | `id`, unique `(collection_id, manga_id)`         | `collections`, `manga` (cascade) | Manga in a collection, with a `position`                   |
+| `search_presets`         | `id`, unique `name`                              | none                             | Saved Browse searches (name limited to 50 characters)      |
+
+Notes on individual tables:
+
+- **`manga`** has a CHECK that `status` is one of `ongoing`, `completed`, `hiatus`, `cancelled`. `tags`, `authors`, `artists`, `external_links` and `alternative_titles` are JSON columns. `last_volume` and `last_chapter` are the official publication info and must not be used for progress. A partial index (`idx_manga_library`) serves the library query (favourites ordered by added and last-accessed date).
+- **`chapter_downloads`** has indexes on `manga_id` and `status`. `is_hidden` lets the Downloads view hide cleared rows without deleting the record.
+- **`read_history`** stores `read_date` as a local `YYYY-MM-DD` string, validated by a CHECK, next to the `read_at` timestamp. This is what the calendar queries.
+- **`reading_statistics`** is always a single row. It is rebuilt by `readingRepo.calculateStatistics()`: distinct manga, distinct chapters, total pages (`current_page + 1` per chapter) and an estimate of 20 seconds per page. There are no database triggers anywhere in the schema; every derived value is computed by repository code.
+- **`manga_progress` has no page number.** The page lives in `chapter_progress.current_page`.
+
+### Cascades
+
+Foreign keys are enforced (`PRAGMA foreign_keys = ON`), so:
+
+- Deleting a `manga` row deletes its chapters (and their download rows), reader overrides, **read history** and collection memberships.
+- Deleting a `collections` row deletes its items.
+- Deleting a `manga_progress` row deletes its `chapter_progress` rows.
 
 ---
 
-## Core Tables
+## Data access
 
-### 1. Manga (Cached Metadata)
+### Repositories
 
-**Table**: `manga`
-**Purpose**: Minimal caching to satisfy foreign key constraints
+Each repository is a class exported as a singleton, takes the connection lazily (`databaseConnection.getDb()`), and is synchronous.
 
-```typescript
-// src/main/database/schema/manga.schema.ts
-export const manga = sqliteTable(
-  'manga',
-  {
-    id: text('id').primaryKey(),
-    title: text('title').notNull(),
-    coverUrl: text('cover_url'),
-    isRead: integer('is_read', { mode: 'boolean' }).notNull().default(false),
-    createdAt: integer('created_at', { mode: 'timestamp' })
-      .notNull()
-      .$default(() => new Date()),
-    updatedAt: integer('updated_at', { mode: 'timestamp' })
-      .notNull()
-      .$default(() => new Date())
-  },
-  (table) => ({
-    updatedAtIdx: index('manga_updated_at_idx').on(table.updatedAt)
-  })
-)
-```
+| Singleton              | File                        | Responsibility                                                       |
+| ---------------------- | --------------------------- | -------------------------------------------------------------------- |
+| `mangaRepo`            | `manga.repo.ts`             | Upsert, favourites, library queries, search, cache stats and cleanup |
+| `chapterRepo`          | `chapter.repo.ts`           | Save and read chapter metadata                                       |
+| `chapterDownloadsRepo` | `chapter-downloads.repo.ts` | Download records, state changes, storage by manga                    |
+| `progressRepo`         | `manga-progress.repo.ts`    | Save and read manga and chapter progress                             |
+| `historyRepo`          | `history.repo.ts`           | Log read events, calendar dates, recent events, one-time backfill    |
+| `readingRepo`          | `reading-stats.repo.ts`     | Recalculate and read the statistics row                              |
+| `collectionRepo`       | `collection.repo.ts`        | Collections and membership                                           |
+| `readerSettingsRepo`   | `reader-settings.repo.ts`   | Per-manga reader overrides                                           |
+| `searchPresetsRepo`    | `search-presets.repo.ts`    | Saved searches                                                       |
+| `cleanupRepo`          | `cleanup.repo.ts`           | Clear all data, reclaim storage                                      |
 
-**Indexes**:
+### Commands, contracts and mappers
 
-- `manga_updated_at_idx`: For stale cache cleanup
+The read/write split is by shape, not by folder inside the database module:
 
-**Triggers**:
+- **Commands** are the inputs to a write, for example `SaveProgressCommand`, `UpsertMangaCommand`, `CreateCollectionCommand`. They live in `src/shared/commands/repositories/<area>/` so the renderer and main process agree on them.
+- **Contracts** are what reads return (`MangaProgressContract`, `MangaWithMetadataContract`, `ChapterDownloadContract`, ...). They live in `src/shared/contracts/database/`.
+- **Mappers** (`src/main/database/mappers/`) convert Drizzle rows into contracts (dates become Unix timestamps, for example).
 
-```sql
-CREATE TRIGGER cleanup_stale_manga_cache
-AFTER DELETE ON manga_progress
-BEGIN
-  DELETE FROM manga
-  WHERE id = OLD.manga_id
-    AND id NOT IN (SELECT manga_id FROM collection_items);
-END;
-```
+Reads often come in a **lean** and a **rich** form. `progressRepo.getAllMangaProgress()` returns progress rows only; `getAllProgressWithMetadata()` joins `manga` and `chapter` for the History view.
 
-**Caching Strategy**: Insert minimal records (title="Unknown") when saving progress, delete when no longer referenced.
+### Transactions and batches
 
----
+Methods that may run inside someone else's transaction take an optional `executor: DbExecutor = this.db` (`src/main/database/utils/batch-operations.util.ts`), which is either the connection or an open transaction. `executeBatchOperations` runs a list of commands as one operation (a single command takes the cheaper single path). Multi-step writes use `this.db.transaction(...)`.
 
-### 2. Manga Reader Overrides
+### How progress is saved
 
-**Table**: `manga_reader_overrides`
-**Purpose**: Per-manga reader settings (override global settings)
+`progressRepo.saveProgress(commands)` runs in one transaction. For each command it upserts `manga_progress` (last chapter and read time), upserts `chapter_progress` (page and completion), and logs a `read_history` event for that day. After all commands it recalculates `reading_statistics` and runs `mangaRepo.cleanupMangaCache()`.
 
-```typescript
-// src/main/database/schema/settings.schema.ts
-export const mangaReaderOverrides = sqliteTable(
-  'manga_reader_overrides',
-  {
-    mangaId: text('manga_id')
-      .primaryKey()
-      .references(() => manga.id, { onDelete: 'cascade' }),
-    readerMode: text('reader_mode', { enum: ['single', 'double', 'webtoon'] }),
-    readingDirection: text('reading_direction', { enum: ['ltr', 'rtl'] }),
-    preloadPages: integer('preload_pages'),
-    zoomLevel: integer('zoom_level'),
-    createdAt: integer('created_at', { mode: 'timestamp' })
-      .notNull()
-      .$default(() => new Date()),
-    updatedAt: integer('updated_at', { mode: 'timestamp' })
-      .notNull()
-      .$default(() => new Date())
-  },
-  (table) => ({
-    mangaIdIdx: index('manga_reader_overrides_manga_id_idx').on(table.mangaId)
-  })
-)
-```
+### The manga cache
 
-**Constraints**:
+`manga` doubles as a cache of what the user has looked at and as the library. A row is **kept** if it is a favourite, or has a completed download. Anything else is cache:
 
-- CHECK: `preload_pages BETWEEN 1 AND 5`
-- CHECK: `zoom_level BETWEEN 50 AND 200`
-- FK: `manga_id → manga.id` (CASCADE DELETE)
+- `cleanupMangaCache()` (the default, run after every progress save) deletes cache rows whose `last_accessed_at` is more than 90 days old.
+- `cleanupMangaCache(true)` deletes all cache rows regardless of age. Settings → Cache Management calls both modes through `globalThis.storage.clearMangaCache(false | true)`.
+- `last_accessed_at` is refreshed by `upsertManga`.
 
-**Usage Pattern**:
-
-```typescript
-// Query with fallback to global settings
-const settings =
-  (await db
-    .select()
-    .from(mangaReaderOverrides)
-    .where(eq(mangaReaderOverrides.mangaId, mangaId))
-    .get()) ?? globalSettings
-```
+**Be aware**: because `read_history`, `chapter` and the other child tables cascade from `manga`, removing a stale cache row also removes that manga's history entries, and `getAllProgressWithMetadata()` (an inner join on `manga`) stops listing it, although its `manga_progress` and `chapter_progress` rows remain so reading position is kept. In practice, a non-favourite, non-downloaded manga that has not been opened for 90 days loses its calendar history the next time progress is saved anywhere, and Cache Management's immediate clear removes the history of every such manga straight away. Whether history should be exempt from cache cleanup is an open question.
 
 ---
 
-### 3. Manga Progress (CQRS Read Model)
+## Migrations
 
-**Table**: `manga_progress`
-**Purpose**: Track last read chapter per manga (lean entity)
+Migrations are generated by Drizzle Kit and applied automatically at startup. **Never write or edit files in `src/main/database/migrations/` by hand.**
 
-```typescript
-// src/main/database/schema/progress.schema.ts
-export const mangaProgress = sqliteTable(
-  'manga_progress',
-  {
-    mangaId: text('manga_id')
-      .primaryKey()
-      .references(() => manga.id, { onDelete: 'cascade' }),
-    lastChapterId: text('last_chapter_id').notNull(),
-    firstReadAt: integer('first_read_at', { mode: 'timestamp' })
-      .notNull()
-      .$default(() => new Date()),
-    lastReadAt: integer('last_read_at', { mode: 'timestamp' })
-      .notNull()
-      .$default(() => new Date())
-  },
-  (table) => ({
-    lastReadAtIdx: index('manga_progress_last_read_at_idx').on(table.lastReadAt)
-  })
-)
+```bash
+npx drizzle-kit generate <migration_name>   # after changing a schema file
 ```
 
-**Indexes**:
+Each migration is a timestamped folder (`20260919091323_redesign_read_history_table/`) containing `migration.sql` and a `snapshot.json` that Drizzle Kit uses to diff the next schema change. `migrations.ts` applies them with `drizzle-orm/node-sqlite/migrator`.
 
-- `manga_progress_last_read_at_idx`: For history queries (ORDER BY)
+**Foreign keys are switched off around the migrator.** Drizzle wraps all pending migrations in one transaction, and SQLite ignores `PRAGMA foreign_keys` changes inside a transaction, so a `PRAGMA foreign_keys=OFF` in a migration's own SQL has no effect. Without the outer toggle, rebuilding a table (`DROP TABLE` after copying) would cascade-delete rows in tables that reference it. `runMigrations()` turns enforcement off before `migrate()` and back on in a `finally`.
 
-**CQRS Pattern**: This is a **read model** (query result). Write operations use `SaveProgressCommand`.
+SQLite cannot add CHECK constraints or change a column type in place, so Drizzle generates a table rebuild (`CREATE TABLE __new_x`, copy, `DROP`, `RENAME`) for those changes.
+
+**Packaging**: the migration files are unpacked from the asar (`asarUnpack: out/main/database/migrations/**` in `electron-builder.yml`) so the migrator can read them in a packaged build.
 
 ---
 
-### 4. Chapter Progress (CQRS Read Model)
-
-**Table**: `chapter_progress`
-**Purpose**: Track reading progress per chapter
-
-```typescript
-// src/main/database/schema/progress.schema.ts
-export const chapterProgress = sqliteTable(
-  'chapter_progress',
-  {
-    id: integer('id').primaryKey({ autoIncrement: true }),
-    mangaId: text('manga_id')
-      .notNull()
-      .references(() => manga.id, { onDelete: 'cascade' }),
-    chapterId: text('chapter_id').notNull(),
-    currentPage: integer('current_page').notNull().default(0),
-    totalPages: integer('total_pages'),
-    completed: integer('completed', { mode: 'boolean' }).notNull().default(false),
-    firstReadAt: integer('first_read_at', { mode: 'timestamp' })
-      .notNull()
-      .$default(() => new Date()),
-    lastReadAt: integer('last_read_at', { mode: 'timestamp' })
-      .notNull()
-      .$default(() => new Date())
-  },
-  (table) => ({
-    mangaChapterUnique: unique().on(table.mangaId, table.chapterId),
-    mangaIdIdx: index('chapter_progress_manga_id_idx').on(table.mangaId),
-    lastReadAtIdx: index('chapter_progress_last_read_at_idx').on(table.lastReadAt)
-  })
-)
-```
-
-**Constraints**:
-
-- UNIQUE: `(manga_id, chapter_id)` - One record per chapter
-- CHECK: `current_page >= 0`
-- CHECK: `total_pages IS NULL OR total_pages > 0`
-- FK: `manga_id → manga.id` (CASCADE DELETE)
-
-**Indexes**:
-
-- `chapter_progress_manga_id_idx`: For per-manga queries
-- `chapter_progress_last_read_at_idx`: For history timeline
-
-**Triggers**:
-
-```sql
-CREATE TRIGGER update_manga_progress_on_chapter_update
-AFTER INSERT OR UPDATE ON chapter_progress
-BEGIN
-  INSERT INTO manga_progress (manga_id, last_chapter_id, first_read_at, last_read_at)
-  VALUES (NEW.manga_id, NEW.chapter_id, NEW.first_read_at, NEW.last_read_at)
-  ON CONFLICT (manga_id) DO UPDATE SET
-    last_chapter_id = NEW.chapter_id,
-    last_read_at = NEW.last_read_at;
-END;
-```
-
----
-
-### 5. Reading Statistics (Aggregate Data)
-
-**Table**: `reading_statistics`
-**Purpose**: Aggregated reading metrics per manga
-
-```typescript
-// src/main/database/schema/progress.schema.ts
-export const readingStatistics = sqliteTable(
-  'reading_statistics',
-  {
-    mangaId: text('manga_id')
-      .primaryKey()
-      .references(() => manga.id, { onDelete: 'cascade' }),
-    totalChaptersRead: integer('total_chapters_read').notNull().default(0),
-    totalPagesRead: integer('total_pages_read').notNull().default(0),
-    totalReadingTime: integer('total_reading_time').notNull().default(0), // seconds
-    lastUpdated: integer('last_updated', { mode: 'timestamp' })
-      .notNull()
-      .$default(() => new Date())
-  },
-  (table) => ({
-    lastUpdatedIdx: index('reading_statistics_last_updated_idx').on(table.lastUpdated)
-  })
-)
-```
-
-**Updates**: Via trigger on `chapter_progress` changes
-
-**Triggers**:
-
-```sql
-CREATE TRIGGER cleanup_orphaned_reading_statistics
-AFTER DELETE ON manga_progress
-BEGIN
-  DELETE FROM reading_statistics WHERE manga_id = OLD.manga_id;
-END;
-```
-
----
-
-### 6. Collections (Bookmarks)
-
-**Table**: `collections`
-**Purpose**: User-created folders for organizing manga
-
-```typescript
-// src/main/database/schema/collections.schema.ts
-export const collections = sqliteTable('collections', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  name: text('name').notNull().unique(),
-  description: text('description'),
-  createdAt: integer('created_at', { mode: 'timestamp' })
-    .notNull()
-    .$default(() => new Date()),
-  updatedAt: integer('updated_at', { mode: 'timestamp' })
-    .notNull()
-    .$default(() => new Date())
-})
-```
-
-**Constraints**: UNIQUE `name`
-
----
-
-### 7. Collection Items (Many-to-Many)
-
-**Table**: `collection_items`
-**Purpose**: Link manga to collections (bookmarks)
-
-```typescript
-// src/main/database/schema/collections.schema.ts
-export const collectionItems = sqliteTable(
-  'collection_items',
-  {
-    id: integer('id').primaryKey({ autoIncrement: true }),
-    collectionId: integer('collection_id')
-      .notNull()
-      .references(() => collections.id, { onDelete: 'cascade' }),
-    mangaId: text('manga_id')
-      .notNull()
-      .references(() => manga.id, { onDelete: 'cascade' }),
-    addedAt: integer('added_at', { mode: 'timestamp' })
-      .notNull()
-      .$default(() => new Date())
-  },
-  (table) => ({
-    collectionMangaUnique: unique().on(table.collectionId, table.mangaId),
-    collectionIdIdx: index('collection_items_collection_id_idx').on(table.collectionId),
-    mangaIdIdx: index('collection_items_manga_id_idx').on(table.mangaId),
-    addedAtIdx: index('collection_items_added_at_idx').on(table.addedAt)
-  })
-)
-```
-
-**Constraints**:
-
-- UNIQUE: `(collection_id, manga_id)` - No duplicates
-- FK: `collection_id → collections.id` (CASCADE DELETE)
-- FK: `manga_id → manga.id` (CASCADE DELETE)
-
-**Indexes**:
-
-- `collection_items_collection_id_idx`: For collection listings
-- `collection_items_manga_id_idx`: For manga → collections lookup
-- `collection_items_added_at_idx`: For recent additions
-
----
-
-### 8. Chapter (Cached Metadata)
-
-**Table**: `chapter`
-**Purpose**: Cache chapter details for offline/downloaded content
-
-```typescript
-// src/main/database/schema/chapter.schema.ts
-export const chapter = sqliteTable(
-  'chapter',
-  {
-    id: text('id').primaryKey(),
-    mangaId: text('manga_id')
-      .notNull()
-      .references(() => manga.id, { onDelete: 'cascade' }),
-    title: text('title'),
-    chapterNumber: text('chapter_number'),
-    volumeNumber: text('volume_number'),
-    pages: integer('pages'),
-    createdAt: integer('created_at', { mode: 'timestamp' })
-      .notNull()
-      .$default(() => new Date())
-  },
-  (table) => ({
-    mangaIdIdx: index('chapter_manga_id_idx').on(table.mangaId),
-    chapterNumberIdx: index('chapter_number_idx').on(table.mangaId, table.chapterNumber)
-  })
-)
-```
-
-**Indexes**:
-
-- `chapter_manga_id_idx`: For manga → chapters lookup
-- `chapter_number_idx`: For sorting by chapter number
-
----
-
-## CQRS Pattern (Command-Query Separation)
-
-### Folder Structure
-
-```
-src/main/database/
-├── connection.ts               # Database setup
-├── schema/                     # Table definitions
-│   ├── settings.schema.ts
-│   ├── progress.schema.ts
-│   ├── collections.schema.ts
-│   ├── manga.schema.ts
-│   └── chapter.schema.ts
-├── queries/                    # READ models (entities)
-│   ├── manga-progress.query.ts
-│   ├── manga-progress-metadata.query.ts
-│   ├── chapter-progress.query.ts
-│   ├── reading-stats.query.ts
-│   ├── progress-database.query.ts
-│   └── progress-settings.query.ts
-├── commands/                   # WRITE models (inputs)
-│   └── save-progress.command.ts
-└── repository/                 # Data access layer
-    └── manga-progress.repo.ts
-```
-
-### Query Models (Read)
-
-**Lean Query** (matches schema 1:1):
-
-```typescript
-// src/main/database/queries/manga-progress.query.ts
-export interface MangaProgress {
-  mangaId: string
-  lastChapterId: string
-  firstReadAt: Date
-  lastReadAt: Date
-}
-```
-
-**Rich Metadata** (with JOINs):
-
-```typescript
-// src/main/database/queries/manga-progress-metadata.query.ts
-export interface MangaProgressMetadata extends MangaProgress {
-  title: string
-  coverUrl: string | null
-  status: string | null
-  lastChapterNumber: string | null
-  lastChapterTitle: string | null
-  lastChapterVolume: string | null
-}
-```
-
-### Command Models (Write)
-
-```typescript
-// src/main/database/commands/save-progress.command.ts
-export interface SaveProgressCommand {
-  mangaId: string
-  chapterId: string
-  currentPage: number
-  completed: boolean
-}
-```
-
-### Repository Pattern
-
-```typescript
-// src/main/database/repository/manga-progress.repo.ts
-export class MangaProgressRepository {
-  // QUERIES (returns entities)
-  async getProgressByMangaId(mangaId: string): Promise<MangaProgress | null>
-  async getAllProgress(): Promise<MangaProgress[]>
-  async getAllProgressWithMetadata(): Promise<MangaProgressMetadata[]>
-
-  // COMMANDS (accepts primitive inputs)
-  async saveProgress(commands: SaveProgressCommand[]): Promise<void>
-  async deleteProgress(mangaId: string): Promise<void>
-  async clearAllProgress(): Promise<void>
-
-  // AGGREGATES
-  async getChapterProgressByMangaId(mangaId: string): Promise<ChapterProgress[]>
-  async getReadingStatsByMangaId(mangaId: string): Promise<ReadingStats | null>
-  async getAllReadingStats(): Promise<ReadingStats[]>
-}
-```
-
----
-
-## Key Design Patterns
-
-### 1. Minimal Manga Caching
-
-**Problem**: Progress tables reference `manga.id` (FK constraint), but manga data comes from API.
-
-**Solution**: Insert minimal manga records when saving progress:
-
-```typescript
-async saveProgress(commands: SaveProgressCommand[]): Promise<void> {
-  await this.db.transaction(async (tx) => {
-    // Step 1: Satisfy FK constraint (minimal cache)
-    for (const cmd of commands) {
-      await tx
-        .insert(manga)
-        .values({
-          id: cmd.mangaId,
-          title: 'Unknown',
-          isRead: true
-        })
-        .onConflictDoNothing()
-    }
-
-    // Step 2: Insert/update progress
-    // Step 3: Insert/update chapter progress
-  })
-}
-```
-
-**Cleanup**: Triggers delete manga records when no longer referenced.
-
-### 2. Lean vs Rich Queries
-
-**Lean** (for mutations):
-
-```typescript
-const progress = await repo.getProgressByMangaId(mangaId)
-// { mangaId, lastChapterId, firstReadAt, lastReadAt }
-```
-
-**Rich** (for display):
-
-```typescript
-const metadata = await repo.getAllProgressWithMetadata()
-// Includes: title, coverUrl, status, chapterNumber, chapterTitle
-```
-
-**Why?**: Frontend needs rich data for HistoryView, but lean data for updates.
-
-### 3. Foreign Key Constraint Satisfaction
-
-**Pattern**:
-
-1. Insert parent record (manga) if not exists
-2. Insert child record (progress, chapter_progress)
-3. Triggers maintain referential integrity
-
-**Cascading Deletes**:
-
-- Delete manga → deletes all progress, overrides, statistics
-- Delete collection → deletes all collection items
-
----
-
-## Migration Strategy
-
-### Migration Files
-
-**Location**: `src/main/database/migrations/`
-**Format**: SQL files with timestamps (e.g., `0000_init.sql`, `0001_add_progress.sql`)
-**Generation**: `npm run db:generate`
-**Application**: Automatic on app startup via `connection.ts`
-
-### Migration Process
-
-```typescript
-// src/main/database/connection.ts
-import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
-
-const db = drizzle(sqlite, { schema: allSchemas })
-migrate(db, { migrationsFolder: './drizzle' })
-```
-
-**Bundle Config**:
-
-```typescript
-// electron.vite.config.ts
-{
-  plugins: [
-    {
-      name: 'drizzle-migrations',
-      transform(code, id) {
-        if (id.endsWith('connection.ts')) {
-          // Bundle SQL files as strings
-        }
-      }
-    }
-  ]
-}
-```
-
-### SQLite Limitations
-
-**ALTER TABLE Restrictions**:
-
-- Cannot add CHECK constraints → Requires table recreation
-- Cannot modify column types → Requires table recreation
-- Cannot drop columns (pre-3.35.0) → Requires table recreation
-
-**Drizzle Behavior**: Generates `CREATE TABLE temp → COPY DATA → DROP OLD → RENAME` sequence.
-
----
-
-## Performance Optimizations
-
-### 1. Indexes
-
-All foreign keys have indexes:
-
-- `manga_reader_overrides`: `manga_id`
-- `manga_progress`: `last_read_at`
-- `chapter_progress`: `manga_id`, `last_read_at`
-- `collection_items`: `collection_id`, `manga_id`, `added_at`
-- `chapter`: `manga_id`, `(manga_id, chapter_number)`
-
-### 2. WAL Mode
-
-**Benefit**: Writers don't block readers, better concurrency
-**Trade-off**: 2-3x disk space usage (WAL + SHM files)
-
-### 3. Memory-Mapped I/O
-
-**Setting**: `PRAGMA mmap_size = 268435456` (256MB)
-**Benefit**: OS-level caching, faster reads
-
-### 4. Cache Size
-
-**Setting**: `PRAGMA cache_size = -64000` (64MB)
-**Benefit**: More pages in memory, fewer disk I/O
+## Backups and recovery
+
+- **Restore points** (`database-snapshot.service.ts`): `createSnapshot(trigger)` uses `backupDatabase` to write `dexreader-<unix-timestamp>_<manual|auto>.db` into the `snapshots` folder under the app data directory. The newest `snapshot.maxSnapshotsCount` (default 5) are kept and older ones are pruned. Listing, creating, deleting and restoring are all gated by the snapshot setting, and file names are checked so they cannot escape the folder.
+- **Corruption and failed migrations**: see the startup sequence above.
+- **Library backups** (`.dexreader`, Mihon/Tachiyomi) are separate from the database file. They export and import library data through the services in `src/main/services/dexreader` and `src/main/services/mihon`.
 
 ---
 
 ## Testing
 
-### Integration Tests
+Repository tests run against the **real schema**. `createTestDb()` (`vitest/create-test-db.ts`) opens an in-memory `DatabaseSync`, applies the production migrations (with the same foreign-key toggle as `runMigrations`), and returns a Drizzle instance. A test mocks the connection module to hand that instance to the repositories:
 
 ```typescript
-// __tests__/database/manga-progress.repo.test.ts
-describe('MangaProgressRepository', () => {
-  let repo: MangaProgressRepository
+let testDb: TestDb
 
-  beforeEach(async () => {
-    // Use in-memory database
-    repo = new MangaProgressRepository(':memory:')
-  })
+vi.mock('../db-connection', () => ({
+  databaseConnection: { getDb: () => testDb }
+}))
 
-  it('should save progress with minimal manga caching', async () => {
-    await repo.saveProgress([
-      {
-        mangaId: 'manga-1',
-        chapterId: 'chapter-1',
-        currentPage: 5,
-        completed: false
-      }
-    ])
+import { progressRepo } from './manga-progress.repo'
 
-    const progress = await repo.getProgressByMangaId('manga-1')
-    expect(progress).toMatchObject({
-      mangaId: 'manga-1',
-      lastChapterId: 'chapter-1'
-    })
-  })
+beforeEach(() => {
+  testDb = createTestDb()
 })
 ```
+
+Two things to remember when writing these tests: insert the parent `manga` row before anything that references it, and use real UUIDs where the repository validates them (`historyRepo.logReadEvent` does).
 
 ---
 
 ## Troubleshooting
 
-### "FOREIGN KEY constraint failed"
+### `FOREIGN KEY constraint failed`
 
-**Cause**: Attempting to insert child record without parent
-**Solution**: Ensure manga record exists before inserting progress
+A child row was inserted before its parent. `read_history`, `chapter`, `chapter_downloads`, `collection_items` and `manga_reader_overrides` all need the `manga` row first. Progress rows do not.
 
-### "UNIQUE constraint failed"
+### `UNIQUE constraint failed`
 
-**Cause**: Duplicate `(manga_id, chapter_id)` in `chapter_progress`
-**Solution**: Use `ON CONFLICT DO UPDATE` for upserts
+Most unique keys are `(manga_id, chapter_id)` style pairs or names (`collections.name`, `search_presets.name`). Use `onConflictDoUpdate` for upserts, as `saveProgress` does.
 
-### "database is locked"
+### `database is locked`
 
-**Cause**: Write transaction blocking read
-**Solution**: Check `busy_timeout` pragma, reduce transaction duration
+Only the main process opens the file, and WAL lets readers proceed during a write, so this normally means a long transaction or a second process (for example a database viewer) holding the file. No `busy_timeout` is set.
 
-### Migrations Not Applied
+### A migration fails in a packaged build
 
-**Cause**: Migration files not bundled in production
-**Solution**: Verify `asarUnpack` in electron-builder.yml
+Check that `out/main/database/migrations/**` is unpacked (`asarUnpack`) and that the folder contains each migration's `migration.sql`.
 
----
+### Resetting the development database
 
-## References
-
-- **Drizzle ORM**: <https://orm.drizzle.team/>
-- **better-sqlite3**: <https://github.com/WiseLibs/better-sqlite3>
-- **SQLite WAL Mode**: <https://www.sqlite.org/wal.html>
-- **SQLite Pragma**: <https://www.sqlite.org/pragma.html>
-
----
-
-_This document reflects the database architecture after the Guerilla Database Migration (27-28 December 2025). Update as schema evolves and new patterns emerge._
+Stop the app and delete `dexreader-dev.db` (and its `-wal` and `-shm` files) from the project root.

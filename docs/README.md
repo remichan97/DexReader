@@ -13,38 +13,38 @@ This folder contains all design and architectural documentation for DexReader.
 
 Visual design and design system specifications.
 
-- **windows11-design-tokens.md** - Complete design token system with light/dark themes, colors, typography, spacing, effects
-- **responsive-behavior-guide.md** - Breakpoint specifications and adaptive behaviors (3 breakpoints: >720px, 620-720px, <620px)
+- **windows11-design-tokens.md** - Design tokens (`tokens.css`): light/dark colours, typography, spacing, radii, shadows, motion
+- **responsive-behavior-guide.md** - How layouts adapt to window size: fluid grids, the user-selected sidebar mode and the component-local media queries (mainly 768px and 480px)
 
 ### 🏗️ `/architecture`
 
 System architecture, navigation patterns, and layout specifications.
 
-- **navigation-flow.md** - Complete navigation graph with 9 routes, keyboard shortcuts, back behavior, state persistence
-- **layout-specification.md** - Application shell structure, view layouts, sidebar specs, spacing system, z-index hierarchy
+- **navigation-flow.md** - Routes, ways to navigate, origin-aware Back, what state survives navigation, invalid-route handling
+- **layout-specification.md** - Application shell, sidebar display modes, per-view layouts, content widths, layering and scrolling
 - **reader-layout-specification.md** - 3 reading modes (single/double/vertical) with controls, interactions, preloading strategy
-- **menu-bar-structure.md** - Native Electron menu bar with 5 menus, 30+ items, keyboard accelerators, implementation code
-- **database-architecture.md** - 🗄️ **SQLite database design** with Drizzle ORM, 9 tables, CQRS pattern, migration strategy
-- **state-management.md** - Zustand stores with SQLite integration for progress tracking
-- **error-handling.md** - Error patterns, IPC error handling, user-facing messages
-- **filesystem-security.md** - Path validation, security restrictions, safe file operations
-- **ipc-messaging.md** - IPC architecture, handler patterns, type safety
-- **mangadex-api.md** - MangaDex API integration, rate limiting, error handling
+- **menu-bar-structure.md** - Native Electron menu bar (File, View, Library, Help): items, accelerators, the IPC events and menu state, and known gaps
+- **database-architecture.md** - SQLite (`node:sqlite`) + Drizzle: connection and startup, the 11 tables, repositories and shared commands/contracts, migrations, restore points, testing
+- **state-management.md** - The 10 Zustand stores: what each holds, where its data comes from, conventions, startup hydration, testing
+- **error-handling.md** - The three layers (error boundaries, `IpcResponse` checks, global handlers), how failures are shown, offline mode, logging, and troubleshooting
+- **filesystem-security.md** - The allowed roots, how `validatePath` and `secureFs` work, the downloads-folder flow, and the known gaps in the sandbox
+- **ipc-messaging.md** - The `wrapIpcHandler` / `IpcResponse` contract, error serialisation, validation, the 116 channels and push events, the preload bridge, how to add a channel
+- **mangadex-api.md** - The client and its rate limiter, the IPC channels, the `mangadex://` and `local-manga://` image protocols and their caches, and known issues
 
 ### 📚 API & Integration
 
 - **[api-reference.md](./api-reference.md)** - 📡 **Complete IPC API reference** with 90+ handlers across 14 categories, type definitions, error handling patterns, and usage examples
-  library and UI patterns.
 
-- **ui-component-library.md** - 📚 **Complete component catalog** with 17 production-ready components, usage examples, design patterns, TypeScript types
-- **ui-polish-refinements.md** - ✨ **Polish documentation** covering 9 refinements applied after user testing (focus behavior, animations, icons)
-- **loading-feedback-states.md** - Complete loading/error/empty state system (skeleton screens, progress rings/bars, spinners, error handling)
-- **utility-classes.md** - CSS utility class system for consistent styling patternsns)
-- **component-hierarchy.md** - React component tree with 20+ components, TypeScript interfaces, file structure, communication patterns
-- **component-specifications.md** - Detailed specs for AppShell, Sidebar, ViewContainer, and reusable components (MangaCard, SearchBar, Toast) with BEM CSS
-- **loading-feedback-states.md** - Complete loading/error/empty state system (skeleton screens, progress rings/bars, spinners, error handling)
+### 🎨 `/components`
 
-### � Maintainer Documentation
+UI component documentation. Per-component READMEs live beside the code in `src/renderer/src/components/<Name>/README.md`.
+
+- **ui-component-library.md** - 📚 **Component catalog** covering the shared components, usage examples, design patterns, TypeScript types
+- **ui-polish-refinements.md** - ✨ **Polish documentation** covering refinements applied after user testing (focus behaviour, animations, icons)
+- **loading-feedback-states.md** - Loading/error/empty state system (skeleton screens, progress rings/bars, spinners, error handling)
+- **utility-classes.md** - The utility classes in `utilities.css` (the small set that components actually use)
+
+### 🔧 Maintainer Documentation
 
 - **RELEASE_PROCESS.md** - 🚀 **Release workflow and versioning** - Semantic versioning, normal releases, hotfix procedure, yank + fix strategy, pre-releases
 
@@ -87,11 +87,11 @@ All documents in this folder are **implementation-ready specifications** and **l
 **Flags**: country-flag-icons (bundled SVGs, per-flag imports)
 **State Management**: Zustand v5 + SQLite (via Drizzle ORM)
 **Database**: SQLite + Drizzle ORM (9 tables, WAL mode, CQRS pattern)
-**Design System**: Windows 11 (Mica, Acrylic, Segoe UI Variable)
+**Design System**: Windows 11 look and feel on Fluent 2 (Segoe UI Variable)
 **Animations**: Spring easing `cubic-bezier(0.34, 1.56, 0.64, 1)` for indicators
 **Reading Modes**: Single page, Double page (R-L), Vertical scroll
-**Navigation**: Native menu bar + Fixed sidebar with Fluent icons (240px)
-**Responsive**: 5/3/2 column grids across breakpoints
+**Navigation**: Native menu bar + Fixed icon sidebar with Fluent icons (80px; full, compact and auto-hide display modes)
+**Responsive**: Fluid `auto-fill` grids (180px minimum card); component-local media queries at 768px and 480px
 **Components**: Fluent 2 wrappers plus a few DexReader-specific ones (see Component Library Status)
 
 ---

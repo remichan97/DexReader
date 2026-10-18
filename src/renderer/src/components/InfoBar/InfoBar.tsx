@@ -35,10 +35,9 @@ export interface InfoBarProps {
   readonly className?: string
 }
 
-// Fluent's MessageBar has no sticky/positioning concept of its own - this restores the
-// original hand-rolled `.info-bar` class's `position: sticky; top: 0` (dropped when InfoBar
-// swapped to MessageBar in Tier 1, since the new markup no longer applies that class), which
-// every call site actually relies on to stay visible while the page scrolls past it.
+// Fluent's MessageBar has no sticky/positioning concept of its own, so this adds
+// `position: sticky; top: 0`, which every call site relies on to stay visible while the page
+// scrolls past it.
 const useStyles = makeStyles({
   sticky: {
     position: 'sticky',

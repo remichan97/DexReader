@@ -46,8 +46,7 @@ export interface TooltipProps extends BaseComponentProps {
 /**
  * Tooltip component for hover information, built on Fluent 2's `Tooltip`
  * (@fluentui/react-components). Positioning (including auto-flip near viewport edges)
- * comes from Fluent's `@floating-ui/react`-based engine - the hand-rolled version of this
- * (manual getBoundingClientRect math + a document.body portal) is gone.
+ * comes from Fluent's `@floating-ui/react`-based engine.
  *
  * @example
  * ```tsx

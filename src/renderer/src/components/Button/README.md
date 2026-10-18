@@ -1,6 +1,6 @@
 # Button Component
 
-A versatile button component following Windows 11 Fluent Design principles with multiple variants, sizes, and states.
+A button with several variants, sizes and a loading state. A thin wrapper over the Fluent 2 `Button` that keeps DexReader's `variant` API. Any other native button attributes (for example `title` or `data-*`) are passed through.
 
 ## Usage
 
@@ -44,107 +44,64 @@ import { Button } from '@renderer/components/Button'
 
 ## Props
 
-| Prop         | Type                                                                       | Default      | Description                                    |
-| ------------ | -------------------------------------------------------------------------- | ------------ | ---------------------------------------------- |
-| `variant`    | `'primary' \| 'secondary' \| 'ghost' \| 'danger' \| 'warning' \| 'accent'` | `'primary'`  | Visual style variant                           |
-| `size`       | `'small' \| 'medium' \| 'large'`                                           | `'medium'`   | Button size                                    |
-| `disabled`   | `boolean`                                                                  | `false`      | Disables button interaction                    |
-| `loading`    | `boolean`                                                                  | `false`      | Shows loading spinner and disables interaction |
-| `icon`       | `React.ReactNode`                                                          | `undefined`  | Icon to display before text                    |
-| `children`   | `React.ReactNode`                                                          | **required** | Button content/text                            |
-| `type`       | `'button' \| 'submit' \| 'reset'`                                          | `'button'`   | HTML button type                               |
-| `onClick`    | `(event: MouseEvent) => void`                                              | `undefined`  | Click handler                                  |
-| `className`  | `string`                                                                   | `''`         | Additional CSS class                           |
-| `aria-label` | `string`                                                                   | `undefined`  | Accessible label for screen readers            |
+| Prop         | Type                                                                       | Default     | Description                                    |
+| ------------ | -------------------------------------------------------------------------- | ----------- | ---------------------------------------------- |
+| `variant`    | `'primary' \| 'secondary' \| 'ghost' \| 'danger' \| 'warning' \| 'accent'` | `'primary'` | Visual style variant                           |
+| `size`       | `'small' \| 'medium' \| 'large'`                                           | `'medium'`  | Button size                                    |
+| `disabled`   | `boolean`                                                                  | `false`     | Disables button interaction                    |
+| `loading`    | `boolean`                                                                  | `false`     | Shows loading spinner and disables interaction |
+| `icon`       | `React.ReactElement`                                                       | `undefined` | Icon to display before text                    |
+| `children`   | `React.ReactNode`                                                          | `undefined` | Button content/text (omit for icon-only)       |
+| `type`       | `'button' \| 'submit' \| 'reset'`                                          | `'button'`  | HTML button type                               |
+| `onClick`    | `(event: MouseEvent) => void`                                              | `undefined` | Click handler                                  |
+| `className`  | `string`                                                                   | `''`        | Additional CSS class                           |
+| `aria-label` | `string`                                                                   | `undefined` | Accessible label for screen readers            |
 
 ## Variants
 
-### Primary
+Variants map onto Fluent 2 button appearances:
 
-- Accent color background (blue)
-- White text
-- Use for main/primary actions
+| Variant     | Fluent appearance | Notes                                                            |
+| ----------- | ----------------- | ---------------------------------------------------------------- |
+| `primary`   | `primary`         | Accent background; use for main actions                          |
+| `accent`    | `primary`         | Currently renders identically to `primary`                       |
+| `secondary` | `secondary`       | Outlined, neutral; use for secondary actions                     |
+| `ghost`     | `subtle`          | Transparent until hovered; use for tertiary actions              |
+| `danger`    | `primary`         | Overrides the background with `--win-error` (and hover/active)   |
+| `warning`   | `primary`         | Overrides the background with `--win-warning` (and hover/active) |
 
-### Secondary
-
-- Subtle background
-- Default text color
-- Border outline
-- Use for secondary actions
-
-### Ghost
-
-- Transparent background
-- Default text color
-- No border
-- Use for tertiary actions or links
-
-### Danger
-
-- Red background
-- White text
-- Use for delete/remove actions
-
-### Warning
-
-- Yellow/orange background
-- Dark text
-- Use for cautionary actions
-
-### Accent
-
-- Accent color variant
-- Use for special highlighted actions
+Fluent has no danger or warning button appearance, so those two layer the app's `--win-error` and `--win-warning` tokens over the primary appearance.
 
 ## Sizes
 
-- **Small**: 28px height - Use in compact spaces or secondary UI
-- **Medium**: 32px height - Default, use for most buttons
-- **Large**: 40px height - Use for prominent actions or hero sections
+Sizes map directly to Fluent's button sizes:
+
+- **Small**: Use in compact spaces or secondary UI
+- **Medium**: Default, use for most buttons
+- **Large**: Use for prominent actions or hero sections
 
 ## States
 
-### Hover
-
-All variants have hover states with slightly darker backgrounds
-
-### Active
-
-Pressed state with scale animation (98% scale)
-
-### Focus
-
-Visible outline for keyboard navigation (2px accent color, 2px offset)
-
-### Disabled
-
-- 50% opacity
-- Not clickable
-- Cursor shows "not-allowed"
+Hover, pressed, focus and disabled styling all come from Fluent 2 and the app theme.
 
 ### Loading
 
-- Shows rotating spinner
-- Hides icon (if present)
-- Not clickable
-- Cursor shows "wait"
+- Replaces the icon with a small `ProgressRing` (labelled with the translated "loading" string)
+- Sets `aria-busy` and disables the button
+- Clicks are ignored while loading or disabled
 
 ## Accessibility
 
-- Uses semantic `<button>` element
-- Supports keyboard navigation (Enter/Space)
-- Focus-visible outline for keyboard users
-- `aria-busy` attribute when loading
+- Uses a semantic `<button>` element
+- Supports keyboard activation (Enter/Space)
+- Fluent provides the focus indicator
+- `aria-busy` is set while loading
 - `aria-label` support for icon-only buttons
-- Disabled state prevents interaction
+- Disabled and loading states prevent interaction
 
-## Design Principles
+## Styling
 
-- Follows Windows 11 Fluent Design
-- Uses design tokens from `tokens.css`
-- Smooth transitions (150ms)
-- GPU-accelerated animations (transform, opacity)
-- Accessible color contrast (WCAG AA compliant)
+Styling comes from Fluent 2 and the app's Fluent theme, so colours follow light/dark mode. Only the `danger` and `warning` variants add their own styles, via `makeStyles` and the `--win-error` / `--win-warning` tokens from `tokens.css`. There is no stylesheet; use `className` for layout tweaks.
 
 ## Examples
 

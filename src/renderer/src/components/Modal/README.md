@@ -1,6 +1,6 @@
 # Modal Component
 
-A customizable modal dialog component for app-specific overlays and custom content, following Windows 11 Fluent Design principles.
+A modal dialog for app-specific overlays and custom content. A thin wrapper over the Fluent 2 `Dialog` that keeps a simple `open` / `onClose` / `title` / `footer` API.
 
 ## When to Use This Component
 
@@ -31,13 +31,13 @@ See `docs/components/loading-feedback-states.md` for complete modal strategy and
 
 ## Features
 
-- **Focus Management**: Automatic focus trap and restoration
-- **Keyboard Support**: Escape to close, Tab navigation
-- **Body Scroll Lock**: Prevents background scrolling when open
-- **Click Outside**: Optional close on overlay click
-- **Animations**: Smooth fade and scale animations
-- **Accessibility**: Full ARIA support and keyboard navigation
-- **Windows 11 Design**: Acrylic backdrop blur and native styling
+- **Focus Management**: Fluent traps focus inside the dialog and restores it on close
+- **Keyboard Support**: Escape to close (configurable), Tab navigation
+- **Body Scroll Lock**: Fluent prevents background scrolling while open
+- **Click Outside**: Optional close on backdrop click (configurable independently of Escape)
+- **Close Button**: A dismiss button in the title bar, labelled with the translated "close dialog" string
+- **Accessibility**: `role="dialog"` with `aria-modal`, titled by the `title` prop
+- **Fluent 2 Theming**: Surface, backdrop and animation come from Fluent and the app theme
 
 ## Usage
 
@@ -76,24 +76,28 @@ function MyComponent() {
 
 ## Props
 
-| Prop                  | Type              | Default    | Description                 |
-| --------------------- | ----------------- | ---------- | --------------------------- |
-| `open`                | `boolean`         | -          | Whether the modal is open   |
-| `onClose`             | `() => void`      | -          | Close handler               |
-| `title`               | `string`          | -          | Modal title                 |
-| `children`            | `React.ReactNode` | -          | Modal content               |
-| `footer`              | `React.ReactNode` | -          | Modal footer (actions)      |
-| `size`                | `ModalSize`       | `'medium'` | Modal size                  |
-| `closeOnOverlayClick` | `boolean`         | `true`     | Close when clicking overlay |
-| `closeOnEscape`       | `boolean`         | `true`     | Close on Escape key         |
-| `className`           | `string`          | `''`       | Additional CSS class        |
-| `aria-label`          | `string`          | -          | Accessibility label         |
+| Prop                  | Type              | Default    | Description                            |
+| --------------------- | ----------------- | ---------- | -------------------------------------- |
+| `open`                | `boolean`         | -          | Whether the modal is open              |
+| `onClose`             | `() => void`      | -          | Close handler                          |
+| `title`               | `string`          | -          | Modal title                            |
+| `children`            | `React.ReactNode` | -          | Modal content                          |
+| `footer`              | `React.ReactNode` | -          | Modal footer (actions)                 |
+| `size`                | `ModalSize`       | `'medium'` | Modal size                             |
+| `closeOnOverlayClick` | `boolean`         | `true`     | Close when clicking overlay            |
+| `closeOnEscape`       | `boolean`         | `true`     | Close on Escape key                    |
+| `className`           | `string`          | -          | Class applied to the dialog surface    |
+| `aria-label`          | `string`          | -          | Accessible name for the dialog surface |
 
 ### Size Options
+
+Fluent's `DialogSurface` has no size prop, so the sizes are `max-width` caps applied through `className`:
 
 - `'small'`: 400px max width
 - `'medium'`: 600px max width (default)
 - `'large'`: 800px max width
+
+Fluent popups and dialogs carry their own size limits; override them through `className` when a layout needs something different.
 
 ## Examples
 
@@ -186,13 +190,11 @@ if (result.response === 1) {
 
 ## Accessibility
 
-- Uses `role="dialog"` and `aria-modal="true"`
-- Traps focus within the modal
-- Restores focus to trigger element on close
+- Fluent renders `role="dialog"` and `aria-modal="true"`
+- Focus is trapped within the modal and restored to the trigger on close
 - Keyboard navigation with Tab/Shift+Tab
 - Escape key to close (configurable)
-- ARIA labels for screen readers
-- Proper heading hierarchy
+- `aria-label` is applied to the dialog surface when provided; otherwise the title labels it
 
 ## Keyboard Shortcuts
 
@@ -202,16 +204,4 @@ if (result.response === 1) {
 
 ## Styling
 
-The component uses CSS custom properties from the design tokens:
-
-- `--win-bg-card`: Modal background
-- `--win-border-default`: Border color
-- `--win-shadow-xl`: Shadow elevation
-- `--radius-lg`: Border radius
-
-## Performance Notes
-
-- Body scroll is locked when modal is open
-- Backdrop blur uses `backdrop-filter` (hardware accelerated)
-- Animations use `transform` and `opacity` for 60fps performance
-- Respects `prefers-reduced-motion` for accessibility
+Styling comes from Fluent 2 and the app's Fluent theme (surface, border, shadow and backdrop follow light/dark mode). The wrapper adds only the size `max-width` caps and the close button's `makeStyles` rules, and makes the footer span the full width (`DialogActions fluid`). There is no stylesheet; use `className` for layout tweaks.

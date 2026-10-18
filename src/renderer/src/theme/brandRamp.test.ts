@@ -29,7 +29,7 @@ describe('generateBrandRamp', () => {
   it('anchors shade 80 to the exact input colour (within hex rounding)', () => {
     // Fluent's createLightTheme resolves colorBrandBackground/colorCompoundBrandBackground
     // to brand[80] - if this drifts, the applied accent silently stops matching what the
-    // user picked/the system reports (see claude-plans/fluent2-ui-migration-plan.md).
+    // user picked/the system reports.
     expect(generateBrandRamp('#125dab')[80]).toBe('#125dab')
     expect(generateBrandRamp('#0078d4')[80]).toBe('#0078d4')
   })

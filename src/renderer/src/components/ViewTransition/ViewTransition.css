@@ -12,10 +12,6 @@
   animation: view-fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.view-transition--fade-out {
-  animation: view-fade-out 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
 @keyframes view-fade-in {
   from {
     opacity: 0;
@@ -27,21 +23,9 @@
   }
 }
 
-@keyframes view-fade-out {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-}
-
 /* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
-  .view-transition--fade-in,
-  .view-transition--fade-out {
+  .view-transition--fade-in {
     animation: none;
   }
 }

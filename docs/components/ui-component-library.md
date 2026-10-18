@@ -1,7 +1,7 @@
 # UI Component Library
 
-**Version**: 1.16.0
-**Last Updated**: 12 October 2026
+**Version**: 1.16.1
+**Last Updated**: 18 October 2026
 **Design System**: Fluent 2 (`@fluentui/react-components`) with a custom DexReader theme and Windows 11 design tokens
 
 > **Overview**: DexReader's UI component library is a set of TypeScript components that wrap Fluent 2 (and, for a few, are DexReader's own). Each keeps a small, stable public prop API, so views are not coupled to Fluent directly. Fluent provides the rendering, focus handling, keyboard navigation and popup positioning; the wrappers add DexReader behaviour and defaults. See [Built on Fluent 2](#built-on-fluent-2).
@@ -110,7 +110,6 @@ All components follow Microsoft's Fluent Design System:
 - **Subtle borders**: 1-2px borders with `--win-border-default`
 - **Bottom border emphasis**: 2px accent borders on focus for inputs
 - **Rounded corners**: 4-8px border radius
-- **Mica/Acrylic effects**: Backdrop blur for overlays
 - **Spring animations**: Overshoot easing for satisfying feedback
 
 ### 2. Consistent Behavior
@@ -152,7 +151,7 @@ All components follow Microsoft's Fluent Design System:
 </Button>
 ```
 
-[Full Documentation](./Button/README.md)
+[Full Documentation](../../src/renderer/src/components/Button/README.md)
 
 ---
 
@@ -173,7 +172,7 @@ All components follow Microsoft's Fluent Design System:
 />
 ```
 
-[Full Documentation](./Input/README.md)
+[Full Documentation](../../src/renderer/src/components/Input/README.md)
 
 ---
 
@@ -193,7 +192,7 @@ All components follow Microsoft's Fluent Design System:
 />
 ```
 
-[Full Documentation](./SearchBar/README.md)
+[Full Documentation](../../src/renderer/src/components/SearchBar/README.md)
 
 ---
 
@@ -208,7 +207,7 @@ All components follow Microsoft's Fluent Design System:
 <Checkbox label="Remember me" checked={isChecked} onChange={setIsChecked} />
 ```
 
-[Full Documentation](./Checkbox/README.md)
+[Full Documentation](../../src/renderer/src/components/Checkbox/README.md)
 
 ---
 
@@ -228,7 +227,7 @@ All components follow Microsoft's Fluent Design System:
 />
 ```
 
-[Full Documentation](./Switch/README.md)
+[Full Documentation](../../src/renderer/src/components/Switch/README.md)
 
 ---
 
@@ -243,7 +242,7 @@ All components follow Microsoft's Fluent Design System:
 <Select label="Sort by" options={sortOptions} value={sort} onChange={setSort} />
 ```
 
-[Full Documentation](./Select/README.md)
+[Full Documentation](../../src/renderer/src/components/Select/README.md)
 
 ---
 
@@ -285,7 +284,7 @@ showToast({
 })
 ```
 
-[Full Documentation](./Toast/README.md)
+[Full Documentation](../../src/renderer/src/components/Toast/README.md)
 
 ---
 
@@ -306,7 +305,7 @@ showToast({
 />
 ```
 
-[Full Documentation](./ProgressBar/README.md)
+[Full Documentation](../../src/renderer/src/components/ProgressBar/README.md)
 
 ---
 
@@ -321,7 +320,7 @@ showToast({
 <ProgressRing size="medium" indeterminate />
 ```
 
-[Full Documentation](./ProgressRing/README.md)
+[Full Documentation](../../src/renderer/src/components/ProgressRing/README.md)
 
 ---
 
@@ -337,7 +336,7 @@ showToast({
 <Badge variant="error" dot />
 ```
 
-[Full Documentation](./Badge/README.md)
+[Full Documentation](../../src/renderer/src/components/Badge/README.md)
 
 ---
 
@@ -352,7 +351,7 @@ showToast({
 <SkeletonGrid count={6} columns={3} />
 ```
 
-[Full Documentation](./Skeleton/README.md)
+[Full Documentation](../../src/renderer/src/components/Skeleton/README.md)
 
 ---
 
@@ -387,7 +386,7 @@ showToast({
 - ArrowDownload24Regular/Filled
 - Settings24Regular/Filled
 
-[Full Documentation](./Sidebar/README.md)
+[Full Documentation](../../src/renderer/src/components/Sidebar/README.md)
 
 ---
 
@@ -409,7 +408,7 @@ showToast({
 </Tabs>
 ```
 
-[Full Documentation](./Tabs/README.md)
+[Full Documentation](../../src/renderer/src/components/Tabs/README.md)
 
 ---
 
@@ -436,7 +435,7 @@ showToast({
 </List>
 ```
 
-[Full Documentation](./ListItem/README.md)
+[Full Documentation](../../src/renderer/src/components/ListItem/README.md)
 
 ---
 
@@ -457,7 +456,7 @@ showToast({
 />
 ```
 
-[Full Documentation](./NumberSpinner/README.md)
+[Full Documentation](../../src/renderer/src/components/NumberSpinner/README.md)
 
 ---
 
@@ -491,7 +490,7 @@ showToast({
 />
 ```
 
-[Full Documentation](./MangaCard/README.md)
+[Full Documentation](../../src/renderer/src/components/MangaCard/README.md)
 
 ---
 
@@ -503,7 +502,7 @@ showToast({
 **Purpose**: Full-screen overlay dialogs
 **Sizes**: 3 (small 400px, medium 600px, large 800px)
 **Features**: Focus trap, body scroll lock, Escape to close
-**Backdrop**: Acrylic blur effect
+**Backdrop**: Fluent's dialog backdrop
 
 ```tsx
 <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Confirm Action" size="medium">
@@ -511,7 +510,7 @@ showToast({
 </Modal>
 ```
 
-[Full Documentation](./Modal/README.md)
+[Full Documentation](../../src/renderer/src/components/Modal/README.md)
 
 ---
 
@@ -528,7 +527,7 @@ showToast({
 </Tooltip>
 ```
 
-[Full Documentation](./Tooltip/README.md)
+[Full Documentation](../../src/renderer/src/components/Tooltip/README.md)
 
 ---
 
@@ -554,7 +553,7 @@ showToast({
 </Popover>
 ```
 
-[Full Documentation](./Popover/README.md)
+[Full Documentation](../../src/renderer/src/components/Popover/README.md)
 
 ---
 
@@ -584,29 +583,13 @@ function App() {
 **Why Key-Based?**
 Using `key={location.pathname}` triggers React's unmount/remount cycle, allowing CSS animations to play naturally without double-rendering flash.
 
-[Full Documentation](./ViewTransition/README.md)
+[Full Documentation](../../src/renderer/src/components/ViewTransition/README.md)
 
 ---
 
 ## Design Patterns
 
-> **Note**: The portal, click-outside, focus-management and keyboard-navigation patterns below describe how overlays used to be hand-rolled. Fluent 2 now provides all of them for `Modal`, `Tooltip`, `Popover`, `Select` and the menus, so only reach for these when building a genuinely custom overlay.
-
-### Portal Rendering
-
-Components that need to escape their parent's stacking context use portal rendering:
-
-```tsx
-import { createPortal } from 'react-dom'
-
-function Tooltip() {
-  return createPortal(<div className="tooltip">{content}</div>, document.body)
-}
-```
-
-**Components using portals**: Tooltip, Popover, Modal
-
----
+> **Note**: Portals, click-outside and Escape dismissal, focus trapping and restoration, and arrow-key navigation come from Fluent 2 for `Modal`, `Tooltip`, `Popover`, `Select` and the menus. Don't re-implement them in a wrapper; a genuinely custom overlay would use React's `createPortal(element, document.body)` and handle its own dismissal and focus.
 
 ### Spring Animations
 
@@ -618,7 +601,7 @@ transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 
 The value `1.56 > 1.0` creates overshoot, then settles back.
 
-**Components using spring easing**: Sidebar indicator, Tabs indicator
+**Components using spring easing**: Sidebar indicator (the Tabs indicator is now Fluent's own)
 
 ---
 
@@ -626,22 +609,9 @@ The value `1.56 > 1.0` creates overshoot, then settles back.
 
 All interactive components follow Windows 11 focus patterns:
 
-1. **No outer glow**: Remove browser default with `box-shadow: none !important`
-2. **Bottom border emphasis**: 2px accent color on focus
-3. **Smooth transition**: 200ms cubic-bezier easing
-
-```css
-.input:focus {
-  outline: none;
-  box-shadow: none !important;
-  border-bottom-color: var(--win-accent);
-  transition: border-bottom-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-```
-
-**Components with focus states**: Input, SearchBar, Button, Checkbox, Switch, Dropdown
-
----
+- **Fluent-backed components** (`Button`, `Input`, `Checkbox`, `Select`, `Tabs`, `Modal` and so on) get their focus indicators, focus trapping and focus restoration from Fluent 2. Don't re-implement these in a wrapper.
+- **DexReader's own components** (`Sidebar`, `MangaCard`) provide a visible `:focus-visible` outline (in the focus or accent colour) and make sure interactive elements are keyboard reachable.
+- Don't add global element selectors (`button`, `input` and so on) to `main.css`: they also reach the elements inside Fluent components. Style a native control through its own class.
 
 ### Icon Variant Pattern
 
@@ -680,25 +650,6 @@ Many components support both patterns:
 ```
 
 **Components supporting both**: Switch, Checkbox, Tabs, Dropdown, Modal, Popover
-
----
-
-### Click-Outside Detection
-
-For dropdowns, modals, and popovers:
-
-```tsx
-useEffect(() => {
-  const handleClickOutside = (event: MouseEvent) => {
-    if (ref.current && !ref.current.contains(event.target as Node)) {
-      onClose()
-    }
-  }
-
-  document.addEventListener('mousedown', handleClickOutside)
-  return () => document.removeEventListener('mousedown', handleClickOutside)
-}, [onClose])
-```
 
 ---
 
@@ -847,7 +798,7 @@ export interface InputProps extends BaseComponentProps {
 When creating new components, ensure:
 
 - [ ] TypeScript interface with JSDoc comments
-- [ ] BEM CSS naming convention
+- [ ] Styling: wrap a Fluent 2 component and use `makeStyles` with Fluent tokens (or `--win-*` tokens), or BEM-named CSS for fully custom components
 - [ ] Design tokens (no hardcoded colors/spacing)
 - [ ] Keyboard navigation support
 - [ ] ARIA attributes
@@ -994,7 +945,7 @@ import * as Components from '@/components'
 - [ ] Accessible (keyboard + screen reader tested)
 - [ ] Responsive on all screen sizes
 - [ ] Design tokens used (no magic values)
-- [ ] BEM CSS naming followed
+- [ ] Styling follows the Fluent wrapper pattern (`makeStyles`), or BEM naming for custom CSS
 - [ ] README complete with examples
 - [ ] JSDoc comments on all props
 

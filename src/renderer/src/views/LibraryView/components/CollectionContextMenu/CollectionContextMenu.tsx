@@ -16,11 +16,9 @@ interface CollectionContextMenuProps {
  * as a sibling of the Tab itself, not nested inside it - Tab renders as a real <button>, and
  * a button can't contain another interactive button.
  *
- * Replaces the hand-rolled right-click ContextMenu (manual position tracking, a fixed
- * backdrop to catch outside clicks). Deliberately a click-triggered button rather than
- * hover-reveal icons directly on the tab: Delete is destructive, and hover-reveal lowers the
- * activation energy for an accidental click in a way a deliberate click on a dedicated
- * trigger doesn't - see claude-plans/fluent2-ui-migration-plan.md, Phase 4.
+ * Deliberately a click-triggered button rather than a right-click menu or hover-reveal
+ * icons directly on the tab: Delete is destructive, and hover-reveal lowers the activation
+ * energy for an accidental click in a way a deliberate click on a dedicated trigger doesn't.
  */
 export function CollectionContextMenu({
   collectionName,

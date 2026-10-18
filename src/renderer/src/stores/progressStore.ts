@@ -10,11 +10,11 @@
  * Features:
  * - Silent save pattern (no success notifications, error-only toasts)
  * - Optimistic updates for instant UI feedback
- * - Auto-retry on save failures (3 attempts with exponential backoff)
+ * - A failed save shows an error toast and sets `error` (no retry)
  * - Respects autoSaveEnabled flag (incognito mode)
  * - Debounced saves to prevent excessive writes
  *
- * All progress data is stored locally in AppData/progress.json
+ * Progress is stored in the SQLite database (AppData/dexreader.db) through the progress IPC handlers
  */
 
 import { create } from 'zustand'
@@ -109,7 +109,6 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
    * - Respects autoSaveEnabled flag (skips if false, i.e., incognito mode)
    * - Optimistic update: updates cache immediately
    * - Debounced: waits 1s before actually saving (coalesces rapid updates)
-   * - Retry logic: 3 attempts with exponential backoff
    * - Silent save: no success toast, only error toast on final failure
    */
   saveProgress: async (progressData) => {

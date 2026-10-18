@@ -9,12 +9,11 @@ beforeEach(() => {
   document.documentElement.style.cssText = ''
 })
 
-it('sets --win-accent and its hover/active variants', () => {
+it('sets --win-accent and its hover variant', () => {
   applyAccentColor('#0078d4')
 
   expect(accentVar('--win-accent')).toBe('#0078d4')
   expect(accentVar('--win-accent-hover')).toBe('#006cbe')
-  expect(accentVar('--win-accent-active')).toBe('#0060a9')
 })
 
 it('uses white text on a dark accent color and black text on a light one', () => {

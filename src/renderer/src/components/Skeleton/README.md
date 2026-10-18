@@ -1,12 +1,12 @@
 # Skeleton Component
 
-Loading placeholder components with shimmer animation following Windows 11 Fluent Design principles.
+Loading placeholders. `Skeleton` wraps the Fluent 2 `Skeleton` / `SkeletonItem` (wave animation); `SkeletonGrid` is DexReader's own pre-built manga-card grid and is still styled by `Skeleton.css`.
 
 ## Components
 
 ### Skeleton
 
-Base skeleton component with multiple variants
+Base skeleton component with a few shape variants
 
 ### SkeletonGrid
 
@@ -25,17 +25,14 @@ import { Skeleton } from '@renderer/components/Skeleton'
 // Multiple lines
 <Skeleton variant="text" lines={3} />
 
-// Card placeholder
-<Skeleton variant="card" />
+// Card placeholder (set a size; there is no built-in aspect ratio)
+<Skeleton variant="card" width="100%" height={260} />
 
 // Circle (avatar/icon)
 <Skeleton variant="circle" width={48} height={48} />
 
 // Custom rectangle
 <Skeleton variant="rectangle" width="100%" height={200} />
-
-// No animation
-<Skeleton variant="text" noAnimation />
 ```
 
 ### Skeleton Grid
@@ -59,15 +56,14 @@ import { SkeletonGrid } from '@renderer/components/Skeleton'
 
 ## Skeleton Props
 
-| Prop          | Type                                          | Default        | Description                         |
-| ------------- | --------------------------------------------- | -------------- | ----------------------------------- |
-| `variant`     | `'text' \| 'card' \| 'circle' \| 'rectangle'` | `'text'`       | Skeleton shape                      |
-| `width`       | `string \| number`                            | varies         | Width (CSS value or pixels)         |
-| `height`      | `string \| number`                            | varies         | Height (CSS value or pixels)        |
-| `lines`       | `number`                                      | `1`            | Number of lines (text variant only) |
-| `noAnimation` | `boolean`                                     | `false`        | Disable shimmer animation           |
-| `className`   | `string`                                      | `''`           | Additional CSS class                |
-| `aria-label`  | `string`                                      | `'Loading...'` | Accessible label                    |
+| Prop         | Type                                          | Default        | Description                                  |
+| ------------ | --------------------------------------------- | -------------- | -------------------------------------------- |
+| `variant`    | `'text' \| 'card' \| 'circle' \| 'rectangle'` | `'text'`       | Skeleton shape                               |
+| `width`      | `string \| number`                            | varies         | Width (CSS value or pixels)                  |
+| `height`     | `string \| number`                            | varies         | Height (CSS value or pixels)                 |
+| `lines`      | `number`                                      | `1`            | Number of lines (text variant only)          |
+| `className`  | `string`                                      | `''`           | Class applied to the Fluent skeleton wrapper |
+| `aria-label` | `string`                                      | `'Loading...'` | Accessible label                             |
 
 ## SkeletonGrid Props
 
@@ -80,43 +76,35 @@ import { SkeletonGrid } from '@renderer/components/Skeleton'
 
 ## Variants
 
+Variants map onto Fluent's two skeleton shapes. Fluent's `SkeletonItem` is 16px tall and full width by default, so **pass `width` and `height` for anything other than a text line**.
+
 ### Text
 
-- Default: 16px height
+- Rectangle shape, 16px tall by default
 - Width: 100% (or custom)
-- Rounded corners
 - For loading text content
 
 ### Card
 
-- Aspect ratio: 2:3 (manga cover ratio)
-- Width: 100% of container
-- Rounded corners
-- For loading manga cards
+- Currently identical to `rectangle`; there is no built-in 2:3 aspect ratio, so set `width` / `height` explicitly
 
 ### Circle
 
-- Custom width and height (equal for circle)
-- Border radius: 50%
+- Circle shape; set equal `width` and `height`
 - For loading avatars or icons
 
 ### Rectangle
 
-- Default: 200px height
-- Width: 100% (or custom)
-- Rounded corners
+- Rectangle shape; 16px tall unless `height` is set
 - For loading custom content areas
 
 ## Features
 
-### Shimmer Animation
+### Wave Animation
 
-- Gradient moves left to right
-- Duration: 1.5s
-- Easing: ease-in-out
-- Infinite loop
-- GPU-accelerated (transform)
-- Respects `prefers-reduced-motion`
+- Fluent's default `wave` animation on an opaque background
+- Fluent respects `prefers-reduced-motion`
+- The animation cannot currently be turned off per instance
 
 ### Multiple Lines (Text)
 
@@ -128,28 +116,17 @@ When `lines > 1`:
 
 ### Theming
 
-- Adapts to light/dark theme
-- Subtle background in light mode
-- Darker background in dark mode
-- Shimmer intensity adjusts
+- Follows the Fluent theme, so light and dark mode adapt automatically
 
 ## Accessibility
 
-- Uses `role="status"` for loading state
-- `aria-busy="true"` indicates loading
-- `aria-label` for screen readers
-- Hidden decorative elements with `aria-hidden`
-- Screen reader text for grid ("Loading manga...")
-- Respects `prefers-reduced-motion`
+- Fluent's `Skeleton` renders `role="progressbar"` with `aria-busy="true"`
+- `aria-label` for screen readers (English `Loading...` fallback; pass a translated label)
+- `SkeletonGrid` uses `role="status"` with `aria-busy`, hides the placeholder cards with `aria-hidden`, and includes screen-reader text ("Loading manga...")
 
-## Design Principles
+## Styling
 
-- Follows Windows 11 Fluent Design
-- Uses design tokens from `tokens.css`
-- Subtle shimmer (not distracting)
-- Natural loading appearance
-- Smooth 60fps animation
-- Accessible contrast
+`Skeleton` has no stylesheet of its own; Fluent supplies the colours and wave animation from the app theme. `SkeletonGrid` is still styled by `Skeleton.css` (grid, card and cover placeholders).
 
 ## Examples
 
@@ -203,7 +180,7 @@ function BrowseView() {
 
 ```tsx
 <div style={{ maxWidth: '300px' }}>
-  <Skeleton variant="card" />
+  <Skeleton variant="card" width="100%" height={260} />
   <div style={{ padding: '12px' }}>
     <Skeleton variant="text" width="100%" />
     <Skeleton variant="text" width="60%" />
@@ -216,24 +193,6 @@ function BrowseView() {
 ```tsx
 <Skeleton variant="rectangle" width="100%" height={400} />
 ```
-
-### No Animation (Performance)
-
-```tsx
-// When many skeletons on screen, can disable animation
-{
-  Array.from({ length: 50 }, (_, i) => <Skeleton key={i} variant="text" noAnimation />)
-}
-```
-
-## Performance
-
-- GPU-accelerated shimmer (transform)
-- CSS-only animation (no JavaScript)
-- Respects reduced motion preferences
-- Can disable animation for many instances
-- Minimal DOM nodes
-- No layout shifts
 
 ## SkeletonGrid Usage
 
@@ -276,28 +235,14 @@ function LibraryView() {
 <SkeletonGrid count={16} minCardWidth="200px" gap="20px" className="custom-grid" />
 ```
 
-## Responsive Behavior
-
-### Desktop
-
-- Full size skeletons
-- Standard spacing
-
-### Mobile
-
-- Smaller card padding
-- Adapts to screen width
-- Touch-friendly spacing
-
 ## Best Practices
 
 1. **Match Content**: Use skeleton variant that matches final content shape
 2. **Count**: Show similar number of skeletons as expected items
 3. **Duration**: Keep loading screens brief, optimize data fetching
-4. **Animation**: Disable for many instances (>50) for performance
-5. **Accessibility**: Always include proper ARIA attributes
-6. **Theme**: Skeleton automatically adapts to light/dark theme
-7. **Reduced Motion**: Animation respects user preferences
+4. **Accessibility**: Always include proper ARIA attributes
+5. **Theme**: Skeleton automatically adapts to light/dark theme
+6. **Reduced Motion**: Animation respects user preferences
 
 ## Integration with Data Fetching
 

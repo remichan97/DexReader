@@ -174,10 +174,7 @@
     "componentMessage": "This part isn't working right now. Try again or explore other sections.",
     "technicalDetails": "Technical details",
     "tryAgain": "Try Again",
-    "reloadApp": "Reload App",
-    "fallbackMessage": "Something went wrong",
-    "recoveryTitle": "That didn't work",
-    "retrying": "Retrying..."
+    "reloadApp": "Reload App"
   },
   "manga": {
     "status": {

@@ -1,5 +1,3 @@
-/* Reader Settings Section Component Styles */
-
 /* Main Container */
 
 .reader-settings__container {
@@ -32,11 +30,6 @@
   font-size: 13px;
   color: var(--win-text-secondary);
   margin-bottom: var(--space-4);
-}
-
-/* Settings Controls Container */
-
-.reader-settings__controls {
 }
 
 /* Section Dividers */

@@ -124,7 +124,7 @@ export function GatekeeperSetupModal({
       }
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <p className="text-sm text-secondary mb-2">
+        <p className="text-body text-secondary mb-2">
           {t('gatekeeper:settings.setup.description', {
             defaultValue:
               'Create a passphrase to lock DexReader on startup. Make sure to remember it—recovery requires manual file deletion.'
@@ -163,8 +163,8 @@ export function GatekeeperSetupModal({
 
         {/* Error Display */}
         {error && (
-          <div className="px-3 py-2 bg-error-subtle border border-error-default rounded-md">
-            <p className="text-sm text-error-default m-0">{error}</p>
+          <div className="px-3 py-2 bg-error-tint border border-error rounded-md">
+            <p className="text-body text-error m-0">{error}</p>
           </div>
         )}
       </form>

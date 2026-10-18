@@ -1,10 +1,10 @@
 # Radio Component
 
-Radio button component following Windows 11 Fluent Design principles.
+Radio buttons for choosing one option from a set. Thin wrappers over the Fluent 2 `Radio` and `RadioGroup`.
 
 ## Overview
 
-The Radio component provides standard radio button functionality with label and description support. RadioGroup automatically manages value state and passes props to child Radio components.
+`Radio` adds a label and an optional description to Fluent 2's radio. `RadioGroup` owns the selected value and the shared `name`, and shares them with its child `Radio`s through Fluent's context, so a `Radio` must be rendered inside a `RadioGroup`.
 
 ## Usage
 
@@ -35,19 +35,6 @@ function CacheSettings() {
 </RadioGroup>
 ```
 
-### Standalone Radio (without RadioGroup)
-
-```tsx
-<Radio
-  value="enabled"
-  checked={isEnabled}
-  onChange={(value) => setIsEnabled(value === 'enabled')}
-  label="Enable feature"
-  description="Turn on advanced functionality"
-  name="feature-toggle"
-/>
-```
-
 ### With Disabled State
 
 ```tsx
@@ -59,29 +46,28 @@ function CacheSettings() {
 
 ## Features
 
-- ✅ **Windows 11 Fluent Design**: Circular border with animated dot indicator
+- ✅ **Fluent 2 Radio**: Native radio inputs with the app theme applied
 - ✅ **Label + Description**: Optional label and helper text below
-- ✅ **Keyboard Navigation**: Space/Enter to select, Tab to navigate
-- ✅ **Accessibility**: Proper ARIA roles and labels
-- ✅ **Automatic State Management**: RadioGroup handles value and name automatically
+- ✅ **Keyboard Navigation**: Arrow keys move and select within the group, Tab enters and leaves it
+- ✅ **Accessibility**: `role="radiogroup"` on the group with native radio inputs
+- ✅ **Automatic State Management**: RadioGroup handles value and name through context
 - ✅ **Horizontal/Vertical Layouts**: Flexible orientation
-- ✅ **Disabled State**: Visual feedback with reduced opacity
+- ✅ **Disabled State**: Handled by Fluent
 
 ## Component API
 
 ### Radio Props
 
-| Prop          | Type                      | Default  | Description                        |
-| ------------- | ------------------------- | -------- | ---------------------------------- |
-| `value`       | `string`                  | Required | The value of this radio option     |
-| `checked`     | `boolean`                 | Required | Whether this radio is selected     |
-| `onChange`    | `(value: string) => void` | Required | Handler called when selected       |
-| `label`       | `string`                  | -        | Label text                         |
-| `description` | `string`                  | -        | Description text below label       |
-| `name`        | `string`                  | -        | Form name (auto-set by RadioGroup) |
-| `disabled`    | `boolean`                 | `false`  | Whether the radio is disabled      |
-| `className`   | `string`                  | `''`     | Additional CSS classes             |
-| `aria-label`  | `string`                  | -        | Accessibility label                |
+| Prop          | Type      | Default  | Description                               |
+| ------------- | --------- | -------- | ----------------------------------------- |
+| `value`       | `string`  | Required | The value of this radio option            |
+| `label`       | `string`  | -        | Label text                                |
+| `description` | `string`  | -        | Description text below label              |
+| `disabled`    | `boolean` | `false`  | Whether the radio is disabled             |
+| `className`   | `string`  | `''`     | Additional CSS classes                    |
+| `aria-label`  | `string`  | -        | Accessibility label (defaults to `label`) |
+
+The selected state, `onChange` and `name` come from the enclosing `RadioGroup`, not from the individual `Radio`.
 
 ### RadioGroup Props
 
@@ -95,25 +81,15 @@ function CacheSettings() {
 | `orientation` | `'vertical' \| 'horizontal'` | `'vertical'` | Layout direction                 |
 | `className`   | `string`                     | `''`         | Additional CSS classes           |
 
-## Design Tokens
+## Styling
 
-The component uses standard Windows 11 design tokens:
-
-- **Circle Size**: 20px × 20px
-- **Dot Size**: 10px × 10px (when checked)
-- **Border**: 1.5px solid `--win-border-default`
-- **Checked Border**: `--win-accent`
-- **Background**: `--win-bg-input`
-- **Animation**: 200ms scale + fade (cubic-bezier)
-- **Focus Indicator**: 2px outline with 2px offset
+Styling comes from Fluent 2 and the app's Fluent theme, so the radio picks up the accent colour and light/dark mode automatically. The description is rendered below the label in the smaller, secondary text style. The wrapper has no stylesheet; use `className` for layout tweaks.
 
 ## Accessibility
 
-- Proper `role="radiogroup"` on container
-- Native radio input for screen readers
-- Keyboard navigation (Space, Enter)
-- Focus indicators (outline on focus-visible)
-- ARIA labels support
+- `RadioGroup` renders Fluent's `role="radiogroup"` container, labelled by the group's `label`
+- Each option is a native radio input, so the browser provides arrow-key navigation and selection (Space also selects)
+- Fluent provides the focus indicator
 
 ## Examples
 

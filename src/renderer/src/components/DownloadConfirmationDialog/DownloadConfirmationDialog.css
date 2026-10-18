@@ -21,9 +21,6 @@
   line-height: 1.5;
 }
 
-.download-dialog__section {
-}
-
 .download-dialog__label {
   font-size: 13px;
   font-weight: 500;
@@ -52,7 +49,9 @@
 }
 
 .download-dialog__settings-link {
+  font-family: inherit;
   font-size: 12px;
+  font-weight: var(--win-font-weight-semibold);
   color: var(--win-accent);
   background: none;
   border: none;
@@ -63,7 +62,7 @@
 }
 
 .download-dialog__settings-link:hover {
-  color: var(--win-accent-secondary);
+  color: var(--win-accent-hover);
   text-decoration: underline;
 }
 
@@ -75,7 +74,7 @@
 
 .download-dialog__batch-info {
   padding: 12px;
-  background: var(--win-bg-layer);
+  background: var(--win-bg-subtle);
   border-radius: var(--radius-md);
   border: 1px solid var(--win-border-default);
 }
@@ -91,9 +90,6 @@
   color: var(--win-text-secondary);
   margin: 0;
   line-height: 1.5;
-}
-
-.download-dialog__footer {
 }
 
 /* Responsive adjustments for narrow screens */
