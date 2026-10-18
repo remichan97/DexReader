@@ -243,7 +243,7 @@ Covers use a 2:3 `aspect-ratio` with `object-fit: cover`, so cards reserve their
 
 ## Layering (z-index)
 
-`tokens.css` defines a z-index scale (`--z-sidebar: 10`, `--z-dropdown: 100`, `--z-modal: 1000`, `--z-toast: 2000`), but most components use literal values, and Fluent manages the stacking of its own dialogs, popovers and menus. The layers in use:
+`tokens.css` only defines `--z-toast: 2000` (used by the skip link); components use literal values, and Fluent manages the stacking of its own dialogs, popovers and menus. The layers in use:
 
 | Layer                                                                        | z-index            |
 | ---------------------------------------------------------------------------- | ------------------ |

@@ -625,6 +625,6 @@ All utility classes are built on design tokens defined in `tokens.css`:
 
 ## Related Documentation
 
-- [Design Tokens](../design/windows11-design-tokens.md) - Complete design token reference
+- [Design Tokens](../design/windows11-design-tokens.md) - Design token reference
 - [Component Library](ui-component-library.md) - Reusable UI components
 - [Responsive Behavior](../design/responsive-behavior-guide.md) - Responsive design patterns

@@ -13,7 +13,7 @@ This folder contains all design and architectural documentation for DexReader.
 
 Visual design and design system specifications.
 
-- **windows11-design-tokens.md** - Complete design token system with light/dark themes, colors, typography, spacing, effects
+- **windows11-design-tokens.md** - Design tokens (`tokens.css`): light/dark colours, typography, spacing, radii, shadows, motion
 - **responsive-behavior-guide.md** - How layouts adapt to window size: fluid grids, the user-selected sidebar mode and the component-local media queries (mainly 768px and 480px)
 
 ### 🏗️ `/architecture`
@@ -87,7 +87,7 @@ All documents in this folder are **implementation-ready specifications** and **l
 **Flags**: country-flag-icons (bundled SVGs, per-flag imports)
 **State Management**: Zustand v5 + SQLite (via Drizzle ORM)
 **Database**: SQLite + Drizzle ORM (9 tables, WAL mode, CQRS pattern)
-**Design System**: Windows 11 (Mica, Acrylic, Segoe UI Variable)
+**Design System**: Windows 11 look and feel on Fluent 2 (Segoe UI Variable)
 **Animations**: Spring easing `cubic-bezier(0.34, 1.56, 0.64, 1)` for indicators
 **Reading Modes**: Single page, Double page (R-L), Vertical scroll
 **Navigation**: Native menu bar + Fixed icon sidebar with Fluent icons (80px; full, compact and auto-hide display modes)
