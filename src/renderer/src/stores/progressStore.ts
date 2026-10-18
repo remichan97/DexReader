@@ -10,11 +10,11 @@
  * Features:
  * - Silent save pattern (no success notifications, error-only toasts)
  * - Optimistic updates for instant UI feedback
- * - Auto-retry on save failures (3 attempts with exponential backoff)
+ * - A failed save shows an error toast and sets `error` (no retry)
  * - Respects autoSaveEnabled flag (incognito mode)
  * - Debounced saves to prevent excessive writes
  *
- * All progress data is stored locally in AppData/progress.json
+ * Progress is stored in the SQLite database (AppData/dexreader.db) through the progress IPC handlers
  */
 
 import { create } from 'zustand'
