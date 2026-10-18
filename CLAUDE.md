@@ -55,15 +55,15 @@ Renderer (React/Zustand) → Preload (contextBridge) → Main (Node.js/SQLite/Ma
 ```
 
 - **Renderer**: `src/renderer/src/` — React 19, React Router v7, Fluent 2 (`@fluentui/react-components`), Zustand 5 stores, `window.api.*` calls only
-- **Preload**: `src/preload/` — exposes typed `window.api.*` surface via `contextBridge`; all channels return `IpcResponse<T>` (defined in `src/preload/ipc.types.ts`)
+- **Preload**: `src/preload/` — exposes typed `window.api.*` surface via `contextBridge`; all channels return `IpcResponse<T>` (defined in `src/shared/contracts/ipc/ipc-response.contract.ts`, re-exported from `src/preload/ipc.types.ts`)
 - **Main**: `src/main/` — IPC handlers, SQLite database, MangaDex API client, filesystem security, settings
 - **Shared**: `src/shared/` — a fourth source root, importable from both main and renderer: enums, contracts/DTOs, command types, and utilities that must stay identical on both sides of the IPC boundary
 
 ### IPC Channel Conventions
 
-- Channel naming: `<category>:<action>` (e.g., `library:add`, `filesystem:read`)
+- Channel naming: `<category>:<action>` (e.g., `library:toggle-favourite`, `fs:read-file`)
 - Every handler must use `wrapIpcHandler` from `src/main/ipc/wrap-handler.ts`
-- New channels: add handler file at `src/main/ipc/<category>.handler.ts`, register in `src/main/ipc/registry.ts`, expose in `src/preload/index.ts` and type in `src/preload/index.d.ts`
+- New channels: add handler file at `src/main/ipc/handlers/<category>.handler.ts`, register in `src/main/ipc/registry.ts`, expose in `src/preload/index.ts` and type in `src/preload/window.types.ts`
 
 ### Filesystem Security
 
@@ -132,25 +132,25 @@ Zustand 5 stores in `src/renderer/src/stores/`. Stores are ephemeral (rehydrated
 **Preload** (`src/preload/**`):
 
 - All exposed channels must return `IpcResponse<T>`
-- Keep `index.ts` (runtime) and `index.d.ts` (types) in sync
+- Keep `index.ts` (runtime) and `window.types.ts` (types) in sync
 
 ## Key File Locations
 
-| What                            | Where                                             |
-| ------------------------------- | ------------------------------------------------- |
-| IPC registry                    | `src/main/ipc/registry.ts`                        |
-| IPC wrap helper                 | `src/main/ipc/wrap-handler.ts`                    |
-| Preload API surface             | `src/preload/index.ts` + `src/preload/index.d.ts` |
-| Secure filesystem               | `src/main/filesystem/secure-fs.ts`                |
-| MangaDex API client             | `src/main/api/mangadex-client.ts`                 |
-| Settings manager                | `src/main/settings/settings-manager.ts`           |
-| Image proxy protocols           | `src/main/api/proxy/`                             |
-| Zustand stores                  | `src/renderer/src/stores/`                        |
-| Routing                         | `src/renderer/src/router.tsx`                     |
-| CSS design tokens               | `src/renderer/src/assets/tokens.css`              |
-| Translations                    | `src/locales/`                                    |
-| IPC types (preload)             | `src/preload/ipc.types.ts`                        |
-| Shared enums/contracts/commands | `src/shared/`                                     |
+| What                            | Where                                                  |
+| ------------------------------- | ------------------------------------------------------ |
+| IPC registry                    | `src/main/ipc/registry.ts`                             |
+| IPC wrap helper                 | `src/main/ipc/wrap-handler.ts`                         |
+| Preload API surface             | `src/preload/index.ts` + `src/preload/window.types.ts` |
+| Secure filesystem               | `src/main/filesystem/secure-fs.ts`                     |
+| MangaDex API client             | `src/main/api/mangadex-client.ts`                      |
+| Settings manager                | `src/main/settings/settings-manager.ts`                |
+| Image proxy protocols           | `src/main/api/proxy/`                                  |
+| Zustand stores                  | `src/renderer/src/stores/`                             |
+| Routing                         | `src/renderer/src/router.tsx`                          |
+| CSS design tokens               | `src/renderer/src/assets/tokens.css`                   |
+| Translations                    | `src/locales/`                                         |
+| IPC types (preload)             | `src/preload/ipc.types.ts`                             |
+| Shared enums/contracts/commands | `src/shared/`                                          |
 
 ## Memory Bank
 

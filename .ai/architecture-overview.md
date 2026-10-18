@@ -138,7 +138,7 @@ Routed in `src/renderer/src/router.tsx` (wrapped in `HashRouter` in `App.tsx`):
 
 **Location**: `src/preload/`
 
-The preload script is the **only bridge** between renderer and main process. It exposes a carefully curated API surface via `contextBridge`, split across several globals (`window.api`, `window.settings`, `window.readHistory`, etc. — see `src/preload/index.ts` / `index.d.ts`).
+The preload script is the **only bridge** between renderer and main process. It exposes a carefully curated API surface via `contextBridge`, split across several globals (`window.api`, `window.settings`, `window.readHistory`, etc. — see `src/preload/index.ts` / `window.types.ts`).
 
 #### What It Does
 
@@ -355,7 +355,7 @@ See **Layer 3 → Database Layer** above for the current table list (`manga`, `c
 2. Add route in `src/renderer/src/router.tsx`
 3. Add navigation link (`Sidebar` or relevant layout)
 4. Create required IPC handlers in `src/main/ipc/handlers/`, register in `src/main/ipc/registry.ts`
-5. Expose via preload in `src/preload/index.ts` + `index.d.ts`
+5. Expose via preload in `src/preload/index.ts` + `window.types.ts`
 
 ### Adding a Database Table
 

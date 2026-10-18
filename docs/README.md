@@ -28,7 +28,7 @@ System architecture, navigation patterns, and layout specifications.
 - **state-management.md** - The 10 Zustand stores: what each holds, where its data comes from, conventions, startup hydration, testing
 - **error-handling.md** - Error patterns, IPC error handling, user-facing messages
 - **filesystem-security.md** - Path validation, security restrictions, safe file operations
-- **ipc-messaging.md** - IPC architecture, handler patterns, type safety
+- **ipc-messaging.md** - The `wrapIpcHandler` / `IpcResponse` contract, error serialisation, validation, the 116 channels and push events, the preload bridge, how to add a channel
 - **mangadex-api.md** - MangaDex API integration, rate limiting, error handling
 
 ### 📚 API & Integration
