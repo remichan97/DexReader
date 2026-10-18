@@ -98,18 +98,18 @@
   border-color: var(--win-error);
 }
 
-/* Disabled state: downloading, queued and downloaded badges are all disabled, and they render
-   muted rather than in their status colours. */
-.download-badge:disabled {
+/* Downloading, queued and downloaded badges are disabled buttons too (they only report a status),
+   but they keep their status colours. Only an action that cannot be used right now, such as
+   download or retry while offline, renders muted. */
+.download-badge--not-downloaded:disabled,
+.download-badge--not-downloaded:disabled:hover,
+.download-badge--failed:disabled,
+.download-badge--failed:disabled:hover {
   background: var(--win-bg-disabled);
   color: var(--win-text-disabled);
   border-color: var(--win-border-default);
   opacity: 0.6;
   cursor: not-allowed;
-}
-
-.download-badge:disabled:hover {
-  background: transparent;
   transform: none;
 }
 

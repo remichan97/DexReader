@@ -60,11 +60,6 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 - **Severity**: Low
 - **Detail**: (1) The Downloads folder validator accepts a symlinked or junctioned folder, but `secureFs` then refuses every path under it, so downloads fail. (2) `isSystemDirectory` is a case-sensitive prefix check covering only `C:` on Windows. (3) `GlobalErrorHandler`'s toast text is hard-coded English, not translated. (4) The main process has no `uncaughtException`/`unhandledRejection` handler, so a throw outside an IPC handler isn't logged. (5) Six main-process files use `node:fs` directly; backup import/export is intentional (user-chosen paths) but nothing enforces the `secureFs` rule. Details are in `filesystem-security.md` and `error-handling.md`.
 
-### Download status badges render muted, not in their status colours
-
-- **Severity**: Low (visual)
-- **Detail**: `DownloadStatusBadge` sets `disabled` for the downloading, queued and downloaded states. The global `button:disabled` rule used to override their variant colours (accent, accent, success green) with the muted disabled look, and the stylesheet now states that look explicitly so nothing changed when the global rule went. If the coloured badges were the intent, drop the colour declarations from `.download-badge:disabled` (and revisit `.download-badge:disabled:hover`, which clears the background on hover).
-
 ### Large renderer chunks
 
 - **Severity**: Low
@@ -93,6 +88,12 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 - **Type**: Release
 - **Summary**: Bumped to 1.16.0 (minor: new features, backward compatible for user data; the Fluent migration was treated as a component switch, not a major UI overhaul). Changelog written from the net change since v1.15.0, leaving out regressions that were introduced and fixed inside the branch. Updated `README.md`, `docs/README.md`, the component library doc, `Select`/`SearchBar` READMEs (new `TagPicker`/`LanguageBadge` READMEs), `CLAUDE.md`, `tech-context.md` and `system-pattern.md`. Gates: typecheck, lint, 1486 tests with coverage thresholds, production build.
 - **Status**: ✅ Complete, awaiting merge and tag
+
+### 18 October 2026 - Download badge status colours restored ✅
+
+- **Type**: Fix (visual)
+- **Summary**: `DownloadStatusBadge` renders downloading, queued and downloaded as disabled buttons, and a blanket `:disabled` rule painted them grey. They now keep their status colours (accent, accent, success green). The muted look applies only to an action that cannot be used, i.e. the not-downloaded and failed badges while offline.
+- **Status**: ✅ Complete; confirm by eye in the chapter list of a manga with downloaded chapters
 
 ### 18 October 2026 - Architecture docs audited against the code ✅
 
