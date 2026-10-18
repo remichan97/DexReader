@@ -183,8 +183,6 @@
 
 **Trigger model is check-on-startup only**, run once at DB-init time (`src/main/index.ts`), not a live timer: compares the newest automatic snapshot's age against `settings.snapshot.intervalInHours` and only creates a new one if overdue. Chosen over a live `setInterval` (needless lifecycle management once a manual "Create Now" button exists) and over an exit-only hook (this codebase's `before-quit` handling is synchronous while `node:sqlite`'s `backup()` is async, and exit-only misses every ungraceful exit — exactly when a recent snapshot matters most).
 
-**Full design rationale**: `claude-plans/db-snapshot-restore-plan.md`.
-
 ---
 
 ## Code Conventions
