@@ -17,8 +17,8 @@ globalErrorHandler.initialize()
  * Fetches the CSP nonce main generated for this launch (src/main/security/csp-nonce.ts)
  * so Griffel's runtime-injected <style> tags carry it and satisfy the response-header
  * CSP without 'unsafe-inline'. Falls back to rendering without a nonce on failure rather
- * than leaving the window blank - Fluent styles would be CSP-blocked in that case, but
- * the rest of the app (including the untouched hand-rolled components) still works.
+ * than leaving the window blank - Fluent's runtime styles would be CSP-blocked in that
+ * case, so the UI renders partly unstyled, but it stays usable.
  */
 async function getCspNonce(): Promise<string | undefined> {
   try {

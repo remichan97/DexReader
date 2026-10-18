@@ -45,10 +45,9 @@ interface SettingsSectionMenuProps {
  * Dropdown menu for quick section navigation in Settings, built on Fluent 2's
  * `Menu`/`MenuButton`/`MenuItemRadio` (@fluentui/react-components). Portal rendering,
  * positioning, click-outside/Escape dismissal, and arrow-key navigation all come from
- * Fluent's Menu - the hand-rolled versions of all of these (manual focused-index tracking,
- * a document mousedown listener, a window keydown listener) are gone. The current section
- * is modelled as a `MenuItemRadio` selection rather than a custom "active" indicator, since
- * that's exactly what this is: picking one of several sections.
+ * Fluent's Menu. The current section is modelled as a `MenuItemRadio` selection rather than
+ * a custom "active" indicator, since that's exactly what this is: picking one of several
+ * sections.
  */
 export function SettingsSectionMenu({
   currentSection,

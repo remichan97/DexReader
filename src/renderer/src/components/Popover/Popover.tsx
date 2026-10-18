@@ -56,8 +56,7 @@ export interface PopoverProps extends BaseComponentProps {
  * `Popover`/`PopoverTrigger`/`PopoverSurface` (@fluentui/react-components). Positioning
  * (including auto-flip near viewport edges), click-outside dismissal, Escape-to-close, and
  * focus restore to the trigger on close all come from Fluent's `@floating-ui/react`-based
- * engine - the hand-rolled versions of all of these (manual getBoundingClientRect math, a
- * document mousedown/keydown listener pair, a document.body portal) are gone.
+ * engine.
  *
  * @example
  * ```tsx

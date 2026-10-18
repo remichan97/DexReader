@@ -92,9 +92,7 @@ const useStyles = makeStyles({
 /**
  * Modal component for overlay dialogs, built on Fluent 2's `Dialog`/`DialogSurface`
  * (@fluentui/react-components). Portal rendering, backdrop, focus trap, and body
- * scroll lock all come from Fluent's Dialog system - the hand-rolled versions of
- * all four (manual Tab-key wrapping, a document Escape listener, a body style
- * mutation for scroll lock, and active-element save/restore) are gone.
+ * scroll lock all come from Fluent's Dialog system.
  *
  * @example
  * ```tsx
