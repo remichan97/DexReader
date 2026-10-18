@@ -41,6 +41,13 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 - **Severity**: Low
 - **Detail**: `state-management.md`, `database-architecture.md`, `ipc-messaging.md`, `filesystem-security.md`, `mangadex-api.md` and `error-handling.md` (apart from the `ErrorState` fix) have not been checked against the code.
 
+### Cache cleanup also deletes read history
+
+- **Severity**: Low to Medium (data loss, needs a decision on intent)
+- **Affects**: All
+- **Status**: Not fixed (documented in `docs/architecture/database-architecture.md`)
+- **Detail**: `read_history.manga_id` references `manga` with `ON DELETE CASCADE`, and `mangaRepo.cleanupMangaCache()` deletes any non-favourite, non-downloaded `manga` row not accessed for 90 days. It runs after every progress save, and Settings → Cache Management can run it immediately for all such rows. So the calendar history of those manga is removed with their cache row, and they drop out of the History list (inner join on `manga`), although `manga_progress`/`chapter_progress` stay. If history should outlive the cache, exempt manga that have `read_history` rows from the cleanup condition (or drop the cascade).
+
 ### Download status badges render muted, not in their status colours
 
 - **Severity**: Low (visual)
