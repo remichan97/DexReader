@@ -231,7 +231,7 @@
 ### CSS Structure
 
 - `assets/tokens.css` - Design tokens (`--win-*` custom properties, light and dark themes)
-- `assets/utilities.css` - Utility classes (spacing, flex, text, colour)
+- `assets/utilities.css` - Only the utility classes something uses (spacing, flex, text, colour); delete one when its last use goes
 - `assets/main.css` - Global element styles for links and inline code only. Style native form controls through their own class, never a global `button`/`input` selector
 
 ### Responsive Breakpoints

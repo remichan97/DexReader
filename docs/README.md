@@ -42,7 +42,7 @@ UI component documentation. Per-component READMEs live beside the code in `src/r
 - **ui-component-library.md** - 📚 **Component catalog** covering the shared components, usage examples, design patterns, TypeScript types
 - **ui-polish-refinements.md** - ✨ **Polish documentation** covering refinements applied after user testing (focus behaviour, animations, icons)
 - **loading-feedback-states.md** - Loading/error/empty state system (skeleton screens, progress rings/bars, spinners, error handling)
-- **utility-classes.md** - CSS utility class system for consistent styling patterns
+- **utility-classes.md** - The utility classes in `utilities.css` (the small set that components actually use)
 
 ### 🔧 Maintainer Documentation
 
