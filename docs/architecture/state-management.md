@@ -1,811 +1,150 @@
-# State Management Architecture
+# State Management
 
-**Framework**: Zustand v5.0.3
-**Last Updated**: 2 December 2025
-**Status**: ✅ Implemented (Phase 1)
+**Last updated**: October 2026 (v1.16.1)
+**Source**: `src/renderer/src/stores/`
 
 ---
 
 ## Overview
 
-DexReader uses **Zustand** for global state management across the renderer process. Zustand provides a lightweight (~1.4kb), TypeScript-first solution with built-in persistence middleware, eliminating the need for boilerplate code typically associated with Redux or Context API patterns.
+The renderer keeps shared state in [Zustand](https://zustand.docs.pmnd.rs/) 5 stores. Stores are **ephemeral**: nothing is persisted from the renderer (no `persist` middleware, no `localStorage`). Each store is rehydrated from the main process when the app starts or when a view needs it, and anything that must survive a restart is written back through IPC:
 
-### Why Zustand?
+- **Settings** (`electron-store` → `settings.json`): theme mode, sidebar display mode, language and so on.
+- **SQLite** (via IPC handlers and repositories): favourites, collections, search presets, reading progress and history. See [database-architecture.md](./database-architecture.md).
 
-- **Minimal Bundle Size**: ~1.4kb (vs Redux ~10kb)
-- **Zero Boilerplate**: No actions, reducers, or providers required
-- **TypeScript-First**: Excellent type inference and safety
-- **Built-in Persistence**: localStorage integration out-of-the-box
-- **Selective Subscriptions**: Component-level optimisation with selectors
-- **DevTools Support**: Chrome extension for debugging
+Views never talk to storage directly. They call a store action, the action calls `globalThis.<api>.*` (the preload bridge), and the store updates itself from the `IpcResponse<T>` that comes back.
+
+### Why Zustand
+
+- No provider tree: any component can read or update a store.
+- Selector subscriptions keep re-renders narrow.
+- Plain TypeScript with very little boilerplate.
+- Stores are easy to test by calling `getState()` and `setState()` outside React.
 
 ---
 
-## Architecture
+## Store inventory
 
-### Store Directory Structure
+| Store                | Hook                        | Holds                                                                | Backed by                                        |
+| -------------------- | --------------------------- | -------------------------------------------------------------------- | ------------------------------------------------ |
+| `appStore`           | `useAppStore`               | Effective theme, system theme, theme mode, accent colour, fullscreen | Theme mode from settings; system theme from main |
+| `sidebarStore`       | `useSidebarStore`           | Sidebar display mode (`full`, `compact`, `auto-hide`)                | Settings                                         |
+| `toastStore`         | `useToastStore`, `useToast` | Active toasts and their auto-dismiss timers                          | Memory only                                      |
+| `connectivityStore`  | `useConnectivityStore`      | Online, offline-by-choice or no-internet status; 30 s polling        | Memory only (pushes `isOffline` to the menu)     |
+| `libraryStore`       | `useLibraryStore`           | Favourite manga                                                      | SQLite (`globalThis.library`)                    |
+| `collectionsStore`   | `useCollectionsStore`       | Collections and membership changes                                   | SQLite (`globalThis.collections`)                |
+| `searchPresetsStore` | `useSearchPresetsStore`     | Saved Browse searches                                                | SQLite (`globalThis.searchPresets`)              |
+| `searchStore`        | `useSearchStore`            | Browse query, filters, results, pagination                           | MangaDex API through IPC                         |
+| `progressStore`      | `useProgressStore`          | Reading progress, statistics, incognito flag                         | SQLite (`globalThis.progress`)                   |
+| `historyStore`       | `useHistoryStore`           | Reading history calendar and event feed                              | SQLite (`globalThis.readHistory`)                |
 
-```tree
-src/renderer/src/stores/
-├── index.ts                    # Barrel export for all stores
-├── types.ts                    # Shared TypeScript interfaces
-├── appStore.ts                 # Theme & global UI state
-├── toastStore.ts               # Notification system
-├── progressStore.ts            # Reading progress (SQLite-backed)
-└── libraryStore.ts             # Bookmarks & collections (Phase 3)
-```
-
-### Import Pattern
+`index.ts` is the barrel for everything except `historyStore`, which `HistoryView` imports directly (`@renderer/stores/historyStore`). `types.ts` holds the shared `Theme`, `ThemeMode`, `ToastVariant` and `ToastItem` types.
 
 ```typescript
-// Centralised imports via barrel export
-import {
-  useAppStore,
-  useToastStore,
-  useLibraryStore,
-  type ToastItem,
-  type Theme
-} from '@renderer/stores'
+import { useAppStore, useLibraryStore, type ToastItem } from '@renderer/stores'
 ```
 
 ---
 
-## Core Stores
+## Conventions
 
-### 1. App State Store
+- **Select narrowly.** Subscribe to the slice you need so unrelated changes don't re-render the component:
 
-**File**: `src/renderer/src/stores/appStore.ts`
-**Purpose**: Manage global UI state and theme synchronisation with the Electron main process
-
-#### State Schema
-
-```typescript
-interface AppState {
-  // Computed theme based on user preference and system theme
-  theme: 'light' | 'dark' | 'system'
-
-  // User's theme preference
-  themeMode: 'light' | 'dark' | 'system'
-
-  // Operating system theme (synced from main process)
-  systemTheme: 'light' | 'dark'
-
-  // Fullscreen state
-  isFullscreen: boolean
-
-  // Actions
-  setSystemTheme: (theme: 'light' | 'dark') => void
-  setThemeMode: (mode: 'light' | 'dark' | 'system') => void
-  setTheme: (theme: 'light' | 'dark' | 'system') => void
-  setFullscreen: (isFullscreen: boolean) => void
-}
-```
-
-#### Theme Calculation Logic
-
-```typescript
-function calculateTheme(
-  themeMode: 'light' | 'dark' | 'system',
-  systemTheme: 'light' | 'dark'
-): 'light' | 'dark' | 'system' {
-  if (themeMode === 'system') return 'system'
-  return themeMode
-}
-```
-
-#### Persistence Strategy
-
-```typescript
-persist(
-  // Store implementation
-  {
-    name: 'dexreader-app',
-    partialize: (state) => ({ themeMode: state.themeMode }) // Only persist user preference
-  }
-)
-```
-
-**Persisted**: `themeMode` only
-**Ephemeral**: `systemTheme`, `theme`, `isFullscreen` (recalculated on app start)
-
-#### Usage Example
-
-```typescript
-// AppShell.tsx - Main layout wrapper
-function AppShell() {
+  ```typescript
   const theme = useAppStore((state) => state.theme)
-  const setSystemTheme = useAppStore((state) => state.setSystemTheme)
+  const loadFavourites = useLibraryStore((state) => state.loadFavourites)
+  ```
 
-  useEffect(() => {
-    // Sync with main process on mount
-    window.api.getTheme().then(setSystemTheme)
-
-    // Listen for OS theme changes
-    const cleanup = window.api.onThemeChanged(setSystemTheme)
-    return cleanup
-  }, [setSystemTheme])
-
-  useEffect(() => {
-    // Apply theme to document
-    document.documentElement.setAttribute('data-theme', theme)
-  }, [theme])
-
-  return <>{/* Layout content */}</>
-}
-```
+- **IPC-backed stores follow one shape**: a `loading` flag, an `error` (a message string in the library, collections and presets stores, an `Error` in the progress, search and history stores), and async actions that call the bridge, check `result.success`, set the state, and log failures with `rendererLog`. After a write, the action usually reloads from the database (`toggleFavourite` calls `loadFavourites`) rather than patching local state, so the database stays the source of truth.
+- **Timers and in-flight data live outside the state.** `toastStore` keeps its dismiss timers and `progressStore` keeps its debounce timers and pending saves in module-level `Map`s, so they never trigger re-renders and are cleared by the store's own actions.
+- **Maps and Sets are replaced, not mutated.** `progressStore` copies its `Map` before `set()`, so subscribers see a new reference.
+- **Actions that cross the boundary use `globalThis.*`**, not `window.*` (project rule), and the types come from the preload `Window` interface.
+- **Don't persist in the renderer.** If state must survive a restart, add a setting or a database table and load it into the store at startup.
 
 ---
 
-### 2. Toast Store
+## Notable stores
 
-**File**: `src/renderer/src/stores/toastStore.ts`
-**Purpose**: Global notification system with auto-dismiss functionality
+### appStore
 
-#### State Schema
+`theme` is derived: if `themeMode` is `system` it equals `systemTheme`, otherwise it equals the chosen mode. `setSystemTheme` and `setThemeMode` both recalculate it; `setTheme` sets an explicit theme and the mode with it. `accentColor` mirrors the `--win-accent` CSS variable so the Fluent theme (`createDexReaderThemes`) stays in sync; use `applyAccentColor` rather than `setAccentColor` directly.
 
-```typescript
-interface ToastState {
-  // Active notifications
-  toasts: ToastItem[]
+### toastStore
 
-  // Actions
-  show: (props: Omit<ToastItem, 'id'>) => string // Returns toast ID
-  dismiss: (id: string) => void
-  dismissAll: () => void
-}
+`show({ variant, title, message?, duration? })` returns the toast id. The default duration is 5000 ms and `0` means the toast stays until dismissed. `dismiss(id)` and `dismissAll()` clear the timers. `useToast` is an alias of `useToastStore`. Toasts are rendered by one `ToastContainer` in `App.tsx`.
 
-interface ToastItem {
-  id: string
-  variant: 'info' | 'success' | 'warning' | 'error' | 'loading'
-  title: string
-  message?: string
-  duration?: number // Auto-dismiss delay (ms), 0 = persistent
-  action?: {
-    label: string
-    onClick: () => void
-  }
-}
-```
+### connectivityStore
 
-#### Auto-Dismiss Implementation
+`status` is `online`, `offline-user` (the user chose offline mode) or `offline-no-internet`. `startPolling()` (started and stopped in `App.tsx`) re-checks every 30 seconds while online. Each status change pushes `isOffline` to the native menu with `globalThis.api.updateMenuState`. `searchStore` reads `isOnline` before searching.
 
-```typescript
-// Internal timer management
-const activeTimers = new Map<string, NodeJS.Timeout>()
+### progressStore
 
-show: (props) => {
-  const id = `toast-${Date.now()}-${Math.random()}`
-  const toast: ToastItem = { id, ...props }
+Two maps: `progressMap` (lean, per manga, used for updates and resume) and `progressMetadataMap` (rich rows for the History view). `saveProgress` updates the cache straight away, then **debounces the write by 1 second per manga**. `flushPendingSaves()` writes everything pending immediately and runs before the window closes, so no progress is lost. A failed write shows an error toast and sets `error`; it does not retry. `autoSaveEnabled` is the inverse of incognito mode: when it is `false`, `saveProgress` does nothing. `toggleIncognito` flips it and pushes `isIncognito` to the menu.
 
-  set((state) => ({ toasts: [...state.toasts, toast] }))
+### searchStore
 
-  // Auto-dismiss if duration specified
-  if (props.duration && props.duration > 0) {
-    const timer = setTimeout(() => {
-      get().dismiss(id)
-    }, props.duration)
-    activeTimers.set(id, timer)
-  }
+Holds the Browse query, `filters` (`SearchFilters`, defaults in `DEFAULT_FILTERS`), `results`, `total`, `offset`, `limit` (default 20) and `hasMore`. `search()` starts a new search, `loadMore()` appends the next page, and `retryLoadMore()` retries a failed page without losing the results. Pagination stops at MangaDex's 10,000-result limit. The search language comes from the filter dialog's selection when there is one, otherwise from the content-language settings. The filter enums are re-exported from `@shared/enums/mangadex`, so the renderer and the search-preset contract use the same types.
 
-  return id
-}
+### historyStore
 
-dismiss: (id) => {
-  // Clean up timer
-  const timer = activeTimers.get(id)
-  if (timer) {
-    clearTimeout(timer)
-    activeTimers.delete(id)
-  }
+Read-only. The renderer never writes history events: they are logged on the main process as a side effect of `progress:save-progress`. The store loads the recent events (limit 200), the active dates for the calendar's visible month, and the events for the selected date. It remembers the last requested month so `refreshActiveDates()` can update the calendar after a removal elsewhere.
 
-  set((state) => ({
-    toasts: state.toasts.filter((toast) => toast.id !== id)
-  }))
-}
-```
+### libraryStore, collectionsStore, searchPresetsStore
 
-#### Persistence Strategy
-
-**No persistence** - Toasts are ephemeral and should not persist across sessions.
-
-#### Usage Example
-
-```typescript
-// Any component
-function SettingsView() {
-  const show = useToastStore((state) => state.show)
-
-  const handleSave = async () => {
-    try {
-      await saveSettings()
-      show({
-        variant: 'success',
-        title: 'Settings Saved',
-        message: 'Your preferences have been updated',
-        duration: 3000 // Auto-dismiss after 3 seconds
-      })
-    } catch (error) {
-      show({
-        variant: 'error',
-        title: 'Save Failed',
-        message: error.message,
-        duration: 0, // Persistent until manually dismissed
-        action: {
-          label: 'Retry',
-          onClick: handleSave
-        }
-      })
-    }
-  }
-
-  return <Button onClick={handleSave}>Save Settings</Button>
-}
-```
-
-#### Global Integration
-
-```typescript
-// App.tsx - Root component
-function App() {
-  const toasts = useToastStore((state) => state.toasts)
-  const dismiss = useToastStore((state) => state.dismiss)
-
-  return (
-    <>
-      <BrowserRouter>
-        <AppShell />
-      </BrowserRouter>
-
-      {/* Global toast container */}
-      <ToastContainer toasts={toasts} onDismiss={dismiss} />
-    </>
-  )
-}
-```
+Thin IPC-backed lists with the shared `loading` and `error` shape. `libraryStore` exposes `isFavourite(mangaId)` for cards; `collectionsStore` has create, update, delete and add/remove-member actions; `searchPresetsStore` adds `getPresetById` and `getPresetByName` helpers.
 
 ---
 
-### 3. Library Store
+## Hydration at startup
 
-**File**: `src/renderer/src/stores/libraryStore.ts`
-**Purpose**: Manage bookmarks and collections (Phase 3 implementation)
-
-#### State Schema
-
-```typescript
-interface LibraryState {
-  // Bookmarked manga IDs
-  bookmarks: string[]
-
-  // User-created collections
-  collections: Collection[]
-
-  // Bookmark actions
-  addBookmark: (mangaId: string) => void
-  removeBookmark: (mangaId: string) => void
-  isBookmarked: (mangaId: string) => boolean
-
-  // Collection actions
-  addCollection: (name: string, description?: string) => void
-  removeCollection: (collectionId: string) => void
-  addToCollection: (collectionId: string, mangaId: string) => void
-  removeFromCollection: (collectionId: string, mangaId: string) => void
-}
-
-interface Collection {
-  id: string
-  name: string
-  description?: string
-  mangaIds: string[]
-  createdAt: number
-}
-```
-
-#### Implementation Highlights
-
-```typescript
-// Duplicate prevention
-addBookmark: (mangaId) =>
-  set((state) => {
-    if (state.bookmarks.includes(mangaId)) return state
-    return { bookmarks: [...state.bookmarks, mangaId] }
-  })
-
-// Helper method
-isBookmarked: (mangaId) => get().bookmarks.includes(mangaId)
-
-// Collection ID generation
-addCollection: (name, description) => {
-  const collection: Collection = {
-    id: `collection-${Date.now()}`,
-    name,
-    description,
-    mangaIds: [],
-    createdAt: Date.now()
-  }
-  set((state) => ({ collections: [...state.collections, collection] }))
-}
-```
-
-#### Persistence Strategy
-
-```typescript
-persist(
-  // Store implementation
-  {
-    name: 'dexreader-library'
-    // Persist ALL library data
-  }
-)
-```
-
-**Status**: Implemented but not yet integrated into UI (awaiting Phase 3).
+| What                                        | Where                                                                 |
+| ------------------------------------------- | --------------------------------------------------------------------- |
+| Theme mode, sidebar mode, language          | `useStartupTheme` and friends in `App.tsx`, from settings             |
+| System theme                                | `AppShell`, from `globalThis.api.getTheme()` and `onThemeChanged`     |
+| Favourites                                  | `App.tsx` calls `loadFavourites()` once on mount                      |
+| Connectivity polling                        | `App.tsx` starts and stops `startPolling()`                           |
+| Incognito and offline toggles from the menu | `useIncognitoListener`, `useConnectivityListener`                     |
+| Collections, presets, progress, history     | Loaded by the view that needs them (Library, Browse, History, Reader) |
 
 ---
 
-## Best Practices
+## Testing
 
-### ✅ Do
-
-#### 1. Use Selector Pattern
+Each store has a colocated `*.test.ts` (Vitest, `renderer` project). Tests call actions through `getState()` and reset the store between tests by restoring the initial state:
 
 ```typescript
-// ✅ Good - Only re-renders when theme changes
-const theme = useAppStore((state) => state.theme)
-const setTheme = useAppStore((state) => state.setTheme)
+const INITIAL_STATE = useAppStore.getState()
 
-// ❌ Bad - Re-renders on ANY store change
-const store = useAppStore()
-```
+beforeEach(() => {
+  useAppStore.setState(INITIAL_STATE, true)
+})
 
-#### 2. Validate Input in Setters
-
-```typescript
-// ✅ Good - Clamped to valid range
-setPreloadPages: (pages) =>
-  set((state) => ({
-    preloadPages: Math.max(1, Math.min(5, pages))
-  }))
-
-// ❌ Bad - No validation
-setPreloadPages: (pages) => set({ preloadPages: pages })
-```
-
-#### 3. Clean Up Side Effects
-
-```typescript
-// ✅ Good - Timers cleaned up
-dismiss: (id) => {
-  const timer = activeTimers.get(id)
-  if (timer) {
-    clearTimeout(timer)
-    activeTimers.delete(id)
-  }
-  // ...
-}
-
-// ❌ Bad - Memory leak
-dismiss: (id) => {
-  // Timer keeps running
-  set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }))
-}
-```
-
-#### 4. Use Partialize for Selective Persistence
-
-```typescript
-// ✅ Good - Only persist user preference
-persist(
-  // ...
-  {
-    name: 'dexreader-app',
-    partialize: (state) => ({ themeMode: state.themeMode })
-  }
-)
-
-// ❌ Bad - Persisting derived/ephemeral state
-persist(
-  // ...
-  {
-    name: 'dexreader-app'
-    // Persists everything including computed `theme` and `systemTheme`
-  }
-)
-```
-
-#### 5. Keep Stores Focused
-
-```typescript
-// ✅ Good - Single responsibility
-useAppStore // UI state only
-useToastStore // Notifications only
-
-// ❌ Bad - Mixed concerns
-useAppStore // UI, toasts, settings, library all in one
-```
-
-### ❌ Don't
-
-#### 1. Store Derived State
-
-```typescript
-// ❌ Bad - Storing computed value
-interface AppState {
-  themeMode: 'light' | 'dark' | 'system'
-  systemTheme: 'light' | 'dark'
-  computedTheme: 'light' | 'dark' // Don't store this!
-}
-
-// ✅ Good - Compute in selector or component
-const theme = useAppStore((state) =>
-  state.themeMode === 'system' ? state.systemTheme : state.themeMode
-)
-```
-
-#### 2. Mutate State Directly
-
-```typescript
-// ❌ Bad - Direct mutation
-addToast: (toast) => {
-  get().toasts.push(toast) // Mutation!
-  return get().toasts.length - 1
-}
-
-// ✅ Good - Immutable update
-addToast: (toast) =>
-  set((state) => ({
-    toasts: [...state.toasts, toast]
-  }))
-```
-
-#### 3. Forget Error Handling
-
-```typescript
-// ❌ Bad - No error handling
-setDownloadLocation: (location) => set({ downloadLocation: location })
-
-// ✅ Good - Validate before setting
-setDownloadLocation: (location) => {
-  if (!fs.existsSync(location)) {
-    throw new Error('Invalid directory path')
-  }
-  set({ downloadLocation: location })
-}
-```
-
----
-
-## Integration Patterns
-
-### React Component Integration
-
-```typescript
-function Component() {
-  // 1. Select only what you need
-  const theme = useAppStore((state) => state.theme)
-  const setTheme = useAppStore((state) => state.setTheme)
-
-  // 2. Use in JSX
-  return (
-    <div data-theme={theme}>
-      <Button onClick={() => setTheme('dark')}>Dark Mode</Button>
-    </div>
-  )
-}
-```
-
-### IPC Bridge Integration (Main Process Communication)
-
-```typescript
-function AppShell() {
-  const setSystemTheme = useAppStore((state) => state.setSystemTheme)
-
-  useEffect(() => {
-    // Get initial theme from main process
-    window.api.getTheme().then(setSystemTheme)
-
-    // Subscribe to theme changes
-    const unsubscribe = window.api.onThemeChanged(setSystemTheme)
-    return unsubscribe
-  }, [setSystemTheme])
-}
-```
-
----
-
-## Testing Strategy
-
-### Unit Testing Stores
-
-```typescript
-import { renderHook, act } from '@testing-library/react'
-import { useAppStore } from '@renderer/stores'
-
-describe('appStore', () => {
-  it('should calculate theme based on mode and system theme', () => {
-    const { result } = renderHook(() => useAppStore())
-
-    act(() => {
-      result.current.setSystemTheme('dark')
-      result.current.setThemeMode('system')
-    })
-
-    expect(result.current.theme).toBe('dark')
-  })
+it('recalculates theme when themeMode is "system"', () => {
+  useAppStore.getState().setSystemTheme('dark')
+  expect(useAppStore.getState().theme).toBe('dark')
 })
 ```
 
-### Integration Testing with Components
-
-```typescript
-import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { AppShell } from './AppShell'
-
-test('theme toggle updates store', async () => {
-  render(<AppShell />)
-
-  const button = screen.getByRole('button', { name: /dark mode/i })
-  await userEvent.click(button)
-
-  expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
-})
-```
-
----
-
-## Performance Considerations
-
-### Selector Optimization
-
-Zustand automatically optimises selectors using shallow equality checks:
-
-```typescript
-// ✅ Efficient - Only re-renders when specific value changes
-const theme = useAppStore((state) => state.theme)
-```
-
-### Avoiding Unnecessary Re-renders
-
-```typescript
-// ❌ Creates new object every render
-const actions = useAppStore((state) => ({
-  setTheme: state.setTheme,
-  setFullscreen: state.setFullscreen
-}))
-
-// ✅ Select actions individually (they're stable references)
-const setTheme = useAppStore((state) => state.setTheme)
-const setFullscreen = useAppStore((state) => state.setFullscreen)
-```
-
-### Bundle Size Impact
-
-- **Zustand**: ~1.4kb gzipped
-- **All stores**: ~3-4kb total (including types)
-- **localStorage overhead**: Negligible (<1ms serialization)
-
----
-
-## DevTools Integration
-
-### Chrome DevTools Support
-
-Install the **Zustand DevTools** extension:
-
-```typescript
-import { create } from 'zustand'
-import { devtools } from 'zustand/middleware'
-
-const useStore = create(
-  devtools(
-    persist(
-      // Store implementation
-      {
-        name: 'dexreader-app' // Shows up in DevTools
-      }
-    )
-  )
-)
-```
-
-**Note**: DevTools middleware should only be enabled in development builds.
-
----
-
-## Migration Guide
-
-### From useState to Zustand
-
-**Before**:
-
-```typescript
-function Component() {
-  const [toasts, setToasts] = useState([])
-
-  const addToast = (toast) => {
-    setToasts((prev) => [...prev, toast])
-  }
-
-  const dismissToast = (id) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id))
-  }
-
-  return (
-    <>
-      <Button onClick={() => addToast({ title: 'Hello' })}>Show Toast</Button>
-      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
-    </>
-  )
-}
-```
-
-**After**:
-
-```typescript
-// No local state needed!
-function Component() {
-  const show = useToastStore((state) => state.show)
-
-  return <Button onClick={() => show({ title: 'Hello' })}>Show Toast</Button>
-}
-
-// Toast container in App.tsx (once, globally)
-function App() {
-  const toasts = useToastStore((state) => state.toasts)
-  const dismiss = useToastStore((state) => state.dismiss)
-
-  return <ToastContainer toasts={toasts} onDismiss={dismiss} />
-}
-```
-
-**Benefits**:
-
-- Global access (no prop drilling)
-- Automatic persistence
-- Reduced component complexity
-- Testable in isolation
-
----
-
-## Database Integration (Post-Migration)
-
-### Progress Store
-
-**File**: `src/renderer/src/stores/progressStore.ts`
-**Purpose**: Frontend state management for manga/chapter progress
-**Backend**: SQLite database via IPC handlers (see [database-architecture.md](./database-architecture.md))
-
-#### State Schema
-
-```typescript
-interface ProgressState {
-  // Lean progress map (for updates)
-  progressMap: Map<string, MangaProgress>
-
-  // Rich metadata map (for history view)
-  progressMetadataMap: Map<string, MangaProgressMetadata>
-
-  // Loading states
-  isLoading: boolean
-  lastFetched: Date | null
-
-  // Actions
-  loadAllProgress: () => Promise<void>
-  saveProgress: (data: {
-    mangaId: string
-    chapterId: string
-    currentPage: number
-    completed: boolean
-  }) => Promise<void>
-  deleteProgress: (mangaId: string) => Promise<void>
-  clearAllProgress: () => Promise<void>
-}
-```
-
-**Architecture**: Dual-map pattern
-
-- `progressMap`: Lean entities for mutations
-- `progressMetadataMap`: Rich entities with JOINs for display
-
-#### Database Types
-
-```typescript
-// Extracted from Window interface
-type MangaProgress = Window['api']['Progress']['MangaProgress']
-type MangaProgressMetadata = Window['api']['Progress']['MangaProgressMetadata']
-type SaveProgressCommand = Parameters<Window['api']['progress']['saveProgress']>[0][0]
-```
-
-#### IPC Bridge
-
-```typescript
-// Preload types
-interface ProgressAPI {
-  getAllProgress: () => Promise<MangaProgress[]>
-  getAllProgressWithMetadata: () => Promise<MangaProgressMetadata[]>
-  saveProgress: (commands: SaveProgressCommand[]) => Promise<void>
-  deleteProgress: (mangaId: string) => Promise<void>
-  clearAllProgress: () => Promise<void>
-}
-```
-
-**Backend**: Main process `MangaProgressRepository` (CQRS pattern)
-
-### No Zustand Persistence for Progress
-
-**Rationale**: Progress is stored in SQLite database (main process), not localStorage
-**Pattern**: Always fetch from database on app start via `loadAllProgress()`
-**Benefit**: Single source of truth, no synchronization issues
-
----
-
-## Future Enhancements
-
-### Planned for Phase 2
-
-- **Download Queue Store**: Manage download jobs, progress tracking
-- **Search Store**: Cache search results, recent searches
-
-### Planned for Phase 3
-
-- **Library Store**: Collections, bookmarks (backed by SQLite)
-- **Sync Store**: Cloud synchronisation of bookmarks/progress
-- **Offline Store**: Manage offline-available chapters
-- **Statistics Store**: Reading stats, time tracking (backed by SQLite)
-
-### Potential Optimisations
-
-- **Worker Threads**: Move IPC-heavy operations to background thread
-- **Partial Hydration**: Lazy-load non-critical stores
-- **Optimistic Updates**: Update UI immediately, sync to DB in background
+The IPC bridge is mocked per test. `src/renderer/src/stores/**` is one of the areas with a coverage threshold in `vitest.config.ts` (75% statements and lines, 65% branches, 90% functions), enforced by `npm run test:coverage`.
 
 ---
 
 ## Troubleshooting
 
-### Store Not Persisting
+### A component doesn't re-render
 
-**Symptom**: Changes don't persist across app restarts
+1. Use a selector: `useStore((state) => state.value)`. Reading `getState()` inside render doesn't subscribe.
+2. Make sure the selector returns a stable reference. A selector that builds a new object or array each time re-renders on every change.
+3. For `Map` and `Set` state, check the action replaces the collection instead of mutating it.
 
-**Solution**:
+### Data is stale after a write elsewhere
 
-1. Check localStorage quota (5-10MB limit)
-2. Verify `persist` middleware is applied
-3. Check browser console for serialization errors
-4. Ensure `name` property is unique
+Stores don't know about each other's writes. After an action that changes favourites or collections from outside the owning store (an import, for example), call `loadFavourites()` or `loadCollections()` to refresh.
 
-### Component Not Re-rendering
+### Progress isn't saved
 
-**Symptom**: UI doesn't update when store changes
+Saves are debounced by 1 second, so check `flushPendingSaves()` ran before the window closed, and that incognito mode (`autoSaveEnabled === false`) is off.
 
-**Solution**:
+### Memory growth from timers
 
-1. Use selector pattern: `useStore((state) => state.value)`
-2. Check if selector returns stable reference
-3. Verify action is calling `set()` correctly
-4. Check React DevTools for component updates
-
-### Memory Leaks
-
-**Symptom**: Performance degrades over time
-
-**Solution**:
-
-1. Clean up timers in dismiss actions (toast store)
-2. Remove event listeners in components
-3. Check for circular references in store state
-4. Profile with Chrome Memory Profiler
-
----
-
-## References
-
-- **Zustand Docs**: <https://docs.pmnd.rs/zustand>
-- **Persist Middleware**: <https://docs.pmnd.rs/zustand/integrations/persisting-store-data>
-- **TypeScript Guide**: <https://docs.pmnd.rs/zustand/guides/typescript>
-- **DevTools**: <https://github.com/pmndrs/zustand-devtools>
-
----
-
-_This document reflects the current state management architecture in DexReader Phase 1. Update as stores evolve and new patterns emerge._
+Toast and progress timers are cleared by `dismiss`, `dismissAll` and `flushPendingSaves`. A new store that schedules timers should keep them in a module-level `Map` and clear them the same way.

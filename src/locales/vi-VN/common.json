@@ -173,10 +173,7 @@
     "componentMessage": "Phần này hiện không hoạt động. Hãy thử lại hoặc khám phá các phần khác.",
     "technicalDetails": "Chi tiết kỹ thuật",
     "tryAgain": "Thử lại",
-    "reloadApp": "Tải lại ứng dụng",
-    "fallbackMessage": "Đã xảy ra lỗi",
-    "recoveryTitle": "Không thành công",
-    "retrying": "Đang thử lại..."
+    "reloadApp": "Tải lại ứng dụng"
   },
   "manga": {
     "status": {

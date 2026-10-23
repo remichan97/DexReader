@@ -109,7 +109,7 @@ export function CreateCollectionDialog({
       }
     >
       <div className="flex flex-col gap-4">
-        {error && <div className="text-error text-sm">{error}</div>}
+        {error && <div className="text-error text-body">{error}</div>}
         <Input
           label={t('dialogs:createCollection.fields.name.label')}
           value={name}

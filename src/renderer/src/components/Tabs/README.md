@@ -1,6 +1,6 @@
 # Tabs Component
 
-Tab navigation component for content organization following Windows 11 Fluent Design principles.
+Tab navigation for content organisation. `TabList` and `Tab` wrap the Fluent 2 `TabList` and `Tab`; `Tabs` and `TabPanel` are DexReader's own small context-based container and panel.
 
 ## Usage
 
@@ -53,13 +53,14 @@ function MangaDetails() {
 
 ### Tab
 
-| Prop         | Type              | Default     | Description                 |
-| ------------ | ----------------- | ----------- | --------------------------- |
-| `value`      | `string`          | Required    | Tab value identifier        |
-| `disabled`   | `boolean`         | `false`     | Whether the tab is disabled |
-| `children`   | `React.ReactNode` | Required    | Tab label content           |
-| `className`  | `string`          | `''`        | Additional CSS class        |
-| `aria-label` | `string`          | `undefined` | ARIA label                  |
+| Prop            | Type                                               | Default     | Description                                  |
+| --------------- | -------------------------------------------------- | ----------- | -------------------------------------------- |
+| `value`         | `string`                                           | Required    | Tab value identifier                         |
+| `disabled`      | `boolean`                                          | `false`     | Whether the tab is disabled                  |
+| `children`      | `React.ReactNode`                                  | Required    | Tab label content                            |
+| `className`     | `string`                                           | `''`        | Additional CSS class                         |
+| `aria-label`    | `string`                                           | `undefined` | ARIA label                                   |
+| `onContextMenu` | `(e: React.MouseEvent<HTMLButtonElement>) => void` | `undefined` | Right-click handler (used for per-tab menus) |
 
 ### TabPanel
 
@@ -143,29 +144,19 @@ function ControlledTabs() {
 
 ## Features
 
-- **Animated Indicator**: Blue bar slides smoothly under active tab
-- **Controlled & Uncontrolled**: Use `value`/`onChange` or `defaultValue`
-- **Keyboard Navigation**: Full arrow key support
-- **Disabled Tabs**: Skip disabled tabs in keyboard navigation
-- **Auto-scrolling**: Active tab scrolls into view
-- **Content Animation**: Panel content fades in smoothly
+- **Controlled & Uncontrolled**: Use `value`/`onChange` or `defaultValue` (`onChange` only fires in controlled mode)
+- **Keyboard Navigation**: Arrow key navigation provided by Fluent
+- **Disabled Tabs**: Disabled tabs cannot be selected
+- **Fluent 2 Styling**: Selected-tab indicator, hover and focus styling come from Fluent and the app theme
+- **Lazy Panels**: Only the active `TabPanel` is rendered; inactive panels unmount
 
 ## Accessibility
 
-- Uses proper ARIA roles (`tablist`, `tab`, `tabpanel`)
-- `aria-selected` indicates active tab
-- `aria-controls` links tab to panel
-- Keyboard accessible (arrow keys, Home, End)
-- Focus visible indicator
-- Disabled tabs not in tab order
+- Fluent renders `tablist` and `tab` roles with `aria-selected`; `TabPanel` renders `role="tabpanel"`
+- Each `Tab` gets `id="tab-<value>"` and `aria-controls="panel-<value>"`, and the matching `TabPanel` gets `id="panel-<value>"` and `aria-labelledby="tab-<value>"`. Because these IDs are derived from `value`, use unique values across the page
+- Arrow keys, Home and End move between tabs
+- Fluent provides the focus indicator
 
 ## Styling
 
-Follows Windows 11 Fluent Design:
-
-- Bottom border with animated accent indicator
-- Hover states on tabs
-- Active tab uses accent color and semibold weight
-- Smooth indicator animation (200ms cubic-bezier)
-- Panel fade-in animation (200ms)
-- Respects `prefers-reduced-motion`
+Styling comes from Fluent 2 and the app's Fluent theme (the selected tab gets Fluent's accent indicator). The only custom style is the `TabPanel` padding (`spacingVerticalL` top and bottom). There is no stylesheet; use `className` for layout tweaks.

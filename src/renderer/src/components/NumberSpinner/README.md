@@ -1,6 +1,6 @@
 # NumberSpinner Component
 
-Numeric stepper input following Windows 11 Fluent Design's NumberBox pattern. Clamps to
+Numeric stepper input built on the Fluent 2 `SpinButton` inside a `Field`. Clamps to
 `[min, max]` internally before ever calling `onChange`, so the value a consumer receives
 is always valid - no separate range check needed before sending it to the main process.
 
@@ -41,7 +41,7 @@ function SnapshotSettings() {
 | `helperText`  | `string`                  | `undefined` | Helper text below the field                         |
 | `error`       | `string`                  | `undefined` | Error message (shows error state)                   |
 | `disabled`    | `boolean`                 | `false`     | Whether the field is disabled                       |
-| `className`   | `string`                  | `''`        | Additional CSS class                                |
+| `className`   | `string`                  | `undefined` | Class applied to the `Field` wrapper                |
 | `aria-label`  | `string`                  | `undefined` | ARIA label (defaults to label)                      |
 
 ## Behaviour Notes
@@ -64,5 +64,6 @@ function SnapshotSettings() {
 ## Accessibility
 
 - Input uses `role="spinbutton"` with `aria-valuenow`/`aria-valuemin`/`aria-valuemax`
-- `aria-invalid` and `role="alert"` on the error message when `error` is set
+- When `error` is set, Fluent's `Field` shows the message and marks the input invalid
+- The step buttons are labelled "Increase" / "Decrease" followed by the label (or `aria-label`)
 - Stepper buttons are disabled (and visually dimmed) at `min`/`max`

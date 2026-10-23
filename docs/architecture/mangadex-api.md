@@ -1,1032 +1,179 @@
 # MangaDex API Integration
 
-**Last Updated**: 12 December 2025
-**Status**: ✅ Complete
-**Phase**: Phase 2 - Content Display
+**Last updated**: October 2026 (v1.16.1)
+**Source**: `src/main/api/` (client, rate limiter, image proxies, caches), `src/main/ipc/handlers/mangadex.handler.ts`
 
 ---
 
 ## Overview
 
-DexReader integrates with the MangaDex public API to provide manga browsing, search, and reading functionality. This document covers the complete implementation including the API client, rate limiting, image proxy, and error handling.
+All MangaDex traffic happens in the main process. The renderer never calls `api.mangadex.org` or a CDN directly. It asks main over IPC for data, and loads images through two custom protocols, because MangaDex blocks hotlinking and the renderer's CSP only allows `'self'`, `data:`, `mangadex:` and `local-manga:` images.
 
-### Key Features
+```
+Renderer ──globalThis.mangadex.*──► IPC handlers ──► MangaDexClient ──► api.mangadex.org
+   │                                                     │
+   │                                                RateLimiter (token buckets)
+   │
+   └──<img src="mangadex://…">──► ImageProxy ──► memory/disk cache ──► uploads.mangadex.org / @Home nodes
+   └──<img src="local-manga://…">──► LocalImageProxy ──► downloaded files (via the database)
+```
 
-- **Public API Access**: No authentication required for all implemented endpoints
-- **Smart Rate Limiting**: Global (5 req/s) + endpoint-specific limits (at-home: 40 req/min)
-- **Image Proxy**: Custom `mangadex://` protocol with LRU caching
-- **Ephemeral Cache**: Memory-only caching for smooth online reading
-- **Error Handling**: Comprehensive error handling with automatic retry on 429
-- **Type Safety**: Full TypeScript definitions for all API entities and responses
+| Piece               | File                                                                           | Role                                              |
+| ------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------- |
+| `MangaDexClient`    | `mangadex-client.ts`                                                           | The API calls, ID validation, 429 retry           |
+| `RateLimiter`       | `rate-limiter.ts`                                                              | Global and per-endpoint token buckets             |
+| `ImageProxy`        | `proxy/image.proxy.ts`                                                         | `mangadex://` protocol, caching, @Home reports    |
+| `LocalImageProxy`   | `proxy/local-image.proxy.ts`                                                   | `local-manga://` protocol for downloaded chapters |
+| `AtHomeGuardsUtil`  | `utils/at-home-guards.utl.ts`                                                  | Allow-list of URLs the proxy may fetch            |
+| Caches              | `utils/lru-memory-cache.util.ts`, `disk-cache.util.ts`, `memory-cache.util.ts` | Memory LRU, cover disk cache, memory tiers        |
+| Entities and mapper | `entities/`, `mapper/api.mapper.ts`, `utils/mangadex.util.ts`                  | API shapes → renderer contracts                   |
 
 ---
 
-## Architecture
+## Configuration
 
-### Component Overview
+`constants/api-config.constant.ts`:
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        Renderer Process                      │
-│  ┌────────────┐                                              │
-│  │   Views    │  window.mangadex.searchManga(params)        │
-│  └─────┬──────┘                                              │
-│        │                                                      │
-│        ↓                                                      │
-│  ┌────────────────────────────────────────────────┐         │
-│  │         Preload (contextBridge)                │         │
-│  │  mangadexApi: { searchManga, getManga, ... }   │         │
-│  └────────────────┬───────────────────────────────┘         │
-└───────────────────┼─────────────────────────────────────────┘
-                    │ IPC (invoke)
-┌───────────────────┼─────────────────────────────────────────┐
-│                   ↓              Main Process                │
-│  ┌────────────────────────────────────────────┐             │
-│  │        IPC Handlers (wrapIpcHandler)       │             │
-│  │  mangadex:search-manga                     │             │
-│  │  mangadex:get-manga                        │             │
-│  │  mangadex:get-manga-feed                   │             │
-│  │  mangadex:get-chapter                      │             │
-│  │  mangadex:get-chapter-images               │             │
-│  │  mangadex:get-cover-url                    │             │
-│  └───────────────┬────────────────────────────┘             │
-│                  │                                            │
-│                  ↓                                            │
-│  ┌──────────────────────────────────────────────────┐       │
-│  │           MangaDexClient                         │       │
-│  │  - searchManga()                                 │       │
-│  │  - getManga()                                    │       │
-│  │  - getMangaFeed()                                │       │
-│  │  - getChapter()                                  │       │
-│  │  - getChapterImages()                            │       │
-│  │  - getCoverImageUrl()                            │       │
-│  └───────┬───────────────────────┬──────────────────┘       │
-│          │                       │                           │
-│          ↓                       ↓                           │
-│  ┌──────────────┐       ┌──────────────┐                    │
-│  │ RateLimiter  │       │  ImageProxy  │                    │
-│  │ Token Bucket │       │  mangadex:// │                    │
-│  │ 5 req/s      │       │  LRU Cache   │                    │
-│  │ 40/min @home │       │  30MB+20MB   │                    │
-│  └──────────────┘       └──────────────┘                    │
-│          │                       │                           │
-│          ↓                       ↓                           │
-│  ┌──────────────────────────────────────────┐               │
-│  │       MangaDex API / CDN                 │               │
-│  │  https://api.mangadex.org                │               │
-│  │  https://uploads.mangadex.org            │               │
-│  └──────────────────────────────────────────┘               │
-└──────────────────────────────────────────────────────────────┘
-```
+| Constant                      | Value                                 | Meaning                                     |
+| ----------------------------- | ------------------------------------- | ------------------------------------------- |
+| `BASE_API_URL`                | `https://api.mangadex.org`            | API host                                    |
+| `BASE_CDN_URL`                | `https://uploads.mangadex.org`        | Cover host                                  |
+| `NETWORK_REPORT_URL`          | `https://api.mangadex.network/report` | @Home telemetry endpoint                    |
+| `API_TIMEOUT_MS`              | `15000`                               | Per-request timeout (`AbortSignal.timeout`) |
+| `GLOBAL_RATE_LIMIT`           | `5`                                   | Requests per second                         |
+| `AT_HOME_RATE_LIMIT`          | `40`                                  | `/at-home/server` requests per minute       |
+| `MAX_LIMIT`, `MAX_FEED_LIMIT` | `100`, `500`                          | Page size caps                              |
+| `MAX_OFFSET_PLUS_LIMIT`       | `10000`                               | MangaDex's pagination ceiling               |
+
+Requests carry a `User-Agent` built by `buildUserAgent()` (app version, platform, Node version and the project URL), as MangaDex requires.
 
 ---
 
-## API Client (MangaDexClient)
+## `MangaDexClient`
 
-### Location
+| Method                           | Endpoint                       | Rate-limit bucket | IPC channel                   | Preload                     |
+| -------------------------------- | ------------------------------ | ----------------- | ----------------------------- | --------------------------- |
+| `searchManga(params)`            | `GET /manga`                   | global            | `mangadex:search-manga`       | `mangadex.searchManga`      |
+| `getManga(id, includes?)`        | `GET /manga/{id}`              | global            | `mangadex:get-manga`          | `mangadex.getManga`         |
+| `getMangaFeed(id, params)`       | `GET /manga/{id}/feed`         | global            | `mangadex:get-manga-feed`     | `mangadex.getMangaFeed`     |
+| `getChapter(id, includes?)`      | `GET /chapter/{id}`            | global            | `mangadex:get-chapter`        | `mangadex.getChapter`       |
+| `getChapterImages(id, quality)`  | `GET /at-home/server/{id}`     | `at-home/server`  | `mangadex:get-chapter-images` | `mangadex.getChapterImages` |
+| `isServiceAlive()`               | `GET /ping` (expects `pong`)   | global            | `mangadex:healthcheck`        | `mangadex.isServiceAlive`   |
+| `reportAtHomeNetworkStatus(...)` | `POST` to `NETWORK_REPORT_URL` | `network/report`  | none (internal)               | none                        |
 
-- **File**: `src/main/api/mangadexClient.ts`
-- **Class**: `MangaDexClient`
+Every call waits for a rate-limit token first. Behaviour worth knowing:
 
-### Configuration
+- **IDs are checked** against a UUID pattern before a request is built (`getManga`, `getMangaFeed`, `getChapter`, `getChapterImages`), and `getChapterImages` also checks that `quality` is a real `ImageQuality` (`data` or `data-saver`). The search and feed parameter objects are only cast (`as MangaSearchParams`) in the IPC handler, then serialised by `buildQueryParams`, which appends `[]` to array keys and `key[sub]` to nested objects as the API expects. The host and path are fixed, so the renderer can shape the query string but cannot redirect the request.
+- **Responses are mapped**: the handlers convert API entities to contracts with `mapMangaEntityToContract` and `mapChapterEntityToContract` (titles, tags, authors and artists from relationships, the scanlation group, and cover URLs). The renderer never sees raw API entities.
+- **`getChapterImages` records the node**: the `baseUrl` and chapter `hash` from the response are stored in the at-home allow-list (below), then each file becomes `{ url, filename, quality }` with `url = {baseUrl}/data/{hash}/{filename}` (or `data-saver`).
+- **Downloads use the same client** (`download.service.ts`, which also caches chapter image URLs for 5 minutes and has its own retry logic).
 
-```typescript
-// src/main/api/constants/api-config.constant.ts
-const ApiConfig = {
-  BASE_API_URL: 'https://api.mangadex.org',
-  BASE_CDN_URL: 'https://uploads.mangadex.org',
-  REQUEST_USER_AGENT: 'DexReader/1.0.0',
-  API_TIMEOUT_MS: 15000, // 15 seconds
-  IMAGE_TIMEOUT_MS: 30000, // 30 seconds
-  GLOBAL_RATE_LIMIT: 5, // 5 requests/second
-  AT_HOME_RATE_LIMIT: 40, // 40 requests/minute
-  MAX_LIMIT: 100, // Max items per page
-  MAX_OFFSET_PLUS_LIMIT: 10000 // Pagination limit
-}
-```
+### Cover URLs
 
-### Endpoints
+`getMangaCoverUrl(manga, size)` builds `mangadex://uploads.mangadex.org/covers/{mangaId}/{fileName}.{size}.jpg` from the `cover_art` relationship, with `size` 256 (`CoverSize.Medium`, `coverUrl`) or 512 (`CoverSize.Large`, `coverUrlLarge`). It returns `undefined` when the manga has no cover relationship. The renderer converts chapter image URLs the same way (`url.replace('https://', 'mangadex://')`).
 
-#### 1. Search Manga
+### Errors
 
-Search for manga with filters, pagination, and sorting.
+| Class                  | Thrown when                                         | Fields                                                                               |
+| ---------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `MangaDexApiError`     | A non-2xx response, or bad input                    | `statusCode`, `requestId` (`X-Request-ID`), parsed `error` body, `retryAfterSeconds` |
+| `MangaDexNetworkError` | The request never completed (timeout, DNS, offline) | `url`                                                                                |
 
-```typescript
-async searchManga(params: MangaSearchParams): Promise<CollectionResponse<Manga>>
-```
-
-**Example:**
-
-```typescript
-const results = await window.mangadex.searchManga({
-  title: 'One Piece',
-  limit: 20,
-  offset: 0,
-  contentRating: [ContentRating.Safe, ContentRating.Suggestive],
-  order: { relevance: OrderDirection.Desc }
-})
-```
-
-**Parameters:**
-
-- `title?: string` - Search by title
-- `limit?: number` - Results per page (max 100)
-- `offset?: number` - Pagination offset
-- `contentRating?: ContentRating[]` - Filter by content rating
-- `publicationDemographic?: Demographic[]` - Filter by demographic
-- `status?: PublicationStatus[]` - Filter by publication status
-- `includedTags?: string[]` - Include manga with these tags
-- `excludedTags?: string[]` - Exclude manga with these tags
-- `includedTagsMode?: IncludedTagsMode` - AND or OR for included tags
-- `order?: OrderOptions` - Sort order
-
-#### 2. Get Manga by ID
-
-Fetch detailed information about a specific manga.
-
-```typescript
-async getManga(mangaId: string, includes?: string[]): Promise<ApiResponse<Manga>>
-```
-
-**Example:**
-
-```typescript
-const manga = await window.mangadex.getManga('manga-id-here', ['cover_art', 'author', 'artist'])
-```
-
-#### 3. Get Manga Feed (Chapter List)
-
-Fetch chapters for a specific manga.
-
-```typescript
-async getMangaFeed(mangaId: string, params: FeedParams): Promise<CollectionResponse<Chapter>>
-```
-
-**Example:**
-
-```typescript
-const chapters = await window.mangadex.getMangaFeed('manga-id-here', {
-  limit: 100,
-  offset: 0,
-  translatedLanguage: ['en'],
-  order: { chapter: 'asc' }
-})
-```
-
-**Parameters:**
-
-- `limit?: number` - Results per page (max 500 for feeds)
-- `offset?: number` - Pagination offset
-- `translatedLanguage?: string[]` - Filter by language codes
-- `order?: ChapterOrderOptions` - Sort order
-- `includes?: ChapterIncludes[]` - Related entities to include
-
-#### 4. Get Chapter by ID
-
-Fetch detailed information about a specific chapter.
-
-```typescript
-async getChapter(chapterId: string, includes?: string[]): Promise<ApiResponse<Chapter>>
-```
-
-**Example:**
-
-```typescript
-const chapter = await window.mangadex.getChapter('chapter-id-here', ['scanlation_group', 'manga'])
-```
-
-#### 5. Get Chapter Images
-
-Fetch image URLs for reading a chapter.
-
-```typescript
-async getChapterImages(chapterId: string, quality: ImageQuality): Promise<ImageUrlResponse[]>
-```
-
-**Example:**
-
-```typescript
-const images = await window.mangadex.getChapterImages(
-  'chapter-id-here',
-  ImageQuality.Data // or ImageQuality.DataSaver
-)
-
-// Returns array of:
-// [
-//   { url: 'https://...', filename: 'x1.jpg', quality: 'data' },
-//   { url: 'https://...', filename: 'x2.jpg', quality: 'data' },
-//   ...
-// ]
-```
-
-**Important**: Image URLs expire after 15 minutes. Always use the `mangadex://` protocol to access images:
-
-```typescript
-// ❌ Don't use URLs directly
-<img src={imageUrl} />
-
-// ✅ Convert to proxy protocol
-<img src={imageUrl.replace('https://', 'mangadex://')} />
-```
-
-#### 6. Get Cover URL
-
-Generate cover image URL (direct CDN access, no rate limit).
-
-```typescript
-getCoverImageUrl(mangaId: string, fileName: string, size?: CoverSize): string
-```
-
-**Example:**
-
-```typescript
-const coverUrl = await window.mangadex.getCoverUrl(
-  'manga-id-here',
-  'cover-filename.jpg',
-  CoverSize.Medium // 512px, default
-)
-
-// Use with proxy protocol
-<img src={coverUrl.replace('https://', 'mangadex://')} />
-```
-
-**Available Sizes:**
-
-- `CoverSize.Original` - Full resolution
-- `CoverSize.Large` - 1024px
-- `CoverSize.Medium` - 512px (default)
-- `CoverSize.Small` - 256px
+These go through `wrapIpcHandler`, and `serializeError` keeps only `name` and `message` for a plain `Error`. So the renderer sees messages like `MangaDex API Error: HTTP 404: Not Found` but not `statusCode` or `requestId`; those are in the main-process log, which records the request ID on 429 handling. Reachability for the UI comes from `connectivityStore`, which polls `mangadex.isServiceAlive()`.
 
 ---
 
-## Rate Limiting
+## Rate limiting
 
-### Implementation
+`RateLimiter` is a set of token buckets: a **global** bucket (capacity 5, refilling 5 per second) that every call draws from, plus a per-endpoint bucket that is checked **in addition** for the endpoints that have their own limit:
 
-**File**: `src/main/api/rateLimiter.ts`
+| Endpoint key     | Capacity | Refill        |
+| ---------------- | -------- | ------------- |
+| `at-home/server` | 40       | 40 per minute |
+| `network/report` | 20       | 20 per minute |
 
-Uses token bucket algorithm with two layers:
+`waitForToken(endpoint?)` sleeps until both the global bucket and the endpoint bucket have a token, then takes one from each.
 
-1. **Global Rate Limit**: 5 requests/second (all endpoints)
-2. **Endpoint-Specific Limits**: Special limits for certain endpoints
+**Limits are per client, not per app.** Each `MangaDexClient` owns its own `RateLimiter`, and the app creates three: the IPC handlers (everything the UI asks for), the download service, and the one handed to `ImageProxy` in `index.ts` (used only for @Home reports). The UI and the download queue therefore draw from separate buckets and can together exceed 5 requests per second. The 429 handling above is what absorbs that. A single shared limiter would fix it.
 
-### Endpoint Configuration
-
-```typescript
-const ENDPOINT_CONFIGS = {
-  'at-home/server': {
-    capacity: 40,
-    refillRatePerSecond: 0.67 // 40 requests/minute
-  }
-}
-```
-
-### How It Works
-
-1. **Token Refill**: Tokens refill continuously based on elapsed time
-2. **Waiting**: If no tokens available, waits in 50ms intervals
-3. **Dual Check**: Waits until both global AND endpoint tokens available
-4. **Token Consumption**: Consumes 1 global + 1 endpoint token per request
-
-### Rate Limit Response Handling
-
-When a 429 (Too Many Requests) is received:
-
-```typescript
-// Automatic retry with delay
-if (response.status === 429) {
-  const retryAfter = response.headers.get('X-RateLimit-Retry-After')
-  const delay = rateLimiter.handleRateLimitResponse(retryAfter)
-  await sleep(delay)
-  return retry() // Automatic retry
-}
-```
-
-**Penalties** (from MangaDex):
-
-- First violation: HTTP 429 with Retry-After header
-- Repeated violations: HTTP 403 (temporary ban)
-- Severe abuse: IP block
-
-### Best Practices
-
-✅ **Do:**
-
-- Let the rate limiter handle delays automatically
-- Use the built-in retry mechanism
-- Monitor rate limit headers
-
-❌ **Don't:**
-
-- Make parallel requests to the same endpoint
-- Bypass the rate limiter
-- Ignore 429 responses
+**429 responses**: `fetch()` reads `X-RateLimit-Retry-After`, calls `handleRateLimitResponse()` (which empties every bucket and pushes the refill time out by the retry delay), and retries up to 3 times. The delay is the header value, or `1s × 2^attempt` without one, with ±20% jitter. After the third retry it throws a `MangaDexApiError` carrying `retryAfterSeconds`.
 
 ---
 
-## Image Proxy
+## Image proxy (`mangadex://`)
 
-### Why It's Needed
+`protocol.handle('mangadex', ...)` rewrites `mangadex://` back to `https://` and serves the image. A URL containing `/covers/` is a cover; everything else is a chapter page.
 
-MangaDex blocks direct hotlinking from Electron's renderer process. Accessing image URLs directly returns wrong images or fails. The image proxy solves this by:
+### Which URLs may be fetched
 
-1. Fetching images from the main process (allowed by MangaDex)
-2. Serving them to the renderer via custom protocol
-3. Caching in memory for smooth reading experience
+`AtHomeGuardsUtil.isUrlAllowed(url, hash)` is the allow-list. Without it the protocol would be an open proxy for any host:
 
-### Custom Protocol
+- **Covers**: host `uploads.mangadex.org` and a path under `/covers/`.
+- **Chapter pages**: the URL's `/data/{hash}/` segment must match a hash recorded by a recent `getChapterImages` call, the URL's origin must equal the `baseUrl` recorded for it, and the record must be younger than 15 minutes (a 60 s sweep removes expired ones).
 
-**Protocol**: `mangadex://`
-**File**: `src/main/api/imageProxy.ts`
+Anything else gets `403 Access denied`. A network failure returns `502`.
 
-### Architecture
+### Caches
 
-```
-Renderer                Main Process               Network
-   │                         │                         │
-   │ <img src="mangadex://...">                       │
-   ├────────────────────────>│                         │
-   │                         │                         │
-   │                    Check Cache                    │
-   │                         │                         │
-   │                    Cache Miss?                    │
-   │                         ├────────────────────────>│
-   │                         │  fetch(https://...)     │
-   │                         │<────────────────────────┤
-   │                         │                         │
-   │                    Store in Cache                 │
-   │                    (LRU eviction)                 │
-   │                         │                         │
-   │<────────────────────────┤                         │
-   │    Return image buffer  │                         │
-   │                         │                         │
-```
+| Cache         | Where       | Size                                                                 | Expiry     |
+| ------------- | ----------- | -------------------------------------------------------------------- | ---------- |
+| Chapter pages | Memory, LRU | By tier (below); only images under 5 MB are cached                   | 15 minutes |
+| Covers        | Memory, LRU | 20 MB                                                                | none       |
+| Covers        | Disk        | `downloads.maxDiskCacheSize` setting, default 50 MB, `0` = unlimited | none       |
 
-### Cache Strategy
+The chapter cache size comes from the reader's performance setting (`memoryCacheUtil`), each tier being a share of system memory capped at a ceiling:
 
-**Two Separate Caches:**
+| Tier   | Share of RAM                         | Cap             |
+| ------ | ------------------------------------ | --------------- |
+| Low    | 1.5%                                 | 75 MB           |
+| Normal | 3.5%                                 | 200 MB          |
+| High   | 5%                                   | 350 MB          |
+| Custom | the user's `customCacheSize` setting | 200 MB if unset |
 
-1. **Chapter Images Cache**
-   - Size: 30 MB
-   - TTL: 15 minutes (images expire)
-   - Max individual image: 5 MB
-   - Eviction: Least Recently Used (LRU)
-   - Purpose: Smooth page transitions during reading
+The proxy fetches `getMemoryLimit()` at startup and again when settings change (`updateChapterCacheSize`). An expiry sweep runs every 5 minutes.
 
-2. **Cover Images Cache**
-   - Size: 20 MB
-   - TTL: Never expires
-   - Eviction: Least Recently Used (LRU)
-   - Purpose: Fast library/browse view
+A cover request checks memory, then disk (`~/.dexreader/cache/covers/{mangaId}/{file}`, with ID and file name sanitised to `[A-Za-z0-9._-]`), then the network. On a network hit it writes memory and disk and sets `manga.cover_cached_at` in the database; clearing or evicting covers clears that date again.
 
-### Usage
+> **Known issue**: the disk limit is probably not enforced. Covers are stored in per-manga folders, but `enforceDiskCacheLimit` lists only the top level of the cache, so it measures and tries to delete the folders themselves rather than the files inside them (a folder's size is 0 on Windows, and `unlink` on a folder fails with `EPERM`, which is caught and logged). The unit test hides this by mocking `readDir` with flat paths such as `manga-old/cover.jpg`, which `readDir` never returns. `getDiskCacheSize`, which does recurse, reports the real size.
 
-```typescript
-// In renderer component
-function ChapterViewer({ images }: { images: ImageUrlResponse[] }) {
-  return (
-    <div>
-      {images.map((img, index) => (
-        <img
-          key={index}
-          src={img.url.replace('https://', 'mangadex://')}
-          alt={`Page ${index + 1}`}
-        />
-      ))}
-    </div>
-  )
-}
-```
+### MangaDex@Home reports
 
-### LRU Cache Implementation
-
-**True LRU**: Tracks `lastAccessed` timestamp on every cache hit
-
-```typescript
-interface CacheEntry {
-  buffer: Buffer
-  timestamp: number // When added
-  size: number // Buffer size in bytes
-  lastAccessed: number // Last access time (for LRU)
-}
-```
-
-**Eviction Process:**
-
-1. When cache is full, find entry with oldest `lastAccessed`
-2. Remove that entry
-3. Repeat until there's space for new image
-4. Add new image to cache
-
-### Cache Management
-
-```typescript
-// Clear chapter cache (preserves cover cache)
-imageProxy.clearChapterCache()
-
-// Get cache statistics
-const stats = imageProxy.getCacheStats()
-// { chapterCacheSize: 15728640, coverCacheSize: 10485760 }
-```
+For chapter pages fetched from an @Home node, the proxy reports the outcome (URL, success, cached or not, duration, bytes) to `api.mangadex.network/report`, as the network asks clients to. Reports run in the background and never delay or fail the image. At most 100 are in flight, extras are dropped, and the endpoint is rate-limited to 20 per minute. Covers are not part of @Home and are never reported.
 
 ---
 
-## Type Definitions
+## Local images (`local-manga://`)
 
-### Core Entities
+Downloaded chapters are served by `LocalImageProxy` from `local-manga://chapter/{chapterId}/page/{pageNumber}`:
 
-**Manga Entity** (`src/main/api/entities/manga.entity.ts`):
-
-```typescript
-interface Manga {
-  id: string
-  type: 'manga'
-  attributes: {
-    title: LocalizedString
-    altTitles: LocalizedString[]
-    description: LocalizedString
-    isLocked: boolean
-    links: Record<string, string>
-    originalLanguage: string
-    lastVolume: string | null
-    lastChapter: string | null
-    publicationDemographic: Demographic | null
-    status: PublicationStatus
-    year: number | null
-    contentRating: ContentRating
-    tags: Tag[]
-    state: string
-    chapterNumbersResetOnNewVolume: boolean
-    createdAt: string
-    updatedAt: string
-    version: number
-    availableTranslatedLanguages: string[]
-    latestUploadedChapter: string | null
-  }
-  relationships: Relationship[]
-}
-```
-
-**Chapter Entity** (`src/main/api/entities/chapter.entity.ts`):
-
-```typescript
-interface Chapter {
-  id: string
-  type: 'chapter'
-  attributes: {
-    title: string | null
-    volume: string | null
-    chapter: string | null
-    pages: number
-    translatedLanguage: string
-    uploader: string
-    externalUrl: string | null
-    version: number
-    createdAt: string
-    updatedAt: string
-    publishAt: string
-    readableAt: string
-  }
-  relationships: Relationship[]
-}
-```
-
-### Response Wrappers
-
-**Single Item Response**:
-
-```typescript
-interface ApiResponse<T> {
-  result: 'ok' | 'error'
-  response: string
-  data: T
-}
-```
-
-**Collection Response**:
-
-```typescript
-interface CollectionResponse<T> {
-  result: 'ok' | 'error'
-  response: string
-  data: T[]
-  limit: number
-  offset: number
-  total: number
-}
-```
-
-### Search Parameters
-
-**Manga Search** (`src/main/api/searchparams/manga.searchparam.ts`):
-
-```typescript
-interface MangaSearchParams {
-  limit?: number
-  offset?: number
-  title?: string
-  authorOrArtist?: string
-  authors?: string[]
-  artists?: string[]
-  year?: number
-  includedTags?: string[]
-  excludedTags?: string[]
-  status?: PublicationStatus[]
-  originalLanguage?: string[]
-  excludedOriginalLanguage?: string[]
-  availableTranslatedLanguage?: string[]
-  publicationDemographic?: Demographic[]
-  contentRating?: ContentRating[]
-  order?: OrderOptions
-  includes?: MangaIncludes[]
-  hasAvailableChapters?: boolean | 'true' | 'false'
-  createdAtSince?: string
-  updatedAtSince?: string
-}
-```
+1. Look up the chapter in `chapter_downloads` (`404` if there is no record).
+2. Build `{downloadsBasePath}/{filePath}/pages/{NNN}{imageFormat}`, using the base path **stored with the download**, not the current setting, so chapters stay readable after the downloads folder is changed. The page number in the URL is 0-based and the file is 1-based and padded to three digits (`001.jpg`).
+3. Read it with `secureFs` and return it with a content type from the extension (`image/png`, `image/webp`, otherwise `image/jpeg`). Any other failure returns `500`.
 
 ---
 
-## Error Handling
-
-### Error Classes
-
-**File**: `src/main/api/shared/error.shared.ts`
+## Using the API from the renderer
 
 ```typescript
-// API errors (4xx, 5xx responses)
-class MangaDexApiError extends Error {
-  constructor(
-    public message: string,
-    public error?: ErrorResponse,
-    public requestId?: string
-  )
-}
-
-// Network errors (timeout, connection failed)
-class MangaDexNetworkError extends Error {
-  constructor(
-    public message: string,
-    public url: string
-  )
+const response = await globalThis.mangadex.searchManga(params)
+if (response.success && response.data) {
+  // response.data: CollectionResponse<MangaContract>
 }
 ```
 
-### Error Flow
+- **Browse** (`searchStore`) calls `searchManga`, refuses to search while `connectivityStore.isOnline` is false, and stops paging at the 10,000-result ceiling.
+- **Manga Detail** (`useMangaDetailData`) calls `getManga` and `getMangaFeed`.
+- **Reader** (`useChapterData`) first asks whether the chapter is downloaded and, if so, uses `local-manga://chapter/{id}/page/{n}` URLs. Otherwise it calls `getChapterImages` and maps each URL to `mangadex://`.
+- **Creator view** calls `searchManga` filtered by author or artist.
+- **Connectivity** polls `isServiceAlive()`.
 
-1. **Network Errors**: Wrapped in `MangaDexNetworkError`
-2. **Rate Limits (429)**: Automatic retry with delay
-3. **Other API Errors**: Thrown as `MangaDexApiError` with request ID
-4. **IPC Serialization**: All errors serialized by `wrapIpcHandler`
-
-### Handling in Renderer
-
-```typescript
-try {
-  const manga = await window.mangadex.getManga('manga-id')
-  if (manga.result === 'ok') {
-    // Success
-    console.log(manga.data)
-  }
-} catch (error) {
-  if (error.name === 'MangaDexApiError') {
-    // API returned an error
-    console.error('API Error:', error.message, error.requestId)
-  } else if (error.name === 'MangaDexNetworkError') {
-    // Network issue
-    console.error('Network Error:', error.url)
-  } else {
-    // Other error
-    console.error('Unknown Error:', error)
-  }
-}
-```
+Images are always shown with `mangadex://` or `local-manga://` URLs, never plain HTTPS.
 
 ---
 
-## IPC Bridge
-
-### Preload Exposure
-
-**File**: `src/preload/index.ts`
-
-```typescript
-const mangadexApi = {
-  searchManga: (params: MangaSearchParams) => ipcRenderer.invoke('mangadex:search-manga', params),
-  getManga: (id: string, includes?: string[]) =>
-    ipcRenderer.invoke('mangadex:get-manga', id, includes),
-  getMangaFeed: (id: string, query: FeedParams) =>
-    ipcRenderer.invoke('mangadex:get-manga-feed', id, query),
-  getChapter: (id: string, includes?: string[]) =>
-    ipcRenderer.invoke('mangadex:get-chapter', id, includes),
-  getChapterImages: (id: string, quality: ImageQuality) =>
-    ipcRenderer.invoke('mangadex:get-chapter-images', id, quality),
-  getCoverUrl: (id: string, fileName: string, size?: string) =>
-    ipcRenderer.invoke('mangadex:get-cover-url', id, fileName, size)
-}
-
-contextBridge.exposeInMainWorld('mangadex', mangadexApi)
-```
-
-### TypeScript Support
-
-**File**: `src/preload/window.types.ts`
-
-```typescript
-interface MangaDexApi {
-  searchManga: (params: MangaSearchParams) => Promise<CollectionResponse<Manga>>
-  getManga: (id: string, includes?: string[]) => Promise<ApiResponse<Manga>>
-  getMangaFeed: (id: string, query: FeedParams) => Promise<CollectionResponse<Chapter>>
-  getChapter: (id: string, includes?: string[]) => Promise<ApiResponse<Chapter>>
-  getChapterImages: (id: string, quality: ImageQuality) => Promise<ImageUrlResponse[]>
-  getCoverUrl: (id: string, fileName: string, size?: string) => string
-}
-
-declare global {
-  interface Window {
-    mangadex: MangaDexApi
-  }
-}
-```
-
-### Main Process Handlers
-
-**File**: `src/main/index.ts`
-
-All handlers wrapped with `wrapIpcHandler` for automatic error serialization:
-
-```typescript
-wrapIpcHandler('mangadex:search-manga', async (_, query: unknown) => {
-  return await mangadexClient.searchManga(query as MangaSearchParams)
-})
-```
-
----
-
-## Usage Patterns
-
-### 1. Browse/Search View
-
-```typescript
-import { useState, useEffect } from 'react'
-
-function BrowseView() {
-  const [manga, setManga] = useState<Manga[]>([])
-  const [loading, setLoading] = useState(false)
-
-  async function searchManga(query: string) {
-    setLoading(true)
-    try {
-      const results = await window.mangadex.searchManga({
-        title: query,
-        limit: 20,
-        contentRating: [ContentRating.Safe, ContentRating.Suggestive],
-        includes: [MangaIncludes.CoverArt]
-      })
-
-      setManga(results.data)
-    } catch (error) {
-      console.error('Search failed:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return (
-    <div>
-      <input onChange={(e) => searchManga(e.target.value)} />
-      {loading && <p>Loading...</p>}
-      {manga.map(m => (
-        <MangaCard key={m.id} manga={m} />
-      ))}
-    </div>
-  )
-}
-```
-
-### 2. Manga Detail View
-
-```typescript
-function MangaDetailView({ mangaId }: { mangaId: string }) {
-  const [manga, setManga] = useState<Manga | null>(null)
-  const [chapters, setChapters] = useState<Chapter[]>([])
-
-  useEffect(() => {
-    async function loadManga() {
-      // Fetch manga details
-      const mangaRes = await window.mangadex.getManga(mangaId, ['cover_art', 'author', 'artist'])
-      setManga(mangaRes.data)
-
-      // Fetch chapter list
-      const chaptersRes = await window.mangadex.getMangaFeed(mangaId, {
-        limit: 100,
-        translatedLanguage: ['en'],
-        order: { chapter: 'asc' }
-      })
-      setChapters(chaptersRes.data)
-    }
-
-    loadManga()
-  }, [mangaId])
-
-  // Render manga details and chapter list
-}
-```
-
-### 3. Chapter Reader
-
-```typescript
-function ChapterReader({ chapterId }: { chapterId: string }) {
-  const [images, setImages] = useState<ImageUrlResponse[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    async function loadChapter() {
-      try {
-        const imageUrls = await window.mangadex.getChapterImages(
-          chapterId,
-          ImageQuality.Data
-        )
-
-        // Convert to proxy protocol
-        const proxiedImages = imageUrls.map(img => ({
-          ...img,
-          url: img.url.replace('https://', 'mangadex://')
-        }))
-
-        setImages(proxiedImages)
-      } catch (error) {
-        console.error('Failed to load chapter:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadChapter()
-  }, [chapterId])
-
-  if (loading) return <div>Loading chapter...</div>
-
-  return (
-    <div className="chapter-reader">
-      {images.map((img, index) => (
-        <img
-          key={index}
-          src={img.url}
-          alt={`Page ${index + 1}`}
-          loading="lazy"
-        />
-      ))}
-    </div>
-  )
-}
-```
-
-### 4. Cover Image Display
-
-```typescript
-function MangaCoverImage({ manga }: { manga: Manga }) {
-  const coverArt = manga.relationships.find(r => r.type === 'cover_art')
-
-  if (!coverArt || !coverArt.attributes?.fileName) {
-    return <div className="no-cover">No Cover</div>
-  }
-
-  const coverUrl = window.mangadex.getCoverUrl(
-    manga.id,
-    coverArt.attributes.fileName,
-    CoverSize.Medium
-  )
-
-  // Convert to proxy protocol
-  const proxiedUrl = coverUrl.replace('https://', 'mangadex://')
-
-  return (
-    <img
-      src={proxiedUrl}
-      alt={manga.attributes.title.en || 'Manga cover'}
-      loading="lazy"
-    />
-  )
-}
-```
-
----
-
-## Performance Considerations
-
-### Rate Limiting
-
-- **Global limit**: 5 requests/second = 300 requests/minute
-- **At-home limit**: 40 requests/minute for chapter images
-- **Automatic backoff**: Built into rate limiter
-- **Request queuing**: Handled transparently
-
-### Caching
-
-- **Chapter cache**: 30 MB = ~60 high-quality pages
-- **Cover cache**: 20 MB = ~40 covers at 512px
-- **Total memory**: ~50 MB for all cached images
-- **Cache hits**: Instant response (no network)
-- **Cache misses**: Fetched on-demand
-
-### Image Loading
-
-- **Use `loading="lazy"`** on `<img>` tags
-- **Preload next pages** for smooth reading:
-
-```typescript
-useEffect(() => {
-  // Preload next 3 pages
-  const nextPages = images.slice(currentPage + 1, currentPage + 4)
-  nextPages.forEach((img) => {
-    const image = new Image()
-    image.src = img.url
-  })
-}, [currentPage, images])
-```
-
-### Pagination
-
-- **Max offset + limit**: 10,000
-- **Recommended page size**: 20-50 for search, 100-500 for feeds
-- **Deep pagination**: Use `createdAtSince` or `updatedAtSince` instead
-
----
-
-## MangaDex Usage Policy
-
-As per MangaDex's terms:
-
-✅ **Allowed:**
-
-- Using public API for personal applications
-- Caching images temporarily (we use memory-only, clears on app close)
-- Crediting MangaDex and scanlation groups (required)
-
-❌ **Not Allowed:**
-
-- Running advertisements
-- Charging users for access
-- Redistributing content
-- Ignoring group removal requests
-
-**DexReader Compliance:**
-
-- Credits MangaDex in About dialog
-- Credits scanlation groups in chapter view
-- No monetization
-- No content redistribution
-- Respects all rate limits
-
----
-
-## Testing
-
-### Manual Testing
-
-Test the API client from the DevTools console:
-
-```javascript
-// Search for manga
-const results = await window.mangadex.searchManga({ title: 'One Piece', limit: 5 })
-console.log(results)
-
-// Get manga details
-const manga = await window.mangadex.getManga(results.data[0].id, ['cover_art'])
-console.log(manga)
-
-// Get chapters
-const chapters = await window.mangadex.getMangaFeed(manga.data.id, {
-  limit: 10,
-  translatedLanguage: ['en']
-})
-console.log(chapters)
-
-// Get chapter images
-const images = await window.mangadex.getChapterImages(chapters.data[0].id, 'data')
-console.log(images)
-```
-
-### Rate Limit Testing
-
-```javascript
-// Test global rate limit (should throttle after 5 req/s)
-for (let i = 0; i < 20; i++) {
-  const start = Date.now()
-  await window.mangadex.searchManga({ title: 'test', limit: 1 })
-  console.log(`Request ${i + 1}: ${Date.now() - start}ms`)
-}
-
-// Expected: First 5 fast (~100ms), rest throttled (~200ms intervals)
-```
-
-### Image Proxy Testing
-
-```html
-<!-- In DevTools, create test image -->
-const img = document.createElement('img') img.src =
-'mangadex://uploads.mangadex.org/covers/manga-id/cover.jpg' document.body.appendChild(img) // Should
-load successfully // Check Network tab - protocol should be "mangadex"
-```
-
----
-
-## Troubleshooting
-
-### Images Not Loading
-
-**Symptom**: Images show broken or wrong content
-**Cause**: Direct URL usage instead of proxy protocol
-**Fix**: Always convert URLs to `mangadex://`
-
-```typescript
-// ❌ Wrong
-<img src={imageUrl} />
-
-// ✅ Correct
-<img src={imageUrl.replace('https://', 'mangadex://')} />
-```
-
-### 429 Rate Limit Errors
-
-**Symptom**: Console shows "Rate limited" warnings
-**Cause**: Too many requests in short time
-**Fix**: Rate limiter handles automatically, but check for:
-
-- Parallel requests to same endpoint
-- Rapid pagination clicks
-- Missing rate limit in client code
-
-### Chapter Images Expire
-
-**Symptom**: Images load, then fail after 15 minutes
-**Cause**: MangaDex image URLs have 15-minute expiry
-**Fix**: Always fetch fresh image URLs per reading session
-
-```typescript
-// ❌ Don't store image URLs long-term
-localStorage.setItem('images', JSON.stringify(images))
-
-// ✅ Fetch images when opening chapter
-useEffect(() => {
-  fetchChapterImages(chapterId)
-}, [chapterId])
-```
-
-### Memory Issues
-
-**Symptom**: App uses too much RAM
-**Cause**: Cache growing too large
-**Fix**: Clear chapter cache between reading sessions
-
-```typescript
-// When closing reader
-useEffect(() => {
-  return () => {
-    // Cleanup on unmount
-    imageProxy.clearChapterCache()
-  }
-}, [])
-```
-
----
-
-## Future Enhancements
-
-### Phase 3 (Bookmarks)
-
-- Persistent cover image cache in AppData
-- Manga metadata storage
-- Automatic cover image caching on bookmark
-
-### Phase 4 (Downloads)
-
-- Full chapter downloads to user directory
-- Offline reading from local storage
-- Download queue management
-
----
-
-## Related Documentation
-
-- [IPC Messaging Architecture](./ipc-messaging.md) - IPC patterns and error handling
-- [Error Handling](./error-handling.md) - Error boundaries and recovery
-- [Filesystem Security](./filesystem-security.md) - Secure file operations
-
----
-
-## Changelog
-
-### 2025-12-12 - Initial Implementation
-
-- ✅ API client with all endpoints
-- ✅ Rate limiter with token bucket algorithm
-- ✅ Image proxy with LRU caching
-- ✅ IPC bridge with error handling
-- ✅ TypeScript definitions
-- ✅ Bug fixes: API URL, LRU eviction, cover expiry, retry loop
-
----
-
-**Last Verified**: 12 December 2025
+## Adding an endpoint
+
+1. Add the method to `MangaDexClient`: `await this.rateLimiter.waitForToken(...)` first, validate any IDs, then `this.fetch<T>(...)`. If the API gives the endpoint its own limit, add a bucket in `RateLimiter.endpointConfigs`.
+2. Add an entity type in `entities/` and a contract in `src/shared/contracts/mangadex/`, and map one to the other in `mapper/api.mapper.ts`.
+3. Add the IPC channel in `mangadex.handler.ts`, the preload method and its `window.types.ts` signature (see [ipc-messaging.md](./ipc-messaging.md)).
+4. If it serves images, extend `AtHomeGuardsUtil` deliberately: the allow-list is what keeps the proxy from becoming open.

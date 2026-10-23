@@ -4,7 +4,7 @@
   border: 1px solid var(--win-border-default);
   border-radius: 6px;
   overflow: hidden;
-  background-color: var(--win-surface-default);
+  background-color: var(--win-bg-card);
 }
 
 .manga-storage-list__header {
@@ -31,7 +31,7 @@
 }
 
 .manga-storage-list__item--selected {
-  background-color: var(--win-surface-tertiary);
+  background-color: var(--win-bg-active);
 }
 
 .manga-storage-list__item:not(.manga-storage-list__item--selected):hover {
@@ -43,7 +43,7 @@
   height: 48px;
   border-radius: 4px;
   overflow: hidden;
-  background-color: var(--win-surface-tertiary);
+  background-color: var(--win-bg-subtle);
   flex-shrink: 0;
 }
 

@@ -1,6 +1,6 @@
 # Switch Component
 
-Toggle switch component for settings following Windows 11 Fluent Design principles.
+Toggle switch for settings. A thin wrapper over the Fluent 2 `Switch` with a label and optional description.
 
 ## Usage
 
@@ -72,23 +72,16 @@ function Settings() {
 
 ## Keyboard Navigation
 
-- **Space/Enter**: Toggle switch state
+- **Space**: Toggle switch state (native checkbox behaviour; Enter does not toggle)
 - **Tab**: Focus next/previous element
 
 ## Accessibility
 
-- Uses `role="switch"` and `aria-checked`
-- Keyboard accessible (Space/Enter to toggle)
-- Focus visible indicator
-- Disabled state prevents interaction
-- Label click toggles switch
+- Fluent 2's `Switch` renders a native `<input type="checkbox" role="switch">`
+- `aria-label` falls back to `label` when not provided
+- Fluent provides the focus indicator; disabled state prevents interaction
+- Clicking the label toggles the switch
 
 ## Styling
 
-Follows Windows 11 Fluent Design:
-
-- 40×20px track size
-- 12px knob that slides 20px when checked
-- Accent color when checked
-- Smooth animation (150ms cubic-bezier)
-- Respects `prefers-reduced-motion`
+Styling comes from Fluent 2 and the app's Fluent theme. The wrapper makes the control fill its row (`width: 100%`) with the label on the left and the indicator on the right (`labelPosition="before"`), and renders `label` in semibold with `description` beneath it in the smaller, secondary text style. There is no stylesheet; use `className` for layout tweaks.

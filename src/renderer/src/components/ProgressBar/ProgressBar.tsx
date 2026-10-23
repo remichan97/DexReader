@@ -42,12 +42,6 @@ export interface ProgressBarProps extends BaseComponentProps {
    * Show estimated time remaining
    */
   eta?: string
-
-  /**
-   * Whether the progress bar is animated
-   * @default true
-   */
-  animated?: boolean
 }
 
 /**
@@ -78,8 +72,6 @@ export function ProgressBar({
   label,
   speed,
   eta,
-  // Fluent's ProgressBar has no "disable animation" toggle, and no call site in this
-  // codebase currently passes this prop - kept for API compatibility.
   className = '',
   'aria-label': ariaLabel
 }: Readonly<ProgressBarProps>): React.JSX.Element {

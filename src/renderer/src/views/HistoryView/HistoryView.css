@@ -6,22 +6,13 @@
   background: var(--win-bg-base);
 }
 
-.history-view__title {
-  font-size: var(--font-size-title);
-  font-weight: var(--win-font-weight-semibold);
-  color: var(--win-text-primary);
-  margin: 0;
-  padding: var(--space-4);
-  padding-bottom: var(--space-3);
-}
-
 /* Statistics - a single slim strip, not full cards, so it doesn't compete
    with the schedule feed for vertical space */
 .history-view__stats-strip {
   padding: var(--space-2) var(--space-4);
   background: var(--win-bg-card);
   border-bottom: 1px solid var(--win-border-default);
-  font-size: var(--font-size-caption);
+  font-size: var(--win-font-size-caption);
   color: var(--win-text-secondary);
   flex-wrap: wrap;
 }
@@ -52,7 +43,8 @@
   border: 1px solid var(--win-border-default);
   border-radius: var(--radius-sm);
   color: var(--win-text-primary);
-  font-size: var(--font-size-body);
+  font-family: inherit;
+  font-size: var(--win-font-size-body);
   font-weight: var(--win-font-weight-semibold);
   cursor: pointer;
   transition: var(--transition-bg);
@@ -60,6 +52,7 @@
 
 .history-schedule-header__date-label:hover {
   background: var(--win-bg-hover);
+  border-color: var(--win-border-hover);
 }
 
 .history-schedule-header__spacer {
@@ -89,7 +82,7 @@
 }
 
 .history-calendar__month-label {
-  font-size: var(--font-size-body);
+  font-size: var(--win-font-size-body);
   font-weight: var(--win-font-weight-semibold);
   color: var(--win-text-primary);
 }
@@ -102,7 +95,7 @@
 
 .history-calendar__weekday {
   text-align: center;
-  font-size: var(--font-size-caption);
+  font-size: var(--win-font-size-caption);
   color: var(--win-text-tertiary);
   text-transform: uppercase;
 }
@@ -122,7 +115,9 @@
   border: none;
   background: transparent;
   border-radius: var(--radius-sm);
-  font-size: var(--font-size-body);
+  font-family: inherit;
+  font-size: var(--win-font-size-body);
+  font-weight: var(--win-font-weight-semibold);
   color: var(--win-text-disabled);
   cursor: default;
   transition: var(--transition-bg);
@@ -171,44 +166,11 @@
   margin: 0 calc(-1 * var(--space-4)) var(--space-3);
   padding: var(--space-2) var(--space-4);
   background: var(--win-bg-base);
-  font-size: var(--font-size-body);
+  font-size: var(--win-font-size-body);
   font-weight: var(--win-font-weight-semibold);
   color: var(--win-text-secondary);
   border-bottom: 1px solid var(--win-border-default);
   z-index: 1;
-}
-
-/* Loading */
-.history-view__loading {
-  padding: var(--space-6);
-  color: var(--win-text-secondary);
-}
-
-/* Empty State */
-.history-view__empty {
-  padding: var(--space-6);
-  text-align: center;
-}
-
-.history-view__empty svg {
-  font-size: 48px;
-  color: var(--win-text-tertiary);
-}
-
-.history-view__empty h2 {
-  font-size: var(--win-font-size-subtitle);
-  font-weight: var(--win-font-weight-semibold);
-  color: var(--win-text-primary);
-  margin: 0;
-}
-
-.history-view__empty p {
-  color: var(--win-text-secondary);
-  margin: 0;
-}
-
-/* History List */
-.history-view__list {
 }
 
 /* Reading History Card */
@@ -265,7 +227,7 @@
 }
 
 .reading-history-card__progress {
-  font-size: var(--font-size-body);
+  font-size: var(--win-font-size-body);
   color: var(--win-text-secondary);
   margin: 0 0 var(--space-1) 0;
 }
@@ -274,16 +236,10 @@
   padding: 2px 8px;
   background: var(--win-accent-subtle);
   color: var(--win-accent);
-  font-size: var(--font-size-caption);
-  font-weight: var(--font-weight-medium);
+  font-size: var(--win-font-size-caption);
+  font-weight: 500;
   border-radius: var(--radius-sm);
   white-space: nowrap;
-}
-
-.reading-history-card__meta {
-  font-size: var(--font-size-caption);
-  color: var(--win-text-tertiary);
-  margin: 0;
 }
 
 .reading-history-card__actions {

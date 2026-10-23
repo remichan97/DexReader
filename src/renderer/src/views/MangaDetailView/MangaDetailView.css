@@ -21,7 +21,7 @@
 .manga-detail-view__sticky-title {
   font-size: var(--win-font-size-subtitle);
   font-weight: var(--win-font-weight-semibold);
-  color: var(--color-text-primary);
+  color: var(--win-text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -60,10 +60,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.manga-detail-view__info {
-  /* Layout handled by flex utility classes */
 }
 
 .manga-detail-view__title {
@@ -151,21 +147,6 @@
 }
 
 /* Progress Badge */
-.manga-detail-view__progress-badge {
-  position: absolute;
-  bottom: 8px;
-  left: 8px;
-  right: 8px;
-  /* Removed display: flex, align-items, gap - using utility classes */
-  padding: 6px 10px;
-  background: rgba(0, 120, 212, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 4px;
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
 
 .manga-detail-view__cover {
   position: relative;
@@ -274,10 +255,6 @@
   min-height: auto;
 }
 
-.description-toggle .button__content {
-  padding: 0;
-}
-
 .description-toggle:hover {
   background: var(--win-accent-subtle);
 }
@@ -300,30 +277,11 @@
   color: var(--win-text-primary);
 }
 
-.external-links-list {
-  /* Layout handled by flex utility classes */
-}
-
-/* Tags Section */
-.manga-detail-view__tags {
-  padding: var(--space-4);
-  background: var(--win-bg-card);
-  margin-top: 1px;
-}
-
-.tags-container {
-  /* Layout handled by flex utility classes */
-}
-
 /* Alternative Titles Section */
 .manga-detail-view__alt-titles {
   padding: var(--space-4);
   background: var(--win-bg-card);
   margin-top: 1px;
-}
-
-.alt-titles-list {
-  /* Layout handled by flex utility classes */
 }
 
 .alt-title-item {
@@ -335,7 +293,7 @@
   /* Wide enough for flag + the longest code (JA-RO, ES-LA, PT-BR, ZH-HK), so titles line up */
   min-width: 80px;
   padding: 4px 8px;
-  background: var(--win-subtle-fill-secondary);
+  background: var(--win-bg-hover);
   color: var(--win-text-secondary);
   font-size: 11px;
   font-weight: 600;
@@ -347,7 +305,7 @@
 }
 
 .alt-title-language:hover {
-  background: var(--win-subtle-fill-tertiary);
+  background: var(--win-bg-active);
   color: var(--win-text-primary);
 }
 
@@ -380,31 +338,11 @@
   border-bottom: 1px solid var(--win-border-default);
 }
 
-.chapter-controls {
-}
-
 .chapter-list-items {
   gap: 1px;
   background: var(--win-border-default);
   border-radius: var(--radius-md);
   overflow: hidden;
-}
-
-.chapter-list-empty {
-  padding: var(--space-6) var(--space-4);
-  text-align: center;
-  color: var(--win-text-tertiary);
-  background: var(--win-bg-card);
-  /* Removed display: flex, flex-direction, align-items, gap - using utility classes */
-}
-
-.chapter-list-empty p {
-  margin: 0;
-}
-
-.chapter-list-empty-hint {
-  font-size: var(--win-font-size-caption);
-  color: var(--win-text-tertiary);
 }
 
 .chapter-list-loading {
@@ -477,11 +415,6 @@
   min-height: auto;
 }
 
-.chapter-item .button__content {
-  width: 100%;
-  padding: 0;
-}
-
 .chapter-item__content {
   width: 100%;
 }
@@ -491,7 +424,7 @@
 }
 
 .chapter-item:active {
-  background: var(--win-bg-pressed);
+  background: var(--win-bg-active);
 }
 
 .chapter-item__main {
@@ -575,36 +508,36 @@
   min-height: 400px;
 }
 
-.manga-detail-error .error-recovery {
+.manga-detail-error .manga-detail-error__content {
   /* Removed display: flex, flex-direction, align-items, gap - using utility classes */
   max-width: 500px;
 }
 
-.manga-detail-error .error-recovery__icon {
+.manga-detail-error .manga-detail-error__icon {
   color: var(--win-text-secondary);
   opacity: 0.6;
 }
 
-.manga-detail-error .error-recovery__title {
+.manga-detail-error .manga-detail-error__title {
   font-size: 20px;
   font-weight: 600;
   margin: 0;
   color: var(--win-text-primary);
 }
 
-.manga-detail-error .error-recovery__message {
+.manga-detail-error .manga-detail-error__message {
   font-size: 14px;
   color: var(--win-text-secondary);
   margin: 0;
   line-height: 1.5;
 }
 
-.manga-detail-error .error-recovery__actions {
+.manga-detail-error .manga-detail-error__actions {
   /* Removed display: flex, gap - using utility classes */
   margin-top: var(--space-2);
 }
 
-.manga-detail-error .error-recovery__technical-details {
+.manga-detail-error .manga-detail-error__technical-details {
   width: 100%;
   max-width: 500px;
   margin-top: var(--space-3);
@@ -615,7 +548,7 @@
   overflow-x: auto;
 }
 
-.manga-detail-error .error-recovery__technical-details code {
+.manga-detail-error .manga-detail-error__technical-details code {
   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
   font-size: 12px;
   color: var(--win-text-secondary);
@@ -624,7 +557,7 @@
   display: block;
 }
 
-.manga-detail-error .error-recovery__technical-details pre {
+.manga-detail-error .manga-detail-error__technical-details pre {
   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
   color: var(--win-text-secondary);
   overflow-x: auto;

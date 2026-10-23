@@ -13,11 +13,7 @@ export interface ProgressRingProps extends BaseComponentProps {
  * Indeterminate circular loading indicator.
  *
  * Fluent has no determinate circular/ring progress component (its Spinner is
- * indeterminate-only) - this used to also support a determinate `value` prop via a
- * hand-rolled SVG ring, but no call site ever actually fed it a real value (the one
- * that tried, ImportProgressDialog, was wired to hardcoded current={0}/total={0} in
- * LibraryView, so it was permanently stuck indeterminate anyway), so that support was
- * dropped rather than carried over as dead API surface.
+ * indeterminate-only), so there is no `value` prop. Use `ProgressBar` for known progress.
  *
  * @example
  * ```tsx

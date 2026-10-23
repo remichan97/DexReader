@@ -1,736 +1,175 @@
 # DexReader Reader Layout Specification
 
 **Created**: 24 November 2025
-**Part of**: P1-T01 - Design Main Application Layout
-**Status**: Complete
+**Updated**: 14 October 2026 (rewritten to describe the implemented reader, as of v1.16.1)
 
 ---
 
 ## Overview
 
-This document specifies the fullscreen manga reading experience for DexReader, including all three reading modes, control systems, zoom functionality, and keyboard/mouse interactions.
+The reader (`src/renderer/src/views/ReaderView/`) is a full-window view for reading a chapter. It is rendered **outside** `AppShell` (no sidebar, no status bars; see [`layout-specification.md`](./layout-specification.md)) at `/reader/:mangaId/:chapterId`. This document describes its layout and behaviour as implemented. The original design had an auto-hiding top bar and bottom bar with acrylic blur, a settings and zoom popover in the bottom bar and drag-to-pan custom zoom; the shipped reader has a single always-visible header and differs in the details below.
+
+---
+
+## Structure
+
+```ui
+┌──────────────────────────────────────────────────────────────┐
+│ Header (sticky, 56px)                                         │
+│ ← Back │      Chapter title      │ badges · Page 3 / 24 · Chapters · Settings · 100% │
+├──────────────────────────────────────────────────────────────┤
+│                                                               │
+│                    Page area                                  │
+│       single page | double page | vertical scroll             │
+│                                                               │
+│                                  ┌─────────────┐ (slides in) │
+│  [zoom indicator]                │ Chapter list │             │
+│  [end-of-chapter overlay]        └─────────────┘             │
+└──────────────────────────────────────────────────────────────┘
+```
+
+- `<main class="reader-view" data-theme>` is a column: the header, then the page area. Loading and error states replace both
+- There is **no bottom bar and no auto-hide**: the header is always visible (`position: sticky`)
+- The reader wraps itself in its **own `FluentProvider`**. The theme is dark when the app is dark **or** the "force dark mode" reader setting is on (`reader.forceDarkMode`), because Fluent components take their colours from the nearest provider, not from CSS. A `.reader-view[data-theme='dark']` block also maps the app's `--win-*` text and background tokens to dark values for DexReader's own CSS (page background `#1a1a1a`)
+- Mobile-width adjustments are listed in the [responsive guide](../design/responsive-behavior-guide.md): the header is 48px and the double-page mode stacks vertically at ≤768px
+
+---
+
+## Header
+
+`ReaderHeader` is a Fluent-based toolbar (`z-index: 100`):
+
+| Area   | Content                                                                                                                                                                                                      |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Left   | **Back** button (ghost, with arrow icon)                                                                                                                                                                     |
+| Centre | Chapter title, as the page's `<h1>`                                                                                                                                                                          |
+| Right  | Incognito badge (shown when reading progress is not being saved), stream-source indicator (online or local), the page counter, a **Chapters** button, a **Settings** button and a **zoom percentage** button |
+
+- **Page counter**: "Page N / total" in single and vertical modes; in double-page mode it shows the pair and is direction-aware (right-to-left aware)
+- **Settings** and **zoom** open Fluent popovers anchored under the header (see below)
+- **Chapters** toggles the chapter list; its label changes between "open" and "close"
 
 ---
 
 ## Reading Modes
 
-### 1. Single Page Mode (Default)
+The mode is `single`, `double` or `vertical`, set per manga in the reader settings popover (default from the global reading settings).
 
-**Layout**:
+### Single page
 
-- One page displayed at a time
-- Centered in viewport
-- Black letterboxing (#000000)
-- Fit-to-height by default
+- `PageDisplay`: one page centred in the area
+- Page images use the current **fit mode** (see Zoom)
+- **Click zones**: clicking the left 40% of the window goes to the previous page, the right 60% to the next. Clicks are ignored while zoomed in (`zoomLevel > 1`) so they do not interfere with panning
+- At the last page, advancing opens the next chapter automatically if there is one
 
-**Navigation**:
+### Double page
 
-- Right Arrow / D / Click Right Half → Next page
-- Left Arrow / A / Click Left Half → Previous page
-- Space → Next page
-- Shift+Space → Previous page
+- `DoublePageDisplay`: two pages side by side, built from page pairs (`usePagePairs`)
+- **Skip cover pages**: the first page is shown alone, then pairs follow (1-2, 3-4, …)
+- **Read right to left** (manga order): each pair is shown right page first; off gives western left-to-right order
+- A trailing odd page is shown alone
+- At ≤768px the two pages stack vertically (each up to 50vh)
+- The page counter, keyboard and click zones work by pair
 
-**Use Cases**:
+### Vertical scroll (webtoon)
 
-- Standard manga reading
-- Portrait-oriented pages
-- Smaller windows
-
----
-
-### 2. Double Page Mode
-
-**Layout**:
-
-- Two pages side-by-side
-- Right-to-left layout (manga convention)
-  - Right page = current page
-  - Left page = next page
-- Both pages fit to viewport height
-- Black letterboxing
-
-**Navigation**:
-
-- Right Arrow / D / Click Right → Previous 2 pages (move right in manga)
-- Left Arrow / A / Click Left → Next 2 pages (move left in manga)
-- Space → Next 2 pages
-- Shift+Space → Previous 2 pages
-
-**Use Cases**:
-
-- Large windows (>1200px width)
-- Spread pages (double-page illustrations)
-- Traditional manga reading experience
-
-**Smart Page Pairing**:
-
-```typescript
-// Skip cover page (always single page)
-if (currentPage === 0) {
-  showSinglePage(0)
-} else {
-  showDoublePages(currentPage, currentPage + 1)
-}
-```
+- `VerticalScrollDisplay`: all pages stacked at full width and scrolled continuously
+- The current page is tracked with an `IntersectionObserver` (multiple thresholds, a `-20%` top and bottom root margin so the centre of the screen wins). The reader does **not** auto-scroll to the current page, so free scrolling is not fought
+- Space and Shift+Space step by page; arrow keys, Page Up/Down and Enter use the same page-step logic as the other modes
 
 ---
 
-### 3. Vertical Scroll Mode (Webtoon)
+## Fit and Zoom
 
-**Layout**:
+State lives in `useReaderZoom`.
 
-- Pages stacked vertically
-- Full-width pages (fit to viewport width)
-- Continuous scrolling
-- No black background (white/transparent between pages)
+- **Fit modes**: `height` (default), `width`, `actual` (100%) and `custom` (any zoom other than 100%)
+- **Zoom**: 25% to 400%, in steps of ×1.2. Zooming switches to `custom`; resetting returns to `height`
+- **Pan**: while zoomed in on `custom`, dragging the page pans it (mouse down, move, up)
+- **Zoom indicator**: a `.zoom-indicator` percentage appears briefly in the page area (`z-index: 100`) when the zoom changes
+- **Zoom popover** (`ZoomControlsModal`, a `Popover` under the header): buttons for Fit width, Fit height and Actual size, and zoom out, zoom in and reset with the current percentage. The header's zoom button shows the percentage and opens it
 
-**Navigation**:
+### Settings popover
 
-- Scroll wheel / Trackpad → Natural scrolling
-- Page Up / Page Down → Jump by viewport height
-- Space → Scroll down one viewport
-- Shift+Space → Scroll up one viewport
+`ReaderSettingsModal` (a `Popover`) contains:
 
-**Scroll Snapping**:
-
-```css
-.reader-canvas--vertical {
-  scroll-snap-type: y proximity;
-}
-
-.reader-canvas__page {
-  scroll-snap-align: start;
-}
-```
-
-**Use Cases**:
-
-- Webtoons (Korean manhwa, Chinese manhua)
-- Long-strip comics
-- Vertical-oriented content
+- **Reading mode** (single, double, vertical) as a `Select`
+- **Double page options**: skip cover pages and read right to left
+- A note that these are **saved for this manga only**
 
 ---
 
-## Control Bars
+## Keyboard
 
-### Top Bar (Auto-Hide)
+| Key                           | Action                                            |
+| ----------------------------- | ------------------------------------------------- |
+| →, Page Down, Enter           | Next page (or pair)                               |
+| ←, Page Up                    | Previous page (or pair)                           |
+| Space, Shift+Space            | Next / previous page                              |
+| Home, End                     | First / last page                                 |
+| ↑, ↓                          | Previous / next **chapter** (when one exists)     |
+| L                             | Toggle the chapter list                           |
+| Z                             | Cycle fit mode: width → height → actual → custom  |
+| Ctrl+0, Ctrl++ (or =), Ctrl+- | Reset zoom, zoom in, zoom out                     |
+| Escape                        | Close the chapter list if open, otherwise go Back |
 
-**Contents** (left to right):
-
-```ui
-[← Back] | Manga Title - Chapter 45: Chapter Name | [Chapter ▼] | [☰ Menu] [Window Controls]
-```
-
-**Components**:
-
-1. **Back Button** (← icon + "Back" text)
-   - Returns to previous view (Manga Detail or Library)
-   - Keyboard: Escape
-
-2. **Title** (Manga + Chapter)
-   - Shows current manga and chapter title
-   - Truncated with ellipsis if too long
-
-3. **Chapter Dropdown**
-   - Quick jump to other chapters
-   - Shows chapter number and title
-   - Keyboard: Ctrl+J to open
-
-4. **Menu Button** (☰ icon)
-   - Opens chapter list overlay
-   - Keyboard: M
-
-**Styling**:
-
-```css
-.reader-top-bar {
-  height: 64px;
-  background: var(--win-acrylic-bg);
-  backdrop-filter: blur(30px);
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  color: var(--win-text-primary);
-}
-```
-
-**Auto-Hide Behavior**:
-
-- Visible on page load
-- Fades out after 3 seconds of no mouse movement
-- Fades in on mouse movement or keyboard input
-- Always visible in vertical scroll mode
+The in-app shortcuts dialog (Ctrl+/) lists these alongside the global and library shortcuts and is the user-facing reference. Handlers live in `hooks/useReaderKeyboard.ts`.
 
 ---
 
-### Bottom Bar (Auto-Hide)
+## Chapter Navigation
 
-**Contents** (left to right):
-
-```ui
-[◀ Prev] | Page 12 / 24 | [⚙ Settings] [🔍 Zoom] | [Next ▶]
-```
-
-**Components**:
-
-1. **Previous Button** (◀ Prev)
-   - Navigate to previous page/chapter
-   - Disabled at first page
-   - Keyboard: Left Arrow, A
-
-2. **Page Indicator** (current / total)
-   - Shows progress through chapter
-   - Click to open page jump dialog (future)
-
-3. **Settings Button** (⚙ icon)
-   - Opens reading settings popover
-   - Change reading mode, image fit, direction
-   - Keyboard: S
-
-4. **Zoom Button** (🔍 icon)
-   - Opens zoom control popover
-   - Fit-to-height, fit-to-width, 100%, custom %
-   - Keyboard: Z (toggle zoom modes)
-
-5. **Next Button** (Next ▶)
-   - Navigate to next page/chapter
-   - Auto-advance to next chapter at end
-   - Keyboard: Right Arrow, D, Space
-
-**Styling**:
-
-```css
-.reader-bottom-bar {
-  height: 64px;
-  background: var(--win-acrylic-bg);
-  backdrop-filter: blur(30px);
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: var(--win-text-primary);
-}
-```
-
-**Auto-Hide Behavior**:
-
-- Same as top bar
-- Exception: Always visible in vertical scroll mode
+- **Next chapter**: advancing past the last page opens the next chapter (state carries the manga title, chapter list and `startAtLastPage: false`). Going to the previous chapter can start at its last page
+- **End-of-chapter overlay**: when the last page is showing, `EndOfChapterOverlay` appears (fixed, `z-index: 100`) with the chapter number and title, **previous** and **next** chapter buttons (with chapter info), a "no more chapters" message when there is no next chapter, and **Back to detail**
+- **Chapter list**: a 400px (max 90vw) panel slides in from the right over a backdrop (`.chapter-list-overlay`, `z-index: 200`; panel `201`). It lists chapters with number, volume, title and page count; choosing one navigates and closes the list. It closes with its Close button, Escape, L or a backdrop click
+- **Back**: returns to the manga detail page, carrying the original origin so the detail page's Back goes to where the user started (see [`navigation-flow.md`](./navigation-flow.md))
 
 ---
 
-## Image Fit Modes
+## Progress
 
-### Fit to Height (Default)
-
-**Behavior**:
-
-- Page height = viewport height
-- Page width scales proportionally
-- Horizontal scroll if page wider than viewport
-- Best for portrait pages
-
-```typescript
-.reader-canvas__page--fit-height {
-  height: 100%;
-  width: auto;
-  object-fit: contain;
-}
-```
+- Reading progress saves **1 second after the page stops changing** (debounced), immediately on chapter change and on unmount
+- Reaching the last page marks the chapter completed
+- When progress saving is off (incognito or auto-save disabled) the header shows the incognito badge and nothing is written
+- Reopening a chapter resumes from the saved page; chapters opened from History or Downloads pass their start page in navigation state
 
 ---
 
-### Fit to Width
-
-**Behavior**:
-
-- Page width = viewport width
-- Page height scales proportionally
-- Vertical scroll if page taller than viewport
-- Best for landscape pages
-
-```typescript
-.reader-canvas__page--fit-width {
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-}
-```
-
----
-
-### Original Size (100%)
-
-**Behavior**:
-
-- Page displays at actual pixel dimensions
-- Scroll in both directions if larger than viewport
-- Useful for reading small text
-
-```typescript
-.reader-canvas__page--original {
-  width: auto;
-  height: auto;
-  max-width: none;
-  max-height: none;
-}
-```
-
----
-
-### Custom Zoom
-
-**Behavior**:
-
-- User sets zoom percentage (25% - 400%)
-- Page scales accordingly
-- Scroll as needed
-
-```typescript
-.reader-canvas__page--custom {
-  transform: scale(var(--zoom-scale));
-  transform-origin: center;
-}
-```
-
----
-
-## Keyboard Shortcuts
-
-### Navigation
-
-| Key             | Action                      |
-| --------------- | --------------------------- |
-| Right Arrow / D | Next page                   |
-| Left Arrow / A  | Previous page               |
-| Space           | Next page                   |
-| Shift+Space     | Previous page               |
-| Page Down       | Scroll down (vertical mode) |
-| Page Up         | Scroll up (vertical mode)   |
-| Home            | First page                  |
-| End             | Last page                   |
-
-### Controls
-
-| Key     | Action                              |
-| ------- | ----------------------------------- |
-| Escape  | Exit reader (back to previous view) |
-| F / F11 | Toggle fullscreen                   |
-| M       | Show/hide chapter menu              |
-| S       | Open settings popover               |
-| Z       | Cycle zoom modes                    |
-| Ctrl+J  | Open chapter jump dropdown          |
-| Ctrl+=  | Zoom in                             |
-| Ctrl+-  | Zoom out                            |
-| Ctrl+0  | Reset zoom (fit-to-height)          |
-
----
-
-## Mouse/Touch Interactions
-
-### Single Page / Double Page Modes
-
-**Click Areas**:
-
-```ui
-┌─────────────────────────────────┐
-│                                 │
-│     Left Half    Right Half     │
-│   (Previous)      (Next)        │
-│                                 │
-└─────────────────────────────────┘
-```
-
-**Click Actions**:
-
-- Click left half → Previous page
-- Click right half → Next page
-- Click on control bars → Show controls (if hidden)
-
-**Scroll Actions**:
-
-- Scroll wheel up → Previous page
-- Scroll wheel down → Next page
-
----
-
-### Vertical Scroll Mode
-
-**Scroll Actions**:
-
-- Natural vertical scrolling
-- Scroll snaps to page boundaries (proximity)
-
-**Click Actions**:
-
-- Click anywhere → Toggle controls visibility
-
----
-
-### Drag to Pan (Custom Zoom)
-
-When zoomed in beyond viewport:
-
-```typescript
-let isDragging = false
-let dragStart = { x: 0, y: 0 }
-
-canvas.addEventListener('mousedown', (e) => {
-  isDragging = true
-  dragStart = { x: e.clientX, y: e.clientY }
-})
-
-canvas.addEventListener('mousemove', (e) => {
-  if (!isDragging) return
-  const deltaX = e.clientX - dragStart.x
-  const deltaY = e.clientY - dragStart.y
-  canvas.scrollLeft -= deltaX
-  canvas.scrollTop -= deltaY
-  dragStart = { x: e.clientX, y: e.clientY }
-})
-```
-
----
-
-## Chapter Auto-Advance
-
-**Behavior**:
-When user reaches last page of chapter:
-
-1. Show "End of Chapter" overlay for 2 seconds
-2. Display options:
-   - [← Previous Chapter] [Next Chapter →]
-   - [Back to Detail]
-3. Auto-advance to next chapter after 5 seconds (with countdown)
-4. User can cancel auto-advance by clicking any option
-
-```typescript
-function onLastPage() {
-  showEndOfChapterOverlay({
-    autoAdvanceDelay: 5000,
-    onNextChapter: () => navigateToChapter(nextChapterId),
-    onPrevChapter: () => navigateToChapter(prevChapterId),
-    onBackToDetail: () => navigate(`/browse/${mangaId}`)
-  })
-}
-```
-
----
-
-## Preloading Strategy
-
-### Online Reading
-
-**Phase 1: Current Chapter**
-
-- Load current page immediately
-- Preload next 3 pages in background
-- Preload previous 2 pages (for back navigation)
-
-**Phase 2: Adjacent Chapters**
-
-- Preload first 3 pages of next chapter (when at 80% progress)
-
-```typescript
-function preloadPages() {
-  const currentIndex = currentPage
-  const pagesToPreload = [
-    pages[currentIndex + 1],
-    pages[currentIndex + 2],
-    pages[currentIndex + 3],
-    pages[currentIndex - 1],
-    pages[currentIndex - 2]
-  ].filter(Boolean)
-
-  pagesToPreload.forEach((url) => {
-    const img = new Image()
-    img.src = url
-  })
-}
-```
-
----
-
-### Offline Reading
-
-**Instant Loading**:
-
-- All pages loaded from local filesystem
-- No preloading needed (fast enough)
-- Only show spinner if filesystem read >100ms
-
----
-
-## Loading States
-
-### Initial Chapter Load (Online)
-
-**Phase 1**: Indeterminate spinner while querying at-home endpoint
-
-```typescript
-<LoadingSpinner message="Loading chapter..." />
-```
-
-**Phase 2**: Progress ring showing image download progress
-
-```typescript
-<ProgressRing progress={downloadProgress} size="lg" />
-<p>{downloadProgress}% loaded</p>
-```
-
----
-
-### Page Transitions (Online)
-
-**Next Page Loading**:
-
-- Show skeleton/placeholder if next page not yet preloaded
-- Fade in page when loaded
-
-```css
-.reader-canvas__page {
-  opacity: 0;
-  transition: opacity 300ms;
-}
-
-.reader-canvas__page--loaded {
-  opacity: 1;
-}
-```
-
----
-
-### Offline Reading
-
-**Instant Load**:
-
-- No loading indicators (pages load instantly from disk)
-- Fallback spinner only if >100ms delay
+## Loading and Preloading
+
+- **Initial load**: `LoadingState` centred in the view while the chapter's page list loads
+- **Preloading**: `useImagePreload` preloads the previous page, the current page and the next two (`current - 1` to `current + 2`) with `Image` objects, and tracks each page as `loading`, `loaded` or `error`. In vertical mode pages load eagerly until they are more than 10 pages ahead of the current page, after which they use `loading="lazy"`
+- **Sources**: online pages come through the `mangadex://` protocol (LRU-cached in the main process) and downloaded chapters through `local-manga://`; the renderer never uses plain HTTPS image URLs
+- **Settings**: image quality and the chapter cache tier (`low`, `normal`, `high`, `custom`) are in Settings (the Reader and Performance sections) and control how much is kept in memory
 
 ---
 
 ## Error Handling
 
-### Failed to Load Page
-
-**Display**:
-
-```ui
-┌─────────────────────────────────┐
-│                                 │
-│     [❌]                         │
-│     Failed to load page         │
-│     [Retry]                     │
-│                                 │
-└─────────────────────────────────┘
-```
-
-**Actions**:
-
-- Retry button → Reload current page
-- Skip button → Move to next page
-- Continue with other pages loading
-
----
-
-### Failed to Load Chapter
-
-**Display**:
-
-```ui
-┌─────────────────────────────────┐
-│                                 │
-│     Chapter Not Available       │
-│                                 │
-│     This chapter could not be   │
-│     loaded. It may be deleted   │
-│     or temporarily unavailable. │
-│                                 │
-│     [← Back to Detail]          │
-│                                 │
-└─────────────────────────────────┘
-```
-
----
-
-## Settings Popover
-
-**Triggered by**: Settings button (⚙) or `S` key
-
-**Contents**:
-
-```ui
-┌──────────────────────────────┐
-│ Reading Settings             │
-├──────────────────────────────┤
-│                              │
-│ Reading Mode                 │
-│ ( ) Single Page              │
-│ (•) Double Page              │
-│ ( ) Vertical Scroll          │
-│                              │
-│ Reading Direction            │
-│ (•) Right-to-Left            │
-│ ( ) Left-to-Right            │
-│                              │
-│ Image Fit                    │
-│ (•) Fit to Height            │
-│ ( ) Fit to Width             │
-│ ( ) Original Size            │
-│                              │
-│ Preload Pages                │
-│ [3 ▼]  pages ahead           │
-│                              │
-└──────────────────────────────┘
-```
-
-**Behavior**:
-
-- Popover appears above settings button
-- Click outside to close
-- Settings save instantly
-- Esc to close
-
----
-
-## Zoom Popover
-
-**Triggered by**: Zoom button (🔍) or `Z` key
-
-**Contents**:
-
-```ui
-┌──────────────────────────────┐
-│ Zoom                         │
-├──────────────────────────────┤
-│                              │
-│ (•) Fit to Height            │
-│ ( ) Fit to Width             │
-│ ( ) Original Size (100%)     │
-│ ( ) Custom                   │
-│                              │
-│ ┌──────────────┐             │
-│ │ [50%] [100%] │             │
-│ │ [150%] [200%]│             │
-│ └──────────────┘             │
-│                              │
-│ [────●────────] 125%         │
-│  25%         400%            │
-│                              │
-└──────────────────────────────┘
-```
-
-**Behavior**:
-
-- Popover appears above zoom button
-- Quick buttons for common zoom levels
-- Slider for custom zoom (25%-400%)
-- Real-time preview
-- Esc to close
-
----
-
-## Chapter List Overlay
-
-**Triggered by**: Menu button (☰) or `M` key
-
-**Layout**:
-
-```ui
-┌─────────────────────────────────┐
-│ ┌─────────────────────────────┐ │
-│ │ Manga Title                 │ │
-│ │ 250 Chapters                │ │
-│ ├─────────────────────────────┤ │
-│ │                             │ │
-│ │ Chapter 50: Title           │ │◀── Current
-│ │ Chapter 49: Title           │ │
-│ │ Chapter 48: Title           │ │
-│ │ Chapter 47: Title           │ │
-│ │ ...                         │ │
-│ │ (scrollable list)           │ │
-│ │                             │ │
-│ └─────────────────────────────┘ │
-└─────────────────────────────────┘
-```
-
-**Behavior**:
-
-- Slides in from right
-- Current chapter highlighted
-- Click chapter → Jump to that chapter
-- Esc or click outside → Close
-- Acrylic blur background
+| Situation                      | Behaviour                                                                                 |
+| ------------------------------ | ----------------------------------------------------------------------------------------- |
+| Chapter fails to load (online) | `ErrorState` with Retry, a "go back" action and a technical-details toggle                |
+| Chapter unavailable offline    | `ErrorState variant="offline"` with a "Go to Library" action                              |
+| A single page fails to load    | That page shows "failed to load page N" with a hint; the rest of the chapter stays usable |
+| Render error                   | The route's `ErrorBoundary level="page"` fallback                                         |
 
 ---
 
 ## Accessibility
 
-### Screen Reader Support
-
-```html
-<div role="application" aria-label="Manga Reader">
-  <img role="img" aria-label="Page 12 of 24" alt="Manga page 12" src="..." />
-  <button aria-label="Previous page" onClick="{onPrevPage}">◀ Prev</button>
-</div>
-```
-
-### Keyboard Navigation
-
-- All controls keyboard accessible
-- Tab order: Top bar buttons → Bottom bar buttons
-- Focus indicators visible
+- The view is a `<main>`; the chapter title is the page heading
+- All header controls are real buttons with accessible names (Back, Chapters open/close, Settings, zoom percentage)
+- Everything above is reachable from the keyboard; Escape closes overlays before leaving the reader
+- The chapter list sidebar is labelled and its backdrop is a labelled control
+- Fluent popovers (settings and zoom) manage focus and Escape themselves
 
 ---
 
-## Performance Optimization
+## Layers (z-index)
 
-### Image Caching
-
-```typescript
-const imageCache = new Map<string, HTMLImageElement>()
-
-function preloadImage(url: string): Promise<HTMLImageElement> {
-  if (imageCache.has(url)) {
-    return Promise.resolve(imageCache.get(url)!)
-  }
-
-  return new Promise((resolve, reject) => {
-    const img = new Image()
-    img.onload = () => {
-      imageCache.set(url, img)
-      resolve(img)
-    }
-    img.onerror = reject
-    img.src = url
-  })
-}
-```
-
-### Memory Management
-
-- Limit cache to 20 images
-- Clear cache when exiting reader
-- Use WeakMap for automatic garbage collection
-
----
-
-## Summary
-
-DexReader's reader layout provides:
-
-✅ **Three Reading Modes**: Single page, double page, vertical scroll
-✅ **Intuitive Controls**: Auto-hiding bars, keyboard shortcuts
-✅ **Smart Navigation**: Click zones, auto-advance chapters
-✅ **Flexible Zoom**: Multiple fit modes, custom zoom with pan
-✅ **Smooth Loading**: Preloading, progress indicators, graceful errors
-✅ **Accessible**: Keyboard navigation, screen reader support
-✅ **Performant**: Image caching, memory management
-
-**Review Status**: ✅ Ready for implementation (P2-T07)
-
----
-
-_Reader layout specification created: 24 November 2025_
-_Part of P1-T01 deliverables_
+| Element                                        | z-index |
+| ---------------------------------------------- | ------- |
+| Page navigation indicator                      | 10      |
+| Header, zoom indicator, end-of-chapter overlay | 100     |
+| Chapter list overlay (backdrop)                | 200     |
+| Chapter list panel                             | 201     |

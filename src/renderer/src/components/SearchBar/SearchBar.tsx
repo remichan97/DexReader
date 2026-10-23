@@ -99,10 +99,9 @@ export interface SearchBarProps extends BaseComponentProps {
 /**
  * SearchBar component with debouncing and filter support, built on Fluent 2's `SearchBox`
  * (@fluentui/react-components). The search icon, clear (dismiss) button, focus underline,
- * and disabled styling all come from Fluent - the hand-rolled icon, clear button and
- * border/focus CSS are gone. What stays here is DexReader behaviour: debounced `onChange`,
- * immediate propagation of a clear, Ctrl+F to focus, Escape to clear, and the filter button
- * with its active-filter count.
+ * and disabled styling all come from Fluent. What this component adds is DexReader
+ * behaviour: debounced `onChange`, immediate propagation of a clear, Ctrl+F to focus, Escape
+ * to clear, and the filter button with its active-filter count.
  *
  * @example
  * ```tsx

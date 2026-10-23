@@ -1,18 +1,18 @@
 # Popover Component
 
-Provides contextual menus and content overlays following Windows 11 Fluent Design principles.
+Provides contextual content overlays anchored to a trigger. A thin wrapper over the Fluent 2 `Popover` with a position / trigger API.
 
 ## Features
 
-- **4 Position Variants**: Top, Right, Bottom, Left
-- **Auto-flip**: Automatically repositions if near viewport edges
+- **4 Position Variants**: Top, Right, Bottom, Left (mapped to Fluent's `above` / `after` / `below` / `before`)
+- **Auto-flip**: Fluent repositions the popover if it would overflow the viewport
 - **Dual Triggers**: Click or hover activation
-- **Click Outside to Close**: Automatically closes when clicking outside
-- **Escape Key Support**: Press Escape to close and return focus
-- **Portal Rendering**: Renders outside parent DOM hierarchy
+- **Click Outside to Close**: Closes when clicking outside
+- **Escape Key Support**: Press Escape to close and return focus to the trigger
+- **Portal Rendering**: Renders outside the parent DOM hierarchy
 - **Controlled/Uncontrolled**: Supports both modes
-- **Smooth Animations**: Direction-aware slide entrance with reduced-motion support
-- **Accessibility**: Proper `role="dialog"` and focus management
+- **Arrow Pointer**: Visual indicator pointing to the trigger
+- **Accessibility**: Fluent's `PopoverSurface` renders `role="dialog"` and manages focus
 
 ## Usage
 
@@ -71,26 +71,18 @@ function ControlledExample() {
 ## Behavior
 
 - **Click Trigger**: Toggle popover on click, closes on outside click or Escape
-- **Hover Trigger**: Opens on hover, stays open when hovering popover content, closes after brief delay when leaving
-- **Auto-positioning**: If popover would overflow viewport, automatically flips to opposite side
-- **Portal Rendering**: Uses React Portal to render at document.body for proper z-index
-- **Focus Management**: Returns focus to trigger when closed via Escape key
+- **Hover Trigger**: Opens on hover, stays open while the pointer is over the popover content, closes 100ms after the pointer leaves
+- **Auto-positioning**: If the popover would overflow the viewport, Fluent flips it to the opposite side
+- **Portal Rendering**: Rendered into a portal at the end of `document.body`
+- **Focus Management**: Returns focus to the trigger when closed via Escape
+- **Size Caps**: Fluent's popover surface has its own default width and padding; override them with `className` where a layout needs something different
 
 ## Accessibility
 
-- Uses proper `role="dialog"` attribute
-- Escape key support for keyboard users
-- Focus returns to trigger after closing
-- Respects `prefers-reduced-motion` for users who prefer reduced animations
-- High contrast mode support with increased border widths
+- The surface has `role="dialog"`
+- Escape closes the popover and returns focus to the trigger
+- The trigger is wired to the surface with the appropriate ARIA attributes by Fluent
 
-## Design Tokens
+## Styling
 
-Uses Windows 11 design system:
-
-- Background: `--win-bg-card`
-- Border: `--win-border-default`
-- Text: `--win-text-primary`
-- Shadow: `--win-shadow-lg`
-- Spacing: `--space-2`
-- Border radius: `--radius-md`
+Styling comes from Fluent 2 and the app's Fluent theme (surface, border and shadow follow light/dark mode). There is no stylesheet; pass `className` to adjust the popover surface.

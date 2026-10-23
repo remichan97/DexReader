@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [1.16.1] - 2026-10-18
+
+### Fixed
+
+- **Downloads**: The download badges in a manga's chapter list now show their status colours: accent while queued or downloading, green once downloaded and red when failed. They used to render grey, and the failed state had no styling at all
+- **Unlock screen**: The Gatekeeper unlock screen has an opaque background instead of a see-through blur of the app behind it, and its padlock is drawn in the on-accent colour
+- **Reader**: The page fade-in, the page opacity transition and the end-of-chapter overlay slide-up now run (their easing curve was never defined, so the browser skipped them), page images and the chapter sidebar get their shadows, and the page focus ring is drawn
+- **Library**: A manga card whose cover fails to load shows a styled placeholder (icon above its message) instead of unstyled text
+- **Settings**: The Settings header has its background again, the storage chart draws the DexReader segment, and the import-result, error and content-language list surfaces pick up the theme's colours and borders
+- **UI**: Text in History, the reader, the unlock screen and Security settings uses the intended caption, title and header sizes instead of falling back to the inherited size
+- **UI**: An input's validation message keeps its status icon on the same line as the text, instead of dropping it onto a line above
+- **UI**: The loading screens fill the window height, and the error boxes in the Gatekeeper dialogs get their tint and border
+
+### Changed
+
+- **UI**: Borderless link-style buttons no longer show a faint tint on hover, and checkboxes and the accent colour picker now show the keyboard focus ring, as the other controls do. Both are side effects of removing the global button and input styling that used to reach into every control
+- Internal: removed what the Fluent 2 migration left behind: 21 unused stylesheets, the unused `ErrorRecovery` and `Versions` components, the unused error message catalogue and error log buffer, about 130 dead selectors, 139 of the 190 utility classes, 38 unreferenced design tokens, and the props the Fluent wrappers ignored (`Radio` `checked`/`onChange`/`name`, `Skeleton` `noAnimation`, `ProgressBar` `animated`)
+- Internal: removed the unused `i18next-fs-backend`, `@types/i18next-fs-backend` and `@types/bcrypt` packages, and updated `http-cache-semantics` to 4.3.0 and `source-map-js` to 1.2.2
+- Internal: the window title is "DexReader" instead of the template's placeholder
+- Documentation: rewrote the architecture, design and component guides against the code as built: state management, database, IPC, filesystem security, MangaDex API, error handling, the menu bar, layout, navigation, responsive behaviour, the reader, design tokens and utility classes. They had described a design that was never built in places (a five-menu bar, `better-sqlite3`, a `useRetry` hook)
+
 ## [1.16.0] - 2026-10-12
 
 ### Added

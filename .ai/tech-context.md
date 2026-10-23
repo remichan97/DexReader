@@ -87,7 +87,6 @@ The renderer views/components tier is intentionally left without unit tests or a
 
 - `i18next@26.0.10` - i18n framework
 - `react-i18next@17.0.7` - React bindings for i18next
-- `i18next-fs-backend@2.6.5` - Filesystem backend for translations
 - Locales: `en-GB` (default), `en-US`, `vi-VN` (`src/locales/`)
 
 **Binary Serialization**:
@@ -105,7 +104,7 @@ The renderer views/components tier is intentionally left without unit tests or a
 - `@electron-toolkit/preload@3.0.2` - Preload script helpers
 - `@electron-toolkit/utils@4.0.0` - Common Electron utilities
 - `electron-updater@6.8.9` - Auto-update functionality
-- `electron-store@11.0.2` - Settings persistence with encryption support
+- `electron-store@11.0.2` - Settings persistence (plain JSON; only the gatekeeper's own store is encrypted)
 
 ---
 
@@ -262,7 +261,7 @@ All IPC handlers use `wrapIpcHandler` for consistent error handling:
 
 **Settings Manager** (`src/main/settings/settings-manager.ts`):
 
-- Persists app-wide settings to `AppData/settings.json` (electron-store v11, encrypted)
+- Persists app-wide settings to `settings.json` in Electron's `userData` folder (electron-store v11, not encrypted)
 - Schema domains live in `src/shared/types/settings/*` (app, appearance, downloads, language, logs, manga overrides, reader, reader performance, search, snapshot, system, update)
 - Loads on app startup with graceful fallback to defaults if corrupted
 
@@ -306,9 +305,9 @@ All IPC handlers use `wrapIpcHandler` for consistent error handling:
 - React class component for catching component errors
 - Fallback UI with 3 levels: app/page/component
 
-**Error Recovery** (`src/renderer/src/components/ErrorRecovery/`):
+**Error State** (`src/renderer/src/components/ErrorState/`):
 
-- Inline error UI with retry button
+- Error panel with retry button and optional technical details
 - Casual, user-friendly error display
 
 **Logging** (`src/main/services/logging/`, `src/renderer/src/services/logging.service.ts`):

@@ -63,15 +63,12 @@ export interface SelectProps extends BaseComponentProps, DisableableProps {
  * Select component, built on Fluent 2's `Field` + `Dropdown` (@fluentui/react-components).
  * Positioning (including auto-flip near viewport edges), keyboard navigation (arrow keys,
  * Home/End, type-to-find), click-outside/Escape dismissal, and the trigger button's own
- * expand icon all come from Fluent - the hand-rolled versions of all of these (manual
- * getBoundingClientRect flip math, a focused-index keyboard handler, a document mousedown
- * listener) are gone.
+ * expand icon all come from Fluent.
  *
- * Narrower than the original: `multiple`, `searchable`, `error`, and `emptyMessage` were
- * dropped - confirmed zero real call sites used any of them (every consumer is a plain
- * single-value select), same call made for `ProgressRing`'s unused props in Tier 1. Add
- * them back (multiselect via Fluent's own `multiselect` prop, searchable by swapping to
- * Fluent's `Combobox`) if a real use case shows up.
+ * Deliberately narrow: single-value only, with no `multiple`, `searchable`, `error` or
+ * `emptyMessage`, because every consumer is a plain single-value select. If a real use case
+ * shows up, add multiselect via Fluent's own `multiselect` prop, or searching by swapping to
+ * Fluent's `Combobox`.
  *
  * @example
  * ```tsx

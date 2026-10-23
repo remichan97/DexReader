@@ -51,6 +51,19 @@
   transform: scale(1.05);
 }
 
+/* Cover Error (when the image fails to load) */
+.manga-card__cover-error {
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  background: var(--win-bg-subtle);
+  color: var(--win-text-disabled);
+  font-size: var(--win-font-size-caption);
+  text-align: center;
+}
+
 /* Loading Skeleton */
 .manga-card__cover-skeleton {
   position: absolute;
@@ -72,20 +85,6 @@
   100% {
     background-position: -200% 0;
   }
-}
-
-/* Cover Fallback (when image fails to load) */
-.manga-card__cover-fallback {
-  width: 100%;
-  height: 100%;
-  background: var(--win-bg-subtle);
-  color: var(--win-text-disabled);
-}
-
-.manga-card__cover-fallback-icon {
-  width: 48px;
-  height: 48px;
-  opacity: 0.5;
 }
 
 /* Hover Overlay */
@@ -184,7 +183,7 @@
 }
 
 [data-theme='dark'] .manga-card__download-overlay-icon {
-  color: var(--color-text-primary);
+  color: var(--win-text-primary);
 }
 
 /* Favorite Button */
@@ -303,8 +302,6 @@
 }
 
 /* Metadata */
-.manga-card__metadata {
-}
 
 .manga-card__author {
   font-family: var(--win-font-family);
@@ -433,11 +430,6 @@
   bottom: auto;
   left: auto;
   right: 0;
-}
-
-.manga-card--list .manga-card__progress-fill {
-  width: 100%;
-  height: var(--progress-height, 0%);
 }
 
 /* Loading State */

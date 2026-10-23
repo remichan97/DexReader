@@ -36,95 +36,12 @@
   min-height: 100vh;
 }
 
-.reader-view__loading-text {
-  margin-top: 16px;
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-body);
-}
-
 /* Error state */
 .reader-view__error {
   padding: 48px 24px;
   min-height: 100vh;
 }
 
-.reader-view__error .error-recovery {
-  max-width: 500px;
-  width: 100%;
-  text-align: center;
-}
-
-.reader-view__error .error-recovery__icon {
-  color: var(--win-warning);
-  margin-bottom: 16px;
-}
-
-/* Dark mode: Make warning icon and ghost buttons more visible */
-.reader-view[data-theme='dark'] .error-recovery__icon {
-  color: #ffc83d;
-}
-
-.reader-view[data-theme='dark'] .error-recovery__actions button[class*='ghost'] {
-  background-color: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: var(--color-text-primary);
-}
-
-.reader-view[data-theme='dark'] .error-recovery__actions button[class*='ghost']:hover {
-  background-color: rgba(255, 255, 255, 0.12);
-}
-
-.reader-view__error .error-recovery__title {
-  font-size: var(--font-size-title);
-  font-weight: var(--win-font-weight-semibold);
-  color: var(--color-text-primary);
-  margin: 0 0 12px 0;
-}
-
-.reader-view__error .error-recovery__message {
-  font-size: var(--font-size-body);
-  color: var(--color-text-secondary);
-  margin: 0 0 24px 0;
-  line-height: 1.5;
-}
-
-.reader-view__error .error-recovery__actions {
-  margin-bottom: 16px;
-}
-
-.reader-view__error .error-recovery__technical-details {
-  margin-top: 24px;
-  padding: 16px;
-  background-color: var(--color-bg-tertiary);
-  border-radius: 8px;
-  text-align: left;
-  font-size: var(--font-size-caption);
-  color: var(--color-text-secondary);
-  max-width: 100%;
-  overflow-x: auto;
-}
-
-.reader-view__error .error-recovery__technical-details code {
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-  font-size: 11px;
-  background-color: var(--color-bg-secondary);
-  padding: 2px 4px;
-  border-radius: 3px;
-}
-
-.reader-view__error .error-recovery__technical-details pre {
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  margin: 0;
-  padding: 8px;
-  background-color: var(--color-bg-secondary);
-  border-radius: 4px;
-  overflow-x: auto;
-}
-
-/* ==================== */
-/* Reader Header        */
 /* ==================== */
 
 .reader-header {
@@ -164,34 +81,20 @@
 }
 
 .reader-header__page-counter {
-  font-size: var(--font-size-body);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-secondary);
-}
-
-.reader-header__current-page {
-  color: var(--color-text-primary);
-  font-weight: var(--win-font-weight-semibold);
-}
-
-.reader-header__separator {
-  color: var(--color-text-tertiary);
-  margin: 0 2px;
-}
-
-.reader-header__total-pages {
+  font-size: var(--win-font-size-body);
+  font-weight: 500;
   color: var(--color-text-secondary);
 }
 
 /* Incognito indicator badge */
 .reader-header__incognito-badge {
   padding: 4px 10px;
-  background-color: var(--fill-subtle-secondary);
+  background-color: var(--win-bg-hover);
   border-radius: 4px;
   font-size: 12px;
   font-weight: 500;
-  color: var(--text-secondary);
-  border: 1px solid var(--stroke-surface-flyout);
+  color: var(--win-text-secondary);
+  border: 1px solid var(--win-border-default);
 }
 
 .reader-view[data-theme='dark'] .reader-header__incognito-badge {
@@ -199,46 +102,6 @@
   border-color: rgba(255, 255, 255, 0.12);
   color: var(--color-text-secondary);
 }
-
-/* ==================== */
-/* Zoom Controls        */
-/* ==================== */
-
-.zoom-controls {
-  padding: 4px 8px;
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 6px;
-  border: 1px solid var(--color-border-subtle);
-}
-
-.zoom-controls__fit-modes {
-  /* Removed display: flex and gap, using utility classes */
-}
-
-.zoom-controls__zoom-buttons {
-  /* Removed display: flex, align-items: center, gap: 8px - using utility classes */
-}
-
-.zoom-controls__level {
-  font-size: var(--font-size-caption);
-  color: var(--color-text-secondary);
-  min-width: 48px;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Dark mode overrides */
-.reader-view[data-theme='dark'] .zoom-controls {
-  background-color: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.12);
-}
-
-.reader-view[data-theme='dark'] .zoom-controls__level {
-  color: #b3b3b3;
-}
-
-/* ==================== */
-/* Zoom Indicator       */
 /* ==================== */
 
 .zoom-indicator {
@@ -273,9 +136,6 @@
     transform: translate(-50%, -50%) scale(1);
   }
 }
-
-/* ==================== */
-/* Page Container       */
 /* ==================== */
 
 .reader-page-container {
@@ -292,7 +152,7 @@
 
 .reader-page-loading__text {
   margin-top: 16px;
-  font-size: var(--font-size-body);
+  font-size: var(--win-font-size-body);
   color: var(--color-text-secondary);
 }
 
@@ -305,16 +165,13 @@
 
 .reader-page-error p {
   margin: 8px 0;
-  font-size: var(--font-size-body);
+  font-size: var(--win-font-size-body);
 }
 
 .reader-page-error__hint {
-  font-size: var(--font-size-caption);
+  font-size: var(--win-font-size-caption);
   color: var(--color-text-tertiary);
 }
-
-/* ==================== */
-/* Page Display         */
 /* ==================== */
 
 .reader-page {
@@ -322,7 +179,7 @@
   height: 100%;
   cursor: pointer;
   outline: none;
-  transition: opacity 0.15s var(--spring-easing);
+  transition: opacity 0.15s var(--ease-spring);
   position: relative;
 }
 
@@ -391,7 +248,7 @@
 }
 
 .reader-page:focus-visible {
-  outline: 2px solid var(--color-accent-primary);
+  outline: 2px solid var(--win-accent);
   outline-offset: 4px;
   border-radius: 8px;
 }
@@ -402,7 +259,7 @@
   max-width: 100%;
   height: auto;
   border-radius: 4px;
-  box-shadow: var(--shadow-elevation-1);
+  box-shadow: var(--shadow-sm);
   user-select: none;
   -webkit-user-drag: none;
   /* GPU acceleration for smooth transforms */
@@ -410,7 +267,7 @@
   transform: translateZ(0);
   backface-visibility: hidden;
   -webkit-font-smoothing: subpixel-antialiased;
-  animation: fadeIn 0.2s var(--spring-easing);
+  animation: fadeIn 0.2s var(--ease-spring);
 }
 
 /* Fit modes */
@@ -433,9 +290,6 @@
   max-width: 100%;
   max-height: calc(100vh - 56px - 48px);
 }
-
-/* ==================== */
-/* Responsive Design    */
 /* ==================== */
 
 @media (max-width: 768px) {
@@ -445,12 +299,12 @@
   }
 
   .reader-header__title {
-    font-size: var(--font-size-body);
+    font-size: var(--win-font-size-body);
     padding: 0 12px;
   }
 
   .reader-header__page-counter {
-    font-size: var(--font-size-caption);
+    font-size: var(--win-font-size-caption);
     min-width: 80px;
   }
 
@@ -479,9 +333,6 @@
     padding: 12px;
   }
 }
-
-/* ==================== */
-/* Animations           */
 /* ==================== */
 
 @keyframes fadeIn {
@@ -492,9 +343,6 @@
     opacity: 1;
   }
 }
-
-/* ==================== */
-/* End of Chapter       */
 /* ==================== */
 
 .end-of-chapter-overlay {
@@ -505,7 +353,7 @@
   background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.95) 20%);
   padding: 80px 24px 32px;
   min-height: 300px;
-  animation: slideUp 0.3s var(--spring-easing);
+  animation: slideUp 0.3s var(--ease-spring);
   z-index: 100;
 }
 
@@ -527,14 +375,14 @@
 }
 
 .end-of-chapter-overlay__title {
-  font-size: var(--font-size-title);
+  font-size: var(--win-font-size-title);
   font-weight: var(--win-font-weight-semibold);
   color: var(--color-text-primary);
   margin: 0 0 8px 0;
 }
 
 .end-of-chapter-overlay__subtitle {
-  font-size: var(--font-size-body);
+  font-size: var(--win-font-size-body);
   color: var(--color-text-secondary);
   margin: 0 0 32px 0;
 }
@@ -549,9 +397,9 @@
 }
 
 .end-of-chapter-overlay__chapter-info {
-  font-size: var(--font-size-caption);
+  font-size: var(--win-font-size-caption);
   opacity: 0.8;
-  font-weight: var(--font-weight-regular);
+  font-weight: var(--win-font-weight-regular);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -560,7 +408,7 @@
 
 .end-of-chapter-overlay__no-chapters {
   color: var(--color-text-secondary);
-  font-size: var(--font-size-body);
+  font-size: var(--win-font-size-body);
   margin: 16px 0;
 }
 
@@ -613,10 +461,6 @@
   background-color: rgba(255, 255, 255, 0.16);
 }
 
-/* ==================== */
-/* Chapter List Sidebar */
-/* ==================== */
-
 /* Overlay backdrop */
 .chapter-list-overlay {
   position: fixed;
@@ -648,7 +492,7 @@
   height: 100vh;
   background: #f3f3f3; /* Solid light background */
   border-left: 1px solid var(--color-border-subtle);
-  box-shadow: var(--elevation-shadow-8);
+  box-shadow: var(--shadow-lg);
   z-index: 201;
   transition: right 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
@@ -677,13 +521,6 @@
   flex: 1 1 auto;
   overflow-y: auto;
   padding: 8px;
-}
-
-.chapter-list-sidebar__empty {
-  padding: 32px 16px;
-  text-align: center;
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-body);
 }
 
 /* Chapter list */
@@ -730,14 +567,14 @@
 }
 
 .chapter-list-sidebar__item-number {
-  font-size: var(--font-size-body);
+  font-size: var(--win-font-size-body);
   font-weight: var(--win-font-weight-semibold);
   color: var(--color-text-primary);
   margin-bottom: 4px;
 }
 
 .chapter-list-sidebar__item-title {
-  font-size: var(--font-size-caption);
+  font-size: var(--win-font-size-caption);
   color: var(--color-text-secondary);
   margin-bottom: 4px;
   overflow: hidden;
@@ -746,7 +583,7 @@
 }
 
 .chapter-list-sidebar__item-meta {
-  font-size: var(--font-size-caption);
+  font-size: var(--win-font-size-caption);
   color: var(--color-text-tertiary);
 }
 
@@ -782,9 +619,6 @@
 .reader-view[data-theme='dark'] .chapter-list-sidebar__header button:active {
   background-color: rgba(255, 255, 255, 0.16);
 }
-
-/* ==================== */
-/* Vertical Scroll Mode */
 /* ==================== */
 
 .vertical-scroll-container {
@@ -813,11 +647,6 @@
   display: block;
 }
 
-.vertical-scroll-page__loading {
-  min-height: 400px;
-  width: 100%;
-}
-
 .vertical-scroll-page__error {
   min-height: 400px;
   width: 100%;
@@ -831,7 +660,7 @@
 
 .vertical-scroll-page__error p {
   margin: 0;
-  font-size: var(--font-size-body);
+  font-size: var(--win-font-size-body);
 }
 
 /* Dark mode for vertical scroll */
@@ -846,9 +675,6 @@
     padding: 0 8px;
   }
 }
-
-/* ==================== */
-/* Accessibility        */
 /* ==================== */
 
 @media (prefers-reduced-motion: reduce) {
@@ -859,9 +685,6 @@
     transition: none;
   }
 }
-
-/* ==================== */
-/* Double Page Mode     */
 /* ==================== */
 
 .double-page-container {

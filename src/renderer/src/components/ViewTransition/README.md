@@ -106,7 +106,11 @@ export function ViewTransition({ children }: ViewTransitionProps): React.JSX.Ele
 }
 ```
 
-The magic is in the `key` prop on the parent, not complex state management inside the component.
+The transition is still driven by the `key` prop on the parent. The component itself now also guards against a scrollbar flash (see below), so the real implementation is a little longer than this sketch.
+
+### Scrollbar-Flash Guard
+
+The slide is a `translateY(8px) → 0` transform, and transforms count towards an ancestor's scrollable overflow. A view that exactly fills its scroll container (an empty view, or one that hosts its own scrolling) would briefly overflow it by 8px, flashing a scrollbar and shifting the layout for the length of the animation. To prevent that, `ViewTransition` finds the nearest vertically scrolling ancestor and holds its `overflow-y` hidden while the animation runs, restoring it on `animationend` (with a 500ms fallback if the event never fires). It does nothing when the view genuinely overflows its container, since the scrollbar belongs there.
 
 ### Why No useLocation Inside?
 

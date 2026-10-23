@@ -53,8 +53,8 @@ export interface ButtonProps
 
 // Fluent's Button has no built-in "danger"/"warning" appearance (those are MessageBar/Badge
 // intents, not Button ones), so they're layered on top of appearance="primary" with the same
-// --win-error/--win-warning tokens the hand-rolled variants used, rather than introducing new
-// Fluent status-palette tokens that could shift the colour. Pseudo-selector shape mirrors
+// --win-error/--win-warning tokens, rather than introducing new Fluent status-palette tokens
+// that could shift the colour. Pseudo-selector shape mirrors
 // Fluent's own primary appearance (see @fluentui/react-button's useButtonStyles.styles.raw.js)
 // so active/focus precedence behaves the same as every other appearance.
 const useVariantStyles = makeStyles({

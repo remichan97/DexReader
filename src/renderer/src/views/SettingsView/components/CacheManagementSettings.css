@@ -1,5 +1,3 @@
-/* Cache Management Settings Component Styles */
-
 /* Loading State */
 
 .cache-settings__loading {
@@ -57,9 +55,6 @@
 
 .cache-settings__actions {
   margin-top: var(--space-3);
-}
-
-.cache-settings__actions--multiple {
 }
 
 /* Section Divider */

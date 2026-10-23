@@ -42,7 +42,7 @@ export function StorageChart({
               className="storage-chart__segment flex items-center justify-center"
               style={{
                 width: `${dexReaderPercent}%`,
-                backgroundColor: 'var(--accent-color)',
+                backgroundColor: 'var(--win-accent)',
                 opacity: 0.9
               }}
               title={t('settings:storage.dexReaderTooltip', { size: formatBytes(dexReaderSize) })}

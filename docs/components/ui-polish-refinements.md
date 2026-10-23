@@ -6,11 +6,15 @@
 
 > **Summary**: After implementing all 17 core components (Steps 1-18), comprehensive user testing revealed opportunities for polish. This document details 9 refinements that brought the UI from functional to polished Windows 11 Fluent Design.
 
+> **Status (v1.16.0)**: This is a historical record of the December 2025 polish pass. In v1.16.0 the shared form, overlay and feedback components moved to Fluent 2 (`@fluentui/react-components`), which supplies its own focus, hover and animation behaviour. The CSS described in sections 1, 2, 3 and 6 (`.input`, `.search-bar__*`, the `box-shadow: none !important` focus override) no longer exists, so those sections are kept for the reasoning only and are marked **Superseded**. Sections 4, 5, 8 and 9 still describe code that exists (`ViewTransition`, `Sidebar`, the icon set). See `ui-component-library.md` for the current approach.
+
 ---
 
 ## Refinements Applied
 
-### 1. SearchBar Styling Consistency
+### 1. SearchBar Styling Consistency (Superseded)
+
+> **Superseded in v1.16.0**: `SearchBar` and `Input` now wrap Fluent 2's `SearchBox` and `Input`, so they share one set of dimensions and focus behaviour by construction. The `.search-bar__input` CSS below has been removed.
 
 **Issue**: SearchBar had different dimensions and styling than Input component
 
@@ -28,7 +32,9 @@
 
 ---
 
-### 2. Focus/Hover Conflict Fix
+### 2. Focus/Hover Conflict Fix (Superseded)
+
+> **Superseded in v1.16.0**: Fluent handles the hover and focus states of its inputs; the `.search-bar__container` selector below no longer exists.
 
 **Issue**: When SearchBar was focused and user hovered mouse, the accent bottom border disappeared
 
@@ -46,7 +52,9 @@
 
 ---
 
-### 3. Global Focus Glow Removal
+### 3. Global Focus Glow Removal (Superseded)
+
+> **Superseded in v1.16.0**: Fluent's `Input` draws its own focus indicator (the accent bottom border). The global `input:focus { outline: none }` rule in `main.css` has since been removed too, along with the `box-shadow` / `!important` workaround below.
 
 **Issue**: Despite component CSS, textboxes still showed browser default blue outer glow on focus
 
@@ -115,6 +123,8 @@ const location = useLocation()
 
 ### 5. Sidebar Animated Indicator
 
+> **Still current**: `Sidebar` is a DexReader component, not a Fluent wrapper. Its tooltips now use the Fluent-backed `Tooltip` with `relationship="label"`.
+
 **Issue**: Sidebar had no visual feedback when switching between navigation items
 
 **Solution**: Added sliding blue accent bar positioned behind active item
@@ -157,7 +167,9 @@ useEffect(() => {
 
 ---
 
-### 6. Input Focus Animation Evolution
+### 6. Input Focus Animation Evolution (Superseded)
+
+> **Superseded in v1.16.0**: The focus styling is now Fluent's. The history below explains why the project settled on a simple bottom-border transition, which is also what Fluent's input does.
 
 **Journey**: Material Design → Scale Effect → Clean Fluent Design
 
@@ -309,7 +321,7 @@ interface SidebarItem {
 
 ### 3. Spring Animations Where Appropriate
 
-- **Where**: Sidebar indicator, Tabs indicator (moving elements)
+- **Where**: Sidebar indicator (moving element). The Tabs indicator is now Fluent's own
 - **Why**: Spring easing creates satisfying, natural feedback
 - **Formula**: `cubic-bezier(0.34, 1.56, 0.64, 1)` - P2 > 1.0 causes overshoot
 
@@ -322,33 +334,33 @@ interface SidebarItem {
 ### 5. Consistency Across Inputs
 
 - **Rule**: All textboxes must have identical styling
-- **Applied to**: Input, SearchBar (32px height, 2px border, same focus)
+- **Applied to**: Input, SearchBar (since v1.16.0 both come from Fluent 2's input, which keeps them identical)
 - **Why**: Unified experience, predictable behavior
 
 ---
 
 ## Component Polish Status
 
-| Component      | Polish Applied | Key Changes                                            |
-| -------------- | -------------- | ------------------------------------------------------ |
-| Input          | ✅             | Clean focus (no glow), 32px height, simple transition  |
-| SearchBar      | ✅             | Matches Input exactly, `:not(:focus-within)` on hover  |
-| Sidebar        | ✅             | Spring-animated indicator, Fluent icons Regular/Filled |
-| ViewTransition | ✅             | Key-based remounting, no flash                         |
-| Button         | ✅             | (No changes needed - already polished)                 |
-| Modal          | ✅             | (No changes needed - already polished)                 |
-| Tabs           | ✅             | (Already had spring-animated indicator)                |
-| Checkbox       | ✅             | (No changes needed - already polished)                 |
-| Switch         | ✅             | (Already polished with centered knob)                  |
-| Dropdown       | ✅             | (No changes needed - already polished)                 |
-| Toast          | ✅             | (No changes needed - already polished)                 |
-| Badge          | ✅             | (No changes needed - already polished)                 |
-| ProgressBar    | ✅             | (No changes needed - already polished)                 |
-| ProgressRing   | ✅             | (No changes needed - already polished)                 |
-| Skeleton       | ✅             | (No changes needed - already polished)                 |
-| MangaCard      | ✅             | (No changes needed - already polished)                 |
-| Tooltip        | ✅             | (No changes needed - already polished)                 |
-| Popover        | ✅             | (No changes needed - already polished)                 |
+| Component      | Polish Applied | Key Changes (current status)                                                     |
+| -------------- | -------------- | -------------------------------------------------------------------------------- |
+| Input          | ✅             | Dec 2025: clean focus, 32px height. **v1.16.0: Fluent 2 `Input` inside `Field`** |
+| SearchBar      | ✅             | Dec 2025: matched Input. **v1.16.0: Fluent 2 `SearchBox`**                       |
+| Sidebar        | ✅             | Spring-animated indicator, Fluent icons Regular/Filled (own component)           |
+| ViewTransition | ✅             | Key-based remounting, no flash; scrollbar-flash guard added in v1.16.0 (own)     |
+| Button         | ✅             | v1.16.0: Fluent 2 `Button`                                                       |
+| Modal          | ✅             | v1.16.0: Fluent 2 `Dialog`                                                       |
+| Tabs           | ✅             | v1.16.0: Fluent 2 `TabList` / `Tab`                                              |
+| Checkbox       | ✅             | v1.16.0: Fluent 2 `Checkbox`                                                     |
+| Switch         | ✅             | v1.16.0: Fluent 2 `Switch`                                                       |
+| Select         | ✅             | v1.16.0: Fluent 2 `Dropdown` (this table previously listed "Dropdown")           |
+| Toast          | ✅             | v1.16.0: Fluent 2 `Toast`, driven by `toastStore`                                |
+| Badge          | ✅             | v1.16.0: Fluent 2 `Badge`                                                        |
+| ProgressBar    | ✅             | v1.16.0: Fluent 2 `ProgressBar`                                                  |
+| ProgressRing   | ✅             | v1.16.0: Fluent 2 `Spinner` (indeterminate only)                                 |
+| Skeleton       | ✅             | v1.16.0: Fluent 2 `Skeleton`; `SkeletonGrid` stays custom                        |
+| MangaCard      | ✅             | Own component; hover overlay replaced the context menu in v1.16.0                |
+| Tooltip        | ✅             | v1.16.0: Fluent 2 `Tooltip`                                                      |
+| Popover        | ✅             | v1.16.0: Fluent 2 `Popover`                                                      |
 
 ---
 
@@ -412,7 +424,7 @@ The ~2KB difference for official Fluent icons was worth the authenticity gain.
 
 ### 5. Global Styles Can Interfere
 
-Global `input:focus` rule caused issues. Prefer component-scoped styles with `!important` when needed.
+A global `input:focus` rule caused issues. Prefer component-scoped styles: a global element selector also reaches third-party components such as Fluent's inner `<input>` elements. `main.css` no longer has any for form controls.
 
 ---
 
@@ -428,7 +440,7 @@ Global `input:focus` rule caused issues. Prefer component-scoped styles with `!i
 
 ### Component Additions
 
-- **Accordion**: For collapsible content sections
+- ~~**Accordion**: For collapsible content sections~~ (done: Fluent 2 `Accordion` is used in the Browse filter dialog)
 - **DatePicker**: For date selection (Phase 3)
 - **ColorPicker**: For theming customization (Phase 3)
 - **Tree View**: For nested folder structures (Phase 4)

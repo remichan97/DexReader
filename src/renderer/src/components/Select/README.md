@@ -67,7 +67,7 @@ interface SelectOption {
 
 ## Not supported
 
-`multiple`, `searchable`, `error` and `emptyMessage` existed on the hand-rolled version and were removed in v1.16.0 because nothing used them. If a real need appears:
+`multiple`, `searchable`, `error` and `emptyMessage` are not supported because nothing uses them. If a real need appears:
 
 - **Several values**: Fluent's `Dropdown` has a `multiselect` prop (the list stays open while you tick items)
 - **Searching**: use Fluent's `Combobox`, or `TagPicker` (see `components/TagPicker`) when picks should show as chips

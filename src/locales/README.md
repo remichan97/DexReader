@@ -95,10 +95,9 @@ General UI elements used across multiple views:
 
 Application menu structure:
 
-- File menu (settings, updates, exit)
+- File menu (updates, settings, incognito and offline toggles, exit)
 - View menu (navigation items)
 - Library menu (favourites, collections, import/export)
-- Tools menu (storage, cache, history)
 - Help menu (documentation, issues, about)
 
 ### errors.json (100+ strings)

@@ -88,19 +88,19 @@ export function MangaDetailView(): JSX.Element {
           </Button>
         </div>
         <div className="manga-detail-error flex flex-col items-center justify-center">
-          <div className="error-recovery flex flex-col items-center gap-3">
-            <div className="error-recovery__icon">
+          <div className="manga-detail-error__content flex flex-col items-center gap-3">
+            <div className="manga-detail-error__icon">
               {isOfflineError ? <CloudOff48Regular /> : <Warning48Regular />}
             </div>
-            <h3 className="error-recovery__title">
+            <h3 className="manga-detail-error__title">
               {isOfflineError
                 ? t('common:message.info.youreOffline')
                 : t('mangaDetail:errorState.title')}
             </h3>
-            <p className="error-recovery__message">
+            <p className="manga-detail-error__message">
               {isOfflineError ? data.error.message : t('mangaDetail:errorState.message')}
             </p>
-            <div className="error-recovery__actions flex gap-2">
+            <div className="manga-detail-error__actions flex gap-2">
               {isOfflineError ? (
                 <Button variant="primary" onClick={() => navigate('/library')}>
                   {t('mangaDetail:offlineError.action')}
@@ -122,7 +122,7 @@ export function MangaDetailView(): JSX.Element {
               )}
             </div>
             {!isOfflineError && showMainErrorDetails && data.error && (
-              <div className="error-recovery__technical-details">
+              <div className="manga-detail-error__technical-details">
                 <div>
                   <strong>{t('common:label.error')}</strong> {data.error.message}
                 </div>

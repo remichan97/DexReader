@@ -23,11 +23,6 @@ export interface SkeletonProps extends BaseComponentProps {
    * @default 1
    */
   lines?: number
-
-  /**
-   * Disable shimmer animation
-   */
-  noAnimation?: boolean
 }
 
 /**
@@ -61,8 +56,6 @@ export function Skeleton({
   width,
   height,
   lines = 1,
-  // Fluent's Skeleton has no "disable animation" toggle (only 'wave'/'pulse'), and no call
-  // site in this codebase currently passes this prop - kept for API compatibility.
   className = '',
   'aria-label': ariaLabel
 }: SkeletonProps): React.JSX.Element {

@@ -3,9 +3,6 @@
  * Following Windows 11 Fluent Design principles
  */
 
-.dexreader-import-dialog {
-}
-
 .dexreader-import-dialog .import-file-info {
   padding: var(--space-3);
   background: var(--win-bg-subtle);
@@ -52,14 +49,11 @@
   line-height: 1.5;
 }
 
-.dexreader-import-dialog .import-sections {
-}
-
 .dexreader-import-dialog .section-item {
   padding: var(--space-3);
   border: 1px solid var(--win-border-default);
   border-radius: var(--radius-sm);
-  background: var(--win-bg-default);
+  background: var(--win-bg-subtle);
 }
 
 .dexreader-import-dialog .section-icon {
@@ -93,13 +87,13 @@
 .dexreader-import-dialog .import-warning {
   padding: var(--space-3);
   background: var(--win-bg-subtle);
-  border-left: 3px solid var(--win-attention);
+  border-left: 3px solid var(--win-warning);
   border-radius: var(--radius-sm);
 }
 
 .dexreader-import-dialog .warning-icon {
   flex-shrink: 0;
-  color: var(--win-attention);
+  color: var(--win-warning);
   width: 20px;
   height: 20px;
   margin-top: 2px;
