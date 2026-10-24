@@ -16,7 +16,7 @@ export function createMenu(state: MenuState): Menu {
   const template: MenuItemConstructorOptions[] = [
     buildFileMenu(mainWindow, state),
     buildViewMenu(mainWindow),
-    buildLibraryMenu(mainWindow, state),
+    buildLibraryMenu(mainWindow),
     buildHelpMenu(mainWindow)
   ]
 

@@ -1,63 +1,10 @@
 import { BrowserWindow, dialog, MenuItemConstructorOptions } from 'electron'
-import { MenuState } from './menu-state'
 import i18next from '../i18n/i18n.config'
 
-export function buildLibraryMenu(
-  mainWindow: BrowserWindow,
-  state: MenuState = {}
-): MenuItemConstructorOptions {
+export function buildLibraryMenu(mainWindow: BrowserWindow): MenuItemConstructorOptions {
   return {
     label: i18next.t('menu:library.label'),
     submenu: [
-      {
-        id: 'add-to-favorites',
-        label: state.isFavorited
-          ? i18next.t('menu:library.removeFromFavourites')
-          : i18next.t('menu:library.addToFavourites'),
-        accelerator: 'CmdOrCtrl+D',
-        enabled: state.canAddToFavorites ?? false,
-        click: () => {
-          mainWindow.webContents.send('add-to-favorites')
-        }
-      },
-      {
-        label: i18next.t('menu:library.createCollection'),
-        accelerator: 'CmdOrCtrl+Shift+N',
-        click: () => {
-          mainWindow.webContents.send('create-collection')
-        }
-      },
-      {
-        label: i18next.t('menu:library.manageCollections'),
-        accelerator: 'CmdOrCtrl+Shift+C',
-        click: () => {
-          mainWindow.webContents.send('manage-collections')
-        }
-      },
-      { type: 'separator' },
-      {
-        id: 'download-chapter',
-        label: state.chapterTitle
-          ? i18next.t('menu:library.downloadChapterWithTitle', { chapterTitle: state.chapterTitle })
-          : i18next.t('menu:library.downloadChapter'),
-        accelerator: 'CmdOrCtrl+Shift+D',
-        enabled: state.canDownloadChapter ?? false,
-        click: () => {
-          mainWindow.webContents.send('download-chapter')
-        }
-      },
-      {
-        id: 'download-manga',
-        label: state.mangaTitle
-          ? i18next.t('menu:library.downloadMangaWithTitle', { mangaTitle: state.mangaTitle })
-          : i18next.t('menu:library.downloadManga'),
-        accelerator: 'CmdOrCtrl+Alt+D',
-        enabled: state.canDownloadManga ?? false,
-        click: () => {
-          mainWindow.webContents.send('download-manga')
-        }
-      },
-      { type: 'separator' },
       {
         label: i18next.t('menu:library.importLibrary'),
         submenu: [
