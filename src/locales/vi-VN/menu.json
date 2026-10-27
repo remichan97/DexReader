@@ -43,6 +43,7 @@
         "title": "Xuất sang Mihon/Tachiyomi",
         "message": "Trước khi tiếp tục, thao tác này sẽ xuất thư viện manga của bạn bao gồm:",
         "detail": "• Metadata và bìa manga\n• Bộ sưu tập (như danh mục)\n• Tiến trình và lịch sử đọc\n• Metadata chương\n\nLưu ý: Cài đặt ứng dụng (giao diện, tùy chọn) là riêng của DexReader và không thể xuất sang Tachiyomi/Mihon.",
+        "deprecation": "Lưu ý: tính năng xuất sang định dạng Mihon/Tachiyomi sắp bị gỡ bỏ và sẽ không còn ở bản DexReader kế tiếp. Mihon 0.21.x có thể khôi phục tệp này, nhưng các phiên bản Mihon sau đó sẽ không (hãy khôi phục trong Mihon 0.21.x trước, rồi mới cập nhật Mihon). Các bản fork của Tachiyomi có thể vẫn đọc được tệp này. Bản sao lưu DexReader (.dexreader) vẫn sẽ được hỗ trợ.",
         "buttonCancel": "Hủy",
         "buttonProceed": "Tiếp tục..."
       },

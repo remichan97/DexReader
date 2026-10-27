@@ -86,7 +86,10 @@ export function buildLibraryMenu(mainWindow: BrowserWindow): MenuItemConstructor
                   type: 'warning',
                   title: i18next.t('menu:library.dialogs.exportMihonTachiyomiWarning.title'),
                   message: i18next.t('menu:library.dialogs.exportMihonTachiyomiWarning.message'),
-                  detail: i18next.t('menu:library.dialogs.exportMihonTachiyomiWarning.detail'),
+                  detail: [
+                    i18next.t('menu:library.dialogs.exportMihonTachiyomiWarning.detail'),
+                    i18next.t('menu:library.dialogs.exportMihonTachiyomiWarning.deprecation')
+                  ].join('\n\n'),
                   buttons: [
                     i18next.t('menu:library.dialogs.exportMihonTachiyomiWarning.buttonCancel'),
                     i18next.t('menu:library.dialogs.exportMihonTachiyomiWarning.buttonProceed')

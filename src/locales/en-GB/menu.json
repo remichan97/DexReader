@@ -43,6 +43,7 @@
         "title": "Export to Mihon/Tachiyomi",
         "message": "Before you proceed, this action will export your manga library including:",
         "detail": "• Manga metadata and covers\n• Collections (as categories)\n• Reading progress and history\n• Chapter metadata\n\nPlease note: App settings (themes, preferences) are DexReader-specific and cannot be exported to Tachiyomi/Mihon.",
+        "deprecation": "Notice: exporting to the Mihon/Tachiyomi format is being retired and will be removed in the next DexReader release. Mihon 0.21.x can restore the file, but later Mihon versions will not (restore it in Mihon 0.21.x first, then update Mihon). Tachiyomi forks may still read it. The DexReader backup (.dexreader) will remain available.",
         "buttonCancel": "Cancel",
         "buttonProceed": "Proceed..."
       },
