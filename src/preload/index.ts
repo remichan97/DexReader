@@ -253,7 +253,8 @@ const collections = {
 }
 
 const mihon = {
-  importBackup: (filePath: string) => ipcRenderer.invoke('mihon:import-backup', filePath),
+  importBackup: (filePath: string, includeMangaIds?: string[]) =>
+    ipcRenderer.invoke('mihon:import-backup', filePath, includeMangaIds),
   cancelImport: () => ipcRenderer.invoke('mihon:cancel-import'),
   exportBackup: (savePath: string) => ipcRenderer.invoke('mihon:export-backup', savePath)
 }

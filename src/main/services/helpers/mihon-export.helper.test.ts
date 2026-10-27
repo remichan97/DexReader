@@ -105,12 +105,12 @@ describe('buildBackupChapter', () => {
     })
   })
 
-  it('leaves metadata-derived fields undefined when there is no matching metadata', () => {
+  it('leaves metadata-derived fields undefined, except the name Mihon requires, when there is no matching metadata', () => {
     const result = mihonExport.buildBackupChapter(chapterProgress(), undefined)
 
     expect(result).toEqual({
       url: '/chapter/chapter-1',
-      name: undefined,
+      name: '',
       scanlator: undefined,
       read: true,
       lastPageRead: 5,

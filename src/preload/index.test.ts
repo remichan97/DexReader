@@ -355,7 +355,13 @@ const INVOKE_CASES: InvokeCase[] = [
   [
     'mihon.importBackup',
     'mihon:import-backup',
-    ['/tmp/backup.tachibk'],
+    ['/tmp/backup.tachibk', undefined],
+    () => globalThis.mihon.importBackup
+  ],
+  [
+    'mihon.importBackup (adding back skipped titles)',
+    'mihon:import-backup',
+    ['/tmp/backup.tachibk', ['2f6a1c2e-0000-4000-8000-000000000001']],
     () => globalThis.mihon.importBackup
   ],
   ['mihon.cancelImport', 'mihon:cancel-import', [], () => globalThis.mihon.cancelImport],

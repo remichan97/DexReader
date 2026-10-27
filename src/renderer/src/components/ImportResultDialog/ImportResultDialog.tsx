@@ -1,5 +1,6 @@
 import { Modal } from '../Modal'
 import { Button } from '../Button'
+import { Checkbox } from '../Checkbox'
 import {
   CheckmarkCircle48Regular,
   Warning48Regular,
@@ -23,6 +24,10 @@ export interface ImportResult {
     reason: string
   }>
   importedMangaIds?: string[]
+  /** MangaDex titles from other-language sources that were left out and can be added back */
+  skippedOtherLanguage?: Array<{ mangaId: string; title: string }>
+  /** Entries from other (non-MangaDex) sources, which can't be imported */
+  ignoredOtherSourceCount?: number
 }
 
 export interface ImportResultDialogProps {
@@ -45,6 +50,17 @@ export interface ImportResultDialogProps {
    * Called when user wants to view imported manga in library
    */
   readonly onViewLibrary?: () => void
+
+  /**
+   * Called when the user adds the other-language titles they picked back to the library.
+   * Without it, the skipped titles are not offered.
+   */
+  readonly onAddSkipped?: (mangaIds: string[]) => void
+
+  /**
+   * Whether adding the picked titles is in progress
+   */
+  readonly isAddingSkipped?: boolean
 }
 
 /**
@@ -64,10 +80,13 @@ export function ImportResultDialog({
   open,
   result,
   onClose,
-  onViewLibrary
+  onViewLibrary,
+  onAddSkipped,
+  isAddingSkipped = false
 }: Readonly<ImportResultDialogProps>): React.JSX.Element {
   const { t } = useTranslation(['dialogs', 'common'])
   const [showErrors, setShowErrors] = useState(false)
+  const [selectedSkipped, setSelectedSkipped] = useState<Set<string>>(new Set())
 
   if (!result) {
     return <></>
@@ -76,6 +95,29 @@ export function ImportResultDialog({
   const { importedMangaCount, skippedMangaCount, failedMangaCount, errors } = result
   const total = importedMangaCount + skippedMangaCount + failedMangaCount
   const hasErrors = errors && errors.length > 0
+  const skippedTitles = onAddSkipped ? (result.skippedOtherLanguage ?? []) : []
+  // A title that has since been added drops out of the list, and so out of the selection
+  const pickedIds = skippedTitles
+    .filter((title) => selectedSkipped.has(title.mangaId))
+    .map((title) => title.mangaId)
+  const allSkippedPicked = skippedTitles.length > 0 && pickedIds.length === skippedTitles.length
+  const ignoredCount = result.ignoredOtherSourceCount ?? 0
+
+  const toggleSkipped = (mangaId: string, checked: boolean): void => {
+    setSelectedSkipped((previous) => {
+      const next = new Set(previous)
+      if (checked) {
+        next.add(mangaId)
+      } else {
+        next.delete(mangaId)
+      }
+      return next
+    })
+  }
+
+  const toggleAllSkipped = (checked: boolean): void => {
+    setSelectedSkipped(checked ? new Set(skippedTitles.map((title) => title.mangaId)) : new Set())
+  }
 
   // Determine dialog status
   let status: 'success' | 'warning' | 'error' = 'success'
@@ -148,6 +190,53 @@ export function ImportResultDialog({
             </p>
           )}
         </div>
+
+        {ignoredCount > 0 && (
+          <p className="import-result-dialog__note">
+            {t('dialogs:importResult.ignoredSources', { count: ignoredCount })}
+          </p>
+        )}
+
+        {skippedTitles.length > 0 && (
+          <div className="import-result-dialog__skipped">
+            <div className="import-result-dialog__skipped-title">
+              {t('dialogs:importResult.skippedLanguages.title', { count: skippedTitles.length })}
+            </div>
+            <p className="import-result-dialog__note">
+              {t('dialogs:importResult.skippedLanguages.description')}
+            </p>
+
+            <Checkbox
+              checked={allSkippedPicked}
+              indeterminate={pickedIds.length > 0 && !allSkippedPicked}
+              onChange={toggleAllSkipped}
+              disabled={isAddingSkipped}
+              label={t('dialogs:importResult.skippedLanguages.selectAll')}
+            />
+
+            <div className="import-result-dialog__skipped-list">
+              {skippedTitles.map((title) => (
+                <Checkbox
+                  key={title.mangaId}
+                  checked={selectedSkipped.has(title.mangaId)}
+                  onChange={(checked) => toggleSkipped(title.mangaId, checked)}
+                  disabled={isAddingSkipped}
+                  label={title.title}
+                />
+              ))}
+            </div>
+
+            <Button
+              variant="secondary"
+              disabled={pickedIds.length === 0 || isAddingSkipped}
+              onClick={() => onAddSkipped?.(pickedIds)}
+            >
+              {isAddingSkipped
+                ? t('dialogs:importResult.skippedLanguages.adding')
+                : t('dialogs:importResult.skippedLanguages.add', { count: pickedIds.length })}
+            </Button>
+          </div>
+        )}
 
         {hasErrors && (
           <div className="import-result-dialog__errors">

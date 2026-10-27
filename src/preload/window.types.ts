@@ -255,7 +255,10 @@ interface Collections {
 }
 
 interface Mihon {
-  importBackup: (filePath: string) => Promise<IpcResponse<MihonImportContract>>
+  importBackup: (
+    filePath: string,
+    includeMangaIds?: string[]
+  ) => Promise<IpcResponse<MihonImportContract>>
   cancelImport: () => Promise<IpcResponse<void>>
   exportBackup: (savePath: string) => Promise<IpcResponse<MihonExportContract>>
 }

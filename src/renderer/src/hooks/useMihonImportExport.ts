@@ -1,19 +1,39 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useToastStore } from '@renderer/stores'
 import type { ImportResult } from '@renderer/components/ImportResultDialog'
 import { rendererLog } from '@renderer/services/logging.service'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import { releaseBackupLock, tryAcquireBackupLock } from '@renderer/utils/backupOperationLock'
 import { refreshAfterImport } from '@renderer/utils/refreshAfterImport'
+import type { ISerializeError } from '@shared/contracts/ipc/ipc-response.contract'
 
 interface UseMihonImportExportReturn {
   // State
   isImporting: boolean
+  isAddingSkipped: boolean
   importResult: ImportResult | null
 
   // Handlers
   clearImportResult: () => void
   handleCancelImport: () => Promise<void>
+  addSkippedToLibrary: (mangaIds: string[]) => Promise<void>
+}
+
+/**
+ * Fold the result of adding skipped titles back into the result of the original import, so the
+ * dialog keeps showing the whole picture. The list of skipped titles is replaced by what is
+ * still left out.
+ */
+function mergeAddBackResult(original: ImportResult, added: ImportResult): ImportResult {
+  return {
+    ...original,
+    importedMangaCount: original.importedMangaCount + added.importedMangaCount,
+    skippedMangaCount: original.skippedMangaCount + added.skippedMangaCount,
+    failedMangaCount: original.failedMangaCount + added.failedMangaCount,
+    errors: [...(original.errors ?? []), ...(added.errors ?? [])],
+    importedMangaIds: [...(original.importedMangaIds ?? []), ...(added.importedMangaIds ?? [])],
+    skippedOtherLanguage: added.skippedOtherLanguage ?? []
+  }
 }
 
 /**
@@ -25,9 +45,23 @@ interface UseMihonImportExportReturn {
  */
 export function useMihonImportExport(): UseMihonImportExportReturn {
   const [isImporting, setIsImporting] = useState(false)
+  const [isAddingSkipped, setIsAddingSkipped] = useState(false)
   const [importResult, setImportResult] = useState<ImportResult | null>(null)
+  // The file the shown result came from, so skipped titles can be added back from it
+  const [importedFilePath, setImportedFilePath] = useState<string | null>(null)
   const show = useToastStore((state) => state.show)
-  const { t } = useTranslation('common')
+  const { t } = useTranslation(['common', 'dialogs'])
+
+  // Specific, translated wording for the failures the importer knows about
+  const describeFailure = useCallback(
+    (error: ISerializeError | undefined, fallback: string): string => {
+      if (error?.code?.startsWith('MIHON_BACKUP_')) {
+        return t(`dialogs:mihonImport.errors.${error.code}`, { defaultValue: error.message })
+      }
+      return error?.message || fallback
+    },
+    [t]
+  )
 
   // Listen for import events from main process
   useEffect(() => {
@@ -46,12 +80,14 @@ export function useMihonImportExport(): UseMihonImportExportReturn {
       // Start import
       setIsImporting(true)
       setImportResult(null)
+      setImportedFilePath(null)
 
       try {
         const response = await globalThis.mihon.importBackup(filePath)
 
         if (response.success && response.data) {
           setImportResult(response.data)
+          setImportedFilePath(filePath)
 
           // Refresh everything the import may have changed, wherever the user currently is
           await refreshAfterImport()
@@ -67,7 +103,7 @@ export function useMihonImportExport(): UseMihonImportExportReturn {
           // Import failed
           show({
             title: 'Import Failed',
-            message: response.error?.message || 'Could not import backup file',
+            message: describeFailure(response.error, 'Could not import backup file'),
             variant: 'error',
             duration: 4000
           })
@@ -87,7 +123,7 @@ export function useMihonImportExport(): UseMihonImportExportReturn {
     })
 
     return removeListener
-  }, [show, t])
+  }, [show, t, describeFailure])
 
   // Listen for export events from main process
   useEffect(() => {
@@ -154,12 +190,67 @@ export function useMihonImportExport(): UseMihonImportExportReturn {
 
   const clearImportResult = (): void => {
     setImportResult(null)
+    setImportedFilePath(null)
+  }
+
+  const addSkippedToLibrary = async (mangaIds: string[]): Promise<void> => {
+    if (!importedFilePath || !importResult || mangaIds.length === 0) return
+
+    if (!tryAcquireBackupLock()) {
+      show({
+        title: t('backup.busyTitle'),
+        message: t('backup.busyMessage'),
+        variant: 'warning',
+        duration: 4000
+      })
+      return
+    }
+
+    setIsAddingSkipped(true)
+    try {
+      const response = await globalThis.mihon.importBackup(importedFilePath, mangaIds)
+
+      if (response.success && response.data) {
+        const added = response.data
+        setImportResult((current) => (current ? mergeAddBackResult(current, added) : added))
+        await refreshAfterImport()
+
+        show({
+          title: t('dialogs:importResult.skippedLanguages.addedTitle'),
+          message: t('dialogs:importResult.skippedLanguages.addedMessage', {
+            count: added.importedMangaCount
+          }),
+          variant: added.failedMangaCount > 0 ? 'warning' : 'success',
+          duration: 4000
+        })
+      } else {
+        show({
+          title: t('dialogs:importResult.skippedLanguages.addFailedTitle'),
+          message: describeFailure(response.error, 'Could not import backup file'),
+          variant: 'error',
+          duration: 4000
+        })
+      }
+    } catch (error) {
+      rendererLog.error('[useMihonImportExport] Error adding skipped titles:', error)
+      show({
+        title: t('dialogs:importResult.skippedLanguages.addFailedTitle'),
+        message: 'An error occurred during import',
+        variant: 'error',
+        duration: 4000
+      })
+    } finally {
+      releaseBackupLock()
+      setIsAddingSkipped(false)
+    }
   }
 
   return {
     isImporting,
+    isAddingSkipped,
     importResult,
     clearImportResult,
-    handleCancelImport
+    handleCancelImport,
+    addSkippedToLibrary
   }
 }

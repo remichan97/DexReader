@@ -19,8 +19,14 @@ import { useSecureNavigation } from '@renderer/hooks/useSecureNavigation'
 export function BackupHost(): JSX.Element {
   const { secureNavigate } = useSecureNavigation()
 
-  const { isImporting, importResult, clearImportResult, handleCancelImport } =
-    useMihonImportExport()
+  const {
+    isImporting,
+    isAddingSkipped,
+    importResult,
+    clearImportResult,
+    handleCancelImport,
+    addSkippedToLibrary
+  } = useMihonImportExport()
 
   const {
     exportDialogOpen,
@@ -56,6 +62,8 @@ export function BackupHost(): JSX.Element {
             // The import can run from any view, so go to the library rather than assume we're in it
             void secureNavigate('/library')
           }}
+          onAddSkipped={(mangaIds) => void addSkippedToLibrary(mangaIds)}
+          isAddingSkipped={isAddingSkipped}
         />
       )}
 

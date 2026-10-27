@@ -238,6 +238,205 @@ describe('export', () => {
   })
 })
 
+describe('import failures', () => {
+  it.each([
+    'MIHON_BACKUP_JSON',
+    'MIHON_BACKUP_EMPTY',
+    'MIHON_BACKUP_UNRECOGNISED',
+    'MIHON_BACKUP_FILE_MISSING'
+  ])('shows the translated message for %s', async (code) => {
+    importBackup.mockResolvedValue({ success: false, error: { code, message: 'raw message' } })
+    renderHook(() => useMihonImportExport())
+
+    await fireImport('a.tachibk')
+
+    expect(show).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Import Failed',
+        message: `dialogs:mihonImport.errors.${code}`
+      })
+    )
+  })
+
+  it('shows the raw message for an error it does not know', async () => {
+    importBackup.mockResolvedValue({
+      success: false,
+      error: { code: 'EACCES', message: 'permission denied' }
+    })
+    renderHook(() => useMihonImportExport())
+
+    await fireImport('a.tachibk')
+
+    expect(show).toHaveBeenCalledWith(expect.objectContaining({ message: 'permission denied' }))
+  })
+})
+
+describe('addSkippedToLibrary', () => {
+  const FIRST_RESULT = {
+    importedMangaCount: 4,
+    skippedMangaCount: 1,
+    failedMangaCount: 0,
+    errors: [],
+    importedMangaIds: ['a', 'b', 'c', 'd'],
+    skippedOtherLanguage: [
+      { mangaId: 'vi-1', title: 'One' },
+      { mangaId: 'vi-2', title: 'Two' }
+    ],
+    ignoredOtherSourceCount: 3
+  }
+
+  const ADD_BACK_RESULT = {
+    importedMangaCount: 1,
+    skippedMangaCount: 0,
+    failedMangaCount: 0,
+    importedMangaIds: ['vi-1'],
+    skippedOtherLanguage: [{ mangaId: 'vi-2', title: 'Two' }]
+  }
+
+  // Import once, so there is a result (and a file) to add skipped titles back from
+  async function renderWithResult(): Promise<{
+    result: { current: ReturnType<typeof useMihonImportExport> }
+  }> {
+    importBackup.mockResolvedValueOnce({ success: true, data: FIRST_RESULT })
+    const rendered = renderHook(() => useMihonImportExport())
+    await fireImport('C:/backups/library.tachibk')
+    refreshAfterImport.mockClear()
+    importBackup.mockClear()
+    show.mockClear()
+    return rendered
+  }
+
+  it('re-imports the same file with the chosen ids', async () => {
+    const { result } = await renderWithResult()
+    importBackup.mockResolvedValue({ success: true, data: ADD_BACK_RESULT })
+
+    await act(async () => {
+      await result.current.addSkippedToLibrary(['vi-1'])
+    })
+
+    expect(importBackup).toHaveBeenCalledWith('C:/backups/library.tachibk', ['vi-1'])
+    expect(refreshAfterImport).toHaveBeenCalledTimes(1)
+  })
+
+  it('folds the result into the original and keeps only what is still left out', async () => {
+    const { result } = await renderWithResult()
+    importBackup.mockResolvedValue({ success: true, data: ADD_BACK_RESULT })
+
+    await act(async () => {
+      await result.current.addSkippedToLibrary(['vi-1'])
+    })
+
+    expect(result.current.importResult).toMatchObject({
+      importedMangaCount: 5,
+      skippedMangaCount: 1,
+      importedMangaIds: ['a', 'b', 'c', 'd', 'vi-1'],
+      skippedOtherLanguage: [{ mangaId: 'vi-2', title: 'Two' }],
+      // The first pass's count stays; the second pass doesn't report one
+      ignoredOtherSourceCount: 3
+    })
+    expect(show).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'dialogs:importResult.skippedLanguages.addedTitle',
+        variant: 'success'
+      })
+    )
+  })
+
+  it('shows progress while adding, and releases the lock afterwards', async () => {
+    const { result } = await renderWithResult()
+    let finish: (value: unknown) => void = () => undefined
+    importBackup.mockReturnValue(new Promise((resolve) => (finish = resolve)))
+
+    let pending: Promise<void> = Promise.resolve()
+    act(() => {
+      pending = result.current.addSkippedToLibrary(['vi-1'])
+    })
+
+    expect(result.current.isAddingSkipped).toBe(true)
+    expect(isBackupLockHeld()).toBe(true)
+
+    await act(async () => {
+      finish({ success: true, data: ADD_BACK_RESULT })
+      await pending
+    })
+
+    expect(result.current.isAddingSkipped).toBe(false)
+    expect(isBackupLockHeld()).toBe(false)
+  })
+
+  it('tells the user when the file has moved, and keeps the list as it was', async () => {
+    const { result } = await renderWithResult()
+    importBackup.mockResolvedValue({
+      success: false,
+      error: { code: 'MIHON_BACKUP_FILE_MISSING', message: 'The backup file could not be found' }
+    })
+
+    await act(async () => {
+      await result.current.addSkippedToLibrary(['vi-1'])
+    })
+
+    expect(show).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'dialogs:importResult.skippedLanguages.addFailedTitle',
+        message: 'dialogs:mihonImport.errors.MIHON_BACKUP_FILE_MISSING',
+        variant: 'error'
+      })
+    )
+    expect(result.current.importResult?.skippedOtherLanguage).toHaveLength(2)
+    expect(refreshAfterImport).not.toHaveBeenCalled()
+  })
+
+  it('reports an exception and still releases the lock', async () => {
+    const { result } = await renderWithResult()
+    importBackup.mockRejectedValue(new Error('boom'))
+
+    await act(async () => {
+      await result.current.addSkippedToLibrary(['vi-1'])
+    })
+
+    expect(isBackupLockHeld()).toBe(false)
+    expect(result.current.isAddingSkipped).toBe(false)
+    expect(show).toHaveBeenCalledWith(expect.objectContaining({ variant: 'error' }))
+  })
+
+  it('is refused while another backup operation is active', async () => {
+    const { result } = await renderWithResult()
+    tryAcquireBackupLock()
+
+    await act(async () => {
+      await result.current.addSkippedToLibrary(['vi-1'])
+    })
+
+    expect(importBackup).not.toHaveBeenCalled()
+    expect(show).toHaveBeenCalledWith(expect.objectContaining({ title: 'backup.busyTitle' }))
+  })
+
+  it('does nothing without a result, or without any chosen titles', async () => {
+    const empty = renderHook(() => useMihonImportExport())
+    await act(async () => {
+      await empty.result.current.addSkippedToLibrary(['vi-1'])
+    })
+    expect(importBackup).not.toHaveBeenCalled()
+
+    const { result } = await renderWithResult()
+    await act(async () => {
+      await result.current.addSkippedToLibrary([])
+    })
+    expect(importBackup).not.toHaveBeenCalled()
+  })
+
+  it('forgets the file once the result is dismissed', async () => {
+    const { result } = await renderWithResult()
+
+    act(() => result.current.clearImportResult())
+    await act(async () => {
+      await result.current.addSkippedToLibrary(['vi-1'])
+    })
+
+    expect(importBackup).not.toHaveBeenCalled()
+  })
+})
+
 describe('handleCancelImport', () => {
   it('tells the main process and confirms to the user', async () => {
     cancelImport.mockResolvedValue({ success: true })

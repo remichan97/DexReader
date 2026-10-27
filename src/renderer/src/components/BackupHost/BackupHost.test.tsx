@@ -12,9 +12,11 @@ vi.mock('@renderer/hooks/useSecureNavigation', () => ({
 
 const mihonState = {
   isImporting: false,
+  isAddingSkipped: false,
   importResult: null as unknown,
   clearImportResult: vi.fn(),
-  handleCancelImport: vi.fn()
+  handleCancelImport: vi.fn(),
+  addSkippedToLibrary: vi.fn()
 }
 vi.mock('@renderer/hooks/useMihonImportExport', () => ({
   useMihonImportExport: () => mihonState
@@ -42,8 +44,17 @@ vi.mock('@renderer/components/ImportProgressDialog', () => ({
     props.open ? <div data-testid="import-progress" /> : null
 }))
 vi.mock('@renderer/components/ImportResultDialog', () => ({
-  ImportResultDialog: (props: { onViewLibrary: () => void }) => (
-    <button data-testid="import-result" onClick={props.onViewLibrary} />
+  ImportResultDialog: (props: {
+    onViewLibrary: () => void
+    onAddSkipped: (mangaIds: string[]) => void
+    isAddingSkipped: boolean
+  }) => (
+    <>
+      <button data-testid="import-result" onClick={props.onViewLibrary} />
+      <button data-testid="add-skipped" onClick={() => props.onAddSkipped(['vi-1'])}>
+        {String(props.isAddingSkipped)}
+      </button>
+    </>
   )
 }))
 vi.mock('@renderer/components/DexReaderExportDialog', () => ({
@@ -59,6 +70,7 @@ beforeEach(() => {
   vi.clearAllMocks()
   mihonState.isImporting = false
   mihonState.importResult = null
+  mihonState.isAddingSkipped = false
   Object.assign(dexReaderState, {
     exportDialogOpen: false,
     exportFilePath: null,
@@ -111,5 +123,16 @@ describe('BackupHost', () => {
 
     expect(mihonState.clearImportResult).toHaveBeenCalled()
     expect(secureNavigate).toHaveBeenCalledWith('/library')
+  })
+
+  it('passes the titles the user picked to add back, and whether that is in progress', () => {
+    mihonState.importResult = { importedMangaCount: 1 }
+    mihonState.isAddingSkipped = true
+
+    render(<BackupHost />)
+    screen.getByTestId('add-skipped').click()
+
+    expect(mihonState.addSkippedToLibrary).toHaveBeenCalledWith(['vi-1'])
+    expect(screen.getByTestId('add-skipped').textContent).toBe('true')
   })
 })

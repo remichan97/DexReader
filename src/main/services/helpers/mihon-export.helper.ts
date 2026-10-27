@@ -58,7 +58,8 @@ class MihonExportHelper {
   ): BackupChapter {
     return {
       url: this.buildChapterUrl(chapterProgress.chapterId),
-      name: metadata?.title,
+      // Mihon's model requires a chapter name, and the backup schema no longer enforces it
+      name: metadata?.title ?? '',
       scanlator: metadata?.scanlatorGroup,
       read: chapterProgress.completed,
       lastPageRead: chapterProgress.currentPage,

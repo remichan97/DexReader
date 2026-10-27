@@ -1,6 +1,5 @@
 import { BackupChapter } from './backup-chapter.type'
 import { BackupHistory } from './backup-history.type'
-import { BackupTracking } from './backup-tracking.type'
 
 export interface BackupManga {
   source: string
@@ -15,6 +14,5 @@ export interface BackupManga {
   history: BackupHistory[]
   chapters: BackupChapter[]
   categories: number[]
-  tracking?: BackupTracking[]
   favorite?: boolean
 }
