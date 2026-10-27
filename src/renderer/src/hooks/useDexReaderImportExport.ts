@@ -1,8 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useToastStore } from '@renderer/stores'
 import type { ExportOptions } from '@renderer/components/DexReaderExportDialog'
-import type { DexReaderImportContract } from '../../../../../preload/window.types'
+import type { DexReaderImportContract } from '../../../preload/window.types'
 import { rendererLog } from '@renderer/services/logging.service'
+import { useTranslation } from '@renderer/hooks/useTranslation'
+import { releaseBackupLock, tryAcquireBackupLock } from '@renderer/utils/backupOperationLock'
+import { refreshAfterImport } from '@renderer/utils/refreshAfterImport'
 
 interface UseDexReaderImportExportReturn {
   // State
@@ -24,37 +27,88 @@ interface UseDexReaderImportExportReturn {
   handleCloseImportDialog: () => void
 }
 
-export function useDexReaderImportExport(
-  loadFavourites: () => Promise<void>,
-  loadCollections: () => Promise<void>
-): UseDexReaderImportExportReturn {
+/**
+ * Drives the DexReader (.dexreader) backup import and export dialogs from the menu events.
+ *
+ * Mounted once at app level (see BackupHost), so it works from every view. Each flow holds the
+ * shared backup lock from the moment the menu event arrives until its dialog is closed, so a
+ * second menu pick can't open another dialog on top.
+ */
+export function useDexReaderImportExport(): UseDexReaderImportExportReturn {
   const [exportDialogOpen, setExportDialogOpen] = useState(false)
   const [exportFilePath, setExportFilePath] = useState<string | null>(null)
   const [isExporting, setIsExporting] = useState(false)
   const [exportError, setExportError] = useState<string | null>(null)
   const [importDialogOpen, setImportDialogOpen] = useState(false)
   const [importFilePath, setImportFilePath] = useState<string | null>(null)
+  const holdsExportLockRef = useRef(false)
+  const holdsImportLockRef = useRef(false)
 
   const show = useToastStore((state) => state.show)
+  const { t } = useTranslation('common')
+
+  const releaseExportLock = (): void => {
+    if (holdsExportLockRef.current) {
+      holdsExportLockRef.current = false
+      releaseBackupLock()
+    }
+  }
+
+  const releaseImportLock = (): void => {
+    if (holdsImportLockRef.current) {
+      holdsImportLockRef.current = false
+      releaseBackupLock()
+    }
+  }
 
   // Listen for DexReader export events from main process
   useEffect(() => {
     const removeListener = globalThis.api.onExportLibrary((filePath: string) => {
+      if (!tryAcquireBackupLock()) {
+        show({
+          title: t('backup.busyTitle'),
+          message: t('backup.busyMessage'),
+          variant: 'warning',
+          duration: 4000
+        })
+        return
+      }
+
+      holdsExportLockRef.current = true
       setExportFilePath(filePath)
       setExportDialogOpen(true)
     })
 
     return removeListener
-  }, [])
+  }, [show, t])
 
   // Listen for DexReader import events from main process
   useEffect(() => {
     const removeListener = globalThis.api.onImportLibrary((filePath: string) => {
+      if (!tryAcquireBackupLock()) {
+        show({
+          title: t('backup.busyTitle'),
+          message: t('backup.busyMessage'),
+          variant: 'warning',
+          duration: 4000
+        })
+        return
+      }
+
+      holdsImportLockRef.current = true
       setImportFilePath(filePath)
       setImportDialogOpen(true)
     })
 
     return removeListener
+  }, [show, t])
+
+  // Never leave the lock held if the host goes away mid-operation
+  useEffect(() => {
+    return () => {
+      releaseExportLock()
+      releaseImportLock()
+    }
   }, [])
 
   const handleExport = async (options: ExportOptions): Promise<void> => {
@@ -78,6 +132,7 @@ export function useDexReaderImportExport(
         setExportDialogOpen(false)
         setExportFilePath(null)
         setExportError(null)
+        releaseExportLock()
       } else {
         // Show error inline
         const errorMessage = response.error?.message || 'Could not export library'
@@ -97,13 +152,13 @@ export function useDexReaderImportExport(
       setExportDialogOpen(false)
       setExportFilePath(null)
       setExportError(null)
+      releaseExportLock()
     }
   }
 
   const handleImportComplete = async (result: DexReaderImportContract): Promise<void> => {
-    // Refresh library to show imported manga
-    await loadFavourites()
-    await loadCollections()
+    // Refresh everything the import may have changed, wherever the user currently is
+    await refreshAfterImport()
 
     // Build success message
     const parts: string[] = []
@@ -147,6 +202,7 @@ export function useDexReaderImportExport(
   const handleCloseImportDialog = (): void => {
     setImportDialogOpen(false)
     setImportFilePath(null)
+    releaseImportLock()
   }
 
   return {

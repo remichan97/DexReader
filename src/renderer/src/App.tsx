@@ -6,6 +6,7 @@ import { AppShell } from './layouts/AppShell'
 import { AppRoutes } from './router'
 import { useAccentColor } from './hooks/useAccentColor'
 import { KeyboardShortcutsHandler } from './components/KeyboardShortcutsHandler'
+import { BackupHost } from './components/BackupHost'
 import { useIncognitoListener } from './hooks/useIncognitoListener'
 import { useConnectivityListener } from './hooks/useConnectivityListener'
 import { useGatekeeperGuard } from './hooks/useGatekeeperGuard'
@@ -118,11 +119,16 @@ function AppContent(): React.JSX.Element {
     )
   }
 
+  // BackupHost sits at the same position in both layouts below, so React keeps it (and any
+  // backup dialog or operation in progress) mounted when navigating between the Reader and
+  // the rest of the app.
+
   // Reader gets full screen without sidebar
   if (isReaderRoute) {
     return (
       <SecureNavigationProvider onNavigate={handleNavigate}>
         <KeyboardShortcutsHandler />
+        <BackupHost />
         <AppRoutes startupRoute={startupRoute} />
         {isClosing && <ClosingOverlay />}
         <GatekeeperReauthModal
@@ -138,6 +144,7 @@ function AppContent(): React.JSX.Element {
   return (
     <SecureNavigationProvider onNavigate={handleNavigate}>
       <KeyboardShortcutsHandler />
+      <BackupHost />
       <AppShell
         showUpdateBanner={showUpdateBanner}
         updateVersion={updateVersion}

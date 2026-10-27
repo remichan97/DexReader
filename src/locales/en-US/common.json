@@ -224,5 +224,9 @@
     "moveUpAriaLabel": "Move {{item}} up in priority",
     "moveDownAriaLabel": "Move {{item}} down in priority",
     "removeAriaLabel": "Remove {{item}} from list"
+  },
+  "backup": {
+    "busyTitle": "Backup already in progress",
+    "busyMessage": "Finish or close the current import or export before starting another."
   }
 }

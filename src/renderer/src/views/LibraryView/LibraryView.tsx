@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Button as FluentButton, ToggleButton } from '@fluentui/react-components'
 import { originFrom } from '@renderer/utils/navigationOrigin'
@@ -13,10 +13,6 @@ import { LoadingState } from '@renderer/components/LoadingState'
 import { EmptyState } from '@renderer/components/EmptyState'
 import { CreateCollectionDialog } from '@renderer/components/CreateCollectionDialog'
 import { CollectionPickerDialog } from '@renderer/components/CollectionPickerDialog'
-import { ImportProgressDialog } from '@renderer/components/ImportProgressDialog'
-import { ImportResultDialog } from '@renderer/components/ImportResultDialog'
-import { DexReaderExportDialog } from '@renderer/components/DexReaderExportDialog'
-import { DexReaderImportDialog } from '@renderer/components/DexReaderImportDialog'
 import { useLibraryStore, useCollectionsStore, useToastStore } from '@renderer/stores'
 import { useConnectivityStore } from '@renderer/stores/connectivityStore'
 import { handleUnfavourite } from '@renderer/utils/unfavouriteHandler'
@@ -34,8 +30,6 @@ import { CollectionContextMenu } from './components/CollectionContextMenu'
 import { EditCollectionModal } from './components/EditCollectionModal'
 import { useLibraryFilters } from './hooks/useLibraryFilters'
 import { useCollectionManager } from './hooks/useCollectionManager'
-import { useMihonImportExport } from './hooks/useMihonImportExport'
-import { useDexReaderImportExport } from './hooks/useDexReaderImportExport'
 import './LibraryView.css'
 import { rendererLog } from '@renderer/services/logging.service'
 import { useTranslation } from '@renderer/hooks/useTranslation'
@@ -57,6 +51,7 @@ export function LibraryView(): JSX.Element {
   const [mangaList, setMangaList] = useState<MangaWithMetadataContract[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const hasLoadedMangaListRef = useRef(false)
 
   // Stores - narrow selectors so this view doesn't re-render on unrelated
   // store field changes (e.g. loading/error flags this component never reads)
@@ -89,24 +84,6 @@ export function LibraryView(): JSX.Element {
     reloadCollectionManga
   } = useCollectionManager()
 
-  const { isImporting, importResult, clearImportResult, handleCancelImport } = useMihonImportExport(
-    loadFavourites,
-    loadCollections
-  )
-
-  const {
-    exportDialogOpen,
-    exportFilePath,
-    isExporting,
-    exportError,
-    importDialogOpen,
-    importFilePath,
-    handleExport,
-    handleCloseExportDialog,
-    handleImportComplete,
-    handleCloseImportDialog
-  } = useDexReaderImportExport(loadFavourites, loadCollections)
-
   // Load favourites and collections on mount
   useEffect(() => {
     loadFavourites() // Keep store updated for other components
@@ -133,12 +110,41 @@ export function LibraryView(): JSX.Element {
         setError('Failed to load library')
         setMangaList([])
       } finally {
+        hasLoadedMangaListRef.current = true
         setLoading(false)
       }
     }
 
     void loadMangaList()
   }, [includeDownloaded])
+
+  // The library can change without this view acting on it (a backup imported from the menu
+  // while this view is open), so keep the grid in step with the favourites store. Silent: no
+  // loading state, the grid just updates in place. Skipped until the first load has finished.
+  useEffect(() => {
+    if (!hasLoadedMangaListRef.current) return
+
+    let cancelled = false
+
+    const refreshMangaList = async (): Promise<void> => {
+      try {
+        const response = await globalThis.library.getLibraryManga({ includeDownloaded })
+        if (!cancelled && response.success && response.data) {
+          setMangaList(response.data)
+        }
+      } catch (err) {
+        rendererLog.error('[LibraryView] Failed to refresh manga list:', err)
+      }
+    }
+
+    void refreshMangaList()
+
+    return () => {
+      cancelled = true
+    }
+    // includeDownloaded has its own (loading) effect above; only favourites changes belong here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [favourites])
 
   // Persist toggle preference
   useEffect(() => {
@@ -502,45 +508,6 @@ export function LibraryView(): JSX.Element {
           onSaveComplete={reloadCollectionManga}
         />
       )}
-
-      {/* Import Progress Dialog */}
-      <ImportProgressDialog
-        open={isImporting}
-        current={0}
-        total={0}
-        onCancel={handleCancelImport}
-      />
-
-      {/* Import Result Dialog */}
-      {importResult && (
-        <ImportResultDialog
-          open={!!importResult}
-          result={importResult}
-          onClose={() => clearImportResult()}
-          onViewLibrary={() => {
-            clearImportResult()
-            // Already in library, just scroll to top
-            globalThis.scrollTo({ top: 0, behavior: 'smooth' })
-          }}
-        />
-      )}
-
-      {/* DexReader Export Dialog */}
-      <DexReaderExportDialog
-        isOpen={exportDialogOpen}
-        savePath={exportFilePath}
-        onClose={handleCloseExportDialog}
-        onExport={handleExport}
-        isExporting={isExporting}
-        error={exportError}
-      />
-
-      <DexReaderImportDialog
-        isOpen={importDialogOpen}
-        filePath={importFilePath}
-        onClose={handleCloseImportDialog}
-        onImportComplete={handleImportComplete}
-      />
     </div>
   )
 }

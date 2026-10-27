@@ -210,6 +210,58 @@ describe('progressStore', () => {
     })
   })
 
+  describe('reloadCachedProgress', () => {
+    it('re-reads every cached manga from the database', async () => {
+      useProgressStore.setState({
+        progressMap: new Map([
+          ['manga-1', { mangaId: 'manga-1', lastChapterId: 'old-1' }],
+          ['manga-2', { mangaId: 'manga-2', lastChapterId: 'old-2' }]
+        ]) as never
+      })
+      getProgress.mockImplementation(async (mangaId: string) => ({
+        success: true,
+        data: { mangaId, lastChapterId: `new-${mangaId}` }
+      }))
+
+      await useProgressStore.getState().reloadCachedProgress()
+
+      const map = useProgressStore.getState().progressMap
+      expect(map.get('manga-1')).toEqual({ mangaId: 'manga-1', lastChapterId: 'new-manga-1' })
+      expect(map.get('manga-2')).toEqual({ mangaId: 'manga-2', lastChapterId: 'new-manga-2' })
+    })
+
+    it('does nothing when no progress is cached', async () => {
+      await useProgressStore.getState().reloadCachedProgress()
+
+      expect(getProgress).not.toHaveBeenCalled()
+    })
+
+    it('keeps the cached entry when the database has nothing to return', async () => {
+      useProgressStore.setState({
+        progressMap: new Map([['manga-1', { mangaId: 'manga-1', lastChapterId: 'old-1' }]]) as never
+      })
+      getProgress.mockResolvedValue({ success: true, data: undefined })
+
+      await useProgressStore.getState().reloadCachedProgress()
+
+      expect(useProgressStore.getState().progressMap.get('manga-1')).toEqual({
+        mangaId: 'manga-1',
+        lastChapterId: 'old-1'
+      })
+    })
+
+    it('records the error when the read throws', async () => {
+      useProgressStore.setState({
+        progressMap: new Map([['manga-1', { mangaId: 'manga-1', lastChapterId: 'old-1' }]]) as never
+      })
+      getProgress.mockRejectedValue(new Error('db down'))
+
+      await useProgressStore.getState().reloadCachedProgress()
+
+      expect(useProgressStore.getState().error?.message).toBe('db down')
+    })
+  })
+
   describe('loadStatistics', () => {
     it('populates statistics on success', async () => {
       getStatistics.mockResolvedValue({ success: true, data: { totalMangaRead: 5 } })

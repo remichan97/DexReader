@@ -13,7 +13,7 @@ import { useTranslation } from '@renderer/hooks/useTranslation'
 import './ImportResultDialog.css'
 
 // ImportResult interface matches src/main/services/results/import.result.ts
-interface ImportResult {
+export interface ImportResult {
   importedMangaCount: number
   skippedMangaCount: number
   failedMangaCount: number

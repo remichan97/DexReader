@@ -1,20 +1,10 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useToastStore } from '@renderer/stores'
-
-// ImportResult interface matches src/main/services/results/import.result.ts
+import type { ImportResult } from '@renderer/components/ImportResultDialog'
 import { rendererLog } from '@renderer/services/logging.service'
-
-export interface ImportResult {
-  importedMangaCount: number
-  skippedMangaCount: number
-  failedMangaCount: number
-  errors?: Array<{
-    mangaId?: string
-    title?: string
-    reason: string
-  }>
-  importedMangaIds?: string[]
-}
+import { useTranslation } from '@renderer/hooks/useTranslation'
+import { releaseBackupLock, tryAcquireBackupLock } from '@renderer/utils/backupOperationLock'
+import { refreshAfterImport } from '@renderer/utils/refreshAfterImport'
 
 interface UseMihonImportExportReturn {
   // State
@@ -26,25 +16,34 @@ interface UseMihonImportExportReturn {
   handleCancelImport: () => Promise<void>
 }
 
-export function useMihonImportExport(
-  loadFavourites: () => Promise<void>,
-  loadCollections: () => Promise<void>
-): UseMihonImportExportReturn {
+/**
+ * Drives the Mihon/Tachiyomi (.tachibk) import and export from the menu events.
+ *
+ * Mounted once at app level (see BackupHost), so it works from every view. Each operation
+ * holds the shared backup lock until it finishes, so it can't overlap a DexReader backup
+ * dialog or another Mihon operation.
+ */
+export function useMihonImportExport(): UseMihonImportExportReturn {
   const [isImporting, setIsImporting] = useState(false)
   const [importResult, setImportResult] = useState<ImportResult | null>(null)
-  const importingRef = useRef(false) // Synchronous guard against double imports
   const show = useToastStore((state) => state.show)
+  const { t } = useTranslation('common')
 
   // Listen for import events from main process
   useEffect(() => {
     const removeListener = globalThis.api.onImportTachiyomi(async (filePath: string) => {
-      // Prevent concurrent imports with synchronous ref check
-      if (importingRef.current) {
+      // Prevent overlapping backup operations (this also covers a double import)
+      if (!tryAcquireBackupLock()) {
+        show({
+          title: t('backup.busyTitle'),
+          message: t('backup.busyMessage'),
+          variant: 'warning',
+          duration: 4000
+        })
         return
       }
 
       // Start import
-      importingRef.current = true
       setIsImporting(true)
       setImportResult(null)
 
@@ -54,9 +53,8 @@ export function useMihonImportExport(
         if (response.success && response.data) {
           setImportResult(response.data)
 
-          // Reload library to show imported manga
-          await loadFavourites()
-          await loadCollections()
+          // Refresh everything the import may have changed, wherever the user currently is
+          await refreshAfterImport()
 
           // Show toast notification
           show({
@@ -83,17 +81,27 @@ export function useMihonImportExport(
           duration: 4000
         })
       } finally {
-        importingRef.current = false
+        releaseBackupLock()
         setIsImporting(false)
       }
     })
 
     return removeListener
-  }, [show, loadFavourites, loadCollections])
+  }, [show, t])
 
   // Listen for export events from main process
   useEffect(() => {
     const removeListener = globalThis.api.onExportTachiyomi(async (filePath: string) => {
+      if (!tryAcquireBackupLock()) {
+        show({
+          title: t('backup.busyTitle'),
+          message: t('backup.busyMessage'),
+          variant: 'warning',
+          duration: 4000
+        })
+        return
+      }
+
       try {
         const response = await globalThis.mihon.exportBackup(filePath)
 
@@ -120,11 +128,13 @@ export function useMihonImportExport(
           variant: 'error',
           duration: 4000
         })
+      } finally {
+        releaseBackupLock()
       }
     })
 
     return removeListener
-  }, [show])
+  }, [show, t])
 
   const handleCancelImport = async (): Promise<void> => {
     try {
