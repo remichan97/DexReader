@@ -26,7 +26,7 @@
     "fromMihonTachiyomiBackup": "From Mihon/Tachiyomi Backup...",
     "exportLibrary": "Export Library",
     "toDexReaderBackup": "To DexReader Backup...",
-    "toMihonTachiyomiFormat": "To Mihon/Tachiyomi Format...",
+    "toTachiyomiFormat": "To Tachiyomi Format (.tachibk)...",
     "dialogs": {
       "importLibrary": {
         "title": "Import Library",
@@ -48,8 +48,8 @@
         "buttonProceed": "Proceed..."
       },
       "exportMihonTachiyomi": {
-        "title": "Export Library to Mihon/Tachiyomi",
-        "filterName": "Mihon/Tachiyomi Backup"
+        "title": "Export Library to Tachiyomi Format",
+        "filterName": "Tachiyomi Backup (.tachibk)"
       }
     }
   },

@@ -26,7 +26,7 @@
     "fromMihonTachiyomiBackup": "Từ Sao lưu Mihon/Tachiyomi...",
     "exportLibrary": "Xuất Thư viện",
     "toDexReaderBackup": "Sang Sao lưu DexReader...",
-    "toMihonTachiyomiFormat": "Sang Định dạng Mihon/Tachiyomi...",
+    "toTachiyomiFormat": "Sang Định dạng Tachiyomi (.tachibk)...",
     "dialogs": {
       "importLibrary": {
         "title": "Nhập Thư viện",
@@ -48,8 +48,8 @@
         "buttonProceed": "Tiếp tục..."
       },
       "exportMihonTachiyomi": {
-        "title": "Xuất Thư viện sang Mihon/Tachiyomi",
-        "filterName": "Sao lưu Mihon/Tachiyomi"
+        "title": "Xuất Thư viện sang Định dạng Tachiyomi",
+        "filterName": "Sao lưu Tachiyomi (.tachibk)"
       }
     }
   },

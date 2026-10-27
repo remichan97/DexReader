@@ -122,7 +122,7 @@ describe('export', () => {
     it('warns about what is exported, and that the export is being retired', async () => {
       showMessageBox.mockResolvedValue({ response: 0 })
 
-      await click('menu:library.toMihonTachiyomiFormat', 'menu:library.exportLibrary')
+      await click('menu:library.toTachiyomiFormat', 'menu:library.exportLibrary')
 
       const options = showMessageBox.mock.calls[0][1] as { detail: string; type: string }
       expect(options.type).toBe('warning')
@@ -137,7 +137,7 @@ describe('export', () => {
     it('stops when the user cancels the warning', async () => {
       showMessageBox.mockResolvedValue({ response: 0 })
 
-      await click('menu:library.toMihonTachiyomiFormat', 'menu:library.exportLibrary')
+      await click('menu:library.toTachiyomiFormat', 'menu:library.exportLibrary')
 
       expect(showSaveDialog).not.toHaveBeenCalled()
       expect(send).not.toHaveBeenCalled()
@@ -147,7 +147,7 @@ describe('export', () => {
       showMessageBox.mockResolvedValue({ response: 1 })
       showSaveDialog.mockResolvedValue({ canceled: false, filePath: 'C:/out/library.tachibk' })
 
-      await click('menu:library.toMihonTachiyomiFormat', 'menu:library.exportLibrary')
+      await click('menu:library.toTachiyomiFormat', 'menu:library.exportLibrary')
 
       expect(send).toHaveBeenCalledWith('export-tachiyomi', 'C:/out/library.tachibk')
     })
@@ -156,7 +156,7 @@ describe('export', () => {
       showMessageBox.mockResolvedValue({ response: 1 })
       showSaveDialog.mockResolvedValue({ canceled: true })
 
-      await click('menu:library.toMihonTachiyomiFormat', 'menu:library.exportLibrary')
+      await click('menu:library.toTachiyomiFormat', 'menu:library.exportLibrary')
 
       expect(send).not.toHaveBeenCalled()
     })

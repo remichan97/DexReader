@@ -78,7 +78,7 @@ export function buildLibraryMenu(mainWindow: BrowserWindow): MenuItemConstructor
             }
           },
           {
-            label: i18next.t('menu:library.toMihonTachiyomiFormat'),
+            label: i18next.t('menu:library.toTachiyomiFormat'),
             click: () => {
               // Warn the user that we don't export some data for Mihon/Tachiyomi
               dialog
