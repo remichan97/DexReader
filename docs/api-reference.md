@@ -748,23 +748,43 @@ await window.api.cancelDexReaderImport()
 
 #### Mihon/Tachiyomi Compatibility
 
-##### `window.api.importMihonBackup(filePath: string)`
+##### `window.mihon.importBackup(filePath: string, includeMangaIds?: string[])`
 
-Imports library from Mihon/Tachiyomi backup.
+Imports library from Mihon/Tachiyomi backup (IPC channel `mihon:import-backup`).
 
 **Parameters:**
 
-- `filePath` - Path to `.tachibk` or `.proto.gz` file
+- `filePath` - Path to `.tachibk` or `.proto.gz` file (gzip-compressed or plain protobuf)
+- `includeMangaIds` - Optional second pass over the same file: import only these other-language MangaDex titles (the ids listed in a previous result's `skippedOtherLanguage`, at most 5000, each a MangaDex UUID). Nothing else in the file is touched, and entries that are English or not listed in the file can't be selected this way
 
-**Returns:** `{success: boolean, mangaImported: number, chaptersImported: number}`
-
-**Note:** Only MangaDex manga are imported (other sources skipped).
+**Returns:** `IpcResponse<MihonImportContract>`:
 
 ```typescript
-const result = await window.api.importMihonBackup(
-  'C:\\...\\Downloads\\tachiyomi_2026-04-20.tachibk'
+{
+  importedMangaCount: number
+  skippedMangaCount: number // already in the library, or cancelled
+  failedMangaCount: number
+  errors?: { mangaId: string; title: string; reason: string }[]
+  importedMangaIds?: string[]
+  skippedOtherLanguage?: { mangaId: string; title: string }[] // MangaDex titles from other-language sources, left out
+  ignoredOtherSourceCount?: number // entries from non-MangaDex sources (omitted on a second pass)
+}
+```
+
+**Notes:**
+
+- Only the English MangaDex source is imported. Other-language MangaDex sources are recognised by a source named "MangaDex" in the backup's own source list, and are returned in `skippedOtherLanguage` for the user to add back
+- A failed read carries one of these `error.code` values, which the renderer maps to translated messages (`dialogs:mihonImport.errors.*`): `MIHON_BACKUP_JSON` (JSON backups aren't supported), `MIHON_BACKUP_EMPTY`, `MIHON_BACKUP_UNRECOGNISED` (not a backup, truncated or damaged), `MIHON_BACKUP_FILE_MISSING` (the file moved since the first pass)
+
+```typescript
+const first = await window.mihon.importBackup('C:\\...\\Downloads\\tachiyomi_2026-04-20.tachibk')
+const skipped = first.data?.skippedOtherLanguage ?? []
+
+// Later, once the user has picked some of the skipped titles
+await window.mihon.importBackup(
+  'C:\\...\\Downloads\\tachiyomi_2026-04-20.tachibk',
+  skipped.slice(0, 2).map((entry) => entry.mangaId)
 )
-console.log(`Imported ${result.mangaImported} MangaDex manga`)
 ```
 
 ##### `window.api.cancelMihonImport()`
