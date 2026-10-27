@@ -1,6 +1,6 @@
 # DexReader Active Context
 
-**Last Updated**: 18 October 2026
+**Last Updated**: 27 October 2026
 **Version**: v1.16.1
 **Mode**: Active Development
 
@@ -19,7 +19,6 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 **Next Planned Work:**
 
 - Manga Detail chapter list: default to newest first. Needs the feed loaded in full (it fetches one page of 100 today, so long series can't reach their other end) and the list kept ascending in state, because the reader's Previous/Next and "Start Reading" assume that order. Planned on its own branch (`fix(detail)`)
-- Menu bar integration (wire or remove the five Library menu items, see Known Issues)
 - Decide on the Known Issues below, starting with cache cleanup deleting read history
 
 ---
@@ -33,12 +32,12 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 - **Status**: Not fixed (pre-existing)
 - **Detail**: `migrateSettings` has a "revert to defaults" branch for an invalid current-version file, but `validateSettings` throws a `TypeError` instead of returning `false`, so the branch can't run and `settingsManager.load()` throws. Only reachable by hand-editing or corrupting `settings.json`.
 
-### Five Library menu items do nothing
+### Dead code left behind by the removed Library menu items
 
 - **Severity**: Low
 - **Affects**: All
-- **Status**: Not fixed (never wired; documented in `docs/architecture/menu-bar-structure.md`)
-- **Detail**: The Library menu sends `add-to-favorites`, `create-collection`, `manage-collections`, `download-chapter` and `download-manga`, but no renderer code subscribes to them (none ever has). Nothing sets `canAddToFavorites`, `canDownloadChapter` or `canDownloadManga`, so Add to Favourites and the two Download items are always disabled, and Create/Manage Collections are enabled but inert. `Ctrl+Shift+N` is also bound to both Go Incognito and Create Collection. Either wire the items to the existing UI actions or remove them from the menu, the preload listeners and `MenuState`.
+- **Status**: Not fixed (the menu items themselves were removed in `3acc7c0`; documented in `docs/architecture/menu-bar-structure.md`)
+- **Detail**: The five inert Library items (Add to Favourites, Create/Manage Collections, Download Chapter/Manga) are gone from the menu, but their supporting code remains unreachable: the `MenuState` fields (`canAddToFavorites`, `isFavorited`, `canDownloadChapter`, `chapterTitle`, `canDownloadManga`, `mangaTitle`, also repeated in the preload `updateMenuState` type), the preload listeners `onAddToFavorites`, `onCreateCollection`, `onManageCollections`, `onDownloadChapter`, `onDownloadManga` (with types and tests), and the matching `menu.json` strings in all three locales. Delete in a clean-up.
 
 ### Cache cleanup also deletes read history
 
@@ -86,6 +85,19 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 ---
 
 ## Recent Changes (Last 1-2 Weeks)
+
+### 27 October 2026 - Global Import/Export (v1.17.0 work) 🚧
+
+- **Type**: Bugfix / refactor
+- **Summary**: The Library menu's import and export items now work from every view, including the Reader. Before, the listeners and dialogs lived inside `LibraryView`, so a menu pick from any other view opened the native file dialog and then silently dropped the chosen path.
+- **Key Changes**:
+  - New `BackupHost` component (`components/BackupHost/`) owns `useDexReaderImportExport`, `useMihonImportExport` (moved to `src/renderer/src/hooks/`, no longer take store callbacks) and the four dialogs. Mounted once in `App.tsx` at the same position in both the Reader and AppShell layouts, after the Gatekeeper gate, so it survives Reader/AppShell navigation
+  - Shared backup lock (`utils/backupOperationLock.ts`): one backup operation or dialog at a time; a second menu pick shows a toast (`common:backup.busy*`, three locales)
+  - `utils/refreshAfterImport.ts` reloads library, collections, cached progress (new `progressStore.reloadCachedProgress`), progress metadata and the history feed after either import
+  - `LibraryView` no longer owns any of this, and now silently refreshes its grid when the favourites store changes (an import while the view is open used to leave the grid stale until remount)
+  - Mihon result dialog's "View library" now navigates to `/library`; `ImportResult` type now has one home (exported from `ImportResultDialog`)
+- **Impact**: Menu import/export usable anywhere. Existing English toast strings in the hooks were left as they were (i18n of those is a follow-up)
+- **Status**: 🚧 Implemented and committed on `feat/menu-integration`, awaiting the visual check. Gates: typecheck, lint, 1529 tests, coverage thresholds, production build. **Not yet verified by hand** (native menu → dialog from Browse, Detail, Downloads, Settings, History, Reader; cancel a dialog; corrupt file; Mihon import with errors). Plan file `claude-plans/global-import-export-plan.md` kept until that is done. For the `1.17.0` changelog: Fixed - "Library import/export from the menu now works from any view"
 
 ### 18 October 2026 - v1.16.1 release prep ✅
 
