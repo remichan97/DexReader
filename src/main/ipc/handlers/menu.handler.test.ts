@@ -41,22 +41,21 @@ describe('menu.handler', () => {
   it('pushes the merged state (starting from isIncognito: false) to updateMenuState', () => {
     registerMenuStateHandler()
 
-    getListener()(EVENT, { isFavorited: true })
+    getListener()(EVENT, { isOffline: true })
 
-    expect(updateMenuState).toHaveBeenCalledWith({ isIncognito: false, isFavorited: true })
+    expect(updateMenuState).toHaveBeenCalledWith({ isIncognito: false, isOffline: true })
   })
 
   it('merges successive partial updates rather than replacing the whole state', () => {
     registerMenuStateHandler()
     const listener = getListener()
 
-    listener(EVENT, { isFavorited: true })
-    listener(EVENT, { canDownloadChapter: true })
+    listener(EVENT, { isOffline: true })
+    listener(EVENT, { isIncognito: true })
 
     expect(updateMenuState).toHaveBeenLastCalledWith({
-      isIncognito: false,
-      isFavorited: true,
-      canDownloadChapter: true
+      isIncognito: true,
+      isOffline: true
     })
   })
 

@@ -108,12 +108,6 @@ export type { TagContract } from '@shared/contracts/mangadex/tag.contract'
 export type { CreatorContract } from '@shared/contracts/mangadex/creator.contract'
 
 interface MenuState {
-  canAddToFavorites?: boolean
-  isFavorited?: boolean
-  canDownloadChapter?: boolean
-  chapterTitle?: string
-  canDownloadManga?: boolean
-  mangaTitle?: string
   isIncognito?: boolean
   isOffline?: boolean
 }
@@ -157,15 +151,10 @@ interface API {
   openExternal: (url: string) => Promise<IpcResponse<void>>
 
   // Menu action handlers
-  onAddToFavorites: (callback: () => void) => () => void
-  onCreateCollection: (callback: () => void) => () => void
-  onManageCollections: (callback: () => void) => () => void
   onImportLibrary: (callback: (filePath: string) => void) => () => void
   onImportTachiyomi: (callback: (filePath: string) => void) => () => void
   onExportLibrary: (callback: (filePath: string) => void) => () => void
   onExportTachiyomi: (callback: (filePath: string) => void) => () => void
-  onDownloadChapter: (callback: () => void) => () => void
-  onDownloadManga: (callback: () => void) => () => void
   onDownloadProgress: (callback: (event: ChapterDownloadsEvent) => void) => () => void
   onShowShortcuts: (callback: () => void) => () => void
   onConnectivityToggle: (callback: () => void) => () => void

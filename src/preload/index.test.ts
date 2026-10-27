@@ -650,9 +650,9 @@ describe('invoke-based methods', () => {
 
 describe('api.updateMenuState', () => {
   it('sends (fire-and-forget) rather than invokes', () => {
-    globalThis.api.updateMenuState({ isFavorited: true })
+    globalThis.api.updateMenuState({ isIncognito: true })
 
-    expect(mocks.send).toHaveBeenCalledWith('update-menu-state', { isFavorited: true })
+    expect(mocks.send).toHaveBeenCalledWith('update-menu-state', { isIncognito: true })
     expect(mocks.invoke).not.toHaveBeenCalled()
   })
 })
@@ -660,11 +660,6 @@ describe('api.updateMenuState', () => {
 // Methods where the callback registered by the caller IS the ipcRenderer listener -
 // no unwrapping of the event/payload happens in between.
 const RAW_LISTENER_CASES: Array<[string, string, (cb: () => void) => () => void]> = [
-  ['api.onAddToFavorites', 'add-to-favorites', (cb) => globalThis.api.onAddToFavorites(cb)],
-  ['api.onCreateCollection', 'create-collection', (cb) => globalThis.api.onCreateCollection(cb)],
-  ['api.onManageCollections', 'manage-collections', (cb) => globalThis.api.onManageCollections(cb)],
-  ['api.onDownloadChapter', 'download-chapter', (cb) => globalThis.api.onDownloadChapter(cb)],
-  ['api.onDownloadManga', 'download-manga', (cb) => globalThis.api.onDownloadManga(cb)],
   ['api.onShowShortcuts', 'show-shortcuts', (cb) => globalThis.api.onShowShortcuts(cb)],
   [
     'api.onConnectivityToggle',

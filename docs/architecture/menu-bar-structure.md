@@ -62,7 +62,7 @@ Accelerators use `CmdOrCtrl`, so they are `Ctrl` on Windows and Linux and `Cmd` 
 | Export Library → To DexReader Backup...         | `Ctrl+Shift+E` | Save dialog (default `dexreader-backup.dexreader`), then sends `export-library`                      |
 | Export Library → To Mihon/Tachiyomi Format...   | none           | Warns that some data is not exported, then a save dialog (`.tachibk`), then sends `export-tachiyomi` |
 
-The Library menu used to carry five more items (Add to Favourites, Create Collection, Manage Collections, Download Chapter, Download Manga). They were never wired to anything in the renderer and were removed; favourites, collections and downloads are reached through the UI (card buttons, the collection tabs and dialogs, the download controls).
+The Library menu used to carry five more items (Add to Favourites, Create Collection, Manage Collections, Download Chapter, Download Manga). They were never wired to anything in the renderer and were removed, together with their `MenuState` fields, preload listeners and menu strings; favourites, collections and downloads are reached through the UI (card buttons, the collection tabs and dialogs, the download controls).
 
 The file dialogs are opened by the main process, and only the chosen path is sent to the renderer. The renderer does the import or export work in `BackupHost`, an app-level component mounted once in `App.tsx` (above the Reader/AppShell split, after the Gatekeeper gate), so these items work from every view including the Reader, not only the Library. `BackupHost` owns `useDexReaderImportExport`, `useMihonImportExport` and the four dialogs they drive, and a shared lock (`utils/backupOperationLock.ts`) lets only one backup operation run at a time. After an import, `utils/refreshAfterImport.ts` reloads the library, collections, progress and history stores.
 
@@ -89,8 +89,6 @@ The renderer pushes partial state with `globalThis.api.updateMenuState({...})`, 
 interface MenuState {
   isIncognito?: boolean
   isOffline?: boolean
-  // Also still declared, but unused since the Library menu items they drove were removed:
-  // canAddToFavorites, isFavorited, canDownloadChapter, chapterTitle, canDownloadManga, mangaTitle
 }
 ```
 
@@ -100,8 +98,6 @@ What actually pushes state today:
 | ------------- | ------------------------------------------------------------ |
 | `isIncognito` | `progressStore.toggleIncognito`                              |
 | `isOffline`   | `connectivityStore` whenever the connectivity status changes |
-
-The `can*`, `isFavorited`, `chapterTitle` and `mangaTitle` fields in `MenuState` belonged to the removed Library items. Nothing reads or sets them any more (see "Known gaps").
 
 ### Which events the renderer handles
 
@@ -120,8 +116,7 @@ The `can*`, `isFavorited`, `chapterTitle` and `mangaTitle` fields in `MenuState`
 
 These are properties of the current code, not design intent:
 
-1. **Leftovers from the removed Library items.** The menu no longer builds Add to Favourites, Create/Manage Collections or Download Chapter/Manga, but the code that supported them is still there: the `MenuState` fields above (and their copy in the preload `updateMenuState` type), the preload listeners (`onAddToFavorites`, `onCreateCollection`, `onManageCollections`, `onDownloadChapter`, `onDownloadManga`) with their types and tests, and the matching strings in `menu.json` for each locale. None of it is reachable. It can be deleted in a clean-up.
-2. **No access keys.** Labels have no `&` mnemonics, so `Alt+F`, `Alt+V` and so on do not open the menus. The menus can still be used with the mouse and by their accelerators.
+1. **No access keys.** Labels have no `&` mnemonics, so `Alt+F`, `Alt+V` and so on do not open the menus. The menus can still be used with the mouse and by their accelerators.
 
 ---
 

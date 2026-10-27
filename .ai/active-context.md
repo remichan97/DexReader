@@ -32,13 +32,6 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 - **Status**: Not fixed (pre-existing)
 - **Detail**: `migrateSettings` has a "revert to defaults" branch for an invalid current-version file, but `validateSettings` throws a `TypeError` instead of returning `false`, so the branch can't run and `settingsManager.load()` throws. Only reachable by hand-editing or corrupting `settings.json`.
 
-### Dead code left behind by the removed Library menu items
-
-- **Severity**: Low
-- **Affects**: All
-- **Status**: Not fixed (the menu items themselves were removed in `3acc7c0`; documented in `docs/architecture/menu-bar-structure.md`)
-- **Detail**: The five inert Library items (Add to Favourites, Create/Manage Collections, Download Chapter/Manga) are gone from the menu, but their supporting code remains unreachable: the `MenuState` fields (`canAddToFavorites`, `isFavorited`, `canDownloadChapter`, `chapterTitle`, `canDownloadManga`, `mangaTitle`, also repeated in the preload `updateMenuState` type), the preload listeners `onAddToFavorites`, `onCreateCollection`, `onManageCollections`, `onDownloadChapter`, `onDownloadManga` (with types and tests), and the matching `menu.json` strings in all three locales. Delete in a clean-up.
-
 ### Cache cleanup also deletes read history
 
 - **Severity**: Low to Medium (data loss, needs a decision on intent)
