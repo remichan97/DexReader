@@ -10,7 +10,7 @@
 
 ## Current Status
 
-**v1.17.0 in progress** (branch `feat/menu-integration`, nothing released yet) — one combined release, planned in `claude-plans/release-1-17-plan.md` (local and git-ignored, one plan file per piece sits beside it). **Done**: import/export from any view (`BackupHost`), the inert Library menu items and the dead code behind them removed, Mihon import hardening with the other-language title list, the Mihon timestamp fix and its data-repair migration, the export deprecation notice. **To build, in this order**: Manga Detail chapter list newest first (own branch off `main`, `fix/detail-chapter-order`), the in-app changelog window (plus `[YANKED]` markers on the seven never-published versions in `CHANGELOG.md`), Refresh Library phase 1 (one migration for all the new `manga` columns), the New Chapters view, then Refresh Library's chapter phase, then release prep (version bump, changelog, `v1.17.0-beta.1` tag first). Checkpoint after the changelog window: if the data-layer pieces slip, ship the rest as 1.17.0. `1.17.0` is the **last release that can export to `.tachibk`**; the release after it removes the exporter and adds Mihon's new backup format once Mihon publishes it (see `docs/architecture/backup-import-export.md`).
+**v1.17.0 in progress** (branch `feat/menu-integration`, nothing released yet) — one combined release, planned in `claude-plans/release-1-17-plan.md` (local and git-ignored, one plan file per piece sits beside it). **Done**: import/export from any view (`BackupHost`), the inert Library menu items and the dead code behind them removed, Mihon import hardening with the other-language title list, the Mihon timestamp fix and its data-repair migration, the export deprecation notice, and the Manga Detail chapter list newest first with every page of a long series loaded (done, awaiting a visual check; it stayed on this branch, as will the rest). **To build, in this order**: the in-app changelog window (plus `[YANKED]` markers on the seven never-published versions in `CHANGELOG.md`), Refresh Library phase 1 (one migration for all the new `manga` columns), the New Chapters view, then Refresh Library's chapter phase, then release prep (version bump, changelog, `v1.17.0-beta.1` tag first). Checkpoint after the changelog window: if the data-layer pieces slip, ship the rest as 1.17.0. `1.17.0` is the **last release that can export to `.tachibk`**; the release after it removes the exporter and adds Mihon's new backup format once Mihon publishes it (see `docs/architecture/backup-import-export.md`).
 
 **v1.16.1 prepared** (18 October 2026, patch; awaiting merge and the `v1.16.1` tag) — the Fluent migration clean-up: dead styles, components, tokens and dependencies removed, undefined-variable styling fixed, download badge colours restored, docs rewritten against the code.
 
@@ -20,7 +20,6 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 
 **Next Planned Work:**
 
-- Manga Detail chapter list: default to newest first, remembered per manga in `localStorage`, long series loaded lazily (first page shown at once, the rest in the background, with Start Reading, Continue and Download all gated until the list is complete). The list kept in state stays **ascending**, because the reader's Previous/Next and "Start Reading" assume that order, and Download all queues oldest first. Plan: `claude-plans/detail-chapter-list-newest-first-plan.md`; own branch (`fix(detail)` then `feat(detail)`)
 - The rest of 1.17.0 (see Current Status), then the Mihon removal release and new-format support (plan: `claude-plans/mihon-backup-format-plan.md`, Package C, blocked until Mihon publishes its format)
 - Decide on the Known Issues below, starting with cache cleanup deleting read history
 
@@ -88,6 +87,21 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 ---
 
 ## Recent Changes (Last 1-2 Weeks)
+
+### 28 October 2026 - Manga Detail chapter list newest first, every page loaded (v1.17.0 work) 🚧
+
+- **Type**: Bugfix / feature
+- **Summary**: The detail page fetched one page of 100 chapters, oldest first, so a series with more could never show its newest chapters and the sort selector only reordered those 100. Newest first is now the default, remembered per manga, and long series load in full (first page at once, the rest in the background)
+- **Key Changes**:
+  - **State is always oldest first** (`useMangaDetailData` `chapters`); only the display reverses (`useChapterFilters`, which also returns `readingOrderChapters`). The Reader's previous/next, Start Reading and Download all depend on that order, and Download all queues oldest first
+  - `utils/chapterOrder.ts` (one comparator: chapter number, then volume, publish date, id; no number sorts first), `utils/chapterFeedLoader.ts` (500 per page, the first page from the end the list is sorted towards, reports the merged list after each page, all four content ratings, cancellable, `partial` result when a later page fails), `utils/chapterSortPreference.ts` (`localStorage` key `dexreader:mangaDetail:chapterSort`, only manga flipped to oldest first, 300 most recent)
+  - While incomplete: a placeholder row at the missing end ("Loading older chapters… 500 of 1,240", retry if a page failed), heading shows "n of total", and Start Reading, Continue (unless the chapter being read is loaded) and Download all are disabled. Offline cached lists count as complete. Every load is cancellable (language switch, retry, unmount)
+  - The Reader finishes a list handed over incomplete (`chaptersComplete: false`, `chapterLanguage` in the navigation state) and loads the whole list itself when opened from History or Downloads (no longer capped at 500 English chapters); a longer list is never replaced by a shorter one handed over by navigation
+  - **API names fixed**: the order key and date filter are `publishAt` / `publishAtSince`; the enum value `PUBLISHED_AT` and `FeedParams.publishedAtSince` said `publishedAt…`, which the API rejects (400). Relevant to the New Chapters plan
+  - Spike (live API): 500-row pages honoured, `total` exact, ids unique across pages, about 0.4 - 0.65 s per page; 617 English chapters (the longest among the 40 most-followed series) load in about 1 s; 102 of 617 chapter numbers repeat (several groups)
+  - Docs: `mangadex-api.md`, `state-management.md` (the `localStorage` exception)
+- **Impact**: Long series show their newest chapters and every chapter, in the order the user picked and last used for that manga
+- **Status**: 🚧 Committed on `feat/menu-integration`; gates (typecheck, lint, 1,720 tests, coverage, build) pass. **Not yet checked by hand**: open a series over 500 chapters (placeholder, gated buttons, clicking a chapter before loading finishes, then Previous/Next at the edge), switch language and flip the sort mid-load, a short series, an offline visit, a series sorted oldest first after a restart, light and dark. For the `1.17.0` changelog: Fixed - long series now show all their chapters in the detail page and Reader (previously only the first 100 and 500); Changed - the chapter list is newest first by default and the order is remembered per manga
 
 ### 28 October 2026 - Mihon timestamp fix, backup model types, menu wording (v1.17.0 work) ✅
 
