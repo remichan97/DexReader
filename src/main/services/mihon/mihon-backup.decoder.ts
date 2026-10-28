@@ -154,7 +154,7 @@ interface DecodedBackup {
  * An int64 as a number. Everything converted this way (timestamps in milliseconds, page numbers,
  * category ids) is far below 2^53, unlike the source ids, which stay strings.
  */
-function toNumber(value: Int64 | undefined): number | undefined {
+function toNumber(value?: Int64): number | undefined {
   if (value === undefined) return undefined
 
   const converted = Number(value)
