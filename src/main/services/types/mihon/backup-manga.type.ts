@@ -11,6 +11,7 @@ export interface BackupManga {
   genre?: string[]
   status?: number
   thumbnailUrl?: string
+  dateAdded?: number
   history: BackupHistory[]
   chapters: BackupChapter[]
   categories: number[]

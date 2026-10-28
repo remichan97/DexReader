@@ -4,7 +4,11 @@ import Pako from 'pako'
 import protobuf from 'protobufjs'
 import { IpcError } from '../../ipc/error/ipc.error'
 import { Backup } from '../types/mihon/backup.type'
+import { BackupCategory } from '../types/mihon/backup-category.type'
+import { BackupChapter } from '../types/mihon/backup-chapter.type'
+import { BackupHistory } from '../types/mihon/backup-history.type'
 import { BackupManga } from '../types/mihon/backup-manga.type'
+import { BackupSource } from '../types/mihon/backup-source.type'
 
 // ESM: Get __dirname equivalent
 const __filename = fileURLToPath(import.meta.url)
@@ -83,10 +87,10 @@ export async function decodeBackup(
 ): Promise<Backup> {
   const bytes = unwrapBackupBytes(buffer)
 
-  let decoded: Partial<Backup>
+  let decoded: DecodedBackup
   try {
     const root = await protobuf.load(schemaPath)
-    decoded = root.lookupType('Backup').decode(bytes).toJSON() as Partial<Backup>
+    decoded = root.lookupType('Backup').decode(bytes).toJSON() as DecodedBackup
   } catch (error) {
     throw new MihonBackupFormatError(
       'MIHON_BACKUP_UNRECOGNISED',
@@ -99,23 +103,112 @@ export async function decodeBackup(
 }
 
 /**
- * protobufjs omits empty repeated fields from toJSON(), so a backup without categories (or a
- * manga without chapters) has no such property at all. Fill them in so callers can rely on the
- * Backup type.
+ * A 64-bit protobuf field as protobufjs's toJSON() hands it back: a string, so values beyond
+ * 2^53 aren't rounded (a plain number is accepted too, in case a value comes through unwrapped).
  */
-function normaliseBackup(decoded: Partial<Backup>): Backup {
-  const backupManga = (decoded.backupManga ?? []).map(
-    (manga): BackupManga => ({
-      ...manga,
-      chapters: manga.chapters ?? [],
-      history: manga.history ?? [],
-      categories: manga.categories ?? []
-    })
-  )
+type Int64 = string | number
 
+/*
+ * The shapes below are what toJSON() really returns, which is not the Backup model: every int64
+ * is an Int64 rather than a number, and empty lists are missing altogether. normaliseBackup()
+ * is the one place that turns them into the model.
+ */
+interface DecodedChapter extends Omit<
+  BackupChapter,
+  'lastPageRead' | 'dateFetch' | 'dateUpload' | 'sourceOrder'
+> {
+  lastPageRead?: Int64
+  dateFetch?: Int64
+  dateUpload?: Int64
+  sourceOrder?: Int64
+}
+
+interface DecodedHistory extends Omit<BackupHistory, 'lastRead' | 'readDuration'> {
+  lastRead?: Int64
+  readDuration?: Int64
+}
+
+interface DecodedCategory extends Omit<BackupCategory, 'order' | 'flags' | 'id'> {
+  order?: Int64
+  flags?: Int64
+  id?: Int64
+}
+
+interface DecodedManga extends Omit<
+  BackupManga,
+  'chapters' | 'history' | 'categories' | 'dateAdded'
+> {
+  chapters?: DecodedChapter[]
+  history?: DecodedHistory[]
+  categories?: Int64[]
+  dateAdded?: Int64
+}
+
+interface DecodedBackup {
+  backupManga?: DecodedManga[]
+  backupCategories?: DecodedCategory[]
+  backupSources?: BackupSource[]
+}
+
+/**
+ * An int64 as a number. Everything converted this way (timestamps in milliseconds, page numbers,
+ * category ids) is far below 2^53, unlike the source ids, which stay strings.
+ */
+function toNumber(value: Int64 | undefined): number | undefined {
+  if (value === undefined) return undefined
+
+  const converted = Number(value)
+  return Number.isFinite(converted) ? converted : undefined
+}
+
+function normaliseChapter(chapter: DecodedChapter): BackupChapter {
   return {
-    backupManga,
-    backupCategories: decoded.backupCategories ?? [],
+    ...chapter,
+    lastPageRead: toNumber(chapter.lastPageRead),
+    dateFetch: toNumber(chapter.dateFetch),
+    dateUpload: toNumber(chapter.dateUpload),
+    sourceOrder: toNumber(chapter.sourceOrder)
+  }
+}
+
+function normaliseHistory(history: DecodedHistory): BackupHistory {
+  return {
+    ...history,
+    lastRead: toNumber(history.lastRead) ?? 0,
+    readDuration: toNumber(history.readDuration)
+  }
+}
+
+function normaliseCategory(category: DecodedCategory): BackupCategory {
+  return {
+    ...category,
+    order: toNumber(category.order),
+    flags: toNumber(category.flags),
+    id: toNumber(category.id)
+  }
+}
+
+function normaliseManga(manga: DecodedManga): BackupManga {
+  return {
+    ...manga,
+    dateAdded: toNumber(manga.dateAdded),
+    chapters: (manga.chapters ?? []).map(normaliseChapter),
+    history: (manga.history ?? []).map(normaliseHistory),
+    categories: (manga.categories ?? [])
+      .map(toNumber)
+      .filter((id): id is number => id !== undefined)
+  }
+}
+
+/**
+ * Turn what protobufjs's toJSON() returns into the Backup model: int64 fields become numbers
+ * (except the source ids, which can exceed 2^53 and stay strings), and the empty lists that
+ * toJSON() leaves out (a backup without categories, a manga without chapters) are filled in.
+ */
+function normaliseBackup(decoded: DecodedBackup): Backup {
+  return {
+    backupManga: (decoded.backupManga ?? []).map(normaliseManga),
+    backupCategories: (decoded.backupCategories ?? []).map(normaliseCategory),
     backupSources: decoded.backupSources ?? []
   }
 }

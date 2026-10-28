@@ -173,8 +173,7 @@ describe('decodeBackup', () => {
       genre: ['Action', 'Horror'],
       status: 1,
       thumbnailUrl: 'https://uploads.mangadex.org/covers/x/y.jpg',
-      // int64 values come back as strings (the same representation the category ids use)
-      categories: ['3'],
+      categories: [3],
       favorite: true
     })
     expect(backup.backupManga[0].chapters[0]).toMatchObject({
@@ -182,14 +181,14 @@ describe('decodeBackup', () => {
       name: 'Chapter 1',
       scanlator: 'Group',
       read: true,
-      lastPageRead: '18',
+      lastPageRead: 18,
       chapterNumber: 1.5
     })
     expect(backup.backupManga[0].history[0]).toMatchObject({
       url: '/chapter/bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
-      lastRead: '1700000004000'
+      lastRead: 1700000004000
     })
-    expect(backup.backupCategories).toEqual([{ name: 'Reading', order: '0', id: '3' }])
+    expect(backup.backupCategories).toEqual([{ name: 'Reading', order: 0, id: 3 }])
     expect(backup.backupSources).toEqual([{ name: 'MangaDex', sourceId: ENGLISH_ID }])
   })
 
@@ -206,6 +205,67 @@ describe('decodeBackup', () => {
 
     expect(typeof backup.backupManga[0].source).toBe('string')
     expect(BigInt(backup.backupManga[0].source)).toBe(2499283573021220255n)
+  })
+
+  it('turns the other 64-bit fields into numbers, whatever protobufjs returns for them', async () => {
+    const backup = await decodeBackup(Pako.gzip(encodeUpstream(FULL_BACKUP)), SCHEMA_PATH)
+    const manga = backup.backupManga[0]
+
+    expect(manga.dateAdded).toBe(1700000000000)
+    expect(manga.categories).toEqual([3])
+    expect(manga.chapters[0].dateFetch).toBe(1700000002000)
+    expect(manga.chapters[0].dateUpload).toBe(1700000003000)
+    expect(manga.chapters[0].lastPageRead).toBe(18)
+    expect(manga.history[0].lastRead).toBe(1700000004000)
+    for (const value of [
+      manga.dateAdded,
+      manga.chapters[0].dateUpload,
+      manga.chapters[0].lastPageRead,
+      manga.history[0].lastRead,
+      backup.backupCategories[0].id
+    ]) {
+      expect(typeof value).toBe('number')
+    }
+  })
+
+  it('leaves a 64-bit field that is not in the file undefined rather than NaN or 0', async () => {
+    const bytes = encodeUpstream({
+      backupManga: [
+        { source: ENGLISH_ID, url: '/manga/m', chapters: [{ url: '/chapter/c', name: 'C' }] }
+      ],
+      backupCategories: [{ name: 'No id' }]
+    })
+
+    const backup = await decodeBackup(bytes, SCHEMA_PATH)
+
+    expect(backup.backupManga[0].dateAdded).toBeUndefined()
+    expect(backup.backupManga[0].chapters[0].dateUpload).toBeUndefined()
+    expect(backup.backupManga[0].chapters[0].lastPageRead).toBeUndefined()
+    expect(backup.backupCategories[0].id).toBeUndefined()
+  })
+
+  it('reads a history entry without a time as 0, since the model needs one', async () => {
+    const bytes = encodeUpstream({
+      backupManga: [
+        {
+          source: ENGLISH_ID,
+          url: '/manga/m',
+          history: [{ url: '/chapter/c', lastRead: 0 }]
+        }
+      ]
+    })
+
+    const backup = await decodeBackup(bytes, SCHEMA_PATH)
+
+    expect(backup.backupManga[0].history[0].lastRead).toBe(0)
+  })
+
+  it('keeps the source ids as strings, because they do not fit in a number', async () => {
+    const backup = await decodeBackup(Pako.gzip(encodeUpstream(FULL_BACKUP)), SCHEMA_PATH)
+
+    expect(Number.isSafeInteger(Number(ENGLISH_ID))).toBe(false)
+    expect(backup.backupManga[0].source).toBe(ENGLISH_ID)
+    expect(backup.backupSources?.[0].sourceId).toBe(ENGLISH_ID)
   })
 
   it('accepts an uncompressed backup, as Mihon itself does', async () => {
