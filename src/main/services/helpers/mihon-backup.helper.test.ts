@@ -30,7 +30,8 @@ function backupChapter(overrides: Partial<BackupChapter> = {}): BackupChapter {
 }
 
 function backupHistory(overrides: Partial<BackupHistory> = {}): BackupHistory {
-  return { url: `/chapter/${CHAPTER_ID}`, lastRead: 1700000000, ...overrides }
+  // Mihon writes times in epoch milliseconds
+  return { url: `/chapter/${CHAPTER_ID}`, lastRead: 1700000000000, ...overrides }
 }
 
 function backupCategory(overrides: Partial<BackupCategory> = {}): BackupCategory {
@@ -188,7 +189,7 @@ describe('processProgressCommands', () => {
   it('builds a progress command for a chapter with reading progress, pulling lastReadAt from history', () => {
     const result = mihonBackup.processProgressCommands(
       [backupChapter({ lastPageRead: 5, read: true })],
-      [backupHistory({ lastRead: 1700001234 })],
+      [backupHistory({ lastRead: 1700001234567 })],
       MANGA_ID
     )
 
@@ -198,6 +199,7 @@ describe('processProgressCommands', () => {
         chapterId: CHAPTER_ID,
         currentPage: 5,
         completed: true,
+        // DexReader's progress commands carry seconds, so the milliseconds are converted (and floored)
         lastReadAt: 1700001234
       }
     ])
@@ -245,7 +247,7 @@ describe('processChapterMetadata', () => {
     const result = mihonBackup.processChapterMetadata(
       [
         backupChapter({
-          dateUpload: 1700000000,
+          dateUpload: 1700000000000,
           name: undefined,
           chapterNumber: undefined,
           scanlator: undefined
@@ -261,7 +263,7 @@ describe('processChapterMetadata', () => {
         title: 'Untitled Chapter',
         chapterNumber: 'Unknown',
         language: 'en',
-        publishAt: new Date(1700000000 * 1000),
+        publishAt: new Date(1700000000000),
         scanlationGroup: 'Unknown',
         externalUrl: `/chapter/${CHAPTER_ID}`
       }
@@ -270,11 +272,11 @@ describe('processChapterMetadata', () => {
 
   it('falls back to dateFetch when dateUpload is missing', () => {
     const result = mihonBackup.processChapterMetadata(
-      [backupChapter({ dateFetch: 1600000000, dateUpload: undefined })],
+      [backupChapter({ dateFetch: 1600000000000, dateUpload: undefined })],
       MANGA_ID
     )
 
-    expect(result[0].publishAt).toEqual(new Date(1600000000 * 1000))
+    expect(result[0].publishAt).toEqual(new Date(1600000000000))
   })
 
   it('falls back to the current time when neither dateUpload nor dateFetch is present', () => {

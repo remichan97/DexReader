@@ -99,8 +99,10 @@ describe('buildBackupChapter', () => {
       scanlator: 'Dark Horse',
       read: false,
       lastPageRead: 10,
-      dateFetch: Math.floor(new Date('2026-01-01T00:00:00.000Z').getTime() / 1000),
-      dateUpload: Math.floor(new Date('2026-01-02T00:00:00.000Z').getTime() / 1000),
+      // Mihon reads epoch milliseconds: dateUpload is when the chapter was published,
+      // dateFetch when it was fetched (here, cached)
+      dateFetch: new Date('2026-01-02T00:00:00.000Z').getTime(),
+      dateUpload: new Date('2026-01-01T00:00:00.000Z').getTime(),
       chapterNumber: 2
     })
   })
@@ -127,7 +129,8 @@ describe('buildBackupHistory', () => {
       chapterProgress({ chapterId: 'chapter-3', lastReadAt: 1700005555 })
     )
 
-    expect(result).toEqual({ url: '/chapter/chapter-3', lastRead: 1700005555 })
+    // DexReader keeps seconds; Mihon reads milliseconds
+    expect(result).toEqual({ url: '/chapter/chapter-3', lastRead: 1700005555000 })
   })
 })
 
