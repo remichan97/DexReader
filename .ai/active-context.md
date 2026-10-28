@@ -89,7 +89,7 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 
 ## Recent Changes (Last 1-2 Weeks)
 
-### 28 October 2026 - Mihon timestamp fix, backup model types, menu wording (v1.17.0 work) 🚧
+### 28 October 2026 - Mihon timestamp fix, backup model types, menu wording (v1.17.0 work) ✅
 
 - **Type**: Bugfix / cleanup
 - **Summary**: Follow-ups to the Mihon work. A real Mihon backup showed that Mihon writes times in milliseconds while DexReader read and wrote seconds, and that the backup model's `number` types did not match what protobufjs returns (strings for every int64)
@@ -100,9 +100,9 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
   - The export menu item is now "To Tachiyomi Format (.tachibk)..." with a matching save dialog (the deprecation wording says it is the Tachiyomi format being retired, never "Mihon/Tachiyomi"); the five dead Library menu items and their `MenuState` fields, preload listeners and strings were removed
   - New doc `docs/architecture/backup-import-export.md`; wiki page `DexReader.wiki/Import-and-Export.md` edited for the deprecation and the other-language list, **uncommitted in the wiki repo**
 - **Impact**: Imported chapters and History get correct dates; rows from earlier imports are repaired at startup
-- **Status**: 🚧 Committed on `feat/menu-integration`. For the `1.17.0` changelog: Fixed - Mihon/Tachiyomi imports read chapter dates and read times as milliseconds (earlier imports are repaired automatically); Added - list of skipped other-language titles after a Mihon/Tachiyomi import; Changed - the import accepts uncompressed backups and reports specific errors, the export item is named "To Tachiyomi Format (.tachibk)..."; Deprecated - exporting to the Tachiyomi backup format (removed in the next release); Removed - menu items that never did anything. The Mihon import entry below still awaits a visual check
+- **Status**: ✅ Committed on `feat/menu-integration`, checked by hand. For the `1.17.0` changelog: Fixed - Mihon/Tachiyomi imports read chapter dates and read times as milliseconds (earlier imports are repaired automatically); Added - list of skipped other-language titles after a Mihon/Tachiyomi import; Changed - the import accepts uncompressed backups and reports specific errors, the export item is named "To Tachiyomi Format (.tachibk)..."; Deprecated - exporting to the Tachiyomi backup format (removed in the next release); Removed - menu items that never did anything.
 
-### 27 October 2026 - Mihon/Tachiyomi import hardening, other-language titles, export deprecation (v1.17.0 work) 🚧
+### 27 October 2026 - Mihon/Tachiyomi import hardening, other-language titles, export deprecation (v1.17.0 work) ✅
 
 - **Type**: Feature / refactor
 - **Summary**: Mihon announced that `0.21.x` is the last version that can restore Tachiyomi-format `.tachibk` backups (its replacement format isn't public yet). DexReader keeps reading `.tachibk` indefinitely; this work makes that import robust, explains what it leaves out, and announces the end of the `.tachibk` export. Plan: `claude-plans/mihon-backup-format-plan.md` (Package A and B done; the export removal and the new-format support are later releases)
@@ -113,7 +113,7 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
   - The Mihon/Tachiyomi export warning dialog says exporting to the Tachiyomi backup format (`.tachibk`) is being retired (importing `.tachibk` files and Mihon support are not affected) and what that means for restoring in Mihon (`menu:library.dialogs.exportMihonTachiyomiWarning.deprecation`, three locales)
   - Tests: real-protobuf decoder tests against an upstream-shaped schema, service, handler, preload, hook, dialog and library-menu tests
 - **Impact**: A Mihon import no longer fails on unknown upstream fields, uncompressed files work, errors say what is wrong, and users with non-English MangaDex libraries can see and add back what was skipped. Decode of a 300,000-chapter synthetic library took about 0.6 s and 360 MB of heap, so no streaming was needed
-- **Status**: 🚧 Implemented, awaiting a visual check. Gates: typecheck, lint, tests, coverage, production build. For the `1.17.0` changelog: Added - list of skipped other-language titles after a Mihon/Tachiyomi import; Changed - the import accepts uncompressed backups and reports specific errors; Deprecated - exporting to the Tachiyomi backup format (`.tachibk`), removed in the next release
+- **Status**: ✅ Committed and checked by hand. Gates: typecheck, lint, tests, coverage, production build. For the `1.17.0` changelog: Added - list of skipped other-language titles after a Mihon/Tachiyomi import; Changed - the import accepts uncompressed backups and reports specific errors; Deprecated - exporting to the Tachiyomi backup format (`.tachibk`), removed in the next release
 
 ### 27 October 2026 - Global Import/Export (v1.17.0 work) ✅
 
