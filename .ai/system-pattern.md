@@ -183,9 +183,29 @@
 
 **Trigger model is check-on-startup only**, run once at DB-init time (`src/main/index.ts`), not a live timer: compares the newest automatic snapshot's age against `settings.snapshot.intervalInHours` and only creates a new one if overdue. Chosen over a live `setInterval` (needless lifecycle management once a manual "Create Now" button exists) and over an exit-only hook (this codebase's `before-quit` handling is synchronous while `node:sqlite`'s `backup()` is async, and exit-only misses every ungraceful exit — exactly when a recent snapshot matters most).
 
+### Custom (data-fix) migrations
+
+**When**: a fix that changes data, not schema (for example repairing rows an older version wrote wrongly). Everything else is generated.
+
+**How**: `npx drizzle-kit generate --custom --name=<name>` creates the folder (`migration.sql` plus `snapshot.json`) and `runMigrations()` finds it by scanning the folder. Only the SQL is written by hand.
+
+**Gotchas**: (1) put `--> statement-breakpoint` after every statement but the last. Without it the migrator hands the whole file to SQLite as one statement and only the **first** statement runs, while the migration still counts as applied (found on 28 October 2026, `fix_mihon_millisecond_timestamp`). (2) Make the SQL idempotent with a `WHERE` that matches only bad rows. (3) `timestamp` columns hold integer **seconds**. (4) Test it on a throwaway database: build the schema with the migrator from a copy of the migrations folder that leaves the new one out, seed bad and good rows, then run the full folder.
+
+### Mihon protobuf decoding
+
+**int64 is a string.** protobufjs's `toJSON()` returns every 64-bit field as a string, so a model typed `number` is lying and a cast after `toJSON()` hides it. Convert once in `mihon-backup.decoder.ts` (`normaliseBackup`); keep values that can exceed 2^53 (the MangaDex source ids) as strings and compare them as `BigInt`. Mihon times are epoch **milliseconds**, DexReader's are seconds. Full picture: `docs/architecture/backup-import-export.md`.
+
 ---
 
 ## Code Conventions
+
+### Build gotcha: strings ending in "import" (main process)
+
+electron-vite's ESM shim plugin finds the last static `import` in a built chunk with a regex, and a string literal or comment in `src/main` that has the word `import` right before a closing quote (`'Invalid list of manga to import'`) can be matched as one, which splices a shim into the middle of the next string and fails the build with "Unterminated string literal". Keep the word out of that position (`'... to add back'`).
+
+### App-level owners for menu-driven flows
+
+Menu items can be used from any view, including the Reader (which renders outside `AppShell`), so their listeners and dialogs belong in an app-level component, not in a view. `BackupHost` (import/export) is mounted once in `App.tsx` at the same child position in both layouts so React keeps it across the Reader/AppShell swap, after the Gatekeeper gate. A module-level lock (`utils/backupOperationLock.ts`) serialises the operations; `utils/refreshAfterImport.ts` brings the stores back in line afterwards. Reuse this pattern for Refresh Library's progress UI.
 
 ### File Naming
 

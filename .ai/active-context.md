@@ -1,6 +1,6 @@
 # DexReader Active Context
 
-**Last Updated**: 27 October 2026
+**Last Updated**: 28 October 2026
 **Version**: v1.16.1
 **Mode**: Active Development
 
@@ -10,6 +10,8 @@
 
 ## Current Status
 
+**v1.17.0 in progress** (branch `feat/menu-integration`, nothing released yet) — one combined release, planned in `claude-plans/release-1-17-plan.md` (local and git-ignored, one plan file per piece sits beside it). **Done**: import/export from any view (`BackupHost`), the inert Library menu items and the dead code behind them removed, Mihon import hardening with the other-language title list, the Mihon timestamp fix and its data-repair migration, the export deprecation notice. **To build, in this order**: Manga Detail chapter list newest first (own branch off `main`, `fix/detail-chapter-order`), the in-app changelog window (plus `[YANKED]` markers on the seven never-published versions in `CHANGELOG.md`), Refresh Library phase 1 (one migration for all the new `manga` columns), the New Chapters view, then Refresh Library's chapter phase, then release prep (version bump, changelog, `v1.17.0-beta.1` tag first). Checkpoint after the changelog window: if the data-layer pieces slip, ship the rest as 1.17.0. `1.17.0` is the **last release that can export to `.tachibk`**; the release after it removes the exporter and adds Mihon's new backup format once Mihon publishes it (see `docs/architecture/backup-import-export.md`).
+
 **v1.16.1 prepared** (18 October 2026, patch; awaiting merge and the `v1.16.1` tag) — the Fluent migration clean-up: dead styles, components, tokens and dependencies removed, undefined-variable styling fixed, download badge colours restored, docs rewritten against the code.
 
 **v1.16.0 shipped** (12 October 2026) — The renderer's shared components moved from hand-rolled to **Fluent 2** (`@fluentui/react-components`), one component at a time behind stable public props, plus the UX work that fell out of it: Browse filters in a dialog with draft/Apply semantics and searchable tag/language pickers (the Languages filter now actually applies to search), language flags (`LanguageBadge`), Back returning to the originating view, chapter resume from the chapter list/History/Downloads, and a content-language guard (settings version 8). Details: `CHANGELOG.md`.
@@ -18,7 +20,8 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 
 **Next Planned Work:**
 
-- Manga Detail chapter list: default to newest first. Needs the feed loaded in full (it fetches one page of 100 today, so long series can't reach their other end) and the list kept ascending in state, because the reader's Previous/Next and "Start Reading" assume that order. Planned on its own branch (`fix(detail)`)
+- Manga Detail chapter list: default to newest first, remembered per manga in `localStorage`, long series loaded lazily (first page shown at once, the rest in the background, with Start Reading, Continue and Download all gated until the list is complete). The list kept in state stays **ascending**, because the reader's Previous/Next and "Start Reading" assume that order, and Download all queues oldest first. Plan: `claude-plans/detail-chapter-list-newest-first-plan.md`; own branch (`fix(detail)` then `feat(detail)`)
+- The rest of 1.17.0 (see Current Status), then the Mihon removal release and new-format support (plan: `claude-plans/mihon-backup-format-plan.md`, Package C, blocked until Mihon publishes its format)
 - Decide on the Known Issues below, starting with cache cleanup deleting read history
 
 ---
@@ -32,12 +35,12 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 - **Status**: Not fixed (pre-existing)
 - **Detail**: `migrateSettings` has a "revert to defaults" branch for an invalid current-version file, but `validateSettings` throws a `TypeError` instead of returning `false`, so the branch can't run and `settingsManager.load()` throws. Only reachable by hand-editing or corrupting `settings.json`.
 
-### Mihon/Tachiyomi backups use millisecond timestamps, DexReader reads seconds
+### Imported Mihon chapters have a placeholder `externalUrl` and a fixed language
 
-- **Severity**: Medium (wrong dates in History and chapter data; found while checking a real backup)
+- **Severity**: Low to Medium (matters for the planned New Chapters view)
 - **Affects**: All
-- **Status**: Not fixed (pre-existing)
-- **Detail**: Mihon writes `dateUpload`, `dateFetch` and history `lastRead` in epoch milliseconds (a real backup has `dateUpload` `1755180318000`). The importer passes them to `unixTimestampToDate`/`timestampToLocalDateString`, which expect seconds, so imported chapters get a `publishAt` around the year 57,000 and imported progress and history get `lastReadAt` dates far in the future. The exporter has the mirror problem (`dateToUnixTimestamp` writes seconds where Mihon reads milliseconds). Imported chapter rows also carry `externalUrl: '/chapter/<uuid>'` (not a real URL) and `language: 'en'`. Rows already imported need a data repair as well as the code fix. Matters for the New Chapters view, which filters on `publishAt`.
+- **Status**: Not fixed
+- **Detail**: The Mihon importer saves each chapter with `externalUrl: '/chapter/<uuid>'` (not a real URL) and `language: 'en'`, because a backup has neither. Code that treats `externalUrl` as "official external chapter, can't be read in the app" (the New Chapters plan hides those) would hide imported chapters. Decide whether to stop writing `externalUrl` for imports and what language to record. The timestamp half of this import was fixed in 1.17.0 (milliseconds are now read as milliseconds, and migration `20261028155803_fix_mihon_millisecond_timestamp` repairs rows imported before).
 
 ### Cache cleanup also deletes read history
 
@@ -86,6 +89,19 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 
 ## Recent Changes (Last 1-2 Weeks)
 
+### 28 October 2026 - Mihon timestamp fix, backup model types, menu wording (v1.17.0 work) 🚧
+
+- **Type**: Bugfix / cleanup
+- **Summary**: Follow-ups to the Mihon work. A real Mihon backup showed that Mihon writes times in milliseconds while DexReader read and wrote seconds, and that the backup model's `number` types did not match what protobufjs returns (strings for every int64)
+- **Key Changes**:
+  - `mihon-backup.decoder.ts` converts the int64 fields to numbers once (`normaliseBackup`); the two source ids stay strings. The model types are now true. Helper code needs no `Number()` wrapping
+  - Importer builds publish dates straight from milliseconds and converts history read times to seconds; the exporter writes milliseconds and sends the publish date as `dateUpload` (it used the cache date for both)
+  - Migration `20261028155803_fix_mihon_millisecond_timestamp` (custom, generated with `drizzle-kit generate --custom`) divides the chapter and progress timestamps above 1e10 by 1000 and rebuilds the History day strings that read like `57589-10-12`. Custom migrations need `--> statement-breakpoint` between statements or only the first one runs; checked on a throwaway database
+  - The export menu item is now "To Tachiyomi Format (.tachibk)..." with a matching save dialog (the deprecation wording says it is the Tachiyomi format being retired, never "Mihon/Tachiyomi"); the five dead Library menu items and their `MenuState` fields, preload listeners and strings were removed
+  - New doc `docs/architecture/backup-import-export.md`; wiki page `DexReader.wiki/Import-and-Export.md` edited for the deprecation and the other-language list, **uncommitted in the wiki repo**
+- **Impact**: Imported chapters and History get correct dates; rows from earlier imports are repaired at startup
+- **Status**: 🚧 Committed on `feat/menu-integration`. For the `1.17.0` changelog: Fixed - Mihon/Tachiyomi imports read chapter dates and read times as milliseconds (earlier imports are repaired automatically); Added - list of skipped other-language titles after a Mihon/Tachiyomi import; Changed - the import accepts uncompressed backups and reports specific errors, the export item is named "To Tachiyomi Format (.tachibk)..."; Deprecated - exporting to the Tachiyomi backup format (removed in the next release); Removed - menu items that never did anything. The Mihon import entry below still awaits a visual check
+
 ### 27 October 2026 - Mihon/Tachiyomi import hardening, other-language titles, export deprecation (v1.17.0 work) 🚧
 
 - **Type**: Feature / refactor
@@ -99,7 +115,7 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 - **Impact**: A Mihon import no longer fails on unknown upstream fields, uncompressed files work, errors say what is wrong, and users with non-English MangaDex libraries can see and add back what was skipped. Decode of a 300,000-chapter synthetic library took about 0.6 s and 360 MB of heap, so no streaming was needed
 - **Status**: 🚧 Implemented, awaiting a visual check. Gates: typecheck, lint, tests, coverage, production build. For the `1.17.0` changelog: Added - list of skipped other-language titles after a Mihon/Tachiyomi import; Changed - the import accepts uncompressed backups and reports specific errors; Deprecated - exporting to the Tachiyomi backup format (`.tachibk`), removed in the next release
 
-### 27 October 2026 - Global Import/Export (v1.17.0 work) 🚧
+### 27 October 2026 - Global Import/Export (v1.17.0 work) ✅
 
 - **Type**: Bugfix / refactor
 - **Summary**: The Library menu's import and export items now work from every view, including the Reader. Before, the listeners and dialogs lived inside `LibraryView`, so a menu pick from any other view opened the native file dialog and then silently dropped the chosen path.
@@ -110,7 +126,7 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
   - `LibraryView` no longer owns any of this, and now silently refreshes its grid when the favourites store changes (an import while the view is open used to leave the grid stale until remount)
   - Mihon result dialog's "View library" now navigates to `/library`; `ImportResult` type now has one home (exported from `ImportResultDialog`)
 - **Impact**: Menu import/export usable anywhere. Existing English toast strings in the hooks were left as they were (i18n of those is a follow-up)
-- **Status**: 🚧 Implemented and committed on `feat/menu-integration`, awaiting the visual check. Gates: typecheck, lint, 1529 tests, coverage thresholds, production build. **Not yet verified by hand** (native menu → dialog from Browse, Detail, Downloads, Settings, History, Reader; cancel a dialog; corrupt file; Mihon import with errors). Plan file `claude-plans/global-import-export-plan.md` kept until that is done. For the `1.17.0` changelog: Fixed - "Library import/export from the menu now works from any view"
+- **Status**: ✅ Committed on `feat/menu-integration` and checked by hand from the views. For the `1.17.0` changelog: Fixed - "Library import/export from the menu now works from any view"
 
 ### 18 October 2026 - v1.16.1 release prep ✅
 

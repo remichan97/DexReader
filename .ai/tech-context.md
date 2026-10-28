@@ -335,10 +335,11 @@ All IPC handlers use `wrapIpcHandler` for consistent error handling:
    - Excludes: reading statistics (recalculated on import), app settings (separate backup)
    - Encoding: Protobuf (binary) + gzip (`pako`) compression
 
-2. **Mihon/Tachiyomi Compatibility** — services in `src/main/services/mihon/` (`mihon-backup.service.ts`, `mihon-export.service.ts`)
-   - Import: Decode Mihon backups, filter MangaDex manga, import to library
-   - Export: Export library to Mihon format with tag conversion
-   - MangaDex source ID: `2499283573021220255` (matched as a `BigInt` against each backed-up manga's `source` field)
+2. **Mihon/Tachiyomi Compatibility** — services in `src/main/services/mihon/` (`mihon-backup.service.ts`, `mihon-backup.decoder.ts`, `mihon-export.service.ts`)
+   - Import: `mihon-backup.decoder.ts` unwraps gzip or plain protobuf, decodes with a trimmed all-optional `mihon.proto`, and converts int64 fields to numbers; the service imports English MangaDex entries and returns other-language ones as `skippedOtherLanguage` (add back with `includeMangaIds`)
+   - Export (deprecated, last in 1.17.0): library to the Tachiyomi backup format with tag conversion; times in milliseconds
+   - English MangaDex source ID: `2499283573021220255` (a `BigInt` compared against each backed-up manga's `source`, which stays a string); other-language MangaDex sources are recognised by the name "MangaDex" in the backup's own source list
+   - Mihon's `0.21.x` is the last line that restores `.tachibk`; details and what to watch in `docs/architecture/backup-import-export.md`
 
 ---
 

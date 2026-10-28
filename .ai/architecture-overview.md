@@ -96,7 +96,7 @@ Routed in `src/renderer/src/router.tsx` (wrapped in `HashRouter` in `App.tsx`):
 - **Manga Components**: `MangaCard`, `MangaStorageList`
 - **Reader Components**: `ReaderSettingsModal`, `ReadingModeSelector`, `ZoomControlsModal`, `ProgressBar`, `ProgressRing`
 - **Search/Filter**: `SearchBar`, `FilterPanel`, `FilterChip`, `PresetSelector`, `SavePresetDialog`
-- **Backup/Import**: `DexReaderExportDialog`, `DexReaderImportDialog`, `ImportProgressDialog`, `ImportResultDialog`
+- **Backup/Import**: `BackupHost` (app-level owner, mounted in `App.tsx`), `DexReaderExportDialog`, `DexReaderImportDialog`, `ImportProgressDialog`, `ImportResultDialog`
 - **Gatekeeper (app lock)**: `GatekeeperChangeModal`, `GatekeeperReauthModal`, `GatekeeperResetPrompt`, `GatekeeperSetupModal`
 - **Shared/Primitives**: `Button`, `Input`, `Checkbox`, `Radio`, `Switch`, `Select`, `NumberSpinner`, `Modal`, `Popover`, `Tabs`, `Tooltip`, `ListItem`, `Badge`
 - **Feedback**: `Toast`, `InfoBar`, `EmptyState`, `ErrorState`, `LoadingState`, `Skeleton`, `ProgressBar`
@@ -250,7 +250,7 @@ SQLite (`node:sqlite`, built-in — no native deps) with Drizzle ORM for all per
 ##### 11. Backup/Restore Services (`src/main/services/`)
 
 - `dexreader/` - Native `.dexreader` format export/import
-- `mihon/` - Mihon/Tachiyomi `.tachibk` compatibility export/import
+- `mihon/` - Mihon/Tachiyomi `.tachibk` import (decoder, service) and the deprecated export; see `docs/architecture/backup-import-export.md`
 - `protobuf/schemas/` - Shared protobuf schema definitions
 - `download.service.ts`, `download-queue/` (`batch-writer.ts`, `progress-reporter.ts`, `retry-scheduler.ts`) - Chapter download orchestration
 - `database-snapshot.service.ts` - "Restore Points" snapshot/restore via `node:sqlite`'s Online Backup API
