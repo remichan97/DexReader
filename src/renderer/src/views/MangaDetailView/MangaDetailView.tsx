@@ -206,6 +206,8 @@ export function MangaDetailView(): JSX.Element {
         chapters={data.chapters}
         progress={progress}
         origin={origin}
+        chaptersComplete={data.chaptersComplete}
+        chaptersFilterLanguage={data.chaptersFilterLanguage}
       />
 
       {/* Description section */}
@@ -234,6 +236,11 @@ export function MangaDetailView(): JSX.Element {
         onSortChange={data.setChapterSort}
         onRetry={() => data.loadChaptersForLanguage(data.selectedLanguage)}
         onToggleErrorDetails={() => setShowChapterErrorDetails((prev) => !prev)}
+        chaptersComplete={data.chaptersComplete}
+        chaptersTotal={data.chaptersTotal}
+        chaptersLoadedFrom={data.chaptersLoadedFrom}
+        chaptersLoadFailed={data.chaptersLoadFailed}
+        chaptersFilterLanguage={data.chaptersFilterLanguage}
       />
     </div>
   )

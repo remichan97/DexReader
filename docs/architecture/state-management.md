@@ -7,7 +7,7 @@
 
 ## Overview
 
-The renderer keeps shared state in [Zustand](https://zustand.docs.pmnd.rs/) 5 stores. Stores are **ephemeral**: nothing is persisted from the renderer (no `persist` middleware, no `localStorage`). Each store is rehydrated from the main process when the app starts or when a view needs it, and anything that must survive a restart is written back through IPC:
+The renderer keeps shared state in [Zustand](https://zustand.docs.pmnd.rs/) 5 stores. Stores are **ephemeral**: nothing is persisted from a store (no `persist` middleware). The renderer does use `localStorage` directly, outside the stores, for small per-device view preferences and one-time flags (see below). Each store is rehydrated from the main process when the app starts or when a view needs it, and anything that must survive a restart is written back through IPC:
 
 - **Settings** (`electron-store` → `settings.json`): theme mode, sidebar display mode, language and so on.
 - **SQLite** (via IPC handlers and repositories): favourites, collections, search presets, reading progress and history. See [database-architecture.md](./database-architecture.md).
@@ -94,6 +94,10 @@ Read-only. The renderer never writes history events: they are logged on the main
 Thin IPC-backed lists with the shared `loading` and `error` shape. `libraryStore` exposes `isFavourite(mangaId)` for cards; `collectionsStore` has create, update, delete and add/remove-member actions; `searchPresetsStore` adds `getPresetById` and `getPresetByName` helpers.
 
 ---
+
+## `localStorage`: per-device view preferences
+
+Real preferences live in settings (`electron-store`) or SQLite. `localStorage` (keys prefixed `dexreader:`) holds only things that are about _this device's view_ and not worth a settings migration or a backup: the Library's "include downloaded titles" toggle, the update-banner flags, and the chapter list's sort order for each manga (`dexreader:mangaDetail:chapterSort`, a map from manga id to `'asc'` for the manga the user flipped; newest first is the default and is never stored; only the 300 most recent are kept; see `utils/chapterSortPreference.ts`). Reads and writes are wrapped in `try/catch` and validated, because storage can be blocked or hold anything. It is lost if app data is cleared, which only costs the user their choice.
 
 ## Hydration at startup
 

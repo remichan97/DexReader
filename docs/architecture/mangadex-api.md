@@ -162,8 +162,8 @@ if (response.success && response.data) {
 ```
 
 - **Browse** (`searchStore`) calls `searchManga`, refuses to search while `connectivityStore.isOnline` is false, and stops paging at the 10,000-result ceiling.
-- **Manga Detail** (`useMangaDetailData`) calls `getManga` and `getMangaFeed`.
-- **Reader** (`useChapterData`) first asks whether the chapter is downloaded and, if so, uses `local-manga://chapter/{id}/page/{n}` URLs. Otherwise it calls `getChapterImages` and maps each URL to `mangadex://`.
+- **Manga Detail** (`useMangaDetailData`) calls `getManga`, then pages the chapter feed through `utils/chapterFeedLoader.ts`: 500 chapters per request (the API's maximum), ordered by `chapter` then `publishAt` in the direction the list is sorted towards, with all four content ratings (the feed leaves out pornographic titles unless asked). The first page is shown at once and the rest loads in the background; each report carries the merged list oldest first (`utils/chapterOrder.ts`), de-duplicated by id. A series almost always fits one or two pages (the longest English feed among the 40 most-followed series was 617 chapters, about a second to load). **API names to get right**: the order key and the date filter are `publishAt` and `publishAtSince`, not `publishedAt…`; the API rejects the latter.
+- **Reader** (`useChapterData`) first asks whether the chapter is downloaded and, if so, uses `local-manga://chapter/{id}/page/{n}` URLs. Otherwise it calls `getChapterImages` and maps each URL to `mangadex://`. When opened without a chapter list (from History or Downloads), or with one the manga page was still loading, it loads the whole list itself with the same loader, oldest first (English only when it has to guess the language).
 - **Creator view** calls `searchManga` filtered by author or artist.
 - **Connectivity** polls `isServiceAlive()`.
 

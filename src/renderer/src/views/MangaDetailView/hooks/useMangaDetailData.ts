@@ -1,23 +1,49 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import { cacheMangaMetadata } from '@renderer/utils/mangaCache'
 import {
   convertDbMangaToContract,
   convertDbChaptersToContract
 } from '@renderer/utils/mangaDbConversion'
+import {
+  fetchChapterFeedPage,
+  loadChapterFeed,
+  type ChapterDirection,
+  type ChapterFeedProgress,
+  type FeedPage
+} from '@renderer/utils/chapterFeedLoader'
+import { sortChaptersAscending } from '@renderer/utils/chapterOrder'
+import {
+  DEFAULT_CHAPTER_SORT,
+  getChapterSortPreference,
+  setChapterSortPreference
+} from '@renderer/utils/chapterSortPreference'
 import { toError } from '@shared/utils/to-error.util'
 import { rendererLog } from '@renderer/services/logging.service'
 import type { MangaContract, ChapterContract } from '../../../../../preload/window.types'
-import { ChapterIncludes, OrderDirection } from '@shared/enums/mangadex'
 
 type MangaEntity = MangaContract
 type ChapterEntity = ChapterContract
 type TFunction = ReturnType<typeof useTranslation>['t']
 
-export type ChapterSortOrder = 'asc' | 'desc'
+export type ChapterSortOrder = ChapterDirection
+
+/**
+ * @param filterLanguage - the language the feed is filtered to, or undefined for every language
+ * @param selectedLanguage - the language the selector shows
+ */
+interface FeedLanguages {
+  filterLanguage: string | undefined
+  selectedLanguage: string
+}
 
 interface MangaDetailDataState {
   manga: MangaEntity | null
+  /**
+   * Always **oldest first**, whatever order the list is shown in. The Reader steps to the previous
+   * and next chapter by index in this list, Start Reading takes its first entry and Download all
+   * queues it as is. `chapterSort` only changes how the chapter list displays it.
+   */
   chapters: ChapterEntity[]
   loading: boolean
   error: Error | null
@@ -26,6 +52,19 @@ interface MangaDetailDataState {
   chaptersLoading: boolean
   chaptersError: Error | null
   usingCachedData: boolean // Flag to indicate we're showing database cache instead of live API data
+  /** False while later pages of a long series are still arriving, or after one failed */
+  chaptersComplete: boolean
+  /** How many chapters the API says the series has in the shown language */
+  chaptersTotal: number
+  /** Which end of the series arrived first; the chapters still missing are at the other end */
+  chaptersLoadedFrom: 'oldest' | 'newest' | undefined
+  /** A later page failed, so the list shown is partial until the load is retried */
+  chaptersLoadFailed: boolean
+  /**
+   * The language the feed is filtered to, or undefined when it holds every language (the last
+   * resort of the cascade). Whoever finishes loading the list elsewhere needs the same filter.
+   */
+  chaptersFilterLanguage: string | undefined
 }
 
 export interface UseMangaDetailDataResult extends MangaDetailDataState {
@@ -40,10 +79,15 @@ const INITIAL_STATE: MangaDetailDataState = {
   loading: true,
   error: null,
   selectedLanguage: 'en',
-  chapterSort: 'asc',
+  chapterSort: DEFAULT_CHAPTER_SORT,
   chaptersLoading: false,
   chaptersError: null,
-  usingCachedData: false
+  usingCachedData: false,
+  chaptersComplete: true,
+  chaptersTotal: 0,
+  chaptersLoadedFrom: undefined,
+  chaptersLoadFailed: false,
+  chaptersFilterLanguage: undefined
 }
 
 /**
@@ -63,6 +107,11 @@ function mapDisplayToContentLanguage(displayLang: string): string {
  * `selectedLanguage` state that the cascade subsequently overwrites once the
  * API responds - splitting them would mean threading that hand-off through
  * two hooks instead of one.
+ *
+ * Chapters load page by page (see chapterFeedLoader): the first page, from the end of the
+ * series the list is sorted towards, replaces the skeleton at once and the rest arrives in the
+ * background. Every load can be cancelled, so a language switch, a retry or leaving the page
+ * never lets a slow load overwrite a newer one.
  */
 export function useMangaDetailData(
   mangaId: string | undefined,
@@ -70,6 +119,97 @@ export function useMangaDetailData(
   t: TFunction
 ): UseMangaDetailDataResult {
   const [state, setState] = useState<MangaDetailDataState>(INITIAL_STATE)
+  const loadControllerRef = useRef<AbortController | undefined>(undefined)
+
+  /** Cancel whatever is loading and start a new load, returning its signal */
+  function beginLoad(): AbortSignal {
+    loadControllerRef.current?.abort()
+    loadControllerRef.current = new AbortController()
+    return loadControllerRef.current.signal
+  }
+
+  function applyFeedProgress(
+    progress: ChapterFeedProgress,
+    languages: FeedLanguages,
+    signal: AbortSignal
+  ): void {
+    if (signal.aborted) return
+
+    setState((prev) => ({
+      ...prev,
+      chapters: progress.chapters,
+      selectedLanguage: languages.selectedLanguage,
+      chaptersFilterLanguage: languages.filterLanguage,
+      chaptersLoading: false,
+      chaptersError: null,
+      usingCachedData: false,
+      chaptersComplete: progress.complete,
+      chaptersTotal: progress.total,
+      chaptersLoadedFrom: progress.loadedFrom,
+      chaptersLoadFailed: false
+    }))
+  }
+
+  /** Show a feed whose first page is already in hand, and keep loading the rest in the background */
+  async function streamChapters(
+    id: string,
+    firstPage: FeedPage,
+    direction: ChapterDirection,
+    languages: FeedLanguages,
+    signal: AbortSignal
+  ): Promise<void> {
+    const result = await loadChapterFeed({
+      mangaId: id,
+      language: languages.filterLanguage,
+      direction,
+      firstPage,
+      signal,
+      onPage: (progress) => applyFeedProgress(progress, languages, signal)
+    })
+
+    if (result.status === 'partial' && !signal.aborted) {
+      rendererLog.error(
+        '[useMangaDetailData] Failed to load the rest of the chapters:',
+        result.error
+      )
+      setState((prev) => ({ ...prev, chaptersLoadFailed: true }))
+    }
+  }
+
+  function showNoChapters(signal: AbortSignal): void {
+    if (signal.aborted) return
+
+    // No chapters at all — treat as empty, not an error
+    setState((prev) => ({
+      ...prev,
+      chapters: [],
+      chaptersLoading: false,
+      chaptersError: null,
+      usingCachedData: false,
+      chaptersComplete: true,
+      chaptersTotal: 0,
+      chaptersLoadedFrom: undefined,
+      chaptersLoadFailed: false,
+      chaptersFilterLanguage: undefined
+    }))
+  }
+
+  function showChaptersError(error: unknown, signal: AbortSignal, message: string): void {
+    if (signal.aborted) return
+
+    rendererLog.error(message, error)
+    setState((prev) => ({
+      ...prev,
+      chapters: [],
+      chaptersLoading: false,
+      chaptersError: toError(error),
+      chaptersComplete: true,
+      chaptersTotal: 0,
+      chaptersLoadedFrom: undefined,
+      chaptersLoadFailed: false,
+      chaptersFilterLanguage: undefined
+    }))
+  }
 
   /**
    * Load chapters using priority cascade logic.
@@ -77,7 +217,8 @@ export function useMangaDetailData(
    */
   async function loadChaptersWithPriority(
     id: string,
-    chapterSort: ChapterSortOrder
+    direction: ChapterDirection,
+    signal: AbortSignal
   ): Promise<void> {
     if (!isOnline) {
       setState((prev) => ({
@@ -111,73 +252,53 @@ export function useMangaDetailData(
       // Build priority cascade: determined priorities → English (if not in list) → unfiltered
       const prioritiesWithFallback = [...priorities, ...(priorities.includes('en') ? [] : ['en'])]
 
-      // Try each priority language sequentially
+      // Try each priority language sequentially. Whether a language has chapters is judged from
+      // its first page, which is also the page that goes on screen.
       for (const lang of prioritiesWithFallback) {
-        const response = await globalThis.mangadex.getMangaFeed(id, {
-          limit: 100,
-          offset: 0,
-          translatedLanguage: [lang],
-          order: { chapter: chapterSort as OrderDirection },
-          includes: [ChapterIncludes.SCANLATION_GROUP]
+        const firstPage = await fetchChapterFeedPage({
+          mangaId: id,
+          language: lang,
+          direction,
+          offset: 0
         })
+        if (signal.aborted) return
 
-        if (response.success && response.data && response.data.data.length > 0) {
-          // Found chapters in this language!
-          const chapters = response.data.data
-          setState((prev) => ({
-            ...prev,
-            chapters,
-            selectedLanguage: lang,
-            chaptersLoading: false,
-            chaptersError: null,
-            usingCachedData: false
-          }))
+        if (firstPage.chapters.length > 0) {
+          await streamChapters(
+            id,
+            firstPage,
+            direction,
+            { filterLanguage: lang, selectedLanguage: lang },
+            signal
+          )
           return
         }
       }
 
       // Last resort: Query without language filter
-      const unfilteredResponse = await globalThis.mangadex.getMangaFeed(id, {
-        limit: 100,
-        offset: 0,
-        order: { chapter: chapterSort as OrderDirection },
-        includes: [ChapterIncludes.SCANLATION_GROUP]
-        // No translatedLanguage filter
+      const unfilteredPage = await fetchChapterFeedPage({
+        mangaId: id,
+        direction,
+        offset: 0
       })
+      if (signal.aborted) return
 
-      if (
-        unfilteredResponse.success &&
-        unfilteredResponse.data &&
-        unfilteredResponse.data.data.length > 0
-      ) {
-        const chapters = unfilteredResponse.data.data
-        const firstChapterLang = chapters[0].translatedLanguage
-        setState((prev) => ({
-          ...prev,
-          chapters,
-          selectedLanguage: firstChapterLang,
-          chaptersLoading: false,
-          chaptersError: null,
-          usingCachedData: false
-        }))
+      if (unfilteredPage.chapters.length > 0) {
+        await streamChapters(
+          id,
+          unfilteredPage,
+          direction,
+          {
+            filterLanguage: undefined,
+            selectedLanguage: unfilteredPage.chapters[0].translatedLanguage
+          },
+          signal
+        )
       } else {
-        // No chapters at all — treat as empty, not an error
-        setState((prev) => ({
-          ...prev,
-          chapters: [],
-          chaptersLoading: false,
-          chaptersError: null,
-          usingCachedData: false
-        }))
+        showNoChapters(signal)
       }
     } catch (error) {
-      rendererLog.error('[useMangaDetailData] Failed to load chapters:', error)
-      setState((prev) => ({
-        ...prev,
-        chapters: [],
-        chaptersLoading: false,
-        chaptersError: toError(error)
-      }))
+      showChaptersError(error, signal, '[useMangaDetailData] Failed to load chapters:')
     }
   }
 
@@ -186,7 +307,22 @@ export function useMangaDetailData(
    * Database-first approach ensures offline functionality with cached data.
    */
   async function loadMangaDetails(id: string): Promise<void> {
-    setState((prev) => ({ ...prev, loading: true, error: null }))
+    const signal = beginLoad()
+    // The order this manga was last viewed in, which also decides which end of the series loads first
+    const direction = getChapterSortPreference(id)
+
+    setState((prev) => ({
+      ...prev,
+      loading: true,
+      error: null,
+      chapterSort: direction,
+      chapters: [],
+      chaptersComplete: true,
+      chaptersTotal: 0,
+      chaptersLoadedFrom: undefined,
+      chaptersLoadFailed: false,
+      chaptersFilterLanguage: undefined
+    }))
 
     // Step 1: Always check database first (works offline and online)
     let foundInDb = false
@@ -195,6 +331,7 @@ export function useMangaDetailData(
         globalThis.library.getMangaById(id),
         globalThis.library.getCachedChapters(id)
       ])
+      if (signal.aborted) return
 
       if (dbMangaResult.success && dbMangaResult.data) {
         foundInDb = true
@@ -215,16 +352,21 @@ export function useMangaDetailData(
             ? languages[0]
             : 'en'
 
+        // The cache holds every language it has seen; show the one chosen above, oldest first
+        const inLanguage = chapterEntities.filter((ch) => ch.translatedLanguage === initialLanguage)
+
         // Update state with cached data
         setState((prev) => ({
           ...prev,
           manga: mangaEntity,
-          chapters: chapterEntities,
+          chapters: sortChaptersAscending(inLanguage.length > 0 ? inLanguage : chapterEntities),
           selectedLanguage: initialLanguage,
           loading: false,
           usingCachedData: !isOnline, // Only show cached data indicator if offline
           chaptersLoading: false,
-          chaptersError: null
+          chaptersError: null,
+          // A cached list can't be completed from here, so nothing waits on it
+          chaptersComplete: true
         }))
       }
     } catch {
@@ -239,6 +381,7 @@ export function useMangaDetailData(
           'author',
           'artist'
         ])
+        if (signal.aborted) return
 
         if (!mangaResponse.success || !mangaResponse.data) {
           throw new Error(mangaResponse.error?.message || 'Failed to fetch manga')
@@ -256,6 +399,7 @@ export function useMangaDetailData(
         } catch {
           // Failed to cache - continue with API data
         }
+        if (signal.aborted) return
 
         // Update state with live API data
         setState((prev) => ({
@@ -266,8 +410,10 @@ export function useMangaDetailData(
         }))
 
         // Fetch chapters using priority cascade
-        await loadChaptersWithPriority(id, state.chapterSort)
+        await loadChaptersWithPriority(id, direction, signal)
       } catch (apiError) {
+        if (signal.aborted) return
+
         // Only show API error if we don't have database data
         if (!foundInDb) {
           rendererLog.error('[useMangaDetailData] Failed to load manga from API:', apiError)
@@ -303,44 +449,33 @@ export function useMangaDetailData(
       return
     }
 
+    const signal = beginLoad()
     setState((prev) => ({ ...prev, chaptersLoading: true, chaptersError: null }))
 
     try {
-      const chaptersResponse = await globalThis.mangadex.getMangaFeed(mangaId, {
-        limit: 100,
-        offset: 0,
-        translatedLanguage: [language],
-        order: { chapter: state.chapterSort as OrderDirection },
-        includes: [ChapterIncludes.SCANLATION_GROUP]
+      const firstPage = await fetchChapterFeedPage({
+        mangaId,
+        language,
+        direction: state.chapterSort,
+        offset: 0
       })
+      if (signal.aborted) return
 
-      // Check IPC success
-      if (!chaptersResponse.success || !chaptersResponse.data) {
-        throw new Error(chaptersResponse.error?.message || 'Failed to fetch chapters')
+      if (firstPage.chapters.length === 0) {
+        setState((prev) => ({ ...prev, selectedLanguage: language }))
+        showNoChapters(signal)
+        return
       }
 
-      // Check API result
-      if (chaptersResponse.data.result === 'error') {
-        throw new Error('Failed to fetch chapters from API')
-      }
-
-      const chapters = chaptersResponse.data.data
-      setState((prev) => ({
-        ...prev,
-        chapters,
-        selectedLanguage: language,
-        chaptersLoading: false,
-        chaptersError: null,
-        usingCachedData: false // Clear cached data flag when getting fresh data
-      }))
+      await streamChapters(
+        mangaId,
+        firstPage,
+        state.chapterSort,
+        { filterLanguage: language, selectedLanguage: language },
+        signal
+      )
     } catch (error) {
-      rendererLog.error('[useMangaDetailData] Failed to load chapters for language:', error)
-      setState((prev) => ({
-        ...prev,
-        chapters: [],
-        chaptersLoading: false,
-        chaptersError: toError(error)
-      }))
+      showChaptersError(error, signal, '[useMangaDetailData] Failed to load chapters for language:')
     }
   }
 
@@ -362,8 +497,19 @@ export function useMangaDetailData(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOnline, mangaId])
 
+  // Stop loading when the page goes away
+  useEffect(() => {
+    return () => {
+      loadControllerRef.current?.abort()
+    }
+  }, [])
+
+  // Sorting only changes how the list is shown (and is remembered for this manga); it never reloads
   const setChapterSort = (order: ChapterSortOrder): void => {
     setState((prev) => ({ ...prev, chapterSort: order }))
+    if (mangaId) {
+      setChapterSortPreference(mangaId, order)
+    }
   }
 
   const handleRetry = (): void => {
