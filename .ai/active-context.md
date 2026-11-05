@@ -75,6 +75,14 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 - **Severity**: Low (dev only)
 - **Detail**: Vite's watcher occasionally kept serving a stale module (after `sed -i` on a file, and after adding a new export), which shows as `does not provide an export named …` and a blank window. `touch`-ing the files and reloading fixes it.
 
+### `npm audit` reports 12 moderate advisories, all from `minimatch` (dev tooling only)
+
+- **Severity**: Low (dev only)
+- **Detail**: GHSA-g3hv-75wg-m249 (denial of service via globparts amplification) affects `minimatch >=7.0.0 <11.0.1`. The 12 entries are one finding repeated up the chain: `minimatch@9.0.9` under `@typescript-eslint/typescript-estree` and `@electron/universal`, and `minimatch@10.2.5` under `app-builder-lib`. All of it is build and lint tooling (`electron-builder`, `typescript-eslint`), so nothing ships in the packaged app, and a hostile glob would have to come from our own config.
+- **Checked on 5 November 2026**: `typescript-eslint@8.72.1` still depends on `minimatch ^10.2.2`, and `electron-builder@26.18.1` (the newest 26.x; `26.28.1` doesn't exist) still pins `minimatch ^10.2.5` and `@electron/universal 2.0.3`. Neither clears the audit.
+- **Do not**: run `npm audit fix --force` (it downgrades `electron-builder` to 25.1.0), or add a global `minimatch` override (`eslint`, `eslint-plugin-react`, `@electron/asar` and `dir-compare` use 3.x, and `filelist` uses 5.x, which export the function directly and would break on 11).
+- **Revisit**: when `electron-builder` and `typescript-eslint` release versions depending on `minimatch >=11.0.1`, a plain upgrade should fix it. Until then, add scoped `overrides` in `package.json` for `@typescript-eslint/typescript-estree`, `@electron/universal` and `app-builder-lib` pointing at `minimatch@^11.0.4` (needs Node `20 || >=22`, so confirm CI's Node version), then run `npm audit`, `typecheck`, `lint`, `test` and `build:win`. Also check whether CI gates on `npm audit`, which would make this block a release.
+
 <!-- Template for future issues:
 ### [Issue Title]
 - **Severity**: Critical / High / Medium / Low
@@ -87,6 +95,15 @@ Earlier: v1.15.0 (3 October) settings autosave + chronological Read History + th
 ---
 
 ## Recent Changes (Last 1-2 Weeks)
+
+### 5 November 2026 - Changelog window, Step 1 spike (v1.17.0 work) 🚧
+
+- **Type**: Feature (in progress)
+- **Summary**: First step of the in-app changelog window (`claude-plans/changelog-window-plan.md`): `CHANGELOG.md` is compiled into the main bundle with a Vite `?raw` import, so no file ships and no network or `fs` access is needed. Decisions made: full history, unpublished versions kept in place as "Not Published / Fold to vX" (the seven were confirmed against the public releases API), GitHub link kept for the update-available notice, notes stay English
+- **Key Changes**: `src/main/raw-modules.d.ts` (the `*.md?raw` declaration `electron-vite/node` lacks), `src/main/changelog/changelog-source.ts` (the only importer of the file) and its test. Verified in a production build: the text lands in `out/main/index.js` only. Parser, IPC, window, UI and the `[YANKED]` edits are still to do
+- **Impact**: None user-visible yet
+  - **Node 26 test fix**: Node 25+ has its own `localStorage` global that reads as `undefined` without `--localstorage-file` and hides happy-dom's, which broke 38 tests in three renderer files after a `winget upgrade` took Node from 24 to 26. `vitest/setup.renderer.ts` now swaps in a fresh happy-dom `Window`'s storage when the global is `undefined` (a no-op on Node 24, which CI pins). Any new test touching `localStorage` relies on this
+- **Status**: Step 1 committed on `feat/menu-integration`; the parser, IPC, window, UI and `[YANKED]` steps are still to do. Typecheck, lint and all 1,722 tests pass on Node 26.13.0 (the Node 24 path was not run locally)
 
 ### 28 October 2026 - Manga Detail chapter list newest first, every page loaded (v1.17.0 work) ✅
 
