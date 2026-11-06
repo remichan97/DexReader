@@ -210,7 +210,7 @@ and this project adheres to [Semantic Versioning].
 
 ---
 
-## [1.11.0] - 2026-06-24
+## [1.11.0] - 2026-06-24 [YANKED]
 
 ### Changed
 
@@ -228,7 +228,7 @@ and this project adheres to [Semantic Versioning].
 
 ---
 
-## [1.10.0] - 2026-06-24
+## [1.10.0] - 2026-06-24 [YANKED]
 
 ### Changed
 
@@ -260,7 +260,7 @@ and this project adheres to [Semantic Versioning].
 
 ---
 
-## [1.9.0] - 2026-06-01
+## [1.9.0] - 2026-06-01 [YANKED]
 
 ### Added
 
@@ -695,13 +695,13 @@ For complete development history, architectural decisions, and implementation de
 
 - Fix vendor code splitting to improve update download efficiency (529 KB vs 1,180 KB for app-only changes)
 
-## [0.9.3] - 2026-04-03
+## [0.9.3] - 2026-04-03 [YANKED]
 
 ### Fixed
 
 - Fix race condition in release workflow where builds could publish release before all platforms completed (now waits for all builds before publishing)
 
-## [0.9.2] - 2026-04-03
+## [0.9.2] - 2026-04-03 [YANKED]
 
 ### Added
 
@@ -711,7 +711,7 @@ For complete development history, architectural decisions, and implementation de
 
 - Create draft release before uploading build artifacts (supports immutable release enforcement)
 
-## [0.9.1] - 2026-04-02
+## [0.9.1] - 2026-04-02 [YANKED]
 
 ### Fixed
 
@@ -727,7 +727,7 @@ For complete development history, architectural decisions, and implementation de
 - Improve GitHub Actions job names (show "Linux" instead of "ubuntu-latest")
 - Upload only required YAML files (exclude builder-debug.yaml)
 
-## [0.9.0] - 2026-04-01
+## [0.9.0] - 2026-04-01 [YANKED]
 
 - initial release
 
