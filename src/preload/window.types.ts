@@ -69,6 +69,7 @@ import { SnapshotTrigger } from '@shared/enums/services/snapshot-trigger.enum'
 import { SnapshotItemContract } from '@shared/contracts/services/download-snapshots/snapshot-item.contract'
 import { HistoryEventMetadataContract } from '@shared/contracts/database/history/history-event-metadata.contract'
 import { GetActiveDatesCommand } from '@shared/commands/repositories/history/get-active-dates.command'
+import { ChangelogRelease } from '@shared/contracts/changelog/changelog-release.contract'
 
 // Re-export types for renderer use
 export type { IpcResponse } from './ipc.types'
@@ -378,6 +379,10 @@ interface ReadHistory {
   getRecentEvents: (limit: number) => Promise<IpcResponse<HistoryEventMetadataContract[]>>
 }
 
+interface Changelog {
+  get: () => Promise<IpcResponse<ChangelogRelease[]>>
+}
+
 declare global {
   interface Window {
     electron: ElectronAPI
@@ -399,6 +404,7 @@ declare global {
     gatekeeper: Gatekeeper
     snapshots: Snapshots
     readHistory: ReadHistory
+    changelog: Changelog
   }
 
   // `Window` augmentation above only types `window.<api>` - DOM lib types `window` as
@@ -426,4 +432,5 @@ declare global {
   var gatekeeper: Gatekeeper
   var snapshots: Snapshots
   var readHistory: ReadHistory
+  var changelog: Changelog
 }

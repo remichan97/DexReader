@@ -406,6 +406,10 @@ const readHistory = {
   getRecentEvents: (limit: number) => ipcRenderer.invoke('history:get-recent-events', limit)
 }
 
+const changelog = {
+  get: () => ipcRenderer.invoke('changelog:get')
+}
+
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
@@ -430,6 +434,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('gatekeeper', gatekeeper)
     contextBridge.exposeInMainWorld('snapshots', snapshots)
     contextBridge.exposeInMainWorld('readHistory', readHistory)
+    contextBridge.exposeInMainWorld('changelog', changelog)
   } catch (error) {
     console.error(error)
   }
@@ -453,4 +458,5 @@ if (process.contextIsolated) {
   globalThis.gatekeeper = gatekeeper
   globalThis.snapshots = snapshots
   globalThis.readHistory = readHistory
+  globalThis.changelog = changelog
 }
