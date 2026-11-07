@@ -1,5 +1,9 @@
-import { BrowserWindow, shell } from 'electron'
+import { BrowserWindow } from 'electron'
+import { openExternal } from './utils/shell.util'
 import { getMainWindow } from './window'
+import { mainLog } from './services/logging/main-logging.service'
+import { join } from 'node:path'
+import { is } from '@electron-toolkit/utils'
 
 let changelogWindow: BrowserWindow | undefined = undefined
 
@@ -12,11 +16,12 @@ export function createChangelogWindow(): void {
     width: 800,
     height: 600,
     show: false,
-    parent: parent?.isDestroyed ? undefined : parent,
+    parent: parent && !parent.isDestroyed() ? parent : undefined,
     webPreferences: {
       contextIsolation: true,
+      preload: join(__dirname, '../preload/changelog.cjs'),
       sandbox: true,
-      devTools: false // Unnecessary for the changelog window
+      devTools: is.dev // TODO: Force this to false after development is complete, since this devtool is here mostly for styling debugging purposes, not much else
     }
   })
 
@@ -25,9 +30,9 @@ export function createChangelogWindow(): void {
 
   // Route all external links to the user's default browser
   changelogWindow.webContents.setWindowOpenHandler((details) => {
-    shell
-      .openExternal(details.url)
-      .catch((error) => console.error('[Changelog Window] Failed to open external URL:', error))
+    openExternal(details.url).catch((error) =>
+      mainLog.error('[Changelog Window] Failed to open external URL:', error)
+    )
 
     return { action: 'deny' }
   })
@@ -39,5 +44,9 @@ export function createChangelogWindow(): void {
 
   changelogWindow.once('ready-to-show', () => {
     changelogWindow?.show()
+  })
+
+  changelogWindow.on('closed', () => {
+    changelogWindow = undefined
   })
 }
