@@ -5,7 +5,7 @@ const changelogSet = {
   getChangelog: () => ipcRenderer.invoke('changelog:get'),
   getCspNonce: () => ipcRenderer.invoke('security:get-csp-nonce'),
   getTheme: () => ipcRenderer.invoke('get-theme'),
-  getSystemAccentColour: () => ipcRenderer.invoke('theme:get-system-accent-colour'),
+  getSystemAccentColour: () => ipcRenderer.invoke('theme:get-system-accent-color'),
   openExternal: (url: string) => ipcRenderer.invoke('shell:open-external', url)
 }
 
