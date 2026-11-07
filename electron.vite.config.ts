@@ -121,6 +121,10 @@ export default defineConfig({
       // Sandboxed preload cannot access node_modules at runtime
       externalizeDeps: false,
       rollupOptions: {
+        input: {
+          changelog: resolve(__dirname, 'src/preload/changelog.ts'),
+          index: resolve(__dirname, 'src/preload/index.ts')
+        },
         output: {
           format: 'cjs', // Preload MUST be CommonJS (Electron sandboxed limitation)
           entryFileNames: '[name].cjs' // Output as .cjs to avoid ESM confusion
