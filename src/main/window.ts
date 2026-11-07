@@ -27,8 +27,8 @@ export function createWindow(): void {
   mainLog.info('[Window] Creating browser window...')
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    width: 1024,
+    height: 768,
     show: false,
     autoHideMenuBar: false,
     ...(process.platform === 'linux' ? { icon } : {}),

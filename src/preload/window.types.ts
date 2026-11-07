@@ -379,8 +379,12 @@ interface ReadHistory {
   getRecentEvents: (limit: number) => Promise<IpcResponse<HistoryEventMetadataContract[]>>
 }
 
-interface Changelog {
-  get: () => Promise<IpcResponse<ChangelogRelease[]>>
+interface ChangelogSet {
+  getChangelog: () => Promise<IpcResponse<ChangelogRelease[]>>
+  getCspNonce: () => Promise<IpcResponse<string>>
+  getTheme: () => Promise<IpcResponse<string>>
+  getSystemAccentColour: () => Promise<IpcResponse<string>>
+  openExternal: (url: string) => Promise<IpcResponse<void>>
 }
 
 declare global {
@@ -404,7 +408,7 @@ declare global {
     gatekeeper: Gatekeeper
     snapshots: Snapshots
     readHistory: ReadHistory
-    changelog: Changelog
+    changelog: ChangelogSet
   }
 
   // `Window` augmentation above only types `window.<api>` - DOM lib types `window` as
@@ -432,5 +436,5 @@ declare global {
   var gatekeeper: Gatekeeper
   var snapshots: Snapshots
   var readHistory: ReadHistory
-  var changelog: Changelog
+  var changelog: ChangelogSet
 }
