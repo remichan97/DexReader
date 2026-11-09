@@ -25,6 +25,7 @@ Last Updated: April 20, 2026
   - [Library](#library)
   - [Collections](#collections)
   - [Reading History](#reading-history)
+  - [Changelog](#changelog)
   - [MangaDex API](#mangadex-api)
 - [Type Definitions](#type-definitions)
 - [Error Handling](#error-handling)
@@ -1535,6 +1536,74 @@ Gets the most recent read events across all manga, for the feed's default (unfil
 ```typescript
 const result = await window.readHistory.getRecentEvents(50)
 ```
+
+---
+
+### Changelog
+
+The in-app "What's New" window. Two preload surfaces are involved: the main window only **opens**
+the window, and the window itself (its own small preload, `src/preload/changelog.ts`) **reads** the
+data. Help → What's New is opened by main directly and needs no IPC call.
+
+#### `globalThis.appUpdate.openChangelog()`
+
+Opens the changelog window, or focuses it when it is already open.
+Takes no arguments: the window always selects the installed version, so there is nothing for the
+caller to choose. The post-update banner's "View Release Notes" button uses it.
+
+**Returns:** `Promise<IpcResponse<void>>`
+
+```typescript
+const result = await globalThis.appUpdate.openChangelog()
+if (!result.success) {
+  // The window could not be created; main has already logged why
+}
+```
+
+#### `globalThis.changelog.getChangelog()`
+
+Available **only inside the changelog window**. Returns the parsed `CHANGELOG.md` together with the
+running app's version.
+
+**Returns:** `Promise<IpcResponse<ChangelogPayload>>`
+
+```typescript
+interface ChangelogPayload {
+  installedVersion: string // The running app's version, e.g. '1.17.0'
+  releases: ChangelogRelease[] // Newest first, in file order
+}
+
+interface ChangelogRelease {
+  version: string // Without a leading 'v'
+  date?: string // YYYY-MM-DD
+  isYanked?: boolean // Heading carries [YANKED]: never published
+  foldedInto?: string // On a yanked release: the nearest newer published release that shipped it
+  includes?: string[] // On a published release: the yanked releases folded into it, oldest first
+  sections: ChangelogSection[]
+}
+
+interface ChangelogSection {
+  category: ChangelogCategory // Added, Changed, Deprecated, Removed, Fixed, Security, Dependencies, Build or Unknown
+  title?: string // The original heading, kept only when the category is Unknown
+  items: string[] // Markdown-lite text; nested bullets are joined to their parent with "
+"
+}
+```
+
+The format the parser accepts is described under [Changelog format](./RELEASE_PROCESS.md#changelog-format).
+
+#### Other methods on the window's `changelog` object
+
+| Method                    | Channel                         | Purpose                                                           |
+| ------------------------- | ------------------------------- | ----------------------------------------------------------------- |
+| `getCspNonce()`           | `security:get-csp-nonce`        | The per-launch nonce Griffel's runtime styles need                |
+| `getTheme()`              | `get-theme`                     | The OS theme (the window itself takes its theme from `?theme=`)   |
+| `getSystemAccentColour()` | `theme:get-system-accent-color` | The accent colour the Fluent theme is built from                  |
+| `openExternal(url)`       | `shell:open-external`           | Opens a link in the browser; only `http:`, `https:` and `mailto:` |
+
+**Page parameters.** The window cannot read settings, so main resolves them and passes them on the
+page URL: `?lng=` (the display language) and `?theme=` (`light` or `dark`, with "system" already
+resolved). Missing or unrecognised values fall back to `en-GB` and light.
 
 ---
 
