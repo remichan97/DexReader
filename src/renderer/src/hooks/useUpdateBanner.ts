@@ -60,11 +60,10 @@ export function useUpdateBanner(): UseUpdateBannerResult {
 
   const handleViewReleaseNotes = async (): Promise<void> => {
     try {
-      const repoUrl = 'https://github.com/remichan97/DexReader'
-      const releaseUrl = `${repoUrl}/releases/tag/v${updateVersion}`
-
-      // Open in external browser
-      globalThis.open(releaseUrl, '_blank', 'noopener,noreferrer')
+      const result = await globalThis.appUpdate.openChangelog()
+      if (!result.success) {
+        throw new Error(result.error?.message ?? 'The changelog window could not be opened')
+      }
 
       // Auto-dismiss banner after opening release notes
       handleDismissBanner()
