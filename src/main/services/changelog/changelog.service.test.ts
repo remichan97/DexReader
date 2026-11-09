@@ -342,6 +342,91 @@ describe('changelogService', () => {
     })
   })
 
+  describe('folding unpublished releases', () => {
+    function releasesFixture(entries: [version: string, yanked: boolean][]): string {
+      return entries
+        .map(
+          ([version, yanked]) =>
+            `## [${version}] - 2026-01-01${yanked ? ' [YANKED]' : ''}\n\n### Added\n\n- ${version}\n`
+        )
+        .join('\n')
+    }
+
+    it('folds a yanked release into the nearest newer published one', async () => {
+      const releases = await parse(
+        releasesFixture([
+          ['2.0.0', false],
+          ['1.1.0', true],
+          ['1.0.0', false]
+        ])
+      )
+
+      expect(releases[1].foldedInto).toBe('2.0.0')
+      expect(releases[0].includes).toEqual(['1.1.0'])
+    })
+
+    it('never folds into an older published release', async () => {
+      const releases = await parse(
+        releasesFixture([
+          ['1.1.0', false],
+          ['1.0.1', true],
+          ['1.0.0', false]
+        ])
+      )
+
+      expect(releases[1].foldedInto).toBe('1.1.0')
+      expect(releases[2].includes).toBeUndefined()
+    })
+
+    it('lists several yanked releases on the published one, oldest first', async () => {
+      const releases = await parse(
+        releasesFixture([
+          ['1.11.1', false],
+          ['1.11.0', true],
+          ['1.10.0', true],
+          ['1.9.1', false]
+        ])
+      )
+
+      expect(releases[0].includes).toEqual(['1.10.0', '1.11.0'])
+      expect(releases[1].foldedInto).toBe('1.11.1')
+      expect(releases[2].foldedInto).toBe('1.11.1')
+      expect(releases[3].includes).toBeUndefined()
+    })
+
+    it('leaves a yanked release with no newer published one unfolded', async () => {
+      const releases = await parse(
+        releasesFixture([
+          ['1.1.0', true],
+          ['1.0.0', false]
+        ])
+      )
+
+      expect(releases[0].foldedInto).toBeUndefined()
+      expect(releases[1].includes).toBeUndefined()
+    })
+
+    it('adds neither field to published releases that nothing folds into', async () => {
+      const [release] = await parse(releasesFixture([['1.0.0', false]]))
+
+      expect(release.foldedInto).toBeUndefined()
+      expect(release.includes).toBeUndefined()
+    })
+
+    it('adds no includes to a yanked release', async () => {
+      const releases = await parse(
+        releasesFixture([
+          ['1.2.0', false],
+          ['1.1.0', true],
+          ['1.0.0', true]
+        ])
+      )
+
+      expect(releases[1].includes).toBeUndefined()
+      expect(releases[2].includes).toBeUndefined()
+    })
+  })
+
   describe('the real CHANGELOG.md', () => {
     async function parseRealChangelog(): Promise<ChangelogRelease[]> {
       const actual = await vi.importActual<typeof import('../../changelog/changelog-source')>(
@@ -374,6 +459,31 @@ describe('changelogService', () => {
         isYanked: true
       })
       expect(releases.find((release) => release.version === '1.11.1')?.isYanked).toBe(false)
+    })
+
+    it('folds the unpublished releases into the release that shipped them', async () => {
+      const releases = await parseRealChangelog()
+      const byVersion = (version: string): ChangelogRelease | undefined =>
+        releases.find((release) => release.version === version)
+
+      expect(byVersion('1.11.1')?.includes).toEqual(['1.10.0', '1.11.0'])
+      expect(byVersion('1.10.0')?.foldedInto).toBe('1.11.1')
+      expect(byVersion('1.11.0')?.foldedInto).toBe('1.11.1')
+      expect(byVersion('1.9.1')?.includes).toEqual(['1.9.0'])
+      expect(byVersion('0.10.0')?.includes).toEqual(['0.9.0', '0.9.1', '0.9.2', '0.9.3'])
+    })
+
+    it('folds every unpublished release into a published one', async () => {
+      const releases = await parseRealChangelog()
+      const published = new Set(
+        releases.filter((release) => !release.isYanked).map((release) => release.version)
+      )
+
+      for (const release of releases.filter((entry) => entry.isYanked)) {
+        expect(published.has(release.foldedInto ?? ''), `${release.version} is not folded`).toBe(
+          true
+        )
+      }
     })
 
     it('gives every release at least one section, and every section at least one item', async () => {

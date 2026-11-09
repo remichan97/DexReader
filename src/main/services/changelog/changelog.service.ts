@@ -98,7 +98,30 @@ class ChangelogService {
       }
     }
 
+    this.resolveFolds(releases)
+
     return releases
+  }
+
+  // Link every yanked release to the nearest newer published release that carries its changes,
+  // and list those yanked releases (oldest first) on the published one. The releases are in file
+  // order, newest first, so "newer" means a lower index.
+  private resolveFolds(releases: ChangelogRelease[]): void {
+    for (let index = releases.length - 1; index >= 0; index--) {
+      const release = releases[index]
+      if (!release.isYanked) {
+        continue
+      }
+
+      for (let newer = index - 1; newer >= 0; newer--) {
+        const candidate = releases[newer]
+        if (!candidate.isYanked) {
+          release.foldedInto = candidate.version
+          candidate.includes = [...(candidate.includes ?? []), release.version]
+          break
+        }
+      }
+    }
   }
 }
 
