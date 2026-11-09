@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import {
   Tab,
   TabList,
@@ -22,14 +22,14 @@ export interface ReleaseListProps {
 }
 
 const useStyles = makeStyles({
+  // No explicit width: a vertical TabList stretches itself and its tabs to the column, and a
+  // 100% width on top of the padding made the list wider than the column.
   list: {
-    width: '100%',
     padding: tokens.spacingVerticalS
   },
   tab: {
     height: 'auto',
     minHeight: '52px',
-    width: '100%',
     justifyContent: 'flex-start'
   },
   muted: {
@@ -61,20 +61,26 @@ const useStyles = makeStyles({
 export function ReleaseList(props: ReleaseListProps): React.JSX.Element {
   const styles = useStyles()
   const { t } = useTranslation('changelog')
-  const listRef = useRef<HTMLDivElement>(null)
 
   const handleSelect = (_event: SelectTabEvent, data: SelectTabData): void => {
     props.onSelect(String(data.value))
   }
 
-  // Keep the selected release visible, both on open and when a link elsewhere selects it.
+  // Keep the selected release visible, both on open and when a link elsewhere selects it. The tab
+  // is found by id, not by `aria-selected`: Fluent's tabs pick up a new selection in a later
+  // render than this effect, so at this point `aria-selected` still marks the previous tab and the
+  // list would scroll back to it.
   useEffect(() => {
-    listRef.current?.querySelector('[aria-selected="true"]')?.scrollIntoView?.({ block: 'nearest' })
+    if (props.selectedVersion === undefined) {
+      return
+    }
+    document
+      .getElementById(releaseTabId(props.selectedVersion))
+      ?.scrollIntoView?.({ block: 'nearest' })
   }, [props.selectedVersion])
 
   return (
     <TabList
-      ref={listRef}
       vertical
       size="large"
       aria-label={t('list.ariaLabel')}
