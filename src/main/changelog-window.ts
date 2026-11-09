@@ -12,6 +12,12 @@ let changelogWindow: BrowserWindow | undefined = undefined
 export function createChangelogWindow(): void {
   const parent = getMainWindow()
 
+  // If a changelog window already exists, focus it instead of creating a new one
+  if (changelogWindow) {
+    changelogWindow.focus()
+    return
+  }
+
   changelogWindow = new BrowserWindow({
     width: 800,
     height: 600,
@@ -49,4 +55,16 @@ export function createChangelogWindow(): void {
   changelogWindow.on('closed', () => {
     changelogWindow = undefined
   })
+
+  const devServerUrl = is.dev ? process.env['ELECTRON_RENDERER_URL'] : undefined
+  try {
+    if (devServerUrl) {
+      changelogWindow.loadURL(`${devServerUrl}/changelog.html`)
+    } else {
+      changelogWindow.loadFile(join(__dirname, '../renderer/changelog.html'))
+    }
+  } catch (error) {
+    mainLog.error('[Changelog Window] Failed to load changelog content:', error)
+    throw error
+  }
 }
