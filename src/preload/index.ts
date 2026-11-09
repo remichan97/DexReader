@@ -310,6 +310,7 @@ const appUpdate = {
   downloadUpdate: () => ipcRenderer.invoke('app-update:download'),
   installUpdate: () => ipcRenderer.invoke('app-update:install'),
   getAppVersion: () => ipcRenderer.invoke('app-update:version'),
+  openChangelog: () => ipcRenderer.invoke('changelog:open'),
 
   // Event listeners
   onUpdateChecking: (callback: () => void) => {

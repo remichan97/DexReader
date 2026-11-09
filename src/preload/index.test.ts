@@ -545,6 +545,7 @@ const INVOKE_CASES: InvokeCase[] = [
   ],
   ['appUpdate.installUpdate', 'app-update:install', [], () => globalThis.appUpdate.installUpdate],
   ['appUpdate.getAppVersion', 'app-update:version', [], () => globalThis.appUpdate.getAppVersion],
+  ['appUpdate.openChangelog', 'changelog:open', [], () => globalThis.appUpdate.openChangelog],
 
   // logger
   ['logger.info', 'log:info', ['a message', 1, 2], () => globalThis.logger.info],

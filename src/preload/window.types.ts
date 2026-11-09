@@ -69,7 +69,7 @@ import { SnapshotTrigger } from '@shared/enums/services/snapshot-trigger.enum'
 import { SnapshotItemContract } from '@shared/contracts/services/download-snapshots/snapshot-item.contract'
 import { HistoryEventMetadataContract } from '@shared/contracts/database/history/history-event-metadata.contract'
 import { GetActiveDatesCommand } from '@shared/commands/repositories/history/get-active-dates.command'
-import { ChangelogRelease } from '@shared/contracts/changelog/changelog-release.contract'
+import { ChangelogPayload } from '@shared/contracts/changelog/changelog-payload.contract'
 
 // Re-export types for renderer use
 export type { IpcResponse } from './ipc.types'
@@ -317,6 +317,7 @@ interface AppUpdate {
   downloadUpdate: () => Promise<IpcResponse<void>>
   installUpdate: () => Promise<IpcResponse<void>>
   getAppVersion: () => Promise<IpcResponse<string>>
+  openChangelog: () => Promise<IpcResponse<void>>
 
   // Event listeners
   onUpdateChecking: (callback: () => void) => () => void
@@ -380,7 +381,7 @@ interface ReadHistory {
 }
 
 interface ChangelogSet {
-  getChangelog: () => Promise<IpcResponse<ChangelogRelease[]>>
+  getChangelog: () => Promise<IpcResponse<ChangelogPayload>>
   getCspNonce: () => Promise<IpcResponse<string>>
   getTheme: () => Promise<IpcResponse<string>>
   getSystemAccentColour: () => Promise<IpcResponse<string>>
