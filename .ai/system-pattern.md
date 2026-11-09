@@ -207,6 +207,20 @@ electron-vite's ESM shim plugin finds the last static `import` in a built chunk 
 
 Menu items can be used from any view, including the Reader (which renders outside `AppShell`), so their listeners and dialogs belong in an app-level component, not in a view. `BackupHost` (import/export) is mounted once in `App.tsx` at the same child position in both layouts so React keeps it across the Reader/AppShell swap, after the Gatekeeper gate. A module-level lock (`utils/backupOperationLock.ts`) serialises the operations; `utils/refreshAfterImport.ts` brings the stores back in line afterwards. Reuse this pattern for Refresh Library's progress UI.
 
+### Secondary windows (the changelog window)
+
+The What's New window (`src/main/changelog-window.ts`) is the pattern for any small window that is not the app shell:
+
+- **Own entry and own preload**: its page is `src/renderer/changelog.html` with code in `src/renderer/src/changelog/`, and it loads `src/preload/changelog.ts` (built to `changelog.cjs`), which exposes only what it needs. `electron.vite.config.ts` lists both as explicit inputs next to the main ones. The window keeps `sandbox: true` and `contextIsolation: true`; DevTools are off (flip `devTools` to `is.dev` only while styling).
+- **No settings access in the preload**, so main resolves what the first paint needs (display language, and the theme with `system` resolved to light or dark) and passes it on the page URL (`windowParams.ts` reads it).
+- **`Menu.setApplicationMenu` puts the menu back on every open window**, undoing `removeMenu()`, and the app rebuilds its menu whenever menu state changes. `removeChangelogWindowMenu()` is called straight after each rebuild in `src/main/menu/index.ts`; any new menu-less window needs the same.
+- **One instance**: a second request focuses the open window. Navigation is blocked (`will-navigate`) and `window.open` goes to the default browser through `openExternal` (`src/main/utils/shell.util.ts`, which checks the protocol).
+- **Opened from**: Help → What's New (`help.menu.ts`) and the post-update banner (`appUpdate.openChangelog`, channel `changelog:open`); the banner stays up if the window can't open.
+
+### The changelog is bundled, not fetched
+
+`CHANGELOG.md` is imported into the main bundle with Vite's `?raw` suffix (`src/main/changelog/changelog-source.ts` is the only importer, `src/main/raw-modules.d.ts` declares the type), so nothing ships beside the app and no `fs` or network access is needed. `changelog.service.ts` parses it per request (`changelog:get` also returns the installed version). The format the parser accepts is the contract in `docs/RELEASE_PROCESS.md` (Changelog Format); a release heading ending ` [YANKED]` is shown as "Not Published" and its changes are credited to the nearest newer published release. The parser's test reads the real file, so a malformed entry fails CI. Release notes are not translated, only the window's own labels (`changelog` namespace).
+
 ### File Naming
 
 - **Components**: PascalCase (`App.tsx`, `MangaCard.tsx`)

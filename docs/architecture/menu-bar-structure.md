@@ -1,6 +1,6 @@
 # Native Menu Bar
 
-**Last updated**: October 2026 (v1.16.1, Library menu items removed, import/export global)
+**Last updated**: November 2026 (v1.17.0, Library menu items removed, import/export global, Help → What's New)
 **Source**: `src/main/menu/` (one file per menu), `src/main/ipc/handlers/menu.handler.ts`
 
 ---

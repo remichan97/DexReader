@@ -12,6 +12,7 @@ A modern, cross-platform manga reader for MangaDex built with Electron, React, a
 - 📚 **Library Management** - Organise your manga library with favourites, collections, and reading history. Advanced search syntax with 6 filter types (status, tag, author, artist, year, downloaded)
 - 📖 **Flexible Reader** - Multiple reading modes (single page, double page, vertical scroll) with zoom and pan controls
 - ⬇️ **Offline Reading** - Download chapters for offline access with parallel download support
+- 💾 **Backup & Restore** - Export your library as a DexReader backup, import from Mihon/Tachiyomi backups, and roll the database back with Restore Points. Exporting to the Tachiyomi format is being retired after 1.17.0, see the [changelog](CHANGELOG.md)
 - 🔒 **App Lock** - Protect your library with passphrase-based authentication for privacy and security
 - 🌐 **Multi-Language Support** - Full internationalization with British English, American English, and Vietnamese locales
 - 🎨 **Modern UI** - Clean, responsive interface following Windows 11 design principles (to our best abilities)
@@ -83,7 +84,7 @@ npm run build:linux
 
 ## Tech Stack
 
-- **Framework**: [Electron](https://www.electronjs.org/) 43.7.5
+- **Framework**: [Electron](https://www.electronjs.org/) 43.8.3
 - **Frontend**: [React](https://react.dev/) 19 + TypeScript 5.9.2
 - **Build Tool**: [electron-vite](https://electron-vite.org/)
 - **Database**: [Drizzle ORM](https://orm.drizzle.team/) + SQLite
@@ -93,7 +94,7 @@ npm run build:linux
 
 ## Project Status
 
-**Current Version**: 1.16.1 (October 18, 2026) 🚀
+**Current Version**: 1.17.0 (November 9, 2026) 🚀
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed release notes and development history.
 

@@ -5,6 +5,54 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [1.17.0] - 2026-11-09
+
+### Added
+
+- **What's New**: Help → What's New opens a window that lists every DexReader release beside its notes, read from the changelog bundled with the app, so it works offline. It opens on the version you are running, follows your display language and theme, and shows the notes in English. Releases that were never published are greyed out and marked "Not Published", and their changes are credited to the next release that did ship
+- **Backup**: After a Mihon/Tachiyomi import, titles that were left out because they come from a non-English MangaDex source are listed, each with a checkbox. "Add selected" adds the ones you pick, from the same file, without redoing the import. Titles from other sites are counted in the result
+- **Detail**: The chapter order you pick on a manga's page (newest or oldest first) is remembered for that manga
+
+### Changed
+
+- **Detail**: The chapter list is newest first by default, so the latest chapter is at the top. Pick oldest first on a manga's page to flip it for that manga. Start Reading, Continue and Download All still work in reading order
+- **Updates**: View Release Notes on the post-update banner opens the What's New window instead of the GitHub release page
+- **Backup**: The Mihon/Tachiyomi import accepts uncompressed backups as well as compressed ones, ignores everything in the file that DexReader doesn't use (so extra data from newer Mihon versions or extension stores can't make it fail), and says what is wrong when it can't read a file (not a backup, damaged or empty) instead of a general error
+- **Menu**: The export item is now "To Tachiyomi Format (.tachibk)...", and its warning says that this export is being retired
+- Internal: the chapter publish-date sort key and date filter use the names MangaDex accepts (`publishAt` and `publishAtSince`); the earlier names would have been rejected with an error
+- Internal: opening an external link from the main process goes through one shared helper that checks the protocol
+- Internal: the renderer tests run on Node 25 and later, which has its own `localStorage` that hid the test environment's
+- Documentation: new guide to backup import and export (`docs/architecture/backup-import-export.md`), a Changelog Format section in the release process, and the menu, IPC, database, MangaDex API, state management and API reference docs brought up to date
+
+### Deprecated
+
+- **Backup**: Exporting to the Tachiyomi backup format (`.tachibk`) is deprecated. **1.17.0 is the last release that can export it; the next release removes the exporter.** Mihon has announced that `0.21.x` is the last version that can restore `.tachibk` files, so if you need a Tachiyomi-format backup, export it now and restore it in Mihon `0.21.x` before updating Mihon. Importing `.tachibk` files into DexReader is not affected, DexReader backups (`.dexreader`) remain fully supported, and support for Mihon's new backup format is planned once Mihon publishes it
+
+### Removed
+
+- **Menu**: Five Library menu items that never did anything: Add/Remove from Favourites, Create Collection, Manage Collections, Download Chapter and Download Manga. The same actions are still available in the Library, on the manga card and on the manga's page
+
+### Fixed
+
+- **Backup**: Import and export from the Library menu now work in every view, including the Reader. Outside the Library, the file dialog used to open and the file you chose was silently ignored. The Library grid also refreshes when an import finishes while it is open
+- **Backup**: Mihon/Tachiyomi imports read chapter dates and read times as seconds, but Mihon writes milliseconds, so dates landed tens of thousands of years in the future and History showed days such as `57589-10-12`. Imports now read milliseconds, and the dates stored by earlier imports are repaired automatically the first time 1.17.0 starts
+- **Detail**: Series with more than 100 chapters show every chapter. The page used to load only the first 100, so the newest chapters of a long series never appeared and the sort only reordered those 100. The first chapters appear at once while the rest load in the background, and Start Reading and Download All are disabled until the whole list is in
+- **Reader**: Opening a chapter from History or Downloads loads the series' whole chapter list, so Previous and Next work for long series (it used to stop at 500 English chapters)
+- **Updates**: A failed update check no longer floods the log with the full error
+
+### Dependencies
+
+- Update Electron from 43.7.5 to 43.8.3
+- Update Vite from 7.3.5 to 7.3.7
+- Update Vitest (and its coverage provider) from 4.1.11 to 4.1.12, and happy-dom from 20.10.6 to 21.0.4
+- Update fast-uri from 3.1.8 to 3.1.9 and undici from 7.30.0 to 7.30.1, and undici inside node-gyp from 6.29.0 to 6.29.1 (build tooling)
+
+### Build
+
+- The changelog is compiled into the app at build time, and the build produces a second, smaller preload and page for the What's New window
+- The pre-commit hook no longer sources the deprecated `husky.sh`
+- CI comments the unit test result and coverage on each pull request
+
 ## [1.16.1] - 2026-10-18
 
 ### Fixed

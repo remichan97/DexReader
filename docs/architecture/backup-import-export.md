@@ -1,6 +1,6 @@
 # Backup, Import and Export
 
-**Last updated**: October 2026 (v1.17.0 in progress)
+**Last updated**: November 2026 (v1.17.0)
 **Source**: `src/main/services/dexreader/`, `src/main/services/mihon/`, `src/main/services/helpers/`, `src/main/services/protobuf/schemas/`, `src/main/ipc/handlers/{dexreader,mihon}.handler.ts`, `src/main/menu/library.menu.ts`, `src/renderer/src/components/BackupHost/`, `src/renderer/src/hooks/use{DexReader,Mihon}ImportExport.ts`
 
 ---

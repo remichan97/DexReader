@@ -1,7 +1,7 @@
 # DexReader Technical Context
 
-**Last Updated**: 3 October 2026
-**Project Version**: 1.15.0
+**Last Updated**: 9 November 2026
+**Project Version**: 1.17.0
 **Type**: Desktop Application (Electron)
 
 ---
@@ -12,7 +12,7 @@
 
 | Technology   | Version                                                                              | Purpose                       |
 | ------------ | ------------------------------------------------------------------------------------ | ----------------------------- |
-| **Electron** | 43.7.5                                                                               | Desktop application framework |
+| **Electron** | 43.8.3                                                                               | Desktop application framework |
 | **Node.js**  | bundled with Electron 43 (see Electron's release notes for the exact pinned version) | Runtime                       |
 | **Chromium** | bundled with Electron 43                                                             | Embedded browser              |
 
@@ -28,7 +28,7 @@
 
 | Technology           | Version | Purpose                              |
 | -------------------- | ------- | ------------------------------------ |
-| **Vite**             | 7.3.5   | Frontend build tool & dev server     |
+| **Vite**             | 7.3.7   | Frontend build tool & dev server     |
 | **electron-vite**    | 5.0.0   | Electron-specific Vite wrapper       |
 | **electron-builder** | 26.15.3 | Application packaging & distribution |
 
@@ -44,12 +44,12 @@
 
 | Technology                 | Version | Purpose                                                                                                        |
 | -------------------------- | ------- | -------------------------------------------------------------------------------------------------------------- |
-| **Vitest**                 | 4.1.11  | Test runner, workspace split into `main` (Node env) and `renderer` (happy-dom env) projects                    |
+| **Vitest**                 | 4.1.12  | Test runner, workspace split into `main` (Node env) and `renderer` (happy-dom env) projects                    |
 | **@vitest/coverage-v8**    | 4.1.10  | Coverage provider; per-area thresholds gate `src/main`, `src/preload`, `src/shared`, `src/renderer/src/stores` |
 | **@testing-library/react** | 16.3.2  | Renderer hook/component testing (`renderHook`, `render`)                                                       |
-| **happy-dom**              | 20.10.6 | DOM environment for the renderer test project                                                                  |
+| **happy-dom**              | 21.0.4  | DOM environment for the renderer test project                                                                  |
 
-Tests are colocated with the source they cover (`foo.ts` next to `foo.test.ts`). As of the v1.15.0 test-coverage effort, the suite grew to ~1412 tests across the main process, preload bridge, all 10 Zustand stores, and renderer hooks; it is ~1486 as of v1.16.0 (adds the settings validator/migration, a few renderer components and utils). Coverage thresholds (`vitest.config.ts`):
+Tests are colocated with the source they cover (`foo.ts` next to `foo.test.ts`). As of the v1.15.0 test-coverage effort, the suite grew to ~1412 tests across the main process, preload bridge, all 10 Zustand stores, and renderer hooks; it is ~1486 as of v1.16.0 (adds the settings validator/migration, a few renderer components and utils) and 1,936 across 145 files as of v1.17.0 (adds the Mihon decoder and importer, the chapter loader helpers, and the changelog parser, preload, handler and window UI). **Node 25+ gotcha**: Node 25 and later has its own `localStorage` global that reads as `undefined` without `--localstorage-file` and hides happy-dom's, which broke renderer tests after a Node upgrade. `vitest/setup.renderer.ts` swaps in a fresh happy-dom `Window`'s storage when the global is `undefined` (a no-op on Node 24, which CI pins), so any test touching `localStorage` relies on it. Coverage thresholds (`vitest.config.ts`):
 
 | Area                         | Statements | Branches | Functions | Lines |
 | ---------------------------- | ---------- | -------- | --------- | ----- |
@@ -226,11 +226,13 @@ default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: ma
 ## IPC Communication Architecture
 
 **Documentation**: `docs/architecture/ipc-messaging.md`
-**Implementation**: 21 handler files in `src/main/ipc/handlers/`, registered centrally in `src/main/ipc/registry.ts`, totalling over 100 channels (every request/response channel goes through `wrapIpcHandler`; `menu:update-menu-state` is the one plain `ipcMain.on` fire-and-forget event).
+**Implementation**: 24 handler files in `src/main/ipc/handlers/`, registered centrally in `src/main/ipc/registry.ts`, totalling over 100 channels (every request/response channel goes through `wrapIpcHandler`; `menu:update-menu-state` is the one plain `ipcMain.on` fire-and-forget event).
 
 ### Handler Files (by domain)
 
-`app-settings`, `app-update`, `collections`, `database-snapshots`, `dexreader`, `dialogs`, `download`, `download-queue`, `file-systems`, `gatekeeper`, `history`, `library`, `logger`, `mangadex`, `menu`, `mihon`, `progress-tracking`, `reader-settings`, `search-presets`, `shell`, `storage`, `theme`.
+`app-settings`, `app-update`, `changelog`, `collections`, `database-snapshots`, `dexreader`, `dialogs`, `download`, `download-queue`, `file-systems`, `gatekeeper`, `history`, `library`, `logger`, `mangadex`, `menu`, `mihon`, `progress-tracking`, `reader-settings`, `search-presets`, `security`, `shell`, `storage`, `theme`.
+
+The app has **two preloads** (`src/preload/index.ts` for the main window, `src/preload/changelog.ts` for the changelog window) and **two renderer pages** (`index.html`, `changelog.html`), all listed as explicit inputs in `electron.vite.config.ts`.
 
 ### Error Handling Pattern
 

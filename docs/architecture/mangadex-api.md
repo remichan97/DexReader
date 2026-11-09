@@ -1,6 +1,6 @@
 # MangaDex API Integration
 
-**Last updated**: October 2026 (v1.16.1)
+**Last updated**: November 2026 (v1.17.0)
 **Source**: `src/main/api/` (client, rate limiter, image proxies, caches), `src/main/ipc/handlers/mangadex.handler.ts`
 
 ---

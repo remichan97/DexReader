@@ -2,7 +2,7 @@
 
 **DexReader Desktop Manga Reader**
 Version: 1.0.0
-Last Updated: April 20, 2026
+Last Updated: November 9, 2026
 
 ---
 
