@@ -390,3 +390,45 @@ describe('createChangelogWindow', () => {
     })
   })
 })
+
+describe('removeChangelogWindowMenu', () => {
+  beforeEach(() => {
+    FakeBrowserWindow.instances = []
+    FakeBrowserWindow.loadError = undefined
+    mocks.is.dev = false
+    mocks.getMainWindow.mockReset()
+    mocks.getByPath.mockImplementation((key: string) => (key === 'language' ? 'en-GB' : 'light'))
+    vi.stubEnv('ELECTRON_RENDERER_URL', '')
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
+
+  it('does nothing while no changelog window is open', async () => {
+    const { removeChangelogWindowMenu } = await loadModule()
+
+    expect(() => removeChangelogWindowMenu()).not.toThrow()
+  })
+
+  it('removes the menu again from the open window, as setApplicationMenu gives it back', async () => {
+    const { createChangelogWindow, removeChangelogWindowMenu } = await loadModule()
+    await createChangelogWindow()
+    expect(lastWindow().removeMenu).toHaveBeenCalledTimes(1)
+
+    removeChangelogWindowMenu()
+
+    expect(lastWindow().removeMenu).toHaveBeenCalledTimes(2)
+  })
+
+  it('leaves a closed window alone', async () => {
+    const { createChangelogWindow, removeChangelogWindowMenu } = await loadModule()
+    await createChangelogWindow()
+    const closed = lastWindow()
+    emit(closed, 'closed')
+
+    removeChangelogWindowMenu()
+
+    expect(closed.removeMenu).toHaveBeenCalledTimes(1)
+  })
+})

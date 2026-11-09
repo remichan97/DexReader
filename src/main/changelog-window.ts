@@ -22,6 +22,13 @@ function getPageQuery(): Record<string, string> {
   }
 }
 
+// `Menu.setApplicationMenu` puts the menu back on every open window, undoing `removeMenu()`, and the
+// app rebuilds its menu whenever the menu state changes. Call this straight after each rebuild so the
+// changelog window never keeps (or flashes) a menu bar, or the accelerators that come with it.
+export function removeChangelogWindowMenu(): void {
+  changelogWindow?.removeMenu()
+}
+
 // Create the dedicated changelog window, which will display the changelog content to the user.
 // This window will have no menu bar, but still preserves the existing security settings.
 export async function createChangelogWindow(): Promise<void> {
@@ -54,6 +61,7 @@ export async function createChangelogWindow(): Promise<void> {
   changelogWindow.fullScreenable = false
 
   // Remove the menu bar from the changelog window, because, who needs it for a simple changelog display?
+  // The application menu is rebuilt from time to time, see removeChangelogWindowMenu
   changelogWindow.removeMenu()
 
   // Route all external links to the user's default browser
