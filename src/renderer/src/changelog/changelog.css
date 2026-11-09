@@ -1,0 +1,8 @@
+/* The window is one full-height layout whose columns scroll on their own, so the page must not. */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}

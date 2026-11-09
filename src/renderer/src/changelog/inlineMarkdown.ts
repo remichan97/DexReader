@@ -113,6 +113,33 @@ export function tokenizeInline(text: string): InlineToken[] {
   return tokens
 }
 
+// What an item's nested lines render as: consecutive bullets share one list.
+export type ItemBlock =
+  | { kind: 'bullets'; items: string[] }
+  | { kind: 'heading' | 'text'; text: string }
+
+/**
+ * Group an item's nested lines so that consecutive bullets become a single list.
+ *
+ * @param lines The lines returned by `splitItem`
+ * @returns The blocks to render, in order
+ */
+export function groupItemLines(lines: ItemLine[]): ItemBlock[] {
+  const blocks: ItemBlock[] = []
+
+  for (const line of lines) {
+    const last = blocks.at(-1)
+    if (line.kind !== 'bullet') {
+      blocks.push({ kind: line.kind, text: line.text })
+    } else if (last?.kind === 'bullets') {
+      last.items.push(line.text)
+    } else {
+      blocks.push({ kind: 'bullets', items: [line.text] })
+    }
+  }
+  return blocks
+}
+
 /**
  * Break a parsed changelog item into its own text and the lines beneath it. The parser keeps an
  * item's continuation lines joined with `\n`, so nested bullets arrive as indented `- ` lines.

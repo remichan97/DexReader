@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { splitItem, tokenizeInline, type InlineToken } from './inlineMarkdown'
+import { groupItemLines, splitItem, tokenizeInline, type InlineToken } from './inlineMarkdown'
 
 // Rebuilds the source text from tokens, so a test can prove nothing was dropped or reordered.
 function reconstruct(tokens: InlineToken[]): string {
@@ -234,6 +234,37 @@ describe('splitItem', () => {
       text: 'Item ### Not a heading',
       lines: []
     })
+  })
+})
+
+describe('groupItemLines', () => {
+  it('returns no blocks for no lines', () => {
+    expect(groupItemLines([])).toEqual([])
+  })
+
+  it('puts consecutive bullets in one list', () => {
+    expect(
+      groupItemLines([
+        { kind: 'bullet', text: 'a' },
+        { kind: 'bullet', text: 'b' }
+      ])
+    ).toEqual([{ kind: 'bullets', items: ['a', 'b'] }])
+  })
+
+  it('starts a new list after a heading or prose', () => {
+    expect(
+      groupItemLines([
+        { kind: 'bullet', text: 'a' },
+        { kind: 'heading', text: 'Next Steps' },
+        { kind: 'text', text: 'Some prose' },
+        { kind: 'bullet', text: 'b' }
+      ])
+    ).toEqual([
+      { kind: 'bullets', items: ['a'] },
+      { kind: 'heading', text: 'Next Steps' },
+      { kind: 'text', text: 'Some prose' },
+      { kind: 'bullets', items: ['b'] }
+    ])
   })
 })
 
