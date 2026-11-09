@@ -9,7 +9,7 @@ let changelogWindow: BrowserWindow | undefined = undefined
 
 // Create the dedicated changelog window, which will display the changelog content to the user.
 // This window will have no menu bar, but still preserves the existing security settings.
-export function createChangelogWindow(): void {
+export async function createChangelogWindow(): Promise<void> {
   const parent = getMainWindow()
 
   // If a changelog window already exists, focus it instead of creating a new one
@@ -30,6 +30,11 @@ export function createChangelogWindow(): void {
       devTools: is.dev // TODO: Force this to false after development is complete, since this devtool is here mostly for styling debugging purposes, not much else
     }
   })
+
+  // Prevent the changelog window from being minimised, maximised, full-screened but still able to resize
+  changelogWindow.minimizable = false
+  changelogWindow.maximizable = false
+  changelogWindow.fullScreenable = false
 
   // Remove the menu bar from the changelog window, because, who needs it for a simple changelog display?
   changelogWindow.removeMenu()
@@ -59,12 +64,11 @@ export function createChangelogWindow(): void {
   const devServerUrl = is.dev ? process.env['ELECTRON_RENDERER_URL'] : undefined
   try {
     if (devServerUrl) {
-      changelogWindow.loadURL(`${devServerUrl}/changelog.html`)
+      await changelogWindow.loadURL(`${devServerUrl}/changelog.html`)
     } else {
-      changelogWindow.loadFile(join(__dirname, '../renderer/changelog.html'))
+      await changelogWindow.loadFile(join(__dirname, '../renderer/changelog.html'))
     }
   } catch (error) {
     mainLog.error('[Changelog Window] Failed to load changelog content:', error)
-    throw error
   }
 }
