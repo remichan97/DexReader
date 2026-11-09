@@ -4,6 +4,7 @@ import pkg from 'electron-updater'
 const { autoUpdater } = pkg
 import { mainLog } from './logging/main-logging.service'
 import { settingsManager } from '../settings/settings-manager'
+import { summariseError, summariseErrorText } from '../utils/error-summary.util'
 
 class AppUpdateService {
   private mainWindow: BrowserWindow | undefined = undefined
@@ -52,10 +53,10 @@ class AppUpdateService {
       this.isManualCheck = isManual // Track whether this is a manual check
       await autoUpdater.checkForUpdates()
     } catch (error) {
-      mainLog.error('[AppUpdate] Failed to check for updates:', error)
+      mainLog.error('[AppUpdate] Failed to check for updates:', summariseError(error))
       // Always show errors, even for automatic checks
       this.sendToRenderer('update-error', {
-        message: (error as Error).message,
+        message: summariseErrorText((error as Error).message),
         userMessage: this.getUserFriendlyErrorMessage(error as Error)
       })
     } finally {
@@ -69,9 +70,9 @@ class AppUpdateService {
       this.sendToRenderer('update-downloading')
       await autoUpdater.downloadUpdate()
     } catch (error) {
-      mainLog.error('[AppUpdate] Failed to download update:', error)
+      mainLog.error('[AppUpdate] Failed to download update:', summariseError(error))
       this.sendToRenderer('update-error', {
-        message: (error as Error).message,
+        message: summariseErrorText((error as Error).message),
         userMessage: this.getUserFriendlyErrorMessage(error as Error)
       })
     }
@@ -88,10 +89,11 @@ class AppUpdateService {
 
     // Use electron-updater's built-in logger for detailed internal logging
     // Only add custom logs in event handlers where we need extra context
+    // Errors are shortened: electron-updater appends whole payloads (such as the releases feed) to them
     autoUpdater.logger = {
       info: (message: string) => mainLog.info(`[AutoUpdater] ${message}`),
       warn: (message: string) => mainLog.warn(`[AutoUpdater] ${message}`),
-      error: (message: string) => mainLog.error(`[AutoUpdater] ${message}`),
+      error: (message: string) => mainLog.error(`[AutoUpdater] ${summariseErrorText(message)}`),
       debug: (message: string) => mainLog.debug(`[AutoUpdater] ${message}`)
     }
 
@@ -181,7 +183,7 @@ class AppUpdateService {
       // electron-updater logs the error, just add user-friendly message context
       mainLog.error(`[AppUpdate] User-friendly error: ${this.getUserFriendlyErrorMessage(err)}`)
       this.sendToRenderer('update-error', {
-        message: err.message,
+        message: summariseErrorText(err.message),
         userMessage: this.getUserFriendlyErrorMessage(err)
       })
     })
