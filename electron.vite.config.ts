@@ -141,6 +141,10 @@ export default defineConfig({
     },
     build: {
       rollupOptions: {
+        input: {
+          changelog: resolve(__dirname, 'src/renderer/changelog.html'),
+          index: resolve(__dirname, 'src/renderer/index.html')
+        },
         output: {
           manualChunks(id) {
             // Split React core (including scheduler) into its own chunk
