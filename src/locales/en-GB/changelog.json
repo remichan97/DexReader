@@ -1,0 +1,32 @@
+{
+  "title": "What's New",
+  "list": {
+    "ariaLabel": "Releases"
+  },
+  "badge": {
+    "installed": "Installed",
+    "notPublished": "Not Published"
+  },
+  "detail": {
+    "viewOnGitHub": "View on GitHub",
+    "foldedPrefix": "Not published on its own. Its changes shipped in",
+    "includesPrefix": "Includes changes from",
+    "noNotes": "No notes were recorded for this release."
+  },
+  "category": {
+    "Added": "Added",
+    "Changed": "Changed",
+    "Deprecated": "Deprecated",
+    "Removed": "Removed",
+    "Fixed": "Fixed",
+    "Security": "Security",
+    "Dependencies": "Dependencies",
+    "Build": "Build",
+    "Unknown": "Other"
+  },
+  "state": {
+    "loading": "Loading release notes...",
+    "errorTitle": "Couldn't load the release notes",
+    "errorBody": "Something went wrong while reading the changelog. Try again in a moment."
+  }
+}

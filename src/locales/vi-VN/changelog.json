@@ -1,0 +1,32 @@
+{
+  "title": "Có gì mới",
+  "list": {
+    "ariaLabel": "Các bản phát hành"
+  },
+  "badge": {
+    "installed": "Đã cài đặt",
+    "notPublished": "Chưa phát hành"
+  },
+  "detail": {
+    "viewOnGitHub": "Xem trên GitHub",
+    "foldedPrefix": "Không được phát hành riêng. Các thay đổi này nằm trong",
+    "includesPrefix": "Bao gồm các thay đổi từ",
+    "noNotes": "Bản phát hành này không có ghi chú nào."
+  },
+  "category": {
+    "Added": "Đã thêm",
+    "Changed": "Đã thay đổi",
+    "Deprecated": "Sắp ngừng hỗ trợ",
+    "Removed": "Đã xóa",
+    "Fixed": "Đã sửa",
+    "Security": "Bảo mật",
+    "Dependencies": "Cập nhật thư viện",
+    "Build": "Cấu hình bản dựng",
+    "Unknown": "Khác"
+  },
+  "state": {
+    "loading": "Đang tải ghi chú phát hành...",
+    "errorTitle": "Không thể tải ghi chú phát hành",
+    "errorBody": "Đã xảy ra lỗi khi đọc nhật ký thay đổi. Hãy thử lại sau giây lát."
+  }
+}

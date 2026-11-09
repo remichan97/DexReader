@@ -12,6 +12,7 @@ import history from './history.json' with { type: 'json' }
 import mangaDetail from './mangaDetail.json' with { type: 'json' }
 import gatekeeper from './gatekeeper.json' with { type: 'json' }
 import creator from './creator.json' with { type: 'json' }
+import changelog from './changelog.json' with { type: 'json' }
 
 export default {
   common,
@@ -27,5 +28,6 @@ export default {
   history,
   mangaDetail,
   gatekeeper,
-  creator
+  creator,
+  changelog
 }
