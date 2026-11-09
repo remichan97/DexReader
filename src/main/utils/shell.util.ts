@@ -4,13 +4,15 @@ import { shell } from 'electron'
 export async function openExternal(url: string): Promise<void> {
   // Security: Only allow http, https, and mailto protocols
   const allowedProtocols = ['http:', 'https:', 'mailto:']
+  let urlObj: URL
   try {
-    const urlObj = new URL(url)
-    if (!allowedProtocols.includes(urlObj.protocol)) {
-      throw new Error(`Protocol ${urlObj.protocol} is not allowed`)
-    }
+    urlObj = new URL(url)
   } catch {
     throw new Error(`Invalid URL: ${url}`)
+  }
+
+  if (!allowedProtocols.includes(urlObj.protocol)) {
+    throw new Error(`Protocol ${urlObj.protocol} is not allowed`)
   }
 
   await shell.openExternal(url)

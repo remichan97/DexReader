@@ -1,5 +1,5 @@
 import { wrapIpcHandler } from '../wrap-handler'
-import { openExternal } from 'src/main/utils/shell.util'
+import { openExternal } from '../../utils/shell.util'
 
 export function registerShellHandlers(): void {
   /**
