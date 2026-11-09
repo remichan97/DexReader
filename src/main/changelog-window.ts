@@ -51,7 +51,7 @@ export async function createChangelogWindow(): Promise<void> {
       contextIsolation: true,
       preload: join(__dirname, '../preload/changelog.cjs'),
       sandbox: true,
-      devTools: is.dev // TODO: Force this to false after development is complete, since this devtool is here mostly for styling debugging purposes, not much else
+      devTools: false // Only needed while styling the window; set it to is.dev to debug the window again
     }
   })
 

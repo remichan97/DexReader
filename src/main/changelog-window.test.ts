@@ -147,16 +147,13 @@ describe('createChangelogWindow', () => {
       expect(String(webPreferences()['preload'])).toMatch(/preload[\\/]changelog\.cjs$/)
     })
 
-    it.each([
-      [true, true],
-      [false, false]
-    ])('sets devTools to %s when is.dev is %s', async (isDev, devTools) => {
+    it.each([true, false])('never enables DevTools, with is.dev %s', async (isDev) => {
       mocks.is.dev = isDev
       const { createChangelogWindow } = await loadModule()
 
       await createChangelogWindow()
 
-      expect(webPreferences()['devTools']).toBe(devTools)
+      expect(webPreferences()['devTools']).toBe(false)
     })
 
     it('makes the window a child of a live main window', async () => {
