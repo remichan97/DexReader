@@ -16,20 +16,14 @@ class ChangelogService {
   private readonly FOOTER_REGEX = /^\[(?<version>.+?)\]: (?<url>.+)$/m
 
   // A mapping from section header strings to ChangelogCategory enum values, to prevent double checking against the enum each time
-  // TODO: Populate this map dynamically from the ChangelogCategory enum instead of creating a static mapping like this
-  private readonly changelogCategoryMap: Record<string, ChangelogCategory> = {
-    Added: ChangelogCategory.Added,
-    Changed: ChangelogCategory.Changed,
-    Deprecated: ChangelogCategory.Deprecated,
-    Removed: ChangelogCategory.Removed,
-    Fixed: ChangelogCategory.Fixed,
-    Security: ChangelogCategory.Security,
-    Build: ChangelogCategory.Build,
-    Dependencies: ChangelogCategory.Dependencies
-  }
+  private readonly changelogCategoryMap: Map<string, ChangelogCategory> = new Map()
 
   constructor() {
     this.changeLogText = getChangelogSource()
+    // Populate the chagelogCategory map dynamically from the ChangelogCategory enum
+    for (const category of Object.values(ChangelogCategory)) {
+      this.changelogCategoryMap.set(category, category)
+    }
   }
 
   public processChangelogText(): ChangelogRelease[] {
@@ -65,9 +59,9 @@ class ChangelogService {
         currentSection = {
           // Set the category of the section based on the matched header, converted to ChangelogCategory
           category:
-            this.changelogCategoryMap[sec.groups?.category ?? ''] ?? ChangelogCategory.Unknown,
+            this.changelogCategoryMap.get(sec.groups?.category ?? '') ?? ChangelogCategory.Unknown,
           // If the category is Unknown, use the section title if available
-          title: this.changelogCategoryMap[sec.groups?.category ?? '']
+          title: this.changelogCategoryMap.has(sec.groups?.category ?? '')
             ? undefined
             : sec.groups?.category,
           items: []
