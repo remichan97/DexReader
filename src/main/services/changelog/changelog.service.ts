@@ -15,12 +15,15 @@ class ChangelogService {
   // Regular expression to match possible footer, e.g: [vx.y.x]: url
   private readonly FOOTER_REGEX = /^\[(?<version>.+?)\]: (?<url>.+)$/m
 
+  // Release separators and any HTML comments
+  private readonly NOISE_REGEX = /^(?:-{3,}|<!--.*-->)\s*$/
+
   // A mapping from section header strings to ChangelogCategory enum values, to prevent double checking against the enum each time
   private readonly changelogCategoryMap: Map<string, ChangelogCategory> = new Map()
 
   constructor() {
     this.changeLogText = getChangelogSource()
-    // Populate the chagelogCategory map dynamically from the ChangelogCategory enum
+    // Populate the changelogCategory map dynamically from the ChangelogCategory enum
     for (const category of Object.values(ChangelogCategory)) {
       this.changelogCategoryMap.set(category, category)
     }
@@ -44,11 +47,17 @@ class ChangelogService {
           sections: []
         }
         releases.push(currentRelease)
+        currentSection = undefined
         continue
       }
 
-      // Skip lines that are not part of a release, empty lines, or footer lines
-      if (!currentRelease || !line.trim() || this.FOOTER_REGEX.test(line)) {
+      // Skip lines that are not part of a release, empty lines, noise lines like comments, or footer lines
+      if (
+        !currentRelease ||
+        !line.trim() ||
+        this.FOOTER_REGEX.test(line) ||
+        this.NOISE_REGEX.test(line)
+      ) {
         continue
       }
 
@@ -67,7 +76,6 @@ class ChangelogService {
           items: []
         }
         currentRelease.sections.push(currentSection)
-        currentSection = undefined
         continue
       }
 
