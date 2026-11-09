@@ -4,8 +4,23 @@ import { getMainWindow } from './window'
 import { mainLog } from './services/logging/main-logging.service'
 import { join } from 'node:path'
 import { is } from '@electron-toolkit/utils'
+import { AppTheme } from '@shared/enums/settings/theme-mode.enum'
+import { settingsManager } from './settings/settings-manager'
+import { getCurrentTheme } from './theme'
 
 let changelogWindow: BrowserWindow | undefined = undefined
+
+// The window's preload cannot read settings, so main resolves what the first paint needs and
+// passes it on the page URL: the display language, and the theme with 'system' resolved to the
+// OS's current light or dark.
+function getPageQuery(): Record<string, string> {
+  const theme = settingsManager.getByPath('appearance', 'theme')
+
+  return {
+    lng: settingsManager.getByPath('language', 'displayLanguage'),
+    theme: theme === AppTheme.System ? getCurrentTheme() : theme
+  }
+}
 
 // Create the dedicated changelog window, which will display the changelog content to the user.
 // This window will have no menu bar, but still preserves the existing security settings.
@@ -21,6 +36,8 @@ export async function createChangelogWindow(): Promise<void> {
   changelogWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    minWidth: 640, // Below this the two columns no longer leave the notes room to read
+    minHeight: 420,
     show: false,
     parent: parent && !parent.isDestroyed() ? parent : undefined,
     webPreferences: {
@@ -64,9 +81,13 @@ export async function createChangelogWindow(): Promise<void> {
   const devServerUrl = is.dev ? process.env['ELECTRON_RENDERER_URL'] : undefined
   try {
     if (devServerUrl) {
-      await changelogWindow.loadURL(`${devServerUrl}/changelog.html`)
+      await changelogWindow.loadURL(
+        `${devServerUrl}/changelog.html?${new URLSearchParams(getPageQuery())}`
+      )
     } else {
-      await changelogWindow.loadFile(join(__dirname, '../renderer/changelog.html'))
+      await changelogWindow.loadFile(join(__dirname, '../renderer/changelog.html'), {
+        query: getPageQuery()
+      })
     }
   } catch (error) {
     mainLog.error('[Changelog Window] Failed to load changelog content:', error)

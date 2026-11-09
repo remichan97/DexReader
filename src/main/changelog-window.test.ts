@@ -53,7 +53,9 @@ const mocks = vi.hoisted(() => {
     is: { dev: false },
     getMainWindow: vi.fn(),
     openExternal: vi.fn(),
-    logError: vi.fn()
+    logError: vi.fn(),
+    getByPath: vi.fn(),
+    getCurrentTheme: vi.fn()
   }
 })
 
@@ -61,6 +63,10 @@ vi.mock('electron', () => ({ BrowserWindow: mocks.FakeBrowserWindow }))
 vi.mock('@electron-toolkit/utils', () => ({ is: mocks.is }))
 vi.mock('./window', () => ({ getMainWindow: mocks.getMainWindow }))
 vi.mock('./utils/shell.util', () => ({ openExternal: mocks.openExternal }))
+vi.mock('./settings/settings-manager', () => ({
+  settingsManager: { getByPath: mocks.getByPath }
+}))
+vi.mock('./theme', () => ({ getCurrentTheme: mocks.getCurrentTheme }))
 vi.mock('./services/logging/main-logging.service', () => ({
   mainLog: { info: vi.fn(), warn: vi.fn(), error: mocks.logError, debug: vi.fn() }
 }))
@@ -93,6 +99,18 @@ function emit(window: InstanceType<typeof FakeBrowserWindow>, event: string): vo
   listener()
 }
 
+function setSettings(displayLanguage: string, theme: string): void {
+  mocks.getByPath.mockImplementation((key: string, path: string) => {
+    if (key === 'language' && path === 'displayLanguage') return displayLanguage
+    if (key === 'appearance' && path === 'theme') return theme
+    throw new Error(`Unexpected setting ${key}.${path}`)
+  })
+}
+
+function loadFileOptions(): unknown {
+  return (lastWindow().loadFile.mock.calls[0] as unknown as [string, unknown])[1]
+}
+
 describe('createChangelogWindow', () => {
   beforeEach(() => {
     FakeBrowserWindow.instances = []
@@ -102,6 +120,8 @@ describe('createChangelogWindow', () => {
     mocks.openExternal.mockReset()
     mocks.openExternal.mockResolvedValue(undefined)
     mocks.logError.mockReset()
+    setSettings('en-GB', 'system')
+    mocks.getCurrentTheme.mockReturnValue('light')
     vi.stubEnv('ELECTRON_RENDERER_URL', '')
   })
 
@@ -173,6 +193,14 @@ describe('createChangelogWindow', () => {
       })
     })
 
+    it('keeps the window wide enough for its two columns', async () => {
+      const { createChangelogWindow } = await loadModule()
+
+      await createChangelogWindow()
+
+      expect(lastWindow().options).toMatchObject({ minWidth: 640, minHeight: 420 })
+    })
+
     it('removes the menu bar', async () => {
       const { createChangelogWindow } = await loadModule()
 
@@ -212,7 +240,7 @@ describe('createChangelogWindow', () => {
       await createChangelogWindow()
 
       expect(lastWindow().loadURL).toHaveBeenCalledExactlyOnceWith(
-        'http://localhost:5173/changelog.html'
+        'http://localhost:5173/changelog.html?lng=en-GB&theme=light'
       )
       expect(lastWindow().loadFile).not.toHaveBeenCalled()
     })
@@ -234,6 +262,50 @@ describe('createChangelogWindow', () => {
       await createChangelogWindow()
 
       expect(lastWindow().loadFile).toHaveBeenCalledOnce()
+    })
+
+    describe('page query', () => {
+      it('passes the display language from settings', async () => {
+        setSettings('vi-VN', 'light')
+        const { createChangelogWindow } = await loadModule()
+
+        await createChangelogWindow()
+
+        expect(loadFileOptions()).toEqual({ query: { lng: 'vi-VN', theme: 'light' } })
+      })
+
+      it.each(['light', 'dark'])('passes an explicit %s theme as it is', async (theme) => {
+        setSettings('en-GB', theme)
+        mocks.getCurrentTheme.mockReturnValue(theme === 'dark' ? 'light' : 'dark')
+        const { createChangelogWindow } = await loadModule()
+
+        await createChangelogWindow()
+
+        expect(loadFileOptions()).toEqual({ query: { lng: 'en-GB', theme } })
+      })
+
+      it.each(['light', 'dark'])('resolves the system theme to the OS theme (%s)', async (os) => {
+        setSettings('en-GB', 'system')
+        mocks.getCurrentTheme.mockReturnValue(os)
+        const { createChangelogWindow } = await loadModule()
+
+        await createChangelogWindow()
+
+        expect(loadFileOptions()).toEqual({ query: { lng: 'en-GB', theme: os } })
+      })
+
+      it('puts the same values on the dev server URL', async () => {
+        mocks.is.dev = true
+        vi.stubEnv('ELECTRON_RENDERER_URL', 'http://localhost:5173')
+        setSettings('en-US', 'dark')
+        const { createChangelogWindow } = await loadModule()
+
+        await createChangelogWindow()
+
+        expect(lastWindow().loadURL).toHaveBeenCalledExactlyOnceWith(
+          'http://localhost:5173/changelog.html?lng=en-US&theme=dark'
+        )
+      })
     })
 
     it('logs a failed load instead of rejecting', async () => {
