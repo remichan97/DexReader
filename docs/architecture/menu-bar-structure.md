@@ -71,6 +71,7 @@ The file dialogs are opened by the main process, and only the chosen path is sen
 | Item                                      | Accelerator | Action                                                     |
 | ----------------------------------------- | ----------- | ---------------------------------------------------------- |
 | Documentation                             | `F1`        | Opens the project wiki in the browser                      |
+| What's New...                             | none        | Opens the changelog window, or focuses it if already open  |
 | Keyboard Shortcuts...                     | `Ctrl+/`    | Sends `show-shortcuts` (handled in `AppShell`)             |
 | Report an Issue → View Existing Issues... | none        | Opens the GitHub issues page                               |
 | Report an Issue → New Bug Report...       | none        | Opens the bug report template                              |
