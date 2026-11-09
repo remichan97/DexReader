@@ -69,6 +69,7 @@ import { SnapshotTrigger } from '@shared/enums/services/snapshot-trigger.enum'
 import { SnapshotItemContract } from '@shared/contracts/services/download-snapshots/snapshot-item.contract'
 import { HistoryEventMetadataContract } from '@shared/contracts/database/history/history-event-metadata.contract'
 import { GetActiveDatesCommand } from '@shared/commands/repositories/history/get-active-dates.command'
+import { ChangelogPayload } from '@shared/contracts/changelog/changelog-payload.contract'
 
 // Re-export types for renderer use
 export type { IpcResponse } from './ipc.types'
@@ -108,12 +109,6 @@ export type { TagContract } from '@shared/contracts/mangadex/tag.contract'
 export type { CreatorContract } from '@shared/contracts/mangadex/creator.contract'
 
 interface MenuState {
-  canAddToFavorites?: boolean
-  isFavorited?: boolean
-  canDownloadChapter?: boolean
-  chapterTitle?: string
-  canDownloadManga?: boolean
-  mangaTitle?: string
   isIncognito?: boolean
   isOffline?: boolean
 }
@@ -157,15 +152,10 @@ interface API {
   openExternal: (url: string) => Promise<IpcResponse<void>>
 
   // Menu action handlers
-  onAddToFavorites: (callback: () => void) => () => void
-  onCreateCollection: (callback: () => void) => () => void
-  onManageCollections: (callback: () => void) => () => void
   onImportLibrary: (callback: (filePath: string) => void) => () => void
   onImportTachiyomi: (callback: (filePath: string) => void) => () => void
   onExportLibrary: (callback: (filePath: string) => void) => () => void
   onExportTachiyomi: (callback: (filePath: string) => void) => () => void
-  onDownloadChapter: (callback: () => void) => () => void
-  onDownloadManga: (callback: () => void) => () => void
   onDownloadProgress: (callback: (event: ChapterDownloadsEvent) => void) => () => void
   onShowShortcuts: (callback: () => void) => () => void
   onConnectivityToggle: (callback: () => void) => () => void
@@ -266,7 +256,10 @@ interface Collections {
 }
 
 interface Mihon {
-  importBackup: (filePath: string) => Promise<IpcResponse<MihonImportContract>>
+  importBackup: (
+    filePath: string,
+    includeMangaIds?: string[]
+  ) => Promise<IpcResponse<MihonImportContract>>
   cancelImport: () => Promise<IpcResponse<void>>
   exportBackup: (savePath: string) => Promise<IpcResponse<MihonExportContract>>
 }
@@ -324,6 +317,7 @@ interface AppUpdate {
   downloadUpdate: () => Promise<IpcResponse<void>>
   installUpdate: () => Promise<IpcResponse<void>>
   getAppVersion: () => Promise<IpcResponse<string>>
+  openChangelog: () => Promise<IpcResponse<void>>
 
   // Event listeners
   onUpdateChecking: (callback: () => void) => () => void
@@ -386,6 +380,14 @@ interface ReadHistory {
   getRecentEvents: (limit: number) => Promise<IpcResponse<HistoryEventMetadataContract[]>>
 }
 
+interface ChangelogSet {
+  getChangelog: () => Promise<IpcResponse<ChangelogPayload>>
+  getCspNonce: () => Promise<IpcResponse<string>>
+  getTheme: () => Promise<IpcResponse<string>>
+  getSystemAccentColour: () => Promise<IpcResponse<string>>
+  openExternal: (url: string) => Promise<IpcResponse<void>>
+}
+
 declare global {
   interface Window {
     electron: ElectronAPI
@@ -407,6 +409,7 @@ declare global {
     gatekeeper: Gatekeeper
     snapshots: Snapshots
     readHistory: ReadHistory
+    changelog: ChangelogSet
   }
 
   // `Window` augmentation above only types `window.<api>` - DOM lib types `window` as
@@ -434,4 +437,5 @@ declare global {
   var gatekeeper: Gatekeeper
   var snapshots: Snapshots
   var readHistory: ReadHistory
+  var changelog: ChangelogSet
 }

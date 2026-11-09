@@ -40,6 +40,17 @@
     "errors": {
       "toggle": "Xem chi tiết lỗi ({{count}})",
       "unknownManga": "Manga không xác định"
+    },
+    "ignoredSources": "Đã bỏ qua {{count}} mục từ các nguồn khác. DexReader chỉ nhập truyện từ MangaDex.",
+    "skippedLanguages": {
+      "title": "Truyện MangaDex thuộc ngôn ngữ khác ({{count}})",
+      "description": "Hiện tại DexReader chỉ nhập truyện MangaDex từ nguồn tiếng Anh. Hãy chọn những truyện bạn vẫn muốn thêm vào thư viện.",
+      "selectAll": "Chọn tất cả",
+      "add": "Thêm mục đã chọn ({{count}})",
+      "adding": "Đang thêm...",
+      "addedTitle": "Đã thêm vào thư viện",
+      "addedMessage": "Số truyện đã thêm vào thư viện: {{count}}",
+      "addFailedTitle": "Không thể thêm truyện"
     }
   },
   "savePreset": {
@@ -298,6 +309,14 @@
         "previousReleases": "Các bản phát hành trước",
         "quit": "Thoát"
       }
+    }
+  },
+  "mihonImport": {
+    "errors": {
+      "MIHON_BACKUP_JSON": "Không hỗ trợ bản sao lưu JSON. Hãy dùng bản sao lưu .tachibk hoặc .proto.gz.",
+      "MIHON_BACKUP_EMPTY": "Tệp sao lưu trống.",
+      "MIHON_BACKUP_UNRECOGNISED": "Tệp này không phải bản sao lưu Tachiyomi/Mihon hợp lệ, hoặc đã bị hỏng.",
+      "MIHON_BACKUP_FILE_MISSING": "Tệp sao lưu đã bị di chuyển hoặc xóa. Hãy nhập lại từ menu."
     }
   }
 }

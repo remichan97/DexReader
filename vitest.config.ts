@@ -5,7 +5,8 @@ export default defineConfig({
     projects: ['./vitest/vitest.main.config.ts', './vitest/vitest.renderer.config.ts'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'cobertura'],
+      // json-summary feeds the PR coverage comment (.github/scripts/test-report.ts)
+      reporter: ['text', 'cobertura', 'json-summary'],
       reportsDirectory: './coverage',
       // Scoped to .ts/.tsx so non-code assets alongside source (css, svg, sql migrations,
       // .proto schemas, component READMEs) are never picked up as "uncovered" files.

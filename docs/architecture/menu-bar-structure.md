@@ -1,6 +1,6 @@
 # Native Menu Bar
 
-**Last updated**: October 2026 (v1.16.1)
+**Last updated**: November 2026 (v1.17.0, Library menu items removed, import/export global, Help → What's New)
 **Source**: `src/main/menu/` (one file per menu), `src/main/ipc/handlers/menu.handler.ts`
 
 ---
@@ -55,25 +55,23 @@ Accelerators use `CmdOrCtrl`, so they are `Ctrl` on Windows and Linux and `Cmd` 
 
 ### Library
 
-| Item                                            | Accelerator    | Action                                                                                               |
-| ----------------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------- |
-| Add to Favourites / Remove from Favourites      | `Ctrl+D`       | Sends `add-to-favorites`. Enabled by `canAddToFavorites`, label by `isFavorited`                     |
-| Create Collection...                            | `Ctrl+Shift+N` | Sends `create-collection`                                                                            |
-| Manage Collections...                           | `Ctrl+Shift+C` | Sends `manage-collections`                                                                           |
-| Download Chapter / Download _title_             | `Ctrl+Shift+D` | Sends `download-chapter`. Enabled by `canDownloadChapter`, label by `chapterTitle`                   |
-| Download Manga / Download '_title_'             | `Ctrl+Alt+D`   | Sends `download-manga`. Enabled by `canDownloadManga`, label by `mangaTitle`                         |
-| Import Library → From DexReader Backup...       | none           | Open dialog (`.dexreader`), then sends `import-library` with the path                                |
-| Import Library → From Mihon/Tachiyomi Backup... | none           | Open dialog (`.proto.gz`, `.tachibk`), then sends `import-tachiyomi`                                 |
-| Export Library → To DexReader Backup...         | `Ctrl+Shift+E` | Save dialog (default `dexreader-backup.dexreader`), then sends `export-library`                      |
-| Export Library → To Mihon/Tachiyomi Format...   | none           | Warns that some data is not exported, then a save dialog (`.tachibk`), then sends `export-tachiyomi` |
+| Item                                               | Accelerator    | Action                                                                                                                                                                                                                                                                            |
+| -------------------------------------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Import Library → From DexReader Backup...          | none           | Open dialog (`.dexreader`), then sends `import-library` with the path                                                                                                                                                                                                             |
+| Import Library → From Mihon/Tachiyomi Backup...    | none           | Open dialog (`.proto.gz`, `.tachibk`), then sends `import-tachiyomi`. English MangaDex titles are imported; other-language ones are offered afterwards                                                                                                                            |
+| Export Library → To DexReader Backup...            | `Ctrl+Shift+E` | Save dialog (default `dexreader-backup.dexreader`), then sends `export-library`                                                                                                                                                                                                   |
+| Export Library → To Tachiyomi Format (.tachibk)... | none           | Warns that some data is not exported and that exporting to the Tachiyomi backup format (`.tachibk`) is being retired (removed in the next release; importing `.tachibk` files and Mihon support are not affected), then a save dialog (`.tachibk`), then sends `export-tachiyomi` |
 
-The file dialogs are opened by the main process, and only the chosen path is sent to the renderer. The renderer does the import or export work (`useDexReaderImportExport`, `useMihonImportExport`).
+The Library menu used to carry five more items (Add to Favourites, Create Collection, Manage Collections, Download Chapter, Download Manga). They were never wired to anything in the renderer and were removed, together with their `MenuState` fields, preload listeners and menu strings; favourites, collections and downloads are reached through the UI (card buttons, the collection tabs and dialogs, the download controls).
+
+The file dialogs are opened by the main process, and only the chosen path is sent to the renderer. The renderer does the import or export work in `BackupHost`, an app-level component mounted once in `App.tsx` (above the Reader/AppShell split, after the Gatekeeper gate), so these items work from every view including the Reader, not only the Library. `BackupHost` owns `useDexReaderImportExport`, `useMihonImportExport` and the four dialogs they drive, and a shared lock (`utils/backupOperationLock.ts`) lets only one backup operation run at a time. After an import, `utils/refreshAfterImport.ts` reloads the library, collections, progress and history stores.
 
 ### Help
 
 | Item                                      | Accelerator | Action                                                     |
 | ----------------------------------------- | ----------- | ---------------------------------------------------------- |
 | Documentation                             | `F1`        | Opens the project wiki in the browser                      |
+| What's New...                             | none        | Opens the changelog window, or focuses it if already open  |
 | Keyboard Shortcuts...                     | `Ctrl+/`    | Sends `show-shortcuts` (handled in `AppShell`)             |
 | Report an Issue → View Existing Issues... | none        | Opens the GitHub issues page                               |
 | Report an Issue → New Bug Report...       | none        | Opens the bug report template                              |
@@ -90,12 +88,6 @@ The renderer pushes partial state with `globalThis.api.updateMenuState({...})`, 
 
 ```typescript
 interface MenuState {
-  canAddToFavorites?: boolean
-  isFavorited?: boolean
-  canDownloadChapter?: boolean
-  chapterTitle?: string
-  canDownloadManga?: boolean
-  mangaTitle?: string
   isIncognito?: boolean
   isOffline?: boolean
 }
@@ -108,19 +100,16 @@ What actually pushes state today:
 | `isIncognito` | `progressStore.toggleIncognito`                              |
 | `isOffline`   | `connectivityStore` whenever the connectivity status changes |
 
-The `can*`, `isFavorited`, `chapterTitle` and `mangaTitle` fields are defined and consumed by the Library menu, but nothing in the renderer sets them (see below).
-
 ### Which events the renderer handles
 
-| Channel                                                                                             | Listener                                           |
-| --------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| `navigate`                                                                                          | `onNavigate` (`AppShell`, `App`, gatekeeper guard) |
-| `show-shortcuts`                                                                                    | `AppShell` (raw `ipcRenderer.on`)                  |
-| `progress:toggle-incognito`                                                                         | `useIncognitoListener`                             |
-| `connectivity:toggle-offline`                                                                       | `useConnectivityListener`                          |
-| `import-library`, `export-library`                                                                  | `useDexReaderImportExport`                         |
-| `import-tachiyomi`, `export-tachiyomi`                                                              | `useMihonImportExport`                             |
-| `add-to-favorites`, `create-collection`, `manage-collections`, `download-chapter`, `download-manga` | **none**                                           |
+| Channel                                | Listener                                           |
+| -------------------------------------- | -------------------------------------------------- |
+| `navigate`                             | `onNavigate` (`AppShell`, `App`, gatekeeper guard) |
+| `show-shortcuts`                       | `AppShell` (raw `ipcRenderer.on`)                  |
+| `progress:toggle-incognito`            | `useIncognitoListener`                             |
+| `connectivity:toggle-offline`          | `useConnectivityListener`                          |
+| `import-library`, `export-library`     | `useDexReaderImportExport` (via `BackupHost`)      |
+| `import-tachiyomi`, `export-tachiyomi` | `useMihonImportExport` (via `BackupHost`)          |
 
 ---
 
@@ -128,12 +117,7 @@ The `can*`, `isFavorited`, `chapterTitle` and `mangaTitle` fields are defined an
 
 These are properties of the current code, not design intent:
 
-1. **Five Library items do nothing.** `add-to-favorites`, `create-collection`, `manage-collections`, `download-chapter` and `download-manga` are sent, and the preload exposes `onAddToFavorites`, `onCreateCollection` and so on, but no renderer code subscribes to them. No commit has ever added a subscriber. Favourites, collections and downloads are reached through the UI (card buttons, the collection tabs and dialogs, the download controls) instead.
-2. **Three of those items are permanently disabled.** Add to Favourites, Download Chapter and Download Manga default to `enabled: false`, and nothing sets `canAddToFavorites`, `canDownloadChapter` or `canDownloadManga`. Create Collection and Manage Collections are enabled but inert (see 1).
-3. **`Ctrl+Shift+N` is bound twice**: File → Go Incognito and Library → Create Collection. Because the second one does nothing, only Go Incognito has any effect.
-4. **No access keys.** Labels have no `&` mnemonics, so `Alt+F`, `Alt+V` and so on do not open the menus. The menus can still be used with the mouse and by their accelerators.
-
-Decide whether to wire up or remove the five items before relying on the Library menu for those actions.
+1. **No access keys.** Labels have no `&` mnemonics, so `Alt+F`, `Alt+V` and so on do not open the menus. The menus can still be used with the mouse and by their accelerators.
 
 ---
 

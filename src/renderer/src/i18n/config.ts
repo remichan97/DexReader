@@ -31,7 +31,8 @@ i18next.use(initReactI18next).init({
     'history',
     'mangaDetail',
     'gatekeeper',
-    'creator'
+    'creator',
+    'changelog'
   ],
   defaultNS: 'common'
 })

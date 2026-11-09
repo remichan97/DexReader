@@ -7,6 +7,6 @@ export enum ChapterOrderOptions {
   CHAPTER = 'chapter',
   CREATED_AT = 'createdAt',
   UPDATED_AT = 'updatedAt',
-  PUBLISHED_AT = 'publishedAt',
+  PUBLISHED_AT = 'publishAt',
   READABLE_AT = 'readableAt'
 }

@@ -352,6 +352,14 @@
   overflow: hidden;
 }
 
+.chapter-list-loading-more {
+  padding: var(--space-3) var(--space-4);
+  color: var(--win-text-secondary);
+  font-size: 13px;
+  background: var(--win-bg-card);
+  border-radius: var(--radius-md);
+}
+
 .chapter-list-error {
   padding: var(--space-6) var(--space-4);
   text-align: center;

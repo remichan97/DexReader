@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>What's New</title>
+    <!-- CSP is set via a response header in src/main/window.ts, not here - a meta tag can't
+         carry the per-launch nonce Griffel's runtime styles need (see src/main/security/csp-nonce.ts). -->
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/changelog/main.tsx"></script>
+  </body>
+</html>

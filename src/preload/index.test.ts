@@ -355,7 +355,13 @@ const INVOKE_CASES: InvokeCase[] = [
   [
     'mihon.importBackup',
     'mihon:import-backup',
-    ['/tmp/backup.tachibk'],
+    ['/tmp/backup.tachibk', undefined],
+    () => globalThis.mihon.importBackup
+  ],
+  [
+    'mihon.importBackup (adding back skipped titles)',
+    'mihon:import-backup',
+    ['/tmp/backup.tachibk', ['2f6a1c2e-0000-4000-8000-000000000001']],
     () => globalThis.mihon.importBackup
   ],
   ['mihon.cancelImport', 'mihon:cancel-import', [], () => globalThis.mihon.cancelImport],
@@ -539,6 +545,7 @@ const INVOKE_CASES: InvokeCase[] = [
   ],
   ['appUpdate.installUpdate', 'app-update:install', [], () => globalThis.appUpdate.installUpdate],
   ['appUpdate.getAppVersion', 'app-update:version', [], () => globalThis.appUpdate.getAppVersion],
+  ['appUpdate.openChangelog', 'changelog:open', [], () => globalThis.appUpdate.openChangelog],
 
   // logger
   ['logger.info', 'log:info', ['a message', 1, 2], () => globalThis.logger.info],
@@ -650,9 +657,9 @@ describe('invoke-based methods', () => {
 
 describe('api.updateMenuState', () => {
   it('sends (fire-and-forget) rather than invokes', () => {
-    globalThis.api.updateMenuState({ isFavorited: true })
+    globalThis.api.updateMenuState({ isIncognito: true })
 
-    expect(mocks.send).toHaveBeenCalledWith('update-menu-state', { isFavorited: true })
+    expect(mocks.send).toHaveBeenCalledWith('update-menu-state', { isIncognito: true })
     expect(mocks.invoke).not.toHaveBeenCalled()
   })
 })
@@ -660,11 +667,6 @@ describe('api.updateMenuState', () => {
 // Methods where the callback registered by the caller IS the ipcRenderer listener -
 // no unwrapping of the event/payload happens in between.
 const RAW_LISTENER_CASES: Array<[string, string, (cb: () => void) => () => void]> = [
-  ['api.onAddToFavorites', 'add-to-favorites', (cb) => globalThis.api.onAddToFavorites(cb)],
-  ['api.onCreateCollection', 'create-collection', (cb) => globalThis.api.onCreateCollection(cb)],
-  ['api.onManageCollections', 'manage-collections', (cb) => globalThis.api.onManageCollections(cb)],
-  ['api.onDownloadChapter', 'download-chapter', (cb) => globalThis.api.onDownloadChapter(cb)],
-  ['api.onDownloadManga', 'download-manga', (cb) => globalThis.api.onDownloadManga(cb)],
   ['api.onShowShortcuts', 'show-shortcuts', (cb) => globalThis.api.onShowShortcuts(cb)],
   [
     'api.onConnectivityToggle',

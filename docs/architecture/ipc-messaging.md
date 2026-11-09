@@ -1,6 +1,6 @@
 # IPC Messaging
 
-**Last updated**: October 2026 (v1.16.1)
+**Last updated**: November 2026 (v1.17.0)
 **Source**: `src/main/ipc/` (handlers, wrapper, errors), `src/preload/` (bridge and types), `src/shared/contracts/ipc/`
 
 ---
@@ -118,6 +118,7 @@ Request channels are `<category>:<action>` in kebab-case (`library:toggle-favour
 | `mihon` (3)          | import-backup, export-backup, cancel-import                                                                                                                                                                                                                       | `mihon`           |
 | `history` (3)        | get-active-dates, get-events-by-date, get-recent-events                                                                                                                                                                                                           | `readHistory`     |
 | `storage` (3)        | get-stats, clear-manga-cache, optimise-manga-cache                                                                                                                                                                                                                | `storage`         |
+| `changelog` (2)      | get, open                                                                                                                                                                                                                                                         | `changelog`       |
 | other (7)            | `security:get-csp-nonce`, `shell:open-external`, `theme:get-system-accent-color`, `get-theme`, `show-dialog`, `show-confirm-dialog` (all on `api`), and `app:restart` (`settings.restart`)                                                                        | `api`, `settings` |
 
 To list the channels from the source:
@@ -170,6 +171,19 @@ const progress = {
 
 The preload contains no logic. It forwards arguments and returns what main returns.
 
+### The changelog window's preload
+
+The changelog window is a separate, sandboxed `BrowserWindow` with its **own** preload,
+`src/preload/changelog.ts` (built to `out/preload/changelog.cjs`; the electron-vite config has two
+preload entries). It exposes a single `changelog` object with five methods (`getChangelog`,
+`getCspNonce`, `getTheme`, `getSystemAccentColour`, `openExternal`) and neither the toolkit's `electron`
+object nor `ipcRenderer`, so the page can reach only those five channels. `ipcMain.handle` is
+process-wide, so this isolation comes from what each preload exposes, not from the channel.
+`changelog:open` is deliberately not on that object: the window cannot open itself, and the main
+window reaches it through `appUpdate.openChangelog`. The window's CSP comes from the existing
+header hook on the default session, so it must not register another `onHeadersReceived` listener
+(Electron allows one per session).
+
 ### Types
 
 The runtime object is in `index.ts`; its **types live in `src/preload/window.types.ts`**, which declares one interface per object (`Progress`, `Library`, ...) with every method typed as `Promise<IpcResponse<T>>`, augments `Window`, and redeclares the same members as ambient `var`s so that `globalThis.progress.*` is type-checked too. The two files must be kept in sync. Contract and command types are re-exported from `window.types.ts` so the renderer imports them from one place.
@@ -211,7 +225,7 @@ useEffect(() => globalThis.api.onNavigate((route) => navigate(route)), [navigate
 
 ## Security notes
 
-- The window is sandboxed with context isolation, and DevTools are disabled outside development.
+- The window is sandboxed with context isolation, and DevTools are disabled outside development (and always in the changelog window).
 - The renderer has no `require` or `fs`. It sees the objects the preload exposes, plus the toolkit's `electron` object, whose generic `ipcRenderer` (`send`, `invoke`, `on`, ...) can address **any** channel by name. Typed preload functions are a convenience, not a boundary, so every handler has to validate its own arguments.
 - Treat every argument as untrusted: type it `unknown`, validate it, and never build a path from it without going through `secure-fs`.
 - Don't put secrets, absolute paths or stack traces in an error that reaches the renderer; `serializeError` strips paths and, outside development, stacks and details.

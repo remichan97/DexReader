@@ -56,6 +56,7 @@ interface ProgressState {
   }) => Promise<void>
   flushPendingSaves: () => Promise<void> // Flush all pending debounced saves
   loadAllProgress: () => Promise<void>
+  reloadCachedProgress: () => Promise<void> // Re-read every cached entry (e.g. after a backup import)
   loadStatistics: () => Promise<void>
   deleteProgress: (mangaId: string) => Promise<void>
   toggleIncognito: () => Promise<void>
@@ -238,6 +239,33 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
     } catch (error) {
       rendererLog.error('[ProgressStore] Failed to load all progress:', error)
       set({ error: toError(error), loading: false })
+    }
+  },
+
+  /**
+   * Re-read the progress of every manga already cached in `progressMap`.
+   * `loadProgress` serves cached entries without asking the database, so after
+   * data changes underneath it (a backup import) the cache has to be refreshed explicitly.
+   */
+  reloadCachedProgress: async () => {
+    const mangaIds = Array.from(get().progressMap.keys())
+    if (mangaIds.length === 0) return
+
+    try {
+      const responses = await Promise.all(
+        mangaIds.map((mangaId) => globalThis.progress.getProgress(mangaId))
+      )
+
+      const newMap = new Map(get().progressMap)
+      responses.forEach((response, index) => {
+        if (response.success && response.data) {
+          newMap.set(mangaIds[index], response.data)
+        }
+      })
+      set({ progressMap: newMap })
+    } catch (error) {
+      rendererLog.error('[ProgressStore] Failed to reload cached progress:', error)
+      set({ error: toError(error) })
     }
   },
 

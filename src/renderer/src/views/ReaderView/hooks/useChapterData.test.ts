@@ -20,6 +20,8 @@ interface LocationState {
   mangaTitle?: string
   coverUrl?: string
   chapters?: ChapterContract[]
+  chaptersComplete?: boolean
+  chapterLanguage?: string
   startAtLastPage?: boolean
   startPage?: number
 }
@@ -337,5 +339,158 @@ describe('fallback chapter list (regression: no infinite reload loop)', () => {
     const { result } = mountChapterData(locationState)
 
     await waitFor(() => expect(result.current.chaptersLoading).toBe(false))
+  })
+})
+
+function numbered(id: string, number: string): ChapterContract {
+  return chapter({ id, chapter: number })
+}
+
+function feedPage(data: ChapterContract[], total: number, offset: number): unknown {
+  return { success: true, data: { result: 'ok', data, limit: 500, offset, total } }
+}
+
+describe('finishing a chapter list that was handed over incomplete', () => {
+  const first = [numbered('chapter-1', '1'), numbered('chapter-2', '2')]
+  const last = numbered('chapter-3', '3')
+
+  it('loads the rest in the background, filtered like the list it was given', async () => {
+    getMangaFeed
+      .mockResolvedValueOnce(feedPage(first, 3, 0))
+      .mockResolvedValueOnce(feedPage([last], 3, 2))
+    const locationState: LocationState = {
+      chapters: first,
+      chaptersComplete: false,
+      chapterLanguage: 'vi'
+    }
+
+    const { result } = mountChapterData(locationState)
+
+    await waitFor(() => expect(result.current.chapters).toHaveLength(3))
+    expect(getMangaFeed.mock.calls.map((call) => call[1].offset)).toEqual([0, 2])
+    expect(getMangaFeed.mock.calls[0][1]).toEqual(
+      expect.objectContaining({
+        translatedLanguage: ['vi'],
+        order: { chapter: 'asc', publishAt: 'asc' }
+      })
+    )
+  })
+
+  it('asks for every language when the list handed over was not filtered', async () => {
+    getMangaFeed.mockResolvedValue(feedPage(first, 2, 0))
+    const locationState: LocationState = { chapters: first, chaptersComplete: false }
+
+    mountChapterData(locationState)
+
+    await waitFor(() => expect(getMangaFeed).toHaveBeenCalled())
+    expect(getMangaFeed.mock.calls[0][1].translatedLanguage).toBeUndefined()
+  })
+
+  it('works out the neighbours of a chapter that only the finished list contains', async () => {
+    getMangaFeed
+      .mockResolvedValueOnce(feedPage(first, 3, 0))
+      .mockResolvedValueOnce(feedPage([last], 3, 2))
+    const locationState: LocationState = { chapters: first, chaptersComplete: false }
+
+    const { result } = mountChapterData(locationState, { chapterId: 'chapter-2' })
+
+    expect(result.current.nextChapter).toBeNull()
+    await waitFor(() => expect(result.current.nextChapter?.id).toBe('chapter-3'))
+    expect(result.current.previousChapter?.id).toBe('chapter-1')
+  })
+
+  it('does not fetch anything for a list that was complete', async () => {
+    const locationState: LocationState = { chapters: first, chaptersComplete: true }
+
+    mountChapterData(locationState)
+
+    await waitFor(() => expect(isDownloaded).toHaveBeenCalled())
+    expect(getMangaFeed).not.toHaveBeenCalled()
+  })
+
+  it('does not fetch while offline, and keeps the list it has', async () => {
+    useConnectivityStore.setState({ isOnline: false })
+    const locationState: LocationState = { chapters: first, chaptersComplete: false }
+
+    const { result } = mountChapterData(locationState)
+
+    await waitFor(() => expect(isDownloaded).toHaveBeenCalled())
+    expect(getMangaFeed).not.toHaveBeenCalled()
+    expect(result.current.chapters).toEqual(first)
+  })
+
+  it('keeps loading when the user moves to another chapter meanwhile', async () => {
+    getMangaFeed
+      .mockResolvedValueOnce(feedPage(first, 3, 0))
+      .mockResolvedValueOnce(feedPage([last], 3, 2))
+    let currentState: LocationState = { chapters: first, chaptersComplete: false }
+    const { result, rerender } = renderHook(
+      ({ chapterId, key }) =>
+        useChapterData('manga-1', chapterId, currentState, key, ImageQuality.High),
+      { initialProps: { chapterId: 'chapter-1', key: 'key-1' } }
+    )
+
+    // Moving on hands the reader its own, still shorter, list again (without the flag)
+    currentState = { chapters: first }
+    rerender({ chapterId: 'chapter-2', key: 'key-2' })
+
+    await waitFor(() => expect(result.current.chapters).toHaveLength(3))
+    expect(getMangaFeed.mock.calls.map((call) => call[1].offset)).toEqual([0, 2])
+  })
+})
+
+describe('a longer list is not replaced by a shorter one handed over by navigation', () => {
+  it('keeps the finished list when the user moves to another chapter', async () => {
+    const full = [
+      numbered('chapter-1', '1'),
+      numbered('chapter-2', '2'),
+      numbered('chapter-3', '3')
+    ]
+    let currentState: LocationState = { chapters: full.slice(0, 2), chaptersComplete: false }
+    getMangaFeed.mockResolvedValue(feedPage(full, 3, 0))
+    const { result, rerender } = renderHook(
+      ({ chapterId, key }) =>
+        useChapterData('manga-1', chapterId, currentState, key, ImageQuality.High),
+      { initialProps: { chapterId: 'chapter-1', key: 'key-1' } }
+    )
+    await waitFor(() => expect(result.current.chapters).toHaveLength(3))
+
+    currentState = { chapters: full.slice(0, 2) }
+    rerender({ chapterId: 'chapter-2', key: 'key-2' })
+
+    expect(result.current.chapters).toHaveLength(3)
+  })
+
+  it('takes a longer list handed over by navigation', async () => {
+    const short = [numbered('chapter-1', '1')]
+    const long = [numbered('chapter-1', '1'), numbered('chapter-2', '2')]
+    let currentState: LocationState = { chapters: short }
+    const { result, rerender } = renderHook(
+      ({ key }) => useChapterData('manga-1', 'chapter-1', currentState, key, ImageQuality.High),
+      { initialProps: { key: 'key-1' } }
+    )
+
+    currentState = { chapters: long }
+    rerender({ key: 'key-2' })
+
+    await waitFor(() => expect(result.current.chapters).toHaveLength(2))
+  })
+})
+
+describe('the fallback chapter list for a long series', () => {
+  it('loads every page, not just the first 500', async () => {
+    const page1 = Array.from({ length: 500 }, (_, i) => numbered(`c${i + 1}`, String(i + 1)))
+    const page2 = Array.from({ length: 140 }, (_, i) => numbered(`c${i + 501}`, String(i + 501)))
+    getMangaFeed
+      .mockResolvedValueOnce(feedPage(page1, 640, 0))
+      .mockResolvedValueOnce(feedPage(page2, 640, 500))
+    const locationState: LocationState = { chapters: [] }
+
+    const { result } = mountChapterData(locationState)
+
+    await waitFor(() => expect(result.current.chapters).toHaveLength(640))
+    expect(getMangaFeed.mock.calls[0][1].translatedLanguage).toEqual(['en'])
+    expect(result.current.chapters[0].id).toBe('c1')
+    expect(result.current.chapters.at(-1)?.id).toBe('c640')
   })
 })

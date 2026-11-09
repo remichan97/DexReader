@@ -1,5 +1,5 @@
-import { shell } from 'electron'
 import { wrapIpcHandler } from '../wrap-handler'
+import { openExternal } from '../../utils/shell.util'
 
 export function registerShellHandlers(): void {
   /**
@@ -24,18 +24,6 @@ export function registerShellHandlers(): void {
     if (typeof url !== 'string') {
       throw new TypeError('URL must be a string')
     }
-
-    // Security: Only allow http, https, and mailto protocols
-    const allowedProtocols = ['http:', 'https:', 'mailto:']
-    try {
-      const urlObj = new URL(url)
-      if (!allowedProtocols.includes(urlObj.protocol)) {
-        throw new Error(`Protocol ${urlObj.protocol} is not allowed`)
-      }
-    } catch {
-      throw new Error(`Invalid URL: ${url}`)
-    }
-
-    await shell.openExternal(url)
+    return await openExternal(url)
   })
 }

@@ -9,7 +9,6 @@ import { BackupChapter } from '../types/mihon/backup-chapter.type'
 import { SaveProgressCommand } from '@shared/commands/repositories/progress/save-progress.command'
 import { BackupHistory } from '../types/mihon/backup-history.type'
 import { SaveChapterCommand } from '@shared/commands/repositories/progress/save-chapter.command'
-import { unixTimestampToDate } from '../../utils/timestamps.util'
 
 const MANGADEX_URL_PATTERN = /\/(?:manga|title)\/([a-f0-9-]{36})(?:\/|$)/i
 const MANGADEX_CHAPTER_URL_PATTERN = /\/chapter\/([a-f0-9-]{36})(?:\/|$)/i
@@ -149,7 +148,7 @@ class MihonBackupHelper {
           chapterId: chapterId,
           currentPage: items.lastPageRead,
           completed: items.read ?? false,
-          lastReadAt: historyEntry ? historyEntry.lastRead : undefined
+          lastReadAt: historyEntry ? Math.floor(historyEntry.lastRead / 1000) : undefined
         })
       }
     }
@@ -175,7 +174,7 @@ class MihonBackupHelper {
         title: ch.name || 'Untitled Chapter',
         chapterNumber: ch.chapterNumber?.toString() || 'Unknown',
         language: 'en', // Assuming English, as Mihon backup does not store language info
-        publishAt: publishAtTimestamp ? unixTimestampToDate(publishAtTimestamp) : new Date(),
+        publishAt: publishAtTimestamp ? new Date(publishAtTimestamp) : new Date(),
         scanlationGroup: ch.scanlator || 'Unknown',
         externalUrl: ch.url
       })

@@ -183,9 +183,43 @@
 
 **Trigger model is check-on-startup only**, run once at DB-init time (`src/main/index.ts`), not a live timer: compares the newest automatic snapshot's age against `settings.snapshot.intervalInHours` and only creates a new one if overdue. Chosen over a live `setInterval` (needless lifecycle management once a manual "Create Now" button exists) and over an exit-only hook (this codebase's `before-quit` handling is synchronous while `node:sqlite`'s `backup()` is async, and exit-only misses every ungraceful exit — exactly when a recent snapshot matters most).
 
+### Custom (data-fix) migrations
+
+**When**: a fix that changes data, not schema (for example repairing rows an older version wrote wrongly). Everything else is generated.
+
+**How**: `npx drizzle-kit generate --custom --name=<name>` creates the folder (`migration.sql` plus `snapshot.json`) and `runMigrations()` finds it by scanning the folder. Only the SQL is written by hand.
+
+**Gotchas**: (1) put `--> statement-breakpoint` after every statement but the last. Without it the migrator hands the whole file to SQLite as one statement and only the **first** statement runs, while the migration still counts as applied (found on 28 October 2026, `fix_mihon_millisecond_timestamp`). (2) Make the SQL idempotent with a `WHERE` that matches only bad rows. (3) `timestamp` columns hold integer **seconds**. (4) Test it on a throwaway database: build the schema with the migrator from a copy of the migrations folder that leaves the new one out, seed bad and good rows, then run the full folder.
+
+### Mihon protobuf decoding
+
+**int64 is a string.** protobufjs's `toJSON()` returns every 64-bit field as a string, so a model typed `number` is lying and a cast after `toJSON()` hides it. Convert once in `mihon-backup.decoder.ts` (`normaliseBackup`); keep values that can exceed 2^53 (the MangaDex source ids) as strings and compare them as `BigInt`. Mihon times are epoch **milliseconds**, DexReader's are seconds. Full picture: `docs/architecture/backup-import-export.md`.
+
 ---
 
 ## Code Conventions
+
+### Build gotcha: strings ending in "import" (main process)
+
+electron-vite's ESM shim plugin finds the last static `import` in a built chunk with a regex, and a string literal or comment in `src/main` that has the word `import` right before a closing quote (`'Invalid list of manga to import'`) can be matched as one, which splices a shim into the middle of the next string and fails the build with "Unterminated string literal". Keep the word out of that position (`'... to add back'`).
+
+### App-level owners for menu-driven flows
+
+Menu items can be used from any view, including the Reader (which renders outside `AppShell`), so their listeners and dialogs belong in an app-level component, not in a view. `BackupHost` (import/export) is mounted once in `App.tsx` at the same child position in both layouts so React keeps it across the Reader/AppShell swap, after the Gatekeeper gate. A module-level lock (`utils/backupOperationLock.ts`) serialises the operations; `utils/refreshAfterImport.ts` brings the stores back in line afterwards. Reuse this pattern for Refresh Library's progress UI.
+
+### Secondary windows (the changelog window)
+
+The What's New window (`src/main/changelog-window.ts`) is the pattern for any small window that is not the app shell:
+
+- **Own entry and own preload**: its page is `src/renderer/changelog.html` with code in `src/renderer/src/changelog/`, and it loads `src/preload/changelog.ts` (built to `changelog.cjs`), which exposes only what it needs. `electron.vite.config.ts` lists both as explicit inputs next to the main ones. The window keeps `sandbox: true` and `contextIsolation: true`; DevTools are off (flip `devTools` to `is.dev` only while styling).
+- **No settings access in the preload**, so main resolves what the first paint needs (display language, and the theme with `system` resolved to light or dark) and passes it on the page URL (`windowParams.ts` reads it).
+- **`Menu.setApplicationMenu` puts the menu back on every open window**, undoing `removeMenu()`, and the app rebuilds its menu whenever menu state changes. `removeChangelogWindowMenu()` is called straight after each rebuild in `src/main/menu/index.ts`; any new menu-less window needs the same.
+- **One instance**: a second request focuses the open window. Navigation is blocked (`will-navigate`) and `window.open` goes to the default browser through `openExternal` (`src/main/utils/shell.util.ts`, which checks the protocol).
+- **Opened from**: Help → What's New (`help.menu.ts`) and the post-update banner (`appUpdate.openChangelog`, channel `changelog:open`); the banner stays up if the window can't open.
+
+### The changelog is bundled, not fetched
+
+`CHANGELOG.md` is imported into the main bundle with Vite's `?raw` suffix (`src/main/changelog/changelog-source.ts` is the only importer, `src/main/raw-modules.d.ts` declares the type), so nothing ships beside the app and no `fs` or network access is needed. `changelog.service.ts` parses it per request (`changelog:get` also returns the installed version). The format the parser accepts is the contract in `docs/RELEASE_PROCESS.md` (Changelog Format); a release heading ending ` [YANKED]` is shown as "Not Published" and its changes are credited to the nearest newer published release. The parser's test reads the real file, so a malformed entry fails CI. Release notes are not translated, only the window's own labels (`changelog` namespace).
 
 ### File Naming
 

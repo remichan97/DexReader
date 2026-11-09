@@ -79,8 +79,10 @@
       "offlineTooltip": "Bạn đang ngoại tuyến. Vui lòng kết nối mạng để tải xuống",
       "noChapters": "Không có chương",
       "partialFailure": "Tải xuống không hoàn chỉnh",
-      "couldntQueue": "Không thể thêm {{count}} chương vào hàng đợi"
-    }
+      "couldntQueue": "Không thể thêm {{count}} chương vào hàng đợi",
+      "loadingTooltip": "Chỉ dùng được khi mọi chương đã tải xong"
+    },
+    "loadingChapters": "Đang tải tất cả các chương…"
   },
   "toasts": {
     "downloadsDeleted": {
@@ -122,7 +124,12 @@
       "readChapter": "Đọc Chương {{number}}: {{title}}",
       "chapterPrefix": "Ch.",
       "pagePrefix": "tr."
-    }
+    },
+    "titlePartial": "Chương ({{loaded}} / {{total}})",
+    "loadingOlder": "Đang tải các chương cũ hơn… {{loaded}} / {{total}}",
+    "loadingNewer": "Đang tải các chương mới hơn… {{loaded}} / {{total}}",
+    "loadFailed": "Không thể tải phần còn lại của các chương",
+    "downloadAllLoading": "Chỉ tải xuống tất cả được khi mọi chương đã tải xong"
   },
   "externalLinks": {
     "title": "Liên kết ngoài",

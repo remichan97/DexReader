@@ -2,7 +2,7 @@
 
 **DexReader Desktop Manga Reader**
 Version: 1.0.0
-Last Updated: April 20, 2026
+Last Updated: November 9, 2026
 
 ---
 
@@ -25,6 +25,7 @@ Last Updated: April 20, 2026
   - [Library](#library)
   - [Collections](#collections)
   - [Reading History](#reading-history)
+  - [Changelog](#changelog)
   - [MangaDex API](#mangadex-api)
 - [Type Definitions](#type-definitions)
 - [Error Handling](#error-handling)
@@ -748,23 +749,43 @@ await window.api.cancelDexReaderImport()
 
 #### Mihon/Tachiyomi Compatibility
 
-##### `window.api.importMihonBackup(filePath: string)`
+##### `window.mihon.importBackup(filePath: string, includeMangaIds?: string[])`
 
-Imports library from Mihon/Tachiyomi backup.
+Imports library from Mihon/Tachiyomi backup (IPC channel `mihon:import-backup`).
 
 **Parameters:**
 
-- `filePath` - Path to `.tachibk` or `.proto.gz` file
+- `filePath` - Path to `.tachibk` or `.proto.gz` file (gzip-compressed or plain protobuf)
+- `includeMangaIds` - Optional second pass over the same file: import only these other-language MangaDex titles (the ids listed in a previous result's `skippedOtherLanguage`, at most 5000, each a MangaDex UUID). Nothing else in the file is touched, and entries that are English or not listed in the file can't be selected this way
 
-**Returns:** `{success: boolean, mangaImported: number, chaptersImported: number}`
-
-**Note:** Only MangaDex manga are imported (other sources skipped).
+**Returns:** `IpcResponse<MihonImportContract>`:
 
 ```typescript
-const result = await window.api.importMihonBackup(
-  'C:\\...\\Downloads\\tachiyomi_2026-04-20.tachibk'
+{
+  importedMangaCount: number
+  skippedMangaCount: number // already in the library, or cancelled
+  failedMangaCount: number
+  errors?: { mangaId: string; title: string; reason: string }[]
+  importedMangaIds?: string[]
+  skippedOtherLanguage?: { mangaId: string; title: string }[] // MangaDex titles from other-language sources, left out
+  ignoredOtherSourceCount?: number // entries from non-MangaDex sources (omitted on a second pass)
+}
+```
+
+**Notes:**
+
+- Only the English MangaDex source is imported. Other-language MangaDex sources are recognised by a source named "MangaDex" in the backup's own source list, and are returned in `skippedOtherLanguage` for the user to add back
+- A failed read carries one of these `error.code` values, which the renderer maps to translated messages (`dialogs:mihonImport.errors.*`): `MIHON_BACKUP_JSON` (JSON backups aren't supported), `MIHON_BACKUP_EMPTY`, `MIHON_BACKUP_UNRECOGNISED` (not a backup, truncated or damaged), `MIHON_BACKUP_FILE_MISSING` (the file moved since the first pass)
+
+```typescript
+const first = await window.mihon.importBackup('C:\\...\\Downloads\\tachiyomi_2026-04-20.tachibk')
+const skipped = first.data?.skippedOtherLanguage ?? []
+
+// Later, once the user has picked some of the skipped titles
+await window.mihon.importBackup(
+  'C:\\...\\Downloads\\tachiyomi_2026-04-20.tachibk',
+  skipped.slice(0, 2).map((entry) => entry.mangaId)
 )
-console.log(`Imported ${result.mangaImported} MangaDex manga`)
 ```
 
 ##### `window.api.cancelMihonImport()`
@@ -1515,6 +1536,74 @@ Gets the most recent read events across all manga, for the feed's default (unfil
 ```typescript
 const result = await window.readHistory.getRecentEvents(50)
 ```
+
+---
+
+### Changelog
+
+The in-app "What's New" window. Two preload surfaces are involved: the main window only **opens**
+the window, and the window itself (its own small preload, `src/preload/changelog.ts`) **reads** the
+data. Help → What's New is opened by main directly and needs no IPC call.
+
+#### `globalThis.appUpdate.openChangelog()`
+
+Opens the changelog window, or focuses it when it is already open.
+Takes no arguments: the window always selects the installed version, so there is nothing for the
+caller to choose. The post-update banner's "View Release Notes" button uses it.
+
+**Returns:** `Promise<IpcResponse<void>>`
+
+```typescript
+const result = await globalThis.appUpdate.openChangelog()
+if (!result.success) {
+  // The window could not be created; main has already logged why
+}
+```
+
+#### `globalThis.changelog.getChangelog()`
+
+Available **only inside the changelog window**. Returns the parsed `CHANGELOG.md` together with the
+running app's version.
+
+**Returns:** `Promise<IpcResponse<ChangelogPayload>>`
+
+```typescript
+interface ChangelogPayload {
+  installedVersion: string // The running app's version, e.g. '1.17.0'
+  releases: ChangelogRelease[] // Newest first, in file order
+}
+
+interface ChangelogRelease {
+  version: string // Without a leading 'v'
+  date?: string // YYYY-MM-DD
+  isYanked?: boolean // Heading carries [YANKED]: never published
+  foldedInto?: string // On a yanked release: the nearest newer published release that shipped it
+  includes?: string[] // On a published release: the yanked releases folded into it, oldest first
+  sections: ChangelogSection[]
+}
+
+interface ChangelogSection {
+  category: ChangelogCategory // Added, Changed, Deprecated, Removed, Fixed, Security, Dependencies, Build or Unknown
+  title?: string // The original heading, kept only when the category is Unknown
+  items: string[] // Markdown-lite text; nested bullets are joined to their parent with "
+"
+}
+```
+
+The format the parser accepts is described under [Changelog format](./RELEASE_PROCESS.md#changelog-format).
+
+#### Other methods on the window's `changelog` object
+
+| Method                    | Channel                         | Purpose                                                           |
+| ------------------------- | ------------------------------- | ----------------------------------------------------------------- |
+| `getCspNonce()`           | `security:get-csp-nonce`        | The per-launch nonce Griffel's runtime styles need                |
+| `getTheme()`              | `get-theme`                     | The OS theme (the window itself takes its theme from `?theme=`)   |
+| `getSystemAccentColour()` | `theme:get-system-accent-color` | The accent colour the Fluent theme is built from                  |
+| `openExternal(url)`       | `shell:open-external`           | Opens a link in the browser; only `http:`, `https:` and `mailto:` |
+
+**Page parameters.** The window cannot read settings, so main resolves them and passes them on the
+page URL: `?lng=` (the display language) and `?theme=` (`light` or `dark`, with "system" already
+resolved). Missing or unrecognised values fall back to `en-GB` and light.
 
 ---
 

@@ -222,5 +222,9 @@
     "moveUpAriaLabel": "Di chuyển {{item}} lên trong thứ tự ưu tiên",
     "moveDownAriaLabel": "Di chuyển {{item}} xuống trong thứ tự ưu tiên",
     "removeAriaLabel": "Xóa {{item}} khỏi danh sách"
+  },
+  "backup": {
+    "busyTitle": "Đang có thao tác sao lưu",
+    "busyMessage": "Hãy hoàn tất hoặc đóng thao tác nhập hoặc xuất hiện tại trước khi bắt đầu thao tác khác."
   }
 }

@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { ImageQuality } from '@shared/enums/mangadex/image-quality.enum'
 import type { ImageUrlResponse, ChapterContract } from '../../../../../preload/window.types'
 import { useConnectivityStore } from '@renderer/stores/connectivityStore'
 import { rendererLog } from '@renderer/services/logging.service'
 import { toError } from '@shared/utils/to-error.util'
-import { ChapterIncludes, OrderDirection } from '@shared/enums/mangadex'
+import { loadChapterFeed } from '@renderer/utils/chapterFeedLoader'
 
 type ChapterEntity = ChapterContract
 
@@ -14,8 +14,28 @@ interface LocationState {
   mangaTitle?: string
   coverUrl?: string
   chapters?: ChapterEntity[]
+  /** False when the manga's page handed over a list that was still loading (see below) */
+  chaptersComplete?: boolean
+  /** The language the handed-over list is filtered to; undefined when it holds every language */
+  chapterLanguage?: string
   startAtLastPage?: boolean
   startPage?: number
+}
+
+/** The language of the chapter list when the reader has to load one itself (no list was passed) */
+const FALLBACK_CHAPTER_LANGUAGE = 'en'
+
+/**
+ * Which list wins when navigation hands the reader one. The reader passes its own list along each
+ * time it moves between chapters, and a list that finished loading in the meantime must not be
+ * replaced by the shorter one that was current when the user clicked.
+ */
+function pickChapterList(
+  current: ChapterEntity[],
+  incoming: ChapterEntity[] | undefined
+): ChapterEntity[] {
+  if (!incoming) return current
+  return incoming.length >= current.length ? incoming : current
 }
 
 interface ChapterData {
@@ -62,6 +82,15 @@ export function useChapterData(
   locationKey: string,
   imageQuality: ImageQuality
 ): UseChapterDataReturn {
+  // False while the manga page's list is still loading its later pages; finished here, in the background
+  const [chaptersComplete, setChaptersComplete] = useState(
+    locationState?.chaptersComplete !== false
+  )
+  // Fixed by the first navigation: a list loaded here must be filtered like the one handed over
+  const feedLanguageRef = useRef<string | undefined>(
+    locationState?.chapters?.length ? locationState.chapterLanguage : FALLBACK_CHAPTER_LANGUAGE
+  )
+
   const [data, setData] = useState<ChapterState>({
     chapterId: null,
     mangaId: null,
@@ -223,7 +252,7 @@ export function useChapterData(
         chapterTitle: chapterTitle,
         chapterNumber: locationState.chapterNumber || prev.chapterNumber,
         mangaTitle: locationState.mangaTitle || prev.mangaTitle,
-        chapters: locationState.chapters || prev.chapters
+        chapters: pickChapterList(prev.chapters, locationState.chapters)
       }))
     }
   }, [chapterId, locationKey, locationState])
@@ -235,45 +264,51 @@ export function useChapterData(
     }
   }, [chapterId, mangaId, loadChapterImages])
 
-  // Fetch the chapter list when navigation state didn't supply one (e.g. from History or Downloads).
-  // Keyed on hasChapters rather than the list itself so an empty result cannot retrigger the fetch.
+  // Load the chapter list when navigation didn't supply one (opened from History or Downloads), and
+  // finish it when the manga page handed over a list that was still loading. Keyed on whether a list
+  // is still needed rather than on the list itself, so an empty result cannot retrigger the fetch
+  // and the pages after the first aren't cancelled by the list appearing.
+  const needsChapterList = !hasChapters || !chaptersComplete
+  // Not the id itself: moving to another chapter mid-load shouldn't restart the load
+  const hasChapterId = Boolean(chapterId)
   useEffect(() => {
-    if (!chapterId || !mangaId || hasChapters) return
+    if (!hasChapterId || !mangaId || !needsChapterList) return
 
-    let cancelled = false
+    const controller = new AbortController()
 
-    const loadFallbackChapterList = async (): Promise<void> => {
+    const loadChapterList = async (): Promise<void> => {
       setData((prev) => ({ ...prev, chaptersLoading: true }))
 
       try {
         // Check if online before fetching chapter list
         if (!useConnectivityStore.getState().isOnline) return
 
-        const chaptersResponse = await globalThis.mangadex.getMangaFeed(mangaId, {
-          limit: 500,
-          offset: 0,
-          translatedLanguage: ['en'], // Fallback to English
-          order: { chapter: OrderDirection.Asc },
-          includes: [ChapterIncludes.SCANLATION_GROUP]
+        await loadChapterFeed({
+          mangaId,
+          language: feedLanguageRef.current,
+          direction: 'asc',
+          signal: controller.signal,
+          onPage: (progress) => {
+            if (controller.signal.aborted) return
+            setData((prev) => ({ ...prev, chapters: progress.chapters }))
+            setChaptersComplete(progress.complete)
+          }
         })
-
-        if (cancelled || !chaptersResponse.success || !chaptersResponse.data) return
-
-        const chapters = chaptersResponse.data.data
-        setData((prev) => ({ ...prev, chapters }))
       } catch (error) {
         rendererLog.error('[useChapterData] Failed to load chapter list:', error)
       } finally {
-        setData((prev) => ({ ...prev, chaptersLoading: false }))
+        if (!controller.signal.aborted) {
+          setData((prev) => ({ ...prev, chaptersLoading: false }))
+        }
       }
     }
 
-    void loadFallbackChapterList()
+    void loadChapterList()
 
     return () => {
-      cancelled = true
+      controller.abort()
     }
-  }, [chapterId, mangaId, hasChapters])
+  }, [hasChapterId, mangaId, needsChapterList])
 
   return {
     ...data,

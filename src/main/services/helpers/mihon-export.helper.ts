@@ -4,7 +4,6 @@ import { CollectionContract } from '@shared/contracts/database/collections/colle
 import { ChapterWithMetadataContract } from '@shared/contracts/database/manga/chapter-with-metadata.contract'
 import { MangaWithMetadataContract } from '@shared/contracts/database/manga/manga-with-metadata.contract'
 import { ChapterProgressContract } from '@shared/contracts/database/progress/chapter-progress.contract'
-import { dateToUnixTimestamp } from '../../utils/timestamps.util'
 import { BackupCategory } from '../types/mihon/backup-category.type'
 import { BackupChapter } from '../types/mihon/backup-chapter.type'
 import { BackupHistory } from '../types/mihon/backup-history.type'
@@ -58,12 +57,13 @@ class MihonExportHelper {
   ): BackupChapter {
     return {
       url: this.buildChapterUrl(chapterProgress.chapterId),
-      name: metadata?.title,
+      // Mihon's model requires a chapter name, and the backup schema no longer enforces it
+      name: metadata?.title ?? '',
       scanlator: metadata?.scanlatorGroup,
       read: chapterProgress.completed,
       lastPageRead: chapterProgress.currentPage,
-      dateFetch: metadata ? dateToUnixTimestamp(metadata.publishedAt) : undefined,
-      dateUpload: metadata ? dateToUnixTimestamp(metadata.createdAt) : undefined,
+      dateFetch: metadata ? metadata.createdAt.getTime() : undefined,
+      dateUpload: metadata ? metadata.publishedAt.getTime() : undefined,
       chapterNumber: metadata ? Number(metadata.chapterNumber) : undefined
     }
   }
@@ -71,7 +71,7 @@ class MihonExportHelper {
   buildBackupHistory(chapterProgress: ChapterProgressContract): BackupHistory {
     return {
       url: this.buildChapterUrl(chapterProgress.chapterId),
-      lastRead: chapterProgress.lastReadAt
+      lastRead: chapterProgress.lastReadAt * 1000
     }
   }
 

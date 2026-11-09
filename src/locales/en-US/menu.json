@@ -21,20 +21,12 @@
   },
   "library": {
     "label": "Library",
-    "addToFavourites": "Add to Favorites",
-    "removeFromFavourites": "Remove from Favorites",
-    "createCollection": "Create Collection...",
-    "manageCollections": "Manage Collections...",
-    "downloadChapter": "Download Chapter",
-    "downloadChapterWithTitle": "Download {{chapterTitle}}",
-    "downloadManga": "Download Manga",
-    "downloadMangaWithTitle": "Download '{{mangaTitle}}'",
     "importLibrary": "Import Library",
     "fromDexReaderBackup": "From DexReader Backup...",
     "fromMihonTachiyomiBackup": "From Mihon/Tachiyomi Backup...",
     "exportLibrary": "Export Library",
     "toDexReaderBackup": "To DexReader Backup...",
-    "toMihonTachiyomiFormat": "To Mihon/Tachiyomi Format...",
+    "toTachiyomiFormat": "To Tachiyomi Format (.tachibk)...",
     "dialogs": {
       "importLibrary": {
         "title": "Import Library",
@@ -48,21 +40,23 @@
         "title": "Export Library"
       },
       "exportMihonTachiyomiWarning": {
-        "title": "Export to Mihon/Tachiyomi",
-        "message": "Before you proceed, this action will export your manga library including:",
-        "detail": "• Manga metadata and covers\n• Collections (as categories)\n• Reading progress and history\n• Chapter metadata\n\nPlease note: App settings (themes, preferences) are DexReader-specific and cannot be exported to Tachiyomi/Mihon.",
+        "title": "Export to Tachiyomi format",
+        "message": "Before you proceed, this action will export your manga library in the Tachiyomi backup format (.tachibk), including:",
+        "detail": "• Manga metadata and covers\n• Collections (as categories)\n• Reading progress and history\n• Chapter metadata\n\nKeep in mind that App settings (themes, preferences) are DexReader-specific and cannot be exported to Tachiyomi/Mihon.",
+        "deprecation": "Notice: exporting to the Tachiyomi backup format (.tachibk) is being retired and will be removed in the next DexReader release. Importing .tachibk backups from Tachiyomi, Mihon and other forks is not affected, and support for Mihon's own newer backup format is planned once it is released. Mihon has announced that after version 0.21.x it can no longer restore .tachibk files (restore this file in Mihon 0.21.x first, then update Mihon), but other Tachiyomi forks may still read it. The DexReader backup (.dexreader) will remain available.",
         "buttonCancel": "Cancel",
         "buttonProceed": "Proceed..."
       },
       "exportMihonTachiyomi": {
-        "title": "Export Library to Mihon/Tachiyomi",
-        "filterName": "Mihon/Tachiyomi Backup"
+        "title": "Export Library to Tachiyomi Format",
+        "filterName": "Tachiyomi Backup (.tachibk)"
       }
     }
   },
   "help": {
     "label": "Help",
     "documentation": "Documentation",
+    "whatsNew": "What's New...",
     "keyboardShortcuts": "Keyboard Shortcuts...",
     "reportAnIssue": "Report an Issue",
     "viewExistingIssues": "View Existing Issues...",

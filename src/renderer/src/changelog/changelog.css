@@ -1,0 +1,31 @@
+/* The window is one full-height layout whose columns scroll on their own, so the page must not. */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+/* Scrollbars match the main app's (src/renderer/src/assets/tokens.css). That file also sets global
+   body, heading and #root rules this window must not inherit, so the same rules are repeated here
+   with Fluent's neutral tokens, which fluentTheme.ts pins to tokens.css's palette:
+   Background2 = --win-bg-base, Stroke1 = --win-border-default, Stroke2 = --win-border-hover. */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--colorNeutralBackground2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--colorNeutralStroke1);
+  border-radius: 9999px;
+  border: 2px solid var(--colorNeutralBackground2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--colorNeutralStroke2);
+}

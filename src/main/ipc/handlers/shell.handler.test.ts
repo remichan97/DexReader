@@ -44,19 +44,16 @@ describe('shell.handler', () => {
     )
 
     it.each([
-      ['file:///etc/passwd', 'a file:// URL'],
-      ['javascript:alert(1)', 'a javascript: URL'],
-      ['ftp://example.com/file', 'an ftp: URL'],
-      ['app://malicious', 'a custom app: protocol']
-    ])('rejects %s (%s) without opening it', async (url) => {
+      ['file:///etc/passwd', 'file:', 'a file:// URL'],
+      ['javascript:alert(1)', 'javascript:', 'a javascript: URL'],
+      ['ftp://example.com/file', 'ftp:', 'an ftp: URL'],
+      ['app://malicious', 'app:', 'a custom app: protocol']
+    ])('rejects %s (%s) without opening it', async (url, protocol) => {
       const response = await getRegisteredHandler('shell:open-external')(EVENT, url)
 
-      // The handler's disallowed-protocol throw is caught by its own try/catch and
-      // rewritten to a generic "Invalid URL" message - the security boundary (never
-      // calling shell.openExternal) still holds, only the message is less specific.
       expect(response).toEqual({
         success: false,
-        error: expect.objectContaining({ message: `Invalid URL: ${url}` })
+        error: expect.objectContaining({ message: `Protocol ${protocol} is not allowed` })
       })
       expect(shell.openExternal).not.toHaveBeenCalled()
     })

@@ -53,9 +53,45 @@ describe('mihon.handler', () => {
         await expect(getRegisteredHandler('mihon:import-backup')(EVENT, filePath)).resolves.toEqual(
           { success: true, data: { mangaImported: 5 } }
         )
-        expect(mihonBackupService.importFromBackup).toHaveBeenCalledWith(filePath)
+        expect(mihonBackupService.importFromBackup).toHaveBeenCalledWith(filePath, {})
       }
     )
+
+    it('forwards the titles to add back as includeMangaIds', async () => {
+      vi.mocked(mihonBackupService.importFromBackup).mockResolvedValue({} as never)
+      const ids = ['2f6a1c2e-0000-4000-8000-000000000001', '2F6A1C2E-0000-4000-8000-000000000002']
+
+      await getRegisteredHandler('mihon:import-backup')(EVENT, '/backups/library.tachibk', ids)
+
+      expect(mihonBackupService.importFromBackup).toHaveBeenCalledWith('/backups/library.tachibk', {
+        includeMangaIds: ids
+      })
+    })
+
+    it.each([
+      ['a non-array', 'not-a-list'],
+      ['an entry that is not a UUID', ['not-a-uuid']],
+      ['a non-string entry', [42]],
+      [
+        'more entries than allowed',
+        Array.from({ length: 5001 }, () => '2f6a1c2e-0000-4000-8000-000000000001')
+      ]
+    ])('rejects includeMangaIds that is %s', async (_label, ids) => {
+      const response = await getRegisteredHandler('mihon:import-backup')(
+        EVENT,
+        '/backups/library.tachibk',
+        ids
+      )
+
+      expect(response).toEqual({
+        success: false,
+        error: expect.objectContaining({
+          name: 'TypeError',
+          message: 'Invalid list of manga to add back'
+        })
+      })
+      expect(mihonBackupService.importFromBackup).not.toHaveBeenCalled()
+    })
 
     it('rejects a non-string file path', async () => {
       const response = await getRegisteredHandler('mihon:import-backup')(EVENT, 42)

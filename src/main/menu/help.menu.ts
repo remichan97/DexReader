@@ -2,6 +2,7 @@ import { MenuItemConstructorOptions, shell, dialog, app, BrowserWindow } from 'e
 import path from 'node:path'
 import { mainLog } from '../services/logging/main-logging.service'
 import i18next from '../i18n/i18n.config'
+import { createChangelogWindow } from '../changelog-window'
 
 export function buildHelpMenu(mainWindow: BrowserWindow): MenuItemConstructorOptions {
   return {
@@ -14,6 +15,14 @@ export function buildHelpMenu(mainWindow: BrowserWindow): MenuItemConstructorOpt
           shell
             .openExternal('https://github.com/remichan97/DexReader/wiki')
             .catch((error) => mainLog.error('[Menu] Failed to open wiki:', error))
+        }
+      },
+      {
+        label: i18next.t('menu:help.whatsNew'),
+        click: () => {
+          createChangelogWindow().catch((error) =>
+            mainLog.error("[Menu] Failed to open What's New:", error)
+          )
         }
       },
       {

@@ -40,6 +40,17 @@
     "errors": {
       "toggle": "View Error Details ({{count}})",
       "unknownManga": "Unknown Manga"
+    },
+    "ignoredSources": "Entries from other sources were ignored: {{count}}. DexReader only imports MangaDex titles.",
+    "skippedLanguages": {
+      "title": "MangaDex titles from other languages ({{count}})",
+      "description": "DexReader currently imports MangaDex titles from the English source only. Pick the ones you would still like to add to your library.",
+      "selectAll": "Select all",
+      "add": "Add selected ({{count}})",
+      "adding": "Adding...",
+      "addedTitle": "Added to library",
+      "addedMessage": "Titles added to your library: {{count}}",
+      "addFailedTitle": "Couldn't add titles"
     }
   },
   "savePreset": {
@@ -298,6 +309,14 @@
         "previousReleases": "Previous releases",
         "quit": "Quit"
       }
+    }
+  },
+  "mihonImport": {
+    "errors": {
+      "MIHON_BACKUP_JSON": "JSON backups aren't supported. Use a .tachibk or .proto.gz backup.",
+      "MIHON_BACKUP_EMPTY": "The backup file is empty.",
+      "MIHON_BACKUP_UNRECOGNISED": "This file isn't a valid Tachiyomi/Mihon backup, or it is damaged.",
+      "MIHON_BACKUP_FILE_MISSING": "The backup file has been moved or deleted. Import it again from the menu."
     }
   }
 }

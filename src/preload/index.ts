@@ -68,15 +68,7 @@ const api = {
   }) => ipcRenderer.invoke('show-dialog', options),
 
   // Menu state API
-  updateMenuState: (state: {
-    canAddToFavorites?: boolean
-    isFavorited?: boolean
-    canDownloadChapter?: boolean
-    chapterTitle?: string
-    canDownloadManga?: boolean
-    mangaTitle?: string
-    isIncognito?: boolean
-  }) => {
+  updateMenuState: (state: { isIncognito?: boolean; isOffline?: boolean }) => {
     ipcRenderer.send('update-menu-state', state)
   },
 
@@ -84,18 +76,6 @@ const api = {
   openExternal: (url: string) => ipcRenderer.invoke('shell:open-external', url),
 
   // Menu action handlers
-  onAddToFavorites: (callback: () => void) => {
-    ipcRenderer.on('add-to-favorites', callback)
-    return () => ipcRenderer.removeListener('add-to-favorites', callback)
-  },
-  onCreateCollection: (callback: () => void) => {
-    ipcRenderer.on('create-collection', callback)
-    return () => ipcRenderer.removeListener('create-collection', callback)
-  },
-  onManageCollections: (callback: () => void) => {
-    ipcRenderer.on('manage-collections', callback)
-    return () => ipcRenderer.removeListener('manage-collections', callback)
-  },
   onImportLibrary: (callback: (filePath: string) => void) => {
     const listener = (_: unknown, filePath: string): void => callback(filePath)
     ipcRenderer.on('import-library', listener)
@@ -115,14 +95,6 @@ const api = {
     const listener = (_: unknown, filePath: string): void => callback(filePath)
     ipcRenderer.on('export-tachiyomi', listener)
     return () => ipcRenderer.removeListener('export-tachiyomi', listener)
-  },
-  onDownloadChapter: (callback: () => void) => {
-    ipcRenderer.on('download-chapter', callback)
-    return () => ipcRenderer.removeListener('download-chapter', callback)
-  },
-  onDownloadManga: (callback: () => void) => {
-    ipcRenderer.on('download-manga', callback)
-    return () => ipcRenderer.removeListener('download-manga', callback)
   },
   onDownloadProgress: (callback: (event: ChapterDownloadsEvent) => void) => {
     const listener = (_: unknown, event: ChapterDownloadsEvent): void => callback(event)
@@ -281,7 +253,8 @@ const collections = {
 }
 
 const mihon = {
-  importBackup: (filePath: string) => ipcRenderer.invoke('mihon:import-backup', filePath),
+  importBackup: (filePath: string, includeMangaIds?: string[]) =>
+    ipcRenderer.invoke('mihon:import-backup', filePath, includeMangaIds),
   cancelImport: () => ipcRenderer.invoke('mihon:cancel-import'),
   exportBackup: (savePath: string) => ipcRenderer.invoke('mihon:export-backup', savePath)
 }
@@ -337,6 +310,7 @@ const appUpdate = {
   downloadUpdate: () => ipcRenderer.invoke('app-update:download'),
   installUpdate: () => ipcRenderer.invoke('app-update:install'),
   getAppVersion: () => ipcRenderer.invoke('app-update:version'),
+  openChangelog: () => ipcRenderer.invoke('changelog:open'),
 
   // Event listeners
   onUpdateChecking: (callback: () => void) => {

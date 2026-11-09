@@ -8,6 +8,7 @@ DexReader follows semantic versioning (MAJOR.MINOR.PATCH) and uses an automated 
 
 - [Version Numbering](#version-numbering)
 - [Normal Release Workflow](#normal-release-workflow)
+- [Changelog Format](#changelog-format)
 - [Hotfix Workflow](#hotfix-workflow-critical-issues)
 - [Pre-releases](#pre-releases-optional)
 - [Why Not Delete Bad Releases](#why-not-delete-bad-releases)
@@ -69,6 +70,8 @@ Add a new section at the top following [Keep a Changelog](https://keepachangelog
 
 **Version format**: Use version **without** 'v' prefix in CHANGELOG.md (e.g., `## [1.0.1]`)
 
+The app also reads this file, so keep to the [Changelog Format](#changelog-format) below.
+
 ### 3. Commit and Tag
 
 ```bash
@@ -105,6 +108,31 @@ Pushing the tag triggers the `.github/workflows/release.yaml` workflow which aut
 2. Verify all 3 platforms built successfully
 3. Check GitHub Release has all installers
 4. Test download and install on at least one platform
+
+## Changelog Format
+
+`CHANGELOG.md` has two readers: the release workflow, which extracts the section for the tag, and the app, which bundles the file at build time and parses it for **Help → What's New** and the post-update banner (`src/main/services/changelog/changelog.service.ts`). The parser is forgiving, but anything outside the format below is skipped or shown as written, so stick to it.
+
+### Structure
+
+- **Release heading**: `## [1.2.3] - 2026-04-03`. No `v` prefix; the date is `YYYY-MM-DD`.
+- **Section heading**: `### Added`. Use one of `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security` (Keep a Changelog) or `Dependencies` and `Build` (this project's additions). These are the only headings the window translates. Any other `###` heading still works but is shown verbatim, in English, under that title, so avoid inventing new ones.
+- **Items**: `- ` at the start of the line. One level of nested bullets, indented two spaces, is supported, and a wrapped line can be indented under its bullet. A bullet with no `###` heading above it is treated as `Changed`.
+- **Inline text**: `**bold**`, inline code in backticks, bare `http(s)` URLs and `[text](url)` links to `http`, `https` or `mailto`. Nothing else is interpreted (italics, images, tables, code fences and other link protocols appear as typed).
+- **Ignored**: blank lines, `---` separators, single-line `<!-- ... -->` comments and the `[label]: url` link definitions at the bottom. A multi-line HTML comment is not supported, and prose between a heading and its first bullet is dropped.
+- **No `## [Unreleased]` heading** in the file that ships. The parser has no special case for it, so it would appear in the window as a release called "Unreleased".
+
+Release notes are not translated, so write them in British English. Only the window's own labels are.
+
+### Marking a release as yanked
+
+Add ` [YANKED]` after the date (a space, no dash) to an entry whose GitHub release was withdrawn or never published:
+
+```markdown
+## [1.11.0] - 2026-06-24 [YANKED]
+```
+
+The window then shows that release greyed out with a "Not Published" badge and no GitHub link, since the release it would point to is gone. Its changes are also credited to the **nearest newer published release**, which shows an "Includes changes from v1.11.0" notice, and the yanked entry says "Not published on its own" with a link to that release. This is what the yank + hotfix flow below produces, so mark the entry when you yank it. If no newer published release exists yet, the entry is still listed as "Not Published" but nothing carries its changes.
 
 ## Hotfix Workflow (Critical Issues)
 
@@ -179,12 +207,14 @@ Example CHANGELOG entry:
 - **Critical**: Fix data loss when canceling chapter downloads
 - Users on v1.0.0 should update immediately
 
-## [1.0.0] - 2026-04-02
+## [1.0.0] - 2026-04-02 [YANKED]
 
 ⚠️ **This version has a critical bug. Please use v1.0.1 instead.**
 
 - Initial release
 ```
+
+The `[YANKED]` marker is what the in-app changelog window reads; see [Marking a release as yanked](#marking-a-release-as-yanked).
 
 #### 5. Merge and Release
 
@@ -342,4 +372,4 @@ The matrix uses `fail-fast: false`, so:
 
 ---
 
-**Last Updated**: 3 April 2026
+**Last Updated**: 9 November 2026

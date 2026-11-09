@@ -79,8 +79,10 @@
       "offlineTooltip": "You are offline. Please go online to download",
       "noChapters": "No chapters available",
       "partialFailure": "Partial Failure",
-      "couldntQueue": "Couldn't queue {{count}} chapter{{s}}"
-    }
+      "couldntQueue": "Couldn't queue {{count}} chapter{{s}}",
+      "loadingTooltip": "Available once every chapter has loaded"
+    },
+    "loadingChapters": "Loading every chapter…"
   },
   "toasts": {
     "downloadsDeleted": {
@@ -122,7 +124,12 @@
       "readChapter": "Read Chapter {{number}}: {{title}}",
       "chapterPrefix": "Ch.",
       "pagePrefix": "p."
-    }
+    },
+    "titlePartial": "Chapters ({{loaded}} of {{total}})",
+    "loadingOlder": "Loading older chapters… {{loaded}} of {{total}}",
+    "loadingNewer": "Loading newer chapters… {{loaded}} of {{total}}",
+    "loadFailed": "Couldn't load the rest of the chapters",
+    "downloadAllLoading": "Download all is available once every chapter has loaded"
   },
   "externalLinks": {
     "title": "External Links",

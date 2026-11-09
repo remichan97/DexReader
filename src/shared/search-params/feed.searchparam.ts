@@ -16,7 +16,7 @@ export interface FeedParams {
   includeFutureUpdates?: IncludeFutureUpdates
   createdAtSince?: string
   updatedAtSince?: string
-  publishedAtSince?: string
+  publishAtSince?: string
   order?: Partial<Record<ChapterOrderOptions, OrderDirection>>
   includes?: ChapterIncludes[]
 }

@@ -44,6 +44,10 @@ interface MangaHeroSectionProps {
   readonly progress: NonNullable<
     Awaited<ReturnType<Window['progress']['getProgress']>>['data']
   > | null
+  /** False while later pages of a long series are still loading, or after one failed */
+  readonly chaptersComplete?: boolean
+  /** The language the chapter feed is filtered to; undefined when it holds every language */
+  readonly chaptersFilterLanguage?: string
 }
 
 /**
@@ -53,7 +57,9 @@ export default function MangaHeroSection({
   manga,
   chapters,
   progress,
-  origin
+  origin,
+  chaptersComplete = true,
+  chaptersFilterLanguage
 }: MangaHeroSectionProps): JSX.Element {
   const navigate = useNavigate()
   const { secureNavigate } = useSecureNavigation()
@@ -93,8 +99,18 @@ export default function MangaHeroSection({
     getDownloadButtonTitle
   } = useDownloadQueueActions({ manga, chapters, downloadSettings, t, showToast })
 
+  // Start Reading needs the first chapter, which a list still loading from its newest end doesn't
+  // have yet; Continue only needs the chapter that was being read
+  const lastReadChapterLoaded = progress
+    ? chapters.some((chapter) => chapter.id === progress.lastChapterId)
+    : false
+  const waitingForChapters = !chaptersComplete && !lastReadChapterLoaded
+  const waitingTitle = waitingForChapters
+    ? t('mangaDetail:hero.loadingChapters', { defaultValue: 'Loading every chapter…' })
+    : undefined
+
   const handleReadClick = (): void => {
-    if (chapters.length === 0) return
+    if (chapters.length === 0 || waitingForChapters) return
 
     // If progress exists, continue from last read position
     if (progress) {
@@ -109,6 +125,8 @@ export default function MangaHeroSection({
             chapterTitle: lastChapter.title,
             mangaTitle: getMangaTitle(manga),
             chapters: chapters,
+            chaptersComplete,
+            chapterLanguage: chaptersFilterLanguage,
             startPage, // Start at last read page
             coverUrl, // Pass cover URL for progress tracking
             ...forwardOrigin(origin)
@@ -126,6 +144,8 @@ export default function MangaHeroSection({
         chapterTitle: firstChapter.title,
         mangaTitle: getMangaTitle(manga),
         chapters: chapters,
+        chaptersComplete,
+        chapterLanguage: chaptersFilterLanguage,
         coverUrl, // Pass cover URL for progress tracking // Pass full chapter list for navigation
         ...forwardOrigin(origin)
       }
@@ -300,7 +320,8 @@ export default function MangaHeroSection({
             <Button
               variant="accent"
               onClick={handleReadClick}
-              disabled={chapters.length === 0}
+              disabled={chapters.length === 0 || waitingForChapters}
+              title={waitingTitle}
               icon={<PlayCircle24Regular />}
             >
               {t('mangaDetail:hero.continue', { defaultValue: 'Continue' })}
@@ -309,7 +330,8 @@ export default function MangaHeroSection({
             <Button
               variant="accent"
               onClick={handleReadClick}
-              disabled={chapters.length === 0}
+              disabled={chapters.length === 0 || waitingForChapters}
+              title={waitingTitle}
               icon={<BookOpenRegular />}
             >
               {t('mangaDetail:hero.startReading', { defaultValue: 'Start Reading' })}
@@ -325,8 +347,14 @@ export default function MangaHeroSection({
           <Button
             variant="secondary"
             onClick={handleDownloadAllClick}
-            disabled={chapters.length === 0 || !downloadSettings || !isOnline}
-            title={getDownloadButtonTitle()}
+            disabled={chapters.length === 0 || !downloadSettings || !isOnline || !chaptersComplete}
+            title={
+              chaptersComplete
+                ? getDownloadButtonTitle()
+                : t('mangaDetail:hero.downloadAll.loadingTooltip', {
+                    defaultValue: 'Available once every chapter has loaded'
+                  })
+            }
             icon={<ArrowDownload24Regular />}
           >
             {t('mangaDetail:hero.downloadAll.button', { defaultValue: 'Download All' })}

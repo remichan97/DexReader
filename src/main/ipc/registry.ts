@@ -9,6 +9,7 @@ import { BrowserWindow } from 'electron'
 import { registerAdditionalDialogHandlers } from './handlers/dialogs.handler'
 import { registerLibraryHandlers } from './handlers/library.handler'
 import { registerCollectionsHandlers } from './handlers/collections.handler'
+import { registerChangelogHandler } from './handlers/changelog.handler'
 import { registerHistoryHandler } from './handlers/history.handler'
 import { registerMihonHandlers } from './handlers/mihon.handler'
 import { registerDexReaderHandler } from './handlers/dexreader.handler'
@@ -53,6 +54,7 @@ export function registerAllHandlers(imageProxy?: ImageProxy): void {
   registerShellHandlers()
   registerMenuStateHandler()
   registerSecurityHandlers()
+  registerChangelogHandler()
 
   // File system handlers need window for dialogs
   // Get window reference when handlers are actually called

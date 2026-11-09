@@ -5,6 +5,7 @@ import { buildFileMenu } from './file.menu'
 import { buildLibraryMenu } from './library.menu'
 import { buildHelpMenu } from './help.menu'
 import { getMainWindow } from '../window'
+import { removeChangelogWindowMenu } from '../changelog-window'
 import { MenuState } from './menu-state'
 
 export function createMenu(state: MenuState): Menu {
@@ -16,7 +17,7 @@ export function createMenu(state: MenuState): Menu {
   const template: MenuItemConstructorOptions[] = [
     buildFileMenu(mainWindow, state),
     buildViewMenu(mainWindow),
-    buildLibraryMenu(mainWindow, state),
+    buildLibraryMenu(mainWindow),
     buildHelpMenu(mainWindow)
   ]
 
@@ -26,4 +27,6 @@ export function createMenu(state: MenuState): Menu {
 export function updateMenuState(state: MenuState): void {
   const menu = createMenu(state)
   Menu.setApplicationMenu(menu)
+  // Setting the application menu gives it to every open window, including the changelog window
+  removeChangelogWindowMenu()
 }

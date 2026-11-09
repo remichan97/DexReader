@@ -1,4 +1,4 @@
-import { BrowserWindow, Menu, shell, ipcMain } from 'electron'
+import { BrowserWindow, Menu, ipcMain } from 'electron'
 import icon from '../../resources/icon.png?asset'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -11,6 +11,7 @@ import {
   DEV_CONTENT_SECURITY_POLICY,
   generateCspNonce
 } from './security/csp-nonce'
+import { openExternal } from './utils/shell.util'
 
 // ESM: Get __dirname equivalent
 const __filename = fileURLToPath(import.meta.url)
@@ -27,8 +28,8 @@ export function createWindow(): void {
   mainLog.info('[Window] Creating browser window...')
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    width: 1024,
+    height: 768,
     show: false,
     autoHideMenuBar: false,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -100,9 +101,9 @@ export function createWindow(): void {
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
-    shell
-      .openExternal(details.url)
-      .catch((error) => mainLog.error('[Window] Failed to open external URL:', error))
+    openExternal(details.url).catch((error) =>
+      mainLog.error('[Window] Failed to open external URL:', error)
+    )
     return { action: 'deny' }
   })
 

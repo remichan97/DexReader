@@ -6,6 +6,7 @@ import { useSecureNavigation } from '@renderer/hooks/useSecureNavigation'
 import { Button } from '@renderer/components/Button'
 import { EmptyState } from '@renderer/components/EmptyState'
 import { Skeleton } from '@renderer/components/Skeleton'
+import { ProgressRing } from '@renderer/components/ProgressRing'
 import { DownloadConfirmationDialog } from '@renderer/components/DownloadConfirmationDialog'
 import { BookOpen48Regular } from '@fluentui/react-icons'
 import { getMangaTitle } from '@renderer/utils/mangaHelpers'
@@ -42,6 +43,16 @@ interface ChapterListProps {
   readonly onSortChange: (order: 'asc' | 'desc') => void
   readonly onRetry: () => void
   readonly onToggleErrorDetails: () => void
+  /** False while later pages of a long series are still loading, or after one failed */
+  readonly chaptersComplete: boolean
+  /** How many chapters the API says the series has in this language */
+  readonly chaptersTotal: number
+  /** Which end of the series arrived first, so the missing chapters are at the other end */
+  readonly chaptersLoadedFrom: 'oldest' | 'newest' | undefined
+  /** A later page failed, so the list is partial until retried */
+  readonly chaptersLoadFailed: boolean
+  /** The language the feed is filtered to; undefined when it holds every language */
+  readonly chaptersFilterLanguage: string | undefined
 }
 
 /**
@@ -63,18 +74,55 @@ export default function ChapterList({
   onLanguageChange,
   onSortChange,
   onRetry,
-  onToggleErrorDetails
+  onToggleErrorDetails,
+  chaptersComplete,
+  chaptersTotal,
+  chaptersLoadedFrom,
+  chaptersLoadFailed,
+  chaptersFilterLanguage
 }: ChapterListProps): JSX.Element {
   const navigate = useNavigate()
   const { secureNavigate } = useSecureNavigation()
   const { t } = useTranslation(['mangaDetail', 'common'])
 
   // Use custom hooks for filters and downloads
-  const { availableLanguages, displayChapters } = useChapterFilters({
+  const { availableLanguages, displayChapters, readingOrderChapters } = useChapterFilters({
     manga,
     chapters,
     sortOrder
   })
+
+  // While a long series is still loading, the chapters that haven't arrived belong at one end of
+  // the list: the older ones if the newest came first, the newer ones otherwise. Which edge of the
+  // screen that is depends on the display order.
+  const missingChapters = chaptersLoadedFrom === 'newest' ? 'older' : 'newer'
+  const missingAtBottom = (chaptersLoadedFrom === 'newest') === (sortOrder === 'desc')
+  const showLoadingRow = !loading && !error && !chaptersComplete && displayChapters.length > 0
+
+  const loadingRow = (
+    <div className="chapter-list-loading-more flex items-center gap-3" role="status">
+      {chaptersLoadFailed ? (
+        <>
+          <span>{t('mangaDetail:chapters.loadFailed')}</span>
+          <Button variant="secondary" size="small" onClick={onRetry}>
+            {t('common:button.retry')}
+          </Button>
+        </>
+      ) : (
+        <>
+          <ProgressRing size="small" />
+          <span>
+            {t(
+              missingChapters === 'older'
+                ? 'mangaDetail:chapters.loadingOlder'
+                : 'mangaDetail:chapters.loadingNewer',
+              { loaded: chapters.length, total: chaptersTotal }
+            )}
+          </span>
+        </>
+      )}
+    </div>
+  )
 
   const {
     downloadSettings,
@@ -106,8 +154,11 @@ export default function ChapterList({
         sortOrder={sortOrder}
         onLanguageChange={onLanguageChange}
         onSortChange={onSortChange}
-        onDownloadAllClick={() => handleDownloadAllClick(displayChapters)}
+        // Download all always queues in reading order, oldest first, whatever order is displayed
+        onDownloadAllClick={() => handleDownloadAllClick(readingOrderChapters)}
         downloadAllEnabled={!!downloadSettings}
+        downloadAllWaitingForChapters={!chaptersComplete}
+        totalChapters={chaptersComplete ? undefined : chaptersTotal}
         isOnline={isOnline}
       />
 
@@ -178,6 +229,8 @@ export default function ChapterList({
           />
         )}
 
+        {showLoadingRow && !missingAtBottom && loadingRow}
+
         {/* Chapter list */}
         {!loading &&
           !error &&
@@ -212,7 +265,10 @@ export default function ChapterList({
                       chapterNumber: chapter.chapter,
                       chapterTitle: chapter.title,
                       mangaTitle: manga ? getMangaTitle(manga) : 'Manga',
-                      chapters: chapters, // Pass full chapter list for navigation
+                      chapters: chapters, // Pass the chapter list (oldest first) for navigation
+                      // A list still loading is finished by the reader, in the same language
+                      chaptersComplete,
+                      chapterLanguage: chaptersFilterLanguage,
                       coverUrl: manga ? (manga.coverUrlLarge ?? manga.coverUrl) : undefined,
                       startPage: getResumePage(chapterProg), // Reopen where it was left off
                       ...forwardOrigin(origin)
@@ -222,6 +278,8 @@ export default function ChapterList({
               />
             )
           })}
+
+        {showLoadingRow && missingAtBottom && loadingRow}
       </div>
 
       {/* Download confirmation dialog */}
@@ -247,8 +305,8 @@ export default function ChapterList({
         <DownloadConfirmationDialog
           isOpen={showDownloadAllDialog}
           onClose={() => setShowDownloadAllDialog(false)}
-          onConfirm={(quality) => handleDownloadAll(displayChapters, quality)}
-          chapterCount={displayChapters.length}
+          onConfirm={(quality) => handleDownloadAll(readingOrderChapters, quality)}
+          chapterCount={readingOrderChapters.length}
           chapterTitle=""
           defaultQuality={downloadSettings.defaultQuality}
           downloadsPath={downloadSettings.path}

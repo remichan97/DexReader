@@ -121,6 +121,10 @@ export default defineConfig({
       // Sandboxed preload cannot access node_modules at runtime
       externalizeDeps: false,
       rollupOptions: {
+        input: {
+          changelog: resolve(__dirname, 'src/preload/changelog.ts'),
+          index: resolve(__dirname, 'src/preload/index.ts')
+        },
         output: {
           format: 'cjs', // Preload MUST be CommonJS (Electron sandboxed limitation)
           entryFileNames: '[name].cjs' // Output as .cjs to avoid ESM confusion
@@ -137,6 +141,10 @@ export default defineConfig({
     },
     build: {
       rollupOptions: {
+        input: {
+          changelog: resolve(__dirname, 'src/renderer/changelog.html'),
+          index: resolve(__dirname, 'src/renderer/index.html')
+        },
         output: {
           manualChunks(id) {
             // Split React core (including scheduler) into its own chunk

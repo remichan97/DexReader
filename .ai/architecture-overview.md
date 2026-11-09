@@ -1,7 +1,7 @@
 # DexReader Architecture Overview
 
-**Last Updated**: 3 October 2026
-**Version**: 1.15.0
+**Last Updated**: 9 November 2026
+**Version**: 1.17.0
 **Purpose**: Top-down view of the application - where things are, how they connect, and what they do
 
 > **Companion to**: `system-pattern.md` (architectural patterns & principles), `tech-context.md` (technology stack & versions)
@@ -96,7 +96,7 @@ Routed in `src/renderer/src/router.tsx` (wrapped in `HashRouter` in `App.tsx`):
 - **Manga Components**: `MangaCard`, `MangaStorageList`
 - **Reader Components**: `ReaderSettingsModal`, `ReadingModeSelector`, `ZoomControlsModal`, `ProgressBar`, `ProgressRing`
 - **Search/Filter**: `SearchBar`, `FilterPanel`, `FilterChip`, `PresetSelector`, `SavePresetDialog`
-- **Backup/Import**: `DexReaderExportDialog`, `DexReaderImportDialog`, `ImportProgressDialog`, `ImportResultDialog`
+- **Backup/Import**: `BackupHost` (app-level owner, mounted in `App.tsx`), `DexReaderExportDialog`, `DexReaderImportDialog`, `ImportProgressDialog`, `ImportResultDialog`
 - **Gatekeeper (app lock)**: `GatekeeperChangeModal`, `GatekeeperReauthModal`, `GatekeeperResetPrompt`, `GatekeeperSetupModal`
 - **Shared/Primitives**: `Button`, `Input`, `Checkbox`, `Radio`, `Switch`, `Select`, `NumberSpinner`, `Modal`, `Popover`, `Tabs`, `Tooltip`, `ListItem`, `Badge`
 - **Feedback**: `Toast`, `InfoBar`, `EmptyState`, `ErrorState`, `LoadingState`, `Skeleton`, `ProgressBar`
@@ -168,7 +168,7 @@ The main process is the "brain" of the application - it handles all the heavy li
 
 ##### 2. IPC Handlers (`src/main/ipc/`)
 
-21 handler files registered centrally in `registry.ts`: `app-settings`, `app-update`, `collections`, `database-snapshots`, `dexreader`, `dialogs`, `download`, `download-queue`, `file-systems`, `gatekeeper`, `history`, `library`, `logger`, `mangadex`, `menu`, `mihon`, `progress-tracking`, `reader-settings`, `search-presets`, `shell`, `storage`, `theme` — over 100 channels in total, all wrapped by `wrapIpcHandler` for consistent error handling and validation.
+24 handler files registered centrally in `registry.ts`: `app-settings`, `app-update`, `changelog`, `collections`, `database-snapshots`, `dexreader`, `dialogs`, `download`, `download-queue`, `file-systems`, `gatekeeper`, `history`, `library`, `logger`, `mangadex`, `menu`, `mihon`, `progress-tracking`, `reader-settings`, `search-presets`, `security`, `shell`, `storage`, `theme` — over 100 channels in total, all wrapped by `wrapIpcHandler` for consistent error handling and validation.
 
 ##### 3. Database Layer (`src/main/database/`)
 
@@ -247,10 +247,14 @@ SQLite (`node:sqlite`, built-in — no native deps) with Drizzle ORM for all per
 - `index.ts` composes the menu from `file.menu.ts`, `view.menu.ts`, `library.menu.ts`, `help.menu.ts`
 - `menu-state.ts` tracks UI-dependent menu state (e.g. incognito toggle), synced from renderer via the `menu:update-menu-state` IPC event
 
+##### 10b. Changelog Window (`src/main/changelog-window.ts`, since v1.17.0 work)
+
+A small secondary window (not a route) listing releases beside their notes. It has its own page (`src/renderer/changelog.html`, code in `src/renderer/src/changelog/`) and its own preload (`src/preload/changelog.ts`) exposing only the changelog API. Data comes from `CHANGELOG.md` bundled into the main process (`changelog/changelog-source.ts`) and parsed by `services/changelog/changelog.service.ts`; IPC is `changelog:get` and `changelog:open` (`handlers/changelog.handler.ts`). Opened from Help → What's New and from the post-update banner. See "Secondary windows" in `system-pattern.md`.
+
 ##### 11. Backup/Restore Services (`src/main/services/`)
 
 - `dexreader/` - Native `.dexreader` format export/import
-- `mihon/` - Mihon/Tachiyomi `.tachibk` compatibility export/import
+- `mihon/` - Mihon/Tachiyomi `.tachibk` import (decoder, service) and the deprecated export; see `docs/architecture/backup-import-export.md`
 - `protobuf/schemas/` - Shared protobuf schema definitions
 - `download.service.ts`, `download-queue/` (`batch-writer.ts`, `progress-reporter.ts`, `retry-scheduler.ts`) - Chapter download orchestration
 - `database-snapshot.service.ts` - "Restore Points" snapshot/restore via `node:sqlite`'s Online Backup API

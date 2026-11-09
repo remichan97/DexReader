@@ -15,6 +15,10 @@ interface ChapterListHeaderProps {
   readonly onSortChange: (order: 'asc' | 'desc') => void
   readonly onDownloadAllClick?: () => void
   readonly downloadAllEnabled?: boolean
+  /** True while the rest of a long series is loading: Download all would queue a partial list */
+  readonly downloadAllWaitingForChapters?: boolean
+  /** The series' full chapter count, given only while it is still loading ("500 of 1,240") */
+  readonly totalChapters?: number
   readonly isOnline?: boolean
 }
 
@@ -30,6 +34,8 @@ export function ChapterListHeader({
   onSortChange,
   onDownloadAllClick,
   downloadAllEnabled = true,
+  downloadAllWaitingForChapters = false,
+  totalChapters,
   isOnline = true
 }: ChapterListHeaderProps): JSX.Element {
   const { t } = useTranslation(['mangaDetail', 'common'])
@@ -37,6 +43,11 @@ export function ChapterListHeader({
   const getDownloadButtonTitle = (): string => {
     if (!isOnline) {
       return t('common:message.info.youAreOffline')
+    }
+    if (downloadAllWaitingForChapters) {
+      return t('mangaDetail:chapters.downloadAllLoading', {
+        defaultValue: 'Download all is available once every chapter has loaded'
+      })
     }
     if (!downloadAllEnabled) {
       return t('mangaDetail:chapters.downloadAllUnavailable', {
@@ -52,10 +63,16 @@ export function ChapterListHeader({
   return (
     <div className="chapter-list-header flex justify-between items-center">
       <h2 className="section-title">
-        {t('mangaDetail:chapters.title', {
-          defaultValue: 'Chapters ({{count}})',
-          count: chapterCount
-        })}
+        {totalChapters === undefined
+          ? t('mangaDetail:chapters.title', {
+              defaultValue: 'Chapters ({{count}})',
+              count: chapterCount
+            })
+          : t('mangaDetail:chapters.titlePartial', {
+              defaultValue: 'Chapters ({{loaded}} of {{total}})',
+              loaded: chapterCount,
+              total: totalChapters
+            })}
       </h2>
 
       <div className="chapter-controls flex gap-2">
@@ -65,7 +82,7 @@ export function ChapterListHeader({
             variant="secondary"
             size="medium"
             onClick={onDownloadAllClick}
-            disabled={!downloadAllEnabled || !isOnline}
+            disabled={!downloadAllEnabled || !isOnline || downloadAllWaitingForChapters}
             aria-label={getDownloadButtonTitle()}
             title={getDownloadButtonTitle()}
             icon={<ArrowDownload20Regular />}
