@@ -7,13 +7,26 @@ class ChangelogService {
   private readonly changeLogText: string
   // Regular expression to match the release header in the changelog text, capturing the version and optional date, including yanked
   private readonly RELEASE_HEADER_REGEX =
-    /^## \[(?<version>.+?)\](?: - (?<date>\d{4}-\d{2}-\d{2}))?(?: - \[YANKED\])?$/m
+    /^## \[(?<version>.+?)\](?: - (?<date>\d{4}-\d{2}-\d{2}))?(?: \[YANKED\])?$/m
   // Regular expression to match the changelog section header, capturing the category, e.g., "Added", "Changed"
   private readonly SECTION_HEADER_REGEX = /^### (?<category>.+)$/m
   // Regular expression to match individual changelog items under a section
-  private readonly ITEM_REGEX = /^- (.+)$/gm
+  private readonly ITEM_REGEX = /^- (.+)$/m
   // Regular expression to match possible footer, e.g: [vx.y.x]: url
   private readonly FOOTER_REGEX = /^\[(?<version>.+?)\]: (?<url>.+)$/m
+
+  // A mapping from section header strings to ChangelogCategory enum values, to prevent double checking against the enum each time
+  // TODO: Populate this map dynamically from the ChangelogCategory enum instead of creating a static mapping like this
+  private readonly changelogCategoryMap: Record<string, ChangelogCategory> = {
+    Added: ChangelogCategory.Added,
+    Changed: ChangelogCategory.Changed,
+    Deprecated: ChangelogCategory.Deprecated,
+    Removed: ChangelogCategory.Removed,
+    Fixed: ChangelogCategory.Fixed,
+    Security: ChangelogCategory.Security,
+    Build: ChangelogCategory.Build,
+    Dependencies: ChangelogCategory.Dependencies
+  }
 
   constructor() {
     this.changeLogText = getChangelogSource()
@@ -51,19 +64,21 @@ class ChangelogService {
       if (sec) {
         currentSection = {
           // Set the category of the section based on the matched header, converted to ChangelogCategory
-          category: Object.values(ChangelogCategory).includes(
-            sec.groups?.category as ChangelogCategory
-          )
-            ? (sec.groups?.category as ChangelogCategory)
-            : ChangelogCategory.Unknown,
+          category:
+            this.changelogCategoryMap[sec.groups?.category ?? ''] ?? ChangelogCategory.Unknown,
+          // If the category is Unknown, use the section title if available
+          title: this.changelogCategoryMap[sec.groups?.category ?? '']
+            ? undefined
+            : sec.groups?.category,
           items: []
         }
         currentRelease.sections.push(currentSection)
+        currentSection = undefined
         continue
       }
 
-      // Assume any bullets without heading belong to the current section as items in Change category
-      if (!sec) {
+      // Create an implicit Changed section if a bullet point appears without a preceding section header
+      if (!currentSection) {
         currentSection = {
           category: ChangelogCategory.Changed,
           items: []

@@ -6,5 +6,6 @@ export enum ChangelogCategory {
   Fixed = 'Fixed',
   Security = 'Security',
   Dependencies = 'Dependencies',
+  Build = 'Build',
   Unknown = 'Unknown'
 }
