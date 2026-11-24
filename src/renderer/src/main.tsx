@@ -9,6 +9,7 @@ import App from './App'
 import { globalErrorHandler } from './utils/errorHandler'
 import { rendererLog } from './services/logging.service'
 import './i18n/config' // Import i18n configuration to initialize translations
+import './perf-probe' // PERF PROBE (throwaway)
 
 // Initialize global error handlers
 globalErrorHandler.initialize()

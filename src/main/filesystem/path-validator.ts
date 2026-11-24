@@ -24,7 +24,10 @@ function initializePaths(): IAllowedPath {
     // macOS: ~/.dexreader
     // Linux: ~/.dexreader
     const homeDir = app.getPath('home')
-    const appDataRoot = path.join(homeDir, '.dexreader')
+    // PERF PROBE (throwaway): redirect app data into an isolated folder for measurements
+    const appDataRoot = process.env.DEXREADER_DATA_DIR
+      ? path.join(process.env.DEXREADER_DATA_DIR, 'appdata')
+      : path.join(homeDir, '.dexreader')
     const appLogs = path.join(app.getPath('userData'), 'logs')
     const snapshotDir = path.join(appDataRoot, 'snapshots')
 

@@ -1,3 +1,4 @@
+import './perf/perf-data-dir' // PERF PROBE (throwaway): must stay the first import
 import { LocalImageProxy } from './api/proxy/local-image.proxy'
 import { app } from 'electron'
 import path from 'node:path'
@@ -21,6 +22,11 @@ import i18next from './i18n/i18n.config'
 import { settingsManager } from './settings/settings-manager'
 import { databaseSnapshotService } from './services/database-snapshot.service'
 import { historyRepo } from './database/repositories/history.repo'
+import { initPerfProbe, perfMark, attachPerfHotkeys } from './perf/perf-probe'
+import { instrumentRepos } from './perf/perf-repos'
+
+initPerfProbe()
+instrumentRepos()
 
 const imageProxy = new ImageProxy(new MangaDexClient(undefined, buildUserAgent()))
 const localImageProxy = new LocalImageProxy()
@@ -72,6 +78,7 @@ if (!isHardwareAccelerationEnabled) {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(async () => {
+  perfMark('app-ready')
   mainLog.info('[Main] App ready - Starting initialization')
   mainLog.info(`[Main] Version: ${app.getVersion()}`)
   mainLog.info(`[Main] Electron: ${process.versions.electron}`)
@@ -89,6 +96,7 @@ app.whenReady().then(async () => {
   })
 
   await initFileSystem()
+  perfMark('filesystem-initialised')
 
   mainLog.info('[Main] Initializing database connection...')
   try {
@@ -101,6 +109,7 @@ app.whenReady().then(async () => {
     }
   }
   mainLog.info('[Main] Database connection initialized')
+  perfMark('database-opened')
 
   mainLog.info('[Main] Running database migrations...')
   try {
@@ -111,6 +120,7 @@ app.whenReady().then(async () => {
     return
   }
   mainLog.info('[Main] Database migrations complete')
+  perfMark('migrations-complete')
 
   mainLog.info('[Main] Migrating history from manga progress...')
   try {
@@ -128,14 +138,19 @@ app.whenReady().then(async () => {
   await imageProxy.registerProtocol()
   localImageProxy.registerProtocol()
   mainLog.info('[Main] Protocol handlers registered')
+  perfMark('protocols-registered')
 
   mainLog.info('[Main] Registering IPC handlers...')
   registerAllHandlers(imageProxy)
   mainLog.info('[Main] IPC handlers registered')
+  perfMark('ipc-registered')
 
   mainLog.info('[Main] Creating main window...')
   createWindow()
   mainLog.info('[Main] Main window created')
+  perfMark('window-created')
+  const perfWindow = getMainWindow()
+  if (perfWindow) attachPerfHotkeys(perfWindow)
 
   setupAppLifecycle(imageProxy)
 
